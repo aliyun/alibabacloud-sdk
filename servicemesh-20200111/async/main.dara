@@ -53,12 +53,12 @@ async function addClusterIntoServiceMesh(request: AddClusterIntoServiceMeshReque
 }
 
 model AddVMIntoServiceMeshRequest {
-  ecsId: string(name='EcsId', description='The ID of the VM.', example='i-2ze90ts4e7dj3650****', position='Query'),
-  serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
+  ecsId: string(name='EcsId', description='The ID of the ECS instance.', example='i-2ze90ts4e7dj3650****', position='Query'),
+  serviceMeshId: string(name='ServiceMeshId', description='The ASM instance ID.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
 }
 
 model AddVMIntoServiceMeshResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
 }
 
 model AddVMIntoServiceMeshResponse = {
@@ -152,7 +152,7 @@ async function createIstioGatewayDomains(request: CreateIstioGatewayDomainsReque
 model CreateIstioGatewayRoutesRequest {
   description?: string(name='Description', description='The description of the routing rule.', example='demo route', position='Body'),
   gatewayRoute?: {
-    domains?: [ string ](name='Domains'),
+    domains?: [ string ](name='Domains', description='The requested domain names.'),
     HTTPAdvancedOptions?: {
       delegate?: {
         name?: string(name='Name', description='The name of the virtual service.', example='reviews'),
@@ -176,7 +176,7 @@ model CreateIstioGatewayRoutesRequest {
         authority?: string(name='Authority', description='The value to be used to overwrite the value of the Authority or Host header during redirection.``', example='newratings.default.svc.cluster.local'),
         redirectCode?: int32(name='RedirectCode', description='The HTTP status code to be used to indicate URL redirection. Default value: 301.', example='301'),
         uri?: string(name='Uri', description='The value to be used to overwrite the URL path during redirection.', example='/v1/getProductRatings'),
-      }(name='HTTPRedirect', description='The HTTP redirect rule.'),
+      }(name='HTTPRedirect', description='The HTTP redirection rule.'),
       mirror?: {
         host?: string(name='Host', description='The name of the service defined in the service registry.', example='reviews.default.svc.cluster.local'),
         subset?: string(name='Subset', description='The name of the service subset.', example='v1'),
@@ -185,7 +185,7 @@ model CreateIstioGatewayRoutesRequest {
         value?: float(name='Value', description='The percentage of requests that are mirrored to another destination except for the original destination, which is expressed as a decimal.', example='0.2'),
       }(name='MirrorPercentage', description='The percentage of requests that are mirrored to another destination except for the original destination.'),
       retries?: {
-        attempts?: int32(name='Attempts', description='The number of retries allowed for a request.', example='3'),
+        attempts?: int32(name='Attempts', description='The number of retries that are allowed for a request.', example='3'),
         perTryTimeout?: string(name='PerTryTimeout', description='The timeout period for each retry. Example: `5s`.', example='5s'),
         retryOn?: string(name='RetryOn', description='The condition for retries. Example: `connect-failure,refused-stream,503`.', example='connect-failure,refused-stream,503'),
         retryRemoteLocalities?: {
@@ -231,15 +231,41 @@ Default value: `false`.', example='false'),
 *   `regex`: match by regular expression', example='prefix'),
       }(name='URI', description='The matching rule for URIs.'),
     }(name='MatchRequest', description='The matching rules for traffic routing.'),
-    namespace?: string(name='Namespace', description='The name of the namespace.', example='default'),
-    rawVSRoute?: any(name='RawVSRoute'),
+    namespace?: string(name='Namespace', description='The namespace.', example='default'),
+    rawVSRoute?: any(name='RawVSRoute', description='A JSON string. This parameter corresponds to the three routing types in virtual services and provides configuration entries for advanced features. The value of this parameter overwrites the configurations in RouteName, RouteType, MatchRequest, and HTTPAdvancedOptions.', example='{
+  "http": {
+    "route": [
+      {
+        "destination": {
+          "host": "httpbin"
+        }
+      }
+    ],
+    "name": "httpbin",
+    "match": [
+      {
+        "uri": {
+          "prefix": "/"
+        }
+      }
+    ],
+    "fault": {
+      "delay": {
+        "fixedDelay": "2s",
+        "percentage": {
+          "value": 70
+        }
+      }
+    }
+  }
+}'),
     routeDestinations?: [ 
       {
         destination?: {
           host?: string(name='Host', description='The name of the service defined in the service registry.', example='reviews'),
           port?: {
-            number?: int32(name='Number', example='80'),
-          }(name='Port'),
+            number?: int32(name='Number', description='The port number.', example='80'),
+          }(name='Port', description='The port.'),
           subset?: string(name='Subset', description='The name of the service subset.', example='v1'),
         }(name='Destination', description='The unique endpoint of the destination service to which the specified requests are sent.'),
         weight?: int32(name='Weight', description='The weight of the service subset.', example='80'),
@@ -318,6 +344,7 @@ Default value: mesh-log-{ASM instance ID}.', example='mesh-log-xxxx', position='
 
 Default value: `false`.', example='false', position='Body'),
   chargeType?: string(name='ChargeType', description='The billing method of the SLB instance. Valid values:
+
 *   `PayOnDemand`: pay-as-you-go.
 *   `PrePay`: subscription.', example='PrePay', position='Body'),
   clusterSpec?: string(name='ClusterSpec', description='The edition of the ASM instance. Valid values:
@@ -464,7 +491,7 @@ Default value: `false`.', example='false', position='Body'),
 *   `false`
 
 Default value: `false`.', example='false', position='Body'),
-  period?: int32(name='Period', description='The subscription period of the SLB instance. Unit: month. This parameter is valid only if the ChargeType parameter is set to PrePay. For example, if the subscription period is one year, set this parameter to 12.', example='3', position='Body'),
+  period?: int32(name='Period', description='The auto-renewal period of the SLB instance. This parameter is valid only if `ChargeType` is set to `PrePaid`. The value of this parameter indicates the purchased month of the SLB instance when the subscription billing method is used. For example, if the subscription period is one year, set this parameter to 12.', example='3', position='Body'),
   pilotLoadBalancerSpec?: string(name='PilotLoadBalancerSpec', description='The type of the SLB instance that is bound to Istio Pilot. Valid values: `slb.s1.small`, `slb.s2.small`, `slb.s2.medium`, `slb.s3.small`, `slb.s3.medium`, and `slb.s3.large`.', example='slb.s1.small', position='Body'),
   prometheusUrl?: string(name='PrometheusUrl', description='The endpoint of the custom Prometheus instance.', example='http://prometheus:9090', position='Body'),
   proxyLimitCPU?: string(name='ProxyLimitCPU', description='The maximum number of CPU cores that are available to the proxy container.', example='2000m', position='Body'),
@@ -1327,6 +1354,7 @@ model DescribeNamespaceScopeSidecarConfigRequest {
 model DescribeNamespaceScopeSidecarConfigResponseBody = {
   configPatches?: {
     concurrency?: int32(name='Concurrency', description='The number of worker threads to run in the istio-proxy container.', example='2'),
+    enableCoreDump?: boolean(name='EnableCoreDump'),
     excludeInboundPorts?: string(name='ExcludeInboundPorts', description='The inbound ports to be excluded from redirection to the sidecar proxy in the ASM instance.', example='82'),
     excludeOutboundIPRanges?: string(name='ExcludeOutboundIPRanges', description='The outbound IP ranges in CIDR form to be excluded from redirection to the sidecar proxy in the ASM instance.', example='192.168.1.3/31'),
     excludeOutboundPorts?: string(name='ExcludeOutboundPorts', description='The outbound ports to be excluded from redirection to the sidecar proxy in the ASM instance.', example='81'),
@@ -1347,12 +1375,16 @@ model DescribeNamespaceScopeSidecarConfigResponseBody = {
 *   `false`', example='true'),
     lifecycleStr?: string(name='LifecycleStr', description='The JSON string that describes the lifecycle of the sidecar proxy.', example='{"postStart":{"exec":{"command":["pilot-agent","wait"]}},"preStop":{"exec":{"command":["/bin/sh","-c","sleep 15"]}}}'),
     logLevel?: string(name='LogLevel', description='The log level. Valid values: `info`, `debug`, `trace`, and `error`.', example='info'),
+    privileged?: boolean(name='Privileged'),
     proxyMetadata?: map[string]string(name='ProxyMetadata'),
     proxyStatsMatcher?: {
       inclusionPrefixes?: [ string ](name='InclusionPrefixes', description='The prefixes of the custom Envoy statistics that are reported by the sidecar proxy.'),
       inclusionRegexps?: [ string ](name='InclusionRegexps', description='The regular expressions for specifying the custom Envoy statistics that are reported by the sidecar proxy.'),
       inclusionSuffixes?: [ string ](name='InclusionSuffixes', description='The suffixes of the custom Envoy statistics that are reported by the sidecar proxy.'),
     }(name='ProxyStatsMatcher', description='The custom Envoy statistics that are reported by the sidecar proxy.'),
+    readinessFailureThreshold?: int32(name='ReadinessFailureThreshold'),
+    readinessInitialDelaySeconds?: int32(name='ReadinessInitialDelaySeconds'),
+    readinessPeriodSeconds?: int32(name='ReadinessPeriodSeconds'),
     sidecarProxyAckSloResource?: {
       limits?: map[string]string(name='Limits'),
       requests?: map[string]string(name='Requests'),
@@ -1495,7 +1527,7 @@ model DescribeServiceMeshAdditionalStatusResponseBody = {
 
 *   `true`
 *   `false`', example='false'),
-      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', description='The check result of the number of the backend servers of the SLB instance created for exposing Istio Pilot. Valid values:
+      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', description='The check result of the number of backend servers of the SLB instance created for exposing the API server. Valid values:
 
 *   `too_much`: An excessive number of backend servers are created.
 *   `num_exact`: A proper number of backend servers are created.
@@ -1513,12 +1545,24 @@ model DescribeServiceMeshAdditionalStatusResponseBody = {
 *   `exist`
 *   `not exist`', example='exist'),
     canaryPilotLoadBalancerStatus?: {
-      locked?: boolean(name='Locked', example='false'),
+      locked?: boolean(name='Locked', description='Indicates whether the SLB instance is locked due to overdue payments. Valid values: `true` `false`', example='false'),
       payType?: string(name='PayType', example='PayOnDemand'),
-      reused?: boolean(name='Reused', example='false'),
-      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', example='num_exact'),
-      SLBExistStatus?: string(name='SLBExistStatus', example='exist'),
-    }(name='CanaryPilotLoadBalancerStatus'),
+      reused?: boolean(name='Reused', description='Indicates whether the SLB instance is reused. Valid values:
+
+*   `true`: The SLB instance is reused. Non-ASM listener configuration is detected in the listener configurations of the SLB instance.
+*   `false`: The SLB instance is not reused.', example='false'),
+      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', description='The check result of the number of backend servers of the SLB instance created for exposing Istio Pilot. Valid values:
+
+*   `num_exact`: A proper number of backend servers are created.
+*   `too_much`: An excessive number of backend servers are created.
+*   `too_little`: The number of backend servers falls short.', example='num_exact'),
+      SLBExistStatus?: string(name='SLBExistStatus', description='The check result of the SLB instance. Valid values:
+
+*   `exist`: The SLB instance exists.
+*   `not_exist`: The SLB instance does not exist.
+*   `time_out`: The check times out.
+*   `failed`: The SLB instance has expired.', example='exist'),
+    }(name='CanaryPilotLoadBalancerStatus', description='The check results of the SLB instance that is created for exposing Istio Pilot and used during canary release.'),
     controlPlaneProjectStatus?: string(name='ControlPlaneProjectStatus', description='Indicates whether control plane logs exist. Valid values:
 
 *   `exist`: Control plane logs exist.
@@ -1539,7 +1583,7 @@ model DescribeServiceMeshAdditionalStatusResponseBody = {
 
 *   `true`
 *   `false`', example='true'),
-      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', description='The check result of the number of the backend servers of the SLB instance created for exposing Istio Pilot. Valid values:
+      SLBBackEndServerNumStatus?: string(name='SLBBackEndServerNumStatus', description='The check result of the number of backend servers of the SLB instance created for exposing Istio Pilot. Valid values:
 
 *   `too_much`: An excessive number of backend servers are created.
 *   `num_exact`: A proper number of backend servers are created.
@@ -1552,7 +1596,13 @@ model DescribeServiceMeshAdditionalStatusResponseBody = {
 *   `failed`: The check fails.
 *   `time_out`: The check times out.', example='exist'),
     }(name='PilotLoadBalancerStatus', description='The check results of the SLB instance created for exposing Istio Pilot.'),
-    RAMApplicationStatus?: string(name='RAMApplicationStatus'),
+    RAMApplicationStatus?: string(name='RAMApplicationStatus', description='The status of the RAM OAuth application that is integrated with Mesh Topology. Valid values:
+
+*   `exist`: The RAM OAuth application exists.
+*   `reused`: The RAM OAuth application is reused.
+*   `not_exist`: The RAM OAuth application does not exist.
+*   `failed`: The check fails.
+*   `time_out`: The check times out.', example='reused'),
     sgStatus?: string(name='SgStatus', description='Indicates whether the security group is reused. Valid values:
 
 *   `reused`: The security group is reused.
@@ -1700,6 +1750,7 @@ model DescribeServiceMeshDetailResponseBody = {
 
 *   `true`: The collection of control-plane logs is enabled.
 *   `false`: The collection of control-plane logs is disabled.', example='false'),
+          logTTL?: int32(name='LogTTL'),
           project?: string(name='Project', description='The name of the Log Service project that stores control-plane logs.', example='mesh-log-cbeb85a09161b4a26ab73e0ac****'),
         }(name='ControlPlaneLogInfo', description='The configurations of control-plane log collection.'),
         customizedZipkin?: boolean(name='CustomizedZipkin', description='Indicates whether a custom Zipkin system is used. Valid values:
@@ -1720,7 +1771,9 @@ model DescribeServiceMeshDetailResponseBody = {
         excludeOutboundPorts?: string(name='ExcludeOutboundPorts', description='The outbound ports to be excluded from redirection to sidecar proxies in the ASM instance.', example='80,81'),
         extraConfiguration?: {
           accessLogExtraConf?: {
+            gatewayEnabled?: boolean(name='GatewayEnabled'),
             gatewayLifecycle?: int32(name='GatewayLifecycle', description='The retention period for the access logs of the ingress gateway. Unit: day. The logs are collected by using the Log Service. For example, a value of 30 indicates that the logs are retained for 30 days.', example='30'),
+            sidecarEnabled?: boolean(name='SidecarEnabled'),
             sidecarLifecycle?: int32(name='SidecarLifecycle', description='The retention period for the access logs of sidecar proxies. Unit: day. The logs are collected by using the Log Service. For example, a value of 30 indicates that the logs are retained for 30 days.', example='30'),
           }(name='AccessLogExtraConf', description='The configurations of additional features for access log collection'),
           adaptiveXdsConfiguration?: {
@@ -2133,20 +2186,20 @@ async function describeServiceMeshUpgradeStatus(request: DescribeServiceMeshUpgr
 }
 
 model DescribeServiceMeshVMsRequest {
-  serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ccb37ff104caf419fbf48fb38e6f****', position='Query'),
+  serviceMeshId: string(name='ServiceMeshId', description='The ASM instance ID.', example='ccb37ff104caf419fbf48fb38e6f****', position='Query'),
 }
 
 model DescribeServiceMeshVMsResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
   vMs?: [ 
     {
       hasTag?: boolean(name='HasTag', description='Indicates whether the ECS instance has labels.', example='false'),
-      hostName?: string(name='HostName', description='The hostname of the ECS instance.', example='iZ2ze45cgxkx4q12eh****'),
+      hostName?: string(name='HostName', description='The host name.', example='iZ2ze45cgxkx4q12eh****'),
       instanceId?: string(name='InstanceId', description='The ID of the ECS instance.', example='i-2ze0kub9scdguom****'),
       ipAddress?: string(name='IpAddress', description='The IP address of the ECS instance.', example='192.168.2.241'),
-      region?: string(name='Region', description='The ID of the region.', example='cn-beijing'),
+      region?: string(name='Region', description='The region ID.', example='cn-beijing'),
       securityGroupIds?: string(name='SecurityGroupIds', description='The security group to which the ECS instance belongs.', example='sg-2zeaqy08amco9osl****'),
-      serviceMeshId?: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ccb37ff104caf419fbf48fb38e6f3****'),
+      serviceMeshId?: string(name='ServiceMeshId', description='The ASM instance ID.', example='ccb37ff104caf419fbf48fb38e6f3****'),
       status?: string(name='Status', description='The state of the ECS instance.', example='Running'),
     }
   ](name='VMs', description='The ECS instances that reside in the same VPC as the ASM instance.'),
@@ -2369,20 +2422,20 @@ async function describeUsersWithPermissions(request: DescribeUsersWithPermission
 }
 
 model DescribeVMsInServiceMeshRequest {
-  serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
+  serviceMeshId: string(name='ServiceMeshId', description='The ASM instance ID.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
 }
 
 model DescribeVMsInServiceMeshResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
   vMs?: [ 
     {
-      hasTag?: boolean(name='HasTag', description='Indicates whether the VM has labels.', example='true'),
-      hostName?: string(name='HostName', description='The host name of the VM.', example='iZ2ze45cgxkx4q12eh9l****'),
-      instanceId?: string(name='InstanceId', description='The ID of the VM.', example='i-2ze45cgxkx4q12e****'),
-      ipAddress?: string(name='IpAddress', description='The IP address of the VM.', example='10.0.*,***'),
+      hasTag?: boolean(name='HasTag', description='Indicates whether the ECS instance has labels.', example='true'),
+      hostName?: string(name='HostName', description='The host name.', example='iZ2ze45cgxkx4q12eh9l****'),
+      instanceId?: string(name='InstanceId', description='The ID of the ECS instance.', example='i-2ze45cgxkx4q12e****'),
+      ipAddress?: string(name='IpAddress', description='The IP address of the ECS instance.', example='10.0.*,***'),
       region?: string(name='Region', description='The region ID.', example='cn-beijing'),
-      securityGroupIds?: string(name='SecurityGroupIds', description='The security group to which the VM belongs.', example='sg-2zeaqy08amco9osl****'),
-      status?: string(name='Status', description='The status of the VM.', example='Running'),
+      securityGroupIds?: string(name='SecurityGroupIds', description='The security group to which the ECS instance belongs.', example='sg-2zeaqy08amco9osl****'),
+      status?: string(name='Status', description='The state of the ECS instance.', example='Running'),
     }
   ](name='VMs', description='The VMs that are added to the ASM instance.'),
 }
@@ -2931,12 +2984,12 @@ async function removeClusterFromServiceMesh(request: RemoveClusterFromServiceMes
 }
 
 model RemoveVMFromServiceMeshRequest {
-  ecsId: string(name='EcsId', description='The ID of the VM.', example='i-2ze90ts4edj3650****', position='Query'),
-  serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
+  ecsId: string(name='EcsId', description='The ID of the ECS instance.', example='i-2ze90ts4edj3650****', position='Query'),
+  serviceMeshId: string(name='ServiceMeshId', description='The ASM instance ID.', example='ccb37ff104caf419fbf48fb38e6f3****', position='Query'),
 }
 
 model RemoveVMFromServiceMeshResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4b2c0fe0-6705-4614-8521-6b9d289163c8'),
 }
 
 model RemoveVMFromServiceMeshResponse = {
@@ -3085,6 +3138,27 @@ async function updateASMNamespaceFromGuestCluster(request: UpdateASMNamespaceFro
   return @handler.do('RPC', 'UpdateASMNamespaceFromGuestCluster', 'POST', '/', 'json', true, 'form', request);
 }
 
+model UpdateControlPlaneLogConfigRequest {
+  enabled: boolean(name='Enabled', example='false', position='Body'),
+  logTTLInDay?: int32(name='LogTTLInDay', example='30', minimum=1, maximum=3000, position='Body'),
+  project?: string(name='Project', example='aia-asm-deva-sh', position='Body'),
+  serviceMeshId: string(name='ServiceMeshId', example='c20667db760fe4ee6910220136624****', position='Body'),
+}
+
+model UpdateControlPlaneLogConfigResponseBody = {
+  requestId?: string(name='RequestId', example='488F046B-63D2-5D96-9A70-E00C3685D49F'),
+}
+
+model UpdateControlPlaneLogConfigResponse = {
+  headers: map[string]string(name='headers'),
+  body: UpdateControlPlaneLogConfigResponseBody(name='body'),
+}
+
+async function updateControlPlaneLogConfig(request: UpdateControlPlaneLogConfigRequest): UpdateControlPlaneLogConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateControlPlaneLogConfig', 'POST', '/', 'json', true, 'form', request);
+}
+
 model UpdateIstioGatewayRoutesRequest {
   description?: string(name='Description', description='The description of the routing rule.', example='demo route', position='Body'),
   gatewayRoute?: {
@@ -3212,7 +3286,7 @@ model UpdateIstioInjectionConfigRequest {
   dataPlaneMode?: string(name='DataPlaneMode', position='Body'),
   enableIstioInjection?: boolean(name='EnableIstioInjection', description='Specifies whether to enable Istio automatic sidecar injection.', example='true', position='Body'),
   enableSidecarSetInjection?: boolean(name='EnableSidecarSetInjection', description='Specifies whether to enable automatic sidecar injection by using SidecarSet.', example='false', position='Body'),
-  istioRev?: string(name='IstioRev', position='Body'),
+  istioRev?: string(name='IstioRev', description='Specifies the version to be injected into the namespace. This parameter is valid only when the ASM instance performs a canary release. When IstioRev is not empty, you must not specify EnableIstioInjection and EnableSidecarSetInjection.', example='canary', position='Body'),
   namespace: string(name='Namespace', description='The namespace for which you want to modify the sidecar injection setting.', example='default', position='Body'),
   serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ce2cdbb9d013f447180cf5ca8bb******', position='Body'),
 }
@@ -3302,6 +3376,7 @@ Default value: `false`.', example='false', position='Body'),
 *   `""`: disables access logging.
 *   `/dev/stdout`: enables access logging. Access logs are written to /dev/stdout.', example='“”', position='Body'),
   accessLogFormat?: string(name='AccessLogFormat', description='The custom format of access logs. To set this parameter, make sure that you have enabled access log collection. The value must be a JSON string. The following key names must be contained: authority_for, bytes_received, bytes_sent, downstream_local_address, downstream_remote_address, duration, istio_policy_status, method, path, protocol, requested_server_name, response_code, response_flags, route_name, start_time, trace_id, upstream_cluster, upstream_host, upstream_local_address, upstream_service_time, upstream_transport_failure_reason, user_agent, and x_forwarded_for.', example='{"authority_for":"%REQ(:AUTHORITY)%","bytes_received":"%BYTES_RECEIVED%","bytes_sent":"%BYTES_SENT%","downstream_local_address":"%DOWNSTREAM_LOCAL_ADDRESS%","downstream_remote_address":"%DOWNSTREAM_REMOTE_ADDRESS%","duration":"%DURATION%","istio_policy_status":"%DYNAMIC_METADATA(istio.mixer:status)%","method":"%REQ(:METHOD)%","path":"%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%","protocol":"%PROTOCOL%","request_id":"%REQ(X-REQUEST-ID)%","requested_server_name":"%REQUESTED_SERVER_NAME%","response_code":"%RESPONSE_CODE%","response_flags":"%RESPONSE_FLAGS%","route_name":"%ROUTE_NAME%","start_time":"%START_TIME%","trace_id":"%REQ(X-B3-TRACEID)%","upstream_cluster":"%UPSTREAM_CLUSTER%","upstream_host":"%UPSTREAM_HOST%","upstream_local_address":"%UPSTREAM_LOCAL_ADDRESS%","upstream_service_time":"%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%","upstream_transport_failure_reason":"%UPSTREAM_TRANSPORT_FAILURE_REASON%","user_agent":"%REQ(USER-AGENT)%","x_forwarded_for":"%REQ(X-FORWARDED-FOR)%"}', position='Body'),
+  accessLogGatewayEnabled?: boolean(name='AccessLogGatewayEnabled', position='Query'),
   accessLogGatewayLifecycle?: int32(name='AccessLogGatewayLifecycle', description='The retention period for the access logs of the sidecar proxy. Unit: day. The logs are collected by using Log Service. For example, `30` indicates 30 days.', example='30', position='Body'),
   accessLogProject?: string(name='AccessLogProject', description='The custom project on which the Log Service collects logs.', example='mesh-log-cf245a429b6ff4b6e97f20797758e****', position='Body'),
   accessLogServiceEnabled?: boolean(name='AccessLogServiceEnabled', description='Specifies whether to enable gRPC Access Log Service (ALS) for Envoy. Valid values:
@@ -3312,6 +3387,7 @@ Default value: `false`.', example='false', position='Body'),
 Default value: `false`.', example='false', position='Body'),
   accessLogServiceHost?: string(name='AccessLogServiceHost', description='The endpoint of gRPC ALS for Envoy.', example='0.0.0.0', position='Body'),
   accessLogServicePort?: int32(name='AccessLogServicePort', description='The port of gRPC ALS for Envoy.', example='9999', position='Body'),
+  accessLogSidecarEnabled?: boolean(name='AccessLogSidecarEnabled', position='Query'),
   accessLogSidecarLifecycle?: int32(name='AccessLogSidecarLifecycle', description='Specifies whether to enable automatic diagnostics for the ASM instance. If you enable this feature, the ASM instance is automatically diagnosed when you modify Istio resources in the ASM instance.', example='30', position='Body'),
   auditProject?: string(name='AuditProject', description='The name of the Log Service project that is used for mesh audit.
 
@@ -3360,11 +3436,13 @@ Default value: `false`.', example='false', position='Body'),
 *   `false`: disables the DNS proxy feature.
 
 Default value: `false`.', example='false', position='Body'),
-  defaultComponentsScheduleConfig?: string(name='DefaultComponentsScheduleConfig', description='Specifies the default scheduling configurations that ASM delivers to components on the data plane. You can configure nodeSelector and tolerations in the JSON format. 
+  defaultComponentsScheduleConfig?: string(name='DefaultComponentsScheduleConfig', description='Specifies the default scheduling configurations that ASM delivers to components on the data plane. You can configure `nodeSelector` and `tolerations` in the JSON format.
 
+> 
 
->* Modifying the value of this parameter is a high-risk operation. The modification will cause all components on the data plane of ASM to restart. Exercise caution before modifying the value of this parameter. 
->* The configurations specified by this parameter do not apply to the ASM gateway. You can configure scheduling on the ASM gateway.', example='{"tolerations":[{"key":"test-taints", "operator":"Exists", "effect":"NoSchedule"}], "nodeSelector":{"kubernetes.io/hostname":"test-nodes"}}', position='Body'),
+*   Modifying the value of this parameter is a high-risk operation. The modification will cause all components on the data plane of ASM to restart. Exercise caution before modifying the value of this parameter.
+
+*   The configurations specified by this parameter do not apply to the ASM gateway. You can configure gateway-specific scheduling on the ASM gateway.', example='{"tolerations":[{"key":"test-taints", "operator":"Exists", "effect":"NoSchedule"}], "nodeSelector":{"kubernetes.io/hostname":"test-nodes"}}', position='Body'),
   discoverySelectors?: string(name='DiscoverySelectors', description='The label selectors used to specify the namespaces of the clusters on the data plane for selective service discovery.', example='[{"matchExpressions":[{"key":"asm-discovery","operator":"Exists"}]}]', position='Body'),
   dubboFilterEnabled?: boolean(name='DubboFilterEnabled', description='Specifies whether to enable Dubbo Filter. Valid values:
 
@@ -3430,11 +3508,11 @@ Default value: `false`.', example='false', position='Body'),
 *   `false`: disables the Mesh Topology feature.
 
 Default value: `false`.', example='false', position='Body'),
-  kialiServiceAnnotations?: string(name='KialiServiceAnnotations', description='当开启网格拓扑且为访问网格拓扑创建CLB时，通过此参数使用Annotation配置不同集群中网格拓扑服务的CLB。
+  kialiServiceAnnotations?: string(name='KialiServiceAnnotations', description='Specifies Classic Load Balancer (CLB) instances by using annotations when the Mesh Topology feature is enabled. These CLB instances are used to access the Mesh Topology feature in different clusters.
 
-参数格式为JSON编码的字符串，JSON对象中的键为数据面集群的集群ID，值为数据面集群中网格拓扑服务的Annotation内容。
+This parameter is a JSON-encoded string. The key in the JSON object is the ID of a cluster on the data plane, and the value is the annotation content of the Mesh Topology service in the cluster.
 
-有关如何通过注解配置CLB，参考 [通过Annotation配置传统型负载均衡CLB](https://help.aliyun.com/document_detail/86531.html)。', example='{"c31e3b******5634b":{"service.beta.kubernetes.io/alibaba-cloud-loadbalancer-address-type":"intranet"}}', position='Body'),
+For more information about how to configure CLB instances by using annotations, see [Add annotations to the YAML file of a Service to configure CLB instances](https://www.alibabacloud.com/help/container-service-for-kubernetes/latest/use-annotations-to-configure-load-balancing-1).', example='{"c31e3b******5634b":{"service.beta.kubernetes.io/alibaba-cloud-loadbalancer-address-type":"intranet"}}', position='Body'),
   lifecycle?: string(name='Lifecycle', description='The lifecycle of the sidecar proxy.', example='{"postStart":{"exec":{"command":["pilot-agent","wait"]}},"preStop":{"exec":{"command":["/bin/sh","-c","sleep 15"]}}}', position='Body'),
   localityLBConf?: string(name='LocalityLBConf', description='The configurations of cross-region load balancing. Valid values:
 
@@ -3615,6 +3693,7 @@ async function updateMeshFeature(request: UpdateMeshFeatureRequest): UpdateMeshF
 
 model UpdateNamespaceScopeSidecarConfigRequest {
   concurrency?: int32(name='Concurrency', description='The number of worker threads to run in Istio Proxy.', example='2', position='Body'),
+  enableCoreDump?: boolean(name='EnableCoreDump', position='Body'),
   excludeIPRanges?: string(name='ExcludeIPRanges', description='The range of IP addresses that are allowed to access external services. (`global.proxy.excludelPRanges`)', example='172.16.0.0/12', position='Body'),
   excludeInboundPorts?: string(name='ExcludeInboundPorts', description='The port that the inbound traffic of the sidecar proxy does not pass through.', example='82', position='Body'),
   excludeOutboundPorts?: string(name='ExcludeOutboundPorts', description='The port that the outbound traffic of the sidecar proxy does not pass through.', example='81', position='Body'),
@@ -3628,7 +3707,7 @@ model UpdateNamespaceScopeSidecarConfigRequest {
   interceptionMode?: string(name='InterceptionMode', description='The mode in which the sidecar proxy intercepts inbound traffic. Valid values:
 
 *   `REDIRECT`: The sidecar proxy intercepts inbound traffic in the REDIRECT mode.
-*   `TPROXY`: The sidecar proxy intercepts inbound traffic in the TPROXY mode.', position='Body'),
+*   `TPROXY`: The sidecar proxy intercepts inbound traffic in the TPROXY mode.', example='TPROXY', position='Body'),
   istioDNSProxyEnabled?: boolean(name='IstioDNSProxyEnabled', description='Specifies whether to enable the Domain Name System (DNS) proxy feature. Valid values:
 
 *   `true`: The DNS proxy feature is enabled.
@@ -3638,21 +3717,25 @@ model UpdateNamespaceScopeSidecarConfigRequest {
   namespace?: string(name='Namespace', description='The namespace for which you want to update the sidecar proxy configurations.', example='default', position='Body'),
   postStart?: string(name='PostStart', description='The post-start parameters of Istio Proxy.', example='{"exec":{"command":["pilot-agent","wait"]}}', position='Body'),
   preStop?: string(name='PreStop', description='The pre-close parameters of Istio Proxy.', example='{"exec":{"command":["/bin/sh","-c","sleep 15"]}}', position='Body'),
-  proxyInitAckSloCPUResourceLimit?: string(name='ProxyInitAckSloCPUResourceLimit', position='Body'),
-  proxyInitAckSloCPUResourceRequest?: string(name='ProxyInitAckSloCPUResourceRequest', position='Body'),
-  proxyInitAckSloMemoryResourceLimit?: string(name='ProxyInitAckSloMemoryResourceLimit', position='Body'),
-  proxyInitAckSloMemoryResourceRequest?: string(name='ProxyInitAckSloMemoryResourceRequest', position='Body'),
+  privileged?: boolean(name='Privileged', position='Body'),
+  proxyInitAckSloCPUResourceLimit?: string(name='ProxyInitAckSloCPUResourceLimit', example='2000', position='Body'),
+  proxyInitAckSloCPUResourceRequest?: string(name='ProxyInitAckSloCPUResourceRequest', example='100', position='Body'),
+  proxyInitAckSloMemoryResourceLimit?: string(name='ProxyInitAckSloMemoryResourceLimit', example='2048Mi', position='Body'),
+  proxyInitAckSloMemoryResourceRequest?: string(name='ProxyInitAckSloMemoryResourceRequest', example='128Mi', position='Body'),
   proxyInitCPUResourceLimit?: string(name='ProxyInitCPUResourceLimit', description='The maximum number of CPU cores that are available to the sidecar proxy init container.', example='2000 m', position='Body'),
   proxyInitCPUResourceRequest?: string(name='ProxyInitCPUResourceRequest', description='The minimum number of CPU cores that are requested by the sidecar proxy init container.', example='60 m', position='Body'),
   proxyInitMemoryResourceLimit?: string(name='ProxyInitMemoryResourceLimit', description='The maximum size of memory that is available to the sidecar proxy init container.', example='50 Mi', position='Body'),
   proxyInitMemoryResourceRequest?: string(name='ProxyInitMemoryResourceRequest', description='The minimum size of memory that is requested by the sidecar proxy init container.', example='30 Mi', position='Body'),
-  proxyMetadata?: string(name='ProxyMetadata', position='Body'),
+  proxyMetadata?: string(name='ProxyMetadata', description='The environment variables that are added to a sidecar proxy. The environment variables are represented as JSON objects. The keys and values in the JSON objects represent the keys and values added to the environment variables of the sidecar proxy.', example='{"EXIT_ON_ZERO_ACTIVE_CONNECTIONS":"true"}', position='Body'),
   proxyStatsMatcher?: string(name='ProxyStatsMatcher', description='The monitoring metrics for data collected by Envoy proxies. The value is in the JSON format.', example='{ "inclusionPrefixes": [ "cluster.outbound", "cluster_manager", "listener_manager", "server", "cluster.xds-grpc" ], "inclusionRegexps": [ "listener.*.downstream_cx_total", "listener.*.downstream_cx_active" ] }', position='Body'),
+  readinessFailureThreshold?: int32(name='ReadinessFailureThreshold', position='Body'),
+  readinessInitialDelaySeconds?: int32(name='ReadinessInitialDelaySeconds', position='Body'),
+  readinessPeriodSeconds?: int32(name='ReadinessPeriodSeconds', position='Body'),
   serviceMeshId: string(name='ServiceMeshId', description='The ID of the ASM instance.', example='ca04bc38979214bf2882be79d39b4****', position='Body'),
-  sidecarProxyAckSloCPUResourceLimit?: string(name='SidecarProxyAckSloCPUResourceLimit', position='Body'),
-  sidecarProxyAckSloCPUResourceRequest?: string(name='SidecarProxyAckSloCPUResourceRequest', position='Body'),
-  sidecarProxyAckSloMemoryResourceLimit?: string(name='SidecarProxyAckSloMemoryResourceLimit', position='Body'),
-  sidecarProxyAckSloMemoryResourceRequest?: string(name='SidecarProxyAckSloMemoryResourceRequest', position='Body'),
+  sidecarProxyAckSloCPUResourceLimit?: string(name='SidecarProxyAckSloCPUResourceLimit', example='2000', position='Body'),
+  sidecarProxyAckSloCPUResourceRequest?: string(name='SidecarProxyAckSloCPUResourceRequest', example='100', position='Body'),
+  sidecarProxyAckSloMemoryResourceLimit?: string(name='SidecarProxyAckSloMemoryResourceLimit', example='2048Mi', position='Body'),
+  sidecarProxyAckSloMemoryResourceRequest?: string(name='SidecarProxyAckSloMemoryResourceRequest', example='128Mi', position='Body'),
   sidecarProxyCPUResourceLimit?: string(name='SidecarProxyCPUResourceLimit', description='The maximum number of CPU cores that are available to the sidecar proxy container.', example='2000 m', position='Body'),
   sidecarProxyCPUResourceRequest?: string(name='SidecarProxyCPUResourceRequest', description='The minimum number of CPU cores that are requested by the sidecar proxy container.', example='60 m', position='Body'),
   sidecarProxyMemoryResourceLimit?: string(name='SidecarProxyMemoryResourceLimit', description='The maximum size of memory that is available to the sidecar proxy container.', example='50 Mi', position='Body'),
@@ -3666,7 +3749,7 @@ model UpdateNamespaceScopeSidecarConfigRequest {
 
     *   `literal`: The tag value is a fixed value in the JSON format. This tag must contain the `value` field that specifies a literal. Example: `{"value":"test"}`.
     *   `header`: The tag value is a request header in the JSON format. This tag must contain the `name` field and `defaultValue` field.The name field indicates the name of the request header. The defaultValue field indicates the default value that is used when no request header is available. Example: `{"name":"test","defaultValue":"test"}`.
-    *   `environment`: The tag value is an environment variable in the JSON format. This tag must contain the `name` field and `defaultValue` field. The name field indicates the name of the environment variable. The defaultValue field indicates the environment variable that is used when no environment variable is available. Example: `{"name":"test","defaultValue":"test"}`.', position='Body'),
+    *   `environment`: The tag value is an environment variable in the JSON format. This tag must contain the `name` field and `defaultValue` field. The name field indicates the name of the environment variable. The defaultValue field indicates the environment variable that is used when no environment variable is available. Example: `{"name":"test","defaultValue":"test"}`.', example='{"sampling":99.8,"custom_tags":{"test":{"literal":{"value":"testnamespace"}}}}', position='Body'),
 }
 
 model UpdateNamespaceScopeSidecarConfigResponseBody = {
