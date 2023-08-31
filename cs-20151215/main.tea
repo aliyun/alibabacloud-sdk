@@ -77,6 +77,28 @@ model DataDisk {
   size?: long(name='size', example='40'),
 }
 
+model KubeletConfig {
+  allowedUnsafeSysctls?: [ string ](name='allowedUnsafeSysctls'),
+  containerLogMaxFiles?: long(name='containerLogMaxFiles', example='5'),
+  containerLogMaxSize?: string(name='containerLogMaxSize', example='10Mi'),
+  cpuManagerPolicy?: string(name='cpuManagerPolicy', example='none'),
+  eventBurst?: long(name='eventBurst', example='10'),
+  eventRecordQPS?: long(name='eventRecordQPS', example='5'),
+  evictionHard?: map[string]any(name='evictionHard'),
+  evictionSoft?: map[string]any(name='evictionSoft'),
+  evictionSoftGracePeriod?: map[string]any(name='evictionSoftGracePeriod'),
+  featureGates?: map[string]any(name='featureGates'),
+  kubeAPIBurst?: long(name='kubeAPIBurst', example='10'),
+  kubeAPIQPS?: long(name='kubeAPIQPS', example='5'),
+  kubeReserved?: map[string]any(name='kubeReserved'),
+  maxPods?: long(name='maxPods', example='110'),
+  readOnlyPort?: long(name='readOnlyPort', example='0'),
+  registryBurst?: long(name='registryBurst', example='10'),
+  registryPullQPS?: long(name='registryPullQPS', example='5'),
+  serializeImagePulls?: boolean(name='serializeImagePulls', example='true'),
+  systemReserved?: map[string]any(name='systemReserved'),
+}
+
 model MaintenanceWindow {
   duration?: string(name='duration', example='3h'),
   enable?: boolean(name='enable', example='false'),
@@ -639,6 +661,7 @@ async function createAutoscalingConfig(ClusterId: string, request: CreateAutosca
 }
 
 model CreateClusterRequest {
+  accessControlList?: [ string ](name='access_control_list'),
   addons?: [
     Addon
   ](name='addons'),
@@ -760,6 +783,9 @@ model CreateClusterResponse = {
 async function createClusterWithOptions(request: CreateClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateClusterResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.accessControlList)) {
+    body['access_control_list'] = request.accessControlList;
+  }
   if (!Util.isUnset(request.addons)) {
     body['addons'] = request.addons;
   }
@@ -2615,6 +2641,9 @@ Default value: 1', example='1'),
     }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effect only when `enable=true` is specified.'),
   }(name='management', description='The configurations about the managed node pool feature.'),
   maxNodes?: long(name='max_nodes', description='The maximum number of nodes that are supported by the edge node pool. The value of this parameter must be equal to or greater than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools of the ess type or default edge node pools.', example='10'),
+  nodeConfig?: {
+    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
+  }(name='node_config'),
   nodepoolInfo?: {
     created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
     isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. A Container Service for Kubernetes (ACK) cluster usually has only one default node pool. Valid values:
@@ -2868,6 +2897,9 @@ The number of extra nodes = The percentage of extra nodes × The number of nodes
         }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effect only when `enable=true` is specified.'),
       }(name='management', description='The configurations of managed node pools. Managed node pools are available only in professional managed Kubernetes clusters.'),
       maxNodes?: long(name='max_nodes', example='10'),
+      nodeConfig?: {
+        kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
+      }(name='node_config'),
       nodepoolInfo?: {
         created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
         isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. An ACK cluster usually has only one default node pool. Valid values:
@@ -5403,11 +5435,12 @@ async function migrateCluster(clusterId: string, request: MigrateClusterRequest)
 }
 
 model ModifyClusterRequest {
+  accessControlList?: [ string ](name='access_control_list'),
   apiServerEip?: boolean(name='api_server_eip', example='true'),
   apiServerEipId?: string(name='api_server_eip_id', example='eip-wz9fnasl6dsfhmvci****'),
   deletionProtection?: boolean(name='deletion_protection', example='true'),
   enableRrsa?: boolean(name='enable_rrsa', example='true'),
-  ingressDomainRebinding?: string(name='ingress_domain_rebinding', example='true'),
+  ingressDomainRebinding?: boolean(name='ingress_domain_rebinding', example='true'),
   ingressLoadbalancerId?: string(name='ingress_loadbalancer_id', example='lb-wz97kes8tnndkpodw****'),
   instanceDeletionProtection?: boolean(name='instance_deletion_protection', example='true'),
   maintenanceWindow?: MaintenanceWindow(name='maintenance_window'),
@@ -5429,6 +5462,9 @@ model ModifyClusterResponse = {
 async function modifyClusterWithOptions(ClusterId: string, request: ModifyClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.accessControlList)) {
+    body['access_control_list'] = request.accessControlList;
+  }
   if (!Util.isUnset(request.apiServerEip)) {
     body['api_server_eip'] = request.apiServerEip;
   }
@@ -5776,21 +5812,7 @@ async function modifyClusterTags(ClusterId: string, request: ModifyClusterTagsRe
 }
 
 model ModifyNodePoolNodeConfigRequest {
-  kubeletConfig?: {
-    cpuManagerPolicy?: string(name='cpuManagerPolicy', example='none'),
-    eventBurst?: long(name='eventBurst', example='10'),
-    eventRecordQPS?: long(name='eventRecordQPS', example='5'),
-    evictionHard?: map[string]any(name='evictionHard'),
-    evictionSoft?: map[string]any(name='evictionSoft'),
-    evictionSoftGracePeriod?: map[string]any(name='evictionSoftGracePeriod'),
-    kubeAPIBurst?: long(name='kubeAPIBurst', example='10'),
-    kubeAPIQPS?: long(name='kubeAPIQPS', example='5'),
-    kubeReserved?: map[string]any(name='kubeReserved'),
-    registryBurst?: long(name='registryBurst', example='10'),
-    registryPullQPS?: long(name='registryPullQPS', example='5'),
-    serializeImagePulls?: boolean(name='serializeImagePulls', example='true'),
-    systemReserved?: map[string]any(name='systemReserved'),
-  }(name='kubelet_config'),
+  kubeletConfig?: KubeletConfig(name='kubelet_config'),
   rollingPolicy?: {
     maxParallelism?: long(name='max_parallelism', example='3'),
   }(name='rolling_policy'),
