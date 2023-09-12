@@ -1222,6 +1222,141 @@ async function submitExportDeclarationSheetExtractJobAdvance(request: SubmitExpo
   return submitExportDeclarationSheetExtractJobResp;
 }
 
+model SubmitGeneralContractExtractJobRequest {
+  fileName?: string(name='FileName'),
+  fileNameExtension?: string(name='FileNameExtension', example='pdf'),
+  fileUrl?: string(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model SubmitGeneralContractExtractJobAdvanceRequest {
+  fileName?: string(name='FileName'),
+  fileNameExtension?: string(name='FileNameExtension', example='pdf'),
+  fileUrlObject?: readable(name='FileUrl', example='https://gw.alipayobjects.com/os/basement_prod/598b9edf-5287-4065-9e36-464305c60698.pdf'),
+}
+
+model SubmitGeneralContractExtractJobResponseBody = {
+  code?: string(name='Code', example='noPermission'),
+  data?: {
+    id?: string(name='Id', example='docmind-20220816-15bc7965'),
+  }(name='Data'),
+  message?: string(name='Message', example='You are not authorized to perform this operation.'),
+  requestId?: string(name='RequestId', example='43A29C77-405E-4CC0-BC55-EE694AD00655'),
+}
+
+model SubmitGeneralContractExtractJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: SubmitGeneralContractExtractJobResponseBody(name='body'),
+}
+
+async function submitGeneralContractExtractJobWithOptions(request: SubmitGeneralContractExtractJobRequest, runtime: Util.RuntimeOptions): SubmitGeneralContractExtractJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.fileNameExtension)) {
+    query['FileNameExtension'] = request.fileNameExtension;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SubmitGeneralContractExtractJob',
+    version = '2022-07-29',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function submitGeneralContractExtractJob(request: SubmitGeneralContractExtractJobRequest): SubmitGeneralContractExtractJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return submitGeneralContractExtractJobWithOptions(request, runtime);
+}
+
+async function submitGeneralContractExtractJobAdvance(request: SubmitGeneralContractExtractJobAdvanceRequest, runtime: Util.RuntimeOptions): SubmitGeneralContractExtractJobResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'docmind-api',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var submitGeneralContractExtractJobReq = new SubmitGeneralContractExtractJobRequest{};
+  OpenApiUtil.convert(request, submitGeneralContractExtractJobReq);
+
+  if(!Util.isUnset(request.fileUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    submitGeneralContractExtractJobReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var submitGeneralContractExtractJobResp = submitGeneralContractExtractJobWithOptions(submitGeneralContractExtractJobReq, runtime);
+  return submitGeneralContractExtractJobResp;
+}
+
 model SubmitImportDeclarationSheetExtractJobRequest {
   fileName?: string(name='FileName', example='example.pdf'),
   fileNameExtension?: string(name='FileNameExtension', example='pdf'),
