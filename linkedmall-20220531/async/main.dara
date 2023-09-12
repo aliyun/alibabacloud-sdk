@@ -1,16 +1,26 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'linkedmall';
+  @version = '2022-05-31';
   @endpointRule = 'regional';
   @endpointMap = {
     cn-hangzhou = 'linkedmall.aliyuncs.com',
@@ -68,29 +78,20 @@ init(config: OpenApi.Config){
     us-east-1 = 'linkedmall.aliyuncs.com',
     us-west-1 = 'linkedmall.aliyuncs.com',
   };
-
-  checkConfig(config);
-  @endpoint = getEndpoint('linkedmall', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model ApplyCreateDistributionOrderRequest {
-  buyerId?: string(name='BuyerId', example='u***01'),
-  deliveryAddress?: string(name='DeliveryAddress'),
-  distributionOutTradeId?: string(name='DistributionOutTradeId', example='789***3323'),
-  distributionSupplierId?: string(name='DistributionSupplierId'),
-  distributorId?: string(name='DistributorId'),
-  extInfo?: string(name='ExtInfo'),
+  regionId?: string(name='RegionId', position='Host'),
+  buyerId?: string(name='BuyerId', example='u***01', position='Body'),
+  deliveryAddress?: string(name='DeliveryAddress', position='Body'),
+  distributionOutTradeId?: string(name='DistributionOutTradeId', example='789***3323', position='Body'),
+  distributionSupplierId?: string(name='DistributionSupplierId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  extInfo?: string(name='ExtInfo', position='Body'),
   itemInfoLists?: [ 
     {
       distributionMallId?: string(name='DistributionMallId'),
@@ -99,19 +100,8 @@ model ApplyCreateDistributionOrderRequest {
       quantity?: int32(name='Quantity', example='1'),
       skuId?: string(name='SkuId', description='SKU'),
     }
-  ](name='ItemInfoLists'),
-  tenantId?: string(name='TenantId', example='12***29'),
-}
-
-model ApplyCreateDistributionOrderShrinkRequest {
-  buyerId?: string(name='BuyerId', example='u***01'),
-  deliveryAddress?: string(name='DeliveryAddress'),
-  distributionOutTradeId?: string(name='DistributionOutTradeId', example='789***3323'),
-  distributionSupplierId?: string(name='DistributionSupplierId'),
-  distributorId?: string(name='DistributorId'),
-  extInfo?: string(name='ExtInfo'),
-  itemInfoListsShrink?: string(name='ItemInfoLists'),
-  tenantId?: string(name='TenantId', example='12***29'),
+  ](name='ItemInfoLists', shrink='json', position='Body'),
+  tenantId?: string(name='TenantId', example='12***29', position='Body'),
 }
 
 model ApplyCreateDistributionOrderResponseBody = {
@@ -134,89 +124,28 @@ model ApplyCreateDistributionOrderResponse = {
   body: ApplyCreateDistributionOrderResponseBody(name='body'),
 }
 
-async function applyCreateDistributionOrderWithOptions(tmpReq: ApplyCreateDistributionOrderRequest, runtime: Util.RuntimeOptions): ApplyCreateDistributionOrderResponse {
-  Util.validateModel(tmpReq);
-  var request = new ApplyCreateDistributionOrderShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.itemInfoLists)) {
-    request.itemInfoListsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.itemInfoLists, 'ItemInfoLists', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.buyerId)) {
-    body['BuyerId'] = request.buyerId;
-  }
-  if (!Util.isUnset(request.deliveryAddress)) {
-    body['DeliveryAddress'] = request.deliveryAddress;
-  }
-  if (!Util.isUnset(request.distributionOutTradeId)) {
-    body['DistributionOutTradeId'] = request.distributionOutTradeId;
-  }
-  if (!Util.isUnset(request.distributionSupplierId)) {
-    body['DistributionSupplierId'] = request.distributionSupplierId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.extInfo)) {
-    body['ExtInfo'] = request.extInfo;
-  }
-  if (!Util.isUnset(request.itemInfoListsShrink)) {
-    body['ItemInfoLists'] = request.itemInfoListsShrink;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ApplyCreateDistributionOrder',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function applyCreateDistributionOrder(request: ApplyCreateDistributionOrderRequest): ApplyCreateDistributionOrderResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return applyCreateDistributionOrderWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ApplyCreateDistributionOrder', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ApplyRefund4DistributionRequest {
-  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325'),
-  applyRefundCount?: int32(name='ApplyRefundCount', example='1'),
-  applyRefundFee?: long(name='ApplyRefundFee', example='790'),
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  distributorId?: string(name='DistributorId'),
-  goodsStatus?: int32(name='GoodsStatus', example='1'),
-  leaveMessage?: string(name='LeaveMessage'),
+  regionId?: string(name='RegionId', position='Host'),
+  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325', position='Body'),
+  applyRefundCount?: int32(name='ApplyRefundCount', example='1', position='Body'),
+  applyRefundFee?: long(name='ApplyRefundFee', example='790', position='Body'),
+  bizClaimType?: int32(name='BizClaimType', example='1', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  goodsStatus?: int32(name='GoodsStatus', example='1', position='Body'),
+  leaveMessage?: string(name='LeaveMessage', position='Body'),
   leavePictureLists?: [ 
     {
       desc?: string(name='Desc', example='https://lm-dk.oss-cn-hangzhou.aliyuncs.com/16************.png'),
       picture?: string(name='Picture', example='https://cdn.xiaoxiangyoupin.com/prod/upload/h5-common/1080x2400_1646215747773********.jpg'),
     }
-  ](name='LeavePictureLists'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
-}
-
-model ApplyRefund4DistributionShrinkRequest {
-  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325'),
-  applyRefundCount?: int32(name='ApplyRefundCount', example='1'),
-  applyRefundFee?: long(name='ApplyRefundFee', example='790'),
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  distributorId?: string(name='DistributorId'),
-  goodsStatus?: int32(name='GoodsStatus', example='1'),
-  leaveMessage?: string(name='LeaveMessage'),
-  leavePictureListsShrink?: string(name='LeavePictureLists'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  ](name='LeavePictureLists', shrink='json', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model ApplyRefund4DistributionResponseBody = {
@@ -244,70 +173,16 @@ model ApplyRefund4DistributionResponse = {
   body: ApplyRefund4DistributionResponseBody(name='body'),
 }
 
-async function applyRefund4DistributionWithOptions(tmpReq: ApplyRefund4DistributionRequest, runtime: Util.RuntimeOptions): ApplyRefund4DistributionResponse {
-  Util.validateModel(tmpReq);
-  var request = new ApplyRefund4DistributionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.leavePictureLists)) {
-    request.leavePictureListsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.leavePictureLists, 'LeavePictureLists', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.applyReasonTextId)) {
-    body['ApplyReasonTextId'] = request.applyReasonTextId;
-  }
-  if (!Util.isUnset(request.applyRefundCount)) {
-    body['ApplyRefundCount'] = request.applyRefundCount;
-  }
-  if (!Util.isUnset(request.applyRefundFee)) {
-    body['ApplyRefundFee'] = request.applyRefundFee;
-  }
-  if (!Util.isUnset(request.bizClaimType)) {
-    body['BizClaimType'] = request.bizClaimType;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.goodsStatus)) {
-    body['GoodsStatus'] = request.goodsStatus;
-  }
-  if (!Util.isUnset(request.leaveMessage)) {
-    body['LeaveMessage'] = request.leaveMessage;
-  }
-  if (!Util.isUnset(request.leavePictureListsShrink)) {
-    body['LeavePictureLists'] = request.leavePictureListsShrink;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ApplyRefund4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function applyRefund4Distribution(request: ApplyRefund4DistributionRequest): ApplyRefund4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return applyRefund4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ApplyRefund4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CancelDistributionTradeRequest {
-  distributionTradeId?: string(name='DistributionTradeId', example='15303515*******'),
-  distributorId?: string(name='DistributorId', example='1'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionTradeId?: string(name='DistributionTradeId', example='15303515*******', position='Body'),
+  distributorId?: string(name='DistributorId', example='1', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model CancelDistributionTradeResponseBody = {
@@ -329,45 +204,17 @@ model CancelDistributionTradeResponse = {
   body: CancelDistributionTradeResponseBody(name='body'),
 }
 
-async function cancelDistributionTradeWithOptions(request: CancelDistributionTradeRequest, runtime: Util.RuntimeOptions): CancelDistributionTradeResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionTradeId)) {
-    body['DistributionTradeId'] = request.distributionTradeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CancelDistributionTrade',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function cancelDistributionTrade(request: CancelDistributionTradeRequest): CancelDistributionTradeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return cancelDistributionTradeWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CancelDistributionTrade', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CancelRefund4DistributionRequest {
-  disputeId?: long(name='DisputeId', example='14244******33071'),
-  distributorId?: string(name='DistributorId'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  disputeId?: long(name='DisputeId', example='14244******33071', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model CancelRefund4DistributionResponseBody = {
@@ -395,48 +242,17 @@ model CancelRefund4DistributionResponse = {
   body: CancelRefund4DistributionResponseBody(name='body'),
 }
 
-async function cancelRefund4DistributionWithOptions(request: CancelRefund4DistributionRequest, runtime: Util.RuntimeOptions): CancelRefund4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.disputeId)) {
-    body['DisputeId'] = request.disputeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CancelRefund4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function cancelRefund4Distribution(request: CancelRefund4DistributionRequest): CancelRefund4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return cancelRefund4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CancelRefund4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ConfirmDisburse4DistributionRequest {
-  distributionTradeId?: string(name='DistributionTradeId'),
-  distributorId?: string(name='DistributorId'),
-  mainDistributionOrderId?: string(name='MainDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionTradeId?: string(name='DistributionTradeId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  mainDistributionOrderId?: string(name='MainDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model ConfirmDisburse4DistributionResponseBody = {
@@ -458,49 +274,18 @@ model ConfirmDisburse4DistributionResponse = {
   body: ConfirmDisburse4DistributionResponseBody(name='body'),
 }
 
-async function confirmDisburse4DistributionWithOptions(request: ConfirmDisburse4DistributionRequest, runtime: Util.RuntimeOptions): ConfirmDisburse4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionTradeId)) {
-    body['DistributionTradeId'] = request.distributionTradeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.mainDistributionOrderId)) {
-    body['MainDistributionOrderId'] = request.mainDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ConfirmDisburse4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function confirmDisburse4Distribution(request: ConfirmDisburse4DistributionRequest): ConfirmDisburse4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return confirmDisburse4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ConfirmDisburse4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model InitApplyRefund4DistributionRequest {
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  distributorId?: string(name='DistributorId'),
-  goodsStatus?: int32(name='GoodsStatus', example='1'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  bizClaimType?: int32(name='BizClaimType', example='1', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  goodsStatus?: int32(name='GoodsStatus', example='1', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model InitApplyRefund4DistributionResponseBody = {
@@ -539,52 +324,18 @@ model InitApplyRefund4DistributionResponse = {
   body: InitApplyRefund4DistributionResponseBody(name='body'),
 }
 
-async function initApplyRefund4DistributionWithOptions(request: InitApplyRefund4DistributionRequest, runtime: Util.RuntimeOptions): InitApplyRefund4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.bizClaimType)) {
-    body['BizClaimType'] = request.bizClaimType;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.goodsStatus)) {
-    body['GoodsStatus'] = request.goodsStatus;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'InitApplyRefund4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function initApplyRefund4Distribution(request: InitApplyRefund4DistributionRequest): InitApplyRefund4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return initApplyRefund4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'InitApplyRefund4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model InitModifyRefund4DistributionRequest {
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  disputeId?: long(name='DisputeId', example='14244******33071'),
-  distributorId?: string(name='DistributorId'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  bizClaimType?: int32(name='BizClaimType', example='1', position='Body'),
+  disputeId?: long(name='DisputeId', example='14244******33071', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model InitModifyRefund4DistributionResponseBody = {
@@ -623,54 +374,20 @@ model InitModifyRefund4DistributionResponse = {
   body: InitModifyRefund4DistributionResponseBody(name='body'),
 }
 
-async function initModifyRefund4DistributionWithOptions(request: InitModifyRefund4DistributionRequest, runtime: Util.RuntimeOptions): InitModifyRefund4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.bizClaimType)) {
-    body['BizClaimType'] = request.bizClaimType;
-  }
-  if (!Util.isUnset(request.disputeId)) {
-    body['DisputeId'] = request.disputeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'InitModifyRefund4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function initModifyRefund4Distribution(request: InitModifyRefund4DistributionRequest): InitModifyRefund4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return initModifyRefund4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'InitModifyRefund4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListDistributionItemRequest {
-  distributionMallId?: string(name='DistributionMallId'),
-  distributorId?: string(name='DistributorId'),
-  itemStatus?: int32(name='ItemStatus'),
-  lmItemId?: string(name='LmItemId'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  itemStatus?: int32(name='ItemStatus', position='Body'),
+  lmItemId?: string(name='LmItemId', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', example='20', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model ListDistributionItemResponseBody = {
@@ -781,60 +498,20 @@ model ListDistributionItemResponse = {
   body: ListDistributionItemResponseBody(name='body'),
 }
 
-async function listDistributionItemWithOptions(request: ListDistributionItemRequest, runtime: Util.RuntimeOptions): ListDistributionItemResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.itemStatus)) {
-    body['ItemStatus'] = request.itemStatus;
-  }
-  if (!Util.isUnset(request.lmItemId)) {
-    body['LmItemId'] = request.lmItemId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDistributionItem',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listDistributionItem(request: ListDistributionItemRequest): ListDistributionItemResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listDistributionItemWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListDistributionItem', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListDistributionItemWithoutCacheRequest {
-  distributionMallId?: string(name='DistributionMallId', example='19e690e*****07a29c8'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  itemStatus?: int32(name='ItemStatus', example='1'),
-  lmItemId?: string(name='LmItemId', example='10000***-6193664*****'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  tenantId?: string(name='TenantId', example='7521****8332932'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', example='19e690e*****07a29c8', position='Body'),
+  distributorId?: string(name='DistributorId', example='75547******9212928', position='Body'),
+  itemStatus?: int32(name='ItemStatus', example='1', position='Body'),
+  lmItemId?: string(name='LmItemId', example='10000***-6193664*****', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', example='20', position='Body'),
+  tenantId?: string(name='TenantId', example='7521****8332932', position='Body'),
 }
 
 model ListDistributionItemWithoutCacheResponseBody = {
@@ -935,62 +612,22 @@ model ListDistributionItemWithoutCacheResponse = {
   body: ListDistributionItemWithoutCacheResponseBody(name='body'),
 }
 
-async function listDistributionItemWithoutCacheWithOptions(request: ListDistributionItemWithoutCacheRequest, runtime: Util.RuntimeOptions): ListDistributionItemWithoutCacheResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.itemStatus)) {
-    body['ItemStatus'] = request.itemStatus;
-  }
-  if (!Util.isUnset(request.lmItemId)) {
-    body['LmItemId'] = request.lmItemId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDistributionItemWithoutCache',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listDistributionItemWithoutCache(request: ListDistributionItemWithoutCacheRequest): ListDistributionItemWithoutCacheResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listDistributionItemWithoutCacheWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListDistributionItemWithoutCache', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListDistributionMallRequest {
-  channelSupplierId?: string(name='ChannelSupplierId', example='113428528'),
-  distributionMallId?: string(name='DistributionMallId'),
-  distributionMallName?: string(name='DistributionMallName'),
-  distributorId?: string(name='DistributorId'),
-  endDate?: string(name='EndDate', example='2021-10-26 10:29:13'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  startDate?: string(name='StartDate', example='2021-10-24 15:29:38'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  channelSupplierId?: string(name='ChannelSupplierId', example='113428528', position='Body'),
+  distributionMallId?: string(name='DistributionMallId', position='Body'),
+  distributionMallName?: string(name='DistributionMallName', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  endDate?: string(name='EndDate', example='2021-10-26 10:29:13', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', example='20', position='Body'),
+  startDate?: string(name='StartDate', example='2021-10-24 15:29:38', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model ListDistributionMallResponseBody = {
@@ -1023,89 +660,29 @@ model ListDistributionMallResponse = {
   body: ListDistributionMallResponseBody(name='body'),
 }
 
-async function listDistributionMallWithOptions(request: ListDistributionMallRequest, runtime: Util.RuntimeOptions): ListDistributionMallResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.channelSupplierId)) {
-    body['ChannelSupplierId'] = request.channelSupplierId;
-  }
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributionMallName)) {
-    body['DistributionMallName'] = request.distributionMallName;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.endDate)) {
-    body['EndDate'] = request.endDate;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.startDate)) {
-    body['StartDate'] = request.startDate;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListDistributionMall',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listDistributionMall(request: ListDistributionMallRequest): ListDistributionMallResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listDistributionMallWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListDistributionMall', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ModifyRefund4DistributionRequest {
-  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325'),
-  applyRefundCount?: int32(name='ApplyRefundCount', example='1'),
-  applyRefundFee?: long(name='ApplyRefundFee', example='790'),
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  disputeId?: long(name='DisputeId', example='14244******33071'),
-  distributorId?: string(name='DistributorId', example='1'),
-  goodsStatus?: int32(name='GoodsStatus', example='1'),
-  leaveMessage?: string(name='LeaveMessage'),
+  regionId?: string(name='RegionId', position='Host'),
+  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325', position='Body'),
+  applyRefundCount?: int32(name='ApplyRefundCount', example='1', position='Body'),
+  applyRefundFee?: long(name='ApplyRefundFee', example='790', position='Body'),
+  bizClaimType?: int32(name='BizClaimType', example='1', position='Body'),
+  disputeId?: long(name='DisputeId', example='14244******33071', position='Body'),
+  distributorId?: string(name='DistributorId', example='1', position='Body'),
+  goodsStatus?: int32(name='GoodsStatus', example='1', position='Body'),
+  leaveMessage?: string(name='LeaveMessage', position='Body'),
   leavePictureLists?: [ 
     {
       desc?: string(name='Desc', example='https://lm-dk.oss-cn-hangzhou.aliyuncs.com/1635734*******.png'),
       picture?: string(name='Picture', example='http://oss-cn-beijing.aliyuncs.com/orderReturn/163767*****.jpg'),
     }
-  ](name='LeavePictureLists'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId', example='1530*********'),
-  tenantId?: string(name='TenantId'),
-}
-
-model ModifyRefund4DistributionShrinkRequest {
-  applyReasonTextId?: long(name='ApplyReasonTextId', example='500325'),
-  applyRefundCount?: int32(name='ApplyRefundCount', example='1'),
-  applyRefundFee?: long(name='ApplyRefundFee', example='790'),
-  bizClaimType?: int32(name='BizClaimType', example='1'),
-  disputeId?: long(name='DisputeId', example='14244******33071'),
-  distributorId?: string(name='DistributorId', example='1'),
-  goodsStatus?: int32(name='GoodsStatus', example='1'),
-  leaveMessage?: string(name='LeaveMessage'),
-  leavePictureListsShrink?: string(name='LeavePictureLists'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId', example='1530*********'),
-  tenantId?: string(name='TenantId'),
+  ](name='LeavePictureLists', shrink='json', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', example='1530*********', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model ModifyRefund4DistributionResponseBody = {
@@ -1133,73 +710,16 @@ model ModifyRefund4DistributionResponse = {
   body: ModifyRefund4DistributionResponseBody(name='body'),
 }
 
-async function modifyRefund4DistributionWithOptions(tmpReq: ModifyRefund4DistributionRequest, runtime: Util.RuntimeOptions): ModifyRefund4DistributionResponse {
-  Util.validateModel(tmpReq);
-  var request = new ModifyRefund4DistributionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.leavePictureLists)) {
-    request.leavePictureListsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.leavePictureLists, 'LeavePictureLists', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.applyReasonTextId)) {
-    body['ApplyReasonTextId'] = request.applyReasonTextId;
-  }
-  if (!Util.isUnset(request.applyRefundCount)) {
-    body['ApplyRefundCount'] = request.applyRefundCount;
-  }
-  if (!Util.isUnset(request.applyRefundFee)) {
-    body['ApplyRefundFee'] = request.applyRefundFee;
-  }
-  if (!Util.isUnset(request.bizClaimType)) {
-    body['BizClaimType'] = request.bizClaimType;
-  }
-  if (!Util.isUnset(request.disputeId)) {
-    body['DisputeId'] = request.disputeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.goodsStatus)) {
-    body['GoodsStatus'] = request.goodsStatus;
-  }
-  if (!Util.isUnset(request.leaveMessage)) {
-    body['LeaveMessage'] = request.leaveMessage;
-  }
-  if (!Util.isUnset(request.leavePictureListsShrink)) {
-    body['LeavePictureLists'] = request.leavePictureListsShrink;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ModifyRefund4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function modifyRefund4Distribution(request: ModifyRefund4DistributionRequest): ModifyRefund4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return modifyRefund4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyRefund4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryChildDivisionCodeByIdRequest {
-  distributorId?: string(name='DistributorId'),
-  divisionCode?: string(name='DivisionCode'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  divisionCode?: string(name='DivisionCode', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryChildDivisionCodeByIdResponseBody = {
@@ -1232,50 +752,22 @@ model QueryChildDivisionCodeByIdResponse = {
   body: QueryChildDivisionCodeByIdResponseBody(name='body'),
 }
 
-async function queryChildDivisionCodeByIdWithOptions(request: QueryChildDivisionCodeByIdRequest, runtime: Util.RuntimeOptions): QueryChildDivisionCodeByIdResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.divisionCode)) {
-    body['DivisionCode'] = request.divisionCode;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryChildDivisionCodeById',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryChildDivisionCodeById(request: QueryChildDivisionCodeByIdRequest): QueryChildDivisionCodeByIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryChildDivisionCodeByIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryChildDivisionCodeById', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryDistributionBillDetailRequest {
-  billId?: string(name='BillId', example='10000007371****'),
-  billPeriod?: string(name='BillPeriod', example='2022-11'),
-  billStatus?: string(name='BillStatus'),
-  distributionMallId?: string(name='DistributionMallId', example='122889******114694'),
-  distributionMallName?: string(name='DistributionMallName'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  tenantId?: string(name='TenantId', example='18******263'),
+  regionId?: string(name='RegionId', position='Host'),
+  billId?: string(name='BillId', example='10000007371****', position='Body'),
+  billPeriod?: string(name='BillPeriod', example='2022-11', position='Body'),
+  billStatus?: string(name='BillStatus', position='Body'),
+  distributionMallId?: string(name='DistributionMallId', example='122889******114694', position='Body'),
+  distributionMallName?: string(name='DistributionMallName', position='Body'),
+  distributorId?: string(name='DistributorId', example='75547******9212928', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', example='20', position='Body'),
+  tenantId?: string(name='TenantId', example='18******263', position='Body'),
 }
 
 model QueryDistributionBillDetailResponseBody = {
@@ -1300,61 +792,15 @@ model QueryDistributionBillDetailResponse = {
   body: QueryDistributionBillDetailResponseBody(name='body'),
 }
 
-async function queryDistributionBillDetailWithOptions(request: QueryDistributionBillDetailRequest, runtime: Util.RuntimeOptions): QueryDistributionBillDetailResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.billId)) {
-    body['BillId'] = request.billId;
-  }
-  if (!Util.isUnset(request.billPeriod)) {
-    body['BillPeriod'] = request.billPeriod;
-  }
-  if (!Util.isUnset(request.billStatus)) {
-    body['BillStatus'] = request.billStatus;
-  }
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributionMallName)) {
-    body['DistributionMallName'] = request.distributionMallName;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryDistributionBillDetail',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryDistributionBillDetail(request: QueryDistributionBillDetailRequest): QueryDistributionBillDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDistributionBillDetailWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryDistributionBillDetail', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryDistributionMallRequest {
-  distributionMallId?: string(name='DistributionMallId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryDistributionMallResponseBody = {
@@ -1387,42 +833,17 @@ model QueryDistributionMallResponse = {
   body: QueryDistributionMallResponseBody(name='body'),
 }
 
-async function queryDistributionMallWithOptions(request: QueryDistributionMallRequest, runtime: Util.RuntimeOptions): QueryDistributionMallResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryDistributionMall',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryDistributionMall(request: QueryDistributionMallRequest): QueryDistributionMallResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDistributionMallWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryDistributionMall', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryDistributionTradeStatusRequest {
-  distributionSupplierId?: string(name='DistributionSupplierId'),
-  distributionTradeId?: string(name='DistributionTradeId'),
-  distributorId?: string(name='DistributorId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionSupplierId?: string(name='DistributionSupplierId', position='Body'),
+  distributionTradeId?: string(name='DistributionTradeId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryDistributionTradeStatusResponseBody = {
@@ -1445,48 +866,17 @@ model QueryDistributionTradeStatusResponse = {
   body: QueryDistributionTradeStatusResponseBody(name='body'),
 }
 
-async function queryDistributionTradeStatusWithOptions(request: QueryDistributionTradeStatusRequest, runtime: Util.RuntimeOptions): QueryDistributionTradeStatusResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionSupplierId)) {
-    body['DistributionSupplierId'] = request.distributionSupplierId;
-  }
-  if (!Util.isUnset(request.distributionTradeId)) {
-    body['DistributionTradeId'] = request.distributionTradeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryDistributionTradeStatus',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryDistributionTradeStatus(request: QueryDistributionTradeStatusRequest): QueryDistributionTradeStatusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryDistributionTradeStatusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryDistributionTradeStatus', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryItemDetailRequest {
-  distributionMallId?: string(name='DistributionMallId'),
-  distributorId?: string(name='DistributorId'),
-  lmItemId?: string(name='LmItemId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  lmItemId?: string(name='LmItemId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryItemDetailResponseBody = {
@@ -1583,49 +973,18 @@ model QueryItemDetailResponse = {
   body: QueryItemDetailResponseBody(name='body'),
 }
 
-async function queryItemDetailWithOptions(request: QueryItemDetailRequest, runtime: Util.RuntimeOptions): QueryItemDetailResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.lmItemId)) {
-    body['LmItemId'] = request.lmItemId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryItemDetail',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryItemDetail(request: QueryItemDetailRequest): QueryItemDetailResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryItemDetailWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryItemDetail', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryItemDetailWithDivisionRequest {
-  distributionMallId?: string(name='DistributionMallId', example='1339d4e******46ea9d126df506af8d2b'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  divisionCode?: string(name='DivisionCode', example='410503006'),
-  lmItemId?: string(name='LmItemId', example='10000035-61936646****'),
-  tenantId?: string(name='TenantId', example='18******263'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', example='1339d4e******46ea9d126df506af8d2b', position='Body'),
+  distributorId?: string(name='DistributorId', example='75547******9212928', position='Body'),
+  divisionCode?: string(name='DivisionCode', example='410503006', position='Body'),
+  lmItemId?: string(name='LmItemId', example='10000035-61936646****', position='Body'),
+  tenantId?: string(name='TenantId', example='18******263', position='Body'),
 }
 
 model QueryItemDetailWithDivisionResponseBody = {
@@ -1724,58 +1083,17 @@ model QueryItemDetailWithDivisionResponse = {
   body: QueryItemDetailWithDivisionResponseBody(name='body'),
 }
 
-async function queryItemDetailWithDivisionWithOptions(request: QueryItemDetailWithDivisionRequest, runtime: Util.RuntimeOptions): QueryItemDetailWithDivisionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.divisionCode)) {
-    body['DivisionCode'] = request.divisionCode;
-  }
-  if (!Util.isUnset(request.lmItemId)) {
-    body['LmItemId'] = request.lmItemId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryItemDetailWithDivision',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryItemDetailWithDivision(request: QueryItemDetailWithDivisionRequest): QueryItemDetailWithDivisionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryItemDetailWithDivisionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryItemDetailWithDivision', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryItemGuideRetailPriceRequest {
-  distributionMallId?: string(name='DistributionMallId', example='122889******114694'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  lmItemIds?: [ string ](name='LmItemIds'),
-  tenantId?: string(name='TenantId', example='18******263'),
-}
-
-model QueryItemGuideRetailPriceShrinkRequest {
-  distributionMallId?: string(name='DistributionMallId', example='122889******114694'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  lmItemIdsShrink?: string(name='LmItemIds'),
-  tenantId?: string(name='TenantId', example='18******263'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributionMallId?: string(name='DistributionMallId', example='122889******114694', position='Body'),
+  distributorId?: string(name='DistributorId', example='75547******9212928', position='Body'),
+  lmItemIds?: [ string ](name='LmItemIds', shrink='json', position='Body'),
+  tenantId?: string(name='TenantId', example='18******263', position='Body'),
 }
 
 model QueryItemGuideRetailPriceResponseBody = {
@@ -1820,53 +1138,17 @@ model QueryItemGuideRetailPriceResponse = {
   body: QueryItemGuideRetailPriceResponseBody(name='body'),
 }
 
-async function queryItemGuideRetailPriceWithOptions(tmpReq: QueryItemGuideRetailPriceRequest, runtime: Util.RuntimeOptions): QueryItemGuideRetailPriceResponse {
-  Util.validateModel(tmpReq);
-  var request = new QueryItemGuideRetailPriceShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.lmItemIds)) {
-    request.lmItemIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.lmItemIds, 'LmItemIds', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.lmItemIdsShrink)) {
-    body['LmItemIds'] = request.lmItemIdsShrink;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryItemGuideRetailPrice',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryItemGuideRetailPrice(request: QueryItemGuideRetailPriceRequest): QueryItemGuideRetailPriceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryItemGuideRetailPriceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryItemGuideRetailPrice', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryLogistics4DistributionRequest {
-  distributorId?: string(name='DistributorId', example='1'),
-  mainDistributionOrderId?: string(name='MainDistributionOrderId', example='123498124'),
-  requestId?: string(name='RequestId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributorId?: string(name='DistributorId', example='1', position='Body'),
+  mainDistributionOrderId?: string(name='MainDistributionOrderId', example='123498124', position='Body'),
+  requestId?: string(name='RequestId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryLogistics4DistributionResponseBody = {
@@ -1911,48 +1193,17 @@ model QueryLogistics4DistributionResponse = {
   body: QueryLogistics4DistributionResponseBody(name='body'),
 }
 
-async function queryLogistics4DistributionWithOptions(request: QueryLogistics4DistributionRequest, runtime: Util.RuntimeOptions): QueryLogistics4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.mainDistributionOrderId)) {
-    body['MainDistributionOrderId'] = request.mainDistributionOrderId;
-  }
-  if (!Util.isUnset(request.requestId)) {
-    body['RequestId'] = request.requestId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryLogistics4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryLogistics4Distribution(request: QueryLogistics4DistributionRequest): QueryLogistics4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryLogistics4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryLogistics4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryMallCategoryListRequest {
-  categoryId?: long(name='CategoryId', example='5001****'),
-  distributionMallId?: string(name='DistributionMallId', example='122889******114694'),
-  distributorId?: string(name='DistributorId', example='75547******9212928'),
-  tenantId?: string(name='TenantId', example='18******263'),
+  regionId?: string(name='RegionId', position='Host'),
+  categoryId?: long(name='CategoryId', example='5001****', position='Body'),
+  distributionMallId?: string(name='DistributionMallId', example='122889******114694', position='Body'),
+  distributorId?: string(name='DistributorId', example='75547******9212928', position='Body'),
+  tenantId?: string(name='TenantId', example='18******263', position='Body'),
 }
 
 model QueryMallCategoryListResponseBody = {
@@ -1979,47 +1230,16 @@ model QueryMallCategoryListResponse = {
   body: QueryMallCategoryListResponseBody(name='body'),
 }
 
-async function queryMallCategoryListWithOptions(request: QueryMallCategoryListRequest, runtime: Util.RuntimeOptions): QueryMallCategoryListResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.categoryId)) {
-    body['CategoryId'] = request.categoryId;
-  }
-  if (!Util.isUnset(request.distributionMallId)) {
-    body['DistributionMallId'] = request.distributionMallId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryMallCategoryList',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryMallCategoryList(request: QueryMallCategoryListRequest): QueryMallCategoryListResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryMallCategoryListWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryMallCategoryList', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryOrderDetail4DistributionRequest {
-  distributorId?: string(name='DistributorId'),
-  mainDistributionOrderId?: string(name='MainDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  mainDistributionOrderId?: string(name='MainDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryOrderDetail4DistributionResponseBody = {
@@ -2068,46 +1288,18 @@ model QueryOrderDetail4DistributionResponse = {
   body: QueryOrderDetail4DistributionResponseBody(name='body'),
 }
 
-async function queryOrderDetail4DistributionWithOptions(request: QueryOrderDetail4DistributionRequest, runtime: Util.RuntimeOptions): QueryOrderDetail4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.mainDistributionOrderId)) {
-    body['MainDistributionOrderId'] = request.mainDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryOrderDetail4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryOrderDetail4Distribution(request: QueryOrderDetail4DistributionRequest): QueryOrderDetail4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryOrderDetail4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryOrderDetail4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryOrderList4DistributionRequest {
-  distributorId?: string(name='DistributorId'),
-  filterOption?: string(name='FilterOption'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  filterOption?: string(name='FilterOption', position='Body'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', example='20', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryOrderList4DistributionResponseBody = {
@@ -2158,50 +1350,16 @@ model QueryOrderList4DistributionResponse = {
   body: QueryOrderList4DistributionResponseBody(name='body'),
 }
 
-async function queryOrderList4DistributionWithOptions(request: QueryOrderList4DistributionRequest, runtime: Util.RuntimeOptions): QueryOrderList4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.filterOption)) {
-    body['FilterOption'] = request.filterOption;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryOrderList4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryOrderList4Distribution(request: QueryOrderList4DistributionRequest): QueryOrderList4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryOrderList4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryOrderList4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model QueryRefundApplicationDetail4DistributionRequest {
-  distributorId?: string(name='DistributorId'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model QueryRefundApplicationDetail4DistributionResponseBody = {
@@ -2255,46 +1413,18 @@ model QueryRefundApplicationDetail4DistributionResponse = {
   body: QueryRefundApplicationDetail4DistributionResponseBody(name='body'),
 }
 
-async function queryRefundApplicationDetail4DistributionWithOptions(request: QueryRefundApplicationDetail4DistributionRequest, runtime: Util.RuntimeOptions): QueryRefundApplicationDetail4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryRefundApplicationDetail4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function queryRefundApplicationDetail4Distribution(request: QueryRefundApplicationDetail4DistributionRequest): QueryRefundApplicationDetail4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryRefundApplicationDetail4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryRefundApplicationDetail4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
 model RenderDistributionOrderRequest {
-  buyerId?: string(name='BuyerId'),
-  deliveryAddress?: string(name='DeliveryAddress'),
-  distributionSupplierId?: string(name='DistributionSupplierId'),
-  distributorId?: string(name='DistributorId'),
-  extInfo?: string(name='ExtInfo'),
+  regionId?: string(name='RegionId', position='Host'),
+  buyerId?: string(name='BuyerId', position='Body'),
+  deliveryAddress?: string(name='DeliveryAddress', position='Body'),
+  distributionSupplierId?: string(name='DistributionSupplierId', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  extInfo?: string(name='ExtInfo', position='Body'),
   itemInfoLists?: [ 
     {
       distributionMallId?: string(name='DistributionMallId'),
@@ -2302,18 +1432,8 @@ model RenderDistributionOrderRequest {
       quantity?: int32(name='Quantity'),
       skuId?: string(name='SkuId'),
     }
-  ](name='ItemInfoLists'),
-  tenantId?: string(name='TenantId'),
-}
-
-model RenderDistributionOrderShrinkRequest {
-  buyerId?: string(name='BuyerId'),
-  deliveryAddress?: string(name='DeliveryAddress'),
-  distributionSupplierId?: string(name='DistributionSupplierId'),
-  distributorId?: string(name='DistributorId'),
-  extInfo?: string(name='ExtInfo'),
-  itemInfoListsShrink?: string(name='ItemInfoLists'),
-  tenantId?: string(name='TenantId'),
+  ](name='ItemInfoLists', shrink='json', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model RenderDistributionOrderResponseBody = {
@@ -2571,64 +1691,19 @@ model RenderDistributionOrderResponse = {
   body: RenderDistributionOrderResponseBody(name='body'),
 }
 
-async function renderDistributionOrderWithOptions(tmpReq: RenderDistributionOrderRequest, runtime: Util.RuntimeOptions): RenderDistributionOrderResponse {
-  Util.validateModel(tmpReq);
-  var request = new RenderDistributionOrderShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.itemInfoLists)) {
-    request.itemInfoListsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.itemInfoLists, 'ItemInfoLists', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.buyerId)) {
-    body['BuyerId'] = request.buyerId;
-  }
-  if (!Util.isUnset(request.deliveryAddress)) {
-    body['DeliveryAddress'] = request.deliveryAddress;
-  }
-  if (!Util.isUnset(request.distributionSupplierId)) {
-    body['DistributionSupplierId'] = request.distributionSupplierId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.extInfo)) {
-    body['ExtInfo'] = request.extInfo;
-  }
-  if (!Util.isUnset(request.itemInfoListsShrink)) {
-    body['ItemInfoLists'] = request.itemInfoListsShrink;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'RenderDistributionOrder',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function renderDistributionOrder(request: RenderDistributionOrderRequest): RenderDistributionOrderResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return renderDistributionOrderWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RenderDistributionOrder', 'POST', '/', 'json', true, 'form', request);
 }
 
 model SubmitReturnGoodLogistics4DistributionRequest {
-  cpCode?: string(name='CpCode', example='SF'),
-  disputeId?: long(name='DisputeId', example='14244******33071'),
-  distributorId?: string(name='DistributorId'),
-  logisticsNo?: string(name='LogisticsNo', example='SF131*****7061'),
-  subDistributionOrderId?: string(name='SubDistributionOrderId'),
-  tenantId?: string(name='TenantId'),
+  regionId?: string(name='RegionId', position='Host'),
+  cpCode?: string(name='CpCode', example='SF', position='Body'),
+  disputeId?: long(name='DisputeId', example='14244******33071', position='Body'),
+  distributorId?: string(name='DistributorId', position='Body'),
+  logisticsNo?: string(name='LogisticsNo', example='SF131*****7061', position='Body'),
+  subDistributionOrderId?: string(name='SubDistributionOrderId', position='Body'),
+  tenantId?: string(name='TenantId', position='Body'),
 }
 
 model SubmitReturnGoodLogistics4DistributionResponseBody = {
@@ -2650,46 +1725,8 @@ model SubmitReturnGoodLogistics4DistributionResponse = {
   body: SubmitReturnGoodLogistics4DistributionResponseBody(name='body'),
 }
 
-async function submitReturnGoodLogistics4DistributionWithOptions(request: SubmitReturnGoodLogistics4DistributionRequest, runtime: Util.RuntimeOptions): SubmitReturnGoodLogistics4DistributionResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.cpCode)) {
-    body['CpCode'] = request.cpCode;
-  }
-  if (!Util.isUnset(request.disputeId)) {
-    body['DisputeId'] = request.disputeId;
-  }
-  if (!Util.isUnset(request.distributorId)) {
-    body['DistributorId'] = request.distributorId;
-  }
-  if (!Util.isUnset(request.logisticsNo)) {
-    body['LogisticsNo'] = request.logisticsNo;
-  }
-  if (!Util.isUnset(request.subDistributionOrderId)) {
-    body['SubDistributionOrderId'] = request.subDistributionOrderId;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'SubmitReturnGoodLogistics4Distribution',
-    version = '2022-05-31',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function submitReturnGoodLogistics4Distribution(request: SubmitReturnGoodLogistics4DistributionRequest): SubmitReturnGoodLogistics4DistributionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return submitReturnGoodLogistics4DistributionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SubmitReturnGoodLogistics4Distribution', 'POST', '/', 'json', true, 'form', request);
 }
 
