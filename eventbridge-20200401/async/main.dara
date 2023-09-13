@@ -1,43 +1,45 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'eventbridge';
+  @version = '2020-04-01';
   @endpointRule = '';
-  
-  checkConfig(config);
-  @endpoint = getEndpoint('eventbridge', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+  @endpointMap = {
+  };
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model CreateApiDestinationRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.
+  apiDestinationName: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name', minLength=2, maxLength=127, position='Query'),
+  connectionName: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.
 
 > 
->  Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name'),
-  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.'),
-  httpApiParameters?: {
-    endpoint?: string(name='Endpoint', description='The endpoint of the API destination. The endpoint can be up to 127 characters in length.', example='http://127.0.0.1:8001/api'),
-    method?: string(name='Method', description='The HTTP request method. Valid values:
+>  Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name', minLength=2, maxLength=127, position='Query'),
+  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.', maxLength=255, position='Query'),
+  httpApiParameters: {
+    endpoint: string(name='Endpoint', description='The endpoint of the API destination. The endpoint can be up to 127 characters in length.', example='http://127.0.0.1:8001/api', maxLength=127),
+    method: string(name='Method', description='The HTTP request method. Valid values:
 
 *   GET
 *   POST
@@ -45,17 +47,7 @@ model CreateApiDestinationRequest {
 *   DELETE
 *   PUT
 *   PATCH', example='POST'),
-  }(name='HttpApiParameters', description='The parameters that are configured for the API destination.'),
-}
-
-model CreateApiDestinationShrinkRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.
-
-> 
->  Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name'),
-  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.'),
-  httpApiParametersShrink?: string(name='HttpApiParameters', description='The parameters that are configured for the API destination.'),
+  }(name='HttpApiParameters', description='The parameters that are configured for the API destination.', shrink='json', position='Query'),
 }
 
 model CreateApiDestinationResponseBody = {
@@ -76,63 +68,17 @@ model CreateApiDestinationResponse = {
 /**
   * You can call this API operation to create an API destination.
   *
-  * @param tmpReq CreateApiDestinationRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateApiDestinationResponse
- */
-async function createApiDestinationWithOptions(tmpReq: CreateApiDestinationRequest, runtime: Util.RuntimeOptions): CreateApiDestinationResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateApiDestinationShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.httpApiParameters)) {
-    request.httpApiParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.httpApiParameters, 'HttpApiParameters', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.apiDestinationName)) {
-    query['ApiDestinationName'] = request.apiDestinationName;
-  }
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.httpApiParametersShrink)) {
-    query['HttpApiParameters'] = request.httpApiParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateApiDestination',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create an API destination.
-  *
-  * @param request CreateApiDestinationRequest
-  * @return CreateApiDestinationResponse
  */
 async function createApiDestination(request: CreateApiDestinationRequest): CreateApiDestinationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createApiDestinationWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateApiDestination', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateConnectionRequest {
   authParameters?: {
     apiKeyAuthParameters?: {
-      apiKeyName?: string(name='ApiKeyName', description='The key of the API key.', example='Token'),
-      apiKeyValue?: string(name='ApiKeyValue', description='The value of the API key.', example='adkjnakddh****'),
+      apiKeyName?: string(name='ApiKeyName', description='The key of the API key.', example='Token', maxLength=127),
+      apiKeyValue?: string(name='ApiKeyValue', description='The value of the API key.', example='adkjnakddh****', maxLength=127),
     }(name='ApiKeyAuthParameters', description='The parameters that are configured for API key authentication.'),
     authorizationType?: string(name='AuthorizationType', description='The authentication type. Valid values:
 
@@ -154,14 +100,14 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
 
 *   AuthorizationEndpoint, OAuthHttpParameters, and HttpMethod are required.', example='BASIC_AUTH'),
     basicAuthParameters?: {
-      password?: string(name='Password', description='The password for basic authentication.', example='*******'),
-      username?: string(name='Username', description='The username for basic authentication.', example='admin'),
+      password?: string(name='Password', description='The password for basic authentication.', example='*******', maxLength=127),
+      username?: string(name='Username', description='The username for basic authentication.', example='admin', maxLength=127),
     }(name='BasicAuthParameters', description='The parameters that are configured for basic authentication.'),
-    OAuthParameters?: {
-      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The IP address of the authorized endpoint. The default value of a column can be up to 127 characters in length.', example='http://localhost:8080/oauth/token'),
+    oAuthParameters?: {
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The IP address of the authorized endpoint. The default value of a column can be up to 127 characters in length.', example='http://localhost:8080/oauth/token', maxLength=127),
       clientParameters?: {
-        clientID?: string(name='ClientID', description='The client ID.', example='ClientID'),
-        clientSecret?: string(name='ClientSecret', description='The AccessKey secret of the client.', example='Qo57Q~F249~S74GmNPA36pZJoJK4f4LY****'),
+        clientID?: string(name='ClientID', description='The client ID.', example='ClientID', maxLength=127),
+        clientSecret?: string(name='ClientSecret', description='The AccessKey secret of the client.', example='Qo57Q~F249~S74GmNPA36pZJoJK4f4LY****', maxLength=127),
       }(name='ClientParameters', description='The parameters that are configured for the client.'),
       httpMethod?: string(name='HttpMethod', description='The HTTP request method. Valid values:
 
@@ -171,7 +117,7 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
 *   DELETE
 *   PUT
 *   PATCH', example='POST'),
-      OAuthHttpParameters?: {
+      oAuthHttpParameters?: {
         bodyParameters?: [ 
           {
             isValueSecret?: string(name='IsValueSecret', description='Specifies whether to enable authentication.', example='false'),
@@ -195,11 +141,11 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
         ](name='QueryStringParameters', description='The parameters that are configured for the request path.'),
       }(name='OAuthHttpParameters', description='The request parameters that are configured for OAuth authentication.'),
     }(name='OAuthParameters', description='The parameters that are configured for OAuth authentication.'),
-  }(name='AuthParameters', description='The parameters that are configured for authentication.'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.', example='connection-name'),
-  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='demo'),
-  networkParameters?: {
-    networkType?: string(name='NetworkType', description='The network type. Valid values:
+  }(name='AuthParameters', description='The parameters that are configured for authentication.', shrink='json', position='Query'),
+  connectionName: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.', example='connection-name', minLength=2, maxLength=127, position='Query'),
+  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='demo', maxLength=255, position='Query'),
+  networkParameters: {
+    networkType: string(name='NetworkType', description='The network type. Valid values:
 
 PublicNetwork and PrivateNetwork.
 
@@ -207,14 +153,7 @@ PublicNetwork and PrivateNetwork.
     securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='eb-167adad548759-security_grop/sg-bp1addad26peuh9qh9****'),
     vpcId?: string(name='VpcId', description='The VPC. ID', example='eb-test/vpc-bp1symadadwnwg****'),
     vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown1og8,vsw-bp193sqmadadlaszpeq****'),
-  }(name='NetworkParameters', description='The parameters that are configured for the network.'),
-}
-
-model CreateConnectionShrinkRequest {
-  authParametersShrink?: string(name='AuthParameters', description='The parameters that are configured for authentication.'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.', example='connection-name'),
-  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='demo'),
-  networkParametersShrink?: string(name='NetworkParameters', description='The parameters that are configured for the network.'),
+  }(name='NetworkParameters', description='The parameters that are configured for the network.', shrink='json', position='Query'),
 }
 
 model CreateConnectionResponseBody = {
@@ -235,64 +174,15 @@ model CreateConnectionResponse = {
 /**
   * You can call this API operation to create a connection.
   *
-  * @param tmpReq CreateConnectionRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateConnectionResponse
- */
-async function createConnectionWithOptions(tmpReq: CreateConnectionRequest, runtime: Util.RuntimeOptions): CreateConnectionResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateConnectionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.authParameters)) {
-    request.authParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.authParameters, 'AuthParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.networkParameters)) {
-    request.networkParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.networkParameters, 'NetworkParameters', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.authParametersShrink)) {
-    query['AuthParameters'] = request.authParametersShrink;
-  }
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.networkParametersShrink)) {
-    query['NetworkParameters'] = request.networkParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateConnection',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create a connection.
-  *
-  * @param request CreateConnectionRequest
-  * @return CreateConnectionResponse
  */
 async function createConnection(request: CreateConnectionRequest): CreateConnectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createConnectionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateConnection', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateEventBusRequest {
-  description?: string(name='Description', description='The description of the event bus.', example='demo'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
+  description?: string(name='Description', description='The description of the event bus.', example='demo', maxLength=255, position='Query'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', minLength=2, maxLength=127, position='Query'),
 }
 
 model CreateEventBusResponseBody = {
@@ -314,58 +204,23 @@ model CreateEventBusResponse = {
 /**
   * You can call this API operation to create an event bus.
   *
-  * @param request CreateEventBusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateEventBusResponse
- */
-async function createEventBusWithOptions(request: CreateEventBusRequest, runtime: Util.RuntimeOptions): CreateEventBusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateEventBus',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create an event bus.
-  *
-  * @param request CreateEventBusRequest
-  * @return CreateEventBusResponse
  */
 async function createEventBus(request: CreateEventBusRequest): CreateEventBusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createEventBusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateEventBus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateEventSourceRequest {
-  description?: string(name='Description', description='The description of the event source.'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus with which the event source is associated.', example='my-event-bus'),
-  eventSourceName?: string(name='EventSourceName', description='Then name of the event source.', example='myrabbitmq.sourc'),
+  description?: string(name='Description', description='The description of the event source.', position='Body'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus with which the event source is associated.', example='my-event-bus', position='Body'),
+  eventSourceName: string(name='EventSourceName', description='Then name of the event source.', example='myrabbitmq.sourc', position='Body'),
   sourceHttpEventParameters?: {
     ip?: [ string ](name='Ip', description='The CIDR blocks that are used for security settings. This parameter is required only if you set SecurityConfig to ip. You can enter CIDR blocks or IP addresses.'),
     method?: [ string ](name='Method', description='The HTTP request method that is supported by the generated webhook URL. You can select multiple values. Valid values: GET GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, and CONNECT.'),
     referer?: [ string ](name='Referer', description='The security domain names. This parameter is required only if you set SecurityConfig to referer. You can enter domain names.'),
     securityConfig?: string(name='SecurityConfig', description='The security settings. Valid values: none: No configuration is required. ip: CIDR blocks. referer: security domain names.', example='none'),
     type?: string(name='Type', description='The protocol type that is supported by the generated webhook URL. Valid values: HTTP, HTTPS, and HTTP\\&HTTPS.', example='HTTPS'),
-  }(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.'),
+  }(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.', shrink='json', position='Body'),
   sourceKafkaParameters?: {
     consumerGroup?: string(name='ConsumerGroup', description='The ID of the consumer group that subscribes to the topic.', example='wechat_peer_prod'),
     instanceId?: string(name='InstanceId', description='The ID of the Message Queue for Apache Kafka instance.', example='pc-2zehmg67txzuyuuwlxv4f'),
@@ -377,18 +232,18 @@ model CreateEventSourceRequest {
     topic?: string(name='Topic', description='The name of the topic in the Message Queue for Apache Kafka instance.', example='prod_ma_dispatch_center_call_record'),
     vSwitchIds?: string(name='VSwitchIds', description='The ID of the vSwitch with which the Message Queue for Apache Kafka instance is associated. This parameter is required if you set Network to PublicNetwork.', example='vsw-bp127azpeirmwu4q9ttqi'),
     vpcId?: string(name='VpcId', description='The ID of the VPC in which the Message Queue for Apache Kafka instance resides. This parameter is required if you set Network to PublicNetwork.', example='vpc-2ze5ejm986a73qq3vshlk'),
-  }(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.'),
+  }(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.', shrink='json', position='Body'),
   sourceMNSParameters?: {
     isBase64Decode?: boolean(name='IsBase64Decode', description='Specifies whether to enable Base64 decoding. Default value: true.', example='true'),
     queueName?: string(name='QueueName', description='The name of the MNS queue.', example='MyQueue'),
     regionId?: string(name='RegionId', description='The region where the MNS queue resides.', example='cn-hangzhou'),
-  }(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).'),
+  }(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).', shrink='json', position='Body'),
   sourceRabbitMQParameters?: {
     instanceId?: string(name='InstanceId', description='The ID of the Message Queue for RabbitMQ instance. For more information, see Limits.', example='amqp-cn-nif22u74****'),
     queueName?: string(name='QueueName', description='The name of the queue in the Message Queue for RabbitMQ instance. For more information, see Limits.', example='demo'),
     regionId?: string(name='RegionId', description='The ID of the region where the Message Queue for RabbitMQ instance resides.', example='cn-hangzhou'),
     virtualHostName?: string(name='VirtualHostName', description='The vhost name of the Message Queue for RabbitMQ instance. For more information, see Limits.', example='eb-connect'),
-  }(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.'),
+  }(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.', shrink='json', position='Body'),
   sourceRocketMQParameters?: {
     authType?: string(name='AuthType'),
     groupID?: string(name='GroupID', description='The ID of the consumer group in the Message Queue for Apache RocketMQ instance.', example='GID-test'),
@@ -411,31 +266,18 @@ model CreateEventSourceRequest {
     tag?: string(name='Tag', description='The tags that are used to filter messages.', example='test'),
     timestamp?: long(name='Timestamp', description='The timestamp that specifies the time from which messages are consumed. This parameter is valid only if you set Offset to CONSUME_FROM_TIMESTAMP.', example='1636597951964'),
     topic?: string(name='Topic', description='The name of the topic in the Message Queue for Apache RocketMQ instance. For more information, see Limits.', example='mytopic'),
-  }(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.'),
+  }(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.', shrink='json', position='Body'),
   sourceSLSParameters?: {
     consumePosition?: string(name='ConsumePosition', description='The starting consumer offset. The value begin specifies the earliest offset, and the value end specifies the latest offset. You can also specify a time in seconds to start consumption.', example='end'),
     logStore?: string(name='LogStore', description='The Log Service Logstore.', example='test-logstore'),
     project?: string(name='Project', description='The Log Service project.', example='test-project'),
     roleName?: string(name='RoleName', description='The role name. If you want to authorize EventBridge to use this role to read logs in Log Service, you must select Alibaba Cloud Service for Selected Trusted Entity and EventBridge for Select Trusted Service when you create the role in the Resource Access Management (RAM) console. For information about the permission policy of this role, see Create a custom event source of the Log Service type.', example='testRole'),
-  }(name='SourceSLSParameters', description='The parameters that are configured if the event source is Log Service.'),
+  }(name='SourceSLSParameters', description='The parameters that are configured if the event source is Log Service.', shrink='json', position='Body'),
   sourceScheduledEventParameters?: {
     schedule?: string(name='Schedule', description='The Cron expression.', example='10 * * * * *'),
     timeZone?: string(name='TimeZone', description='The time zone in which the Cron expression is executed.', example='GMT+0:00'),
     userData?: map[string]any(name='UserData'),
-  }(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.'),
-}
-
-model CreateEventSourceShrinkRequest {
-  description?: string(name='Description', description='The description of the event source.'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus with which the event source is associated.', example='my-event-bus'),
-  eventSourceName?: string(name='EventSourceName', description='Then name of the event source.', example='myrabbitmq.sourc'),
-  sourceHttpEventParametersShrink?: string(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.'),
-  sourceKafkaParametersShrink?: string(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.'),
-  sourceMNSParametersShrink?: string(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).'),
-  sourceRabbitMQParametersShrink?: string(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.'),
-  sourceRocketMQParametersShrink?: string(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.'),
-  sourceSLSParametersShrink?: string(name='SourceSLSParameters', description='The parameters that are configured if the event source is Log Service.'),
-  sourceScheduledEventParametersShrink?: string(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.'),
+  }(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.', shrink='json', position='Body'),
 }
 
 model CreateEventSourceResponseBody = {
@@ -457,98 +299,16 @@ model CreateEventSourceResponse = {
 /**
   * You can call this operation to create an event source.
   *
-  * @param tmpReq CreateEventSourceRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateEventSourceResponse
- */
-async function createEventSourceWithOptions(tmpReq: CreateEventSourceRequest, runtime: Util.RuntimeOptions): CreateEventSourceResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateEventSourceShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.sourceHttpEventParameters)) {
-    request.sourceHttpEventParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceHttpEventParameters, 'SourceHttpEventParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceKafkaParameters)) {
-    request.sourceKafkaParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceKafkaParameters, 'SourceKafkaParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceMNSParameters)) {
-    request.sourceMNSParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceMNSParameters, 'SourceMNSParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceRabbitMQParameters)) {
-    request.sourceRabbitMQParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceRabbitMQParameters, 'SourceRabbitMQParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceRocketMQParameters)) {
-    request.sourceRocketMQParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceRocketMQParameters, 'SourceRocketMQParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceSLSParameters)) {
-    request.sourceSLSParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceSLSParameters, 'SourceSLSParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceScheduledEventParameters)) {
-    request.sourceScheduledEventParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceScheduledEventParameters, 'SourceScheduledEventParameters', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.description)) {
-    body['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    body['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventSourceName)) {
-    body['EventSourceName'] = request.eventSourceName;
-  }
-  if (!Util.isUnset(request.sourceHttpEventParametersShrink)) {
-    body['SourceHttpEventParameters'] = request.sourceHttpEventParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceKafkaParametersShrink)) {
-    body['SourceKafkaParameters'] = request.sourceKafkaParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceMNSParametersShrink)) {
-    body['SourceMNSParameters'] = request.sourceMNSParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceRabbitMQParametersShrink)) {
-    body['SourceRabbitMQParameters'] = request.sourceRabbitMQParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceRocketMQParametersShrink)) {
-    body['SourceRocketMQParameters'] = request.sourceRocketMQParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceSLSParametersShrink)) {
-    body['SourceSLSParameters'] = request.sourceSLSParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceScheduledEventParametersShrink)) {
-    body['SourceScheduledEventParameters'] = request.sourceScheduledEventParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateEventSource',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this operation to create an event source.
-  *
-  * @param request CreateEventSourceRequest
-  * @return CreateEventSourceResponse
  */
 async function createEventSource(request: CreateEventSourceRequest): CreateEventSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createEventSourceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateEventSource', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateEventStreamingRequest {
-  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns'),
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming'),
-  filterPattern?: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.'),
+  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns', position='Body'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming', position='Body'),
+  filterPattern: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.', position='Body'),
   runOptions?: {
     batchWindow?: {
       countBasedWindow?: int32(name='CountBasedWindow', description='The maximum number of events that is allowed in the batch window. If the value specified by this parameter is reached, the data in the batch window is pushed to the downstream application. If multiple batch windows exist, data is pushed if triggering conditions are met in one of the windows.', example='100'),
@@ -564,8 +324,8 @@ model CreateEventStreamingRequest {
       maximumRetryAttempts?: long(name='MaximumRetryAttempts', description='The maximum number of retries.', example='2'),
       pushRetryStrategy?: string(name='PushRetryStrategy', description='The retry policy that is used if events fail to be pushed. Valid values: BACKOFF_RETRY and EXPONENTIAL_DECAY_RETRY.', example='BACKOFFRETRY'),
     }(name='RetryStrategy', description='The information about the retry policy that is used if events fail to be pushed.'),
-  }(name='RunOptions', description='The parameters that are configured for the runtime environment.'),
-  sink?: {
+  }(name='RunOptions', description='The parameters that are configured for the runtime environment.', shrink='json', position='Body'),
+  sink: {
     sinkDataHubParameters?: {
       body?: {
         form?: string(name='Form', description='The method that is used to transform events.', example='ORIGINAL'),
@@ -864,8 +624,8 @@ model CreateEventStreamingRequest {
         value?: string(name='Value', description='The name of the topic in which logs are stored. The topic corresponds to the **topic** reserved field in Log Service.', example='testTopic'),
       }(name='Topic', description='The information about the topic in which logs are stored. The topic corresponds to the **topic** reserved field in Log Service.'),
     }(name='SinkSLSParameters', description='Sink SLS Parameters'),
-  }(name='Sink', description='The event target. You must and can specify only one event target.'),
-  source?: {
+  }(name='Sink', description='The event target. You must and can specify only one event target.', shrink='json', position='Body'),
+  source: {
     sourceDTSParameters?: {
       brokerUrl?: string(name='BrokerUrl', description='The URL and port number of the data subscription channel.'),
       initCheckPoint?: long(name='InitCheckPoint', description='The consumer offset. A consumer offset is a timestamp that indicates when the SDK client consumes the first data record. The value is a UNIX timestamp.', example='1620962769'),
@@ -932,16 +692,7 @@ model CreateEventStreamingRequest {
       project?: string(name='Project', description='The Log Service project.', example='test'),
       roleName?: string(name='RoleName', description='The role name. If you want to authorize EventBridge to use this role to read logs in Log Service, you must select Alibaba Cloud Service for Selected Trusted Entity and EventBridge for Select Trusted Service when you create the role in the Resource Access Management (RAM) console.', example='testRole'),
     }(name='SourceSLSParameters', description='The parameters that are configured if the event source is Log Service.'),
-  }(name='Source', description='The event provider, which is also known as the event source. You must and can specify only one event source.'),
-}
-
-model CreateEventStreamingShrinkRequest {
-  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns'),
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming'),
-  filterPattern?: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.'),
-  runOptionsShrink?: string(name='RunOptions', description='The parameters that are configured for the runtime environment.'),
-  sinkShrink?: string(name='Sink', description='The event target. You must and can specify only one event target.'),
-  sourceShrink?: string(name='Source', description='The event provider, which is also known as the event source. You must and can specify only one event source.'),
+  }(name='Source', description='The event provider, which is also known as the event source. You must and can specify only one event source.', shrink='json', position='Body'),
 }
 
 model CreateEventStreamingResponseBody = {
@@ -963,73 +714,15 @@ model CreateEventStreamingResponse = {
 /**
   * You can call this API operation to create an event stream.
   *
-  * @param tmpReq CreateEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateEventStreamingResponse
- */
-async function createEventStreamingWithOptions(tmpReq: CreateEventStreamingRequest, runtime: Util.RuntimeOptions): CreateEventStreamingResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateEventStreamingShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.runOptions)) {
-    request.runOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.runOptions, 'RunOptions', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sink)) {
-    request.sinkShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sink, 'Sink', 'json');
-  }
-  if (!Util.isUnset(tmpReq.source)) {
-    request.sourceShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.source, 'Source', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.description)) {
-    body['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  if (!Util.isUnset(request.filterPattern)) {
-    body['FilterPattern'] = request.filterPattern;
-  }
-  if (!Util.isUnset(request.runOptionsShrink)) {
-    body['RunOptions'] = request.runOptionsShrink;
-  }
-  if (!Util.isUnset(request.sinkShrink)) {
-    body['Sink'] = request.sinkShrink;
-  }
-  if (!Util.isUnset(request.sourceShrink)) {
-    body['Source'] = request.sourceShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create an event stream.
-  *
-  * @param request CreateEventStreamingRequest
-  * @return CreateEventStreamingResponse
  */
 async function createEventStreaming(request: CreateEventStreamingRequest): CreateEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateRuleRequest {
-  description?: string(name='Description', description='The description of the event bus.'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
+  description?: string(name='Description', description='The description of the event bus.', position='Query'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
   eventTargets?: [ 
     {
       deadLetterQueue?: {
@@ -1037,7 +730,7 @@ model CreateRuleRequest {
       }(name='DeadLetterQueue', description='The dead-letter queue. Events that are not processed or whose maximum retries are exceeded are written to the dead-letter queue. The dead-letter queue feature is supported by the following queue types: Message Queue for Apache RocketMQ, Message Service (MNS), Message Queue for Apache Kafka, and EventBridge.'),
       endpoint?: string(name='Endpoint', description='The endpoint of the event target.', example='acs:mns:cn-hangzhou:123456789098****:queues/myqueue'),
       errorsTolerance?: string(name='ErrorsTolerance', description='The fault tolerance policy. Valid values: ALL: allows fault tolerance. If an error occurs, the event processing is not blocked. If the message fails to be sent after the maximum number of retries specified by the retry policy is reached, the message is delivered to the dead-letter queue or discarded based on your configurations. NONE: does not allow fault tolerance. If an error occurs and the message fails to be sent after the maximum number of retries specified by the retry policy is reached, the event processing is blocked.', example='ALL'),
-      id?: string(name='Id', description='The ID of the custom event target.', example='12021'),
+      id: string(name='Id', description='The ID of the custom event target.', example='12021'),
       paramList?: [ 
         {
           form?: string(name='Form', description='The format that is used by the event target parameter. For more information, see [Limits.](https://www.alibabacloud.com/help/en/eventbridge/latest/limits)', example='TEMPLATE'),
@@ -1047,25 +740,14 @@ model CreateRuleRequest {
         }
       ](name='ParamList', description='The parameters that are configured for the event target.'),
       pushRetryStrategy?: string(name='PushRetryStrategy', description='The retry policy that is used to push events. Valid values: BACKOFF_RETRY: backoff retry. If an event failed to be pushed, it can be retried up to three times. The interval between two consecutive retries is a random value between 10 and 20 seconds. EXPONENTIAL_DECAY_RETRY: exponential decay retry. If an event failed to be pushed, it can be retried up to 176 times. The interval between two consecutive retries exponentially increases to 512 seconds, and the total retry time is one day. The specific retry intervals are 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 512, ..., and 512 seconds. The interval of 512 seconds is used for 167 retries.', example='BACKOFF_RETRY'),
-      type?: string(name='Type', description='The type of the event target. For more information, see [Event target parameters.](https://www.alibabacloud.com/help/en/eventbridge/latest/event-target-parameters)', example='acs.mns.queue'),
+      type: string(name='Type', description='The type of the event target. For more information, see [Event target parameters.](https://www.alibabacloud.com/help/en/eventbridge/latest/event-target-parameters)', example='acs.mns.queue'),
     }
-  ](name='EventTargets', description='The event targets.'),
-  filterPattern?: string(name='FilterPattern', description='The event pattern, in JSON format. Valid values: stringEqual and stringExpression. You can specify up to five expressions in the map data structure in each field.
+  ](name='EventTargets', description='The event targets.', shrink='json', position='Query'),
+  filterPattern: string(name='FilterPattern', description='The event pattern, in JSON format. Valid values: stringEqual and stringExpression. You can specify up to five expressions in the map data structure in each field.
 
-You can specify up to five expressions in the map data structure in each field.', example='{\\"source\\": [{\\"prefix\\": \\"acs.\\"}],\\"type\\": [{\\"prefix\\":\\"oss:ObjectReplication\\"}],\\"subject\\":[{\\"prefix\\":\\"acs:oss:cn-hangzhou:123456789098****:my-movie-bucket/\\", \\"suffix\\":\\".txt\\"}]}'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='MNSRule'),
-  status?: string(name='Status', description='The status of the event rule. Valid values: ENABLE: enables the event rule. It is the default status of the event rule. DISABLE: disables the event rule.', example='ENABLE'),
-}
-
-model CreateRuleShrinkRequest {
-  description?: string(name='Description', description='The description of the event bus.'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  eventTargetsShrink?: string(name='EventTargets', description='The event targets.'),
-  filterPattern?: string(name='FilterPattern', description='The event pattern, in JSON format. Valid values: stringEqual and stringExpression. You can specify up to five expressions in the map data structure in each field.
-
-You can specify up to five expressions in the map data structure in each field.', example='{\\"source\\": [{\\"prefix\\": \\"acs.\\"}],\\"type\\": [{\\"prefix\\":\\"oss:ObjectReplication\\"}],\\"subject\\":[{\\"prefix\\":\\"acs:oss:cn-hangzhou:123456789098****:my-movie-bucket/\\", \\"suffix\\":\\".txt\\"}]}'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='MNSRule'),
-  status?: string(name='Status', description='The status of the event rule. Valid values: ENABLE: enables the event rule. It is the default status of the event rule. DISABLE: disables the event rule.', example='ENABLE'),
+You can specify up to five expressions in the map data structure in each field.', example='{\\"source\\": [{\\"prefix\\": \\"acs.\\"}],\\"type\\": [{\\"prefix\\":\\"oss:ObjectReplication\\"}],\\"subject\\":[{\\"prefix\\":\\"acs:oss:cn-hangzhou:123456789098****:my-movie-bucket/\\", \\"suffix\\":\\".txt\\"}]}', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='MNSRule', position='Query'),
+  status?: string(name='Status', description='The status of the event rule. Valid values: ENABLE: enables the event rule. It is the default status of the event rule. DISABLE: disables the event rule.', example='ENABLE', position='Query'),
 }
 
 model CreateRuleResponseBody = {
@@ -1087,66 +769,14 @@ model CreateRuleResponse = {
 /**
   * You can call this API operation to create an event rule.
   *
-  * @param tmpReq CreateRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateRuleResponse
- */
-async function createRuleWithOptions(tmpReq: CreateRuleRequest, runtime: Util.RuntimeOptions): CreateRuleResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateRuleShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.eventTargets)) {
-    request.eventTargetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.eventTargets, 'EventTargets', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventTargetsShrink)) {
-    query['EventTargets'] = request.eventTargetsShrink;
-  }
-  if (!Util.isUnset(request.filterPattern)) {
-    query['FilterPattern'] = request.filterPattern;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  if (!Util.isUnset(request.status)) {
-    query['Status'] = request.status;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create an event rule.
-  *
-  * @param request CreateRuleRequest
-  * @return CreateRuleResponse
  */
 async function createRule(request: CreateRuleRequest): CreateRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateServiceLinkedRoleForProductRequest {
-  productName?: string(name='ProductName', description='The name of the cloud service or the name of the service-linked role with which the cloud service is associated.', example='AliyunServiceRoleForEventBridgeSendToMNS'),
+  productName: string(name='ProductName', description='The name of the cloud service or the name of the service-linked role with which the cloud service is associated.', example='AliyunServiceRoleForEventBridgeSendToMNS', position='Query'),
 }
 
 model CreateServiceLinkedRoleForProductResponseBody = {
@@ -1165,46 +795,14 @@ model CreateServiceLinkedRoleForProductResponse = {
 /**
   * You can call this API operation to create a service-linked role for your cloud service.
   *
-  * @param request CreateServiceLinkedRoleForProductRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateServiceLinkedRoleForProductResponse
- */
-async function createServiceLinkedRoleForProductWithOptions(request: CreateServiceLinkedRoleForProductRequest, runtime: Util.RuntimeOptions): CreateServiceLinkedRoleForProductResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.productName)) {
-    query['ProductName'] = request.productName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateServiceLinkedRoleForProduct',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create a service-linked role for your cloud service.
-  *
-  * @param request CreateServiceLinkedRoleForProductRequest
-  * @return CreateServiceLinkedRoleForProductResponse
  */
 async function createServiceLinkedRoleForProduct(request: CreateServiceLinkedRoleForProductRequest): CreateServiceLinkedRoleForProductResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createServiceLinkedRoleForProductWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateServiceLinkedRoleForProduct', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteApiDestinationRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination.', example='ApiDestinationName'),
+  apiDestinationName: string(name='ApiDestinationName', description='The name of the API destination.', example='ApiDestinationName', position='Query'),
 }
 
 model DeleteApiDestinationResponseBody = {
@@ -1222,46 +820,14 @@ model DeleteApiDestinationResponse = {
 /**
   * You can call this API operation to delete an API destination.
   *
-  * @param request DeleteApiDestinationRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteApiDestinationResponse
- */
-async function deleteApiDestinationWithOptions(request: DeleteApiDestinationRequest, runtime: Util.RuntimeOptions): DeleteApiDestinationResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.apiDestinationName)) {
-    query['ApiDestinationName'] = request.apiDestinationName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteApiDestination',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete an API destination.
-  *
-  * @param request DeleteApiDestinationRequest
-  * @return DeleteApiDestinationResponse
  */
 async function deleteApiDestination(request: DeleteApiDestinationRequest): DeleteApiDestinationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteApiDestinationWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteApiDestination', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteConnectionRequest {
-  connectionName?: string(name='ConnectionName', description='The name of the connection that you want to delete.', example='connection-name'),
+  connectionName: string(name='ConnectionName', description='The name of the connection that you want to delete.', example='connection-name', position='Query'),
 }
 
 model DeleteConnectionResponseBody = {
@@ -1279,46 +845,14 @@ model DeleteConnectionResponse = {
 /**
   * You can call this API operation to delete a connection.
   *
-  * @param request DeleteConnectionRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteConnectionResponse
- */
-async function deleteConnectionWithOptions(request: DeleteConnectionRequest, runtime: Util.RuntimeOptions): DeleteConnectionResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteConnection',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete a connection.
-  *
-  * @param request DeleteConnectionRequest
-  * @return DeleteConnectionResponse
  */
 async function deleteConnection(request: DeleteConnectionRequest): DeleteConnectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteConnectionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteConnection', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteEventBusRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
 }
 
 model DeleteEventBusResponseBody = {
@@ -1337,46 +871,14 @@ model DeleteEventBusResponse = {
 /**
   * You can call this API operation to delete an event bus.
   *
-  * @param request DeleteEventBusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteEventBusResponse
- */
-async function deleteEventBusWithOptions(request: DeleteEventBusRequest, runtime: Util.RuntimeOptions): DeleteEventBusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteEventBus',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete an event bus.
-  *
-  * @param request DeleteEventBusRequest
-  * @return DeleteEventBusResponse
  */
 async function deleteEventBus(request: DeleteEventBusRequest): DeleteEventBusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteEventBusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteEventBus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteEventSourceRequest {
-  eventSourceName?: string(name='EventSourceName', description='The name of the event source.', example='myrabbitmq.source'),
+  eventSourceName: string(name='EventSourceName', description='The name of the event source.', example='myrabbitmq.source', position='Body'),
 }
 
 model DeleteEventSourceResponseBody = {
@@ -1395,46 +897,14 @@ model DeleteEventSourceResponse = {
 /**
   * You can call this API operation to delete an event source.
   *
-  * @param request DeleteEventSourceRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteEventSourceResponse
- */
-async function deleteEventSourceWithOptions(request: DeleteEventSourceRequest, runtime: Util.RuntimeOptions): DeleteEventSourceResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.eventSourceName)) {
-    body['EventSourceName'] = request.eventSourceName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteEventSource',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete an event source.
-  *
-  * @param request DeleteEventSourceRequest
-  * @return DeleteEventSourceResponse
  */
 async function deleteEventSource(request: DeleteEventSourceRequest): DeleteEventSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteEventSourceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteEventSource', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteEventStreamingRequest {
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream that you want to delete.', example='rocketmq-sync'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream that you want to delete.', example='rocketmq-sync', position='Body'),
 }
 
 model DeleteEventStreamingResponseBody = {
@@ -1453,47 +923,15 @@ model DeleteEventStreamingResponse = {
 /**
   * You can call this API operation to delete an event stream.
   *
-  * @param request DeleteEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteEventStreamingResponse
- */
-async function deleteEventStreamingWithOptions(request: DeleteEventStreamingRequest, runtime: Util.RuntimeOptions): DeleteEventStreamingResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete an event stream.
-  *
-  * @param request DeleteEventStreamingRequest
-  * @return DeleteEventStreamingResponse
  */
 async function deleteEventStreaming(request: DeleteEventStreamingRequest): DeleteEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteRuleRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='tf-testacc-event-bus'),
-  ruleName?: string(name='RuleName', description='The name of the event rule that you want to delete.', example='ramrolechange-mns'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='tf-testacc-event-bus', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule that you want to delete.', example='ramrolechange-mns', position='Query'),
 }
 
 model DeleteRuleResponseBody = {
@@ -1512,57 +950,16 @@ model DeleteRuleResponse = {
 /**
   * You can call this API operation to delete an event rule.
   *
-  * @param request DeleteRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteRuleResponse
- */
-async function deleteRuleWithOptions(request: DeleteRuleRequest, runtime: Util.RuntimeOptions): DeleteRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete an event rule.
-  *
-  * @param request DeleteRuleRequest
-  * @return DeleteRuleResponse
  */
 async function deleteRule(request: DeleteRuleRequest): DeleteRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteTargetsRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ramrolechange-mns'),
-  targetIds?: [ string ](name='TargetIds', description='The IDs of the event targets that you want to delete.'),
-}
-
-model DeleteTargetsShrinkRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ramrolechange-mns'),
-  targetIdsShrink?: string(name='TargetIds', description='The IDs of the event targets that you want to delete.'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='ramrolechange-mns', position='Query'),
+  targetIds?: [ string ](name='TargetIds', description='The IDs of the event targets that you want to delete.', shrink='json', position='Query'),
 }
 
 model DeleteTargetsResponseBody = {
@@ -1591,58 +988,15 @@ model DeleteTargetsResponse = {
 /**
   * You can call this API operation to delete one or more event targets of an event rule.
   *
-  * @param tmpReq DeleteTargetsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteTargetsResponse
- */
-async function deleteTargetsWithOptions(tmpReq: DeleteTargetsRequest, runtime: Util.RuntimeOptions): DeleteTargetsResponse {
-  Util.validateModel(tmpReq);
-  var request = new DeleteTargetsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.targetIds)) {
-    request.targetIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targetIds, 'TargetIds', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  if (!Util.isUnset(request.targetIdsShrink)) {
-    query['TargetIds'] = request.targetIdsShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteTargets',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to delete one or more event targets of an event rule.
-  *
-  * @param request DeleteTargetsRequest
-  * @return DeleteTargetsResponse
  */
 async function deleteTargets(request: DeleteTargetsRequest): DeleteTargetsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteTargetsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteTargets', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DisableRuleRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule', position='Query'),
 }
 
 model DisableRuleResponseBody = {
@@ -1661,50 +1015,15 @@ model DisableRuleResponse = {
 /**
   * You can call this API operation to disable an event rule.
   *
-  * @param request DisableRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DisableRuleResponse
- */
-async function disableRuleWithOptions(request: DisableRuleRequest, runtime: Util.RuntimeOptions): DisableRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DisableRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to disable an event rule.
-  *
-  * @param request DisableRuleRequest
-  * @return DisableRuleResponse
  */
 async function disableRule(request: DisableRuleRequest): DisableRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return disableRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DisableRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model EnableRuleRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ramrolechange'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='ramrolechange', position='Query'),
 }
 
 model EnableRuleResponseBody = {
@@ -1723,49 +1042,14 @@ model EnableRuleResponse = {
 /**
   * You can call this API operation to enable an event rule.
   *
-  * @param request EnableRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return EnableRuleResponse
- */
-async function enableRuleWithOptions(request: EnableRuleRequest, runtime: Util.RuntimeOptions): EnableRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'EnableRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to enable an event rule.
-  *
-  * @param request EnableRuleRequest
-  * @return EnableRuleResponse
  */
 async function enableRule(request: EnableRuleRequest): EnableRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return enableRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'EnableRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetApiDestinationRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination.', example='api-destination-name'),
+  apiDestinationName: string(name='ApiDestinationName', description='The name of the API destination.', example='api-destination-name', position='Query'),
 }
 
 model GetApiDestinationResponseBody = {
@@ -1801,46 +1085,14 @@ model GetApiDestinationResponse = {
 /**
   * You can call this API operation to query the information about an API destination.
   *
-  * @param request GetApiDestinationRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetApiDestinationResponse
- */
-async function getApiDestinationWithOptions(request: GetApiDestinationRequest, runtime: Util.RuntimeOptions): GetApiDestinationResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.apiDestinationName)) {
-    query['ApiDestinationName'] = request.apiDestinationName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetApiDestination',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the information about an API destination.
-  *
-  * @param request GetApiDestinationRequest
-  * @return GetApiDestinationResponse
  */
 async function getApiDestination(request: GetApiDestinationRequest): GetApiDestinationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getApiDestinationWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetApiDestination', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetConnectionRequest {
-  connectionName?: string(name='ConnectionName', description='The connection name.', example='connection-name'),
+  connectionName: string(name='ConnectionName', description='The connection name.', example='connection-name', position='Query'),
 }
 
 model GetConnectionResponseBody = {
@@ -1864,7 +1116,7 @@ model GetConnectionResponseBody = {
             password?: string(name='Password', description='The password for basic authentication.', example='********'),
             username?: string(name='Username', description='The username for basic authentication.', example='admin'),
           }(name='BasicAuthParameters', description='The parameters that are returned for basic authentication.'),
-          OAuthParameters?: {
+          oAuthParameters?: {
             authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint that is used to obtain the OAuth token.', example='http://localhost:8080/oauth/token'),
             clientParameters?: {
               clientID?: string(name='ClientID', description='The client ID.', example='ClientID'),
@@ -1875,7 +1127,7 @@ model GetConnectionResponseBody = {
 * **GET**
 * **POST**
 * **HEAD**', example='POST'),
-            OAuthHttpParameters?: {
+            oAuthHttpParameters?: {
               bodyParameters?: [ 
                 {
                   isValueSecret?: string(name='IsValueSecret', description='Indicates whether authentication is enabled.', example='false'),
@@ -1929,46 +1181,14 @@ model GetConnectionResponse = {
 /**
   * You can call this API operation to query the configurations of a connection.
   *
-  * @param request GetConnectionRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetConnectionResponse
- */
-async function getConnectionWithOptions(request: GetConnectionRequest, runtime: Util.RuntimeOptions): GetConnectionResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetConnection',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the configurations of a connection.
-  *
-  * @param request GetConnectionRequest
-  * @return GetConnectionResponse
  */
 async function getConnection(request: GetConnectionRequest): GetConnectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getConnectionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetConnection', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetEventBusRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
 }
 
 model GetEventBusResponseBody = {
@@ -1993,46 +1213,14 @@ model GetEventBusResponse = {
 /**
   * You can call this API operation to query the detailed information about an event bus.
   *
-  * @param request GetEventBusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetEventBusResponse
- */
-async function getEventBusWithOptions(request: GetEventBusRequest, runtime: Util.RuntimeOptions): GetEventBusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetEventBus',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the detailed information about an event bus.
-  *
-  * @param request GetEventBusRequest
-  * @return GetEventBusResponse
  */
 async function getEventBus(request: GetEventBusRequest): GetEventBusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getEventBusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetEventBus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetEventStreamingRequest {
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream whose details you want to query.', example='myeventstreaming'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream whose details you want to query.', example='myeventstreaming', position='Body'),
 }
 
 model GetEventStreamingResponseBody = {
@@ -2355,47 +1543,15 @@ model GetEventStreamingResponse = {
 /**
   * You can call this API operation to query the details of an event stream.
   *
-  * @param request GetEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetEventStreamingResponse
- */
-async function getEventStreamingWithOptions(request: GetEventStreamingRequest, runtime: Util.RuntimeOptions): GetEventStreamingResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the details of an event stream.
-  *
-  * @param request GetEventStreamingRequest
-  * @return GetEventStreamingResponse
  */
 async function getEventStreaming(request: GetEventStreamingRequest): GetEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetRuleRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='default'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ram-changes'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='default', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='ram-changes', position='Query'),
 }
 
 model GetRuleResponseBody = {
@@ -2447,45 +1603,13 @@ model GetRuleResponse = {
 /**
   * You can call this API operation to query the details of an event rule.
   *
-  * @param request GetRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetRuleResponse
- */
-async function getRuleWithOptions(request: GetRuleRequest, runtime: Util.RuntimeOptions): GetRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the details of an event rule.
-  *
-  * @param request GetRuleRequest
-  * @return GetRuleResponse
  */
 async function getRule(request: GetRuleRequest): GetRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetRule', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListAliyunOfficialEventSourcesRequest {
 }
 
 model ListAliyunOfficialEventSourcesResponseBody = {
@@ -2526,45 +1650,21 @@ model ListAliyunOfficialEventSourcesResponse = {
 /**
   * You can call this API operation to query all Alibaba Cloud service event sources.
   *
-  * @param request ListAliyunOfficialEventSourcesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListAliyunOfficialEventSourcesResponse
  */
-async function listAliyunOfficialEventSourcesWithOptions(runtime: Util.RuntimeOptions): ListAliyunOfficialEventSourcesResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'ListAliyunOfficialEventSources',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query all Alibaba Cloud service event sources.
-  *
-  * @return ListAliyunOfficialEventSourcesResponse
- */
-async function listAliyunOfficialEventSources(): ListAliyunOfficialEventSourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listAliyunOfficialEventSourcesWithOptions(runtime);
+async function listAliyunOfficialEventSources(request: ListAliyunOfficialEventSourcesRequest): ListAliyunOfficialEventSourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListAliyunOfficialEventSources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListApiDestinationsRequest {
-  apiDestinationNamePrefix?: string(name='ApiDestinationNamePrefix', description='The prefix of the API destination name.', example='api-demo'),
-  connectionName?: string(name='ConnectionName', description='The connection name.', example='connection-name'),
+  apiDestinationNamePrefix?: string(name='ApiDestinationNamePrefix', description='The prefix of the API destination name.', example='api-demo', position='Query'),
+  connectionName?: string(name='ConnectionName', description='The connection name.', example='connection-name', position='Query'),
   maxResults?: long(name='MaxResults', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging.
 
-*   Default value: 10.', example='10'),
+*   Default value: 10.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='If you set Limit and excess return values exist, this parameter is returned.
 
-*   Default value: 0.', example='0'),
+*   Default value: 0.', example='0', position='Query'),
 }
 
 model ListApiDestinationsResponseBody = {
@@ -2613,61 +1713,20 @@ model ListApiDestinationsResponse = {
 /**
   * You can use this API operation to query a list of API destinations.
   *
-  * @param request ListApiDestinationsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListApiDestinationsResponse
- */
-async function listApiDestinationsWithOptions(request: ListApiDestinationsRequest, runtime: Util.RuntimeOptions): ListApiDestinationsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.apiDestinationNamePrefix)) {
-    query['ApiDestinationNamePrefix'] = request.apiDestinationNamePrefix;
-  }
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListApiDestinations',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can use this API operation to query a list of API destinations.
-  *
-  * @param request ListApiDestinationsRequest
-  * @return ListApiDestinationsResponse
  */
 async function listApiDestinations(request: ListApiDestinationsRequest): ListApiDestinationsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listApiDestinationsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListApiDestinations', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListConnectionsRequest {
-  connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The key word that you specify to query connections. Connections can be queried by prefixes.', example='connection-name'),
+  connectionNamePrefix?: string(name='ConnectionNamePrefix', description='The key word that you specify to query connections. Connections can be queried by prefixes.', example='connection-name', position='Body'),
   maxResults?: long(name='MaxResults', description='The maximum number of entries to be returned in a single call. You can use this parameter and the NextToken parameter to implement paging.
 
-*   Default value: 10.', example='10'),
+*   Default value: 10.', example='10', position='Body'),
   nextToken?: string(name='NextToken', description='If you set the Limit parameter and excess return values exist, this parameter is returned.
 
-*   Default value: 0.', example='0'),
+*   Default value: 0.', example='0', position='Body'),
 }
 
 model ListConnectionsResponseBody = {
@@ -2691,7 +1750,7 @@ model ListConnectionsResponseBody = {
             password?: string(name='Password', description='The password for basic authentication.', example='admin'),
             username?: string(name='Username', description='The username for basic authentication.', example='admin'),
           }(name='BasicAuthParameters', description='The parameters that are configured for basic authentication.'),
-          OAuthParameters?: {
+          oAuthParameters?: {
             authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint that is used to obtain the OAuth token.', example='http://localhost:8080/oauth/token'),
             clientParameters?: {
               clientID?: string(name='ClientID', description='The client ID.', example='ClientID'),
@@ -2704,7 +1763,7 @@ model ListConnectionsResponseBody = {
 - POST
 
 - HEAD', example='POST'),
-            OAuthHttpParameters?: {
+            oAuthHttpParameters?: {
               bodyParameters?: [ 
                 {
                   isValueSecret?: string(name='IsValueSecret', description='Indicates whether authentication is enabled.', example='false'),
@@ -2758,54 +1817,16 @@ model ListConnectionsResponse = {
 /**
   * You can call this API operation to query connections.
   *
-  * @param request ListConnectionsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListConnectionsResponse
- */
-async function listConnectionsWithOptions(request: ListConnectionsRequest, runtime: Util.RuntimeOptions): ListConnectionsResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.connectionNamePrefix)) {
-    body['ConnectionNamePrefix'] = request.connectionNamePrefix;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    body['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    body['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListConnections',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query connections.
-  *
-  * @param request ListConnectionsRequest
-  * @return ListConnectionsResponse
  */
 async function listConnections(request: ListConnectionsRequest): ListConnectionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listConnectionsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListConnections', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListEventBusesRequest {
-  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. Note: Up to 100 entries can be returned in a call.', example='10'),
-  namePrefix?: string(name='NamePrefix', description='The prefix of the names of the event buses that you want to query.', example='My'),
-  nextToken?: string(name='NextToken', description='If you set Limit and excess return values exist, this parameter is returned.', example='10'),
+  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. Note: Up to 100 entries can be returned in a call.', example='10', position='Query'),
+  namePrefix?: string(name='NamePrefix', description='The prefix of the names of the event buses that you want to query.', example='My', position='Query'),
+  nextToken?: string(name='NextToken', description='If you set Limit and excess return values exist, this parameter is returned.', example='10', position='Query'),
 }
 
 model ListEventBusesResponseBody = {
@@ -2836,56 +1857,18 @@ model ListEventBusesResponse = {
 /**
   * You can call this API operation to query all event buses.
   *
-  * @param request ListEventBusesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListEventBusesResponse
- */
-async function listEventBusesWithOptions(request: ListEventBusesRequest, runtime: Util.RuntimeOptions): ListEventBusesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.limit)) {
-    query['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.namePrefix)) {
-    query['NamePrefix'] = request.namePrefix;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListEventBuses',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query all event buses.
-  *
-  * @param request ListEventBusesRequest
-  * @return ListEventBusesResponse
  */
 async function listEventBuses(request: ListEventBusesRequest): ListEventBusesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listEventBusesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEventBuses', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListEventStreamingsRequest {
-  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. A maximum of 100 entries can be returned in a call.', example='10'),
-  namePrefix?: string(name='NamePrefix', description='The name of the event stream that you want to query.', example='name'),
-  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='10'),
-  sinkArn?: string(name='SinkArn', description='The ARN of the event target.', example='acs:fc:cn-hangzhou:118609547428****:services/fw1.LATEST/functions/log1'),
-  sourceArn?: string(name='SourceArn', description='The Alibaba Cloud Resource Name (ARN) of the event source.', example='acs:alikafka:cn-hangzhou:118609547428****:instance/alikafka_pre-cn-zxu36kvi****/topic/test-topic'),
+  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. A maximum of 100 entries can be returned in a call.', example='10', position='Body'),
+  namePrefix?: string(name='NamePrefix', description='The name of the event stream that you want to query.', example='name', position='Body'),
+  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='10', position='Body'),
+  sinkArn?: string(name='SinkArn', description='The ARN of the event target.', example='acs:fc:cn-hangzhou:118609547428****:services/fw1.LATEST/functions/log1', position='Body'),
+  sourceArn?: string(name='SourceArn', description='The Alibaba Cloud Resource Name (ARN) of the event source.', example='acs:alikafka:cn-hangzhou:118609547428****:instance/alikafka_pre-cn-zxu36kvi****/topic/test-topic', position='Body'),
 }
 
 model ListEventStreamingsResponseBody = {
@@ -3218,61 +2201,17 @@ model ListEventStreamingsResponse = {
 /**
   * You can call this API operation to query event streams.
   *
-  * @param request ListEventStreamingsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListEventStreamingsResponse
- */
-async function listEventStreamingsWithOptions(request: ListEventStreamingsRequest, runtime: Util.RuntimeOptions): ListEventStreamingsResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.limit)) {
-    body['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.namePrefix)) {
-    body['NamePrefix'] = request.namePrefix;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    body['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.sinkArn)) {
-    body['SinkArn'] = request.sinkArn;
-  }
-  if (!Util.isUnset(request.sourceArn)) {
-    body['SourceArn'] = request.sourceArn;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListEventStreamings',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query event streams.
-  *
-  * @param request ListEventStreamingsRequest
-  * @return ListEventStreamingsResponse
  */
 async function listEventStreamings(request: ListEventStreamingsRequest): ListEventStreamingsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listEventStreamingsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEventStreamings', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListRulesRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='default'),
-  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a single call. You can use this parameter and the NextToken parameter to implement paging. A maximum of 100 entries can be returned in a single call.', example='50'),
-  nextToken?: string(name='NextToken', description='If you set the Limit parameter and excess return values exist, this parameter is returned.', example='1000'),
-  ruleNamePrefix?: string(name='RuleNamePrefix', description='The prefix of the rule name.', example='test'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='default', position='Query'),
+  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a single call. You can use this parameter and the NextToken parameter to implement paging. A maximum of 100 entries can be returned in a single call.', example='50', position='Query'),
+  nextToken?: string(name='NextToken', description='If you set the Limit parameter and excess return values exist, this parameter is returned.', example='1000', position='Query'),
+  ruleNamePrefix?: string(name='RuleNamePrefix', description='The prefix of the rule name.', example='test', position='Query'),
 }
 
 model ListRulesResponseBody = {
@@ -3318,59 +2257,18 @@ model ListRulesResponse = {
 /**
   * You can call this API operation to query all rules of an event bus.
   *
-  * @param request ListRulesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListRulesResponse
- */
-async function listRulesWithOptions(request: ListRulesRequest, runtime: Util.RuntimeOptions): ListRulesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.limit)) {
-    query['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.ruleNamePrefix)) {
-    query['RuleNamePrefix'] = request.ruleNamePrefix;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListRules',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query all rules of an event bus.
-  *
-  * @param request ListRulesRequest
-  * @return ListRulesResponse
  */
 async function listRules(request: ListRulesRequest): ListRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listRulesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListRules', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListTargetsRequest {
-  arn?: string(name='Arn', description='The Alibaba Cloud Resource Name (ARN) of the event rule.', example='acs:fc:cn-hangzhou:118609547428****:services/fc-connector.a1/functions/event'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='my-event-bus'),
-  limit?: int32(name='Limit', description='The maximum number of entries returned per page.', example='10'),
-  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='0'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule'),
+  arn?: string(name='Arn', description='The Alibaba Cloud Resource Name (ARN) of the event rule.', example='acs:fc:cn-hangzhou:118609547428****:services/fc-connector.a1/functions/event', position='Query'),
+  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='my-event-bus', position='Query'),
+  limit?: int32(name='Limit', description='The maximum number of entries returned per page.', example='10', position='Query'),
+  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='0', position='Query'),
+  ruleName?: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule', position='Query'),
 }
 
 model ListTargetsResponseBody = {
@@ -3416,51 +2314,16 @@ model ListTargetsResponse = {
   body: ListTargetsResponseBody(name='body'),
 }
 
-async function listTargetsWithOptions(request: ListTargetsRequest, runtime: Util.RuntimeOptions): ListTargetsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.arn)) {
-    query['Arn'] = request.arn;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.limit)) {
-    query['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListTargets',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listTargets(request: ListTargetsRequest): ListTargetsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listTargetsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTargets', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListUserDefinedEventSourcesRequest {
-  eventBusName?: string(name='EventBusName'),
-  limit?: int32(name='Limit'),
-  namePrefix?: string(name='NamePrefix'),
-  nextToken?: string(name='NextToken'),
+  eventBusName?: string(name='EventBusName', position='Query'),
+  limit?: int32(name='Limit', position='Query'),
+  namePrefix?: string(name='NamePrefix', position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
 }
 
 model ListUserDefinedEventSourcesResponseBody = {
@@ -3560,55 +2423,14 @@ model ListUserDefinedEventSourcesResponse = {
 /**
   * You can call this API operation to query custom event sources.
   *
-  * @param request ListUserDefinedEventSourcesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListUserDefinedEventSourcesResponse
- */
-async function listUserDefinedEventSourcesWithOptions(request: ListUserDefinedEventSourcesRequest, runtime: Util.RuntimeOptions): ListUserDefinedEventSourcesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.limit)) {
-    query['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.namePrefix)) {
-    query['NamePrefix'] = request.namePrefix;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListUserDefinedEventSources',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query custom event sources.
-  *
-  * @param request ListUserDefinedEventSourcesRequest
-  * @return ListUserDefinedEventSourcesResponse
  */
 async function listUserDefinedEventSources(request: ListUserDefinedEventSourcesRequest): ListUserDefinedEventSourcesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listUserDefinedEventSourcesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListUserDefinedEventSources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PauseEventStreamingRequest {
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream that you want to stop.', example='rocketmq-sync'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream that you want to stop.', example='rocketmq-sync', position='Body'),
 }
 
 model PauseEventStreamingResponseBody = {
@@ -3627,48 +2449,16 @@ model PauseEventStreamingResponse = {
 /**
   * You can call this API operation to stop an event stream that is running.
   *
-  * @param request PauseEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return PauseEventStreamingResponse
- */
-async function pauseEventStreamingWithOptions(request: PauseEventStreamingRequest, runtime: Util.RuntimeOptions): PauseEventStreamingResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'PauseEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to stop an event stream that is running.
-  *
-  * @param request PauseEventStreamingRequest
-  * @return PauseEventStreamingResponse
  */
 async function pauseEventStreaming(request: PauseEventStreamingRequest): PauseEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return pauseEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PauseEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model PutTargetsRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='eventTest'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ssr-send-to-vendor-test01'),
-  targets?: [ 
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='eventTest', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='ssr-send-to-vendor-test01', position='Query'),
+  targets: [ 
     {
       deadLetterQueue?: {
         arn?: string(name='Arn', description='The Alibaba Cloud Resource Name (ARN) of the dead-letter queue. Events that are not processed or whose maximum retries have been exceeded are written to the dead-letter queue.', example='acs:mns:cn-hangzhou:123456789098****:/queues/deadletterqueue or acs:mq:cn-hangzhou:123456789098****:/instances/MQ_INST_123456789098****_BX8QbBPL/topic/deadlettertopic or acs:alikafka:cn-hangzhou:123456789098****:instance/alikafka_post-cn-123456/topic/deadlettertopic or acs:eventbridge:cn-hangzhou:123456789098****:eventbus/deadletterbus'),
@@ -3679,7 +2469,7 @@ model PutTargetsRequest {
 * **ALL**: ignores the error. Fault tolerance is allowed. If an error occurs, event processing is not blocked. If the message exceeds the number of retries specified by the retry policy, the message is delivered to a dead-letter queue or discarded based on your configurations.
 
 * **NONE**: does not ignore the error. Fault tolerance is prohibited. If an error occurs and the message exceeds the number of retries specified by the retry policy, event processing is blocked.', example='ALL'),
-      id?: string(name='Id', description='The ID of the custom event target.', example='Mlm123456JHd2RsRoKw'),
+      id: string(name='Id', description='The ID of the custom event target.', example='Mlm123456JHd2RsRoKw'),
       paramList?: [ 
         {
           form?: string(name='Form', description='The method that is used to deliver events to the event target. For more information,see [Event target parameters.](https://www.alibabacloud.com/help/en/eventbridge/latest/event-target-parameters)', example='TEMPLATE'),
@@ -3693,15 +2483,9 @@ model PutTargetsRequest {
 * **BACKOFF_RETRY**: backoff retry. A failed event can be retried up to three times. The interval between two consecutive retries is a random value from 10 to 20. Unit: seconds.
 
 * **EXPONENTIAL_DECAY_RETRY**: exponential decay retry. The request can be retried up to 176 times. The interval between two consecutive retries exponentially increases to 512 seconds, and the total retry time is one day. The specific retry intervals are 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 512, ..., and 512 seconds. The interval of 512 seconds can be used up to one hundred and sixty-seven times in total.', example='BACKOFFRETRY'),
-      type?: string(name='Type', description='The type of the event target. For more information, see [Event target parameters.](https://www.alibabacloud.com/help/en/eventbridge/latest/event-target-parameters)', example='acs.fc.function'),
+      type: string(name='Type', description='The type of the event target. For more information, see [Event target parameters.](https://www.alibabacloud.com/help/en/eventbridge/latest/event-target-parameters)', example='acs.fc.function'),
     }
-  ](name='Targets', description='The event targets to be created or updated. For more information, see [Limits.](https://www.alibabacloud.com/help/en/eventbridge/latest/limits)'),
-}
-
-model PutTargetsShrinkRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='eventTest'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='ssr-send-to-vendor-test01'),
-  targetsShrink?: string(name='Targets', description='The event targets to be created or updated. For more information, see [Limits.](https://www.alibabacloud.com/help/en/eventbridge/latest/limits)'),
+  ](name='Targets', description='The event targets to be created or updated. For more information, see [Limits.](https://www.alibabacloud.com/help/en/eventbridge/latest/limits)', shrink='json', position='Query'),
 }
 
 model PutTargetsResponseBody = {
@@ -3739,58 +2523,15 @@ model PutTargetsResponse = {
 /**
   * You can call this API operation to create or update event targets under a rule.
   *
-  * @param tmpReq PutTargetsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return PutTargetsResponse
- */
-async function putTargetsWithOptions(tmpReq: PutTargetsRequest, runtime: Util.RuntimeOptions): PutTargetsResponse {
-  Util.validateModel(tmpReq);
-  var request = new PutTargetsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.targets)) {
-    request.targetsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.targets, 'Targets', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  if (!Util.isUnset(request.targetsShrink)) {
-    query['Targets'] = request.targetsShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'PutTargets',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to create or update event targets under a rule.
-  *
-  * @param request PutTargetsRequest
-  * @return PutTargetsResponse
  */
 async function putTargets(request: PutTargetsRequest): PutTargetsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return putTargetsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PutTargets', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryEventRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='demo'),
-  eventId?: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='demo', position='Query'),
+  eventId: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d', position='Query'),
 }
 
 model QueryEventResponseBody = {
@@ -3810,50 +2551,15 @@ model QueryEventResponse = {
 /**
   * You can call this API operation to query the content of an event.
   *
-  * @param request QueryEventRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return QueryEventResponse
- */
-async function queryEventWithOptions(request: QueryEventRequest, runtime: Util.RuntimeOptions): QueryEventResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventId)) {
-    query['EventId'] = request.eventId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryEvent',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query the content of an event.
-  *
-  * @param request QueryEventRequest
-  * @return QueryEventResponse
  */
 async function queryEvent(request: QueryEventRequest): QueryEventResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryEventWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryEvent', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryEventTracesRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  eventId?: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
+  eventId: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d', position='Query'),
 }
 
 model QueryEventTracesResponseBody = {
@@ -3888,51 +2594,16 @@ model QueryEventTracesResponse = {
 /**
   * You can call this API operation to query event traces.
   *
-  * @param request QueryEventTracesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return QueryEventTracesResponse
- */
-async function queryEventTracesWithOptions(request: QueryEventTracesRequest, runtime: Util.RuntimeOptions): QueryEventTracesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventId)) {
-    query['EventId'] = request.eventId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryEventTraces',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query event traces.
-  *
-  * @param request QueryEventTracesRequest
-  * @return QueryEventTracesResponse
  */
 async function queryEventTraces(request: QueryEventTracesRequest): QueryEventTracesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryEventTracesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryEventTraces', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryTracedEventByEventIdRequest {
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='demo'),
-  eventId?: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d'),
-  eventSource?: string(name='EventSource', description='The name of the event source.', example='mse'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='demo', position='Query'),
+  eventId: string(name='EventId', description='The event ID.', example='1935debf-ddac-49dc-a090-d4f2857a046d', position='Query'),
+  eventSource?: string(name='EventSource', description='The name of the event source.', example='mse', position='Query'),
 }
 
 model QueryTracedEventByEventIdResponseBody = {
@@ -3966,59 +2637,21 @@ model QueryTracedEventByEventIdResponse = {
 /**
   * You can call this API operation to query event traces by event ID.
   *
-  * @param request QueryTracedEventByEventIdRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return QueryTracedEventByEventIdResponse
- */
-async function queryTracedEventByEventIdWithOptions(request: QueryTracedEventByEventIdRequest, runtime: Util.RuntimeOptions): QueryTracedEventByEventIdResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventId)) {
-    query['EventId'] = request.eventId;
-  }
-  if (!Util.isUnset(request.eventSource)) {
-    query['EventSource'] = request.eventSource;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryTracedEventByEventId',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query event traces by event ID.
-  *
-  * @param request QueryTracedEventByEventIdRequest
-  * @return QueryTracedEventByEventIdResponse
  */
 async function queryTracedEventByEventId(request: QueryTracedEventByEventIdRequest): QueryTracedEventByEventIdResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryTracedEventByEventIdWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryTracedEventByEventId', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryTracedEventsRequest {
-  endTime?: long(name='EndTime', description='The end of the time range when event traces are queried. Unit: milliseconds.', example='1661773509000'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus'),
-  eventSource?: string(name='EventSource', description='The name of the event source.', example='mse'),
-  eventType?: string(name='EventType', description='The event type.', example='eventbridge:Events:HTTPEvent'),
-  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. Up to 100 entries can be returned in a call.', example='50'),
-  matchedRule?: string(name='MatchedRule', description='The name of the event rule that is matched.', example='test-mnsrule'),
-  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='1000'),
-  startTime?: long(name='StartTime', description='The beginning of the time range to query event traces. Unit: milliseconds.', example='1661773509000'),
+  endTime: long(name='EndTime', description='The end of the time range when event traces are queried. Unit: milliseconds.', example='1661773509000', position='Query'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='MyEventBus', position='Query'),
+  eventSource?: string(name='EventSource', description='The name of the event source.', example='mse', position='Query'),
+  eventType?: string(name='EventType', description='The event type.', example='eventbridge:Events:HTTPEvent', position='Query'),
+  limit?: int32(name='Limit', description='The maximum number of entries to be returned in a call. You can use this parameter and NextToken to implement paging. Up to 100 entries can be returned in a call.', example='50', position='Query'),
+  matchedRule?: string(name='MatchedRule', description='The name of the event rule that is matched.', example='test-mnsrule', position='Query'),
+  nextToken?: string(name='NextToken', description='If you configure Limit and excess return values exist, this parameter is returned.', example='1000', position='Query'),
+  startTime: long(name='StartTime', description='The beginning of the time range to query event traces. Unit: milliseconds.', example='1661773509000', position='Query'),
 }
 
 model QueryTracedEventsResponseBody = {
@@ -4050,67 +2683,14 @@ model QueryTracedEventsResponse = {
 /**
   * You can call this API operation to query event traces by time range.
   *
-  * @param request QueryTracedEventsRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return QueryTracedEventsResponse
- */
-async function queryTracedEventsWithOptions(request: QueryTracedEventsRequest, runtime: Util.RuntimeOptions): QueryTracedEventsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventSource)) {
-    query['EventSource'] = request.eventSource;
-  }
-  if (!Util.isUnset(request.eventType)) {
-    query['EventType'] = request.eventType;
-  }
-  if (!Util.isUnset(request.limit)) {
-    query['Limit'] = request.limit;
-  }
-  if (!Util.isUnset(request.matchedRule)) {
-    query['MatchedRule'] = request.matchedRule;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.startTime)) {
-    query['StartTime'] = request.startTime;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryTracedEvents',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to query event traces by time range.
-  *
-  * @param request QueryTracedEventsRequest
-  * @return QueryTracedEventsResponse
  */
 async function queryTracedEvents(request: QueryTracedEventsRequest): QueryTracedEventsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryTracedEventsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryTracedEvents', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StartEventStreamingRequest {
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream that you want to enable.', example='rocketmq-sync'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream that you want to enable.', example='rocketmq-sync', position='Body'),
 }
 
 model StartEventStreamingResponseBody = {
@@ -4129,46 +2709,14 @@ model StartEventStreamingResponse = {
 /**
   * You can call this API operation to enable a created or deactivated event stream.
   *
-  * @param request StartEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return StartEventStreamingResponse
- */
-async function startEventStreamingWithOptions(request: StartEventStreamingRequest, runtime: Util.RuntimeOptions): StartEventStreamingResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StartEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to enable a created or deactivated event stream.
-  *
-  * @param request StartEventStreamingRequest
-  * @return StartEventStreamingResponse
  */
 async function startEventStreaming(request: StartEventStreamingRequest): StartEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return startEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model TestEventPatternRequest {
-  event?: string(name='Event', description='The event.', example='{
+  event: string(name='Event', description='The event.', example='{
     "datacontenttype": "application/json;charset=utf-8",
     "aliyunaccountid": "*****",
     "aliyunpublishtime": "2023-04-****:54:57.939Z",
@@ -4186,8 +2734,8 @@ model TestEventPatternRequest {
     "time": "2023-04-***:37:56Z",
     "aliyunregionid": "cn-***",
     "type": "sls:Config:****"
-}'),
-  eventPattern?: string(name='EventPattern', description='The event pattern.', example='{"key1": "value1"}'),
+}', position='Body'),
+  eventPattern: string(name='EventPattern', description='The event pattern.', example='{"key1": "value1"}', position='Body'),
 }
 
 model TestEventPatternResponseBody = {
@@ -4209,55 +2757,20 @@ model TestEventPatternResponse = {
 /**
   * You can call this API operation to check whether the event pattern matches the provided JSON format.
   *
-  * @param request TestEventPatternRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return TestEventPatternResponse
- */
-async function testEventPatternWithOptions(request: TestEventPatternRequest, runtime: Util.RuntimeOptions): TestEventPatternResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.event)) {
-    body['Event'] = request.event;
-  }
-  if (!Util.isUnset(request.eventPattern)) {
-    body['EventPattern'] = request.eventPattern;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'TestEventPattern',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to check whether the event pattern matches the provided JSON format.
-  *
-  * @param request TestEventPatternRequest
-  * @return TestEventPatternResponse
  */
 async function testEventPattern(request: TestEventPatternRequest): TestEventPatternResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return testEventPatternWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TestEventPattern', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateApiDestinationRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name'),
+  apiDestinationName: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name', minLength=2, maxLength=127, position='Query'),
   connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.
 
-Note: Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name'),
-  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.', example='demo'),
+Note: Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name', minLength=2, maxLength=127, position='Query'),
+  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.', example='demo', maxLength=255, position='Query'),
   httpApiParameters?: {
-    endpoint?: string(name='Endpoint', description='The endpoint of the API destination. The endpoint can be up to 127 characters in length.', example='http://127.0.0.1:8001/api'),
+    endpoint?: string(name='Endpoint', description='The endpoint of the API destination. The endpoint can be up to 127 characters in length.', example='http://127.0.0.1:8001/api', maxLength=127),
     method?: string(name='Method', description='The HTTP request method. Valid values:
 
 - GET
@@ -4266,16 +2779,7 @@ Note: Before you configure this parameter, you must call the CreateConnection op
 - DELETE
 - PUT
 - PATCH', example='POST'),
-  }(name='HttpApiParameters', description='The parameters that are configured for the API destination.'),
-}
-
-model UpdateApiDestinationShrinkRequest {
-  apiDestinationName?: string(name='ApiDestinationName', description='The name of the API destination. The name must be 2 to 127 characters in length.', example='api-destination-name'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection. The name must be 2 to 127 characters in length.
-
-Note: Before you configure this parameter, you must call the CreateConnection operation to create a connection. Then, set this parameter to the name of the connection that you created.', example='connection-name'),
-  description?: string(name='Description', description='The description of the API destination. The description can be up to 255 characters in length.', example='demo'),
-  httpApiParametersShrink?: string(name='HttpApiParameters', description='The parameters that are configured for the API destination.'),
+  }(name='HttpApiParameters', description='The parameters that are configured for the API destination.', shrink='json', position='Query'),
 }
 
 model UpdateApiDestinationResponseBody = {
@@ -4294,63 +2798,17 @@ model UpdateApiDestinationResponse = {
 /**
   * You can call this API operation to update an API destination.
   *
-  * @param tmpReq UpdateApiDestinationRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateApiDestinationResponse
- */
-async function updateApiDestinationWithOptions(tmpReq: UpdateApiDestinationRequest, runtime: Util.RuntimeOptions): UpdateApiDestinationResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateApiDestinationShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.httpApiParameters)) {
-    request.httpApiParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.httpApiParameters, 'HttpApiParameters', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.apiDestinationName)) {
-    query['ApiDestinationName'] = request.apiDestinationName;
-  }
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.httpApiParametersShrink)) {
-    query['HttpApiParameters'] = request.httpApiParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateApiDestination',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to update an API destination.
-  *
-  * @param request UpdateApiDestinationRequest
-  * @return UpdateApiDestinationResponse
  */
 async function updateApiDestination(request: UpdateApiDestinationRequest): UpdateApiDestinationResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateApiDestinationWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateApiDestination', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateConnectionRequest {
   authParameters?: {
     apiKeyAuthParameters?: {
-      apiKeyName?: string(name='ApiKeyName', description='The key of the API key.', example='name'),
-      apiKeyValue?: string(name='ApiKeyValue', description='The value of the API key.', example='demo'),
+      apiKeyName?: string(name='ApiKeyName', description='The key of the API key.', example='name', maxLength=127),
+      apiKeyValue?: string(name='ApiKeyValue', description='The value of the API key.', example='demo', maxLength=127),
     }(name='ApiKeyAuthParameters', description='The parameters for API key authentication.'),
     authorizationType?: string(name='AuthorizationType', description='The authentication type. Valid values:
 
@@ -4372,14 +2830,14 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
 
 *   AuthorizationEndpoint, OAuthHttpParameters, and HttpMethod are required.', example='BASIC_AUTH'),
     basicAuthParameters?: {
-      password?: string(name='Password', description='The password for basic authentication.', example='admin'),
-      username?: string(name='Username', description='The username for basic authentication.', example='admin'),
+      password?: string(name='Password', description='The password for basic authentication.', example='admin', maxLength=127),
+      username?: string(name='Username', description='The username for basic authentication.', example='admin', maxLength=127),
     }(name='BasicAuthParameters', description='The parameters that are configured for basic authentication.'),
-    OAuthParameters?: {
-      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint that is used to obtain the OAuth token. The endpoint can be up to 127 characters in length.', example='http://localhost:8080/oauth/token'),
+    oAuthParameters?: {
+      authorizationEndpoint?: string(name='AuthorizationEndpoint', description='The endpoint that is used to obtain the OAuth token. The endpoint can be up to 127 characters in length.', example='http://localhost:8080/oauth/token', maxLength=127),
       clientParameters?: {
-        clientID?: string(name='ClientID', description='The client ID.', example='ClientID'),
-        clientSecret?: string(name='ClientSecret', description='The AccessKey secret of the client.', example='ClientSecret'),
+        clientID?: string(name='ClientID', description='The client ID.', example='ClientID', maxLength=127),
+        clientSecret?: string(name='ClientSecret', description='The AccessKey secret of the client.', example='ClientSecret', maxLength=127),
       }(name='ClientParameters', description='The parameters that are configured for the client.'),
       httpMethod?: string(name='HttpMethod', description='The HTTP request method. Valid values:
 
@@ -4389,7 +2847,7 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
 *   DELETE
 *   PUT
 *   PATCH', example='POST'),
-      OAuthHttpParameters?: {
+      oAuthHttpParameters?: {
         bodyParameters?: [ 
           {
             isValueSecret?: string(name='IsValueSecret', description='Specifies whether to enable authentication.', example='false'),
@@ -4413,11 +2871,11 @@ Introduction: OAuth2.0 is an authentication mechanism. In normal cases, a system
         ](name='QueryStringParameters', description='The parameters that are configured for the request path.'),
       }(name='OAuthHttpParameters', description='The request parameters for OAuth authentication.'),
     }(name='OAuthParameters', description='The parameters that are configured for OAuth authentication.'),
-  }(name='AuthParameters', description='The parameters that are configured for authentication.'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection that you want to update. The name must be 2 to 127 characters in length.', example='connection-name'),
-  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='The description of the connection.'),
-  networkParameters?: {
-    networkType?: string(name='NetworkType', description='PublicNetwork: the Internet.
+  }(name='AuthParameters', description='The parameters that are configured for authentication.', shrink='json', position='Query'),
+  connectionName: string(name='ConnectionName', description='The name of the connection that you want to update. The name must be 2 to 127 characters in length.', example='connection-name', minLength=2, maxLength=127, position='Query'),
+  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='The description of the connection.', maxLength=255, position='Query'),
+  networkParameters: {
+    networkType: string(name='NetworkType', description='PublicNetwork: the Internet.
 
 PrivateNetwork: virtual private cloud (VPC).
 
@@ -4425,14 +2883,7 @@ Note: If you set this parameter to PrivateNetwork, you must configure VpcId, Vsw
     securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='eb-167adad548759-security_grop/sg-bp1addad26peuh9qh9rtyb'),
     vpcId?: string(name='VpcId', description='The VPC ID.', example='eb-test/vpc-bp1symadadwnwgmqud'),
     vswitcheId?: string(name='VswitcheId', description='The vSwitch ID.', example='vsw-bp1iu4x7aeradadown1og8,vsw-bp193sqmadadlaszpeqbt2c'),
-  }(name='NetworkParameters', description='The parameters that are configured for the network.'),
-}
-
-model UpdateConnectionShrinkRequest {
-  authParametersShrink?: string(name='AuthParameters', description='The parameters that are configured for authentication.'),
-  connectionName?: string(name='ConnectionName', description='The name of the connection that you want to update. The name must be 2 to 127 characters in length.', example='connection-name'),
-  description?: string(name='Description', description='The description of the connection. The description can be up to 255 characters in length.', example='The description of the connection.'),
-  networkParametersShrink?: string(name='NetworkParameters', description='The parameters that are configured for the network.'),
+  }(name='NetworkParameters', description='The parameters that are configured for the network.', shrink='json', position='Query'),
 }
 
 model UpdateConnectionResponseBody = {
@@ -4450,64 +2901,15 @@ model UpdateConnectionResponse = {
 /**
   * You can call this API operation to update a connection.
   *
-  * @param tmpReq UpdateConnectionRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateConnectionResponse
- */
-async function updateConnectionWithOptions(tmpReq: UpdateConnectionRequest, runtime: Util.RuntimeOptions): UpdateConnectionResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateConnectionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.authParameters)) {
-    request.authParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.authParameters, 'AuthParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.networkParameters)) {
-    request.networkParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.networkParameters, 'NetworkParameters', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.authParametersShrink)) {
-    query['AuthParameters'] = request.authParametersShrink;
-  }
-  if (!Util.isUnset(request.connectionName)) {
-    query['ConnectionName'] = request.connectionName;
-  }
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.networkParametersShrink)) {
-    query['NetworkParameters'] = request.networkParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateConnection',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to update a connection.
-  *
-  * @param request UpdateConnectionRequest
-  * @return UpdateConnectionResponse
  */
 async function updateConnection(request: UpdateConnectionRequest): UpdateConnectionResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateConnectionWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateConnection', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateEventBusRequest {
-  description?: string(name='Description', description='The description of the event bus.', example='test'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='eventTest'),
+  description?: string(name='Description', description='The description of the event bus.', example='test', maxLength=255, position='Query'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='eventTest', minLength=2, maxLength=127, position='Query'),
 }
 
 model UpdateEventBusResponseBody = {
@@ -4526,58 +2928,23 @@ model UpdateEventBusResponse = {
 /**
   * You can call this API operation to modify an event bus.
   *
-  * @param request UpdateEventBusRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateEventBusResponse
- */
-async function updateEventBusWithOptions(request: UpdateEventBusRequest, runtime: Util.RuntimeOptions): UpdateEventBusResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateEventBus',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to modify an event bus.
-  *
-  * @param request UpdateEventBusRequest
-  * @return UpdateEventBusResponse
  */
 async function updateEventBus(request: UpdateEventBusRequest): UpdateEventBusResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateEventBusWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateEventBus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateEventSourceRequest {
-  description?: string(name='Description', description='The description of the event source.'),
-  eventBusName?: string(name='EventBusName', description='The associated event bus.', example='my-event-bus'),
-  eventSourceName?: string(name='EventSourceName', description='The name of the event source.', example='myrabbitmq.source'),
+  description?: string(name='Description', description='The description of the event source.', position='Body'),
+  eventBusName: string(name='EventBusName', description='The associated event bus.', example='my-event-bus', position='Body'),
+  eventSourceName: string(name='EventSourceName', description='The name of the event source.', example='myrabbitmq.source', position='Body'),
   sourceHttpEventParameters?: {
     ip?: [ string ](name='Ip', description='The CIDR blocks used for security settings. This parameter is required only if you set SecurityConfig to ip. You can enter CIDR blocks or IP addresses.'),
     method?: [ string ](name='Method', description='The HTTP request method supported by the generated webhook URL. You can select multiple values. Valid values: GET POST PUT PATCH DELETE HEAD OPTIONS TRACE CONNECT'),
     referer?: [ string ](name='Referer', description='The security domain names. This parameter is required only if SecurityConfig is set to referer. You can enter domain names.'),
     securityConfig?: string(name='SecurityConfig', description='The type of security settings. Valid values: none: No configuration is required. ip: CIDR blocks. referer: security domain names.', example='none'),
     type?: string(name='Type', description='The protocol type supported by the generated webhook URL. Valid values: HTTP HTTPS HTTP\\&HTTPS', example='HTTPS'),
-  }(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.'),
+  }(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.', shrink='json', position='Body'),
   sourceKafkaParameters?: {
     consumerGroup?: string(name='ConsumerGroup', description='The ID of the consumer group that subscribes to the topic.', example='dsp_online_ml_request'),
     instanceId?: string(name='InstanceId', description='The instance ID.', example='cbwp-bp1o3m66wcjgbkssm3k5m'),
@@ -4589,18 +2956,18 @@ model UpdateEventSourceRequest {
     topic?: string(name='Topic', description='The topic name.', example='billing_notify'),
     vSwitchIds?: string(name='VSwitchIds', description='The ID of the vSwitch with which the Message Queue for Apache Kafka instance is associated. This parameter is required if you set Network to PublicNetwork.', example='vsw-bp1xyntcxiwplhqxjybuk'),
     vpcId?: string(name='VpcId', description='The ID of the VPC in which the Message Queue for Apache Kafka instance resides. This parameter is required if you set Network to PublicNetwork.', example='vpc-2zefu4vfmx6siogujmo0b'),
-  }(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.'),
+  }(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.', shrink='json', position='Body'),
   sourceMNSParameters?: {
     isBase64Decode?: boolean(name='IsBase64Decode', description='Specifies whether to enable Base64 decoding. Default value: true.', example='true'),
     queueName?: string(name='QueueName', description='The name of the MNS queue.', example='queue_api_bind_1672194645178'),
     regionId?: string(name='RegionId', description='The region where the MNS queue resides.', example='cn-beijing'),
-  }(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).'),
+  }(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).', shrink='json', position='Body'),
   sourceRabbitMQParameters?: {
     instanceId?: string(name='InstanceId', description='The ID of the Message Queue for RabbitMQ instance. For more information, see Limits.', example='bastionhost-cn-7mz2zkyff09'),
     queueName?: string(name='QueueName', description='The name of the queue in the Message Queue for RabbitMQ instance. For more information, see Limits.', example='eb-connect'),
     regionId?: string(name='RegionId', description='The ID of the region where the Message Queue for RabbitMQ instance resides.', example='cn-hangzhou'),
     virtualHostName?: string(name='VirtualHostName', description='The vhost name of the Message Queue for RabbitMQ instance. For more information, see Limits.', example='amqp-cn-nif22u74****'),
-  }(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.'),
+  }(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.', shrink='json', position='Body'),
   sourceRocketMQParameters?: {
     authType?: string(name='AuthType'),
     groupID?: string(name='GroupID', description='The ID of the consumer group in the Message Queue for Apache RocketMQ instance.', example='GID-test'),
@@ -4622,30 +2989,17 @@ model UpdateEventSourceRequest {
     tag?: string(name='Tag', description='The tags that are used to filter messages.', example='KEY2'),
     timestamp?: long(name='Timestamp', description='The timestamp of the offset from which consumption starts. This parameter is valid only if you set the Offset parameter to CONSUME_FROM_TIMESTAMP.', example='1663555399032'),
     topic?: string(name='Topic', description='The name of the topic in the Message Queue for Apache RocketMQ instance. For more information, see Limits.', example='topic_default_195820716552192'),
-  }(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.'),
+  }(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.', shrink='json', position='Body'),
   sourceSLSParameters?: {
     consumePosition?: string(name='ConsumePosition', description='The starting consumer offset. The value begin indicates the earliest offset, and the value end indicates the latest offset. You can also specify a time in seconds to start consumption.', example='end'),
     logStore?: string(name='LogStore', description='The Log Service Logstore.', example='waf-logstore'),
     project?: string(name='Project', description='The Log Service project.', example='VideoTestProject'),
     roleName?: string(name='RoleName', description='The role name. If you want to authorize EventBridge to use this role to read logs in Log Service, you must select Alibaba Cloud Service for Selected Trusted Entity and EventBridge for Select Trusted Service when you create the role in the RAM console. For information about the permission policy of this role, see Create a custom event source of the Log Service type.', example='testRole'),
-  }(name='SourceSLSParameters', description='SourceSLSParameters'),
+  }(name='SourceSLSParameters', description='SourceSLSParameters', shrink='json', position='Body'),
   sourceScheduledEventParameters?: {
     schedule?: string(name='Schedule', description='The Cron expression.', example='10 * * * * *'),
     timeZone?: string(name='TimeZone', description='The time zone in which the Cron expression is executed.', example='GMT+0:00'),
-  }(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.'),
-}
-
-model UpdateEventSourceShrinkRequest {
-  description?: string(name='Description', description='The description of the event source.'),
-  eventBusName?: string(name='EventBusName', description='The associated event bus.', example='my-event-bus'),
-  eventSourceName?: string(name='EventSourceName', description='The name of the event source.', example='myrabbitmq.source'),
-  sourceHttpEventParametersShrink?: string(name='SourceHttpEventParameters', description='The parameters that are configured if the event source is HTTP events.'),
-  sourceKafkaParametersShrink?: string(name='SourceKafkaParameters', description='The parameters that are configured if the event source is Message Queue for Apache Kafka.'),
-  sourceMNSParametersShrink?: string(name='SourceMNSParameters', description='The parameters that are configured if the event source is Message Service (MNS).'),
-  sourceRabbitMQParametersShrink?: string(name='SourceRabbitMQParameters', description='The parameters that are configured if the event source is Message Queue for RabbitMQ.'),
-  sourceRocketMQParametersShrink?: string(name='SourceRocketMQParameters', description='The parameters that are configured if the event source is Message Queue for Apache RocketMQ.'),
-  sourceSLSParametersShrink?: string(name='SourceSLSParameters', description='SourceSLSParameters'),
-  sourceScheduledEventParametersShrink?: string(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.'),
+  }(name='SourceScheduledEventParameters', description='The parameters that are configured if the event source is scheduled events.', shrink='json', position='Body'),
 }
 
 model UpdateEventSourceResponseBody = {
@@ -4665,98 +3019,16 @@ model UpdateEventSourceResponse = {
 /**
   * You can call this API operation to update an event source.
   *
-  * @param tmpReq UpdateEventSourceRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateEventSourceResponse
- */
-async function updateEventSourceWithOptions(tmpReq: UpdateEventSourceRequest, runtime: Util.RuntimeOptions): UpdateEventSourceResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateEventSourceShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.sourceHttpEventParameters)) {
-    request.sourceHttpEventParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceHttpEventParameters, 'SourceHttpEventParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceKafkaParameters)) {
-    request.sourceKafkaParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceKafkaParameters, 'SourceKafkaParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceMNSParameters)) {
-    request.sourceMNSParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceMNSParameters, 'SourceMNSParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceRabbitMQParameters)) {
-    request.sourceRabbitMQParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceRabbitMQParameters, 'SourceRabbitMQParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceRocketMQParameters)) {
-    request.sourceRocketMQParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceRocketMQParameters, 'SourceRocketMQParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceSLSParameters)) {
-    request.sourceSLSParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceSLSParameters, 'SourceSLSParameters', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sourceScheduledEventParameters)) {
-    request.sourceScheduledEventParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sourceScheduledEventParameters, 'SourceScheduledEventParameters', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.description)) {
-    body['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    body['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.eventSourceName)) {
-    body['EventSourceName'] = request.eventSourceName;
-  }
-  if (!Util.isUnset(request.sourceHttpEventParametersShrink)) {
-    body['SourceHttpEventParameters'] = request.sourceHttpEventParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceKafkaParametersShrink)) {
-    body['SourceKafkaParameters'] = request.sourceKafkaParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceMNSParametersShrink)) {
-    body['SourceMNSParameters'] = request.sourceMNSParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceRabbitMQParametersShrink)) {
-    body['SourceRabbitMQParameters'] = request.sourceRabbitMQParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceRocketMQParametersShrink)) {
-    body['SourceRocketMQParameters'] = request.sourceRocketMQParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceSLSParametersShrink)) {
-    body['SourceSLSParameters'] = request.sourceSLSParametersShrink;
-  }
-  if (!Util.isUnset(request.sourceScheduledEventParametersShrink)) {
-    body['SourceScheduledEventParameters'] = request.sourceScheduledEventParametersShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateEventSource',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to update an event source.
-  *
-  * @param request UpdateEventSourceRequest
-  * @return UpdateEventSourceResponse
  */
 async function updateEventSource(request: UpdateEventSourceRequest): UpdateEventSourceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateEventSourceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateEventSource', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateEventStreamingRequest {
-  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns'),
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming'),
-  filterPattern?: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.'),
+  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns', position='Body'),
+  eventStreamingName: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming', position='Body'),
+  filterPattern: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.', position='Body'),
   runOptions?: {
     batchWindow?: {
       countBasedWindow?: int32(name='CountBasedWindow', description='The maximum number of events that is allowed in the batch window. If the value specified by this parameter is reached, the data in the batch window is pushed to the downstream application. If multiple batch windows exist, data is pushed if triggering conditions are met in one of the windows.', example='100'),
@@ -4772,8 +3044,8 @@ model UpdateEventStreamingRequest {
       maximumRetryAttempts?: long(name='MaximumRetryAttempts', description='The maximum number of retries.', example='2'),
       pushRetryStrategy?: string(name='PushRetryStrategy', description='The retry policy that is used if an event failed to be pushed. Valid values: BACKOFF_RETRY and EXPONENTIAL_DECAY_RETRY.', example='BACKOFFRETRY'),
     }(name='RetryStrategy', description='The information about the retry policy that is used if the event fails to be pushed.'),
-  }(name='RunOptions', description='The parameters that are configured for the runtime environment.'),
-  sink?: {
+  }(name='RunOptions', description='The parameters that are configured for the runtime environment.', shrink='json', position='Body'),
+  sink: {
     sinkFcParameters?: {
       body?: {
         form?: string(name='Form', description='The method that is used to transform events.', example='TEMPLATE'),
@@ -5000,8 +3272,8 @@ model UpdateEventStreamingRequest {
         value?: string(name='Value', description='The name of the topic in which logs are stored. The topic corresponds to the topic reserved field in Log Service.', example='testTopic'),
       }(name='Topic', description='The information about the topic in which logs are stored. The topic corresponds to the topic reserved field in Log Service.'),
     }(name='SinkSLSParameters', description='Sink SLS Parameters'),
-  }(name='Sink', description='The event target. You must and can specify only one event target.'),
-  source?: {
+  }(name='Sink', description='The event target. You must and can specify only one event target.', shrink='json', position='Body'),
+  source: {
     sourceDTSParameters?: {
       brokerUrl?: string(name='BrokerUrl', description='The URL and port number of the data subscription channel.'),
       initCheckPoint?: long(name='InitCheckPoint', description='The consumer offset. A consumer offset is a timestamp that indicates when the SDK client consumes the first data record. The value is a UNIX timestamp.', example='1620962769'),
@@ -5050,16 +3322,7 @@ model UpdateEventStreamingRequest {
     sourceSLSParameters?: {
       roleName?: string(name='RoleName', description='The role name. If you want to authorize EventBridge to use this role to read logs in Log Service, you must select Alibaba Cloud Service for Selected Trusted Entity and EventBridge for Select Trusted Service when you create the role in the Resource Access Management (RAM) console.', example='testRole'),
     }(name='SourceSLSParameters', description='The parameters that are configured if the event source is Log Service.'),
-  }(name='Source', description='The event source, which is also known as the event source. You must and can specify only one event source.'),
-}
-
-model UpdateEventStreamingShrinkRequest {
-  description?: string(name='Description', description='The description of the event stream.', example='rocketmq2mns'),
-  eventStreamingName?: string(name='EventStreamingName', description='The name of the event stream.', example='myeventstreaming'),
-  filterPattern?: string(name='FilterPattern', description='The rule that is used to filter events. If you leave this parameter empty, all events are matched.'),
-  runOptionsShrink?: string(name='RunOptions', description='The parameters that are configured for the runtime environment.'),
-  sinkShrink?: string(name='Sink', description='The event target. You must and can specify only one event target.'),
-  sourceShrink?: string(name='Source', description='The event source, which is also known as the event source. You must and can specify only one event source.'),
+  }(name='Source', description='The event source, which is also known as the event source. You must and can specify only one event source.', shrink='json', position='Body'),
 }
 
 model UpdateEventStreamingResponseBody = {
@@ -5078,78 +3341,20 @@ model UpdateEventStreamingResponse = {
 /**
   * You can call this API operation to modify the information about an event stream, such as the basic information and the information about the event source, event filtering rule, and event target.
   *
-  * @param tmpReq UpdateEventStreamingRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateEventStreamingResponse
- */
-async function updateEventStreamingWithOptions(tmpReq: UpdateEventStreamingRequest, runtime: Util.RuntimeOptions): UpdateEventStreamingResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateEventStreamingShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.runOptions)) {
-    request.runOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.runOptions, 'RunOptions', 'json');
-  }
-  if (!Util.isUnset(tmpReq.sink)) {
-    request.sinkShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sink, 'Sink', 'json');
-  }
-  if (!Util.isUnset(tmpReq.source)) {
-    request.sourceShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.source, 'Source', 'json');
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.description)) {
-    body['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventStreamingName)) {
-    body['EventStreamingName'] = request.eventStreamingName;
-  }
-  if (!Util.isUnset(request.filterPattern)) {
-    body['FilterPattern'] = request.filterPattern;
-  }
-  if (!Util.isUnset(request.runOptionsShrink)) {
-    body['RunOptions'] = request.runOptionsShrink;
-  }
-  if (!Util.isUnset(request.sinkShrink)) {
-    body['Sink'] = request.sinkShrink;
-  }
-  if (!Util.isUnset(request.sourceShrink)) {
-    body['Source'] = request.sourceShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateEventStreaming',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to modify the information about an event stream, such as the basic information and the information about the event source, event filtering rule, and event target.
-  *
-  * @param request UpdateEventStreamingRequest
-  * @return UpdateEventStreamingResponse
  */
 async function updateEventStreaming(request: UpdateEventStreamingRequest): UpdateEventStreamingResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateEventStreamingWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateEventStreaming', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateRuleRequest {
-  description?: string(name='Description', description='The description of the event bus.', example='demo'),
-  eventBusName?: string(name='EventBusName', description='The name of the event bus.', example='hw-test'),
-  filterPattern?: string(name='FilterPattern', description='The event pattern, in JSON format. Valid values: stringEqual stringExpression Each field can have a maximum of five expressions in the map data structure.
+  description?: string(name='Description', description='The description of the event bus.', example='demo', position='Query'),
+  eventBusName: string(name='EventBusName', description='The name of the event bus.', example='hw-test', position='Query'),
+  filterPattern: string(name='FilterPattern', description='The event pattern, in JSON format. Valid values: stringEqual stringExpression Each field can have a maximum of five expressions in the map data structure.
 
-Each field can have a maximum of five expressions in the map data structure.', example='{\\"source\\":[\\"acs.oss\\"],\\"type\\":[\\"oss:BucketQueried:GetBucketStat\\"]}'),
-  ruleName?: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule'),
-  status?: string(name='Status', description='The status of the event rule. Valid values: ENABLE: The event rule is enabled. It is the default state of the event rule. DISABLE: The event rule is disabled.', example='ENABLE'),
+Each field can have a maximum of five expressions in the map data structure.', example='{\\"source\\":[\\"acs.oss\\"],\\"type\\":[\\"oss:BucketQueried:GetBucketStat\\"]}', position='Query'),
+  ruleName: string(name='RuleName', description='The name of the event rule.', example='tf-testacc-rule', position='Query'),
+  status?: string(name='Status', description='The status of the event rule. Valid values: ENABLE: The event rule is enabled. It is the default state of the event rule. DISABLE: The event rule is disabled.', example='ENABLE', position='Query'),
 }
 
 model UpdateRuleResponseBody = {
@@ -5169,53 +3374,9 @@ model UpdateRuleResponse = {
 /**
   * You can call this API operation to update the configurations of an event rule.
   *
-  * @param request UpdateRuleRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateRuleResponse
- */
-async function updateRuleWithOptions(request: UpdateRuleRequest, runtime: Util.RuntimeOptions): UpdateRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.description)) {
-    query['Description'] = request.description;
-  }
-  if (!Util.isUnset(request.eventBusName)) {
-    query['EventBusName'] = request.eventBusName;
-  }
-  if (!Util.isUnset(request.filterPattern)) {
-    query['FilterPattern'] = request.filterPattern;
-  }
-  if (!Util.isUnset(request.ruleName)) {
-    query['RuleName'] = request.ruleName;
-  }
-  if (!Util.isUnset(request.status)) {
-    query['Status'] = request.status;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateRule',
-    version = '2020-04-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
-  * You can call this API operation to update the configurations of an event rule.
-  *
-  * @param request UpdateRuleRequest
-  * @return UpdateRuleResponse
  */
 async function updateRule(request: UpdateRuleRequest): UpdateRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateRuleWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateRule', 'POST', '/', 'json', false, 'json', request);
 }
 
