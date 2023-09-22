@@ -99,11 +99,23 @@ model ApplyReason {
 }
 
 model Category {
-  categoryId?: long(name='categoryId'),
-  leaf?: boolean(name='leaf', example='false'),
-  level?: int32(name='level', example='0'),
-  name?: string(name='name', example='名称测试'),
-  parentId?: long(name='parentId', example='0'),
+  categoryId?: long(name='categoryId', example='201792301'),
+  isLeaf?: boolean(name='isLeaf', example='false'),
+  level?: int32(name='level', example='2'),
+  name?: string(name='name', example='方便面/拉面/挂面/轻食面速食'),
+  parentId?: long(name='parentId', example='50016422'),
+}
+
+model CategoryListQuery {
+  categoryIds?: [ long ](name='categoryIds'),
+  parentCategoryId?: long(name='parentCategoryId', example='5200001'),
+}
+
+model CategoryListResult {
+  categories?: [
+    Category
+  ](name='categories'),
+  requestId?: string(name='requestId'),
 }
 
 model ConfirmDisburseCmd {
@@ -197,7 +209,7 @@ model Good {
 
 model GoodsShippingNoticeCreateCmd {
   cpCode?: string(name='cpCode', example='SF'),
-  disputeId?: long(name='disputeId', example='6693****4352'),
+  disputeId?: string(name='disputeId', example='6693****4352'),
   logisticsNo?: string(name='logisticsNo', example='SF145****4351'),
 }
 
@@ -550,6 +562,7 @@ model RefundResult {
   refunderName?: string(name='refunderName', example='赵先生'),
   refunderTel?: string(name='refunderTel', example='182****1334'),
   refunderZipCode?: string(name='refunderZipCode', example='331001'),
+  requestId?: string(name='requestId', example='841471F6-5D61-1331-8C38-2****B55'),
   returnGoodLogisticsStatus?: int32(name='returnGoodLogisticsStatus', example='0'),
   sellerAgreeMsg?: string(name='sellerAgreeMsg', example='同意退款'),
   sellerRefuseAgreementMessage?: string(name='sellerRefuseAgreementMessage', example='不同意退款'),
@@ -1035,6 +1048,42 @@ async function getSelectionProductSaleInfo(productId: string, request: GetSelect
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getSelectionProductSaleInfoWithOptions(productId, request, headers, runtime);
+}
+
+model ListCategoriesRequest {
+  body?: CategoryListQuery(name='body'),
+}
+
+model ListCategoriesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CategoryListResult  
+}
+
+async function listCategoriesWithOptions(request: ListCategoriesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListCategoriesResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCategories',
+    version = '2023-09-30',
+    protocol = 'HTTPS',
+    pathname = `/opensaas-s2b/opensaas-s2b-biz-trade/v2/categories/commands/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listCategories(request: ListCategoriesRequest): ListCategoriesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listCategoriesWithOptions(request, headers, runtime);
 }
 
 model ListLogisticsOrdersResponse = {
