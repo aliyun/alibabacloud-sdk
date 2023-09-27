@@ -70,6 +70,7 @@ model BriefResourceSetting {
 
 model Deployment {
   artifact?: Artifact(name='artifact'),
+  batchResourceSetting?: BatchResourceSetting(name='batchResourceSetting'),
   creator?: string(name='creator', example='27846363877456****'),
   creatorName?: string(name='creatorName', example='****@streamcompute.onaliyun.com'),
   deploymentHasChanged?: boolean(name='deploymentHasChanged', example='true'),
@@ -85,6 +86,7 @@ model Deployment {
   modifierName?: string(name='modifierName', example='****@streamcompute.onaliyun.com'),
   name?: string(name='name', example='deploymentName'),
   namespace?: string(name='namespace', example='default-namespace'),
+  streamingResourceSetting?: StreamingResourceSetting(name='streamingResourceSetting'),
 }
 
 model DeploymentRestoreStrategy {
@@ -151,6 +153,7 @@ model Job {
   startTime?: long(name='startTime', example='1660190835'),
   status?: JobStatus(name='status'),
   streamingResourceSetting?: StreamingResourceSetting(name='streamingResourceSetting'),
+  userFlinkConf?: map[string]any(name='userFlinkConf'),
 }
 
 model JobFailure {
@@ -162,6 +165,11 @@ model JobFailure {
 model JobMetric {
   totalCpu?: double(name='totalCpu', example='2'),
   totalMemoryByte?: long(name='totalMemoryByte', example='4096'),
+}
+
+model JobStartParameters {
+  deploymentId?: string(name='deploymentId'),
+  restoreStrategy?: DeploymentRestoreStrategy(name='restoreStrategy'),
 }
 
 model JobStatus {
@@ -1064,6 +1072,8 @@ model ListDeploymentsHeaders {
 }
 
 model ListDeploymentsRequest {
+  executionMode?: string(name='executionMode'),
+  name?: string(name='name'),
   pageIndex?: int32(name='pageIndex', example='1'),
   pageSize?: int32(name='pageSize', example='10'),
 }
@@ -1091,6 +1101,12 @@ model ListDeploymentsResponse = {
 async function listDeploymentsWithOptions(namespace: string, request: ListDeploymentsRequest, headers: ListDeploymentsHeaders, runtime: Util.RuntimeOptions): ListDeploymentsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.executionMode)) {
+    query['executionMode'] = request.executionMode;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
   if (!Util.isUnset(request.pageIndex)) {
     query['pageIndex'] = request.pageIndex;
   }
@@ -1429,6 +1445,15 @@ model StartJobResponse = {
   body: StartJobResponseBody(name='body'),
 }
 
+/**
+  * @deprecated
+  *
+  * @param request StartJobRequest
+  * @param headers StartJobHeaders
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return StartJobResponse
+ */
+// Deprecated
 async function startJobWithOptions(namespace: string, request: StartJobRequest, headers: StartJobHeaders, runtime: Util.RuntimeOptions): StartJobResponse {
   Util.validateModel(request);
   var realHeaders : map[string]string = {};
@@ -1456,10 +1481,74 @@ async function startJobWithOptions(namespace: string, request: StartJobRequest, 
   return callApi(params, req, runtime);
 }
 
+/**
+  * @deprecated
+  *
+  * @param request StartJobRequest
+  * @return StartJobResponse
+ */
+// Deprecated
 async function startJob(namespace: string, request: StartJobRequest): StartJobResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers = new StartJobHeaders{};
   return startJobWithOptions(namespace, request, headers, runtime);
+}
+
+model StartJobWithParamsHeaders {
+  commonHeaders?: map[string]string,
+  workspace?: string(name='workspace', example='a14bd5d90a****'),
+}
+
+model StartJobWithParamsRequest {
+  body?: JobStartParameters(name='body'),
+}
+
+model StartJobWithParamsResponseBody = {
+  data?: Job(name='data'),
+  errorCode?: string(name='errorCode', example='""'),
+  errorMessage?: string(name='errorMessage', example='""'),
+  httpCode?: int32(name='httpCode', example='200'),
+  requestId?: string(name='requestId', example='CBC799F0-AS7S-1D30-8A4F-882ED4DD****'),
+  success?: boolean(name='success', example='true'),
+}
+
+model StartJobWithParamsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: StartJobWithParamsResponseBody(name='body'),
+}
+
+async function startJobWithParamsWithOptions(namespace: string, request: StartJobWithParamsRequest, headers: StartJobWithParamsHeaders, runtime: Util.RuntimeOptions): StartJobWithParamsResponse {
+  Util.validateModel(request);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.workspace)) {
+    realHeaders['workspace'] = Util.toJSONString(headers.workspace);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'StartJobWithParams',
+    version = '2022-07-18',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/namespaces/${OpenApiUtil.getEncodeParam(namespace)}/jobs%3Astart`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function startJobWithParams(namespace: string, request: StartJobWithParamsRequest): StartJobWithParamsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new StartJobWithParamsHeaders{};
+  return startJobWithParamsWithOptions(namespace, request, headers, runtime);
 }
 
 model StopJobHeaders {
