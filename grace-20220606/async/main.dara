@@ -1,0 +1,169 @@
+/**
+ *
+ */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'grace';
+  @version = '2022-06-06';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model AnalysisConfig {
+  badThroughputThreshold?: double(name='badThroughputThreshold'),
+  fullGCFrequentIntervalThreshold?: double(name='fullGCFrequentIntervalThreshold'),
+  highHeapUsageThreshold?: double(name='highHeapUsageThreshold'),
+  highHumongousUsageThreshold?: double(name='highHumongousUsageThreshold'),
+  highMetaspaceUsageThreshold?: double(name='highMetaspaceUsageThreshold'),
+  highOldUsageThreshold?: double(name='highOldUsageThreshold'),
+  highPromotionThreshold?: double(name='highPromotionThreshold'),
+  highSysThreshold?: double(name='highSysThreshold'),
+  longConcurrentThreshold?: double(name='longConcurrentThreshold'),
+  longPauseThreshold?: double(name='longPauseThreshold'),
+  lowUsrThreshold?: double(name='lowUsrThreshold'),
+  oldGCFrequentIntervalThreshold?: double(name='oldGCFrequentIntervalThreshold'),
+  smallGenerationThreshold?: double(name='smallGenerationThreshold'),
+  timeRange?: {
+    end?: double(name='end'),
+    start?: double(name='start'),
+  }(name='timeRange'),
+  tooManyOldGCThreshold?: double(name='tooManyOldGCThreshold'),
+  youngGCFrequentIntervalThreshold?: double(name='youngGCFrequentIntervalThreshold'),
+}
+
+model FileInfo {
+  analyzeProgress?: {
+    message?: string(name='message'),
+    percent?: double(name='percent'),
+    state?: string(name='state'),
+  }(name='analyzeProgress'),
+  creationTime?: long(name='creationTime'),
+  displayName?: string(name='displayName'),
+  labels?: string(name='labels'),
+  name?: string(name='name'),
+  requestId?: string(name='requestId'),
+  shared?: boolean(name='shared'),
+  size?: long(name='size'),
+  transferProgress?: {
+    totalSize?: long(name='totalSize'),
+    transferredSize?: long(name='transferredSize'),
+  }(name='transferProgress'),
+  transferState?: string(name='transferState'),
+  type?: string(name='type'),
+}
+
+model PhaseStatisticItem {
+  count?: int32(name='count'),
+  durationAvg?: double(name='durationAvg'),
+  durationMax?: double(name='durationMax'),
+  durationTotal?: double(name='durationTotal'),
+  intervalAvg?: double(name='intervalAvg'),
+  intervalMin?: double(name='intervalMin'),
+  name?: string(name='name'),
+}
+
+model AnalyzeFileRequest {
+  keepUnreachableObjects?: boolean(name='keepUnreachableObjects', example='true', position='Query'),
+  name?: string(name='name', example='123-456-file.log', position='Query'),
+  token?: string(name='token', example='6e54e9d5-3147-458e-a85d-bae8722de747', position='Query'),
+}
+
+model AnalyzeFileResponseBody = {
+  fileName?: string(name='fileName', example='207076258906603549-1667270208299-heap_dump_11.195.186.232_1667269965442.bin'),
+  requestId?: string(name='requestId', example='B14EC7CC-5181-582F-8EB7-6DB142FB529F'),
+}
+
+model AnalyzeFileResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: AnalyzeFileResponseBody(name='body'),
+}
+
+async function analyzeFile(request: AnalyzeFileRequest): AnalyzeFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AnalyzeFile', 'POST', '/AnalyzeFile', 'json', false, 'json', request);
+}
+
+model GetFileRequest {
+  name: string(name='name', example='1597871211794192-1682563156700-402185-1682563123810-bbbbb', position='Query'),
+  token?: string(name='token', example='924cb178-32e6-453a-a553-83289f9f494c', position='Query'),
+}
+
+model GetFileResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: FileInfo  
+}
+
+async function getFile(request: GetFileRequest): GetFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetFile', 'GET', '/GetFile', 'json', false, 'json', request);
+}
+
+model UploadFileByOSSRequest {
+  bucketName: string(name='bucketName', example='grace-storage', position='Query'),
+  displayName?: string(name='displayName', example='heap.bin', position='Query'),
+  endpoint: string(name='endpoint', description='oss endpoint', example='https://oss-cn-hangzhou.aliyuncs.com', position='Query'),
+  objectName: string(name='objectName', example='heap.bin', position='Query'),
+  type: string(name='type', example='thread_dump', position='Query'),
+}
+
+model UploadFileByOSSResponseBody = {
+  name?: string(name='name', example='1597871211794192-1665457027646-grace-storage1-heap.bin'),
+  requestId?: string(name='requestId', example='E7D6CC4E-C216-5313-A9A5-B5DA619ED431'),
+}
+
+model UploadFileByOSSResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UploadFileByOSSResponseBody(name='body'),
+}
+
+async function uploadFileByOSS(request: UploadFileByOSSRequest): UploadFileByOSSResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UploadFileByOSS', 'POST', '/UploadFileByOSS', 'json', false, 'json', request);
+}
+
+model UploadFileByURLRequest {
+  displayName?: string(name='displayName', example='atp_stack.log', position='Query'),
+  type: string(name='type', example='heap_dump', position='Query'),
+  url: string(name='url', example='https://bucket.oss-cn-hangzhou.aliyuncs.com/file.log', position='Query'),
+}
+
+model UploadFileByURLResponseBody = {
+  name?: string(name='name', example='1597871211794192-1682567255445-bbbbb'),
+  requestId?: string(name='requestId', example='D052C0F4-5884-5B01-A8CC-D63B9A549B6C'),
+}
+
+model UploadFileByURLResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UploadFileByURLResponseBody(name='body'),
+}
+
+async function uploadFileByURL(request: UploadFileByURLRequest): UploadFileByURLResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UploadFileByURL', 'POST', '/UploadFileByURL', 'json', false, 'json', request);
+}
+
