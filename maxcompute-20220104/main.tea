@@ -589,7 +589,6 @@ model GetProjectResponseBody = {
     productType?: string(name='productType', description='The billing method of the project.', example='PayAsYouGo'),
     properties?: {
       allowFullScan?: boolean(name='allowFullScan', description='Indicates whether a full table scan on the project is enabled.', example='false'),
-      elderTunnelQuota?: string(name='elderTunnelQuota', description='This operation does not return a value for this parameter.', example='No value'),
       enableDecimal2?: boolean(name='enableDecimal2', description='Indicates whether the DECIMAL data type in MaxCompute V2.0 is enabled.', example='true'),
       enableTunnelQuotaRoute?: boolean(name='enableTunnelQuotaRoute', description='Indicates whether tunnel quota routing is enabled.', example='true'),
       encryption?: {
@@ -599,6 +598,14 @@ model GetProjectResponseBody = {
       }(name='encryption', description='The encryption information.'),
       retentionDays?: long(name='retentionDays', description='The number of days for which backup data can be retained.', example='1'),
       sqlMeteringMax?: string(name='sqlMeteringMax', description='The upper limit for the resources that are consumed by an SQL statement.', example='1500'),
+      storageTierInfo?: {
+        projectBackupSize?: long(name='projectBackupSize', description='The backup storage.', example='86672917'),
+        storageTierSize?: {
+          longTermSize?: long(name='longTermSize', description='The long-term storage.', example='21764917'),
+          lowFrequencySize?: long(name='lowFrequencySize', description='The IA storage.', example='767693'),
+          standardSize?: long(name='standardSize', description='The standard storage.', example='27649172'),
+        }(name='storageTierSize', description='The tiered storage.'),
+      }(name='storageTierInfo', description='The information about the tiered storage.'),
       tableLifecycle?: {
         type?: string(name='type', description='The type of the lifecycle. Valid values: -**mandatory**: The lifecycle clause is required. You must configure a lifecycle for a table. -**optional**: The lifecycle clause is optional in a table creation statement. If you do not configure a lifecycle for a table, the table does not expire. -**inherit**: If you do not configure a lifecycle for a table when you create the table, the value of the odps.table.lifecycle.value parameter is used by default.', example='optional'),
         value?: string(name='value', description='The retention period of a table. Unit: days.', example='37231'),
@@ -699,7 +706,6 @@ model GetQuotaResponseBody = {
     cluster?: string(name='cluster', example='AT-120N'),
     createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
     creatorId?: string(name='creatorId', example='672863518'),
-    groupName?: string(name='groupName'),
     id?: string(name='id', example='0'),
     name?: string(name='name', example='quota_a'),
     nickName?: string(name='nickName', example='quota_nickname'),
@@ -731,7 +737,6 @@ model GetQuotaResponseBody = {
         cluster?: string(name='cluster', example='AT-120N'),
         createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
         creatorId?: string(name='creatorId', example='672863518'),
-        groupName?: string(name='groupName'),
         id?: string(name='id', example='1000048'),
         name?: string(name='name', example='subquotaA'),
         nickName?: string(name='nickName', example='subquotaA'),
@@ -994,6 +999,75 @@ async function getQuotaPlan(nickname: string, planName: string, request: GetQuot
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getQuotaPlanWithOptions(nickname, planName, request, headers, runtime);
+}
+
+model GetQuotaScheduleRequest {
+  displayTimezone?: string(name='displayTimezone'),
+  region?: string(name='region', description='The ID of the region.', example='cn-beijing'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant.', example='478403690625249'),
+}
+
+model GetQuotaScheduleResponseBody = {
+  data?: [ 
+    {
+      condition?: {
+        after?: string(name='after', description='The start time when the quota plan takes effect.', example='2022-04-25T04:23:04Z'),
+        at?: string(name='at', description='The time when the quota plan takes effect.', example='0900'),
+      }(name='condition', description='The condition value.'),
+      id?: string(name='id', description='The ID of the quota plan.', example='63'),
+      operator?: string(name='operator', description='The name of the operator.', example='userA'),
+      plan?: string(name='plan', description='The name of the quota plan.', example='planA'),
+      timezone?: string(name='timezone'),
+      type?: string(name='type', description='The type of the quota plan.', example='once'),
+    }
+  ](name='data', description='The returned data.'),
+  errorCode?: string(name='errorCode'),
+  errorMsg?: string(name='errorMsg'),
+  httpCode?: int32(name='httpCode'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='0bc059b716696296266308790e0d3e'),
+}
+
+model GetQuotaScheduleResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetQuotaScheduleResponseBody(name='body'),
+}
+
+async function getQuotaScheduleWithOptions(nickname: string, request: GetQuotaScheduleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetQuotaScheduleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.displayTimezone)) {
+    query['displayTimezone'] = request.displayTimezone;
+  }
+  if (!Util.isUnset(request.region)) {
+    query['region'] = request.region;
+  }
+  if (!Util.isUnset(request.tenantId)) {
+    query['tenantId'] = request.tenantId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetQuotaSchedule',
+    version = '2022-01-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/quotas/${OpenApiUtil.getEncodeParam(nickname)}/schedule`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getQuotaSchedule(nickname: string, request: GetQuotaScheduleRequest): GetQuotaScheduleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getQuotaScheduleWithOptions(nickname, request, headers, runtime);
 }
 
 model GetRoleAclResponseBody = {
@@ -1563,7 +1637,6 @@ model ListProjectsResponseBody = {
         owner?: string(name='owner', example='1139815775606813'),
         properties?: {
           allowFullScan?: boolean(name='allowFullScan', example='false'),
-          elderTunnelQuota?: string(name='elderTunnelQuota'),
           enableDecimal2?: boolean(name='enableDecimal2', example='true'),
           enableTunnelQuotaRoute?: boolean(name='enableTunnelQuotaRoute', example='true'),
           encryption?: {
@@ -1717,7 +1790,6 @@ model ListQuotasResponseBody = {
         cluster?: string(name='cluster', example='AT-120N'),
         createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
         creatorId?: string(name='creatorId', example='672863518'),
-        groupName?: string(name='groupName'),
         id?: string(name='id', example='0'),
         name?: string(name='name', example='quota_a'),
         nickName?: string(name='nickName', example='quota_nickname'),
@@ -1749,7 +1821,6 @@ model ListQuotasResponseBody = {
             cluster?: string(name='cluster', example='AT-120N'),
             createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
             creatorId?: string(name='creatorId', example='672863518'),
-            groupName?: string(name='groupName'),
             id?: string(name='id', example='1000048'),
             name?: string(name='name', example='subquotaA'),
             nickName?: string(name='nickName', example='subquotaA'),
@@ -1802,7 +1873,6 @@ model ListQuotasResponseBody = {
       cluster?: string(name='cluster', example='AT-120N'),
       createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
       creatorId?: string(name='creatorId', example='672863518'),
-      groupName?: string(name='groupName'),
       id?: string(name='id', example='0'),
       name?: string(name='name', example='quota_a'),
       nickName?: string(name='nickName', example='quota_nickname'),
@@ -1834,7 +1904,6 @@ model ListQuotasResponseBody = {
           cluster?: string(name='cluster', example='AT-120N'),
           createTime?: long(name='createTime', example='2022-09-06T02:14:44Z'),
           creatorId?: string(name='creatorId', example='672863518'),
-          groupName?: string(name='groupName'),
           id?: string(name='id', example='1000048'),
           name?: string(name='name', example='subquotaA'),
           nickName?: string(name='nickName', example='subquotaA'),
