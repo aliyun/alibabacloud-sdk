@@ -381,6 +381,33 @@ async function createBackup(request: CreateBackupRequest): CreateBackupResponse 
   return @handler.do('RPC', 'CreateBackup', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateColdStorageInstanceRequest {
+  clientToken?: string(name='ClientToken', example='6000170000591aed949d0f5********************', position='Query'),
+  coldStorageInstanceDescription?: string(name='ColdStorageInstanceDescription', example='xxxxxxxxx', position='Query'),
+  DBClusterId: string(name='DBClusterId', example='pc-wz9ye3xrtj60ua6d1', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-************', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model CreateColdStorageInstanceResponseBody = {
+  coldStorageInstanceId?: string(name='ColdStorageInstanceId', example='pcs_2zeth2gf4i83e578t'),
+  requestId?: string(name='RequestId', example='F6EBB4ED-D12F-5F49-824C-9DD9C0EC4CF2'),
+}
+
+model CreateColdStorageInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateColdStorageInstanceResponseBody(name='body'),
+}
+
+async function createColdStorageInstance(request: CreateColdStorageInstanceRequest): CreateColdStorageInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateColdStorageInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateDBClusterRequest {
   allowShutDown?: string(name='AllowShutDown', description='Specifies whether to enable the no-activity suspension feature. Default value: false. Valid values:
 
@@ -575,7 +602,7 @@ Default value: **1**.
 > 开启了多可用区数据强一致，该参数才生效。', example='cn-hangzhou-g', position='Query'),
   storageAutoScale?: string(name='StorageAutoScale', position='Query'),
   storagePayType?: string(name='StoragePayType', position='Query'),
-  storageSpace?: long(name='StorageSpace', description='The storage space that uses the subscription billing method. Unit: GB.', example='50', minimum=20, maximum=32000, position='Query'),
+  storageSpace?: long(name='StorageSpace', description='The storage space that uses the subscription billing method. Unit: GB.', example='50', minimum=20, maximum=64000, position='Query'),
   storageType?: string(name='StorageType', description='The storage type. Valid values for Enterprise Edition:
 
 *   **PSL5**
@@ -588,7 +615,7 @@ Valid values for Standard Edition:
 *   **ESSDPL3**
 
 > This parameter is invalid for serverless clusters.', example='PSL4', position='Query'),
-  storageUpperBound?: long(name='StorageUpperBound', minimum=20, maximum=32000, position='Query'),
+  storageUpperBound?: long(name='StorageUpperBound', minimum=20, maximum=64000, position='Query'),
   strictConsistency?: string(name='StrictConsistency', description='集群是否开启了多可用区数据强一致。取值范围：
 
 - **ON**：表示开启了多可用区数据强一致，适用于标准版3AZ场景。
@@ -2284,6 +2311,7 @@ model DescribeDBClusterAttributeResponseBody = {
 
 *   **Postpaid**: pay-as-you-go.
 *   **Prepaid**: subscription', example='Prepaid'),
+  provisionedIops?: string(name='ProvisionedIops'),
   proxyCpuCores?: string(name='ProxyCpuCores', description='The number of CPU cores for PolarProxy.', example='4'),
   proxyServerlessType?: string(name='ProxyServerlessType', description='The type of the serverless PolarProxy. Valid value: AgileServerless.', example='AgileServerless'),
   proxyStandardCpuCores?: string(name='ProxyStandardCpuCores', description='The number of CPU cores for PolarProxy Standard Enterprise Edition.', example='2'),
@@ -4124,17 +4152,23 @@ model DescribeLogBackupPolicyRequest {
 }
 
 model DescribeLogBackupPolicyResponseBody = {
-  enableBackupLog?: int32(name='EnableBackupLog', description='Indicates whether the log backup feature was enabled. Valid values:
+  enableBackupLog?: int32(name='EnableBackupLog', description='Indicates whether the log backup feature is enabled. Valid values:
 
-*   0: disabled.
-*   1: enabled. By default, the log backup feature is enabled and cannot be disabled.', example='1'),
-  logBackupAnotherRegionRegion?: string(name='LogBackupAnotherRegionRegion'),
-  logBackupAnotherRegionRetentionPeriod?: string(name='LogBackupAnotherRegionRetentionPeriod'),
-  logBackupRetentionPeriod?: int32(name='LogBackupRetentionPeriod', description='The retention period of the logs. Valid values:
+*   0: The log backup feature is disabled.
+*   1: The log backup feature is enabled. By default, the log backup feature is enabled and cannot be disabled.', example='1'),
+  logBackupAnotherRegionRegion?: string(name='LogBackupAnotherRegionRegion', description='The region in which you want to store cross-region log backups. For more information about regions that support the cross-region backup feature, see [Overview](~~72672~~).', example='cn-beijing'),
+  logBackupAnotherRegionRetentionPeriod?: string(name='LogBackupAnotherRegionRetentionPeriod', description='The retention period of cross-region log backups. Valid values:
 
-*   7 to 7300: The logs are retained for 7 to 7,300 days.
-*   \\-1: The logs are permanently retained.', example='7'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='62EE0051-102B-488D-9C79-D607B8******'),
+*   **0**: The cross-region backup feature is disabled.
+*   **30 to 7300**: Cross-region log backups are retained for 30 to 7,300 days.
+*   **-1**: The log backups are permanently retained.
+
+>  When you create a cluster, the default value of this parameter is **0**.', example='0'),
+  logBackupRetentionPeriod?: int32(name='LogBackupRetentionPeriod', description='The retention period of the log backups. Valid values:
+
+*   3 to 7300: The log backups are retained for 3 to 7,300 days.
+*   \\-1: The log backups are permanently retained.', example='7'),
+  requestId?: string(name='RequestId', description='The request ID.', example='62EE0051-102B-488D-9C79-D607B8******'),
 }
 
 model DescribeLogBackupPolicyResponse = {
@@ -5048,6 +5082,36 @@ model DisableDBClusterServerlessResponse = {
 async function disableDBClusterServerless(request: DisableDBClusterServerlessRequest): DisableDBClusterServerlessResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DisableDBClusterServerless', 'POST', '/', 'json', false, 'json', request);
+}
+
+model EnableDBClusterServerlessRequest {
+  DBClusterId: string(name='DBClusterId', example='pc-**************', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  scaleApRoNumMax?: string(name='ScaleApRoNumMax', example='1', position='Query'),
+  scaleApRoNumMin?: string(name='ScaleApRoNumMin', example='1', position='Query'),
+  scaleMax?: string(name='ScaleMax', example='2', position='Query'),
+  scaleMin?: string(name='ScaleMin', example='1', position='Query'),
+  scaleRoNumMax?: string(name='ScaleRoNumMax', example='2', position='Query'),
+  scaleRoNumMin?: string(name='ScaleRoNumMin', example='1', position='Query'),
+}
+
+model EnableDBClusterServerlessResponseBody = {
+  DBClusterId?: string(name='DBClusterId', example='pc-bp10gr51qasnl****'),
+  requestId?: string(name='RequestId', example='5E71541A-6007-4DCC-A38A-F872C31FEB45'),
+}
+
+model EnableDBClusterServerlessResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: EnableDBClusterServerlessResponseBody(name='body'),
+}
+
+async function enableDBClusterServerless(request: EnableDBClusterServerlessRequest): EnableDBClusterServerlessResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'EnableDBClusterServerless', 'POST', '/', 'json', false, 'json', request);
 }
 
 model EnableFirewallRulesRequest {
