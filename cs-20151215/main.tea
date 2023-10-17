@@ -68,10 +68,13 @@ model Addon {
 }
 
 model DataDisk {
+  autoFormat?: boolean(name='auto_format', example='true'),
   autoSnapshotPolicyId?: string(name='auto_snapshot_policy_id', example='sp-2zej1nogjvovnz4z****'),
   burstingEnabled?: boolean(name='bursting_enabled', example='true'),
   category?: string(name='category', example='cloud_ssd'),
   encrypted?: string(name='encrypted', example='true'),
+  fileSystem?: string(name='file_system', example='ext4'),
+  mountTarget?: string(name='mount_target', example='/mnt/path1'),
   performanceLevel?: string(name='performance_level', example='PL1'),
   provisionedIops?: long(name='provisioned_iops', example='1000'),
   size?: long(name='size', example='40'),
@@ -629,7 +632,7 @@ async function checkControlPlaneLogEnable(ClusterId: string): CheckControlPlaneL
 }
 
 model CreateAutoscalingConfigRequest {
-  coolDownDuration?: string(name='cool_down_duration', description='The cooldown period. Newly added nodes can be removed in scale-in activities only after the cooldown period ends. Unit: minutes.', example='10'),
+  coolDownDuration?: string(name='cool_down_duration', description='The cooldown period. Newly added nodes can be removed in scale-in activities only after the cooldown period ends. Unit: minutes.', example='10 m'),
   daemonsetEvictionForNodes?: boolean(name='daemonset_eviction_for_nodes', description='Specifies whether to evict DaemonSet pods during scale-in activities. Valid values:
 
 *   `true`: evicts DaemonSet pods.
@@ -640,7 +643,7 @@ model CreateAutoscalingConfigRequest {
 *   `random`: the random policy. If multiple node pools meet the requirement, this policy selects a random node pool for the scale-out activity.
 *   `priority`: the priority-based policy If multiple node pools meet the requirement, this policy selects the node pool with the highest priority for the scale-out activity. The priority setting is stored in the ConfigMap named `cluster-autoscaler-priority-expander` in the kube-system namespace. When a scale-out activity is triggered, the policy obtains the node pool priorities from the ConfigMap based on the node pool IDs and then selects the node pool with the highest priority for the scale-out activity.', example='least-waste'),
   gpuUtilizationThreshold?: string(name='gpu_utilization_threshold', description='The scale-in threshold of GPU utilization. This threshold specifies the ratio of the GPU resources that are requested by pods to the total GPU resources on the node.', example='0.5'),
-  maxGracefulTerminationSec?: int32(name='max_graceful_termination_sec', description='The maximum amount of time that the cluster autoscaler waits for pods on the nodes to terminate during scale-in activities. Unit: seconds.', example='14400'),
+  maxGracefulTerminationSec?: int32(name='max_graceful_termination_sec', description='The maximum amount of time that the cluster autoscaler waits for pods on the nodes to terminate during scale-in activities. Unit: seconds.', example='14400s'),
   minReplicaCount?: int32(name='min_replica_count', description='The minimum number of pods that must be guaranteed during scale-in activities.', example='0'),
   recycleNodeDeletionEnabled?: boolean(name='recycle_node_deletion_enabled', description='Specifies whether to delete the corresponding Kubernetes node objects after nodes are removed in swift mode.', example='false'),
   scaleDownEnabled?: boolean(name='scale_down_enabled', description='Specifies whether to allow node scale-in activities. Valid values:
@@ -648,7 +651,7 @@ model CreateAutoscalingConfigRequest {
 *   `true`: allows node scale-in activities.
 *   `false`: does not allow node scale-in activities.', example='true'),
   scaleUpFromZero?: boolean(name='scale_up_from_zero', description='Specifies whether the cluster autoscaler performs scale-out activities when the number of ready nodes in the cluster is zero.', example='true'),
-  scanInterval?: string(name='scan_interval', description='The interval at which the cluster is scanned and evaluated for scaling. Unit: seconds.', example='30'),
+  scanInterval?: string(name='scan_interval', description='The interval at which the cluster is scanned and evaluated for scaling. Unit: seconds.', example='30s'),
   skipNodesWithLocalStorage?: boolean(name='skip_nodes_with_local_storage', description='Specifies whether to allow the cluster autoscaler to scale in nodes that host pods mounted with local storage (such as EmptyDir volumes or HostPath volumes). Valid values:
 
 *   `true`: does not allow the cluster autoscaler to scale in these nodes.
@@ -657,7 +660,7 @@ model CreateAutoscalingConfigRequest {
 
 *   `true`: does not allow the cluster autoscaler to scale in these nodes.
 *   `false`: allows the cluster autoscaler to scale in these nodes.', example='true'),
-  unneededDuration?: string(name='unneeded_duration', description='The waiting time before the auto scaling feature performs a scale-in activity. Only if the resource usage on a node remains below the scale-in threshold within the waiting time, the node is removed after the waiting time ends. Unit: minutes.', example='10'),
+  unneededDuration?: string(name='unneeded_duration', description='The waiting time before the auto scaling feature performs a scale-in activity. Only if the resource usage on a node remains below the scale-in threshold within the waiting time, the node is removed after the waiting time ends. Unit: minutes.', example='10 m'),
   utilizationThreshold?: string(name='utilization_threshold', description='The scale-in threshold. This threshold specifies the ratio of the resources that are requested by pods to the total resources on the node.', example='0.5'),
 }
 
@@ -1538,6 +1541,18 @@ Set the value in the customized,aliyun,ip,com format. The value consists of four
 
 *   `true`: enables auto repair.
 *   `false`: disables auto repair.', example='false'),
+    autoRepairPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+    }(name='auto_repair_policy'),
+    autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+    autoUpgradePolicy?: {
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+    }(name='auto_upgrade_policy'),
+    autoVulFix?: boolean(name='auto_vul_fix', example='true'),
+    autoVulFixPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+      vulLevel?: string(name='vul_level', example='asap,nntf'),
+    }(name='auto_vul_fix_policy'),
     enable?: boolean(name='enable', description='Specifies whether to enable the managed node pool feature. Valid values:
 
 *   `true`: enables the managed node pool feature.
@@ -2201,11 +2216,11 @@ async function deleteCluster(ClusterId: string, request: DeleteClusterRequest): 
 }
 
 model DeleteClusterNodepoolRequest {
-  force?: boolean(name='force', description='false', example='false'),
+  force?: boolean(name='force', description='Specifies whether to forcefully delete the node pool.', example='false'),
 }
 
 model DeleteClusterNodepoolResponseBody = {
-  requestId?: string(name='request_id', description='The ID of the request.', example='7263C978-3DBD-4E06-B319-793B38A2F388'),
+  requestId?: string(name='request_id', description='The request ID.', example='7263C978-3DBD-4E06-B319-793B38A2F388'),
 }
 
 model DeleteClusterNodepoolResponse = {
@@ -2998,7 +3013,7 @@ model DescribeClusterDetailResponseBody = {
 *   `true`: deletion protection is enabled for the cluster. This way, the cluster cannot be deleted in the Container Service console or by calling API operations.
 *   `false`: deletion protection is disabled for the cluster. This way, the cluster can be deleted in the Container Service console or by calling API operations.', example='true'),
   dockerVersion?: string(name='docker_version', description='The Docker version that is used by the cluster.', example='19.03.5'),
-  externalLoadbalancerId?: string(name='external_loadbalancer_id', description='The ID of the Server Load Balancer (SLB) instance that is used for the Ingress of the cluster.', example='lb-2ze3buguz3gx9920z****'),
+  externalLoadbalancerId?: string(name='external_loadbalancer_id', example='lb-2zehc05z3b8dwiifh****'),
   initVersion?: string(name='init_version', description='The initial Kubernetes version of the cluster.', example='1.16.6-aliyun.1'),
   maintenanceWindow?: MaintenanceWindow(name='maintenance_window', description='The maintenance window of the cluster. This feature is available only in ACK Pro clusters.'),
   masterUrl?: string(name='master_url', description='The endpoints of the cluster, including an internal endpoint and a public endpoint.', example='{\\"intranet_api_server_endpoint\\":\\"https://192.168.0.251:6443\\"***}'),
@@ -3006,20 +3021,10 @@ model DescribeClusterDetailResponseBody = {
   name?: string(name='name', description='The name of the cluster.
 
 The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). The name cannot start with a hyphen (-).', example='cluster-demo'),
-  networkMode?: string(name='network_mode', description='The network mode of the cluster. Valid values:
-
-*   `classic`: classic network
-*   `vpc`: virtual private cloud (VPC)
-*   `overlay`: overlay network
-*   `calico`: network powered by Calico
-
-Default value: `vpc`.', example='vpc'),
-  nextVersion?: string(name='next_version', description='The Kubernetes version to which the cluster can be updated.', example='1.18.8-aliyun.1'),
+  networkMode?: string(name='network_mode', example='vpc'),
+  nextVersion?: string(name='next_version', example='1.18.8-aliyun.1'),
   parameters?: map[string]string(name='parameters', description='The ROS parameters of the cluster.'),
-  privateZone?: boolean(name='private_zone', description='Indicates whether Alibaba Cloud DNS PrivateZone is enabled.
-
-*   `true`: Alibaba Cloud DNS PrivateZone is enabled.
-*   `false`: Alibaba Cloud DNS PrivateZone is disabled.', example='false'),
+  privateZone?: boolean(name='private_zone', example='false'),
   profile?: string(name='profile', description='Indicates the scenario in which the cluster is used. Valid values:
 
 *   `Default`: non-edge computing scenarios
@@ -3058,7 +3063,7 @@ For more information, see [Plan CIDR blocks for an ACK cluster](~~186964~~).', e
   vpcId?: string(name='vpc_id', description='The ID of the VPC where the cluster is deployed. This parameter is required when you create a cluster.', example='vpc-2zecuu62b9zw7a7qn****'),
   vswitchId?: string(name='vswitch_id', description='The IDs of the vSwitches. You can select one to three vSwitches when you create a cluster. We recommend that you select vSwitches in different zones to ensure high availability.', example='vsw-2zete8s4qocqg0mf6****,vsw-2zete8s4qocqg0mf6****'),
   workerRamRoleName?: string(name='worker_ram_role_name', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage Elastic Compute Service (ECS) instances.', example='KubernetesWorkerRole-ec87d15b-edca-4302-933f-c8a16bf0****'),
-  zoneId?: string(name='zone_id', description='The ID of the zone where the cluster is deployed.', example='cn-beijing-a'),
+  zoneId?: string(name='zone_id', example='cn-beijing-a'),
 }
 
 model DescribeClusterDetailResponse = {
@@ -3229,35 +3234,35 @@ async function describeClusterLogs(ClusterId: string): DescribeClusterLogsRespon
 
 model DescribeClusterNodePoolDetailResponseBody = {
   autoScaling?: {
-    eipBandwidth?: long(name='eip_bandwidth', description='The peak bandwidth of the elastic IP address (EIP) that is associated with the node pool.', example='5'),
-    eipInternetChargeType?: string(name='eip_internet_charge_type', description='The billing method of the EIP. Valid values:
+    eipBandwidth?: long(name='eip_bandwidth', description='The maximum bandwidth of the elastic IP address (EIP).', example='5'),
+    eipInternetChargeType?: string(name='eip_internet_charge_type', description='The metering method of the EIP. Valid values:
 
-*   `PayByBandwidth`: pay-by-bandwidth
-*   `PayByTraffic`: pay-by-data-transfer', example='PayByBandwidth'),
+*   `PayByBandwidth`: pay-by-bandwidth.
+*   `PayByTraffic`: pay-by-data-transfer.', example='PayByBandwidth'),
     enable?: boolean(name='enable', description='Indicates whether auto scaling is enabled. Valid values:
 
-*   `true`: Auto scaling is enabled.
-*   `false`: Auto scaling is disabled. If this parameter is set to false, other parameters in the `auto_scaling` section do not take effect.', example='true'),
+*   `true`: auto scaling is enabled.
+*   `false`: auto scaling is disabled. If this parameter is set to false, other parameters in the `auto_scaling` section do not take effect.', example='true'),
     isBondEip?: boolean(name='is_bond_eip', description='Indicates whether an EIP is associated with the node pool. Valid values:
 
 *   `true`: An EIP is associated with the node pool.
 *   `false`: No EIP is associated with the node pool.', example='true'),
-    maxInstances?: long(name='max_instances', description='The maximum number of Elastic Compute Service (ECS) instances supported by the node pool.', example='10'),
+    maxInstances?: long(name='max_instances', description='The maximum number of Elastic Compute Service (ECS) instances that can be created in the node pool.', example='10'),
     minInstances?: long(name='min_instances', description='The minimum number of ECS instances that must be kept in the node pool.', example='1'),
     type?: string(name='type', description='The instance types that can be used for the auto scaling of the node pool. Valid values:
 
-*   `cpu`: regular instance
-*   `gpu`: GPU-accelerated instance
-*   `gpushare`: shared GPU-accelerated instance
-*   `spot`: preemptible instance', example='cpu'),
-  }(name='auto_scaling', description='The auto scaling configurations of the queried node pool.'),
+*   `cpu`: regular instance.
+*   `gpu`: GPU-accelerated instance.
+*   `gpushare`: shared GPU-accelerated instance.
+*   `spot`: preemptible instance.', example='cpu'),
+  }(name='auto_scaling', description='The auto scaling configuration of the node pool.'),
   interconnectConfig?: {
-    bandwidth?: long(name='bandwidth', example='10'),
-    ccnId?: string(name='ccn_id', example='ccn-qm5i0i0q9yi*******'),
-    ccnRegionId?: string(name='ccn_region_id', example='cn-shanghai'),
-    cenId?: string(name='cen_id', example='cen-ey9k9nfhz0f*******'),
-    improvedPeriod?: string(name='improved_period', example='1'),
-  }(name='interconnect_config'),
+    bandwidth?: long(name='bandwidth', description='The bandwidth of the enhanced edge node pool. Unit: Mbit/s.', example='10'),
+    ccnId?: string(name='ccn_id', description='The ID of the Cloud Connect Network (CCN) instance that is associated with the enhanced edge node pool.', example='ccn-qm5i0i0q9yi*******'),
+    ccnRegionId?: string(name='ccn_region_id', description='The region to which the CCN instance that is associated with the enhanced edge node pool belongs.', example='cn-shanghai'),
+    cenId?: string(name='cen_id', description='The ID of the Cloud Enterprise Network (CEN) instance that is associated with the enhanced edge node pool.', example='cen-ey9k9nfhz0f*******'),
+    improvedPeriod?: string(name='improved_period', description='The subscription duration of the enhanced edge node pool. The duration is measured in months.', example='1'),
+  }(name='interconnect_config', description='The network configuration of the edge node pool. This parameter takes effect only for edge node pools.'),
   interconnectMode?: string(name='interconnect_mode', description='The network type of the edge node pool. Valid values: basic and enhanced. This parameter takes effect only for edge node pools.', example='improved'),
   kubernetesConfig?: {
     cmsEnabled?: boolean(name='cms_enabled', description='Indicates whether the CloudMonitor agent is installed on ECS nodes in the cluster. After the CloudMonitor agent is installed, you can view monitoring information about the ECS instances in the CloudMonitor console. Installation is recommended. Valid values:
@@ -3284,50 +3289,58 @@ For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, t
     runtimeVersion?: string(name='runtime_version', description='The version of the container runtime.', example='19.03.5'),
     taints?: [
       Taint
-    ](name='taints', description='The taints of the nodes. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, toleration rules allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
-    userData?: string(name='user_data', description='The user-defined data of the node pool. For more information, see [Generate user-defined data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFDSyEi'),
-  }(name='kubernetes_config', description='The configurations of the cluster where the node pool is deployed.'),
+    ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
+    userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFDSyEi'),
+  }(name='kubernetes_config', description='The configuration of the cluster where the node pool is deployed.'),
   management?: {
-    autoRepair?: boolean(name='auto_repair', description='Indicates whether enable auto repair is enabled. This parameter takes effect only when `enable=true` is specified.
+    autoRepair?: boolean(name='auto_repair', description='Indicates whether auto repair is enabled. This parameter takes effect only when `enable=true` is specified. Valid values:
 
 *   `true`: Auto repair is enabled.
 *   `false`: Auto repair is disabled.', example='true'),
-    enable?: boolean(name='enable', description='Indicates whether to enable the managed node pool feature is enabled. Valid values:
+    autoRepairPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+    }(name='auto_repair_policy'),
+    autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+    autoUpgradePolicy?: {
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+    }(name='auto_upgrade_policy'),
+    autoVulFix?: boolean(name='auto_vul_fix', example='true'),
+    autoVulFixPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+      vulLevel?: string(name='vul_level', example='asap,nntf'),
+    }(name='auto_vul_fix_policy'),
+    enable?: boolean(name='enable', description='Indicates whether the managed node pool feature is enabled. Valid values:
 
 *   `true`: The managed node pool feature is enabled.
 *   `false`: The managed node pool feature is disabled. Other parameters in this section take effect only when `enable=true` is specified.', example='true'),
     upgradeConfig?: {
-      autoUpgrade?: boolean(name='auto_upgrade', description='Indicates whether auto upgrade is enabled. Valid values:
+      autoUpgrade?: boolean(name='auto_upgrade', description='Indicates whether auto update is enabled. Valid values:
 
-*   `true`: Auto upgrade is enabled.
-*   `false`: Auto upgrade is disabled.', example='true'),
+*   `true`: Auto update is enabled.
+*   `false`: Auto update is disabled.', example='true'),
       maxUnavailable?: long(name='max_unavailable', description='The maximum number of nodes that can be in the Unavailable state. Valid values: 1 to 1000.
 
-Default value: 1', example='1'),
-      surge?: long(name='surge', description='The number of nodes that are temporarily added to the node pool during an auto upgrade.', example='5'),
-      surgePercentage?: long(name='surge_percentage', description='The percentage of temporary nodes to the nodes in the node pool. You must set this parameter or `surge`.', example='50'),
-    }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effect only when `enable=true` is specified.'),
-  }(name='management', description='The configurations about the managed node pool feature.'),
-  maxNodes?: long(name='max_nodes', description='The maximum number of nodes that are supported by the edge node pool. The value of this parameter must be equal to or greater than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools of the ess type or default edge node pools.', example='10'),
+Default value: 1.', example='1'),
+      surge?: long(name='surge', description='The number of additional nodes.', example='5'),
+      surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes to the nodes in the node pool. You must set this parameter or `surge`.', example='50'),
+    }(name='upgrade_config', description='The configuration of auto update. The configuration takes effect only when `enable=true` is specified.'),
+  }(name='management', description='The configuration of the managed node pool feature.'),
+  maxNodes?: long(name='max_nodes', description='The maximum number of nodes that are supported by the edge node pool. The value of this parameter must be equal to or greater than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools whose types are ess or default edge node pools.', example='10'),
   nodeConfig?: {
-    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
-  }(name='node_config'),
+    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration', description='Kubelet参数配置。'),
+  }(name='node_config', description='节点配置'),
   nodepoolInfo?: {
     created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
-    isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. A Container Service for Kubernetes (ACK) cluster usually has only one default node pool. Valid values:
-
-`true`: The node pool is a default node pool.
-
-`false`: The node pool is not a default node pool.', example='true'),
+    isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. A Container Service for Kubernetes (ACK) cluster usually has only one default node pool. Valid values: `true`: The node pool is a default node pool. `false`: The node pool is not a default node pool.', example='true'),
     name?: string(name='name', description='The name of the node pool.
 
 The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). It cannot start with a hyphen (-).', example='default-nodepool'),
-    nodepoolId?: string(name='nodepool_id', description='The ID of the node pool.', example='np615c0e0966124216a0412e10afe0****'),
-    regionId?: string(name='region_id', description='The ID of the region where the node pool is deployed.', example='cn-beijing'),
-    resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group to which the node pool belongs.', example='rg-acfmyvw3wjmb****'),
-    type?: string(name='type', description='The type of the node pool.', example='ess'),
+    nodepoolId?: string(name='nodepool_id', description='The node pool ID.', example='np615c0e0966124216a0412e10afe0****'),
+    regionId?: string(name='region_id', description='The region ID.', example='cn-beijing'),
+    resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group.', example='rg-acfmyvw3wjmb****'),
+    type?: string(name='type', description='The type of node pool.', example='ess'),
     updated?: string(name='updated', description='The time when the node pool was last updated.', example='2020-09-27T20:37:46+08:00'),
-  }(name='nodepool_info', description='The configurations of the node pool.'),
+  }(name='nodepool_info', description='The configuration of the node pool.'),
   scalingGroup?: {
     autoRenew?: boolean(name='auto_renew', description='Indicates whether auto-renewal is enabled for the nodes in the node pool. This parameter takes effect only when `instance_charge_type` is set to `PrePaid`. Valid values:
 
@@ -3348,9 +3361,9 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
     imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
     instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
-*   `PrePaid`: subscription
-*   `PostPaid`: pay-as-you-go', example='PostPaid'),
-    instanceTypes?: [ string ](name='instance_types', description='The instance types of the nodes in the node pool.'),
+*   `PrePaid`: the subscription billing method.
+*   `PostPaid`: the pay-as-you-go billing method.', example='PostPaid'),
+    instanceTypes?: [ string ](name='instance_types', description='A list of instance types. You can select multiple instance types. When the system needs to create a node, it starts from the first instance type until the node is created. The instance type that is used to create the node varies based on the actual instance stock.'),
     internetChargeType?: string(name='internet_charge_type', description='The billing method of the public IP address of the node.', example='PayByBandwidth'),
     internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', description='The maximum outbound bandwidth of the public IP address of the node. Unit: Mbit/s. Valid values: 1 to 100.', example='10'),
     keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter. You must set `key_pair` if the node pool is a managed node pool.', example='pro-nodepool'),
@@ -3365,11 +3378,11 @@ For security purposes, the returned password is encrypted.', example='********')
 
     **
 
-    **Note** `COST_OPTIMIZED` is valid only when multiple instance types are specified or at least one preemptible instance type is specified.
+    **Note**The `COST_OPTIMIZED` setting takes effect only when multiple instance types are specified or at least one instance type is specified for preemptible instances.
 
-*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to insufficient inventory, you can call the RebalanceInstances operation of Auto Scaling to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~)
+*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to insufficient inventory, you can call the RebalanceInstances operation of Auto Scaling to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~).
 
-Default value: `PRIORITY`', example='BALANCE'),
+Default value: `PRIORITY`.', example='BALANCE'),
     onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='The minimum number of pay-as-you-go instances that must be kept in the scaling group. Valid values: 0 to 1000. If the number of pay-as-you-go instances is less than the value of this parameter, Auto Scaling preferably creates pay-as-you-go instances.', example='0'),
     onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='The percentage of pay-as-you-go instances among the extra instances that exceed the number specified by `on_demand_base_capacity`. Valid values: 0 to 100.', example='20'),
     period?: long(name='period', description='The subscription duration of worker nodes. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
@@ -3377,7 +3390,7 @@ Default value: `PRIORITY`', example='BALANCE'),
 If `PeriodUnit=Month` is specified, the valid values are 1, 2, 3, 6, 12, 24, 36, 48, and 60.', example='0'),
     periodUnit?: string(name='period_unit', description='The billing cycle of the nodes. This parameter is required if `instance_charge_type` is set to `PrePaid`.
 
-Valid value: `Month`', example='Month'),
+Valid value: `Month`.', example='Month'),
     platform?: string(name='platform', description='The release version of the operating system. Valid values:
 
 *   `CentOS`
@@ -3386,19 +3399,19 @@ Valid value: `Month`', example='Month'),
 *   `WindowsCore`', example='AliyunLinux'),
     privatePoolOptions?: {
       id?: string(name='id', description='The ID of the private node pool.', example='eap-bp67acfmxazb4****'),
-      matchCriteria?: string(name='match_criteria', description='The type of private node pool. This parameter specifies the type of the private pool that you want to use to create instances. A private pool is generated when an elasticity assurance or a capacity reservation takes effect. You can select a private pool to start instances. Valid values:
+      matchCriteria?: string(name='match_criteria', description='The type of private node pool. This parameter specifies the type of private node pool that you want to use to create instances. A private node pool is generated when an elasticity assurance or a capacity reservation service takes effect. The system selects a private node pool to launch instances. Valid values:
 
-*   `Open`: open private pool. The system selects an open private pool to start instances. If no matching open private pools are available, the resources in the public pool are used.
-*   `Target`: specific private pool. The system uses the resources of the specified private pool to start instances. If the specified private pool is unavailable, instances cannot be started.
-*   `None`: no private pool is used. The resources of private pools are not used to start instances.', example='Open'),
-    }(name='private_pool_options', description='The configurations of the private node pool.'),
+*   `Open`: open private pool. The system selects an open private node pool to launch instances. If no matching open private node pool is available, the resources in the public node pool are used.
+*   `Target`: specific private pool. The system uses the resources of the specified private node pool to launch instances. If the specified private node pool is unavailable, instances cannot be launched.
+*   `None`: no private node pool is used. The resources of private node pools are not used to launch the instances.', example='Open'),
+    }(name='private_pool_options', description='The configuration of the private node pool.'),
     ramPolicy?: string(name='ram_policy', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage ECS instances.', example='KubernetesWorkerRole-021dc54f-929b-437a-8ae0-34c24d3e****'),
-    rdsInstances?: [ string ](name='rds_instances', description='The IDs of the ApsaraDB RDS instances.'),
+    rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the RDS instances.'),
     scalingGroupId?: string(name='scaling_group_id', description='The ID of the scaling group.', example='asg-2zeieod8giqmov7z****'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
-*   `release`: the standard mode. ECS instances are created and released based on the resource usage.
-*   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances attached with local disks.', example='release'),
+*   `release`: the standard mode. ECS instances are created and released based on resource usage.
+*   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
     securityGroupId?: string(name='security_group_id', description='The ID of the security group to which the node pool is added. If the node pool is added to multiple security groups, the first ID in the value of `security_group_ids` is returned.', example='sg-2ze60ockeekspl3d****'),
     securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of the security groups to which the node pool is added.'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
@@ -3414,7 +3427,7 @@ Valid value: `Month`', example='Month'),
 Unit: USD/hour.', example='0.39'),
       }
     ](name='spot_price_limit', description='The bid configurations of preemptible instances.'),
-    spotStrategy?: string(name='spot_strategy', description='The bidding policy of preemptible instances. Valid values:
+    spotStrategy?: string(name='spot_strategy', description='The type of preemptible instance. Valid values:
 
 *   NoSpot: a non-preemptible instance.
 *   SpotWithPriceLimit: a preemptible instance that is configured with the highest bid price.
@@ -3423,35 +3436,43 @@ Unit: USD/hour.', example='0.39'),
 For more information, see [Preemptible instances](~~157759~~).', example='NoSpot'),
     systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
-*   `cloud_efficiency`: ultra disk
-*   `cloud_ssd`: standard SSD', example='cloud_efficiency'),
+*   `cloud_efficiency`: ultra disk.
+*   `cloud_ssd`: standard SSD.', example='cloud_efficiency'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs (ESSDs).', example='PL1'),
     systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
-Valid values: 20 to 500', example='120'),
+Valid values: 20 to 500.', example='120'),
     tags?: [
       Tag
     ](name='tags', description='The labels that you want to add to the ECS instances.
 
 A key must be unique and cannot exceed 128 characters in length. Neither keys nor values can start with aliyun or acs:. Neither keys nor values can contain https:// or http://.'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches.'),
-  }(name='scaling_group', description='The configurations of the scaling group.'),
+    vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches. You can specify 1 to 20 vSwitches.
+
+> We recommend that you select vSwitches in different zones to ensure high availability.'),
+  }(name='scaling_group', description='The configuration of the scaling group.'),
   status?: {
-    failedNodes?: long(name='failed_nodes', example='0'),
-    healthyNodes?: long(name='healthy_nodes', example='3'),
-    initialNodes?: long(name='initial_nodes', example='0'),
-    offlineNodes?: long(name='offline_nodes', example='0'),
-    removingNodes?: long(name='removing_nodes', example='0'),
-    servingNodes?: long(name='serving_nodes', example='3'),
-    state?: string(name='state', example='active'),
-    totalNodes?: long(name='total_nodes', example='3'),
-  }(name='status'),
+    failedNodes?: long(name='failed_nodes', description='The number of failed nodes.', example='0'),
+    healthyNodes?: long(name='healthy_nodes', description='The number of healthy nodes.', example='3'),
+    initialNodes?: long(name='initial_nodes', description='The number of nodes that are being created.', example='0'),
+    offlineNodes?: long(name='offline_nodes', description='The number of offline nodes.', example='0'),
+    removingNodes?: long(name='removing_nodes', description='The number of nodes that are being removed.', example='0'),
+    servingNodes?: long(name='serving_nodes', description='The number of running nodes.', example='3'),
+    state?: string(name='state', description='The status of the node pool. Valid values:
+
+*   `active`: The node pool is active.
+*   `scaling`: The node pool is being scaled.
+*   `removing`: Nodes are being removed from the node pool.
+*   `deleting`: The node pool is being deleted.
+*   `updating`: The node pool is being updated.', example='active'),
+    totalNodes?: long(name='total_nodes', description='The total number of nodes in the node pool.', example='3'),
+  }(name='status', description='The status details about the node pool.'),
   teeConfig?: {
     teeEnable?: boolean(name='tee_enable', description='Indicates whether confidential computing is enabled. Valid values:
 
 *   `true`: Confidential computing is enabled.
 *   `false`: Confidential computing is disabled.', example='false'),
-  }(name='tee_config', description='The configurations of confidential computing.'),
+  }(name='tee_config', description='The configuration of confidential computing.'),
 }
 
 model DescribeClusterNodePoolDetailResponse = {
@@ -3488,11 +3509,11 @@ model DescribeClusterNodePoolsResponseBody = {
   nodepools?: [ 
     {
       autoScaling?: {
-        eipBandwidth?: long(name='eip_bandwidth', description='The peak bandwidth of the elastic IP address (EIP).', example='5'),
-        eipInternetChargeType?: string(name='eip_internet_charge_type', description='The billing method of the EIP. Valid values:
+        eipBandwidth?: long(name='eip_bandwidth', description='The maximum bandwidth of the elastic IP address (EIP).', example='5'),
+        eipInternetChargeType?: string(name='eip_internet_charge_type', description='The metering method of the EIP. Valid values:
 
-*   `PayByBandwidth`: pay-by-bandwidth
-*   `PayByTraffic`: pay-by-data-transfer', example='PayByBandwidth'),
+*   `PayByBandwidth`: pay-by-bandwidth.
+*   `PayByTraffic`: pay-by-data-transfer.', example='PayByBandwidth'),
         enable?: boolean(name='enable', description='Indicates whether auto scaling is enabled.
 
 *   `true`: Auto scaling is enabled for the node pool.
@@ -3501,73 +3522,90 @@ model DescribeClusterNodePoolsResponseBody = {
 
 *   `true`: An EIP is associated with the node pool.
 *   `false`: No EIP is associated with the node pool.', example='true'),
-        maxInstances?: long(name='max_instances', description='The maximum number of Elastic Compute Service (ECS) instances supported by the node pool.', example='10'),
-        minInstances?: long(name='min_instances', description='The minimum number of ECS instances.', example='2'),
-        type?: string(name='type', description='The minimum number of ECS instances that must be kept in the node pool. Valid values:
+        maxInstances?: long(name='max_instances', description='The maximum number of Elastic Compute Service (ECS) instances that can be created in the node pool.', example='10'),
+        minInstances?: long(name='min_instances', description='The minimum number of ECS instances that must be kept in the node pool.', example='2'),
+        type?: string(name='type', description='The instance types that can be used for the auto scaling of the node pool. Valid values:
 
-*   `cpu`: regular instance
-*   `gpu`: GPU-accelerated instance
-*   `gpushare`: shared GPU-accelerated instance
-*   `spot`: preemptible instance', example='cpu'),
-      }(name='auto_scaling', description='The configurations of auto scaling.'),
+*   `cpu`: regular instance.
+*   `gpu`: GPU-accelerated instance.
+*   `gpushare`: shared GPU-accelerated instance.
+*   `spot`: preemptible instance.', example='cpu'),
+      }(name='auto_scaling', description='The configurations about auto scaling.'),
       interconnectConfig?: {
-        bandwidth?: long(name='bandwidth', example='10'),
-        ccnId?: string(name='ccn_id', example='ccn-qm5i0i0q9yi*******'),
-        ccnRegionId?: string(name='ccn_region_id', example='cn-shanghai'),
-        cenId?: string(name='cen_id', example='cen-ey9k9nfhz0f*******'),
-        improvedPeriod?: string(name='improved_period', example='1'),
-      }(name='interconnect_config'),
-      interconnectMode?: string(name='interconnect_mode', example='improved'),
+        bandwidth?: long(name='bandwidth', description='The bandwidth of the enhanced edge node pool. Unit: M.', example='10'),
+        ccnId?: string(name='ccn_id', description='The ID of the Cloud Connect Network (CCN) instance that is associated with the enhanced edge node pool.', example='ccn-qm5i0i0q9yi*******'),
+        ccnRegionId?: string(name='ccn_region_id', description='The region to which the CCN instance that is associated with the enhanced edge node pool belongs.', example='cn-shanghai'),
+        cenId?: string(name='cen_id', description='The ID of the Cloud Enterprise Network (CEN) instance that is associated with the enhanced edge node pool.', example='cen-ey9k9nfhz0f*******'),
+        improvedPeriod?: string(name='improved_period', description='The subscription duration of the enhanced edge node pool. The duration is measured in months.', example='1'),
+      }(name='interconnect_config', description='The network configuration of the edge node pool. This parameter takes effect only for edge node pools.'),
+      interconnectMode?: string(name='interconnect_mode', description='The network type of the edge node pool. Valid values: basic and enhanced. This parameter takes effect only for edge node pools.', example='improved'),
       kubernetesConfig?: {
-        cmsEnabled?: boolean(name='cms_enabled', description='Indicates where the CloudMonitor agent is installed on ECS nodes of the cluster. After the CloudMonitor agent is installed, you can view monitoring information about the ECS instances in the CloudMonitor console. Installation is recommended. Valid values:
+        cmsEnabled?: boolean(name='cms_enabled', description='Indicates whether the CloudMonitor agent is installed on ECS nodes in the cluster. After the CloudMonitor agent is installed, you can view monitoring information about the ECS instances in the CloudMonitor console. Installation is recommended. Valid values:
 
-*   `true` The CloudMonitor agent is installed on ECS nodes.
+*   `true`: The CloudMonitor agent is installed on ECS nodes.
 *   `false`: The CloudMonitor agent is not installed on ECS nodes.', example='true'),
-        cpuPolicy?: string(name='cpu_policy', description='The CPU management policy. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
+        cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
 
-*   `static`: This policy allows pods with specific resource characteristics on the node to be granted with enhanced CPU affinity and exclusivity.
+*   `static`: allows pods with specific resource characteristics on the node to be granted enhanced CPU affinity and exclusivity.
 *   `none`: indicates that the default CPU affinity is used.', example='none'),
         labels?: [
           Tag
-        ](name='labels', description='The labels of the nodes. You can add labels to the nodes in the cluster. You must add labels based on the following rules:
+        ](name='labels', description='The labels of the nodes in the node pool. You can add labels to the nodes in the cluster. You must add labels based on the following rules:
 
 *   Each label is a case-sensitive key-value pair. You can add up to 20 labels.
 *   A key must be unique and cannot exceed 64 characters in length. A value can be empty and cannot exceed 128 characters in length. Keys and values cannot start with `aliyun`, `acs:`, `https://`, or `http://`. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).'),
-        nodeNameMode?: string(name='node_name_mode', example='customized,test.,5,.com'),
+        nodeNameMode?: string(name='node_name_mode', description='A custom node name consists of a prefix, an IP substring, and a suffix.
+
+*   The prefix and suffix can contain multiple parts that are separated by periods (.). Each part can contain lowercase letters, digits, and hyphens (-). A custom node name must start and end with a digit or lowercase letter.
+*   The IP substring length specifies the number of digits to be truncated from the end of the node IP address. The IP substring length ranges from 5 to 12.
+
+For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, the IP substring length is 5, and the suffix is test, the node name will be aliyun.com00055test.', example='customized,test.,5,.com'),
         runtime?: string(name='runtime', description='The name of the container runtime.', example='docker'),
         runtimeVersion?: string(name='runtime_version', description='The version of the container runtime.', example='19.03.5'),
         taints?: [
           Taint
-        ](name='taints', description='The taints that are added to nodes. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, toleration rules allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
-        userData?: string(name='user_data', description='The user-defined data of the node pool. For more information, see [Generate user-defined data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFD****'),
-      }(name='kubernetes_config', description='The configurations of the cluster.'),
+        ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
+        userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFD****'),
+      }(name='kubernetes_config', description='The configuration of the cluster where the node pool is deployed.'),
       management?: {
-        autoRepair?: boolean(name='auto_repair', description='Indicates whether auto repair is enabled. Auto repair is enabled only when `enable=true` is specified.
+        autoRepair?: boolean(name='auto_repair', description='Indicates whether auto repair is enabled. This parameter takes effect only when `enable=true` is specified. Valid values:
 
 *   `true`: Auto repair is enabled.
 *   `false`: Auto repair is disabled.', example='true'),
-        enable?: boolean(name='enable', description='Indicates whether managed node pools are enabled. Valid values:
+        autoRepairPolicy?: {
+          restartNode?: boolean(name='restart_node', example='true'),
+        }(name='auto_repair_policy'),
+        autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+        autoUpgradePolicy?: {
+          autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+        }(name='auto_upgrade_policy'),
+        autoVulFix?: boolean(name='auto_vul_fix', example='true'),
+        autoVulFixPolicy?: {
+          restartNode?: boolean(name='restart_node', example='true'),
+          vulLevel?: string(name='vul_level', example='asap,nntf'),
+        }(name='auto_vul_fix_policy'),
+        enable?: boolean(name='enable', description='Indicates whether the managed node pool feature is enabled. Valid values:
 
-*   `true`: Managed node pools are enabled.
-*   `false`: Managed node pools are disabled. Other parameters in this section take effect only when `enable=true` is specified.', example='true'),
+*   `true`: The managed node pool feature is enabled.
+*   `false`: The managed node pool feature is disabled. Other parameters in this section take effect only when `enable=true` is specified.', example='true'),
         upgradeConfig?: {
-          autoUpgrade?: boolean(name='auto_upgrade', description='Indicates whether auto upgrade is enabled. Valid values:
+          autoUpgrade?: boolean(name='auto_upgrade', description='Indicates whether auto update is enabled. Valid values:
 
-*   `true`: Auto upgrade is enabled.
-*   `true`: Auto upgrade is disabled.', example='true'),
-          maxUnavailable?: long(name='max_unavailable', description='The maximum number of nodes that can be in the unschedulable state. Valid values: 1 to 1000.
+*   `true`: Auto update is enabled.
+*   `false`: Auto update is disabled.', example='true'),
+          maxUnavailable?: long(name='max_unavailable', description='The maximum number of nodes that can be in the Unavailable state. Valid values: 1 to 1000.
 
-Default value: 1', example='1'),
-          surge?: long(name='surge', description='The number of nodes that are temporarily added to the node pool during an auto upgrade.', example='5'),
-          surgePercentage?: long(name='surge_percentage', description='The percentage of temporary nodes to the nodes in the node pool. You must set this parameter or `surge`.
+Default value: 1.', example='1'),
+          surge?: long(name='surge', description='The number of additional nodes.', example='5'),
+          surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes to the nodes in the node pool. You must set this parameter or `surge`.
 
-The number of extra nodes = The percentage of extra nodes × The number of nodes in the node pool. For example, the percentage of extra nodes is set to 50% and the number of nodes in the node pool is six. The number of extra nodes will be three.', example='50'),
-        }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effect only when `enable=true` is specified.'),
-      }(name='management', description='The configurations of managed node pools. Managed node pools are available only in professional managed Kubernetes clusters.'),
-      maxNodes?: long(name='max_nodes', example='10'),
+The number of additional nodes = The percentage of additional nodes × The number of nodes in the node pool. For example, the percentage of additional nodes is set to 50% and the number of nodes in the node pool is six. The number of additional nodes will be three.', example='50'),
+        }(name='upgrade_config', description='The configuration of auto update. The configuration takes effect only when `enable=true` is specified.'),
+      }(name='management', description='The configuration of the managed node pool feature. The configuration takes effect only for ACK Pro managed clusters.'),
+      maxNodes?: long(name='max_nodes', description='The maximum number of nodes that are supported by the edge node pool. The value of this parameter must be equal to or greater than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools whose types are ess or default edge node pools.', example='10'),
       nodeConfig?: {
-        kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
-      }(name='node_config'),
+        kubeletConfiguration?: KubeletConfig(name='kubelet_configuration', description='Kubelet参数配置。'),
+      }(name='node_config', description='节点配置。'),
       nodepoolInfo?: {
         created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
         isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. An ACK cluster usually has only one default node pool. Valid values:
@@ -3577,13 +3615,13 @@ The number of extra nodes = The percentage of extra nodes × The number of nodes
         name?: string(name='name', description='The name of the node pool.
 
 The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). It cannot start with a hyphen (-).', example='default-nodepool'),
-        nodepoolId?: string(name='nodepool_id', description='The ID of the node pool.', example='np615c0e0966124216a0412e10afe0****'),
-        regionId?: string(name='region_id', description='The ID of the region where the node pool is deployed.', example='cn-beijing'),
-        resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group to which the node pool belongs.', example='rg-acfmyvw3wjm****'),
-        type?: string(name='type', description='The type of the node pool. Valid values:
+        nodepoolId?: string(name='nodepool_id', description='The node pool ID.', example='np615c0e0966124216a0412e10afe0****'),
+        regionId?: string(name='region_id', description='The region ID.', example='cn-beijing'),
+        resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group.', example='rg-acfmyvw3wjm****'),
+        type?: string(name='type', description='The type of node pool. Valid values:
 
-*   `edge`: edge node pools.
-*   `ess`: cloud node pools.', example='ess'),
+*   `edge`: edge node pool.
+*   `ess`: node pool in the cloud.', example='ess'),
         updated?: string(name='updated', description='The time when the node pool was last updated.', example='2020-09-27T20:37:46+08:00'),
       }(name='nodepool_info', description='The information about the node pool.'),
       scalingGroup?: {
@@ -3593,22 +3631,22 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
 *   `false`: Auto-renewal is disabled.', example='false'),
         autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
-If `PeriodUnit=Month` is specified, the valid values are 1, 2, 3, 6, and 12.', example='0'),
-        compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances when the preemptible instances cannot be created due to reasons such as the cost or inventory availability. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
+If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='0'),
+        compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as cost or insufficient inventory. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: Pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created.
-*   `false`: Pay-as-you-go instances are not created to meet the required number of ECS instances if preemptible instances cannot be created.', example='true'),
+*   `false`: Pay-as-you-go instances are not automatically created to meet the required number of ECS instances if preemptible instances cannot be created.', example='true'),
         dataDisks?: [
           DataDisk
-        ](name='data_disks', description='The configurations of the data disks attached to the nodes in the node pool. The configurations include the disk type and disk size.'),
-        deploymentsetId?: string(name='deploymentset_id', example='ds-bp1d19mmbsv3jf6xxxxx'),
-        desiredSize?: long(name='desired_size', example='2'),
-        imageId?: string(name='image_id', description='The ID of the custom image. You can call `DescribeKubernetesVersionMetadata` to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
+        ](name='data_disks', description='The configurations of the data disks that are attached to the nodes in the node pool. The configurations include the disk type and disk size.'),
+        deploymentsetId?: string(name='deploymentset_id', description='The ID of the deployment set to which the ECS instances in the node pool belong.', example='ds-bp1d19mmbsv3jf6xxxxx'),
+        desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
+        imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
         instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
-*   `PrePaid`: subscription
-*   `PostPaid`: pay-as-you-go', example='PostPaid'),
-        instanceTypes?: [ string ](name='instance_types', description='The instance types of the nodes in the node pool.', example='ecs.n4.large'),
+*   `PrePaid`: the subscription billing method.
+*   `PostPaid`: the pay-as-you-go billing method.', example='PostPaid'),
+        instanceTypes?: [ string ](name='instance_types', description='A list of instance types. You can select multiple instance types. When the system needs to create a node, it starts from the first instance type until the node is created. The instance type that is used to create the node varies based on the actual instance stock.', example='ecs.n4.large'),
         internetChargeType?: string(name='internet_charge_type', description='The billing method of the public IP address of the node.', example='PayByBandwidth'),
         internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', description='The maximum outbound bandwidth of the public IP address of the node. Unit: Mbit/s. Valid values: 1 to 100.', example='10'),
         keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter.
@@ -3619,23 +3657,23 @@ You must set `key_pair` if the node pool is a managed node pool.', example='pro-
 For security purposes, the returned password is encrypted.', example='******'),
         multiAzPolicy?: string(name='multi_az_policy', description='The ECS instance scaling policy for a multi-zone scaling group. Valid values:
 
-*   `PRIORITY`: the scaling group is scaled based on the VSwitchIds.N parameter. When an ECS instance cannot be created in the zone where the vSwitch with the highest priority resides, the system uses the vSwitch with the next highest priority to create the ECS instance.
+*   `PRIORITY`: the scaling group is scaled based on the VSwitchIds.N parameter. If an ECS instance cannot be created in the zone where the vSwitch that has the highest priority resides, Auto Scaling creates the ECS instance in the zone where the vSwitch that has the next highest priority resides.
 
-*   `COST_OPTIMIZED`: ECS instances are created based on the vCPU unit price in ascending order. Preemptible instances are preferentially created when multiple instance types are specified in the scaling configurations. You can set the `CompensateWithOnDemand` parameter to specify whether to automatically create pay-as-you-go instances when preemptible instances cannot be created due to insufficient resources.
+*   `COST_OPTIMIZED`: ECS instances are created based on the vCPU unit price in ascending order. Preemptible instances are preferably created when preemptible instance types are specified in the scaling configuration. You can set the `CompensateWithOnDemand` parameter to specify whether to automatically create pay-as-you-go instances when preemptible instances cannot be created due to insufficient resources.
 
     **
 
-    **Note** `COST_OPTIMIZED` is valid only when multiple instance types are specified or at least one preemptible instance type is specified.
+    **Note**The `COST_OPTIMIZED` setting takes effect only when multiple instance types are specified or at least one instance type is specified for preemptible instances.
 
-*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to insufficient inventory, you can call `RebalanceInstances` of Auto Scaling (ESS) to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~).', example='COST_OPTIMIZED'),
-        onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='The minimum number of pay-as-you-go instances that must be kept in the scaling group. Valid values: 0 to 1000. When the number of pay-as-you-go instances is lower than this value, pay-as-you-go instances are preferentially created to meet the required number.', example='0'),
+*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to insufficient inventory, you can call the `RebalanceInstances` operation of Auto Scaling to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~).', example='COST_OPTIMIZED'),
+        onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='The minimum number of pay-as-you-go instances that must be kept in the scaling group. Valid values: 0 to 1000. If the number of pay-as-you-go instances is less than the value of this parameter, Auto Scaling preferably creates pay-as-you-go instances.', example='0'),
         onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', description='The percentage of pay-as-you-go instances among the extra instances that exceed the number specified by `on_demand_base_capacity`. Valid values: 0 to 100.', example='20'),
         period?: long(name='period', description='The subscription duration of worker nodes. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
 If `PeriodUnit=Month` is specified, the valid values are 1, 2, 3, 6, 12, 24, 36, 48, and 60.', example='1'),
         periodUnit?: string(name='period_unit', description='The billing cycle of the nodes. This parameter takes effect only when `instance_charge_type` is set to `PrePaid`.
 
-Valid value: `Month`', example='Month'),
+Valid value: `Month`.', example='Month'),
         platform?: string(name='platform', description='The release version of the operating system. Valid values:
 
 *   `CentOS`
@@ -3643,51 +3681,59 @@ Valid value: `Month`', example='Month'),
 *   `Windows`
 *   `WindowsCore`', example='AliyunLinux'),
         privatePoolOptions?: {
-          id?: string(name='id'),
-          matchCriteria?: string(name='match_criteria'),
-        }(name='private_pool_options'),
+          id?: string(name='id', description='The ID of the private node pool. The ID of a private node pool is the same as the ID of the elasticity assurance or capacity reservation for which the private node pool is generated.', example='eap-bp67acfmxazb4****'),
+          matchCriteria?: string(name='match_criteria', description='The type of private node pool. This parameter specifies the type of private node pool that you want to use to create instances. A private node pool is generated when an elasticity assurance or a capacity reservation service takes effect. The system selects a private node pool to launch instances. Valid values:
+
+*   `Open`: open private pool. The system selects an open private node pool to launch instances. If no matching open private node pool is available, the resources in the public node pool are used.
+*   `Target`: specific private pool. The system uses the resources of the specified private node pool to launch instances. If the specified private node pool is unavailable, instances cannot be launched.
+*   `None`: no private node pool is used. The resources of private node pools are not used to launch the instances.', example='Open'),
+        }(name='private_pool_options', description='The private node pool options.'),
         ramPolicy?: string(name='ram_policy', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage ECS instances.', example='KubernetesWorkerRole-021dc54f-929b-437a-8ae0-34c24d3e****'),
-        rdsInstances?: [ string ](name='rds_instances', description='The IDs of the ApsaraDB RDS instances.'),
+        rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the RDS instances.'),
         scalingGroupId?: string(name='scaling_group_id', description='The ID of the scaling group.', example='asg-2ze8n5qw4atggut8****'),
         scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
-*   `release`: the standard mode. ECS instances are created and released based on the resource usage.
-*   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances attached with local disks.', example='release'),
+*   `release`: the standard mode. ECS instances are created and released based on resource usage.
+*   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
         securityGroupId?: string(name='security_group_id', description='The ID of the security group to which the node pool is added. If the node pool is added to multiple security groups, the first ID in the value of `security_group_ids` is returned.', example='sg-2ze1iuk12m2sb4c4****'),
         securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of the security groups to which the node pool is added.'),
-        spotInstancePools?: long(name='spot_instance_pools', description='The number of available instance types. The scaling group creates preemptible instances of multiple instance types at the lowest cost. Valid values: 1 to 10.', example='5'),
-        spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances are supplemented when the number of preemptible instances drops below the specified minimum number. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values:
+        spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
+        spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances are supplemented when the number of preemptible instances drops below the specified minimum number. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values: Valid values:
 
-*   `true`: Supplement to preemptible instances is enabled.
-*   `false`: Supplement to preemptible instances is disabled.', example='false'),
+*   `true`: Supplementation of preemptible instances is enabled.
+*   `false`: Supplementation of preemptible instances is disabled.', example='false'),
         spotPriceLimit?: [ 
           {
-            instanceType?: string(name='instance_type', description='The instance type for preemptible instances.', example='ecs.c6.large'),
-            priceLimit?: string(name='price_limit', description='The price limit of a preemptible instance. Unit: USD/hour.', example='0.39'),
+            instanceType?: string(name='instance_type', description='The instance type of preemptible instances.', example='ecs.c6.large'),
+            priceLimit?: string(name='price_limit', description='The price limit of a single preemptible instance.
+
+Unit: USD/hour.', example='0.39'),
           }
         ](name='spot_price_limit', description='The bid configurations of preemptible instances.'),
-        spotStrategy?: string(name='spot_strategy', description='The bidding policy of preemptible instances. Valid values:
+        spotStrategy?: string(name='spot_strategy', description='The type of preemptible instance. Valid values:
 
-*   NoSpot: non-preemptible instance.
-*   SpotWithPriceLimit: specifies the highest bid for the preemptible instance.
-*   SpotAsPriceGo: automatically submits bids based on the up-to-date market price.
+*   NoSpot: a non-preemptible instance.
+*   SpotWithPriceLimit: a preemptible instance that is configured with the highest bid price.
+*   SpotAsPriceGo: a preemptible instance for which the system automatically bids based on the current market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='NoSpot'),
         systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
-*   `cloud_efficiency`: ultra disk
-*   `cloud_ssd`: standard SSD', example='cloud_efficiency'),
-        systemDiskPerformanceLevel?: string(name='system_disk_performance_level', example='PL1'),
-        systemDiskSize?: long(name='system_disk_size', description='The system disk size of a worker node. Unit: GiB.
+*   `cloud_efficiency`: ultra disk.
+*   `cloud_ssd`: standard SSD.', example='cloud_efficiency'),
+        systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs (ESSDs).', example='PL1'),
+        systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
-Valid values: 20 to 500', example='120'),
+Valid values: 20 to 500.', example='120'),
         tags?: [
           Tag
-        ](name='tags', description='The labels that are added only to ECS instances.
+        ](name='tags', description='The labels that you want to add to the ECS instances.
 
 A key must be unique and cannot exceed 128 characters in length. Neither keys nor values can start with aliyun or acs:. Neither keys nor values can contain https:// or http://.'),
-        vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches.'),
-      }(name='scaling_group', description='The configurations of the scaling group.'),
+        vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches. You can specify 1 to 20 vSwitches.
+
+> We recommend that you select vSwitches in different zones to ensure high availability.'),
+      }(name='scaling_group', description='The configuration of the scaling group.'),
       status?: {
         failedNodes?: long(name='failed_nodes', description='The number of failed nodes.', example='0'),
         healthyNodes?: long(name='healthy_nodes', description='The number of healthy nodes.', example='3'),
@@ -3707,9 +3753,9 @@ A key must be unique and cannot exceed 128 characters in length. Neither keys no
       teeConfig?: {
         teeEnable?: boolean(name='tee_enable', description='Indicates whether confidential computing is enabled. Valid values:
 
-*   `true`: confidential computing is enabled.
-*   `false`: confidential computing is disabled.', example='false'),
-      }(name='tee_config', description='The configurations of confidential computing.'),
+*   `true`: Confidential computing is enabled.
+*   `false`: Confidential computing is disabled.', example='false'),
+      }(name='tee_config', description='The configuration of confidential computing.'),
     }
   ](name='nodepools', description='The list of the returned node pools.'),
 }
@@ -3893,6 +3939,11 @@ model DescribeClusterResourcesResponse = {
 
 *   1: The resource is created by ACK.
 *   0: The resource is an existing resource.', example='1'),
+      dependencies?: {
+        clusterId?: string(name='cluster_id', description='依赖资源的集群ID。', example='cc5ee03f63e43425cb6f71f1a1756****'),
+        resourceType?: string(name='resource_type', description='依赖资源类型。', example='ALIYUN::VPC::NatGateway'),
+        instanceId?: string(name='instance_id', description='依赖资源实例ID。', example='ngw-wz9sphwk42sdtjixo****'),
+      }(name='dependencies'),
     }
   ](name='body'),
 }
@@ -4522,11 +4573,11 @@ async function describeClustersV1(request: DescribeClustersV1Request): DescribeC
 }
 
 model DescribeEdgeMachineActiveProcessResponseBody = {
-  logs?: string(name='logs', description='The list of details about the activation progress.', example='[{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行开始\\",\\"id\\":0,\\"level\\":3,\\"timestamp\\":1625994913000},{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行成功\\",\\"id\\":1,\\"level\\":3,\\"timestamp\\":1625994914000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行开始\\",\\"id\\":2,\\"level\\":3,\\"timestamp\\":1625994975000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行成功\\",\\"id\\":3,\\"level\\":3,\\"timestamp\\":1625994975000}]'),
+  logs?: string(name='logs', description='The activation progress list.', example='[{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行开始\\",\\"id\\":0,\\"level\\":3,\\"timestamp\\":1625994913000},{\\"content\\":\\"步骤 \\"颁发激活凭证\\" 执行成功\\",\\"id\\":1,\\"level\\":3,\\"timestamp\\":1625994914000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行开始\\",\\"id\\":2,\\"level\\":3,\\"timestamp\\":1625994975000},{\\"content\\":\\"步骤 \\"初始化主机配置\\" 执行成功\\",\\"id\\":3,\\"level\\":3,\\"timestamp\\":1625994975000}]'),
   progress?: long(name='progress', description='The activation progress.', example='100'),
-  requestId?: string(name='request_id', description='The ID of the request.', example='b62796a8-c5a6-4d3f-beb2-7650e4309cb1'),
-  state?: string(name='state', description='The status of the cloud-native box.', example='ACTIVATED'),
-  step?: string(name='step', description='The current step of the activation process.', example='步骤 \\"初始化主机配置\\" 执行成功'),
+  requestId?: string(name='request_id', description='The request ID.', example='b62796a8-c5a6-4d3f-beb2-7650e4309cb1'),
+  state?: string(name='state', description='The activation status.', example='ACTIVATED'),
+  step?: string(name='step', description='The activation step.', example='步骤 \\"初始化主机配置\\" 执行成功'),
 }
 
 model DescribeEdgeMachineActiveProcessResponse = {
@@ -4562,16 +4613,16 @@ async function describeEdgeMachineActiveProcess(edgeMachineid: string): Describe
 model DescribeEdgeMachineModelsResponseBody = {
   models?: [ 
     {
-      cpu?: int32(name='cpu', description='The number of CPU cores.', example='6'),
+      cpu?: int32(name='cpu', description='The number of vCores.', example='6'),
       cpuArch?: string(name='cpu_arch', description='The CPU architecture.', example='x86_64/arm64'),
       created?: string(name='created', description='The time when the cloud-native box was created.', example='2021-07-07T20:44:00+08:00'),
-      description?: string(name='description', description='The description.', example='B010'),
-      manageRuntime?: int32(name='manage_runtime', description='Indicates whether the Docker runtime is managed.', example='0/1'),
-      memory?: int32(name='memory', description='The memory size. Unit: GB.', example='8'),
+      description?: string(name='description', description='The description of the cloud-native box.', example='B010'),
+      manageRuntime?: int32(name='manage_runtime', description='Indicates whether the cloud-native box model manages the Docker runtime.', example='0/1'),
+      memory?: int32(name='memory', description='The memory. Unit: GB.', example='8'),
       model?: string(name='model', description='The model of the cloud-native box.', example='ACK-V-B010'),
       modelId?: string(name='model_id', description='The ID of the cloud-native box.', example='c34cc753-8908-4739-bd10-ebd922a4****'),
     }
-  ](name='models', description='The list of details about the models of cloud-native boxes.'),
+  ](name='models', description='The cloud-native box models.'),
 }
 
 model DescribeEdgeMachineModelsResponse = {
@@ -4845,12 +4896,17 @@ async function describeEvents(request: DescribeEventsRequest): DescribeEventsRes
 }
 
 model DescribeExternalAgentRequest {
-  agentMode?: string(name='AgentMode', example='admin'),
-  privateIpAddress?: string(name='PrivateIpAddress', example='true'),
+  agentMode?: string(name='AgentMode', description='The agent mode.', example='admin'),
+  privateIpAddress?: string(name='PrivateIpAddress', description='Specifies whether to obtain the credentials that are used to access the cluster over the internal network.
+
+*   `true`: obtains the credentials that are used to access the cluster over the internal network.
+*   `false`: obtains the credentials that are used to access the cluster over the Internet.
+
+Default value: `false`.', example='true'),
 }
 
 model DescribeExternalAgentResponseBody = {
-  config?: string(name='config', description='The agent configurations in YAML format.', example='apiVersion: v1****'),
+  config?: string(name='config', description='The agent configurations in the YAML format.', example='apiVersion: v1****'),
 }
 
 model DescribeExternalAgentResponse = {
@@ -5903,11 +5959,11 @@ async function describeUserQuota(): DescribeUserQuotaResponse {
 model DescribeWorkflowsResponseBody = {
   jobs?: [ 
     {
-      clusterId?: string(name='cluster_id', description='The ID of the ACK cluster.', example='cb1a7214cfc0b41d9bb086affc2d8f51c'),
+      clusterId?: string(name='cluster_id', description='The cluster ID.', example='cb1a7214cfc0b41d9bb086affc2d8f51c'),
       createTime?: string(name='create_time', description='The time when the workflow was created.', example='2020-01-15T13:18:52Z'),
       jobName?: string(name='job_name', description='The name of the workflow.', example='wgs-gpu-qb4dk'),
     }
-  ](name='jobs', description='The list of the jobs.'),
+  ](name='jobs', description='The list of jobs.'),
 }
 
 model DescribeWorkflowsResponse = {
@@ -6733,6 +6789,18 @@ Default value: `none`.', example='none'),
 *   `false`: disables auto repair.
 
 Default value: `true`.', example='true'),
+    autoRepairPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+    }(name='auto_repair_policy'),
+    autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+    autoUpgradePolicy?: {
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+    }(name='auto_upgrade_policy'),
+    autoVulFix?: boolean(name='auto_vul_fix', example='true'),
+    autoVulFixPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+      vulLevel?: string(name='vul_level', example='asap,nntf'),
+    }(name='auto_vul_fix_policy'),
     enable?: boolean(name='enable', description='Specifies whether to enable the managed node pool feature. Valid values:
 
 *   `true`: enables the managed node pool feature.
@@ -7270,9 +7338,9 @@ async function pauseTask(taskId: string): PauseTaskResponse {
 }
 
 model RemoveClusterNodesRequest {
-  drainNode?: boolean(name='drain_node'),
-  nodes?: [ string ](name='nodes'),
-  releaseNode?: boolean(name='release_node'),
+  drainNode?: boolean(name='drain_node', description='Specifies whether to evict all pods from the nodes that you want to remove.'),
+  nodes?: [ string ](name='nodes', description='The list of nodes to be removed.'),
+  releaseNode?: boolean(name='release_node', description='Specifies whether to release the Elastic Compute Service (ECS) instances when they are removed from the cluster.'),
 }
 
 model RemoveClusterNodesResponse = {
@@ -7282,6 +7350,11 @@ model RemoveClusterNodesResponse = {
 
 /**
   * @deprecated
+  * ****
+  * *   When you remove a node, the pods that run on the node are migrated to other nodes. This may cause service interruptions. We recommend that you remove nodes during off-peak hours.
+  * *   Unknown errors may occur when you remove nodes. Before you remove nodes, back up the data on the nodes.
+  * *   Nodes remain in the Unschedulable state when they are being removed.
+  * *   You can remove only worker nodes. You cannot remove master nodes.
   *
   * @param request RemoveClusterNodesRequest
   * @param headers map
@@ -7322,6 +7395,11 @@ async function removeClusterNodesWithOptions(ClusterId: string, request: RemoveC
 
 /**
   * @deprecated
+  * ****
+  * *   When you remove a node, the pods that run on the node are migrated to other nodes. This may cause service interruptions. We recommend that you remove nodes during off-peak hours.
+  * *   Unknown errors may occur when you remove nodes. Before you remove nodes, back up the data on the nodes.
+  * *   Nodes remain in the Unschedulable state when they are being removed.
+  * *   You can remove only worker nodes. You cannot remove master nodes.
   *
   * @param request RemoveClusterNodesRequest
   * @return RemoveClusterNodesResponse
@@ -8191,7 +8269,10 @@ async function startWorkflow(request: StartWorkflowRequest): StartWorkflowRespon
 
 model StopAlertResponseBody = {
   msg?: string(name='msg', description='The error message returned if the call fails.', example='Success'),
-  status?: boolean(name='status', description='A value of True indicates that the call succeeds. A value of False indicates that the call failed.', example='True'),
+  status?: boolean(name='status', description='The operation result. Valid values:
+
+*   True: The operation is successful.
+*   False: The operation failed.', example='True'),
 }
 
 model StopAlertResponse = {
@@ -8324,10 +8405,10 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 model UnInstallClusterAddonsRequest {
   addons?: [ 
     {
-      cleanupCloudResources?: boolean(name='cleanup_cloud_resources'),
-      name?: string(name='name', example='ack-node-problem-detector'),
+      cleanupCloudResources?: boolean(name='cleanup_cloud_resources', description='Whether to clean up cloud resources.', example='true'),
+      name?: string(name='name', description='The component name.', example='ack-node-problem-detector'),
     }
-  ](name='addons'),
+  ](name='addons', description='The list of components that you want to uninstall. The list is an array.'),
 }
 
 model UnInstallClusterAddonsResponse = {
