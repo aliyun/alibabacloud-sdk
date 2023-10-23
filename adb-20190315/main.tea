@@ -668,10 +668,14 @@ model CreateDBClusterRequest {
   storageType?: string(name='StorageType', description='A reserved parameter.'),
   tag?: [ 
     {
-      key?: string(name='Key', example='tag1'),
-      value?: string(name='Value', example='test1'),
+      key?: string(name='Key', description='The key of tag N to add to the cluster. You can use tags to filter clusters. Valid values of N: 1 to 20. The values that you specify for N must be unique and consecutive integers that start from 1. Each value of `Tag.N.Key` is paired with a value of `Tag.N.Value`.
+
+>  The tag key can be up to 64 characters in length and cannot start with `aliyun`, `acs:`, `http://`, or `https://`.', example='tag1'),
+      value?: string(name='Value', description='The value of tag N to add to the cluster. You can use tags to filter clusters. Valid values of N: 1 to 20. The values that you specify for N must be unique and consecutive integers that start from 1. Each value of `Tag.N.Key` is paired with a value of `Tag.N.Value`.
+
+>  The tag value can be up to 64 characters in length and cannot start with `aliyun`, `acs:`, `http://`, or `https://`.', example='test1'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The tags to add to the cluster.'),
   usedTime?: string(name='UsedTime', description='The subscription period of the subscription cluster.
 
 *   Valid values when Period is set to Year: 1, 2, 3, and 5 (integer)
@@ -3449,8 +3453,10 @@ model DescribeDBClusterPerformanceRequest {
 > If you leave this parameter empty, the values of all the preceding performance metrics are returned.', example='AnalyticDB_CPU'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  resourcePools?: string(name='ResourcePools'),
   startTime?: string(name='StartTime', description='The start time of the query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mmZ* format. The time must be in UTC.', example='2021-05-03T15:00Z'),
 }
 
@@ -3463,6 +3469,7 @@ model DescribeDBClusterPerformanceResponseBody = {
       series?: [ 
         {
           name?: string(name='Name', description='The name of the performance metric.', example='worker_avg_cpu_used'),
+          tags?: string(name='Tags'),
           values?: [ string ](name='Values', description='The values of the queried performance metrics.'),
         }
       ](name='Series', description='The queried performance metric data.'),
@@ -3504,11 +3511,17 @@ async function describeDBClusterPerformanceWithOptions(request: DescribeDBCluste
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
   }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
   if (!Util.isUnset(request.resourceOwnerAccount)) {
     query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.resourcePools)) {
+    query['ResourcePools'] = request.resourcePools;
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
@@ -5927,90 +5940,6 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, runti
 async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeRegionsWithOptions(request, runtime);
-}
-
-model DescribeSQLPatternAttributeRequest {
-  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
-
-> You can call the [DescribeDBClusters](~~129857~~) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.', example='am-****************'),
-  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mmZ* format. The time must be in UTC.
-
-> The end time must be later than the start time.', example='2021-09-30T00:15Z'),
-  lang?: string(name='Lang', description='The language of file titles and error messages. Valid values:
-
-*   **zh**: simplified Chinese.
-*   **en**: English.
-*   **ja**: Japanese.
-*   **zh-tw**: traditional Chinese.', example='zh'),
-  patternId?: long(name='PatternId', description='The SQL pattern ID.
-
-> You can call the [DescribeSQLPatterns](~~321868~~) operation to query the information about all SQL patterns in an AnalyticDB for MySQL cluster within a period of time, including SQL pattern IDs.', example='5575924945138******'),
-  regionId?: string(name='RegionId', description='The region ID of the cluster.
-
-> You can call the [DescribeRegions](~~143074~~) operation to query the most recent region list.', example='cn-hangzhou'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mmZ* format. The time must be in UTC.
-
-> You can query the data only within the last 15 days.', example='2021-09-30T00:10Z'),
-}
-
-model DescribeSQLPatternAttributeResponseBody = {
-  patternDetail?: {
-    averageMemory?: string(name='AverageMemory', description='The average used memory associated with the SQL pattern. Unit: MB.', example='0'),
-    averageQueryTime?: string(name='AverageQueryTime', description='The average query duration associated with the SQL pattern. Unit: milliseconds.', example='4'),
-    queryCount?: long(name='QueryCount', description='The number of queries.', example='2'),
-    SQLPattern?: string(name='SQLPattern', description='The statement of the SQL pattern.', example='SELECT * FROM KEPLER_META_NODE_STATIC_INFO WHERE elastic_node = ? OR (elastic_node = ? AND enable = ?)'),
-    totalQueryTime?: string(name='TotalQueryTime', description='The total query duration associated with the SQL pattern. Unit: milliseconds.', example='8'),
-  }(name='PatternDetail', description='The queried SQL pattern.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='2A318054-6815-528A-AA94-8AC921******'),
-}
-
-model DescribeSQLPatternAttributeResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DescribeSQLPatternAttributeResponseBody(name='body'),
-}
-
-async function describeSQLPatternAttributeWithOptions(request: DescribeSQLPatternAttributeRequest, runtime: Util.RuntimeOptions): DescribeSQLPatternAttributeResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.DBClusterId)) {
-    query['DBClusterId'] = request.DBClusterId;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.lang)) {
-    query['Lang'] = request.lang;
-  }
-  if (!Util.isUnset(request.patternId)) {
-    query['PatternId'] = request.patternId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.startTime)) {
-    query['StartTime'] = request.startTime;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DescribeSQLPatternAttribute',
-    version = '2019-03-15',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function describeSQLPatternAttribute(request: DescribeSQLPatternAttributeRequest): DescribeSQLPatternAttributeResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeSQLPatternAttributeWithOptions(request, runtime);
 }
 
 model DescribeSQLPatternsRequest {
