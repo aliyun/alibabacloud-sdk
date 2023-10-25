@@ -358,6 +358,74 @@ async function createSlot(request: CreateSlotRequest): CreateSlotResponse {
   return createSlotWithOptions(request, headers, runtime);
 }
 
+model CreateSlotsRequest {
+  dryRun?: boolean(name='DryRun', example='true'),
+  slots?: [ 
+    {
+      capacity?: string(name='Capacity', example='30.0G'),
+      description?: string(name='Description', example='xgboost数据集加速槽'),
+      endpointIds?: string(name='EndpointIds', example='end-my1tk3jggooi5uwks5,end-n69468yvjz8d12as7d,end-tga4omjrepklkg1onn'),
+      instanceId?: string(name='InstanceId', example='inst-my1tk3jggooi5uwks5'),
+      lifeCycle?: SlotLifeCycle(name='LifeCycle'),
+      name?: string(name='Name', example='slot_1'),
+      storageType?: string(name='StorageType', example='OSS'),
+      storageUri?: string(name='StorageUri', example='oss://pai-vision-data-hz2.oss-cn-hangzhou-internal.aliyuncs.com/data/VOCdevkit/VOC2007/ImageSets/Main/val.txt'),
+      tags?: [ 
+        {
+          key?: string(name='Key', example='dataset_version'),
+          value?: string(name='Value', example='v0.1.0'),
+        }
+      ](name='Tags'),
+    }
+  ](name='Slots'),
+}
+
+model CreateSlotsResponseBody = {
+  requestId?: string(name='RequestId', example='A731A84D-55C9-44F7-99BB-E1CF0CF19197'),
+  slotIds?: string(name='SlotIds', example='slot-5zk866779me51jgu3w'),
+  summary?: map[string]string(name='Summary'),
+}
+
+model CreateSlotsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateSlotsResponseBody(name='body'),
+}
+
+async function createSlotsWithOptions(request: CreateSlotsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSlotsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.dryRun)) {
+    body['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.slots)) {
+    body['Slots'] = request.slots;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSlots',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/batch/slots/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createSlots(request: CreateSlotsRequest): CreateSlotsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSlotsWithOptions(request, headers, runtime);
+}
+
 model CreateTagRequest {
   key?: string(name='Key', example='dataset_version'),
   resourceId?: string(name='ResourceId', example='inst-my1tk3jggooi5uwks'),
@@ -701,15 +769,16 @@ model DescribeInstanceResponseBody = {
   description?: string(name='Description', example='xgboost数据集加速实例'),
   gmtCreateTime?: string(name='GmtCreateTime', example='2014-10-02T15:01:23Z'),
   gmtModifiedTime?: string(name='GmtModifiedTime', example='2014-10-02T15:01:23Z'),
-  maxEndpoint?: int32(name='MaxEndpoint'),
+  ioType?: string(name='IoType', example='readonly'),
+  maxEndpoint?: int32(name='MaxEndpoint', description='数据集加速实例的最大挂载点个数。'),
   maxSlot?: int32(name='MaxSlot', example='20'),
   name?: string(name='Name', example='acc_instance_1'),
   ownerId?: string(name='OwnerId', example='1557702098194904'),
   paymentType?: string(name='PaymentType', example='PayAsYouGo'),
-  providerType?: string(name='ProviderType', example='Ecs'),
+  providerType?: string(name='ProviderType', description='数据集加速实例的资源提供者类型。', example='Ecs'),
   requestId?: string(name='RequestId', example='A731A84D-55C9-44F7-99BB-E1CF0CF19197'),
   status?: InstanceStatus(name='Status'),
-  storageType?: string(name='StorageType', example='OSS'),
+  storageType?: string(name='StorageType', description='数据集加速实例的存储类型。', example='OSS'),
   tags?: [ 
     {
       key?: string(name='Key', example='dataset_version'),
@@ -1002,6 +1071,7 @@ model ListInstancesResponseBody = {
       description?: string(name='Description', example='xgboost数据集加速实例'),
       gmtCreateTime?: string(name='GmtCreateTime', example='2014-10-02T15:01:23Z'),
       gmtModifiedTime?: string(name='GmtModifiedTime', example='2014-10-02T15:01:23Z'),
+      ioType?: string(name='IoType', example='readonly'),
       maxEndpoint?: int32(name='MaxEndpoint', description='数据集加速实例的最大挂载点个数。'),
       maxSlot?: int32(name='MaxSlot', example='20'),
       name?: string(name='Name', example='acc_instance_1'),
@@ -1506,6 +1576,40 @@ async function queryStatistic(request: QueryStatisticRequest): QueryStatisticRes
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return queryStatisticWithOptions(request, headers, runtime);
+}
+
+model ReloadSlotResponseBody = {
+  requestId?: string(name='RequestId', example='A731A84D-55C9-44F7-99BB-E1CF0CF19197'),
+}
+
+model ReloadSlotResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ReloadSlotResponseBody(name='body'),
+}
+
+async function reloadSlotWithOptions(SlotId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ReloadSlotResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ReloadSlot',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/slots/${OpenApiUtil.getEncodeParam(SlotId)}/action/reload`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function reloadSlot(SlotId: string): ReloadSlotResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return reloadSlotWithOptions(SlotId, headers, runtime);
 }
 
 model StopSlotResponseBody = {
