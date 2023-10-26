@@ -131,6 +131,7 @@ model GrafanaWorkspaceAccount {
   orgs?: [
     GrafanaWorkspaceUserOrg
   ](name='orgs'),
+  type?: string(name='type', example='aliyun'),
 }
 
 model GrafanaWorkspaceAlertNotification {
@@ -1540,16 +1541,16 @@ async function closeAlarm(request: CloseAlarmRequest): CloseAlarmResponse {
 
 model ConfigAppRequest {
   appIds?: string(name='AppIds', description='The process identifier (PID) of the application. Separate multiple PIDs with commas (,).', example='iioe7jcnuk@582846f37******,atc889zkcf@d8deedfa9bf******'),
-  enable?: string(name='Enable', description='Specifies whether to turn on or turn off the main switch of the ARMS agent. The monitoring stops after the switch is turned off. If you do not specify this parameter, the main switch status of the ARMS agent is queried.
+  enable?: string(name='Enable', description='Specifies whether to turn on or off the main switch of the ARMS agent. The monitoring stops after the switch is turned off. If you do not specify this parameter, the main switch status of the ARMS agent is queried.
 
-*   `true`
-*   `false`', example='true'),
+*   `true`: turns on the switch
+*   `false`: turns off the switch', example='true'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   type?: string(name='Type', description='The type of the application. Set the value to **TRACE**.', example='TRACE'),
 }
 
 model ConfigAppResponseBody = {
-  data?: string(name='Data', description='The result of turning on or turning off the main switch of the ARMS agent or the main switch status of the ARMS agent.', example='abc@def success\\nghi@jkl success\\n'),
+  data?: string(name='Data', description='The result of turning on or off the main switch of the ARMS agent or the main switch status of the ARMS agent. Indicates whether the request was successful. Valid values: success failed The main switch status of the ARMS agent. Valid values: true false', example='abc@def success\\nghi@jkl success\\n'),
   requestId?: string(name='RequestId', description='The request ID.', example='16AF921B-8187-489F-9913-43C808B4****'),
 }
 
@@ -1857,6 +1858,361 @@ async function createDispatchRule(request: CreateDispatchRuleRequest): CreateDis
   return createDispatchRuleWithOptions(request, runtime);
 }
 
+model CreateEnvCustomJobRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale: zh | en. 
+The default value is zh.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='Customize the Job\\"s yaml configuration string.', example='example:
+`
+scrape_configs:
+- job_name: job-demo1
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+- job_name: job-demo2
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+  http_sd_configs:
+  - url: 127.0.0.1:9090
+    refresh_interval: 30s
+`'),
+  customJobName?: string(name='CustomJobName', description='Customize job name.', example='customJob1'),
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model CreateEnvCustomJobResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: string(name='Data', description='The struct returned.', example='cutomJob1'),
+  message?: string(name='Message', description='The message returned.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='4C518054-852F-4023-ABC1-4AF95FF7****'),
+}
+
+model CreateEnvCustomJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateEnvCustomJobResponseBody(name='body'),
+}
+
+async function createEnvCustomJobWithOptions(request: CreateEnvCustomJobRequest, runtime: Util.RuntimeOptions): CreateEnvCustomJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.customJobName)) {
+    query['CustomJobName'] = request.customJobName;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnvCustomJob',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createEnvCustomJob(request: CreateEnvCustomJobRequest): CreateEnvCustomJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createEnvCustomJobWithOptions(request, runtime);
+}
+
+model CreateEnvPodMonitorRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, default is Chinese zh | en.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='PodMonitor\\"s yaml configuration string.', example='Example: 
+`
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: arms-admin-pm1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  selector:
+    matchLabels:
+      app: arms-prometheus-ack-arms-prometheus
+      release: arms-prometheus
+  namespaceSelector:
+    any: true    
+  podMetricsEndpoints:
+  - interval: 30s
+    targetPort: 9335
+    path: /metrics
+  - interval: 10s
+    targetPort: 9335
+    path: /metrics1
+` 
+where arms.prometheus.io /discovery must exist, and its value is "true", which means serviceMonitor is enabled, otherwise it means it is stopped.'),
+  dryRun?: boolean(name='DryRun', description='Trial run: Check whether the format is legal and whether it can match targets.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model CreateEnvPodMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: {
+    matchedMsg?: string(name='MatchedMsg', description='target matching prompt information.', example='Match successful.'),
+    matchedTargetCount?: string(name='MatchedTargetCount', description='The number of matched targets.', example='1'),
+    namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+    podMonitorName?: string(name='PodMonitorName', description='Successfully created podMonitor name.', example='arms-admin-pm1'),
+  }(name='Data', description='The returned information.'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='78901766-3806-4E96-8E47-CFEF59E4****'),
+}
+
+model CreateEnvPodMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateEnvPodMonitorResponseBody(name='body'),
+}
+
+async function createEnvPodMonitorWithOptions(request: CreateEnvPodMonitorRequest, runtime: Util.RuntimeOptions): CreateEnvPodMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnvPodMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createEnvPodMonitor(request: CreateEnvPodMonitorRequest): CreateEnvPodMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createEnvPodMonitorWithOptions(request, runtime);
+}
+
+model CreateEnvServiceMonitorRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, default is Chinese zh | en.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='ServiceMonitor\\"s yaml configuration string.', example='Example: 
+`
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: arms-admin1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  endpoints:
+  - interval: 30s
+    port: operator
+    path: /metrics
+  - interval: 10s
+    port: operator1
+    path: /metrics
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+     app: arms-prometheus-ack-arms-prometheus
+` 
+where arms.prometheus.io/discovery must exist and its value If "true", it means serviceMonitor is enabled, otherwise it means it is stopped.'),
+  dryRun?: boolean(name='DryRun', description='Trial run: Check whether the format is legal and whether it can match targets.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+}
+
+model CreateEnvServiceMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code.', example='200'),
+  data?: {
+    matchedMsg?: string(name='MatchedMsg', description='target matching prompt information.', example='Match successful.'),
+    matchedTargetCount?: int32(name='MatchedTargetCount', description='The number of matched targets.', example='1'),
+    namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+    serviceMonitorName?: string(name='ServiceMonitorName', description='The name of the serviceMonitor successfully created.', example='arms-admin1'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The message returned.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='78901766-3806-4E96-8E47-CFEF59E4****'),
+}
+
+model CreateEnvServiceMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateEnvServiceMonitorResponseBody(name='body'),
+}
+
+async function createEnvServiceMonitorWithOptions(request: CreateEnvServiceMonitorRequest, runtime: Util.RuntimeOptions): CreateEnvServiceMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnvServiceMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createEnvServiceMonitor(request: CreateEnvServiceMonitorRequest): CreateEnvServiceMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createEnvServiceMonitorWithOptions(request, runtime);
+}
+
+model CreateEnvironmentRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh | en.', example='zh'),
+  bindResourceId?: string(name='BindResourceId', description='Resource instance ID bound to the environment, including container instance ID or VpcId.', example='c6e9dec475dca4a50a188411d8cbxxx'),
+  environmentName?: string(name='EnvironmentName', description='Environment name.', example='env1'),
+  environmentSubType?: string(name='EnvironmentSubType', description='Environment subtypes:
+- CS: Currently supports ACK.
+- ECS: ECS is currently supported.
+- Cloud: Currently supports Cloud.', example='ECS, ACK, etc.'),
+  environmentType?: string(name='EnvironmentType', description='Environment type:
+- CS: Container Service.
+- ECS.
+- Cloud: cloud service.', example='CS'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmxyexli2****'),
+  tags?: [ 
+    {
+      key?: string(name='Key', description='The tag key.', example='TestKey'),
+      value?: string(name='Value', description='The tag value.', example='TestValue'),
+    }
+  ](name='Tags', description='The list of tags.'),
+}
+
+model CreateEnvironmentResponseBody = {
+  code?: int32(name='Code', description='The status code returned.', example='200'),
+  data?: string(name='Data', description='The data returned.', example='env-xxxxx'),
+  message?: string(name='Message', description='The message returned.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='16AF921B-8187-489F-9913-43C808B4****'),
+}
+
+model CreateEnvironmentResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateEnvironmentResponseBody(name='body'),
+}
+
+async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, runtime: Util.RuntimeOptions): CreateEnvironmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.bindResourceId)) {
+    query['BindResourceId'] = request.bindResourceId;
+  }
+  if (!Util.isUnset(request.environmentName)) {
+    query['EnvironmentName'] = request.environmentName;
+  }
+  if (!Util.isUnset(request.environmentSubType)) {
+    query['EnvironmentSubType'] = request.environmentSubType;
+  }
+  if (!Util.isUnset(request.environmentType)) {
+    query['EnvironmentType'] = request.environmentType;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tags)) {
+    query['Tags'] = request.tags;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnvironment',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvironmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createEnvironmentWithOptions(request, runtime);
+}
+
 model CreateIntegrationRequest {
   autoRecover?: boolean(name='AutoRecover', example='true'),
   description?: string(name='Description', example='测试'),
@@ -2139,6 +2495,7 @@ model CreateOrUpdateAlertRuleResponseBody = {
 *   Default: Alert notifications are sent regardless of alert levels.', example='P2'),
     message?: string(name='Message', description='The alert message of the Prometheus alert rule.', example='Namespace: {{$labels.namespace}} / Pod: {{$labels.pod_name}} / Container: {{$labels.container}} Memory usage exceeds 80%. Current value: {{ printf \\\\\\\\\\"%.2f\\\\\\\\\\" $value }}%'),
     metricsType?: string(name='MetricsType', description='The metric type of the Application Monitoring or Browser Monitoring alert rule.', example='JVM'),
+    notifyMode?: string(name='NotifyMode'),
     notifyStrategy?: string(name='NotifyStrategy', description='The name of the notification policy.', example='ALERT_MANAGER'),
     pids?: [ string ](name='Pids', description='The process ID (PID) that was associated with the Application Monitoring or Browser Monitoring alert rule.'),
     promQL?: string(name='PromQL', description='The PromQL statement of the Prometheus alert rule.', example='node_memory_MemAvailable_bytes{} / node_memory_MemTotal_bytes{} * 100'),
@@ -3733,7 +4090,10 @@ model CreateTimingSyntheticTaskRequest {
       selectType?: int32(name='SelectType', example='0'),
     }(name='CustomHost'),
     ipType?: int32(name='IpType', example='0'),
+    isOpenTrace?: boolean(name='IsOpenTrace'),
     monitorSamples?: int32(name='MonitorSamples', example='0'),
+    traceClientType?: int32(name='TraceClientType'),
+    xtraceRegion?: string(name='XtraceRegion'),
   }(name='CommonSetting'),
   customPeriod?: {
     endHour?: int32(name='EndHour', example='22'),
@@ -4527,6 +4887,276 @@ async function deleteDispatchRuleWithOptions(request: DeleteDispatchRuleRequest,
 async function deleteDispatchRule(request: DeleteDispatchRuleRequest): DeleteDispatchRuleResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteDispatchRuleWithOptions(request, runtime);
+}
+
+model DeleteEnvCustomJobRequest {
+  customJobName?: string(name='CustomJobName', description='Custom job name.', example='job1'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model DeleteEnvCustomJobResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: string(name='Data', description='The returned result.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2FC13182-B9AF-4E6B-BE51-72669B7C****'),
+}
+
+model DeleteEnvCustomJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteEnvCustomJobResponseBody(name='body'),
+}
+
+async function deleteEnvCustomJobWithOptions(request: DeleteEnvCustomJobRequest, runtime: Util.RuntimeOptions): DeleteEnvCustomJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.customJobName)) {
+    query['CustomJobName'] = request.customJobName;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvCustomJob',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteEnvCustomJob(request: DeleteEnvCustomJobRequest): DeleteEnvCustomJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnvCustomJobWithOptions(request, runtime);
+}
+
+model DeleteEnvPodMonitorRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  namespace?: string(name='Namespace', description='The namespace where podMonitor is located', example='arms-prom'),
+  podMonitorName?: string(name='PodMonitorName', description='PodMonitor name.', example='arms-admin-pm1'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model DeleteEnvPodMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: string(name='Data', description='The data returned.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='626037F5-FDEB-45B0-804C-B3C92797****'),
+}
+
+model DeleteEnvPodMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteEnvPodMonitorResponseBody(name='body'),
+}
+
+async function deleteEnvPodMonitorWithOptions(request: DeleteEnvPodMonitorRequest, runtime: Util.RuntimeOptions): DeleteEnvPodMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.podMonitorName)) {
+    query['PodMonitorName'] = request.podMonitorName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvPodMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteEnvPodMonitor(request: DeleteEnvPodMonitorRequest): DeleteEnvPodMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnvPodMonitorWithOptions(request, runtime);
+}
+
+model DeleteEnvServiceMonitorRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  namespace?: string(name='Namespace', description='The name of the namespace.', example='arms-prom'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+  serviceMonitorName?: string(name='ServiceMonitorName', description='ServiceMonitor name.', example='arms-admin1'),
+}
+
+model DeleteEnvServiceMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code or error code.', example='200'),
+  data?: string(name='Data', description='The returned data.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='78901766-3806-4E96-8E47-CFEF59E4****'),
+}
+
+model DeleteEnvServiceMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteEnvServiceMonitorResponseBody(name='body'),
+}
+
+async function deleteEnvServiceMonitorWithOptions(request: DeleteEnvServiceMonitorRequest, runtime: Util.RuntimeOptions): DeleteEnvServiceMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.serviceMonitorName)) {
+    query['ServiceMonitorName'] = request.serviceMonitorName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvServiceMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteEnvServiceMonitor(request: DeleteEnvServiceMonitorRequest): DeleteEnvServiceMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnvServiceMonitorWithOptions(request, runtime);
+}
+
+model DeleteEnvironmentRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+}
+
+model DeleteEnvironmentResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: string(name='Data', description='The returned information.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='34ED024E-9E31-434A-9E4E-D9D15C3****'),
+}
+
+model DeleteEnvironmentResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteEnvironmentResponseBody(name='body'),
+}
+
+async function deleteEnvironmentWithOptions(request: DeleteEnvironmentRequest, runtime: Util.RuntimeOptions): DeleteEnvironmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvironment',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteEnvironment(request: DeleteEnvironmentRequest): DeleteEnvironmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnvironmentWithOptions(request, runtime);
+}
+
+model DeleteEnvironmentFeatureRequest {
+  environmentId?: string(name='EnvironmentId', example='env-xxx'),
+  featureName?: string(name='FeatureName', example='metric-agent'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model DeleteEnvironmentFeatureResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: string(name='Data', example='success'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2A0CEDF1-06FE-44AC-8E21-21A5BE65****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteEnvironmentFeatureResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteEnvironmentFeatureResponseBody(name='body'),
+}
+
+async function deleteEnvironmentFeatureWithOptions(request: DeleteEnvironmentFeatureRequest, runtime: Util.RuntimeOptions): DeleteEnvironmentFeatureResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.featureName)) {
+    query['FeatureName'] = request.featureName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnvironmentFeature',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteEnvironmentFeature(request: DeleteEnvironmentFeatureRequest): DeleteEnvironmentFeatureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnvironmentFeatureWithOptions(request, runtime);
 }
 
 model DeleteEventBridgeIntegrationRequest {
@@ -5835,6 +6465,342 @@ async function describeDispatchRuleWithOptions(request: DescribeDispatchRuleRequ
 async function describeDispatchRule(request: DescribeDispatchRuleRequest): DescribeDispatchRuleResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeDispatchRuleWithOptions(request, runtime);
+}
+
+model DescribeEnvCustomJobRequest {
+  customJobName?: string(name='CustomJobName', description='Custom job name.', example='customJob1'),
+  encryptYaml?: boolean(name='EncryptYaml', description='Whether to return the encrypted yaml string.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model DescribeEnvCustomJobResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: {
+    configYaml?: string(name='ConfigYaml', description='If the request parameter encryptYaml is true, the base64-encoded yaml string is returned. Otherwise, the plaintext yaml string is returned.', example='`
+scrape_configs:
+- job_name: job-demo1
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+- job_name: job-demo2
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+  http_sd_configs:
+  - url: 127.0.0.1:9090
+    refresh_interval: 30s
+`'),
+    customJobName?: string(name='CustomJobName', description='Custom job name.', example='customJob1'),
+    environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+    regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+    status?: string(name='Status', description='Status: run, stop.', example='run'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A9AEA84-7186-4D8D-B498-4585C6A2****'),
+}
+
+model DescribeEnvCustomJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeEnvCustomJobResponseBody(name='body'),
+}
+
+async function describeEnvCustomJobWithOptions(request: DescribeEnvCustomJobRequest, runtime: Util.RuntimeOptions): DescribeEnvCustomJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.customJobName)) {
+    query['CustomJobName'] = request.customJobName;
+  }
+  if (!Util.isUnset(request.encryptYaml)) {
+    query['EncryptYaml'] = request.encryptYaml;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeEnvCustomJob',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeEnvCustomJob(request: DescribeEnvCustomJobRequest): DescribeEnvCustomJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeEnvCustomJobWithOptions(request, runtime);
+}
+
+model DescribeEnvPodMonitorRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+  namespace?: string(name='Namespace', description='The namespace where podMonitor is located.', example='arms-prom'),
+  podMonitorName?: string(name='PodMonitorName', description='PodMonitor name.', example='arms-admin-pm1'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+}
+
+model DescribeEnvPodMonitorResponseBody = {
+  code?: int32(name='Code', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: {
+    configYaml?: string(name='ConfigYaml', description='PodMonitor\\"s yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: arms-admin-pm1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  selector:
+    matchLabels:
+      app: arms-prometheus-ack-arms-prometheus
+      release: arms-prometheus
+  namespaceSelector:
+    any: true    
+  podMetricsEndpoints:
+  - interval: 30s
+    targetPort: 9335
+    path: /metrics
+  - interval: 10s
+    targetPort: 9335
+    path: /metrics1
+`'),
+    environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+    namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+    podMonitorName?: string(name='PodMonitorName', description='PodMonitor name.', example='podMonitor1'),
+    regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+    status?: string(name='Status', description='Status: run, stop.', example='run'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The message returned.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1A9C645C-C83F-4C9D-8CCB-29BEC9E1****'),
+}
+
+model DescribeEnvPodMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeEnvPodMonitorResponseBody(name='body'),
+}
+
+async function describeEnvPodMonitorWithOptions(request: DescribeEnvPodMonitorRequest, runtime: Util.RuntimeOptions): DescribeEnvPodMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.podMonitorName)) {
+    query['PodMonitorName'] = request.podMonitorName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeEnvPodMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeEnvPodMonitor(request: DescribeEnvPodMonitorRequest): DescribeEnvPodMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeEnvPodMonitorWithOptions(request, runtime);
+}
+
+model DescribeEnvServiceMonitorRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+  namespace?: string(name='Namespace', description='The name of the namespace.', example='arms-prom'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  serviceMonitorName?: string(name='ServiceMonitorName', description='ServiceMonitor name.', example='arms-admin1'),
+}
+
+model DescribeEnvServiceMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: {
+    configYaml?: string(name='ConfigYaml', description='ServiceMonitor\\"s yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: arms-admin1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  endpoints:
+  - interval: 30s
+    port: operator
+    path: /metrics
+  - interval: 10s
+    port: operator1
+    path: /metrics
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+     app: arms-prometheus-ack-arms-prometheus
+`'),
+    environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+    namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+    regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+    serviceMonitorName?: string(name='ServiceMonitorName', description='ServiceMonitor name.', example='serviceMonitor1'),
+    status?: string(name='Status', description='Status: run, stop.', example='run'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40B10E04-81E8-4643-970D-F1B38F2E****'),
+}
+
+model DescribeEnvServiceMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeEnvServiceMonitorResponseBody(name='body'),
+}
+
+async function describeEnvServiceMonitorWithOptions(request: DescribeEnvServiceMonitorRequest, runtime: Util.RuntimeOptions): DescribeEnvServiceMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.serviceMonitorName)) {
+    query['ServiceMonitorName'] = request.serviceMonitorName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeEnvServiceMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeEnvServiceMonitor(request: DescribeEnvServiceMonitorRequest): DescribeEnvServiceMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeEnvServiceMonitorWithOptions(request, runtime);
+}
+
+model DescribeEnvironmentRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model DescribeEnvironmentResponseBody = {
+  code?: int32(name='Code', description='The status code or error code.', example='200'),
+  data?: {
+    bindResourceId?: string(name='BindResourceId', description='Resource instance ID bound to the environment, including container instance ID or VpcId.', example='vpc-xxxxx'),
+    bindResourceProfile?: string(name='BindResourceProfile', description='Profile of bound resources.', example='Default'),
+    bindResourceStatus?: string(name='BindResourceStatus', description='The state of the bound resource.', example='running'),
+    bindResourceStoreDuration?: string(name='BindResourceStoreDuration', description='The storage duration of bound resources (days).', example='15'),
+    bindResourceType?: string(name='BindResourceType', description='The bound resource type.', example='ECS'),
+    bindVpcCidr?: string(name='BindVpcCidr', description='Bind the network segment of the vpc.', example='192.168.0.0/16'),
+    environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+    environmentName?: string(name='EnvironmentName', description='Environment name.', example='env1'),
+    environmentType?: string(name='EnvironmentType', description='Environment type:
+- CS: Container Service.
+- ECS.
+- Cloud: cloud service.', example='CS'),
+    grafaDataSourceName?: string(name='GrafaDataSourceName', description='Grafana data source name.', example='datasource1'),
+    grafanaDatasourceUid?: string(name='GrafanaDatasourceUid', description='Grafana data source unique ID.', example='zuvw'),
+    grafanaFolderTitle?: string(name='GrafanaFolderTitle', description='Grafana directory name.', example='folder1'),
+    grafanaFolderUid?: string(name='GrafanaFolderUid', description='Grafana directory unique ID.', example='xyz'),
+    grafanaFolderUrl?: string(name='GrafanaFolderUrl', description='Grafana directory URL.', example='https://g.console.aliyun.com/dashboards/f/xxx/yyyy'),
+    prometheusInstanceId?: string(name='PrometheusInstanceId', description='The bound prometheus instance ID.', example='xxxxyyyyyzzzzz'),
+    prometheusInstanceName?: string(name='PrometheusInstanceName', description='The name of the bound prometheus instance.', example='name1'),
+    regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+    resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-aek2vezare****'),
+    tags?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tags', description='The tags.'),
+    userId?: string(name='UserId', description='UserId.', example='13002222xxxx'),
+    vpcId?: string(name='VpcId'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C21AB7CF-B7AF-410F-BD61-82D1567F****'),
+}
+
+model DescribeEnvironmentResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeEnvironmentResponseBody(name='body'),
+}
+
+async function describeEnvironmentWithOptions(request: DescribeEnvironmentRequest, runtime: Util.RuntimeOptions): DescribeEnvironmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeEnvironment',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeEnvironment(request: DescribeEnvironmentRequest): DescribeEnvironmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeEnvironmentWithOptions(request, runtime);
 }
 
 model DescribeIMRobotsRequest {
@@ -8359,7 +9325,10 @@ model GetTimingSyntheticTaskResponseBody = {
         selectType?: int32(name='SelectType', example='0'),
       }(name='CustomHost'),
       ipType?: int32(name='IpType', example='0'),
+      isOpenTrace?: boolean(name='IsOpenTrace'),
       monitorSamples?: int32(name='MonitorSamples', example='0'),
+      traceClientType?: int32(name='TraceClientType'),
+      xtraceRegion?: string(name='XtraceRegion'),
     }(name='CommonSetting'),
     customPeriod?: {
       endHour?: long(name='EndHour', example='22'),
@@ -8550,28 +9519,67 @@ model GetTraceResponseBody = {
       rpcId?: string(name='RpcId', description='The ID of the RPC mode.', example='0'),
       rpcType?: int32(name='RpcType', description='The type of the remote procedure call (RPC) mode.
 
-*   0: HTTP entry
-*   25: HTTP call
-*   1: High-speed Service Framework (HSF) call
-*   2: HSF provision
-*   40: on-premises API call
-*   60: MySQL call
-*   62: Oracle call
-*   63: PostgreSQL call
-*   70: Redis call
-*   4: Taobao Distributed Data Layer (TDDL) call
-*   5: Tair call
-*   13: MetaQ message sending
-*   252: MetaQ message receiving
-*   3: notification sending
-*   254: notification receiving
-*   7: Apache Dubbo call
-*   8: Apache Dubbo provision
-*   19: SOFARPC call
-*   18: SOFARPC provision
-*   11: Distributed Service Framework (DSF) call
-*   12: DSF provision
-*   \\-1: unknown call', example='1'),
+- 0 http
+- 25 http_client
+- 1 hsf_client
+- 2 hsf
+- 40 local
+- 41 async
+- 52 DB2
+- 53 Informix
+- 54 SequoiaDB
+- 55 Gbase
+- 56 GaussDB
+- 57 KingBase
+- 58 infuxdb
+- 59 clickhouse
+- 60 mysql
+- 61 mysql
+- 62 oracle
+- 63 postgresql
+- 64 mongodb
+- 65 ppas
+- 66 sqlserver
+- 67 mariadb
+- 68 dmdb
+- 69 oceanbase
+- 70 redis
+- 71 memcached
+- 72 elasticsearch
+- 73 kudu
+- 4 tddl
+- 5 tair
+- 13 mq_client
+- 252 mq
+- 23 kafka_client
+- 256 kafka
+- 3 notify_client
+- 254 notify
+- 7 dubbo_client
+- 8 dubbo
+- 11 dsf_client
+- 12 dsf
+- 9 grpc
+- 10 grpc_client
+- 16 thrift
+- 17 thrift_client
+- 18 sofa
+- 19 sofa_client
+- -1 unknown
+- 98 user_method
+- 100 root
+- 101 client
+- 102 server
+- 103 producer
+- 104 consumer
+- 105 db
+- 106 xtrace_other
+- 1301 schedulerx
+- 1302 XXL_Job
+- 1303 Spring_Scheduled
+- 1304 Quartz
+- 1305 ElasticJob
+- 1308 Jdk_Timer', example='1'),
       serviceIp?: string(name='ServiceIp', description='The IP address of the host where the application resides.', example='172.20.XX.XX'),
       serviceName?: string(name='ServiceName', description='The name of the application.', example='arms-demo'),
       spanId?: string(name='SpanId', description='The span ID.', example='1234'),
@@ -8810,6 +9818,59 @@ async function importAppAlertRulesWithOptions(request: ImportAppAlertRulesReques
 async function importAppAlertRules(request: ImportAppAlertRulesRequest): ImportAppAlertRulesResponse {
   var runtime = new Util.RuntimeOptions{};
   return importAppAlertRulesWithOptions(request, runtime);
+}
+
+model InitEnvironmentRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh.', example='zh'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model InitEnvironmentResponseBody = {
+  code?: int32(name='Code', description='The status code.', example='200'),
+  data?: string(name='Data', description='The data returned.', example='success'),
+  message?: string(name='Message', description='The message returned.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='4D6C358A-A58B-4F4B-94CE-F5AAF023****'),
+}
+
+model InitEnvironmentResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: InitEnvironmentResponseBody(name='body'),
+}
+
+async function initEnvironmentWithOptions(request: InitEnvironmentRequest, runtime: Util.RuntimeOptions): InitEnvironmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'InitEnvironment',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function initEnvironment(request: InitEnvironmentRequest): InitEnvironmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return initEnvironmentWithOptions(request, runtime);
 }
 
 model InstallCmsExporterRequest {
@@ -9817,6 +10878,288 @@ async function listDispatchRule(request: ListDispatchRuleRequest): ListDispatchR
   return listDispatchRuleWithOptions(request, runtime);
 }
 
+model ListEnvCustomJobsRequest {
+  encryptYaml?: boolean(name='EncryptYaml', description='Whether to return encrypted yaml.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model ListEnvCustomJobsResponseBody = {
+  code?: int32(name='Code', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: [ 
+    {
+      addonName?: string(name='AddonName', description='The attributed component name.', example='mysql'),
+      addonReleaseName?: string(name='AddonReleaseName', description='The attributed component instance name.', example='mysql1'),
+      addonVersion?: string(name='AddonVersion', description='The attributed component version.', example='1.1.0'),
+      configYaml?: string(name='ConfigYaml', description='If the request parameter encryptYaml is true, the base64-encoded yaml string is returned. Otherwise, the plaintext yaml string is returned.', example='`
+scrape_configs:
+- job_name: job-demo1
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+- job_name: job-demo2
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+  http_sd_configs:
+  - url: 127.0.0.1:9090
+    refresh_interval: 30s
+`'),
+      creationTimestamp?: string(name='CreationTimestamp', description='Creation time (timestamp).', example='2022-01-01T10:11:34Z'),
+      customJobName?: string(name='CustomJobName', description='Custom job name.', example='job1'),
+      environmentId?: string(name='EnvironmentId', description='Environment instance ID.', example='env-xxxx'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      scrapeConfigs?: [ 
+        {
+          jobName?: string(name='JobName', description='Job name.', example='custom-sd-demo'),
+          metricsPath?: string(name='MetricsPath', description='scrape the path of the metric.', example='/metrics'),
+          scrapeDiscoverys?: [ string ](name='ScrapeDiscoverys', description='List of service discovery methods.'),
+          scrapeInterval?: string(name='ScrapeInterval', description='scrape interval.', example='30s'),
+        }
+      ](name='ScrapeConfigs', description='scrape configuration.'),
+      status?: string(name='Status', description='state.', example='run'),
+    }
+  ](name='Data', description='The returned information.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2A0CEDF1-06FE-44AC-8E21-21A5BE65****'),
+}
+
+model ListEnvCustomJobsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEnvCustomJobsResponseBody(name='body'),
+}
+
+async function listEnvCustomJobsWithOptions(request: ListEnvCustomJobsRequest, runtime: Util.RuntimeOptions): ListEnvCustomJobsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.encryptYaml)) {
+    query['EncryptYaml'] = request.encryptYaml;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnvCustomJobs',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listEnvCustomJobs(request: ListEnvCustomJobsRequest): ListEnvCustomJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnvCustomJobsWithOptions(request, runtime);
+}
+
+model ListEnvPodMonitorsRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model ListEnvPodMonitorsResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: [ 
+    {
+      addonName?: string(name='AddonName', description='addon name.', example='mysql'),
+      addonReleaseName?: string(name='AddonReleaseName', description='addon release name.', example='mysql1'),
+      addonVersion?: string(name='AddonVersion', description='addon version.', example='1.0.5'),
+      configYaml?: string(name='ConfigYaml', description='yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: arms-admin-pm1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  selector:
+    matchLabels:
+      app: arms-prometheus-ack-arms-prometheus
+      release: arms-prometheus
+  namespaceSelector:
+    any: true    
+  podMetricsEndpoints:
+  - interval: 30s
+    targetPort: 9335
+    path: /metrics
+  - interval: 10s
+    targetPort: 9335
+    path: /metrics1
+`'),
+      creationTimestamp?: string(name='CreationTimestamp', description='Creation time (timestamp).', example='2011-01-02T11:34:22Z'),
+      endpoints?: [ 
+        {
+          interval?: string(name='Interval', description='scrape interval.', example='30s'),
+          matchedTargetCount?: int32(name='MatchedTargetCount', description='The number of targets (pods) matched by PodMonitor.Endpoint.', example='1'),
+          path?: string(name='Path', description='metric path.', example='/metrics'),
+          port?: string(name='Port', description='External port.', example='9182'),
+          targetPort?: int32(name='TargetPort', description='Destination port.', example='3306'),
+        }
+      ](name='Endpoints', description='List of endpoints for podmonitor.'),
+      environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+      namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+      podMonitorName?: string(name='PodMonitorName', description='PodMonitor name.', example='pm1'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+      status?: string(name='Status', description='state.', example='run'),
+    }
+  ](name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='4C518054-852F-4023-ABC1-4AF95FF7****'),
+}
+
+model ListEnvPodMonitorsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEnvPodMonitorsResponseBody(name='body'),
+}
+
+async function listEnvPodMonitorsWithOptions(request: ListEnvPodMonitorsRequest, runtime: Util.RuntimeOptions): ListEnvPodMonitorsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnvPodMonitors',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listEnvPodMonitors(request: ListEnvPodMonitorsRequest): ListEnvPodMonitorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnvPodMonitorsWithOptions(request, runtime);
+}
+
+model ListEnvServiceMonitorsRequest {
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model ListEnvServiceMonitorsResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: [ 
+    {
+      addonName?: string(name='AddonName', description='addon name.', example='mysql'),
+      addonReleaseName?: string(name='AddonReleaseName', description='addon release name.', example='mysql1'),
+      addonVersion?: string(name='AddonVersion', description='addon version.', example='1.1.0'),
+      configYaml?: string(name='ConfigYaml', description='yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: arms-admin1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  endpoints:
+  - interval: 30s
+    port: operator
+    path: /metrics
+  - interval: 10s
+    port: operator1
+    path: /metrics
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+     app: arms-prometheus-ack-arms-prometheus
+`'),
+      creationTimestamp?: string(name='CreationTimestamp', description='Creation time (timestamp).', example='2011-10-11T22:32:11Z'),
+      endpoints?: [ 
+        {
+          interval?: string(name='Interval', description='scrape interval.', example='30s'),
+          matchedTargetCount?: int32(name='MatchedTargetCount', description='The number of targets matched by servcieMonitor.Endpoint.', example='1'),
+          path?: string(name='Path', description='metric path.', example='/metrics'),
+          port?: string(name='Port', description='External port.', example='9101'),
+          targetPort?: int32(name='TargetPort', description='Destination port.', example='443'),
+        }
+      ](name='Endpoints', description='List of endpoints for ServiceMonitor.'),
+      environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+      matchedServiceCount?: int32(name='MatchedServiceCount', description='The number of matching services.', example='1'),
+      namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing'),
+      serviceMonitorName?: string(name='ServiceMonitorName', description='ServiceMonitor name.', example='sm1'),
+      status?: string(name='Status', description='status.', example='run'),
+    }
+  ](name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1A474FF8-7861-4D00-81B5-5BC3DA4E****'),
+}
+
+model ListEnvServiceMonitorsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListEnvServiceMonitorsResponseBody(name='body'),
+}
+
+async function listEnvServiceMonitorsWithOptions(request: ListEnvServiceMonitorsRequest, runtime: Util.RuntimeOptions): ListEnvServiceMonitorsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnvServiceMonitors',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listEnvServiceMonitors(request: ListEnvServiceMonitorsRequest): ListEnvServiceMonitorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnvServiceMonitorsWithOptions(request, runtime);
+}
+
 model ListEscalationPoliciesRequest {
   name?: string(name='Name', description='The name of the escalation policy.', example='prod escalation policy'),
   page?: long(name='Page', description='The number of the page to return.', example='1'),
@@ -9922,6 +11265,84 @@ async function listEventBridgeIntegrations(request: ListEventBridgeIntegrationsR
   return listEventBridgeIntegrationsWithOptions(request, runtime);
 }
 
+model ListGrafanaWorkspaceRequest {
+  aliyunLang?: string(name='AliyunLang', example='zh'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxyexli2****'),
+  tags?: [ 
+    {
+      key?: string(name='Key', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tags'),
+}
+
+model ListGrafanaWorkspaceShrinkRequest {
+  aliyunLang?: string(name='AliyunLang', example='zh'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxyexli2****'),
+  tagsShrink?: string(name='Tags'),
+}
+
+model ListGrafanaWorkspaceResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: [
+    GrafanaWorkspace
+  ](name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='0080BE65-167F-5CB6-A691-14E2EFD474BC'),
+  success?: boolean(name='Success', example='True'),
+  traceId?: string(name='TraceId', example='eac0a8048716731735000007137d000b'),
+}
+
+model ListGrafanaWorkspaceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListGrafanaWorkspaceResponseBody(name='body'),
+}
+
+async function listGrafanaWorkspaceWithOptions(tmpReq: ListGrafanaWorkspaceRequest, runtime: Util.RuntimeOptions): ListGrafanaWorkspaceResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListGrafanaWorkspaceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['Tags'] = request.tagsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGrafanaWorkspace',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listGrafanaWorkspace(request: ListGrafanaWorkspaceRequest): ListGrafanaWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listGrafanaWorkspaceWithOptions(request, runtime);
+}
+
 model ListInsightsEventsRequest {
   endTime?: string(name='EndTime', description='The details of the event.', example='1480607940000'),
   insightsTypes?: string(name='InsightsTypes', description='Average response-time spikes of application services.', example='errorIncrease,topErrorIncrease,topExceptionIncrease,topRtIncrease,rtIncrease'),
@@ -9942,6 +11363,7 @@ model ListInsightsEventsResponseBody = {
       desc?: string(name='Desc', description='The ID of the application associated with the event.', example='The severity of the event.'),
       level?: string(name='Level', description='Queries the abnormal Insights events within a specified period of time.', example='P3'),
       pid?: string(name='Pid', description='auditing', example='dsv9zcel92@7da413b******'),
+      problemId?: string(name='ProblemId'),
       title?: string(name='Title', description='The overall response time of the \\[HTTP] service of the application \\[sd] spikes at \\[2022-07-27 10:57:00]', example='The type of the event.'),
       type?: string(name='Type', description='The time at which the event occurred. The value is a timestamp.', example='rtIncrease'),
     }
@@ -12109,6 +13531,60 @@ async function removeSourcesFromPrometheusGlobalViewWithOptions(request: RemoveS
 async function removeSourcesFromPrometheusGlobalView(request: RemoveSourcesFromPrometheusGlobalViewRequest): RemoveSourcesFromPrometheusGlobalViewResponse {
   var runtime = new Util.RuntimeOptions{};
   return removeSourcesFromPrometheusGlobalViewWithOptions(request, runtime);
+}
+
+model RestartEnvironmentFeatureRequest {
+  environmentId?: string(name='EnvironmentId', example='env-xxx'),
+  featureName?: string(name='FeatureName', example='metric-agent'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+}
+
+model RestartEnvironmentFeatureResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: string(name='Data', example='success'),
+  message?: string(name='Message', example='success.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2983BEF7-4A0D-47A2-94A2-8E9C5E63****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RestartEnvironmentFeatureResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: RestartEnvironmentFeatureResponseBody(name='body'),
+}
+
+async function restartEnvironmentFeatureWithOptions(request: RestartEnvironmentFeatureRequest, runtime: Util.RuntimeOptions): RestartEnvironmentFeatureResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.featureName)) {
+    query['FeatureName'] = request.featureName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RestartEnvironmentFeature',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function restartEnvironmentFeature(request: RestartEnvironmentFeatureRequest): RestartEnvironmentFeatureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return restartEnvironmentFeatureWithOptions(request, runtime);
 }
 
 model SaveTraceAppConfigRequest {
@@ -14456,6 +15932,344 @@ async function updateDispatchRule(request: UpdateDispatchRuleRequest): UpdateDis
   return updateDispatchRuleWithOptions(request, runtime);
 }
 
+model UpdateEnvCustomJobRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh | en.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='yaml configuration string.', example='`
+scrape_configs:
+- job_name: job-demo1
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+- job_name: job-demo2
+  honor_timestamps: false
+  honor_labels: false
+  scrape_interval: 30s
+  scheme: http
+  metrics_path: /metric
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+  http_sd_configs:
+  - url: 127.0.0.1:9090
+    refresh_interval: 30s
+`'),
+  customJobName?: string(name='CustomJobName', description='Custom job name.', example='customJob1'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  status?: string(name='Status', description='Custom task status: run or stop.', example='run'),
+}
+
+model UpdateEnvCustomJobResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: string(name='Data', description='Operation results.', example='success'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C21AB7CF-B7AF-410F-BD61-82D1567F****'),
+}
+
+model UpdateEnvCustomJobResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateEnvCustomJobResponseBody(name='body'),
+}
+
+async function updateEnvCustomJobWithOptions(request: UpdateEnvCustomJobRequest, runtime: Util.RuntimeOptions): UpdateEnvCustomJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.customJobName)) {
+    query['CustomJobName'] = request.customJobName;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEnvCustomJob',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateEnvCustomJob(request: UpdateEnvCustomJobRequest): UpdateEnvCustomJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateEnvCustomJobWithOptions(request, runtime);
+}
+
+model UpdateEnvPodMonitorRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh | en.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: arms-admin-pm1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  selector:
+    matchLabels:
+      app: arms-prometheus-ack-arms-prometheus
+      release: arms-prometheus
+  namespaceSelector:
+    any: true    
+  podMetricsEndpoints:
+  - interval: 30s
+    targetPort: 9335
+    path: /metrics
+  - interval: 10s
+    targetPort: 9335
+    path: /metrics1
+`'),
+  dryRun?: boolean(name='DryRun', description='Trial run: Check whether the format is legal and whether it can match targets.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  namespace?: string(name='Namespace', description='The namespace where podMonitor is located.', example='arms-prom'),
+  podMonitorName?: string(name='PodMonitorName', description='PodMonitor name.', example='arms-admin-pm1'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+}
+
+model UpdateEnvPodMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful. If another status code is returned, the request failed.', example='200'),
+  data?: {
+    matchedMsg?: string(name='MatchedMsg', description='Target matching prompt information.', example='Match successful.'),
+    matchedTargetCount?: string(name='MatchedTargetCount', description='The number of matched targets.', example='1'),
+  }(name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The message returned.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request.', example='C21AB7CF-B7AF-410F-BD61-82D1567F****'),
+}
+
+model UpdateEnvPodMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateEnvPodMonitorResponseBody(name='body'),
+}
+
+async function updateEnvPodMonitorWithOptions(request: UpdateEnvPodMonitorRequest, runtime: Util.RuntimeOptions): UpdateEnvPodMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.podMonitorName)) {
+    query['PodMonitorName'] = request.podMonitorName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEnvPodMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateEnvPodMonitor(request: UpdateEnvPodMonitorRequest): UpdateEnvPodMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateEnvPodMonitorWithOptions(request, runtime);
+}
+
+model UpdateEnvServiceMonitorRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh | en.', example='zh'),
+  configYaml?: string(name='ConfigYaml', description='yaml configuration string.', example='`
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: arms-admin1
+  namespace: arms-prom
+  annotations:
+    arms.prometheus.io/discovery: \\"true\\"
+spec:
+  endpoints:
+  - interval: 30s
+    port: operator
+    path: /metrics
+  - interval: 10s
+    port: operator1
+    path: /metrics
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+     app: arms-prometheus-ack-arms-prometheus
+`'),
+  dryRun?: boolean(name='DryRun', description='Trial run: Check whether the format is legal and whether it can match targets.', example='true'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  namespace?: string(name='Namespace', description='The namespace where serviceMonitor is located.', example='arms-prom'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  serviceMonitorName?: string(name='ServiceMonitorName', description='ServiceMonitor name.', example='serviceMonitor1'),
+}
+
+model UpdateEnvServiceMonitorResponseBody = {
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
+  data?: {
+    matchedMsg?: string(name='MatchedMsg', description='Target matching prompt information.', example='Match successful.'),
+    matchedTargetCount?: string(name='MatchedTargetCount', description='The number of matched targets.', example='1'),
+  }(name='Data', description='The struct returned.'),
+  message?: string(name='Message', description='The message returned.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1A474FF8-7861-4D00-81B5-5BC3DA4E****'),
+}
+
+model UpdateEnvServiceMonitorResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateEnvServiceMonitorResponseBody(name='body'),
+}
+
+async function updateEnvServiceMonitorWithOptions(request: UpdateEnvServiceMonitorRequest, runtime: Util.RuntimeOptions): UpdateEnvServiceMonitorResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.namespace)) {
+    query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.serviceMonitorName)) {
+    query['ServiceMonitorName'] = request.serviceMonitorName;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.configYaml)) {
+    body['ConfigYaml'] = request.configYaml;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEnvServiceMonitor',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateEnvServiceMonitor(request: UpdateEnvServiceMonitorRequest): UpdateEnvServiceMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateEnvServiceMonitorWithOptions(request, runtime);
+}
+
+model UpdateEnvironmentRequest {
+  aliyunLang?: string(name='AliyunLang', description='Locale, the default is Chinese zh | en.', example='zh'),
+  environmentId?: string(name='EnvironmentId', description='Environment ID.', example='env-xxxxx'),
+  environmentName?: string(name='EnvironmentName', description='Environment name.', example='env1'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model UpdateEnvironmentResponseBody = {
+  code?: int32(name='Code', description='The status code or error code.', example='200'),
+  data?: string(name='Data', description='The data returned.', example='success'),
+  message?: string(name='Message', description='The message returned.', example='message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='70675725-8F11-4817-8106-CFE0AD71****'),
+}
+
+model UpdateEnvironmentResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateEnvironmentResponseBody(name='body'),
+}
+
+async function updateEnvironmentWithOptions(request: UpdateEnvironmentRequest, runtime: Util.RuntimeOptions): UpdateEnvironmentResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.aliyunLang)) {
+    query['AliyunLang'] = request.aliyunLang;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    query['EnvironmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.environmentName)) {
+    query['EnvironmentName'] = request.environmentName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateEnvironment',
+    version = '2019-08-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateEnvironment(request: UpdateEnvironmentRequest): UpdateEnvironmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateEnvironmentWithOptions(request, runtime);
+}
+
 model UpdateIntegrationRequest {
   autoRecover?: boolean(name='AutoRecover', description='Specifies whether to automatically clear alert events. Valid values:
 
@@ -15123,7 +16937,10 @@ model UpdateTimingSyntheticTaskRequest {
       selectType?: int32(name='SelectType', example='0'),
     }(name='CustomHost'),
     ipType?: int32(name='IpType', example='0'),
+    isOpenTrace?: boolean(name='IsOpenTrace'),
     monitorSamples?: int32(name='MonitorSamples', example='0'),
+    traceClientType?: int32(name='TraceClientType'),
+    xtraceRegion?: string(name='XtraceRegion'),
   }(name='CommonSetting'),
   customPeriod?: {
     endHour?: int32(name='EndHour', example='22'),
