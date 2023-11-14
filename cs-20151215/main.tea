@@ -6145,6 +6145,46 @@ async function fixNodePoolVuls(clusterId: string, nodepoolId: string, request: F
   return fixNodePoolVulsWithOptions(clusterId, nodepoolId, request, headers, runtime);
 }
 
+model GetClusterCheckResponseBody = {
+  checkId?: string(name='check_id', description='Id of the request', example='1697100584236600453-ce0da5a1d627e4e9e9f96cae8ad07****-clustercheck-lboto'),
+  checkItems?: map[string][  map[string]any ](name='check_items'),
+  createdAt?: string(name='created_at', example='2023-10-16T08:31:20.292030178Z'),
+  finishedAt?: string(name='finished_at', example='2023-10-16T08:35:20.292030178Z'),
+  message?: string(name='message', example='task succeed'),
+  status?: string(name='status', example='Succeeded'),
+  type?: string(name='type', example='ClusterUpgrade'),
+}
+
+model GetClusterCheckResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetClusterCheckResponseBody(name='body'),
+}
+
+async function getClusterCheckWithOptions(clusterId: string, checkId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetClusterCheckResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetClusterCheck',
+    version = '2015-12-15',
+    protocol = 'HTTPS',
+    pathname = `/clusters/%5Bcluster_id%5D/checks/%5Bcheck_id%5D`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getClusterCheck(clusterId: string, checkId: string): GetClusterCheckResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getClusterCheckWithOptions(clusterId, checkId, headers, runtime);
+}
+
 model GetKubernetesTriggerRequest {
   name?: string(name='Name', description='The application name.', example='web-server'),
   namespace?: string(name='Namespace', description='The namespace name.', example='default'),
@@ -6403,6 +6443,60 @@ async function installClusterAddons(ClusterId: string, request: InstallClusterAd
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return installClusterAddonsWithOptions(ClusterId, request, headers, runtime);
+}
+
+model ListClusterChecksRequest {
+  type?: string(name='type', example='ClusterUpgrade'),
+}
+
+model ListClusterChecksResponseBody = {
+  checks?: [ 
+    {
+      checkId?: string(name='check_id', example='1697100584236600453-ce0da5a1d627e4e9e9f96cae8ad07****-clustercheck-lboto'),
+      createdAt?: string(name='created_at', example='2023-10-16T08:31:20.292030178Z'),
+      finishedAt?: string(name='finished_at', example='2023-10-16T08:35:20.292030178Z'),
+      message?: string(name='message', example='task succeed'),
+      status?: string(name='status', example='Succeeded'),
+      type?: string(name='type', example='ClusterUpgrade'),
+    }
+  ](name='checks'),
+}
+
+model ListClusterChecksResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListClusterChecksResponseBody(name='body'),
+}
+
+async function listClusterChecksWithOptions(clusterId: string, request: ListClusterChecksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListClusterChecksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListClusterChecks',
+    version = '2015-12-15',
+    protocol = 'HTTPS',
+    pathname = `/clusters/%5Bcluster_id%5D/checks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listClusterChecks(clusterId: string, request: ListClusterChecksRequest): ListClusterChecksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listClusterChecksWithOptions(clusterId, request, headers, runtime);
 }
 
 model ListTagResourcesRequest {
@@ -7591,6 +7685,7 @@ async function removeWorkflow(workflowName: string): RemoveWorkflowResponse {
 }
 
 model RepairClusterNodePoolRequest {
+  autoRestart?: boolean(name='auto_restart', example='true'),
   nodes?: [ string ](name='nodes', description='The list of nodes. If you do not specify nodes, all nodes in the node pool are selected.'),
 }
 
@@ -7608,6 +7703,9 @@ model RepairClusterNodePoolResponse = {
 async function repairClusterNodePoolWithOptions(clusterId: string, nodepoolId: string, request: RepairClusterNodePoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RepairClusterNodePoolResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.autoRestart)) {
+    body['auto_restart'] = request.autoRestart;
+  }
   if (!Util.isUnset(request.nodes)) {
     body['nodes'] = request.nodes;
   }
@@ -8652,10 +8750,14 @@ async function updateContactGroupForAlert(ClusterId: string): UpdateContactGroup
 }
 
 model UpdateControlPlaneLogRequest {
-  aliuid?: string(name='aliuid', example='162981*****'),
-  components?: [ string ](name='components'),
-  logProject?: string(name='log_project', example='k8s-log-c5b5e80b0b64a4bf6939d2d8fbbc5****'),
-  logTtl?: string(name='log_ttl', example='30'),
+  aliuid?: string(name='aliuid', description='The ID of the Alibaba Cloud account.', example='162981*****'),
+  components?: [ string ](name='components', description='The control plane components for which you want to enable log collection.'),
+  logProject?: string(name='log_project', description='The name of the Simple Log Service project that you want to use to store the logs of control plane components.
+
+Default value: k8s-log-$Cluster ID.', example='k8s-log-c5b5e80b0b64a4bf6939d2d8fbbc5****'),
+  logTtl?: string(name='log_ttl', description='The retention period of the log data stored in the Logstore. Valid values: 1 to 3000. Unit: days.
+
+Default value: 30.', example='30'),
 }
 
 model UpdateControlPlaneLogResponse = {
@@ -8828,11 +8930,11 @@ async function updateTemplate(TemplateId: string, request: UpdateTemplateRequest
 
 model UpgradeClusterRequest {
   componentName?: string(name='component_name', description='The name of the component. Set the value to `k8s`.', example='k8s', deprecated='true'),
-  masterOnly?: boolean(name='master_only', description='Specifies whether to upgrade only master nodes. Valid values:
+  masterOnly?: boolean(name='master_only', description='Specifies whether to update only master nodes. Valid values:
 
-*   true: upgrade only master nodes.
-*   false: upgrade master and worker nodes.', example='true'),
-  nextVersion?: string(name='next_version', description='The Kubernetes version to which the cluster can be upgraded.', example='1.16.9-aliyun.1'),
+*   true: update only master nodes.
+*   false: update master and worker nodes.', example='true'),
+  nextVersion?: string(name='next_version', description='The Kubernetes version to which the cluster can be updated.', example='1.16.9-aliyun.1'),
   version?: string(name='version', description='The current Kubernetes version of the cluster. For more information, see [Kubernetes versions](~~185269~~).', example='1.14.8-aliyun.1', deprecated='true'),
 }
 
