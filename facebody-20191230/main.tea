@@ -1494,6 +1494,165 @@ async function createFaceDb(request: CreateFaceDbRequest): CreateFaceDbResponse 
   return createFaceDbWithOptions(request, runtime);
 }
 
+model DeepfakeFaceRequest {
+  tasks?: [ 
+    {
+      imageData?: string(name='ImageData'),
+      imageURL?: string(name='ImageURL'),
+    }
+  ](name='Tasks'),
+}
+
+model DeepfakeFaceAdvanceRequest {
+  tasks?: [ 
+    {
+      imageData?: string(name='ImageData'),
+      imageURLObject?: readable(name='ImageURL'),
+    }
+  ](name='Tasks'),
+}
+
+model DeepfakeFaceResponseBody = {
+  data?: {
+    elements?: [ 
+      {
+        faceNumber?: long(name='FaceNumber'),
+        imageURL?: string(name='ImageURL'),
+        results?: [ 
+          {
+            confidence?: float(name='Confidence'),
+            label?: string(name='Label'),
+            messageTips?: string(name='MessageTips'),
+            rect?: {
+              height?: long(name='Height'),
+              left?: long(name='Left'),
+              top?: long(name='Top'),
+              width?: long(name='Width'),
+            }(name='Rect'),
+          }
+        ](name='Results'),
+        taskId?: string(name='TaskId'),
+      }
+    ](name='Elements'),
+  }(name='Data'),
+  requestId?: string(name='RequestId'),
+}
+
+model DeepfakeFaceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeepfakeFaceResponseBody(name='body'),
+}
+
+async function deepfakeFaceWithOptions(request: DeepfakeFaceRequest, runtime: Util.RuntimeOptions): DeepfakeFaceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.tasks)) {
+    body['Tasks'] = request.tasks;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeepfakeFace',
+    version = '2019-12-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deepfakeFace(request: DeepfakeFaceRequest): DeepfakeFaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deepfakeFaceWithOptions(request, runtime);
+}
+
+async function deepfakeFaceAdvance(request: DeepfakeFaceAdvanceRequest, runtime: Util.RuntimeOptions): DeepfakeFaceResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'facebody',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var deepfakeFaceReq = new DeepfakeFaceRequest{};
+  OpenApiUtil.convert(request, deepfakeFaceReq);
+
+  if(!Util.isUnset(request.tasks)) {
+    var i0 : integer = 0;
+    for (var item0 : request.tasks) {
+      if(!Util.isUnset(item0.imageURLObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.imageURLObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : DeepfakeFaceRequest.tasks = deepfakeFaceReq.tasks[i0];
+        tmp.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+      }
+    }
+  }
+  var deepfakeFaceResp = deepfakeFaceWithOptions(deepfakeFaceReq, runtime);
+  return deepfakeFaceResp;
+}
+
 model DeleteFaceRequest {
   dbName?: string(name='DbName', example='default'),
   faceId?: string(name='FaceId', example='001'),
