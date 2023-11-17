@@ -78,6 +78,7 @@ model Instance {
   instanceName?: string(name='InstanceName'),
   instancePort?: int32(name='InstancePort'),
   isSpot?: boolean(name='IsSpot', example='false'),
+  isolated?: boolean(name='Isolated', example='false'),
   lastState?: [  map[string]any ](name='LastState'),
   namespace?: string(name='Namespace'),
   originalAmount?: float(name='OriginalAmount', example='2.2'),
@@ -153,6 +154,10 @@ model ResourceInstanceWorker {
 
 model Service {
   accessToken?: string(name='AccessToken'),
+  appConfig?: string(name='AppConfig'),
+  appSpecName?: string(name='AppSpecName'),
+  appType?: string(name='AppType'),
+  appVersion?: string(name='AppVersion'),
   callerUid?: string(name='CallerUid'),
   cpu?: int32(name='Cpu'),
   createTime?: string(name='CreateTime'),
@@ -195,6 +200,7 @@ model Service {
   totalInstance?: int32(name='TotalInstance'),
   updateTime?: string(name='UpdateTime'),
   weight?: int32(name='Weight'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model CommitServiceResponseBody = {
@@ -230,6 +236,88 @@ async function commitService(ClusterId: string, ServiceName: string): CommitServ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return commitServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+model CreateAppServiceRequest {
+  quotaId?: string(name='QuotaId', example='abcdef'),
+  workspaceId?: string(name='WorkspaceId', example='123456'),
+  appType?: string(name='AppType', example='LLM'),
+  appVersion?: string(name='AppVersion', example='v1'),
+  config?: map[string]any(name='Config'),
+  replicas?: int32(name='Replicas', example='1'),
+  serviceName?: string(name='ServiceName', example='foo'),
+  serviceSpec?: string(name='ServiceSpec', example='llama_7b_fp16'),
+}
+
+model CreateAppServiceResponseBody = {
+  internetEndpoint?: string(name='InternetEndpoint', example='http://pai-eas.cn-shanghai.****'),
+  intranetEndpoint?: string(name='IntranetEndpoint', example='http://pai-eas-vpc.cn-shanghai.****'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', example='eas-m-aaxxxddf'),
+  serviceName?: string(name='ServiceName', example='foo'),
+  status?: string(name='Status', example='Creating'),
+}
+
+model CreateAppServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateAppServiceResponseBody(name='body'),
+}
+
+async function createAppServiceWithOptions(request: CreateAppServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAppServiceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.quotaId)) {
+    query['QuotaId'] = request.quotaId;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appType)) {
+    body['AppType'] = request.appType;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    body['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['Config'] = request.config;
+  }
+  if (!Util.isUnset(request.replicas)) {
+    body['Replicas'] = request.replicas;
+  }
+  if (!Util.isUnset(request.serviceName)) {
+    body['ServiceName'] = request.serviceName;
+  }
+  if (!Util.isUnset(request.serviceSpec)) {
+    body['ServiceSpec'] = request.serviceSpec;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAppService',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/app_services`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createAppService(request: CreateAppServiceRequest): CreateAppServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAppServiceWithOptions(request, headers, runtime);
 }
 
 model CreateBenchmarkTaskRequest {
@@ -290,23 +378,143 @@ async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateB
   return createBenchmarkTaskWithOptions(request, headers, runtime);
 }
 
+model CreateGatewayRequest {
+  resourceName?: string(name='ResourceName', example='eas-r-4gt8twzwllfo******'),
+  enableInternet?: boolean(name='EnableInternet', example='false'),
+  enableIntranet?: boolean(name='EnableIntranet', example='true'),
+  instanceType?: string(name='InstanceType', example='ecs.c6.4xlarge'),
+  name?: string(name='Name', example='mygateway1'),
+}
+
+model CreateGatewayResponseBody = {
+  clusterId?: string(name='ClusterId', example='cn-hangzhou'),
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully create gateway.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateGatewayResponseBody(name='body'),
+}
+
+async function createGatewayWithOptions(request: CreateGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.resourceName)) {
+    query['ResourceName'] = request.resourceName;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enableInternet)) {
+    body['EnableInternet'] = request.enableInternet;
+  }
+  if (!Util.isUnset(request.enableIntranet)) {
+    body['EnableIntranet'] = request.enableIntranet;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    body['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGateway',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createGateway(request: CreateGatewayRequest): CreateGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createGatewayWithOptions(request, headers, runtime);
+}
+
+model CreateGatewayIntranetLinkedVpcRequest {
+  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model CreateGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully add intranet linked vpc for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function createGatewayIntranetLinkedVpcWithOptions(ClusterId: string, GatewayId: string, request: CreateGatewayIntranetLinkedVpcRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGatewayIntranetLinkedVpcResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.vSwitchId)) {
+    query['VSwitchId'] = request.vSwitchId;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGatewayIntranetLinkedVpc',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: string, request: CreateGatewayIntranetLinkedVpcRequest): CreateGatewayIntranetLinkedVpcResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, request, headers, runtime);
+}
+
 model CreateResourceRequest {
   autoRenewal?: boolean(name='AutoRenewal', example='false'),
   chargeType?: string(name='ChargeType', example='PostPaid'),
   ecsInstanceCount?: int32(name='EcsInstanceCount', example='5'),
   ecsInstanceType?: string(name='EcsInstanceType', example='ecs.c6.8xlarge'),
-  externalClusterId?: string(name='ExternalClusterId'),
-  nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
-  nodeTolerations?: [ 
-    {
-      effect?: string(name='effect'),
-      key?: string(name='key'),
-      operator?: string(name='operator'),
-      value?: string(name='value'),
-    }
-  ](name='NodeTolerations'),
   resourceType?: string(name='ResourceType'),
-  roleName?: string(name='RoleName'),
+  selfManagedResourceOptions?: {
+    externalClusterId?: string(name='ExternalClusterId'),
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
+    nodeTolerations?: [ 
+      {
+        effect?: string(name='effect'),
+        key?: string(name='key'),
+        operator?: string(name='operator'),
+        value?: string(name='value'),
+      }
+    ](name='NodeTolerations'),
+    roleName?: string(name='RoleName'),
+  }(name='SelfManagedResourceOptions'),
   systemDiskSize?: int32(name='SystemDiskSize', example='200'),
   zone?: string(name='Zone', example='cn-shanghai-f'),
 }
@@ -341,20 +549,11 @@ async function createResourceWithOptions(request: CreateResourceRequest, headers
   if (!Util.isUnset(request.ecsInstanceType)) {
     body['EcsInstanceType'] = request.ecsInstanceType;
   }
-  if (!Util.isUnset(request.externalClusterId)) {
-    body['ExternalClusterId'] = request.externalClusterId;
-  }
-  if (!Util.isUnset(request.nodeMatchLabels)) {
-    body['NodeMatchLabels'] = request.nodeMatchLabels;
-  }
-  if (!Util.isUnset(request.nodeTolerations)) {
-    body['NodeTolerations'] = request.nodeTolerations;
-  }
   if (!Util.isUnset(request.resourceType)) {
     body['ResourceType'] = request.resourceType;
   }
-  if (!Util.isUnset(request.roleName)) {
-    body['RoleName'] = request.roleName;
+  if (!Util.isUnset(request.selfManagedResourceOptions)) {
+    body['SelfManagedResourceOptions'] = request.selfManagedResourceOptions;
   }
   if (!Util.isUnset(request.systemDiskSize)) {
     body['SystemDiskSize'] = request.systemDiskSize;
@@ -511,12 +710,14 @@ async function createResourceLog(ClusterId: string, ResourceId: string, request:
 model CreateServiceRequest {
   develop?: string(name='Develop', example='true'),
   labels?: map[string]string(name='Labels'),
+  workspaceId?: string(name='WorkspaceId'),
   body?: string(name='body'),
 }
 
 model CreateServiceShrinkRequest {
   develop?: string(name='Develop', example='true'),
   labelsShrink?: string(name='Labels'),
+  workspaceId?: string(name='WorkspaceId'),
   body?: string(name='body'),
 }
 
@@ -549,6 +750,9 @@ async function createServiceWithOptions(tmpReq: CreateServiceRequest, headers: m
   }
   if (!Util.isUnset(request.labelsShrink)) {
     query['Labels'] = request.labelsShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -790,6 +994,93 @@ async function deleteBenchmarkTask(ClusterId: string, TaskName: string): DeleteB
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteBenchmarkTaskWithOptions(ClusterId, TaskName, headers, runtime);
+}
+
+model DeleteGatewayResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Gateway is deleted.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteGatewayResponseBody(name='body'),
+}
+
+async function deleteGatewayWithOptions(ClusterId: string, GatewayId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteGatewayResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGateway',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteGateway(ClusterId: string, GatewayId: string): DeleteGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteGatewayWithOptions(ClusterId, GatewayId, headers, runtime);
+}
+
+model DeleteGatewayIntranetLinkedVpcRequest {
+  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model DeleteGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully delete intranet linked vpc for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function deleteGatewayIntranetLinkedVpcWithOptions(ClusterId: string, GatewayId: string, request: DeleteGatewayIntranetLinkedVpcRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteGatewayIntranetLinkedVpcResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.vSwitchId)) {
+    query['VSwitchId'] = request.vSwitchId;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGatewayIntranetLinkedVpc',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: string, request: DeleteGatewayIntranetLinkedVpcRequest): DeleteGatewayIntranetLinkedVpcResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model DeleteResourceResponseBody = {
@@ -1332,6 +1623,70 @@ async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string, 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeBenchmarkTaskReportWithOptions(ClusterId, TaskName, request, headers, runtime);
+}
+
+model DescribeGatewayResponseBody = {
+  callerUid?: string(name='CallerUid', example='20123*******'),
+  createTime?: string(name='CreateTime', description='网关创建时间', example='2020-05-19T14:19:42Z'),
+  externalClusterId?: string(name='ExternalClusterId', example='c935eadf284c14c2da57a2a13ad6******'),
+  gatewayId?: string(name='GatewayId', description='网关ID', example='gw-1uhcqmsc7x22******'),
+  gatewayName?: string(name='GatewayName', example='mygateway1'),
+  instanceType?: string(name='InstanceType', description='网关创建的实例种类', example='ecs.c6.4xlarge'),
+  internetAclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='test'),
+      entry?: string(name='Entry', example='192.168.1.1/32'),
+      status?: string(name='Status', example='Running'),
+    }
+  ](name='InternetAclPolicyList'),
+  internetDomain?: string(name='InternetDomain', description='网关内部域名', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
+  internetEnabled?: boolean(name='InternetEnabled', example='true'),
+  intranetDomain?: string(name='IntranetDomain', description='网关外部域名', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
+  intranetEnabled?: boolean(name='IntranetEnabled', example='true'),
+  intranetLinkedVpcList?: [ 
+    {
+      ip?: string(name='Ip', example='192.168.10.11'),
+      securityGroupId?: string(name='SecurityGroupId', example='sg-2ze4pgstgszvgq******'),
+      status?: string(name='Status', example='Running'),
+      vSwitchId?: string(name='VSwitchId', example='vsw-bp1txzxsdck43pp******'),
+      vpcId?: string(name='VpcId', example='vpc-bp1g11zvka6zr3i******'),
+    }
+  ](name='IntranetLinkedVpcList'),
+  parentUid?: string(name='ParentUid', description='创建网关的用户ID', example='11234*******'),
+  region?: string(name='Region', description='网关所在地域', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  status?: string(name='Status', description='网关现在的状态', example='PrivateGatewayRunning'),
+  updateTime?: string(name='UpdateTime', description='网关最后一次的更新时间', example='2021-02-24T11:52:17Z'),
+}
+
+model DescribeGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeGatewayResponseBody(name='body'),
+}
+
+async function describeGatewayWithOptions(ClusterId: string, GatewayId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeGatewayResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeGateway',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeGateway(ClusterId: string, GatewayId: string): DescribeGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeGatewayWithOptions(ClusterId, GatewayId, headers, runtime);
 }
 
 model DescribeGroupResponse = {
@@ -2018,10 +2373,55 @@ async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchma
   return listBenchmarkTaskWithOptions(request, headers, runtime);
 }
 
+model ListGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  intranetLinkedVpcList?: [ 
+    {
+      ip?: string(name='Ip', example='192.168.10.11'),
+      securityGroupId?: string(name='SecurityGroupId', example='sg-2ze4pgstgszvgq******'),
+      status?: string(name='Status', example='Running'),
+      vSwitchId?: string(name='VSwitchId', example='vsw-8vb2qjoiio6m9pg******'),
+      vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+    }
+  ](name='IntranetLinkedVpcList'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model ListGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function listGatewayIntranetLinkedVpcWithOptions(ClusterId: string, GatewayId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayIntranetLinkedVpcResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayIntranetLinkedVpc',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: string): ListGatewayIntranetLinkedVpcResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, headers, runtime);
+}
+
 model ListGroupsRequest {
   filter?: string(name='Filter', example='foo'),
   pageNumber?: string(name='PageNumber', example='1'),
   pageSize?: string(name='PageSize', example='20'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model ListGroupsResponseBody = {
@@ -2051,6 +2451,9 @@ async function listGroupsWithOptions(request: ListGroupsRequest, headers: map[st
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2607,6 +3010,7 @@ model ListServicesRequest {
   serviceType?: string(name='ServiceType'),
   serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx'),
   sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model ListServicesShrinkRequest {
@@ -2677,6 +3081,7 @@ model ListServicesShrinkRequest {
   serviceType?: string(name='ServiceType'),
   serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx'),
   sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model ListServicesResponseBody = {
@@ -2741,6 +3146,9 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
   }
   if (!Util.isUnset(request.sort)) {
     query['Sort'] = request.sort;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2992,6 +3400,79 @@ async function stopService(ClusterId: string, ServiceName: string): StopServiceR
   return stopServiceWithOptions(ClusterId, ServiceName, headers, runtime);
 }
 
+model UpdateAppServiceRequest {
+  quotaId?: string(name='QuotaId', example='abcdef'),
+  workspaceId?: string(name='WorkspaceId', example='123456'),
+  appType?: string(name='AppType', example='LLM'),
+  appVersion?: string(name='AppVersion', example='v1'),
+  config?: map[string]any(name='Config'),
+  replicas?: string(name='Replicas', example='1'),
+  serviceSpec?: string(name='ServiceSpec', example='llama_7b_fp16'),
+}
+
+model UpdateAppServiceResponseBody = {
+  message?: string(name='Message', example='Succee'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateAppServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateAppServiceResponseBody(name='body'),
+}
+
+async function updateAppServiceWithOptions(ClusterId: string, ServiceName: string, request: UpdateAppServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAppServiceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.quotaId)) {
+    query['QuotaId'] = request.quotaId;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appType)) {
+    body['AppType'] = request.appType;
+  }
+  if (!Util.isUnset(request.appVersion)) {
+    body['AppVersion'] = request.appVersion;
+  }
+  if (!Util.isUnset(request.config)) {
+    body['Config'] = request.config;
+  }
+  if (!Util.isUnset(request.replicas)) {
+    body['Replicas'] = request.replicas;
+  }
+  if (!Util.isUnset(request.serviceSpec)) {
+    body['ServiceSpec'] = request.serviceSpec;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateAppService',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/app_services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateAppService(ClusterId: string, ServiceName: string, request: UpdateAppServiceRequest): UpdateAppServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateAppServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
 model UpdateBenchmarkTaskRequest {
   body?: string(name='body', example='{
     "base":  {
@@ -3037,17 +3518,78 @@ async function updateBenchmarkTask(ClusterId: string, TaskName: string, request:
   return updateBenchmarkTaskWithOptions(ClusterId, TaskName, request, headers, runtime);
 }
 
+model UpdateGatewayRequest {
+  enableInternet?: boolean(name='EnableInternet', example='true'),
+  enableIntranet?: boolean(name='EnableIntranet', example='false'),
+  instanceType?: string(name='InstanceType', example='ecs.c6.4xlarge'),
+  name?: string(name='Name', example='mygateway1'),
+}
+
+model UpdateGatewayResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Gateway is updated'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+}
+
+model UpdateGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateGatewayResponseBody(name='body'),
+}
+
+async function updateGatewayWithOptions(GatewayId: string, ClusterId: string, request: UpdateGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateGatewayResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.enableInternet)) {
+    body['EnableInternet'] = request.enableInternet;
+  }
+  if (!Util.isUnset(request.enableIntranet)) {
+    body['EnableIntranet'] = request.enableIntranet;
+  }
+  if (!Util.isUnset(request.instanceType)) {
+    body['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateGateway',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateGateway(GatewayId: string, ClusterId: string, request: UpdateGatewayRequest): UpdateGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGatewayWithOptions(GatewayId, ClusterId, request, headers, runtime);
+}
+
 model UpdateResourceRequest {
-  nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
-  nodeTolerations?: [ 
-    {
-      effect?: string(name='effect'),
-      key?: string(name='key'),
-      operator?: string(name='operator'),
-      value?: string(name='value'),
-    }
-  ](name='NodeTolerations'),
   resourceName?: string(name='ResourceName', example='iot'),
+  selfManagedResourceOptions?: {
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
+    nodeTolerations?: [ 
+      {
+        effect?: string(name='effect'),
+        key?: string(name='key'),
+        operator?: string(name='operator'),
+        value?: string(name='value'),
+      }
+    ](name='NodeTolerations'),
+  }(name='SelfManagedResourceOptions'),
 }
 
 model UpdateResourceResponseBody = {
@@ -3065,14 +3607,11 @@ model UpdateResourceResponse = {
 async function updateResourceWithOptions(ClusterId: string, ResourceId: string, request: UpdateResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.nodeMatchLabels)) {
-    body['NodeMatchLabels'] = request.nodeMatchLabels;
-  }
-  if (!Util.isUnset(request.nodeTolerations)) {
-    body['NodeTolerations'] = request.nodeTolerations;
-  }
   if (!Util.isUnset(request.resourceName)) {
     body['ResourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.selfManagedResourceOptions)) {
+    body['SelfManagedResourceOptions'] = request.selfManagedResourceOptions;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3374,6 +3913,52 @@ async function updateServiceCronScaler(ClusterId: string, ServiceName: string, r
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateServiceCronScalerWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model UpdateServiceInstanceRequest {
+  isolate?: boolean(name='Isolate', example='true'),
+}
+
+model UpdateServiceInstanceResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateServiceInstanceResponseBody(name='body'),
+}
+
+async function updateServiceInstanceWithOptions(ClusterId: string, ServiceName: string, InstanceName: string, request: UpdateServiceInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateServiceInstanceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.isolate)) {
+    body['Isolate'] = request.isolate;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateServiceInstance',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/services/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(ServiceName)}/instances/${OpenApiUtil.getEncodeParam(InstanceName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateServiceInstance(ClusterId: string, ServiceName: string, InstanceName: string, request: UpdateServiceInstanceRequest): UpdateServiceInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateServiceInstanceWithOptions(ClusterId, ServiceName, InstanceName, request, headers, runtime);
 }
 
 model UpdateServiceLabelRequest {

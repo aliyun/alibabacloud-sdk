@@ -78,6 +78,7 @@ model Instance {
   instanceName?: string(name='InstanceName'),
   instancePort?: int32(name='InstancePort'),
   isSpot?: boolean(name='IsSpot', example='false'),
+  isolated?: boolean(name='Isolated', example='false'),
   lastState?: [  map[string]any ](name='LastState'),
   namespace?: string(name='Namespace'),
   originalAmount?: float(name='OriginalAmount', example='2.2'),
@@ -153,6 +154,10 @@ model ResourceInstanceWorker {
 
 model Service {
   accessToken?: string(name='AccessToken'),
+  appConfig?: string(name='AppConfig'),
+  appSpecName?: string(name='AppSpecName'),
+  appType?: string(name='AppType'),
+  appVersion?: string(name='AppVersion'),
   callerUid?: string(name='CallerUid'),
   cpu?: int32(name='Cpu'),
   createTime?: string(name='CreateTime'),
@@ -195,6 +200,7 @@ model Service {
   totalInstance?: int32(name='TotalInstance'),
   updateTime?: string(name='UpdateTime'),
   weight?: int32(name='Weight'),
+  workspaceId?: string(name='WorkspaceId'),
 }
 
 model CommitServiceRequest {
@@ -209,12 +215,45 @@ model CommitServiceResponseBody = {
 
 model CommitServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CommitServiceResponseBody(name='body'),
 }
 
 async function commitService(request: CommitServiceRequest): CommitServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CommitService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/commit', 'json', false, 'json', request);
+}
+
+model CreateAppServiceRequest {
+  quotaId?: string(name='QuotaId', example='abcdef', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='123456', position='Query'),
+  appType: string(name='AppType', example='LLM', position='Body'),
+  appVersion?: string(name='AppVersion', example='v1', position='Body'),
+  config?: map[string]any(name='Config', position='Body'),
+  replicas: int32(name='Replicas', example='1', position='Body'),
+  serviceName: string(name='ServiceName', example='foo', position='Body'),
+  serviceSpec: string(name='ServiceSpec', example='llama_7b_fp16', position='Body'),
+}
+
+model CreateAppServiceResponseBody = {
+  internetEndpoint?: string(name='InternetEndpoint', example='http://pai-eas.cn-shanghai.****'),
+  intranetEndpoint?: string(name='IntranetEndpoint', example='http://pai-eas-vpc.cn-shanghai.****'),
+  region?: string(name='Region', example='cn-shanghai'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', example='eas-m-aaxxxddf'),
+  serviceName?: string(name='ServiceName', example='foo'),
+  status?: string(name='Status', example='Creating'),
+}
+
+model CreateAppServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateAppServiceResponseBody(name='body'),
+}
+
+async function createAppService(request: CreateAppServiceRequest): CreateAppServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAppService', 'POST', '/api/v2/app_services', 'json', false, 'json', request);
 }
 
 model CreateBenchmarkTaskRequest {
@@ -245,6 +284,7 @@ model CreateBenchmarkTaskResponseBody = {
 
 model CreateBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -253,23 +293,75 @@ async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateB
   return @handler.do('RESTFUL', 'CreateBenchmarkTask', 'POST', '/api/v2/benchmark-tasks', 'json', false, 'json', request);
 }
 
+model CreateGatewayRequest {
+  resourceName?: string(name='ResourceName', example='eas-r-4gt8twzwllfo******', position='Query'),
+  enableInternet?: boolean(name='EnableInternet', example='false', position='Body'),
+  enableIntranet?: boolean(name='EnableIntranet', example='true', position='Body'),
+  instanceType: string(name='InstanceType', example='ecs.c6.4xlarge', position='Body'),
+  name?: string(name='Name', example='mygateway1', position='Body'),
+}
+
+model CreateGatewayResponseBody = {
+  clusterId?: string(name='ClusterId', example='cn-hangzhou'),
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully create gateway.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateGatewayResponseBody(name='body'),
+}
+
+async function createGateway(request: CreateGatewayRequest): CreateGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateGateway', 'POST', '/api/v2/gateways', 'json', false, 'json', request);
+}
+
+model CreateGatewayIntranetLinkedVpcRequest {
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****', position='Query'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****', position='Query'),
+}
+
+model CreateGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully add intranet linked vpc for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function createGatewayIntranetLinkedVpc(request: CreateGatewayIntranetLinkedVpcRequest): CreateGatewayIntranetLinkedVpcResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateGatewayIntranetLinkedVpc', 'POST', '/api/v2/gateways/{ClusterId}/{GatewayId}/intranet_endpoint_linked_vpc', 'json', false, 'json', request);
+}
+
 model CreateResourceRequest {
   autoRenewal?: boolean(name='AutoRenewal', example='false', position='Body'),
   chargeType?: string(name='ChargeType', example='PostPaid', position='Body'),
   ecsInstanceCount?: int32(name='EcsInstanceCount', example='5', position='Body'),
   ecsInstanceType?: string(name='EcsInstanceType', example='ecs.c6.8xlarge', position='Body'),
-  externalClusterId?: string(name='ExternalClusterId', position='Body'),
-  nodeMatchLabels?: map[string]string(name='NodeMatchLabels', position='Body'),
-  nodeTolerations?: [ 
-    {
-      effect?: string(name='effect'),
-      key?: string(name='key'),
-      operator?: string(name='operator'),
-      value?: string(name='value'),
-    }
-  ](name='NodeTolerations', position='Body'),
   resourceType?: string(name='ResourceType', position='Body'),
-  roleName?: string(name='RoleName', position='Body'),
+  selfManagedResourceOptions?: {
+    externalClusterId?: string(name='ExternalClusterId'),
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
+    nodeTolerations?: [ 
+      {
+        effect?: string(name='effect'),
+        key?: string(name='key'),
+        operator?: string(name='operator'),
+        value?: string(name='value'),
+      }
+    ](name='NodeTolerations'),
+    roleName?: string(name='RoleName'),
+  }(name='SelfManagedResourceOptions', position='Body'),
   systemDiskSize?: int32(name='SystemDiskSize', example='200', minimum=200, maximum=2000, position='Body'),
   zone?: string(name='Zone', example='cn-shanghai-f', position='Body'),
 }
@@ -285,6 +377,7 @@ model CreateResourceResponseBody = {
 
 model CreateResourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateResourceResponseBody(name='body'),
 }
 
@@ -313,6 +406,7 @@ model CreateResourceInstancesResponseBody = {
 
 model CreateResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateResourceInstancesResponseBody(name='body'),
 }
 
@@ -335,6 +429,7 @@ model CreateResourceLogResponseBody = {
 
 model CreateResourceLogResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateResourceLogResponseBody(name='body'),
 }
 
@@ -346,6 +441,7 @@ async function createResourceLog(request: CreateResourceLogRequest): CreateResou
 model CreateServiceRequest {
   develop?: string(name='Develop', example='true', position='Query'),
   labels?: map[string]string(name='Labels', shrink='json', position='Query'),
+  workspaceId?: string(name='WorkspaceId', position='Query'),
   body?: string(name='body', position='Body'),
 }
 
@@ -361,6 +457,7 @@ model CreateServiceResponseBody = {
 
 model CreateServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateServiceResponseBody(name='body'),
 }
 
@@ -402,6 +499,7 @@ model CreateServiceAutoScalerResponseBody = {
 
 model CreateServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateServiceAutoScalerResponseBody(name='body'),
 }
 
@@ -430,6 +528,7 @@ model CreateServiceCronScalerResponseBody = {
 
 model CreateServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateServiceCronScalerResponseBody(name='body'),
 }
 
@@ -452,6 +551,7 @@ model CreateServiceMirrorResponseBody = {
 
 model CreateServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateServiceMirrorResponseBody(name='body'),
 }
 
@@ -472,12 +572,59 @@ model DeleteBenchmarkTaskResponseBody = {
 
 model DeleteBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteBenchmarkTaskResponseBody(name='body'),
 }
 
 async function deleteBenchmarkTask(request: DeleteBenchmarkTaskRequest): DeleteBenchmarkTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteBenchmarkTask', 'DELETE', '/api/v2/benchmark-tasks/{ClusterId}/{TaskName}', 'json', false, 'json', request);
+}
+
+model DeleteGatewayRequest {
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+}
+
+model DeleteGatewayResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Gateway is deleted.'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteGatewayResponseBody(name='body'),
+}
+
+async function deleteGateway(request: DeleteGatewayRequest): DeleteGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteGateway', 'DELETE', '/api/v2/gateways/{ClusterId}/{GatewayId}', 'json', false, 'json', request);
+}
+
+model DeleteGatewayIntranetLinkedVpcRequest {
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****', position='Query'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****', position='Query'),
+}
+
+model DeleteGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully delete intranet linked vpc for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DeleteGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function deleteGatewayIntranetLinkedVpc(request: DeleteGatewayIntranetLinkedVpcRequest): DeleteGatewayIntranetLinkedVpcResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteGatewayIntranetLinkedVpc', 'DELETE', '/api/v2/gateways/{ClusterId}/{GatewayId}/intranet_endpoint_linked_vpc', 'json', false, 'json', request);
 }
 
 model DeleteResourceRequest {
@@ -492,6 +639,7 @@ model DeleteResourceResponseBody = {
 
 model DeleteResourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteResourceResponseBody(name='body'),
 }
 
@@ -512,6 +660,7 @@ model DeleteResourceDLinkResponseBody = {
 
 model DeleteResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteResourceDLinkResponseBody(name='body'),
 }
 
@@ -534,6 +683,7 @@ model DeleteResourceInstancesResponseBody = {
 
 model DeleteResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteResourceInstancesResponseBody(name='body'),
 }
 
@@ -554,6 +704,7 @@ model DeleteResourceLogResponseBody = {
 
 model DeleteResourceLogResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteResourceLogResponseBody(name='body'),
 }
 
@@ -574,6 +725,7 @@ model DeleteServiceResponseBody = {
 
 model DeleteServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceResponseBody(name='body'),
 }
 
@@ -594,6 +746,7 @@ model DeleteServiceAutoScalerResponseBody = {
 
 model DeleteServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceAutoScalerResponseBody(name='body'),
 }
 
@@ -614,6 +767,7 @@ model DeleteServiceCronScalerResponseBody = {
 
 model DeleteServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceCronScalerResponseBody(name='body'),
 }
 
@@ -637,6 +791,7 @@ model DeleteServiceInstancesResponseBody = {
 
 model DeleteServiceInstancesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceInstancesResponseBody(name='body'),
 }
 
@@ -658,6 +813,7 @@ model DeleteServiceLabelResponseBody = {
 
 model DeleteServiceLabelResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceLabelResponseBody(name='body'),
 }
 
@@ -678,6 +834,7 @@ model DeleteServiceMirrorResponseBody = {
 
 model DeleteServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteServiceMirrorResponseBody(name='body'),
 }
 
@@ -709,6 +866,7 @@ model DescribeBenchmarkTaskResponseBody = {
 
 model DescribeBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -776,12 +934,63 @@ model DescribeBenchmarkTaskReportResponseBody = {
 
 model DescribeBenchmarkTaskReportResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeBenchmarkTaskReportResponseBody(name='body'),
 }
 
 async function describeBenchmarkTaskReport(request: DescribeBenchmarkTaskReportRequest): DescribeBenchmarkTaskReportResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeBenchmarkTaskReport', 'GET', '/api/v2/benchmark-tasks/{ClusterId}/{TaskName}/report', 'json', false, 'json', request);
+}
+
+model DescribeGatewayRequest {
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+}
+
+model DescribeGatewayResponseBody = {
+  callerUid?: string(name='CallerUid', example='20123*******'),
+  createTime?: string(name='CreateTime', description='网关创建时间', example='2020-05-19T14:19:42Z'),
+  externalClusterId?: string(name='ExternalClusterId', example='c935eadf284c14c2da57a2a13ad6******'),
+  gatewayId?: string(name='GatewayId', description='网关ID', example='gw-1uhcqmsc7x22******'),
+  gatewayName?: string(name='GatewayName', example='mygateway1'),
+  instanceType?: string(name='InstanceType', description='网关创建的实例种类', example='ecs.c6.4xlarge'),
+  internetAclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='test'),
+      entry?: string(name='Entry', example='192.168.1.1/32'),
+      status?: string(name='Status', example='Running'),
+    }
+  ](name='InternetAclPolicyList'),
+  internetDomain?: string(name='InternetDomain', description='网关内部域名', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
+  internetEnabled?: boolean(name='InternetEnabled', example='true'),
+  intranetDomain?: string(name='IntranetDomain', description='网关外部域名', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
+  intranetEnabled?: boolean(name='IntranetEnabled', example='true'),
+  intranetLinkedVpcList?: [ 
+    {
+      ip?: string(name='Ip', example='192.168.10.11'),
+      securityGroupId?: string(name='SecurityGroupId', example='sg-2ze4pgstgszvgq******'),
+      status?: string(name='Status', example='Running'),
+      vSwitchId?: string(name='VSwitchId', example='vsw-bp1txzxsdck43pp******'),
+      vpcId?: string(name='VpcId', example='vpc-bp1g11zvka6zr3i******'),
+    }
+  ](name='IntranetLinkedVpcList'),
+  parentUid?: string(name='ParentUid', description='创建网关的用户ID', example='11234*******'),
+  region: string(name='Region', description='网关所在地域', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  status?: string(name='Status', description='网关现在的状态', example='PrivateGatewayRunning'),
+  updateTime?: string(name='UpdateTime', description='网关最后一次的更新时间', example='2021-02-24T11:52:17Z'),
+}
+
+model DescribeGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeGatewayResponseBody(name='body'),
+}
+
+async function describeGateway(request: DescribeGatewayRequest): DescribeGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DescribeGateway', 'GET', '/api/v2/gateways/{ClusterId}/{GatewayId}', 'json', false, 'json', request);
 }
 
 model DescribeGroupRequest {
@@ -791,6 +1000,7 @@ model DescribeGroupRequest {
 
 model DescribeGroupResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: Group  
 }
 
@@ -825,6 +1035,7 @@ model DescribeResourceResponseBody = {
 
 model DescribeResourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeResourceResponseBody(name='body'),
 }
 
@@ -849,6 +1060,7 @@ model DescribeResourceDLinkResponseBody = {
 
 model DescribeResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeResourceDLinkResponseBody(name='body'),
 }
 
@@ -872,6 +1084,7 @@ model DescribeResourceLogResponseBody = {
 
 model DescribeResourceLogResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeResourceLogResponseBody(name='body'),
 }
 
@@ -887,6 +1100,7 @@ model DescribeServiceRequest {
 
 model DescribeServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: Service  
 }
 
@@ -930,6 +1144,7 @@ model DescribeServiceAutoScalerResponseBody = {
 
 model DescribeServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceAutoScalerResponseBody(name='body'),
 }
 
@@ -962,6 +1177,7 @@ model DescribeServiceCronScalerResponseBody = {
 
 model DescribeServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceCronScalerResponseBody(name='body'),
 }
 
@@ -988,6 +1204,7 @@ model DescribeServiceDiagnosisResponseBody = {
 
 model DescribeServiceDiagnosisResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceDiagnosisResponseBody(name='body'),
 }
 
@@ -1024,6 +1241,7 @@ model DescribeServiceEventResponseBody = {
 
 model DescribeServiceEventResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceEventResponseBody(name='body'),
 }
 
@@ -1049,6 +1267,7 @@ model DescribeServiceInstanceDiagnosisResponseBody = {
 
 model DescribeServiceInstanceDiagnosisResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceInstanceDiagnosisResponseBody(name='body'),
 }
 
@@ -1081,6 +1300,7 @@ model DescribeServiceLogResponseBody = {
 
 model DescribeServiceLogResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceLogResponseBody(name='body'),
 }
 
@@ -1103,6 +1323,7 @@ model DescribeServiceMirrorResponseBody = {
 
 model DescribeServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeServiceMirrorResponseBody(name='body'),
 }
 
@@ -1124,6 +1345,7 @@ model DevelopServiceResponseBody = {
 
 model DevelopServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DevelopServiceResponseBody(name='body'),
 }
 
@@ -1161,6 +1383,7 @@ model ListBenchmarkTaskResponseBody = {
 
 model ListBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -1169,10 +1392,41 @@ async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchma
   return @handler.do('RESTFUL', 'ListBenchmarkTask', 'GET', '/api/v2/benchmark-tasks', 'json', false, 'json', request);
 }
 
+model ListGatewayIntranetLinkedVpcRequest {
+  clusterId?: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+}
+
+model ListGatewayIntranetLinkedVpcResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  intranetLinkedVpcList?: [ 
+    {
+      ip?: string(name='Ip', example='192.168.10.11'),
+      securityGroupId?: string(name='SecurityGroupId', example='sg-2ze4pgstgszvgq******'),
+      status?: string(name='Status', example='Running'),
+      vSwitchId?: string(name='VSwitchId', example='vsw-8vb2qjoiio6m9pg******'),
+      vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+    }
+  ](name='IntranetLinkedVpcList'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model ListGatewayIntranetLinkedVpcResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListGatewayIntranetLinkedVpcResponseBody(name='body'),
+}
+
+async function listGatewayIntranetLinkedVpc(request: ListGatewayIntranetLinkedVpcRequest): ListGatewayIntranetLinkedVpcResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListGatewayIntranetLinkedVpc', 'GET', '/api/v2/gateways/{ClusterId}/{GatewayId}/intranet_endpoint_linked_vpc', 'json', false, 'json', request);
+}
+
 model ListGroupsRequest {
   filter?: string(name='Filter', example='foo', position='Query'),
   pageNumber?: string(name='PageNumber', example='1', position='Query'),
   pageSize?: string(name='PageSize', example='20', position='Query'),
+  workspaceId?: string(name='WorkspaceId', position='Query'),
 }
 
 model ListGroupsResponseBody = {
@@ -1187,6 +1441,7 @@ model ListGroupsResponseBody = {
 
 model ListGroupsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListGroupsResponseBody(name='body'),
 }
 
@@ -1215,6 +1470,7 @@ model ListResourceInstanceWorkerResponseBody = {
 
 model ListResourceInstanceWorkerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListResourceInstanceWorkerResponseBody(name='body'),
 }
 
@@ -1250,6 +1506,7 @@ model ListResourceInstancesResponseBody = {
 
 model ListResourceInstancesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListResourceInstancesResponseBody(name='body'),
 }
 
@@ -1277,6 +1534,7 @@ model ListResourceServicesResponseBody = {
 
 model ListResourceServicesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListResourceServicesResponseBody(name='body'),
 }
 
@@ -1305,6 +1563,7 @@ model ListResourcesResponseBody = {
 
 model ListResourcesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListResourcesResponseBody(name='body'),
 }
 
@@ -1329,6 +1588,7 @@ model ListServiceContainersResponseBody = {
 
 model ListServiceContainersResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListServiceContainersResponseBody(name='body'),
 }
 
@@ -1367,6 +1627,7 @@ model ListServiceInstancesResponseBody = {
 
 model ListServiceInstancesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListServiceInstancesResponseBody(name='body'),
 }
 
@@ -1400,6 +1661,7 @@ model ListServiceVersionsResponseBody = {
 
 model ListServiceVersionsResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListServiceVersionsResponseBody(name='body'),
 }
 
@@ -1476,6 +1738,7 @@ model ListServicesRequest {
   serviceType?: string(name='ServiceType', position='Query'),
   serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx', position='Query'),
   sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime', position='Query'),
+  workspaceId?: string(name='WorkspaceId', position='Query'),
 }
 
 model ListServicesResponseBody = {
@@ -1490,6 +1753,7 @@ model ListServicesResponseBody = {
 
 model ListServicesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ListServicesResponseBody(name='body'),
 }
 
@@ -1512,6 +1776,7 @@ model ReleaseServiceResponseBody = {
 
 model ReleaseServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ReleaseServiceResponseBody(name='body'),
 }
 
@@ -1532,6 +1797,7 @@ model RestartServiceResponseBody = {
 
 model RestartServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: RestartServiceResponseBody(name='body'),
 }
 
@@ -1552,6 +1818,7 @@ model StartBenchmarkTaskResponseBody = {
 
 model StartBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StartBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -1572,6 +1839,7 @@ model StartServiceResponseBody = {
 
 model StartServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StartServiceResponseBody(name='body'),
 }
 
@@ -1592,6 +1860,7 @@ model StopBenchmarkTaskResponseBody = {
 
 model StopBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StopBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -1612,12 +1881,41 @@ model StopServiceResponseBody = {
 
 model StopServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: StopServiceResponseBody(name='body'),
 }
 
 async function stopService(request: StopServiceRequest): StopServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'StopService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/stop', 'json', false, 'json', request);
+}
+
+model UpdateAppServiceRequest {
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  quotaId?: string(name='QuotaId', example='abcdef', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='123456', position='Query'),
+  appType?: string(name='AppType', example='LLM', position='Body'),
+  appVersion?: string(name='AppVersion', example='v1', position='Body'),
+  config?: map[string]any(name='Config', position='Body'),
+  replicas?: string(name='Replicas', example='1', position='Body'),
+  serviceSpec?: string(name='ServiceSpec', example='llama_7b_fp16', position='Body'),
+}
+
+model UpdateAppServiceResponseBody = {
+  message?: string(name='Message', example='Succee'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateAppServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateAppServiceResponseBody(name='body'),
+}
+
+async function updateAppService(request: UpdateAppServiceRequest): UpdateAppServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAppService', 'PUT', '/api/v2/app_services/{ClusterId}/{ServiceName}', 'json', false, 'json', request);
 }
 
 model UpdateBenchmarkTaskRequest {
@@ -1637,6 +1935,7 @@ model UpdateBenchmarkTaskResponseBody = {
 
 model UpdateBenchmarkTaskResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateBenchmarkTaskResponseBody(name='body'),
 }
 
@@ -1645,19 +1944,47 @@ async function updateBenchmarkTask(request: UpdateBenchmarkTaskRequest): UpdateB
   return @handler.do('RESTFUL', 'UpdateBenchmarkTask', 'PUT', '/api/v2/benchmark-tasks/{ClusterId}/{TaskName}', 'json', false, 'json', request);
 }
 
+model UpdateGatewayRequest {
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  enableInternet?: boolean(name='EnableInternet', example='true', position='Body'),
+  enableIntranet?: boolean(name='EnableIntranet', example='false', position='Body'),
+  instanceType?: string(name='InstanceType', example='ecs.c6.4xlarge', position='Body'),
+  name?: string(name='Name', example='mygateway1', position='Body'),
+}
+
+model UpdateGatewayResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Gateway is updated'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+}
+
+model UpdateGatewayResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateGatewayResponseBody(name='body'),
+}
+
+async function updateGateway(request: UpdateGatewayRequest): UpdateGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateGateway', 'PUT', '/api/v2/gateways/{ClusterId}/{GatewayId}', 'json', false, 'json', request);
+}
+
 model UpdateResourceRequest {
   clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
   resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
-  nodeMatchLabels?: map[string]string(name='NodeMatchLabels', position='Body'),
-  nodeTolerations?: [ 
-    {
-      effect?: string(name='effect'),
-      key?: string(name='key'),
-      operator?: string(name='operator'),
-      value?: string(name='value'),
-    }
-  ](name='NodeTolerations', position='Body'),
   resourceName?: string(name='ResourceName', example='iot', position='Body'),
+  selfManagedResourceOptions?: {
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
+    nodeTolerations?: [ 
+      {
+        effect?: string(name='effect'),
+        key?: string(name='key'),
+        operator?: string(name='operator'),
+        value?: string(name='value'),
+      }
+    ](name='NodeTolerations'),
+  }(name='SelfManagedResourceOptions', position='Body'),
 }
 
 model UpdateResourceResponseBody = {
@@ -1668,6 +1995,7 @@ model UpdateResourceResponseBody = {
 
 model UpdateResourceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateResourceResponseBody(name='body'),
 }
 
@@ -1692,6 +2020,7 @@ model UpdateResourceDLinkResponseBody = {
 
 model UpdateResourceDLinkResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateResourceDLinkResponseBody(name='body'),
 }
 
@@ -1715,6 +2044,7 @@ model UpdateResourceInstanceResponseBody = {
 
 model UpdateResourceInstanceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateResourceInstanceResponseBody(name='body'),
 }
 
@@ -1736,6 +2066,7 @@ model UpdateServiceResponseBody = {
 
 model UpdateServiceResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceResponseBody(name='body'),
 }
 
@@ -1777,6 +2108,7 @@ model UpdateServiceAutoScalerResponseBody = {
 
 model UpdateServiceAutoScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceAutoScalerResponseBody(name='body'),
 }
 
@@ -1805,12 +2137,36 @@ model UpdateServiceCronScalerResponseBody = {
 
 model UpdateServiceCronScalerResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceCronScalerResponseBody(name='body'),
 }
 
 async function updateServiceCronScaler(request: UpdateServiceCronScalerRequest): UpdateServiceCronScalerResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateServiceCronScaler', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/cronscaler', 'json', false, 'json', request);
+}
+
+model UpdateServiceInstanceRequest {
+  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  instanceName: string(name='InstanceName', example='foo-69xxxx4f4-5w9r9', position='Path'),
+  isolate?: boolean(name='Isolate', example='true', position='Body'),
+}
+
+model UpdateServiceInstanceResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model UpdateServiceInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: UpdateServiceInstanceResponseBody(name='body'),
+}
+
+async function updateServiceInstance(request: UpdateServiceInstanceRequest): UpdateServiceInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateServiceInstance', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/instances/{InstanceName}', 'json', false, 'json', request);
 }
 
 model UpdateServiceLabelRequest {
@@ -1826,6 +2182,7 @@ model UpdateServiceLabelResponseBody = {
 
 model UpdateServiceLabelResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceLabelResponseBody(name='body'),
 }
 
@@ -1848,6 +2205,7 @@ model UpdateServiceMirrorResponseBody = {
 
 model UpdateServiceMirrorResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceMirrorResponseBody(name='body'),
 }
 
@@ -1869,6 +2227,7 @@ model UpdateServiceSafetyLockResponseBody = {
 
 model UpdateServiceSafetyLockResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceSafetyLockResponseBody(name='body'),
 }
 
@@ -1890,6 +2249,7 @@ model UpdateServiceVersionResponseBody = {
 
 model UpdateServiceVersionResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: UpdateServiceVersionResponseBody(name='body'),
 }
 
