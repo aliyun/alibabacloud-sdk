@@ -188,6 +188,25 @@ model LogAnalyzeResult {
   appErrorLog?: string(name='AppErrorLog', example='exception: xxxx'),
 }
 
+model OperatorNode {
+  children?: [
+    OperatorNode
+  ](name='children'),
+  id?: int32(name='id'),
+  levelWidth?: int32(name='levelWidth'),
+  nodeDepth?: int32(name='nodeDepth'),
+  nodeName?: string(name='nodeName'),
+  nodeWidth?: int32(name='nodeWidth'),
+  parentId?: int32(name='parentId'),
+  stats?: {
+    bytes?: long(name='bytes'),
+    outputRows?: long(name='outputRows'),
+    parameters?: string(name='parameters'),
+    peakMemory?: long(name='peakMemory'),
+    timeCost?: long(name='timeCost'),
+  }(name='stats'),
+}
+
 model SerDeInfoModel {
   name?: string(name='Name'),
   parameters?: map[string]string(name='Parameters'),
@@ -224,6 +243,11 @@ model SparkAttemptInfo {
   message?: string(name='Message', example='WARN: Disk is full'),
   priority?: string(name='Priority', example='NORMAL'),
   state?: string(name='State', example='RUNNING'),
+}
+
+model SparkOperatorInfo {
+  metricValue?: long(name='MetricValue'),
+  operatorName?: bytes(name='OperatorName'),
 }
 
 model SparkSession {
@@ -1090,7 +1114,7 @@ model DescribeAccountsResponseBody = {
   accountList?: {
     DBAccount?: [ 
     {
-      accountDescription?: string(name='AccountDescription', description='The description of the database account.'),
+      accountDescription?: string(name='AccountDescription', description='The description of the database account.', example='test_accout_des'),
       accountName?: string(name='AccountName', description='The name of the database account.', example='test_accout'),
       accountStatus?: string(name='AccountStatus', description='The state of the database account. Valid values:
 
@@ -1442,7 +1466,7 @@ model DescribeAuditLogRecordsRequest {
 *   **30**
 *   **50**
 *   **100**', example='10', minimum=10, maximum=100, position='Query'),
-  proxyUser?: string(name='ProxyUser', description='A reserved parameter.', position='Query'),
+  proxyUser?: string(name='ProxyUser', description='A reserved parameter.', example='none', position='Query'),
   queryKeyword?: string(name='QueryKeyword', description='The keyword based on which audit logs are queried. You can set this parameter to a value of the STRING type.', example='adb', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the cluster.
 
@@ -3080,13 +3104,22 @@ async function enableElasticPlan(request: EnableElasticPlanRequest): EnableElast
 }
 
 model ExistRunningSQLEngineRequest {
-  DBClusterId: string(name='DBClusterId', example='amv-bp1cit7z8j****', position='Body'),
-  resourceGroupName: string(name='ResourceGroupName', example='spark_test', position='Body'),
+  DBClusterId: string(name='DBClusterId', description='The cluster ID.
+
+>  You can call the [DescribeDBClusters](~~612397~~) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.', example='amv-bp1cit7z8j****', position='Body'),
+  resourceGroupName: string(name='ResourceGroupName', description='The name of the resource group.
+
+>  You can call the [DescribeDBResourceGroup](~~459446~~) operation to query the name of the resource group for a cluster.', example='spark_test', position='Body'),
 }
 
 model ExistRunningSQLEngineResponseBody = {
-  data?: boolean(name='Data', example='True'),
-  requestId?: string(name='RequestId', example='FA675D68-14A4-5D9C-8820-92537D9F447E'),
+  data?: boolean(name='Data', description='Indicates whether a running SQL engine exists in the resource group.
+
+Valid values:
+
+*   **True**
+*   **False**', example='True'),
+  requestId?: string(name='RequestId', description='The request ID.', example='FA675D68-14A4-5D9C-8820-92537D9F447E'),
 }
 
 model ExistRunningSQLEngineResponse = {
@@ -4037,25 +4070,42 @@ async function listSparkAppAttempts(request: ListSparkAppAttemptsRequest): ListS
 }
 
 model ListSparkAppsRequest {
-  DBClusterId: string(name='DBClusterId', example='amv-bp11q28kvl688****', position='Query'),
-  pageNumber: long(name='PageNumber', example='1', minimum=1, position='Query'),
-  pageSize?: long(name='PageSize', example='30', minimum=1, maximum=100, position='Query'),
-  resourceGroupName?: string(name='ResourceGroupName', example='test_instance', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.', example='amv-bp11q28kvl688****', position='Query'),
+  pageNumber: long(name='PageNumber', description='The number of the page to return. The value must be an integer that is greater than 0. Default value: **1**.', example='1', minimum=1, position='Query'),
+  pageSize?: long(name='PageSize', description='The number of entries to return on each page. Default value: 10. Valid values:
+
+- **10**
+- **50**
+- **100**', example='30', minimum=1, maximum=100, position='Query'),
+  resourceGroupName?: string(name='ResourceGroupName', description='The name of the job resource group.', example='test_instance', position='Query'),
 }
 
 model ListSparkAppsResponseBody = {
   data?: {
     appInfoList?: [
       SparkAppInfo
-    ](name='AppInfoList'),
-    pageNumber?: long(name='PageNumber', example='1'),
-    pageSize?: long(name='PageSize', example='10'),
-    totalCount?: long(name='TotalCount', example='1'),
-  }(name='Data'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='D65A809F-34CE-4550-9BC1-0ED21ETG380'),
-  totalCount?: long(name='TotalCount', example='1'),
+    ](name='AppInfoList', description='Details of the applications. Fields in the response parameter:
+
+- **Data**: the data of the Spark application template.
+- **EstimateExecutionCpuTimeInSeconds**: the amount of time it takes to consume CPU resources for running the Spark application. Unit: milliseconds.
+- **LogRootPath**: the storage path of log files.
+- **LastAttemptId**: the most recent attempt ID.
+- **WebUiAddress**: the web UI URL.
+- **SubmittedTimeInMillis**: the time when the Spark application was submitted. The time is displayed in the UNIX timestamp format. Unit: milliseconds.
+- **StartedTimeInMillis**: the time when the Spark application was created. The time is displayed in the UNIX timestamp format. Unit: milliseconds.
+- **LastUpdatedTimeInMillis**: the time when the Spark application was last updated. The time is displayed in the UNIX timestamp format. Unit: milliseconds.
+- **TerminatedTimeInMillis**: the time when the Spark application task was terminated. The time is displayed in the UNIX timestamp format. Unit: milliseconds.
+- **DBClusterId**: the ID of the cluster on which the Spark application runs.
+- **ResourceGroupName**: the name of the job resource group.
+- **DurationInMillis**: the amount of time it takes to run the Spark application. Unit: milliseconds.'),
+    pageNumber?: long(name='PageNumber', description='The page number of the returned page.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='10'),
+    totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='1'),
+  }(name='Data', description='The data returned.'),
+  pageNumber?: long(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='D65A809F-34CE-4550-9BC1-0ED21ETG380'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model ListSparkAppsResponse = {
@@ -4277,26 +4327,31 @@ async function modifyClusterConnectionString(request: ModifyClusterConnectionStr
 }
 
 model ModifyDBClusterRequest {
-  computeResource: string(name='ComputeResource', description='The reserved computing resources. Unit: ACUs. Valid values: 0 to 4096. The value must be in increments of 16 ACUs. Each ACU is equivalent to 1 core and 4 GB memory.
+  computeResource: string(name='ComputeResource', description='The amount of reserved computing resources. Unit: ACUs. Valid values: 0 to 4096. The value must be in increments of 16 ACUs. Each ACU is equivalent to 1 core and 4 GB memory.
 
->  You must specify a value with the unit for this parameter.', example='16ACU', position='Query'),
-  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.', example='amv-bp1r053byu48p****', position='Query'),
-  enableDefaultResourcePool?: boolean(name='EnableDefaultResourcePool', position='Query'),
+>  This parameter must be specified with a unit.', example='16ACU', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
+
+>  You can call the [DescribeDBClusters](~~454250~~) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition (V3.0) clusters within a region.', example='amv-bp1r053byu48p****', position='Query'),
+  enableDefaultResourcePool?: boolean(name='EnableDefaultResourcePool', description='Specifies whether to allocate all reserved computing resources to the user_default resource group. Valid values:
+
+*   true (default)
+*   false', example='true', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', description='The region ID of the cluster.
 
 >  You can call the [DescribeRegions](~~454314~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  storageResource: string(name='StorageResource', description='The reserved storage resources. Unit: AnalyticDB Compute Units (ACUs). Valid values: 0 to 2064. The value must be in increments of 24 ACUs. Each ACU is equivalent to 1 core and 4 GB memory.
+  storageResource: string(name='StorageResource', description='The amount of reserved storage resources. Unit: ACUs. Valid values: 0 to 2064. The value must be in increments of 24 ACUs. Each ACU is equivalent to 1 core and 4 GB memory.
 
->  You must specify a value with the unit for this parameter.', example='24ACU', position='Query'),
+>  This parameter must be specified with a unit.', example='24ACU', position='Query'),
 }
 
 model ModifyDBClusterResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.', example='amv-bp1r053byu48p****'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='2035629****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='0D6BF3E2-41D8-57F6-9A62-A13A70377952'),
+  orderId?: string(name='OrderId', description='The order ID.', example='2035629****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0D6BF3E2-41D8-57F6-9A62-A13A70377952'),
 }
 
 model ModifyDBClusterResponse = {
@@ -4306,9 +4361,12 @@ model ModifyDBClusterResponse = {
 }
 
 /**
-  * *   During a scaling event, you are not allowed to execute the `SUBMIT JOB` statement to submit asynchronous tasks. If your business requires asynchronous tasks, perform scaling during appropriate periods.
-  * *   When cluster specifications are scaled up or down, data in the cluster is migrated for redistribution. The amount of time required for data migration is proportional to the volume of data. During a scale-up or scale-down event, the services provided by the cluster are not interrupted. During a scale-down event, data migration can take up to dozens of hours to complete. Proceed with caution especially when your cluster contains a large amount of data.
+  * ### [](#)
+  * *   During a scaling event, you are not allowed to execute the `SUBMIT JOB` statement to submit asynchronous jobs. If your business requires asynchronous jobs, perform scaling during appropriate periods.
+  * *   When cluster specifications are scaled up or down, data in the cluster is migrated for redistribution. The amount of time that is required for data migration is proportional to the volume of data. During a scaling event, the services provided by the cluster are not interrupted. During a scale-down event, data migration can take up to dozens of hours to complete. Proceed with caution especially when your cluster contains a large amount of data.
   * *   If the cluster has a built-in dataset loaded, make sure that the cluster has reserved storage resources of at least 24 AnalyticDB compute units (ACUs). Otherwise, the built-in dataset cannot be used.
+  * *   When the scaling process is about to end, your service may encounter transient connections. We recommend that you scale your cluster during off-peak hours or make sure that your application is configured to automatically reconnect to your cluster.
+  * *   You can change an AnalyticDB for MySQL cluster from Data Warehouse Edition (V3.0) to Data Lakehouse Edition (V3.0), but not the other way around. For more information, see Change a cluster from Data Warehouse Edition to Data Lakehouse Edition.
   *
  */
 async function modifyDBCluster(request: ModifyDBClusterRequest): ModifyDBClusterResponse {
@@ -4488,16 +4546,19 @@ async function releaseClusterPublicConnection(request: ReleaseClusterPublicConne
 }
 
 model RenameSparkTemplateFileRequest {
-  DBClusterId: string(name='DBClusterId', example='amv-d*****', position='Query'),
-  id: long(name='Id', example='1', minimum=0, position='Query'),
-  name: string(name='Name', example='new_template_name', position='Query'),
+  DBClusterId: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.', example='amv-d*****', position='Query'),
+  id: long(name='Id', description='The template file ID.', example='1', minimum=0, position='Query'),
+  name: string(name='Name', description='The name of the template file that you want to rename.', example='new_template_name', position='Query'),
 }
 
 model RenameSparkTemplateFileResponseBody = {
   data?: {
-    succeeded?: boolean(name='Succeeded', example='True'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='16D332C4-ACEB-526A-9B53-2B708FED594A'),
+    succeeded?: boolean(name='Succeeded', description='Indicates whether the request was successful. Valid values:
+
+*   True
+*   False', example='True'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='16D332C4-ACEB-526A-9B53-2B708FED594A'),
 }
 
 model RenameSparkTemplateFileResponse = {
