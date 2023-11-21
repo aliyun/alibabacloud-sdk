@@ -74,6 +74,7 @@ model EscalationRule {
   description?: string(name='Description'),
   escalations?: [ 
     {
+      backupContactGroups?: [ string ](name='BackupContactGroups'),
       contactGroups?: [ string ](name='ContactGroups'),
       contactGroupsByLevel?: {
         critical?: [ string ](name='Critical'),
@@ -1534,15 +1535,15 @@ Valid values of N: 1 to 3.', example='GreaterThanOrEqualToThreshold'),
 Valid values of N: 1 to 3.', example='00:00-23:59'),
       escalationsLevel?: string(name='EscalationsLevel', description='The alert level. Valid values:
 
-*   critical (default)
-*   warn
-*   info
+*   critical (default): critical
+*   warn: warning
+*   info: information
 
 Valid values of N: 1 to 3.', example='warn'),
       noEffectiveInterval?: string(name='NoEffectiveInterval', description='The time period during which the alert rule is ineffective.
 
 Valid values of N: 1 to 3.', example='00:00-23:59'),
-      silenceTime?: string(name='SilenceTime', description='The mute period during which new alert notifications are not sent even if the trigger conditions are met. Unit: seconds. Minimum value: 3600, which is equivalent to 1 hour. Default value: 86400, which is equivalent to one day.
+      silenceTime?: string(name='SilenceTime', description='The mute period during which new alert notifications are not sent even if the trigger conditions are met. Unit: seconds. Minimum value: 3600, which is equivalent to one hour. Default value: 86400, which is equivalent to one day.
 
 Valid values of N: 1 to 3.
 
@@ -1910,6 +1911,8 @@ model CreateHybridMonitorNamespaceRequest {
   namespace?: string(name='Namespace', description='The name of the namespace.
 
 The name can contain lowercase letters, digits, and hyphens (-).', example='aliyun'),
+  namespaceRegion?: string(name='NamespaceRegion'),
+  namespaceType?: string(name='NamespaceType'),
   regionId?: string(name='RegionId'),
   spec?: string(name='Spec', description='The data retention period of the namespace. Valid values:
 
@@ -1955,6 +1958,12 @@ async function createHybridMonitorNamespaceWithOptions(request: CreateHybridMoni
   }
   if (!Util.isUnset(request.namespace)) {
     query['Namespace'] = request.namespace;
+  }
+  if (!Util.isUnset(request.namespaceRegion)) {
+    query['NamespaceRegion'] = request.namespaceRegion;
+  }
+  if (!Util.isUnset(request.namespaceType)) {
+    query['NamespaceType'] = request.namespaceType;
   }
   if (!Util.isUnset(request.spec)) {
     query['Spec'] = request.spec;
@@ -5891,7 +5900,7 @@ async function describeAlertLogList(request: DescribeAlertLogListRequest): Descr
 }
 
 model DescribeAlertingMetricRuleResourcesRequest {
-  alertBeforeTime?: string(name='AlertBeforeTime'),
+  alertBeforeTime?: string(name='AlertBeforeTime', description='Queries the alerts that were triggered before the specified time. Timestamps in milliseconds are supported.', example='1698827400000'),
   dimensions?: string(name='Dimensions', description='The dimensions that specify the resources whose monitoring data you want to query.', example='{\\"userId\\":\\"120886317861****\\",\\"region\\":\\"cn-huhehaote\\",\\"queue\\":\\"test-0128\\"}'),
   groupId?: string(name='GroupId', description='The ID of the application group. For information about how to obtain the ID of an application group, see [DescribeMonitorGroups](~~115032~~).', example='7671****'),
   namespace?: string(name='Namespace', description='The namespace of the cloud service.
@@ -6862,8 +6871,8 @@ model DescribeEventRuleAttributeRequest {
   regionId?: string(name='RegionId'),
   ruleName?: string(name='RuleName', description='The name of the event-triggered alert rule.
 
-For more information about how to obtain the name of an event-triggered alert rule, see [DescribeEventRuleList](~~114996~~).', example='testRule'),
-  silenceTime?: string(name='SilenceTime', description='The mute period during which new alerts are not sent even if the trigger conditions are met.
+For information about how to obtain the name of an event-triggered alert rule, see [DescribeEventRuleList](~~114996~~).', example='testRule'),
+  silenceTime?: string(name='SilenceTime', description='The mute period during which new alert notifications are not sent even if the trigger conditions are met.
 
 Unit: seconds. Default value: 86400, which indicates one day.
 
@@ -6885,9 +6894,12 @@ model DescribeEventRuleAttributeResponseBody = {
       keywordFilterObj?: {
         keywords?: {
           keyword?: [ string ](name='keyword')
-        }(name='Keywords'),
-        relation?: string(name='Relation'),
-      }(name='KeywordFilterObj'),
+        }(name='Keywords', description='事件匹配的关键字列表。'),
+        relation?: string(name='Relation', description='多个关键字的条件。取值：
+
+- OR： 多个关键字之间或的关系。
+- NOT：不包含关键字。表示匹配非关键字列表中的所有事件。', example='OR'),
+      }(name='KeywordFilterObj', description='过滤关键词。'),
       levelList?: {
         levelList?: [ string ](name='LevelList')
       }(name='LevelList'),
@@ -6895,12 +6907,12 @@ model DescribeEventRuleAttributeResponseBody = {
         nameList?: [ string ](name='NameList')
       }(name='NameList'),
       product?: string(name='Product', description='The name of the cloud service.', example='CloudMonitor'),
-      SQLFilter?: string(name='SQLFilter'),
+      SQLFilter?: string(name='SQLFilter', description='按照SQL过滤日志。如果符合条件，则触发报警。', example='ycccluster1 and (i-23ij0o82612 or Executed1) or Asimulated not 222'),
       statusList?: {
         statusList?: [ string ](name='StatusList')
       }(name='StatusList'),
-    }(name='EventPattern', description='The event pattern. This parameter specifies the trigger conditions of an event.'),
-    eventType?: string(name='EventType', description='The type of the event. Valid values: Valid values:
+    }(name='EventPattern', description='The event pattern. This parameter describes the trigger conditions of an event.'),
+    eventType?: string(name='EventType', description='The event type. Valid values:
 
 *   SYSTEM: system event
 *   CUSTOM: custom event', example='SYSTEM'),
@@ -6969,21 +6981,25 @@ async function describeEventRuleAttribute(request: DescribeEventRuleAttributeReq
 
 model DescribeEventRuleListRequest {
   groupId?: string(name='GroupId', description='The ID of the application group.', example='7378****'),
-  isEnable?: boolean(name='IsEnable', example='true'),
+  isEnable?: boolean(name='IsEnable', description='Specifies whether to enable the event-triggered alert rule. Valid values:
+
+true (default)
+
+false', example='true'),
   namePrefix?: string(name='NamePrefix', description='The prefix in the name of the event-triggered alert rule.', example='test'),
-  pageNumber?: string(name='PageNumber', description='The number of the page to return.
+  pageNumber?: string(name='PageNumber', description='The page number.
 
 Pages start from page 1. Default value: 1.', example='1'),
-  pageSize?: string(name='PageSize', description='The number of entries to return on each page.
+  pageSize?: string(name='PageSize', description='The number of entries per page.
 
-A minimum of one entry can be returned on each page. Default value: 10.', example='10'),
+Pages start from page 1. Default value: 10.', example='10'),
   regionId?: string(name='RegionId'),
 }
 
 model DescribeEventRuleListResponseBody = {
   code?: string(name='Code', description='The HTTP status code.
 
->  The status code 200 indicates that the call was successful.', example='200'),
+>  The status code 200 indicates that the request was successful.', example='200'),
   eventRules?: {
     eventRule?: [ 
     {
@@ -6991,12 +7007,10 @@ model DescribeEventRuleListResponseBody = {
       eventPattern?: {
         eventPattern?: [ 
         {
-          customFilters?: string(name='CustomFilters', description='The custom filter condition. If an event contains a specified keyword, the event triggers an alert.', example='ECS123'),
+          customFilters?: string(name='CustomFilters', description='The custom filter conditions.', example='ECS123'),
           eventTypeList?: {
             eventTypeList?: [ string ](name='EventTypeList')
-          }(name='EventTypeList', description='The type of the event-triggered alert rule.
-
-`*` indicates all types of alert rules.'),
+          }(name='EventTypeList', description='The types of the event-triggered alert rules.'),
           keywordFilter?: {
             keywords?: {
               keywords?: [ string ](name='Keywords')
@@ -7005,43 +7019,39 @@ model DescribeEventRuleListResponseBody = {
 
 *   OR: The relationship between keywords is OR.
 *   NOT: The keyword is excluded. The value NOT indicates that all events that do not contain the keywords are matched.', example='OR'),
-          }(name='KeywordFilter', description='The filter keyword.'),
+          }(name='KeywordFilter', description='The keyword for filtering.'),
           levelList?: {
             levelList?: [ string ](name='LevelList')
-          }(name='LevelList', description='The level of the event. Valid values:
-
-*   CRITICAL: critical
-*   WARN: warning
-*   INFO: information'),
+          }(name='LevelList', description='The levels of the event-triggered alerts.'),
           nameList?: {
             nameList?: [ string ](name='NameList')
-          }(name='NameList', description='The list of event names.'),
-          product?: string(name='Product', description='The abbreviation of the service name.', example='CloudMonitor'),
+          }(name='NameList', description='The event names.'),
+          product?: string(name='Product', description='The abbreviation of the Alibaba Cloud service name.', example='CloudMonitor'),
           SQLFilter?: string(name='SQLFilter', description='Indicates that logs are filtered based on the specified SQL statement. If the specified conditions are met, an alert is triggered.', example='ycccluster1 and (i-23ij0o82612 or Executed1) or Asimulated not 222'),
         }
       ](name='EventPattern')
       }(name='EventPattern', description='The mode of the event-triggered alert rule.'),
-      eventType?: string(name='EventType', description='The type of the event. Valid values:
+      eventType?: string(name='EventType', description='The type of the event-triggered alert rule. Valid values:
 
-- SYSTEM: system event
-- CUSTOM: custom event', example='SYSTEM'),
+*   SYSTEM: system event-triggered alert rule
+*   CUSTOM: custom event-triggered alert rule', example='SYSTEM'),
       groupId?: string(name='GroupId', description='The ID of the application group.', example='7378****'),
       name?: string(name='Name', description='The name of the event-triggered alert rule.', example='test_DefaultEventRule_7378****'),
-      silenceTime?: long(name='SilenceTime', description='The mute period during which new alerts are not sent even if the trigger conditions are met.', example='86400'),
+      silenceTime?: long(name='SilenceTime', description='The mute period during which new alert notifications are not sent even if the trigger conditions are met.', example='86400'),
       state?: string(name='State', description='The status of the event-triggered alert rule. Valid values:
 
-*   ENABLED: enabled
-*   DISABLED: disabled', example='ENABLED'),
+*   ENABLED
+*   DISABLED', example='ENABLED'),
     }
   ](name='EventRule')
-  }(name='EventRules', description='The event-triggered alert rules.'),
-  message?: string(name='Message', description='The error message.', example='User not authorized to operate on the specified resource.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D0E6D82B-16B5-422A-8136-EE5BDC01E415'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+  }(name='EventRules', description='The event-triggered alert rule.'),
+  message?: string(name='Message', description='The error message returned.', example='User not authorized to operate on the specified resource.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D0E6D82B-16B5-422A-8136-EE5BDC01E415'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='true'),
-  total?: int32(name='Total', description='The total number of returned entries.', example='21'),
+*   true
+*   false', example='true'),
+  total?: int32(name='Total', description='The total number of entries returned.', example='21'),
 }
 
 model DescribeEventRuleListResponse = {
@@ -7911,6 +7921,8 @@ Unit: seconds.', example='60'),
 Unit: milliseconds.', example='1652682744000'),
       description?: string(name='Description', description='The description of the namespace.', example='aliyun-test'),
       detail?: {
+        namespaceRegion?: string(name='NamespaceRegion'),
+        SLSProject?: string(name='SLSProject'),
         spec?: string(name='Spec', description='The data retention period. Valid values:
 
 *   cms.s1.large: Data is stored for 15 days.
@@ -7927,6 +7939,7 @@ Unit: milliseconds.', example='1652682744000'),
 *   1: The namespace is deleted.', example='0'),
       modifyTime?: string(name='ModifyTime', description='The timestamp that was generated when the namespace was last modified.', example='1652682744000'),
       namespace?: string(name='Namespace', description='The name of the namespace.', example='aliyun-test'),
+      namespaceType?: string(name='NamespaceType'),
       notAliyunTaskNumber?: long(name='NotAliyunTaskNumber', description='The number of metric import tasks for third-party services.', example='0'),
     }
   ](name='DescribeHybridMonitorNamespace', description='The details of the namespaces.'),
@@ -9715,27 +9728,27 @@ async function describeMetricRuleTargets(request: DescribeMetricRuleTargetsReque
 model DescribeMetricRuleTemplateAttributeRequest {
   name?: string(name='Name', description='The name of the alert template. You must specify at least one of the `Name` and `TemplateId` parameters.
 
-For more information about how to query the names of alert templates, see [DescribeMetricRuleTemplateList](~~114982~~).', example='ECS_Template1'),
+For information about how to obtain the name of an alert template, see [DescribeMetricRuleTemplateList](~~114982~~).', example='ECS_Template1'),
   regionId?: string(name='RegionId'),
   templateId?: string(name='TemplateId', description='The ID of the alert template. You must specify at least one of the `Name` and `TemplateId` parameters.
 
-For more information about how to query the IDs of alert templates, see [DescribeMetricRuleTemplateList](~~114982~~).', example='70****'),
+For information about how to obtain the ID of an alert template, see [DescribeMetricRuleTemplateList](~~114982~~).', example='70****'),
 }
 
 model DescribeMetricRuleTemplateAttributeResponseBody = {
   code?: int32(name='Code', description='The HTTP status code.
 
->  The status code 200 indicates that the call is successful.', example='200'),
-  message?: string(name='Message', description='The error message.', example='The specified resource is not found.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='8F3A82AD-DA92-52B0-8EC6-C059D1C3839F'),
+>  The status code 200 indicates that the request was successful.', example='200'),
+  message?: string(name='Message', description='The error message returned.', example='The specified resource is not found.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8F3A82AD-DA92-52B0-8EC6-C059D1C3839F'),
   resource?: {
     alertTemplates?: {
       alertTemplate?: [ 
       {
-        category?: string(name='Category', description='The abbreviation of the cloud service name.', example='ecs'),
+        category?: string(name='Category', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
         escalations?: {
           critical?: {
-            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold. Valid values:
+            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold for Critical-level alerts. Valid values:
 
 *   GreaterThanOrEqualToThreshold: greater than or equal to the threshold
 *   GreaterThanThreshold: greater than the threshold
@@ -9755,7 +9768,7 @@ The value of the `Statistics` parameter varies with the cloud service. For more 
             times?: int32(name='Times', description='The consecutive number of times for which the metric value meets the alert condition before a Critical-level alert is triggered.', example='5'),
           }(name='Critical', description='The conditions for triggering Critical-level alerts.'),
           info?: {
-            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold. Valid values:
+            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold for Info-level alerts. Valid values:
 
 *   GreaterThanOrEqualToThreshold: greater than or equal to the threshold
 *   GreaterThanThreshold: greater than the threshold
@@ -9775,7 +9788,7 @@ The value of the `Statistics` parameter varies with the cloud service. For more 
             times?: int32(name='Times', description='The consecutive number of times for which the metric value meets the alert condition before an Info-level alert is triggered.', example='3'),
           }(name='Info', description='The conditions for triggering Info-level alerts.'),
           warn?: {
-            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold. Valid values:
+            comparisonOperator?: string(name='ComparisonOperator', description='The comparison operator that is used to compare the metric value with the threshold for Warn-level alerts. Valid values:
 
 *   GreaterThanOrEqualToThreshold: greater than or equal to the threshold
 *   GreaterThanThreshold: greater than the threshold
@@ -9798,33 +9811,33 @@ The value of the `Statistics` parameter varies with the cloud service. For more 
         labels?: {
           labels?: [ 
           {
-            key?: string(name='Key', description='报警模板的标签键。', example='label1'),
-            value?: string(name='Value', description='报警模板的标签值。', example='value1'),
+            key?: string(name='Key', description='The tag key of the alert template.', example='label1'),
+            value?: string(name='Value', description='The tag value of the alert template.', example='value1'),
           }
         ](name='Labels')
-        }(name='Labels', description='报警模板标签。'),
-        metricName?: string(name='MetricName', example='cpu_total'),
-        namespace?: string(name='Namespace', description='The namespace of the cloud service.', example='acs_ecs_dashboard'),
-        noDataPolicy?: string(name='NoDataPolicy', description='The processing method of alerts when no monitoring data is found. Valid values:
+        }(name='Labels', description='The tags of the alert template.'),
+        metricName?: string(name='MetricName', description='The metric name.', example='cpu_total'),
+        namespace?: string(name='Namespace', description='The namespace of the Alibaba Cloud service.', example='acs_ecs_dashboard'),
+        noDataPolicy?: string(name='NoDataPolicy', description='The method that is used to handle alerts when no monitoring data is found. Valid values:
 
-*   KEEP_LAST_STATE (default value): No operation is performed.
+*   KEEP_LAST_STATE (default): No operation is performed.
 *   INSUFFICIENT_DATA: An alert whose content is "Insufficient data" is triggered.
-*   OK: The alert rule has no active alerts.', example='KEEP_LAST_STATE'),
+*   OK: The status is considered normal.', example='KEEP_LAST_STATE'),
         ruleName?: string(name='RuleName', description='The name of the alert rule.', example='ECS_Rule'),
         selector?: string(name='Selector', description='The dimension of the alert. It is an extended field.', example='{"disk":"/"}'),
         webhook?: string(name='Webhook', description='The callback URL to which a request is sent when an alert is triggered.', example='https://www.aliyun.com'),
       }
     ](name='AlertTemplate')
-    }(name='AlertTemplates', description='The list of alert templates.'),
-    description?: string(name='Description'),
+    }(name='AlertTemplates', description='The queried alert templates.'),
+    description?: string(name='Description', description='The description of the alert template.'),
     name?: string(name='Name', description='The name of the alert template.', example='ECS_Template1'),
     restVersion?: string(name='RestVersion', description='The version of the alert template.', example='1'),
     templateId?: string(name='TemplateId', description='The ID of the alert template.', example='70****'),
   }(name='Resource', description='The details of the alert template.'),
-  success?: boolean(name='Success', description='Indicates whether the call is successful. Valid values:
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call is successful.
-*   false: The call fails.', example='true'),
+*   true
+*   false', example='true'),
 }
 
 model DescribeMetricRuleTemplateAttributeResponse = {
@@ -9834,7 +9847,7 @@ model DescribeMetricRuleTemplateAttributeResponse = {
 }
 
 /**
-  * This topic provides an example to show how to query the details of an alert template whose ID is `70****`.
+  * This topic provides an example on how to query the details of an alert template whose ID is `70****`.
   *
   * @param request DescribeMetricRuleTemplateAttributeRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -9867,7 +9880,7 @@ async function describeMetricRuleTemplateAttributeWithOptions(request: DescribeM
 }
 
 /**
-  * This topic provides an example to show how to query the details of an alert template whose ID is `70****`.
+  * This topic provides an example on how to query the details of an alert template whose ID is `70****`.
   *
   * @param request DescribeMetricRuleTemplateAttributeRequest
   * @return DescribeMetricRuleTemplateAttributeResponse
@@ -10916,10 +10929,10 @@ model DescribeMonitorResourceQuotaAttributeResponseBody = {
       quotaUsed?: int32(name='QuotaUsed', description='The used quota of alert text messages in your resource plan.', example='38'),
     }(name='SMS', description='The details about the quota of alert text messages.'),
     siteMonitorBrowser?: {
-      quotaLimit?: int32(name='QuotaLimit'),
-      quotaPackage?: int32(name='QuotaPackage'),
-      quotaUsed?: int32(name='QuotaUsed'),
-    }(name='SiteMonitorBrowser'),
+      quotaLimit?: int32(name='QuotaLimit', description='The total quota of browser detection tasks.', example='50'),
+      quotaPackage?: int32(name='QuotaPackage', description='The quota of browser detection tasks in your resource plan.', example='50'),
+      quotaUsed?: int32(name='QuotaUsed', description='The used quota of browser detection tasks in your resource plan.', example='15'),
+    }(name='SiteMonitorBrowser', description='The quota of browser detection tasks.'),
     siteMonitorEcsProbe?: {
       quotaLimit?: int32(name='QuotaLimit', description='The total quota of ECS detection points for site monitoring.
 
@@ -10930,10 +10943,10 @@ model DescribeMonitorResourceQuotaAttributeResponseBody = {
 > The value indicates the total number of ECS detection points that are used by existing site monitoring tasks.', example='20'),
     }(name='SiteMonitorEcsProbe', description='The details about the quota of ECS detection points for site monitoring.'),
     siteMonitorMobile?: {
-      quotaLimit?: int32(name='QuotaLimit'),
-      quotaPackage?: int32(name='QuotaPackage'),
-      quotaUsed?: int32(name='QuotaUsed'),
-    }(name='SiteMonitorMobile'),
+      quotaLimit?: int32(name='QuotaLimit', description='The total quota of mobile detection tasks.', example='50'),
+      quotaPackage?: int32(name='QuotaPackage', description='The quota of mobile detection tasks in your resource plan.', example='50'),
+      quotaUsed?: int32(name='QuotaUsed', description='The used quota of mobile detection tasks in your resource plan.', example='15'),
+    }(name='SiteMonitorMobile', description='The quota of mobile detection tasks.'),
     siteMonitorOperatorProbe?: {
       quotaLimit?: int32(name='QuotaLimit', description='The total quota of carrier detection points for site monitoring.', example='5'),
       quotaPackage?: int32(name='QuotaPackage', description='The quota of carrier detection points for site monitoring in your resource plan.', example='5'),
@@ -11316,7 +11329,7 @@ model DescribeMonitoringAgentStatusesRequest {
 model DescribeMonitoringAgentStatusesResponseBody = {
   code?: string(name='Code', description='The HTTP status code.
 
->  The status code 200 indicates that the request was successful.', example='200'),
+> The status code 200 indicates that the request was successful.', example='200'),
   message?: string(name='Message', description='The error message.', example='The specified resource is not found.'),
   nodeStatusList?: {
     nodeStatus?: [ 
@@ -11326,10 +11339,11 @@ model DescribeMonitoringAgentStatusesResponseBody = {
 *   true: The CloudMonitor agent is automatically installed.
 *   false: The CloudMonitor agent is not automatically installed.', example='true'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='i-hp3dunahluwajv6f****'),
-      osMonitorConfig?: string(name='OsMonitorConfig', description='Indicates whether the SysAK monitoring feature is enabled.`` Valid values:
+      osMonitorConfig?: string(name='OsMonitorConfig', description='SysOM插件的配置信息`sysak`是否开启监控。取值：
 
-*   `true`: The SysAK monitoring feature is enabled.
-*   `false`: the SysAK monitoring feature is disabled.', example='{"sysak":true}'),
+- true：`sysak`开启监控。
+
+- false：`sysak`未开启监控。', example='{"sysak":true}'),
       osMonitorErrorCode?: string(name='OsMonitorErrorCode', description='The error status of SysOM. Valid values:
 
 *   `install_fail`: SysOM fails to be installed or an unknown error occurs.
@@ -11351,7 +11365,7 @@ model DescribeMonitoringAgentStatusesResponseBody = {
 *   running: SysOM is running.
 *   stopped: SysOM is stopped.
 *   uninstalling: SysOM is being uninstalled.', example='running'),
-      osMonitorVersion?: string(name='OsMonitorVersion', description='The SysOM version.', example='1.3.0-12'),
+      osMonitorVersion?: string(name='OsMonitorVersion', description='SysOM监控的插件版本。', example='1.3.0-12'),
       status?: string(name='Status', description='The status of the CloudMonitor agent. Valid values:
 
 *   running: The CloudMonitor agent is running.
@@ -11362,7 +11376,7 @@ model DescribeMonitoringAgentStatusesResponseBody = {
 *   not_installed: The CloudMonitor agent is not installed.', example='running'),
     }
   ](name='NodeStatus')
-  }(name='NodeStatusList', description='The host status information.'),
+  }(name='NodeStatusList', description='The status information.'),
   requestId?: string(name='RequestId', description='The request ID.', example='6F8371DF-AB81-41B8-9E1B-5493B3FF0E4F'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
@@ -11551,7 +11565,9 @@ model DescribeProductsOfActiveMetricRuleResponseBody = {
       alertInitConfigList?: {
         alertInitConfig?: [ 
         {
+          comparisonOperator?: string(name='ComparisonOperator'),
           evaluationCount?: string(name='EvaluationCount', description='The consecutive number of times for which the metric value is measured before an alert is triggered.', example='3'),
+          level?: string(name='Level'),
           metricName?: string(name='MetricName', description='The name of the metric. For more information, see [Appendix 1: Metrics](~~163515~~).', example='cpu_total'),
           namespace?: string(name='Namespace', description='The namespace of the service. For more information, see [Appendix 1: Metrics](~~163515~~).', example='acs_rds_dashboard'),
           period?: string(name='Period', description='The aggregation period of the monitoring data. Unit: minutes. For more information, see [Appendix 1: Metrics](~~163515~~).', example='1m'),
@@ -12184,11 +12200,11 @@ model DescribeSiteMonitorListRequest {
   keyword?: string(name='Keyword', description='The keyword to be matched.
 
 >  You can search for tasks by name or address. Fuzzy search is supported.', example='site'),
-  page?: int32(name='Page', description='The number of the page to return. Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: 10.', example='10'),
+  page?: int32(name='Page', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
   regionId?: string(name='RegionId'),
   taskId?: string(name='TaskId', description='The ID of the site monitoring task.', example='a1ecd34a-8157-44d9-b060-14950837****'),
-  taskState?: string(name='TaskState', description='The status of the task. Valid values:
+  taskState?: string(name='TaskState', description='The task status. Valid values:
 
 *   1: The task is enabled.
 *   2: The task is disabled.', example='1'),
@@ -12196,18 +12212,21 @@ model DescribeSiteMonitorListRequest {
 }
 
 model DescribeSiteMonitorListResponseBody = {
-  code?: string(name='Code', description='The HTTP status code.
+  code?: string(name='Code', description='The status code.
 
->  The status code 200 indicates that the call was successful.', example='200'),
+>  The status code 200 indicates that the request was successful.', example='200'),
   message?: string(name='Message', description='The returned message.', example='successful'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='A80DB41C-AF6C-50E1-ADB5-66DCBA3D266B'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A80DB41C-AF6C-50E1-ADB5-66DCBA3D266B'),
   siteMonitors?: {
     siteMonitor?: [ 
     {
       address?: string(name='Address', description='The URL or IP address that is monitored by the site monitoring task.', example='https://aliyun.com'),
-      agentGroup?: string(name='AgentGroup', example='PC'),
+      agentGroup?: string(name='AgentGroup', description='The detection point type. Valid values:
+
+*   PC
+*   MOBILE', example='PC'),
       createTime?: string(name='CreateTime', description='The time when the site monitoring task was created.', example='2021-11-01 11:05:18'),
       interval?: string(name='Interval', description='The interval at which detection requests are sent. Unit: minutes.', example='1'),
       optionsJson?: {
@@ -12232,7 +12251,7 @@ model DescribeSiteMonitorListResponseBody = {
 *   If the assertion type is `body_json`, the path is `json path`.
 *   If the assertion type is `body_xml`, the path is `xml path`.', example='json path'),
             target?: string(name='target', description='The numeric value or character used for matching.', example='1000'),
-            type?: string(name='type', description='The type of the assertion. Valid values:
+            type?: string(name='type', description='The assertion type. Valid values:
 
 *   response_time: checks whether the response time meets expectations.
 *   status_code: checks whether the HTTP status code meets expectations.
@@ -12250,16 +12269,16 @@ model DescribeSiteMonitorListResponseBody = {
 *   1: The feature is disabled.', example='1'),
         certVerify?: boolean(name='cert_verify', description='Indicates whether the certificate is verified. Valid values:
 
-*   false (default value): The certificate is not verified.
+*   false (default): The certificate is not verified.
 *   true: The certificate is verified.', example='false'),
         cookie?: string(name='cookie', description='The cookie of the HTTP request.', example='lang=en'),
         diagnosisMtr?: boolean(name='diagnosis_mtr', description='Indicates whether MTR is automatically used to diagnose network issues if a task fails. Valid values:
 
-*   false (default value): MTR is not automatically used to diagnose network issues if a task fails.
+*   false (default): MTR is not automatically used to diagnose network issues if a task fails.
 *   true: MTR is automatically used to diagnose network issues if a task fails.', example='false'),
         diagnosisPing?: boolean(name='diagnosis_ping', description='Indicates whether ping requests are automatically sent to detect network latency if a detection task fails. Valid values:
 
-*   false (default value): Ping requests are not automatically sent to detect network latency if a detection task fails.
+*   false (default): Ping requests are not automatically sent to detect network latency if a detection task fails.
 *   true: Ping requests are automatically sent to detect network latency if a detection task fails.', example='false'),
         dnsMatchRule?: string(name='dns_match_rule', description='The relationship between the list of expected aliases or IP addresses and the list of DNS results. Valid values:
 
@@ -12270,7 +12289,7 @@ model DescribeSiteMonitorListResponseBody = {
         dnsServer?: string(name='dns_server', description='The domain name or IP address of the DNS server.', example='192.168.XX.XX'),
         dnsType?: string(name='dns_type', description='The type of the DNS record. This parameter is returned only if the TaskType parameter is set to DNS. Valid values:
 
-*   A (default value): a record that specifies an IP address related to the specified host name or domain name.
+*   A (default): a record that specifies an IP address related to the specified host name or domain name.
 *   CNAME: a record that maps multiple domain names to a domain name.
 *   NS: a record that specifies a DNS server used to parse domain names.
 *   MX: a record that links domain names to the address of a mail server.
@@ -12278,7 +12297,7 @@ model DescribeSiteMonitorListResponseBody = {
 *   AAAA: a record that maps a domain name to the relevant IPv6 address.', example='A'),
         enableOperatorDns?: boolean(name='enable_operator_dns', description='Indicates whether the DNS server of the carrier is used.
 
-*   true (default value): The DNS server of the carrier is used.
+*   true (default): The DNS server of the carrier is used.
 *   false: The DNS server of the carrier is not used. The default DNS server or the specified DNS server is used.', example='true'),
         failureRate?: float(name='failure_rate', description='The packet loss rate.
 
@@ -12292,7 +12311,7 @@ model DescribeSiteMonitorListResponseBody = {
         isBase64Encode?: string(name='isBase64Encode', description='Indicates whether the password is decoded by using the Base64 algorithm. Valid values:
 
 *   true: The password is decoded by using the Base64 algorithm.
-*   false (default value): The password is not decoded by using the Base64 algorithm.', example='false'),
+*   false (default): The password is not decoded by using the Base64 algorithm.', example='false'),
         matchRule?: int32(name='match_rule', description='Indicates whether the alert rule is included. Valid values:
 
 *   0: The alert rule is included.
@@ -12302,12 +12321,12 @@ model DescribeSiteMonitorListResponseBody = {
         port?: int32(name='port', description='The port number of the TCP, UDP, SMTP, or POP3 protocol.', example='80'),
         protocol?: string(name='protocol', description='The protocol type of DNS detection. Valid values:
 
-*   udp (default value)
+*   udp (default)
 *   tcp
 *   tcp-tls', example='udp'),
         proxyProtocol?: boolean(name='proxy_protocol', description='Indicates whether the PROXY protocol is enabled. Valid values:
 
-*   false (default value): The PROXY protocol is disabled.
+*   false (default): The PROXY protocol is disabled.
 *   true: The PROXY protocol is enabled.', example='false'),
         requestContent?: string(name='request_content', description='The content of the HTTP request.', example='cf0f85'),
         requestFormat?: string(name='request_format', description='The format of the HTTP request. Valid values:
@@ -12327,12 +12346,12 @@ model DescribeSiteMonitorListResponseBody = {
         unfollowRedirect?: boolean(name='unfollow_redirect', description='Indicates whether redirects are followed if the status code 301 or 302 is returned. Valid values:
 
 *   true: Redirects are not followed.
-*   false (default value): Redirects are followed.', example='false'),
+*   false (default): Redirects are followed.', example='false'),
         username?: string(name='username', description='The username of the FTP, SMTP, or POP3 protocol.', example='testUser'),
       }(name='OptionsJson', description='The extended options of the site monitoring task. The options vary based on the specified protocol. For more information, see [CreateSiteMonitor](~~115048~~).'),
       taskId?: string(name='TaskId', description='The ID of the site monitoring task.', example='f5783760-1b39-4b6b-80e8-453d962a****'),
       taskName?: string(name='TaskName', description='The name of the site monitoring task.'),
-      taskState?: string(name='TaskState', description='The status of the task. Valid values:
+      taskState?: string(name='TaskState', description='The task status. Valid values:
 
 *   1: The task is enabled.
 *   2: The task is disabled.', example='1'),
@@ -12341,11 +12360,11 @@ model DescribeSiteMonitorListResponseBody = {
     }
   ](name='SiteMonitor')
   }(name='SiteMonitors', description='The site monitoring tasks that are returned.'),
-  success?: string(name='Success', description='Indicates whether the call was successful. Valid values:
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='true'),
-  totalCount?: int32(name='TotalCount', description='The total number of returned entries.', example='1'),
+*   true
+*   false', example='true'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model DescribeSiteMonitorListResponse = {
