@@ -84,6 +84,18 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model WafQuotaInteger {
+  equal?: int32(name='Equal'),
+  greaterThan?: int32(name='GreaterThan'),
+  greaterThanOrEqual?: int32(name='GreaterThanOrEqual'),
+  lessThan?: int32(name='LessThan'),
+  lessThanOrEqual?: int32(name='LessThanOrEqual'),
+}
+
+model WafQuotaString {
+  regexp?: string(name='Regexp'),
+}
+
 model AddDcdnDomainRequest {
   checkUrl?: string(name='CheckUrl', description='The URL that is used for health checks.', example='example.com'),
   domainName?: string(name='DomainName', description='The domain name that you want to add. You can specify only one domain name in each request.
@@ -418,15 +430,15 @@ async function batchAddDcdnDomain(request: BatchAddDcdnDomainRequest): BatchAddD
 }
 
 model BatchCreateDcdnWafRulesRequest {
-  policyId?: long(name='PolicyId', description='The configurations of the protection rule.', example='1000001'),
-  ruleConfigs?: string(name='RuleConfigs', description='The configurations of the RuleConfigs.', example='{"name":"ttttt","action":"monitor","conditions":[{"key":"URL","opValue":"match-one","values":"1,2,3,4,5"},{"key":"Header","opValue":"contain-one","subKey":"testheader","values":"6,7,8,9,10"}],"ratelimit":{"target":"header","interval":10,"threshold":5,"ttl":1800,"subKey":"testheadercc","status":{"code":"502","count":5}},"ccStatus":"on","effect":"rule","status":"on"}'),
+  policyId?: long(name='PolicyId', description='The ID of the protection policy.', example='1000001'),
+  ruleConfigs?: string(name='RuleConfigs', description='The configuration of the protection rule.', example='{"name":"ttttt","action":"monitor","conditions":[{"key":"URL","opValue":"match-one","values":"1,2,3,4,5"},{"key":"Header","opValue":"contain-one","subKey":"testheader","values":"6,7,8,9,10"}],"ratelimit":{"target":"header","interval":10,"threshold":5,"ttl":1800,"subKey":"testheadercc","status":{"code":"502","count":5}},"ccStatus":"on","effect":"rule","status":"on"}'),
 }
 
 model BatchCreateDcdnWafRulesResponseBody = {
-  requestId?: string(name='RequestId', description='Creates Web Application Firewall (WAF) protection rules.', example='CB1A380B-09F0-41BB-280B-72F8FD6DA2FE'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CB1A380B-09F0-41BB-280B-72F8FD6DA2FE'),
   ruleIds?: {
     ruleId?: [ string ](name='RuleId')
-  }(name='RuleIds'),
+  }(name='RuleIds', description='The IDs of created rules.'),
 }
 
 model BatchCreateDcdnWafRulesResponse = {
@@ -436,7 +448,7 @@ model BatchCreateDcdnWafRulesResponse = {
 }
 
 /**
-  * The ID of the request.
+  * >  You can call this operation up to 20 times per second per account.
   *
   * @param request BatchCreateDcdnWafRulesRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -469,7 +481,7 @@ async function batchCreateDcdnWafRulesWithOptions(request: BatchCreateDcdnWafRul
 }
 
 /**
-  * The ID of the request.
+  * >  You can call this operation up to 20 times per second per account.
   *
   * @param request BatchCreateDcdnWafRulesRequest
   * @return BatchCreateDcdnWafRulesResponse
@@ -567,7 +579,6 @@ model BatchDeleteDcdnWafRulesResponse = {
 }
 
 /**
-  * # Usage notes
   * *   You can call this operation up to 20 times per second per account.
   * *   Alibaba Cloud Dynamic Content Delivery Network (DCDN) supports POST requests.
   *
@@ -599,7 +610,6 @@ async function batchDeleteDcdnWafRulesWithOptions(request: BatchDeleteDcdnWafRul
 }
 
 /**
-  * # Usage notes
   * *   You can call this operation up to 20 times per second per account.
   * *   Alibaba Cloud Dynamic Content Delivery Network (DCDN) supports POST requests.
   *
@@ -836,29 +846,26 @@ model BatchSetDcdnDomainConfigsRequest {
   domainNames?: string(name='DomainNames', description='The accelerated domain names. Specify multiple accelerated domain names with commas (,).', example='example.com,example.org'),
   functions?: string(name='Functions', description='The features that you want to configure. Format:
 
-> 
-
 *   **functionName**: The name of the feature. Separate multiple values with commas (,). For more information, see [A list of features](~~410622~~).
-
 *   **argName**: The feature parameters for **functionName**.
-
 *   **argValue**: The parameter values set for **functionName**.
 
-        [
-         {
-           "functionArgs": [
-            {
-             "argName": "Parameter A", 
-             "argValue": "Parameter value"
-            }, 
-          {
-            "argName": "Parameter B", 
-            "argValue": "Parameter value"
-             }
-         ], 
-         "functionName": "Feature name"
-            }
-        ]', example='[{"functionArgs":[{"argName":"switch","argValue":"on"},{"argName":"region","argValue":"*"}],"functionName":"ipv6"}]'),
+<!---->
+
+    [
+     {
+       "functionArgs": [
+        {
+         "argName": "Parameter A", 
+         "argValue": "Value of parameter A"
+        }, 
+      {
+    "argName": "Parameter B", 
+    "argValue": "Value of parameter B"     }
+     ], 
+     "functionName": "Feature name"
+        }
+    ]', example='[{"functionArgs":[{"argName":"switch","argValue":"on"},{"argName":"region","argValue":"*"}],"functionName":"ipv6"}]'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   securityToken?: string(name='SecurityToken'),
@@ -868,12 +875,12 @@ model BatchSetDcdnDomainConfigsResponseBody = {
   domainConfigList?: {
     domainConfigModel?: [ 
     {
-      configId?: long(name='ConfigId'),
-      domainName?: string(name='DomainName'),
-      functionName?: string(name='FunctionName'),
+      configId?: long(name='ConfigId', description='The ID of the configuration. If 0 is returned, the configuration failed and you need reconfigure this configuration.', example='123456'),
+      domainName?: string(name='DomainName', description='The domain name.', example='www.example.com'),
+      functionName?: string(name='FunctionName', description='The feature name.', example='set_resp_header'),
     }
   ](name='DomainConfigModel')
-  }(name='DomainConfigList'),
+  }(name='DomainConfigList', description='The list of domain configurations.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
 }
 
@@ -884,9 +891,8 @@ model BatchSetDcdnDomainConfigsResponse = {
 }
 
 /**
-  * > 
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchSetDcdnDomainConfigsRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -928,9 +934,8 @@ async function batchSetDcdnDomainConfigsWithOptions(request: BatchSetDcdnDomainC
 }
 
 /**
-  * > 
-  * *   You can specify up to 50 domain names in each request.
-  * *   You can call this operation up to 30 times per second per account.
+  * > *   You can specify up to 50 domain names in each request.
+  * >*   You can call this operation up to 30 times per second per account.
   *
   * @param request BatchSetDcdnDomainConfigsRequest
   * @return BatchSetDcdnDomainConfigsResponse
@@ -5769,47 +5774,39 @@ async function describeDcdnDomainQpsData(request: DescribeDcdnDomainQpsDataReque
 }
 
 model DescribeDcdnDomainQpsDataByLayerRequest {
-  domainName?: string(name='DomainName', description='The QPS returned at each time interval.', example='example.com'),
-  endTime?: string(name='EndTime', description='The number of queries per second outside the Chinese mainland.', example='2015-12-10T21:00:00Z'),
-  interval?: string(name='Interval', description='The layer at which the data was collected.', example='300'),
-  ispNameEn?: string(name='IspNameEn', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+  domainName?: string(name='DomainName', description='The accelerated domain name. You can specify multiple domain names and separate them with commas (,). You can specify up to 500 domain names in each request. The query results of multiple domain names are aggregated. If you do not specify a domain name, data of all domain names is queried.', example='example.com'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
-The minimum data granularity is 5 minutes.
+> The end time must be later than the start time.', example='2015-12-10T21:00:00Z'),
+  interval?: string(name='Interval', description='The time interval between the data entries. Unit: seconds.
 
-If you do not set this parameter, data in the last 24 hours is queried.', example='telecom'),
-  layer?: string(name='Layer', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
-
->  The end time must be later than the start time.', example='all'),
-  locationNameEn?: string(name='LocationNameEn', description='The accelerated domain name.', example='hangzhou'),
-  startTime?: string(name='StartTime', description='The number of requests in the Chinese mainland.', example='2015-12-10T20:00:00Z'),
+The time granularity varies with the maximum time range per query. Valid values: 300 (5 minutes), 3600 (1 hour), and 86400 (1 day). For more information, see **Usage notes**.', example='300'),
+  ispNameEn?: string(name='IspNameEn', description='The name of the ISP. You can call the DescribeDcdnRegionAndIsp operation to query the ISP name. If you do not specify a value for this parameter, all ISPs are queried.', example='telecom'),
+  layer?: string(name='Layer', description='The layers at which you want to query the QPS. The network layer supports IPv4 and IPv6. The application layer supports http, https, and quic. You can also set the value to all. Default value: all.', example='all'),
+  locationNameEn?: string(name='LocationNameEn', description='The name of the region. You can call the DescribeDcdnRegionAndIsp operation to query the region name. If you do not specify a value for this parameter, all regions are queried.', example='hangzhou'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC. The minimum data granularity is 5 minutes. If you do not set this parameter, data in the last 24 hours is queried.', example='2015-12-10T20:00:00Z'),
 }
 
 model DescribeDcdnDomainQpsDataByLayerResponseBody = {
-  dataInterval?: string(name='DataInterval', description='The end of the time range during which data was queried.', example='300'),
-  domainName?: string(name='DomainName', description='The name of the ISP. You can call the DescribeDcdnRegionAndIsp operation to query the ISP name. If you do not specify a value for this parameter, all ISPs are queried.', example='example.com'),
-  endTime?: string(name='EndTime', description='The layers at which you want to query the QPS. The network layer supports IPv4 and IPv6. The application layer supports http, https, and quic. You can also set the value to all.
-
-Default value: all.', example='2015-12-10T21:00:00Z'),
-  layer?: string(name='Layer', description='The operation that you want to perform. Set the value to **DescribeDcdnDomainQpsDataByLayer**.', example='all'),
+  dataInterval?: string(name='DataInterval', description='The time interval between the data entries returned. Unit: seconds.', example='300'),
+  domainName?: string(name='DomainName', description='The accelerated domain name.', example='example.com'),
+  endTime?: string(name='EndTime', description='The end of the time range during which data was queried.', example='2015-12-10T21:00:00Z'),
+  layer?: string(name='Layer', description='The layer at which the data was collected.', example='all'),
   qpsDataInterval?: {
     dataModule?: [ 
     {
-      accDomesticValue?: string(name='AccDomesticValue', description='The number of requests outside the Chinese mainland.', example='12'),
-      accOverseasValue?: string(name='AccOverseasValue', description='The beginning of the time range during which data was queried.', example='44'),
-      accValue?: string(name='AccValue', description='The number of queries per second in the Chinese mainland.', example='56'),
-      domesticValue?: string(name='DomesticValue', description='The time interval between the data entries returned. Unit: seconds.', example='0.12'),
-      overseasValue?: string(name='OverseasValue', description='The total number of queries per second.', example='0.44'),
-      timeStamp?: string(name='TimeStamp', description='The time interval between the data entries to return. Unit: seconds.
-
-The time granularity varies with the maximum time range per query. Valid values: 300 (5 minutes), 3600 (1 hour), and 86400 (1 day). For more information, see **Description**.', example='2015-12-10T21:00:00Z'),
-      value?: string(name='Value', description='The accelerated domain name. You can specify multiple domain names and separate them with commas (,). You can specify up to 500 domain names in each request. The query results of multiple domain names are aggregated.
-
-If you do not specify a domain name, data of all domain names is queried.', example='0.56'),
+      accDomesticValue?: string(name='AccDomesticValue', description='The number of requests in the Chinese mainland.', example='12'),
+      accOverseasValue?: string(name='AccOverseasValue', description='The number of requests outside the Chinese mainland.', example='44'),
+      accValue?: string(name='AccValue', description='The total number of requests.', example='56'),
+      domesticValue?: string(name='DomesticValue', description='The number of queries per second in the Chinese mainland.', example='0.12'),
+      overseasValue?: string(name='OverseasValue', description='The number of queries per second outside the Chinese mainland.', example='0.44'),
+      timeStamp?: string(name='TimeStamp', description='The timestamp of the returned data.', example='2015-12-10T21:00:00Z'),
+      value?: string(name='Value', description='The total number of queries per second.', example='0.56'),
     }
   ](name='DataModule')
-  }(name='QpsDataInterval', description='The name of the region. You can call the DescribeDcdnRegionAndIsp operation to query the region name. If you do not specify a value for this parameter, all regions are queried.'),
-  requestId?: string(name='RequestId', description='The timestamp of the data returned.', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
-  startTime?: string(name='StartTime', description='The total number of requests.', example='2015-12-10T20:00:00Z'),
+  }(name='QpsDataInterval', description='The QPS returned at each time interval.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  startTime?: string(name='StartTime', description='The start of the time range during which data was queried.', example='2015-12-10T20:00:00Z'),
 }
 
 model DescribeDcdnDomainQpsDataByLayerResponse = {
@@ -9075,6 +9072,54 @@ async function describeDcdnL2Vips(request: DescribeDcdnL2VipsRequest): DescribeD
   return describeDcdnL2VipsWithOptions(request, runtime);
 }
 
+model DescribeDcdnOriginSiteHealthStatusRequest {
+  domainName?: string(name='DomainName', example='example.com'),
+}
+
+model DescribeDcdnOriginSiteHealthStatusResponseBody = {
+  originSiteStatus?: [ 
+    {
+      healthStatus?: string(name='HealthStatus', example='healthy'),
+      host?: string(name='Host', example='host.com'),
+    }
+  ](name='OriginSiteStatus'),
+  requestId?: string(name='RequestId', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+}
+
+model DescribeDcdnOriginSiteHealthStatusResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: DescribeDcdnOriginSiteHealthStatusResponseBody(name='body'),
+}
+
+async function describeDcdnOriginSiteHealthStatusWithOptions(request: DescribeDcdnOriginSiteHealthStatusRequest, runtime: Util.RuntimeOptions): DescribeDcdnOriginSiteHealthStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.domainName)) {
+    query['DomainName'] = request.domainName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDcdnOriginSiteHealthStatus',
+    version = '2018-01-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeDcdnOriginSiteHealthStatus(request: DescribeDcdnOriginSiteHealthStatusRequest): DescribeDcdnOriginSiteHealthStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDcdnOriginSiteHealthStatusWithOptions(request, runtime);
+}
+
 model DescribeDcdnRealTimeDeliveryFieldRequest {
   businessType?: string(name='BusinessType', description='The type of the collected logs. Default value: cdn_log_access_l1. Valid values:
 
@@ -10880,7 +10925,10 @@ model DescribeDcdnUserDomainsByFuncRequest {
 *   **config**: enabled
 *   **unconfig**: not enabled', example='config'),
   funcId?: int32(name='FuncId', description='The ID of the feature. For more information about how to query feature IDs, see [Parameters for configuring features for domain names](~~410622~~). For example, the ID of the origin host feature (set_req_host_header) is 18.', example='7'),
-  matchType?: string(name='MatchType'),
+  matchType?: string(name='MatchType', description='The type of the search. Default value: exact_match. Valid values:
+
+*   fuzzy_match: fuzzy search.
+*   exact_match: exact search.', example='exact_match'),
   pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**. Valid values: **1 to 100000**.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **20**. Valid values: **1 to 500**.', example='20'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyuji4b6r4**'),
@@ -11907,6 +11955,7 @@ model DescribeDcdnWafFilterInfoResponseBody = {
           extendField?: string(name='ExtendField', description='The description of the match field. This parameter is not returned or is empty if no match fields are found.', example='Custom Header'),
           logicalSymbol?: [ 
             {
+              attributes?: int32(name='Attributes'),
               description?: string(name='Description', description='The logical symbol that is displayed in the Dynamic Content Delivery Network (DCDN) console.', example='Equal to one of multiple values.'),
               maxLength?: int32(name='MaxLength', description='The maximum number of match contents that can be returned. The value of this parameter varies based on the value of the Type parameter. Valid values:
 
@@ -12421,7 +12470,7 @@ model DescribeDcdnWafPolicyResponseBody = {
 
 *   default
 *   custom', example='default'),
-    ruleConfigs?: string(name='RuleConfigs', description='The protection rule configurations that are defined in the protection policy. The configurations only support bot management. For more information, see [Configure protection rules](~~423350~~).', example='{     "type":"target_type",     "status":"on",     "config":{"target":"app"},     "action":""   }'),
+    ruleConfigs?: string(name='RuleConfigs', description='The protection rule configurations that are defined in the protection policy. The configurations only support bot management. For more information, see [BatchCreateDcdnWafRules](~~BatchCreateDcdnWafRules~~).', example='{     "type":"target_type",     "status":"on",     "config":{"target":"app"},     "action":""   }'),
     ruleCount?: long(name='RuleCount', description='The number of protection rules in the protection policy.', example='9'),
   }(name='Policy', description='The information about the protection policy.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='66A98669-CC6E-4F3E-80A6-3014697B11AE'),
@@ -13189,9 +13238,15 @@ async function describeDcdnsecService(request: DescribeDcdnsecServiceRequest): D
 
 model DescribeDdosAllEventListRequest {
   endTime?: string(name='EndTime', example='2023-04-25T15:59:59Z'),
-  eventType?: string(name='EventType', example='web-cc'),
+  eventType?: string(name='EventType', description='The type of the DDoS attack event that was queried. Valid values:
+
+*   *   **web-cc**: web resource exhaustion attacks
+*   *   **cc**: connection flood attacks
+*   *   **traffic**: volumetric attacks
+
+If you do not configure this parameter, DDoS attack events of all types are queried.', example='web-cc'),
   pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **10**. Valid values: 5, 10, and 20.', example='10'),
   startTime?: string(name='StartTime', example='2023-03-27T16:00:00Z'),
 }
 
@@ -15285,12 +15340,17 @@ async function putDcdnKvNamespace(request: PutDcdnKvNamespaceRequest): PutDcdnKv
 }
 
 model RefreshDcdnObjectCachesRequest {
-  force?: boolean(name='Force'),
+  force?: boolean(name='Force', example='false'),
   objectPath?: string(name='ObjectPath', description='The path of the objects that you want to refresh. Separate multiple URLs with line feed characters (\\n) or a pair of carriage return and line feed characters (\\r\\n).', example='example.com/example.txt'),
   objectType?: string(name='ObjectType', description='The refresh type. Valid values:
 
-*   **File**: URL
-*   **Directory**: directory', example='File'),
+*   **File** (default): refreshres resources based on URLs.
+*   **Directory**: refreshes resources based on directories.
+*   **Regex**: refreshes content based on regular expressions.
+*   **IgnoreParams**: removes the question mark (`?`) and parameters after `?` in a request URL and refreshes content. After you call this operation with the request URL submitted, the system compares the submitted URL with the URL of the cached resource without specific parameters. If the URLs match, the DCDN POPs refresh the cached resource.
+
+>*   For more information about features of URL refresh and directory refresh, see [Refresh and prefetch resources](~~64936~~).
+>*   If you set ObjectType to Directory, the resources in the directory that you want to refresh are marked as expired. You cannot delete the directory. If clients request resources after the resources on POPs are marked as expired, DCDN checks whether the resources on your origin server are updated with a later version. If a later version exists, DCDN retrieves the resources of the later version and returns the resources to the clients. Otherwise, DCDN retrieves the 304 status code from the origin server.', example='File'),
   ownerId?: long(name='OwnerId'),
   securityToken?: string(name='SecurityToken'),
 }
@@ -15307,16 +15367,15 @@ model RefreshDcdnObjectCachesResponse = {
 }
 
 /**
-  * #
   * *   DCDN supports POST requests in which parameters are sent as a form.
   * *   You can call the [RefreshDcdnObjectCaches](~~130620~~) operation to refresh content and call the [PreloadDcdnObjectCaches](~~130636~~) operation to prefetch content.
   * *   By default, each Alibaba Cloud account can refresh content from a maximum of 10,000 URLs and 100 directories per day, including subdirectories. If the daily peak bandwidth value exceeds 200 Mbit/s, you can [submit a ticket](https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A//ticket-intl.console.aliyun.com/%23/ticket/createIndex) to request a quota increase. DCDN evaluates your application based on your workloads.
   * *   You can specify up to 1,000 URLs or 100 directories that you want to refresh in each request.
-  * *   You can refresh up to 1,000 URLs per minute for each domain name.
+  * *   You can refresh a maximum of 1,000 URLs per minute for each domain name.
   * *   You can call this operation up to 30 times per second per account.
-  * # Precautions
-  * *   After a refresh task is submitted and completed, your resources that are stored on DCDN POPs are removed. When a POP receives a request to your resources, the request is redirected to the origin server to retrieve the resources. Then, the resources are returned to the client and cached on the POP. If you frequently run refresh tasks, more requests will be redirected back to the origin server for resources, which result in high bandwidth costs and undue pressure on the origin server.
-  * *   A refresh task takes effect 5 to 6 minutes after being submitted. This means that if the resource you want to refresh has a TTL of less than five minutes, you wait for it to expire instead of manually running a refresh task.
+  * #### [](#)Precautions
+  * *   After a refresh task is submitted and completed, your resources that are stored on DCDN POPs are removed. When a POP receives a request to your resources, the request is redirected to the origin server to retrieve the resources. Then, the resources are returned to the client and cached on the POP. If you frequently run refresh tasks, more requests will be redirected to the origin server for resources, which result in high bandwidth costs and undue pressure on the origin server.
+  * *   A refresh task takes effect 5 to 6 minutes after being submitted. This means that if the resource you want to refresh has a TTL of less than 5 minutes, you wait for it to expire instead of manually running a refresh task.
   * *   If you want to use RAM users to refresh or prefetch resources, you need to obtain the required permissions. For more information, see [Authorize a RAM user to prefetch and refresh resources](~~445051~~).
   *
   * @param request RefreshDcdnObjectCachesRequest
@@ -15359,16 +15418,15 @@ async function refreshDcdnObjectCachesWithOptions(request: RefreshDcdnObjectCach
 }
 
 /**
-  * #
   * *   DCDN supports POST requests in which parameters are sent as a form.
   * *   You can call the [RefreshDcdnObjectCaches](~~130620~~) operation to refresh content and call the [PreloadDcdnObjectCaches](~~130636~~) operation to prefetch content.
   * *   By default, each Alibaba Cloud account can refresh content from a maximum of 10,000 URLs and 100 directories per day, including subdirectories. If the daily peak bandwidth value exceeds 200 Mbit/s, you can [submit a ticket](https://account.alibabacloud.com/login/login.htm?oauth_callback=https%3A//ticket-intl.console.aliyun.com/%23/ticket/createIndex) to request a quota increase. DCDN evaluates your application based on your workloads.
   * *   You can specify up to 1,000 URLs or 100 directories that you want to refresh in each request.
-  * *   You can refresh up to 1,000 URLs per minute for each domain name.
+  * *   You can refresh a maximum of 1,000 URLs per minute for each domain name.
   * *   You can call this operation up to 30 times per second per account.
-  * # Precautions
-  * *   After a refresh task is submitted and completed, your resources that are stored on DCDN POPs are removed. When a POP receives a request to your resources, the request is redirected to the origin server to retrieve the resources. Then, the resources are returned to the client and cached on the POP. If you frequently run refresh tasks, more requests will be redirected back to the origin server for resources, which result in high bandwidth costs and undue pressure on the origin server.
-  * *   A refresh task takes effect 5 to 6 minutes after being submitted. This means that if the resource you want to refresh has a TTL of less than five minutes, you wait for it to expire instead of manually running a refresh task.
+  * #### [](#)Precautions
+  * *   After a refresh task is submitted and completed, your resources that are stored on DCDN POPs are removed. When a POP receives a request to your resources, the request is redirected to the origin server to retrieve the resources. Then, the resources are returned to the client and cached on the POP. If you frequently run refresh tasks, more requests will be redirected to the origin server for resources, which result in high bandwidth costs and undue pressure on the origin server.
+  * *   A refresh task takes effect 5 to 6 minutes after being submitted. This means that if the resource you want to refresh has a TTL of less than 5 minutes, you wait for it to expire instead of manually running a refresh task.
   * *   If you want to use RAM users to refresh or prefetch resources, you need to obtain the required permissions. For more information, see [Authorize a RAM user to prefetch and refresh resources](~~445051~~).
   *
   * @param request RefreshDcdnObjectCachesRequest
