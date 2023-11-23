@@ -180,8 +180,8 @@ model CreateQuotaApplicationResponseBody = {
   expireTime?: string(name='ExpireTime', description='The time when the new quota expires.', example='2021-01-20T09:25:56Z'),
   noticeType?: long(name='NoticeType', description='Indicates whether Quota Center sends a notification about the application result. Valid values:
 
-*   0: Quota Center sends a notification.
-*   3: Quota Center does not send a notification.', example='3'),
+*   0: Quota Center does not send a notification.
+*   3: Quota Center sends a notification.', example='3'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs-spec'),
   quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='ecs.c5.large'),
   quotaArn?: string(name='QuotaArn', description='The Alibaba Cloud Resource Name (ARN) of the quota.', example='acs:quotas:cn-hangzhou:*:quota/ecs/ecs.m2.medium/prepaid/classic/instancetype/cn-hangzhou-b'),
@@ -276,28 +276,62 @@ async function createQuotaApplication(request: CreateQuotaApplicationRequest): C
 }
 
 model CreateQuotaApplicationsForTemplateRequest {
-  aliyunUids?: [ string ](name='AliyunUids'),
-  desireValue?: double(name='DesireValue', example='12'),
+  aliyunUids?: [ string ](name='AliyunUids', description='The Alibaba Cloud accounts for which the quotas are applied.
+
+>  For more information about the members of a resource directory, see [Query all the members in a resource directory](~~604207~~).'),
+  desireValue?: double(name='DesireValue', description='The requested value of the quota.
+
+>  Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, you must specify a reasonable quota value and detailed reasons when you submit the application.', example='12'),
   dimensions?: [ 
     {
-      key?: string(name='Key', example='regionId'),
-      value?: string(name='Value', example='cn-hangzhou'),
+      key?: string(name='Key', description='The key of the quota dimension.
+
+The value range of N varies based on the number of dimensions that are supported by the Alibaba Cloud service.
+
+>  This parameter is required if you set the ProductCode parameter to ecs, ecs-spec, actiontrail, or ess.', example='regionId'),
+      value?: string(name='Value', description='The value of the quota dimension.
+
+>  The value range of N varies based on the number of dimensions that are supported by the Alibaba Cloud service.', example='cn-hangzhou'),
     }
-  ](name='Dimensions'),
-  effectiveTime?: string(name='EffectiveTime', example='2021-01-19T09:25:56Z'),
-  envLanguage?: string(name='EnvLanguage', example='zh'),
-  expireTime?: string(name='ExpireTime', example='2021-01-20T09:25:56Z'),
-  noticeType?: int32(name='NoticeType', example='0'),
-  productCode?: string(name='ProductCode', example='ecs-spec'),
-  quotaActionCode?: string(name='QuotaActionCode', example='ecs.g5.2xlarge'),
-  quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
-  reason?: string(name='Reason'),
+  ](name='Dimensions', description='The quota dimensions.'),
+  effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
+
+>  If you do not specify a start time, the value is the time when the quota application is submitted.', example='2021-01-19T09:25:56Z'),
+  envLanguage?: string(name='EnvLanguage', description='The language of the notification about the application result. Valid values:
+
+*   zh (default): Chinese
+*   en: English', example='zh'),
+  expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
+
+>  If you do not specify an end time, the value is 99 years after the start time of the validity period.', example='2021-01-20T09:25:56Z'),
+  noticeType?: int32(name='NoticeType', description='Specifies whether to send a notification about the application result. Valid values:
+
+*   0 (default): no
+*   3: yes', example='0'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+
+>  For more information, see [Alibaba Cloud services that support Quota Center](~~182368~~).', example='ecs-spec'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge'),
+  quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
+
+*   CommonQuota (default): general quota
+*   FlowControl: API rate limit
+*   WhiteListLabel: privilege', example='CommonQuota'),
+  reason?: string(name='Reason', description='The reason for the quota application.
+
+>  Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, you must specify a reasonable quota value and detailed reasons when you submit the application.', example='Scale Out'),
 }
 
 model CreateQuotaApplicationsForTemplateResponseBody = {
-  aliyunUids?: [ string ](name='AliyunUids'),
-  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', example='d314d6ae-867d-484c-9009-3d421a80****'),
-  requestId?: string(name='RequestId', example='8FF8CAF0-29D9-4F11-B6A4-FD2CBCA016D3'),
+  aliyunUids?: [ string ](name='AliyunUids', description='The Alibaba Cloud accounts for which the quotas are applied.'),
+  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
+  failResults?: [ 
+    {
+      aliyunUid?: string(name='AliyunUid'),
+      reason?: string(name='Reason'),
+    }
+  ](name='FailResults'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8FF8CAF0-29D9-4F11-B6A4-FD2CBCA016D3'),
 }
 
 model CreateQuotaApplicationsForTemplateResponse = {
@@ -571,18 +605,12 @@ model GetProductQuotaRequest {
     {
       key?: string(name='Key', description='The key of the dimension.
 
-> 
-
-*   The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.
-
-*   If you call the operation to query the details of a quota that belongs to a cloud service that supports dimensions, you must configure this parameter. You must configure the `Dimensions.N.Key` and `Dimensions.N.Value` parameters at the same time. The following cloud services support dimensions: ECS whose service code is ecs, Enterprise Distributed Application Service (EDAS) whose service code is edas, ECS Quotas by Instance Type whose service code is ecs-spec, and Auto Scaling (ESS) whose service code is ess.', example='regionId'),
+>- The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.
+>- If you call the operation to query the details of a quota that belongs to a cloud service that supports dimensions, you must configure this parameter. You must configure the `Dimensions.N.Key` and `Dimensions.N.Value` parameters at the same time. The following cloud services support dimensions: ECS whose service code is ecs, Enterprise Distributed Application Service (EDAS) whose service code is edas, ECS Quotas by Instance Type whose service code is ecs-spec, and Auto Scaling (ESS) whose service code is ess.', example='regionId'),
       value?: string(name='Value', description='The value of the dimension.
 
-> 
-
-*   The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.
-
-*   If you call the operation to query the details of a quota that belongs to a cloud service that supports dimensions, you must configure this parameter. You must configure the `Dimensions.N.Key` and `Dimensions.N.Value` parameters at the same time. The following cloud services support dimensions: ECS whose service code is ecs, EDAS whose service code is edas, ECS Quotas by Instance Type whose service code is ecs-spec, and ESS whose service code is ess.', example='cn-hangzhou'),
+> - The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.
+> - If you call the operation to query the details of a quota that belongs to a cloud service that supports dimensions, you must configure this parameter. You must configure the `Dimensions.N.Key` and `Dimensions.N.Value` parameters at the same time. The following cloud services support dimensions: ECS whose service code is ecs, EDAS whose service code is edas, ECS Quotas by Instance Type whose service code is ecs-spec, and ESS whose service code is ess.', example='cn-hangzhou'),
     }
   ](name='Dimensions', description='The quota dimensions.', example='{\\"regionId\\":\\"cn-beijing\\"}'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
@@ -602,7 +630,7 @@ model GetProductQuotaResponseBody = {
 
 *   continuous
 *   discontinuous', example='continuous'),
-    applyReasonTips?: string(name='ApplyReasonTips'),
+    applyReasonTips?: string(name='ApplyReasonTips', description='The reason for submitting a quota increase request.', example='The business xxx is expected to grow by 50%.'),
     consumable?: boolean(name='Consumable', description='Indicates whether the system shows the used value of the quota. Valid values:
 
 *   true
@@ -610,6 +638,10 @@ model GetProductQuotaResponseBody = {
     dimensions?: map[string]any(name='Dimensions', description='The quota dimension. Format: `{"regionId":"Region"}`.', example='{"regionId":"cn-hangzhou"}'),
     effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. Specify the value in UTC.', example='2022-09-28T06:06:00Z'),
     expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. Specify the value in UTC.', example='2022-09-29T06:06:00Z'),
+    globalQuota?: boolean(name='GlobalQuota', description='Indicates whether the quota is a global quota. Valid values:
+
+*   true: The quota is shared in all regions.
+*   false: The quota is independently used in a region.', example='true'),
     period?: {
       periodUnit?: string(name='PeriodUnit', description='The unit of the calculation cycle of the quota. Valid values:
 
@@ -632,15 +664,13 @@ model GetProductQuotaResponseBody = {
     quotaItems?: [ 
       {
         quota?: string(name='Quota', description='The value of the quota.', example='801'),
-        quotaUnit?: string(name='QuotaUnit', description='The unit of the new quota value.
+        quotaUnit?: string(name='QuotaUnit', description='The unit of the quota.
 
-**
-
-**The unit of each quota is unique.** For example, the quota whose ID is `q_cbdch3` represents the maximum number of ACK clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='Count'),
+>  The unit of each quota is unique. For example, the quota whose ID is `q_cbdch3` represents the maximum number of ACK clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='Count'),
         type?: string(name='Type', description='The category of the quota. Valid values:
 
-*   BaseQuota: base quota
-*   ReservedQuota: reserved quota', example='BaseQuota'),
+*   BaseQuota: base quota.
+*   ReservedQuota: reserved quota.', example='BaseQuota'),
         usage?: string(name='Usage', description='The used quota.', example='26'),
       }
     ](name='QuotaItems', description='The details of the quotas.'),
@@ -651,9 +681,7 @@ model GetProductQuotaResponseBody = {
 *   normal (default value)', example='normal'),
     quotaUnit?: string(name='QuotaUnit', description='The unit of the new quota value.
 
-**
-
-**The unit of each quota is unique.** For example, the quota whose ID is `q_cbdch3` represents the maximum number of Container Service for Kubernetes (ACK) clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='Count'),
+> The unit of each quota is unique.** For example, the quota whose ID is `q_cbdch3` represents the maximum number of Container Service for Kubernetes (ACK) clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='Count'),
     supportedRange?: [ float ](name='SupportedRange', description='The range of the quota value.'),
     totalQuota?: float(name='TotalQuota', description='The value of the quota.', example='801'),
     totalUsage?: float(name='TotalUsage', description='The used quota.', example='26'),
@@ -663,7 +691,7 @@ model GetProductQuotaResponseBody = {
 *   applicationProcess: The application is being processed.
 *   limitReached: The quota limit is reached.
 *   supportTicketRequired: The quota can be increased only by submitting a ticket.', example='limitReached'),
-  }(name='Quota', description='The details of the quotas.'),
+  }(name='Quota', description='The details of the quota.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='8FF8CAF0-29D9-4F11-B6A4-FD2CBCA016D3'),
 }
 
@@ -748,8 +776,8 @@ model GetProductQuotaDimensionResponseBody = {
 *   networkType: the network type.', example='regionId'),
     dimensionValueDetail?: [ 
       {
-        name?: string(name='Name', description='The name of the quota dimension value.', example='cn-hangzhou'),
-        value?: string(name='Value', description='The quota dimension value.', example='cn-hangzhou'),
+        name?: string(name='Name', description='The name of the quota dimension.', example='cn-hangzhou'),
+        value?: string(name='Value', description='The value of the quota dimension.', example='cn-hangzhou'),
       }
     ](name='DimensionValueDetail', description='The details of the quota dimension value.'),
     dimensionValues?: [ string ](name='DimensionValues', description='The values of the quota dimension.'),
@@ -824,9 +852,9 @@ model GetQuotaAlarmResponseBody = {
     alarmId?: string(name='AlarmId', description='The numeric value of the alert threshold.', example='78d7e436-4b25-4897-84b5-d7b656bb****'),
     alarmName?: string(name='AlarmName', description='security_groups', example='The alert contact.'),
     createTime?: string(name='CreateTime', description='The ID of the quota.', example='2021-01-21T03:47:28Z'),
-    notifyChannels?: [ string ](name='NotifyChannels'),
+    notifyChannels?: [ string ](name='NotifyChannels', description='The alert notification methods.'),
     notifyTarget?: string(name='NotifyTarget', description='The used quota.', example='accountContact'),
-    productCode?: string(name='ProductCode', example='ecs'),
+    productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
     quotaActionCode?: string(name='QuotaActionCode', description='The name of the quota alert.', example='q_security-groups'),
     quotaDimension?: map[string]any(name='QuotaDimension', description='The time when the quota alert was created.', example='{"regionId":"cn-hangzhou"}'),
     quotaUsage?: float(name='QuotaUsage', description='The value of the quota.', example='28'),
@@ -837,8 +865,8 @@ model GetQuotaAlarmResponseBody = {
 *   used: The alert is created for the used quota.
 *   usable: The alert is created for the available quota.', example='50'),
     thresholdType?: string(name='ThresholdType', description='The quota dimension.', example='used'),
-    webhook?: string(name='Webhook', example='https://alert.aliyun.com/callback'),
-  }(name='QuotaAlarm', description='The percentage of the alert threshold.'),
+    webhook?: string(name='Webhook', description='The webhook URL. Quota Center sends alert notifications to the specified URL by using HTTP POST requests.', example='https://alert.aliyun.com/callback'),
+  }(name='QuotaAlarm', description='The details of the quota alert rule.'),
   requestId?: string(name='RequestId', description='The details of the quota alert.', example='81B9D511-F3DD-43B1-9A81-1795DDB52ADF'),
 }
 
@@ -1040,16 +1068,16 @@ model ListAlarmHistoriesResponseBody = {
   alarmHistories?: [ 
     {
       alarmName?: string(name='AlarmName', description='The name of the quota alert.', example='security_groups'),
-      createTime?: string(name='CreateTime', description='The time when the quota alert was created.', example='2021-01-24T09:20:09Z'),
-      notifyChannels?: [ string ](name='NotifyChannels'),
-      notifyTarget?: string(name='NotifyTarget', description='The alert contact.', example='accountContact'),
+      createTime?: string(name='CreateTime', description='The time when the quota alert rule was created.', example='2021-01-24T09:20:09Z'),
+      notifyChannels?: [ string ](name='NotifyChannels', description='The notification methods of the quota alert.'),
+      notifyTarget?: string(name='NotifyTarget', description='The quota alert contact.', example='accountContact'),
       productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
-      quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_security-groups'),
+      quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='q_security-groups'),
       quotaUsage?: float(name='QuotaUsage', description='The used quota.', example='31'),
-      threshold?: float(name='Threshold', description='The numeric value of the alert threshold.', example='29'),
-      thresholdPercent?: float(name='ThresholdPercent', description='The percentage of the alert threshold.', example='80'),
+      threshold?: float(name='Threshold', description='The threshold to trigger quota alerts.', example='29'),
+      thresholdPercent?: float(name='ThresholdPercent', description='The percentage of the quota alert threshold.', example='80'),
     }
-  ](name='AlarmHistories', description='The details of the alert records.'),
+  ](name='AlarmHistories', description='The details of the quota alert records.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of records that are returned for the query.', example='4'),
   nextToken?: string(name='NextToken', description='The token that marks the position at which the query ends. An empty value indicates that all data is returned.', example='1'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='CB38DDF9-B1E0-48C1-9966-19C443C2841E'),
@@ -1117,9 +1145,9 @@ model ListDependentQuotasResponseBody = {
     {
       dimensions?: [ 
         {
-          dependentDimension?: [ string ](name='DependentDimension'),
+          dependentDimension?: [ string ](name='DependentDimension', description='The dimensions of the quotas on which the specified quota depends.'),
           dimensionKey?: string(name='DimensionKey', description='The key of the quota dimension.', example='regionId'),
-          dimensionValues?: [ string ](name='DimensionValues'),
+          dimensionValues?: [ string ](name='DimensionValues', description='The dimension values.'),
         }
       ](name='Dimensions', description='The dimensions of the quotas on which the specified quota depends.'),
       productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
@@ -1281,7 +1309,7 @@ model ListProductQuotaDimensionsResponseBody = {
   nextToken?: string(name='NextToken', description='The token that marks the position at which the query ends. An empty value indicates that all data is returned.', example='10'),
   quotaDimensions?: [ 
     {
-      dependentDimensions?: [ string ](name='DependentDimensions'),
+      dependentDimensions?: [ string ](name='DependentDimensions', description='The quota dimensions on which the quota dimension that you want to query is dependent.'),
       dimensionKey?: string(name='DimensionKey', description='The key of the quota dimension. Valid values:
 
 *   regionId: the region ID.
@@ -1290,18 +1318,18 @@ model ListProductQuotaDimensionsResponseBody = {
 *   networkType: the network type.', example='zoneId'),
       dimensionValueDetail?: [ 
         {
-          name?: string(name='Name', description='The name of the quota dimension value.', example='cn-hangzhou'),
-          value?: string(name='Value', description='The quota dimension value.', example='cn-hangzhou'),
+          name?: string(name='Name', description='The name of the quota dimension.', example='cn-hangzhou'),
+          value?: string(name='Value', description='The value of the quota dimension.', example='cn-hangzhou'),
         }
-      ](name='DimensionValueDetail', description='The details of the quota dimension value.'),
-      dimensionValues?: [ string ](name='DimensionValues'),
+      ](name='DimensionValueDetail', description='The details about the dimension value.'),
+      dimensionValues?: [ string ](name='DimensionValues', description='The dimension values.'),
       name?: string(name='Name', description='The name of the quota dimension.', example='Zone'),
       requisite?: boolean(name='Requisite', description='Indicates whether the quota dimension is required when you query quota dimensions. Valid values:
 
 *   true
 *   false', example='false'),
     }
-  ](name='QuotaDimensions', description='The information about quota dimensions.'),
+  ](name='QuotaDimensions', description='The quota dimensions.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='7ED584FB-ECBF-4A2A-969D-F54D25EFABF9'),
   totalCount?: int32(name='TotalCount', description='The total number of records that are returned for the query.', example='10'),
 }
@@ -1408,19 +1436,20 @@ model ListProductQuotasResponseBody = {
 
 *   true: The quota is adjustable.
 *   false: The quota is not adjustable.', example='true'),
-      applicableRange?: [ float ](name='ApplicableRange', description='None'),
+      applicableRange?: [ float ](name='ApplicableRange', description='None.'),
       applicableType?: string(name='ApplicableType', description='The type of the adjustable value. Valid values:
 
 *   continuous
 *   discontinuous', example='discontinuous'),
-      applyReasonTips?: string(name='ApplyReasonTips'),
+      applyReasonTips?: string(name='ApplyReasonTips', description='The reason for submitting a quota increase request.', example='The business xxx is expected to grow by 50%.'),
       consumable?: boolean(name='Consumable', description='Indicates whether the system shows the used value of the quota. Valid values:
 
 *   true: The system shows the used value of the quota.
 *   false: The system does not show the used value of the quota.', example='true'),
-      dimensions?: map[string]any(name='Dimensions', description='The quota dimension. Format: `{"regionId":"Region"}`.', example='{"regionId":"cn-hangzhou"}'),
-      effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. Specify the value in UTC.', example='2022-09-28T06:07:00Z'),
-      expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. Specify the value in UTC.', example='2022-09-29T06:07:00Z'),
+      dimensions?: map[string]any(name='Dimensions', description='The quota dimensions. Format: `{"regionId":"Region"}`.', example='{"regionId":"cn-hangzhou"}'),
+      effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. The value is displayed in UTC.', example='2022-09-28T06:07:00Z'),
+      expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. The value is displayed in UTC.', example='2022-09-29T06:07:00Z'),
+      globalQuota?: boolean(name='GlobalQuota', example='true'),
       period?: {
         periodUnit?: string(name='PeriodUnit', description='The unit of the calculation cycle. Valid values:
 
@@ -1432,49 +1461,45 @@ model ListProductQuotasResponseBody = {
         periodValue?: int32(name='PeriodValue', description='The value of the calculation cycle.', example='1'),
       }(name='Period', description='The calculation cycle of the quota.'),
       productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs-spec'),
-      quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='ecs.g5.2xlarge'),
+      quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge'),
       quotaArn?: string(name='QuotaArn', description='The Alibaba Cloud Resource Name (ARN) of the quota.', example='acs:quotas:cn-hangzhou:107992689699****:quota/ecs/ecs.g5.2xlarge/postpaid/vpc/cn-hangzhou/instancetype/cn-hangzhou-i'),
-      quotaCategory?: string(name='QuotaCategory', description='The type of the quota.
+      quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 *   CommonQuota: general quota
 *   FlowControl: API rate limit
-*   WhiteListLabel: whitelist quota', example='CommonQuota'),
+*   WhiteListLabel: privilege', example='CommonQuota'),
       quotaDescription?: string(name='QuotaDescription', description='The description of the quota.', example='ecs.g5.2xlarge'),
       quotaItems?: [ 
         {
-          quota?: string(name='Quota', description='The value of the quota.', example='10'),
-          quotaUnit?: string(name='QuotaUnit', description='The unit of the new quota value.
+          quota?: string(name='Quota', description='The quota value.', example='10'),
+          quotaUnit?: string(name='QuotaUnit', description='The unit of the quota.
 
-**
-
-**The unit of each quota is unique.** For example, the quota whose ID is `q_cbdch3` represents the maximum number of ACK clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='AMOUNT'),
+>  The unit of each quota is unique. For example, the quota whose ID is `q_cbdch3` represents the maximum number of Container Service for Kubernetes (ACK) clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='AMOUNT'),
           type?: string(name='Type', description='The category of the quota. Valid values:
 
 *   BaseQuota: base quota
 *   ReservedQuota: reserved quota', example='BaseQuota'),
-          usage?: string(name='Usage', description='The used quota.', example='1'),
+          usage?: string(name='Usage', description='The quota usage.', example='1'),
         }
-      ](name='QuotaItems', description='The details of the quotas.'),
-      quotaName?: string(name='QuotaName', description='The name of the quota.', example='ecs.g5.2xlarge'),
+      ](name='QuotaItems', description='The details of the quota.'),
+      quotaName?: string(name='QuotaName', description='The quota name.', example='ecs.g5.2xlarge'),
       quotaType?: string(name='QuotaType', description='The type of the quota. Valid values:
 
 *   privilege
 *   normal', example='privilege'),
-      quotaUnit?: string(name='QuotaUnit', description='The unit of the new quota value.
+      quotaUnit?: string(name='QuotaUnit', description='The unit of the quota.
 
-**
-
-**The unit of each quota is unique.** For example, the quota whose ID is `q_cbdch3` represents the maximum number of Container Service for Kubernetes (ACK) clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='AMOUNT'),
-      supportedRange?: [ float ](name='SupportedRange', description='None'),
-      totalQuota?: float(name='TotalQuota', description='The value of the quota.', example='200'),
-      totalUsage?: float(name='TotalUsage', description='The used quota.', example='1'),
+>  The unit of each quota is unique. For example, the quota whose ID is `q_cbdch3` represents the maximum number of Container Service for Kubernetes (ACK) clusters. The unit of this quota is clusters. The quota whose ID is `q_security-groups` represents the maximum number of security groups. The unit of this quota is security groups.', example='AMOUNT'),
+      supportedRange?: [ float ](name='SupportedRange', description='None.'),
+      totalQuota?: float(name='TotalQuota', description='The quota value.', example='200'),
+      totalUsage?: float(name='TotalUsage', description='The quota usage.', example='1'),
       unadjustableDetail?: string(name='UnadjustableDetail', description='The reason why the quota is not adjustable. Valid values:
 
 *   nonactivated: The service is not activated.
 *   applicationProcess: The application is being processed.
 *   limitReached: The quota limit is reached.', example='applicationProcess'),
     }
-  ](name='Quotas', description='The details of the quotas.'),
+  ](name='Quotas', description='The queried quotas.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='D0131FD5-5397-44FE-BF5A-4B7165B813CC'),
   totalCount?: int32(name='TotalCount', description='The total number of records that are returned for the query.', example='4'),
 }
@@ -1632,7 +1657,7 @@ async function listProducts(request: ListProductsRequest): ListProductsResponse 
 
 model ListQuotaAlarmsRequest {
   alarmName?: string(name='AlarmName', description='The name of the alert.', example='rules'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that you want to return for the query.
 
 Valid values: 1 to 200. Default value: 30.', example='20'),
   nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
@@ -1670,7 +1695,7 @@ model ListQuotaAlarmsResponseBody = {
 
 *   false
 *   true', example='false'),
-      notifyChannels?: [ string ](name='NotifyChannels'),
+      notifyChannels?: [ string ](name='NotifyChannels', description='The alert notification methods.'),
       notifyTarget?: string(name='NotifyTarget', description='The alert contact. The value is accountContact.', example='accountContact'),
       productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='config'),
       quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_hvnoqv'),
@@ -1773,7 +1798,7 @@ model ListQuotaApplicationTemplatesResponseBody = {
 > An empty value indicates that all data is returned.', example='1'),
   quotaApplicationTemplates?: [ 
     {
-      applicableRange?: [ float ](name='ApplicableRange', description='N/A'),
+      applicableRange?: [ float ](name='ApplicableRange', description='None'),
       applicableType?: string(name='ApplicableType', description='The type of the adjustable value. Valid values:
 
 *   continuous
@@ -1805,14 +1830,15 @@ Format: {"regionId":"Region"}.', example='{"regionId":"cn-hangzhou"}'),
       }(name='Period', description='The calculation cycle of the quota.'),
       productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
       quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_security-groups'),
-      quotaCategory?: string(name='QuotaCategory', description='The type of the quota.
+      quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 *   CommonQuota: general quota
+*   FlowControl: API rate limit
 *   WhiteListLabel: privilege', example='CommonQuota'),
       quotaDescription?: string(name='QuotaDescription', description='The description of the quota.', example='The maximum number of security groups that can be created by the current account.'),
       quotaName?: string(name='QuotaName', description='The name of the quota.', example='Maximum Number of Security Groups'),
     }
-  ](name='QuotaApplicationTemplates', description='The returned quota templates.'),
+  ](name='QuotaApplicationTemplates', description='The queried quota templates.'),
   requestId?: string(name='RequestId', description='The request ID.', example='D47B3A10-CDAC-5412-B2EE-EC9A3DBE9053'),
   totalCount?: int32(name='TotalCount', description='The total number of records returned for the query.', example='40'),
 }
@@ -2020,50 +2046,80 @@ async function listQuotaApplications(request: ListQuotaApplicationsRequest): Lis
 }
 
 model ListQuotaApplicationsDetailForTemplateRequest {
-  aliyunUid?: string(name='AliyunUid', example='135048337611****'),
-  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', example='d314d6ae-867d-484c-9009-3d421a80****'),
-  maxResults?: int32(name='MaxResults', example='30'),
-  nextToken?: string(name='NextToken', example='4'),
-  productCode?: string(name='ProductCode', example='ecs'),
-  quotaActionCode?: string(name='QuotaActionCode', example='ecs.c5.large'),
-  quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
-  status?: string(name='Status', example='Agree'),
+  aliyunUid?: string(name='AliyunUid', description='The Alibaba Cloud account that is used to submit the quota increase application.', example='135048337611****'),
+  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
+
+Valid values: 1 to 100. Default value: 30.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
+
+>  An empty value indicates that the query starts from the beginning.', example='4'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+
+>  For more information, see [Alibaba Cloud services that support Quota Center](~~182368~~).', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.c5.large'),
+  quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
+
+*   CommonQuota: general quota
+*   FlowControl: API rate limit
+*   WhiteListLabel: privilege', example='CommonQuota'),
+  status?: string(name='Status', description='The approval status of the quota increase application. Valid values:
+
+*   Disagree: The application is rejected.
+*   Agree: The application is approved.
+*   Process: The application is pending approval.
+*   Cancel: The application is canceled.', example='Agree'),
 }
 
 model ListQuotaApplicationsDetailForTemplateResponseBody = {
-  maxResults?: int32(name='MaxResults', example='30'),
-  nextToken?: string(name='NextToken', example='1'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.', example='1'),
   quotaApplications?: [ 
     {
-      aliyunUid?: string(name='AliyunUid', example='175376458581****'),
-      applicationId?: string(name='ApplicationId', example='b926571d-cc09-4711-b547-58a615f0****'),
-      applyTime?: string(name='ApplyTime', example='2021-01-15T09:13:53Z'),
-      approveValue?: double(name='ApproveValue', example='101'),
-      auditReason?: string(name='AuditReason'),
-      batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', example='d314d6ae-867d-484c-9009-3d421a80****'),
-      desireValue?: double(name='DesireValue', example='60'),
-      effectiveTime?: string(name='EffectiveTime', example='2021-01-15T11:46:25Z'),
-      envLanguage?: string(name='EnvLanguage', example='zh'),
-      expireTime?: string(name='ExpireTime', example='2021-01-17T11:46:25Z'),
-      noticeType?: int32(name='NoticeType', example='3'),
+      aliyunUid?: string(name='AliyunUid', description='The ID of the Alibaba Cloud account.', example='175376458581****'),
+      applicationId?: string(name='ApplicationId', description='The ID of the quota increase application.', example='b926571d-cc09-4711-b547-58a615f0****'),
+      applyTime?: string(name='ApplyTime', description='The time when the quota increase application was submitted. The value is displayed in UTC.', example='2021-01-15T09:13:53Z'),
+      approveValue?: double(name='ApproveValue', description='The quota value that is approved.', example='101'),
+      auditReason?: string(name='AuditReason', description='The approval result of the quota increase application.', example='Agree'),
+      batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
+      desireValue?: double(name='DesireValue', description='The requested value of the quota.', example='60'),
+      effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. The value is displayed in UTC.', example='2021-01-15T11:46:25Z'),
+      envLanguage?: string(name='EnvLanguage', description='The language of the quota alert notification. Valid values:
+
+*   zh: Chinese
+*   en: English', example='zh'),
+      expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. The value is displayed in UTC.', example='2021-01-17T11:46:25Z'),
+      noticeType?: int32(name='NoticeType', description='Indicates whether Quota Center sends a notification about the application result. Valid values:
+
+*   0: no
+*   3: yes', example='3'),
       period?: {
-        periodUnit?: string(name='PeriodUnit', example='second'),
-        periodValue?: int32(name='PeriodValue', example='1'),
-      }(name='Period'),
-      productCode?: string(name='ProductCode', example='ecs'),
-      quotaActionCode?: string(name='QuotaActionCode', example='ecs.n1.large'),
-      quotaArn?: string(name='QuotaArn', example='acs:quotas:*:120886317861****:quota/csk/q_i5uzm3'),
-      quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
-      quotaDescription?: string(name='QuotaDescription'),
-      quotaDimension?: map[string]string(name='QuotaDimension'),
-      quotaName?: string(name='QuotaName'),
-      quotaUnit?: string(name='QuotaUnit', example='GiB'),
-      reason?: string(name='Reason'),
-      status?: string(name='Status', example='Agree'),
+        periodUnit?: string(name='PeriodUnit', description='The unit of the calculation cycle of the quota.', example='second'),
+        periodValue?: int32(name='PeriodValue', description='The value of the calculation cycle of the quota.', example='1'),
+      }(name='Period', description='The calculation cycle of the quota.'),
+      productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='ecs'),
+      quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.n1.large'),
+      quotaArn?: string(name='QuotaArn', description='The Alibaba Cloud Resource Name (ARN) of the quota.', example='acs:quotas:*:120886317861****:quota/csk/q_i5uzm3'),
+      quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
+
+*   CommonQuota (default): general quota
+*   WhiteListLabel: privilege
+*   FlowControl: API rate limit', example='CommonQuota'),
+      quotaDescription?: string(name='QuotaDescription', description='The description of the quota.', example='The maximum number of nodes in a cluster'),
+      quotaDimension?: map[string]string(name='QuotaDimension', description='The quota dimensions.'),
+      quotaName?: string(name='QuotaName', description='The quota name.', example='Maximum Number of Nodes'),
+      quotaUnit?: string(name='QuotaUnit', description='The unit of the quota.', example='GiB'),
+      reason?: string(name='Reason', description='The reason for the quota increase application.', example='Business expansion'),
+      status?: string(name='Status', description='The approval status of the quota increase application. Valid values:
+
+*   Disagree: The application is rejected.
+*   Agree: The application is approved.
+*   Process: The application is pending approval.
+*   Cancel: The application is canceled.', example='Agree'),
     }
-  ](name='QuotaApplications'),
-  requestId?: string(name='RequestId', example='D47B3A10-CDAC-5412-B2EE-EC9A3DBE9053'),
-  totalCount?: int32(name='TotalCount', example='9'),
+  ](name='QuotaApplications', description='The details of the quota increase application.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D47B3A10-CDAC-5412-B2EE-EC9A3DBE9053'),
+  totalCount?: int32(name='TotalCount', description='The total number of records that are returned for the query.', example='9'),
 }
 
 model ListQuotaApplicationsDetailForTemplateResponse = {
@@ -2122,40 +2178,61 @@ async function listQuotaApplicationsDetailForTemplate(request: ListQuotaApplicat
 }
 
 model ListQuotaApplicationsForTemplateRequest {
-  applyEndTime?: string(name='ApplyEndTime', example='2023-05-22T16:00:00Z'),
-  applyStartTime?: string(name='ApplyStartTime', example='2023-05-22T16:00:00Z'),
-  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', example='d314d6ae-867d-484c-9009-3d421a80****'),
-  maxResults?: int32(name='MaxResults', example='30'),
-  nextToken?: string(name='NextToken', example='4'),
-  productCode?: string(name='ProductCode', example='ecs-spec'),
-  quotaActionCode?: string(name='QuotaActionCode', example='ecs.g5.2xlarge'),
-  quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
+  applyEndTime?: string(name='ApplyEndTime', description='The UTC time when the quota application ends.', example='2023-05-22T16:00:00Z'),
+  applyStartTime?: string(name='ApplyStartTime', description='The UTC time when the quota application starts.', example='2023-05-22T16:00:00Z'),
+  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request.
+
+Valid values: 1 to 100. Default value: 30.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
+
+>  An empty value indicates that the query starts from the beginning.', example='4'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+
+>  For more information, see [Alibaba Cloud services that support Quota Center](~~182368~~).', example='ecs-spec'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge'),
+  quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
+
+*   CommonQuota: general quota
+*   FlowControl: API rate limit
+*   WhiteListLabel: privilege', example='CommonQuota'),
 }
 
 model ListQuotaApplicationsForTemplateResponseBody = {
-  maxResults?: int32(name='MaxResults', example='30'),
-  nextToken?: string(name='NextToken', example='1'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.', example='1'),
   quotaBatchApplications?: [ 
     {
-      applyTime?: string(name='ApplyTime', example='2022-09-23T02:38:18Z'),
+      applyTime?: string(name='ApplyTime', description='The time when the quota increase application was submitted. The value is displayed in UTC.', example='2022-09-23T02:38:18Z'),
       auditStatusVos?: [ 
         {
-          count?: int32(name='Count', example='4'),
-          status?: string(name='Status', example='Agree'),
+          count?: int32(name='Count', description='The number of approval documents.', example='4'),
+          status?: string(name='Status', description='The approval status of the quota increase application. Valid values:
+
+*   Disagree: The application is rejected.
+*   Agree: The application is approved.
+*   Process: The application is pending approval.
+*   Cancel: The application is canceled.', example='Agree'),
         }
-      ](name='AuditStatusVos'),
-      batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', example='d314d6ae-867d-484c-9009-3d421a80****'),
-      desireValue?: double(name='DesireValue', example='105'),
-      dimensions?: map[string]any(name='Dimensions', example='{"regionId":"cn-hangzhou"}'),
-      effectiveTime?: string(name='EffectiveTime', example='2023-05-22T16:00:00Z'),
-      expireTime?: string(name='ExpireTime', example='2024-05-14T02:08:56Z'),
-      productCode?: string(name='ProductCode', example='vpc'),
-      quotaActionCode?: string(name='QuotaActionCode', example='q_fhoz4k'),
-      quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
+      ](name='AuditStatusVos', description='The number of applications in different approval states.'),
+      batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
+      desireValue?: double(name='DesireValue', description='The requested value of the quota.', example='105'),
+      dimensions?: map[string]any(name='Dimensions', description='The quota dimensions.
+
+Format: {"regionId":"cn-hangzhou"}.', example='{"regionId":"cn-hangzhou"}'),
+      effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. The value is displayed in UTC.', example='2023-05-22T16:00:00Z'),
+      expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. The value is displayed in UTC.', example='2024-05-14T02:08:56Z'),
+      productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='vpc'),
+      quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='q_fhoz4k'),
+      quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
+
+*   CommonQuota: general quota
+*   FlowControl: API rate limit
+*   WhiteListLabel: privilege', example='CommonQuota'),
     }
-  ](name='QuotaBatchApplications'),
-  requestId?: string(name='RequestId', example='D47B3A10-CDAC-5412-B2EE-EC9A3DBE9053'),
-  totalCount?: int32(name='TotalCount', example='67'),
+  ](name='QuotaBatchApplications', description='The queried quota application records.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D47B3A10-CDAC-5412-B2EE-EC9A3DBE9053'),
+  totalCount?: int32(name='TotalCount', description='The total number of records that are returned for the query.', example='67'),
 }
 
 model ListQuotaApplicationsForTemplateResponse = {
