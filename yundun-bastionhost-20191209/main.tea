@@ -948,6 +948,7 @@ model CreateHostRequest {
   instanceRegionId?: string(name='InstanceRegionId', description='The ID of the region to which the ECS instance or the host in an ApsaraDB MyBase dedicated cluster belongs.
 
 > This parameter is required if the **Source** parameter is set to **Ecs** or **Rds**.', example='cn-hangzhou'),
+  networkDomainId?: string(name='NetworkDomainId'),
   OSType?: string(name='OSType', description='The operating system of the host that you want to create. Valid values:
 
 *   **Linux**
@@ -999,6 +1000,9 @@ async function createHostWithOptions(request: CreateHostRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.instanceRegionId)) {
     query['InstanceRegionId'] = request.instanceRegionId;
+  }
+  if (!Util.isUnset(request.networkDomainId)) {
+    query['NetworkDomainId'] = request.networkDomainId;
   }
   if (!Util.isUnset(request.OSType)) {
     query['OSType'] = request.OSType;
@@ -1997,8 +2001,8 @@ model DescribeInstanceAttributeRequest {
 model DescribeInstanceAttributeResponseBody = {
   instanceAttribute?: {
     authorizedSecurityGroups?: [ string ](name='AuthorizedSecurityGroups'),
-    bandwidth?: string(name='Bandwidth'),
-    bandwidthPackage?: string(name='BandwidthPackage'),
+    bandwidth?: string(name='Bandwidth', description='The total bandwidth of the bastion host.', example='30'),
+    bandwidthPackage?: string(name='BandwidthPackage', description='The extra bandwidth plan of the bastion host.', example='5'),
     dbOperationModule?: string(name='DbOperationModule', example='Disable'),
     description?: string(name='Description'),
     eniInstanceId?: string(name='EniInstanceId', example='eni-bp1455jrzwm7moaxxxxx'),
@@ -2012,8 +2016,14 @@ model DescribeInstanceAttributeResponseBody = {
     networkProxyModule?: string(name='NetworkProxyModule', example='Enable'),
     ports?: [ 
       {
-        customPort?: int32(name='CustomPort', example='600xx'),
-        standardPort?: int32(name='StandardPort', example='60022'),
+        customPort?: int32(name='CustomPort', description='The custom port.
+
+>  You can change only the SSH and RDP ports. If O\\&M ports are not specified, the value of the StandardPort parameter is returned.', example='600xx'),
+        standardPort?: int32(name='StandardPort', description='The standard port of the bastion host. Valid values:
+
+*   **SSH**: 60022
+*   **RDP**: 63389
+*   **HTTPS**: 443', example='60022'),
       }
     ](name='Ports'),
     privateExportIps?: [ string ](name='PrivateExportIps'),
@@ -2030,7 +2040,7 @@ model DescribeInstanceAttributeResponseBody = {
     vpcId?: string(name='VpcId', example='vpc-bp1c85tzgqu1bf5bxxxxx'),
     vswitchId?: string(name='VswitchId', example='vsw-bp1xfwzzfti0kjbfxxxxx'),
     webTerminalModule?: string(name='WebTerminalModule', example='Enable'),
-  }(name='InstanceAttribute'),
+  }(name='InstanceAttribute', description='The attribute information about the bastion host.'),
   requestId?: string(name='RequestId', example='082FAB35-6AB9-4FD5-8750-D36673548E76'),
 }
 
@@ -2727,13 +2737,15 @@ async function disableInstancePublicAccess(request: DisableInstancePublicAccessR
 }
 
 model EnableInstancePublicAccessRequest {
-  instanceId?: string(name='InstanceId', description='The operation that you want to perform. Set the value to **EnableInstancePublicAccess**.', example='bastionhost-cn-78v1gh****'),
-  regionId?: string(name='RegionId', description='The ID of the bastion host whose Internet access is enabled.', example='cn-hangzhou'),
+  instanceId?: string(name='InstanceId', description='The ID of the bastion host.
+
+>  You can call the [DescribeInstances](~~153281~~) operation to query the ID of the bastion host.', example='bastionhost-cn-78v1gh****'),
+  regionId?: string(name='RegionId', description='The region ID of the bastion host.', example='cn-hangzhou'),
 }
 
 model EnableInstancePublicAccessResponseBody = {
-  instanceId?: string(name='InstanceId', example='bastionhost-cn-78v1gh****'),
-  requestId?: string(name='RequestId', example='D47B5043-FDD6-4FBE-976E-5FC67A23578F'),
+  instanceId?: string(name='InstanceId', description='The ID of the bastion host whose Internet access is enabled.', example='bastionhost-cn-78v1gh****'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='D47B5043-FDD6-4FBE-976E-5FC67A23578F'),
 }
 
 model EnableInstancePublicAccessResponse = {
@@ -2800,6 +2812,7 @@ model GetHostResponseBody = {
 - **Normal**: The host is normal.
 
 - **Release**: The host is released.', example='1.1.XX.XX'),
+    networkDomainId?: string(name='NetworkDomainId'),
     OSType?: string(name='OSType', description='The operating system of the host. Valid values:
 
 *   **Linux**
@@ -5265,6 +5278,7 @@ model ModifyHostRequest {
   instanceId?: string(name='InstanceId', description='You can call this operation to modify the basic information of an on-premises host, an Elastic Compute Service (ECS) instance, or a host in a dedicated cluster.
 
 >  The basic information of ECS instances and hosts in dedicated clusters within your Alibaba Cloud account is synchronized to Bastionhost on a regular basis. After you modify the basic information of an ECS instance or a host in a dedicated cluster, the modification result may be overwritten by the synchronized information.', example='bastionhost-cn-st220aw****'),
+  networkDomainId?: string(name='NetworkDomainId'),
   OSType?: string(name='OSType', description='The ID of the host.
 
 >  You can call the [ListHosts](~~200665~~) operation to query the ID of the host.', example='Linux'),
@@ -5311,6 +5325,9 @@ async function modifyHostWithOptions(request: ModifyHostRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.networkDomainId)) {
+    query['NetworkDomainId'] = request.networkDomainId;
   }
   if (!Util.isUnset(request.OSType)) {
     query['OSType'] = request.OSType;
@@ -5553,25 +5570,36 @@ async function modifyHostShareKey(request: ModifyHostShareKeyRequest): ModifyHos
 }
 
 model ModifyHostsActiveAddressTypeRequest {
-  activeAddressType?: string(name='ActiveAddressType', example='Private'),
-  hostIds?: string(name='HostIds', description='All Alibaba Cloud API operations must include common request parameters. For more information about common request parameters, see [Common parameters](~~148139~~).
+  activeAddressType?: string(name='ActiveAddressType', description='The new portal type of the host. Valid values:
 
-For more information about sample requests, see the "Examples" section of this topic.', example='["1","2"]'),
-  instanceId?: string(name='InstanceId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='bastionhost-cn-st220aw***'),
-  regionId?: string(name='RegionId', description='The operation that you want to perform.
+*   **Public**: public portal
+*   **Private**: internal portal', example='Private'),
+  hostIds?: string(name='HostIds', description='The ID of the host for which you want to change the portal type. The value is a JSON string. You can add up to 100 host IDs.
 
-Set the value to **ModifyHostsActiveAddressType**.', example='cn-hangzhou'),
+>  You can call the [ListHosts](~~200665~~) operation to query the ID of the host.', example='["1","2"]'),
+  instanceId?: string(name='InstanceId', description='The ID of the bastion host for which you want to change the portal type of the host.
+
+>  You can call the [DescribeInstances](~~153281~~) operation to query the ID of the bastion host.', example='bastionhost-cn-st220aw***'),
+  regionId?: string(name='RegionId', description='The region ID of the bastion host for which you want to change the portal type of the host.
+
+>  For more information about the mapping between region IDs and region names, see [Regions and zones](~~40654~~).', example='cn-hangzhou'),
 }
 
 model ModifyHostsActiveAddressTypeResponseBody = {
-  requestId?: string(name='RequestId', example='EC9BF0F4-8983-491A-BC8C-1B4DD94976DE'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='EC9BF0F4-8983-491A-BC8C-1B4DD94976DE'),
   results?: [ 
     {
-      code?: string(name='Code', example='OK'),
-      hostId?: string(name='HostId', example='1'),
-      message?: string(name='Message'),
+      code?: string(name='Code', description='The return code that indicates whether the call was successful. Valid values:
+
+*   **OK**: The call was successful.
+*   **UNEXPECTED**: An unknown error occurred.
+*   **INVALID_ARGUMENT**: A request parameter is invalid.
+*   **OBJECT_NOT_FOUND**: The specified object on which you want to perform the operation does not exist.
+*   **OBJECT_AlREADY_EXISTS**: The specified object on which you want to perform the operation already exists.', example='OK'),
+      hostId?: string(name='HostId', description='The ID of the host.', example='1'),
+      message?: string(name='Message', description='This parameter is deprecated.'),
     }
-  ](name='Results'),
+  ](name='Results', description='The result of the call.'),
 }
 
 model ModifyHostsActiveAddressTypeResponse = {
