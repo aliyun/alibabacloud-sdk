@@ -155,7 +155,7 @@ When DiskCategory is set to local_hdd_pro, you can set this parameter to the fol
 
 > This parameter is available and required when the PayType parameter is set to **PREPAY**.', example='Month', position='Query'),
   primaryVSwitchId?: string(name='PrimaryVSwitchId', description='The ID of the vSwitch that is specified for the secondary zone of the instance. The vSwitch must be deployed in the zone specified by the StandbyZoneId parameter. **This parameter is required if you want to create a multi-zone instance**.', example='vsw-uf6fdqa7c0pipnqzq****', position='Query'),
-  primaryZoneId?: string(name='PrimaryZoneId', description='多可用区实例，主可用区的可用区ID。**如果需要创建多可用区实例，该参数必填。**', example='cn-shanghai-e', position='Query'),
+  primaryZoneId?: string(name='PrimaryZoneId', example='cn-shanghai-e', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance. You can call the [DescribeRegions](~~426062~~) operation to query the region in which you can create the instance.', example='cn-shanghai', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Lindorm instance belongs.', example='rg-aek2i6weeb4nfii', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -205,7 +205,7 @@ model CreateLindormInstanceResponse = {
 }
 
 /**
-  * For more information about how to select the storage type and engine type when you create a Lindorm instance, see [Select engine types](~~181971~~) and [Select storage types](~~174643~~).
+  * You must select at least one engine when you create a Lindorm instance. For more information about how to select the storage type and engine type when you create a Lindorm instance, see [Select engine types](~~181971~~) and [Select storage types](~~174643~~).
   *
  */
 async function createLindormInstance(request: CreateLindormInstanceRequest): CreateLindormInstanceResponse {
@@ -216,7 +216,10 @@ async function createLindormInstance(request: CreateLindormInstanceRequest): Cre
 model DescribeRegionsRequest {
   regionId?: string(name='RegionId', position='Host'),
   zoneId?: string(name='ZoneId', position='Host'),
-  acceptLanguage?: string(name='AcceptLanguage', description='The ID of the region.', example='zh-CN', position='Query'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The display language of the regions in the returned results. Valid values:
+
+*   **zh-CN** (default): Chinese.
+*   **en-US**: English.', example='zh-CN', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -227,11 +230,11 @@ model DescribeRegionsRequest {
 model DescribeRegionsResponseBody = {
   regions?: [ 
     {
-      localName?: string(name='LocalName'),
-      regionEndpoint?: string(name='RegionEndpoint', description='Queries the regions where Lindorm is available.', example='hitsdb.aliyuncs.com'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
+      localName?: string(name='LocalName', description='The name of the region.'),
+      regionEndpoint?: string(name='RegionEndpoint', description='The endpoint for the region.', example='hitsdb.aliyuncs.com'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
     }
-  ](name='Regions', description='China (Hangzhou)'),
+  ](name='Regions', description='The regions supported by Lindorm.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='73F6E6DA-9AE5-5548-9E07-761A554DAF2E'),
 }
 
@@ -248,7 +251,7 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 
 model GetInstanceIpWhiteListRequest {
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The ID of the instance whose whitelist you want to query. You can call the [GetLindormInstanceList](~~426068~~) operation to query the instance ID.', example='ld-bp1z3506imz2f****', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the instance whose whitelists you want to query. You can call the [GetLindormInstanceList](~~426068~~) operation to obtain the instance ID.', example='ld-bp1z3506imz2f****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -259,8 +262,8 @@ model GetInstanceIpWhiteListRequest {
 model GetInstanceIpWhiteListResponseBody = {
   groupList?: [ 
     {
-      groupName?: string(name='GroupName'),
-      securityIpList?: string(name='SecurityIpList'),
+      groupName?: string(name='GroupName', example='test'),
+      securityIpList?: string(name='SecurityIpList', example='192.168.1.0/24'),
     }
   ](name='GroupList'),
   instanceId?: string(name='InstanceId', description='The ID of the Lindorm instance.', example='ld-bp1z3506imz2f****'),
@@ -361,27 +364,46 @@ model GetLindormInstanceRequest {
 }
 
 model GetLindormInstanceResponseBody = {
-  aliUid?: long(name='AliUid'),
+  aliUid?: long(name='AliUid', example='164901546557****'),
   arbiterVSwitchId?: string(name='ArbiterVSwitchId', example='vsw-uf6664pqjawb87k36****'),
   arbiterZoneId?: string(name='ArbiterZoneId', example='cn-shanghai-g'),
-  archVersion?: string(name='ArchVersion'),
+  archVersion?: string(name='ArchVersion', description='部署架构，取值：
+
+- **1.0**：单可用区。
+- **2.0**：多可用区。', example='1.0'),
   autoRenew?: boolean(name='AutoRenew', example='false'),
-  coldStorage?: int32(name='ColdStorage'),
-  coreDiskCategory?: string(name='CoreDiskCategory', example='cloud_efficiency'),
+  coldStorage?: int32(name='ColdStorage', description='The Capacity storage size of the instance.', example='0GB'),
+  coreDiskCategory?: string(name='CoreDiskCategory', description='The disk type of the core nodes. This parameter is returned only for multi-zone instances. Valid values:
+
+*   **cloud_efficiency**: This instance uses the Standard type of storage.
+*   **cloud_ssd**: This instance uses the Performance type of storage.
+*   **cloud_essd**: This instance uses ESSDs for storage.
+*   **cloud_essd_pl0**: This instance uses PL0 ESSDs for storage.', example='cloud_efficiency'),
   coreNum?: int32(name='CoreNum', example='4'),
   coreSingleStorage?: int32(name='CoreSingleStorage', example='400'),
   coreSpec?: string(name='CoreSpec', example='lindorm.g.xlarge'),
   createMilliseconds?: long(name='CreateMilliseconds', example='1627290664000'),
   createTime?: string(name='CreateTime', description='The storage capacity of the disk of a single log node. This parameter is returned only for multi-zone instances.', example='2021-07-26 17:10:26'),
   deletionProtection?: string(name='DeletionProtection', example='false'),
-  diskCategory?: string(name='DiskCategory', example='cloud_efficiency'),
+  diskCategory?: string(name='DiskCategory', description='The storage type of the instance. Valid values:
+
+*   **cloud_efficiency**: This instance uses the Standard type of storage.
+*   **cloud_ssd**: This instance uses the Performance type of storage.
+*   **cloud_essd**: This instance uses ESSDs for storage.
+*   **cloud_essd_pl0**: This instance uses PL0 ESSDs for storage.
+*   **capacity_cloud_storage**: This instance uses the Capacity type of storage.
+*   **local_ssd_pro**: This instance uses local SSDs for storage.
+*   **local_hdd_pro**: This instance uses local HDDs for storage.', example='cloud_efficiency'),
   diskThreshold?: string(name='DiskThreshold', example='80%'),
   diskUsage?: string(name='DiskUsage', example='0.0%'),
-  enableBlob?: boolean(name='EnableBlob'),
+  enableBlob?: boolean(name='EnableBlob', example='true'),
   enableCdc?: boolean(name='EnableCdc', example='false'),
   enableCompute?: boolean(name='EnableCompute', example='true'),
   enableKms?: boolean(name='EnableKms', example='false'),
-  enableLTS?: boolean(name='EnableLTS'),
+  enableLTS?: boolean(name='EnableLTS', description='实例是否开通LTS引擎，返回值：
+
+- **true**：开通LTS引擎。
+- **false**：未开通LTS引擎。', example='true'),
   enableLsqlVersionV3?: boolean(name='EnableLsqlVersionV3'),
   enableMLCtrl?: boolean(name='EnableMLCtrl'),
   enableSSL?: boolean(name='EnableSSL', example='false'),
@@ -394,20 +416,42 @@ model GetLindormInstanceResponseBody = {
       engine?: string(name='Engine', example='lindorm'),
       isLastVersion?: boolean(name='IsLastVersion', example='false'),
       latestVersion?: string(name='LatestVersion', example='2.2.19.2'),
-      memorySize?: string(name='MemorySize'),
+      memorySize?: string(name='MemorySize', example='8GB'),
       version?: string(name='Version', example='2.2.3'),
     }
-  ](name='EngineList'),
+  ](name='EngineList', description='The latest version number of the engine.'),
   engineType?: int32(name='EngineType', example='15'),
   expireTime?: string(name='ExpireTime', example='2021-08-27 00:00:00'),
   expiredMilliseconds?: long(name='ExpiredMilliseconds', example='1629993600000'),
   instanceAlias?: string(name='InstanceAlias', example='test0726'),
   instanceId?: string(name='InstanceId', example='ld-bp1o3y0yme2i2****'),
-  instanceStatus?: string(name='InstanceStatus', example='ACTIVATION'),
+  instanceStatus?: string(name='InstanceStatus', description='The status of the instance. Valid values:
+
+*   **CREATING**: The instance is being created.
+*   **ACTIVATION**: The instance is running.
+*   **COLD_EXPANDING**: The Capacity storage of the instance is being scaled up.
+*   **MINOR_VERSION_TRANSING**: The minor version of the instance is being updated.
+*   **RESIZING**: The nodes in the instance are being scaled up.
+*   **SHRINKING**: The nodes in the instance are being scaled down.
+*   **CLASS_CHANGING**: The specification of the instance is being changed.
+*   **SSL_SWITCHING: SSL**: The SSL configurations of the instance are being changed.
+*   **CDC_OPENING**: Data subscription is being enabled for the instance.
+*   **TRANSFER**: The data of the instance is being transferred.
+*   **DATABASE_TRANSFER**: The data of the instance is being transferred to databases.
+*   **GUARD_CREATING**: A disaster recovery instance is being created.
+*   **BACKUP_RECOVERING**: The data of the instance is being restored from a backup.
+*   **DATABASE_IMPORTING**: Data is being imported to the instance.
+*   **NET_MODIFYING**: The network configurations of the instance are being changed.
+*   **NET_SWITCHING**: The network of the instance is being switched between a virtual private cloud (VPC) and the Internet.
+*   **NET_CREATING**: The connection to the instance is being created.
+*   **NET_DELETING**: The connection to the instance is being deleted.
+*   **DELETING**: The instance is being deleted.
+*   **RESTARTING**: The instance is restarting.
+*   **LOCKED**: The instance is locked because it expires.', example='ACTIVATION'),
   instanceStorage?: string(name='InstanceStorage', example='480'),
   logDiskCategory?: string(name='LogDiskCategory', example='cloud_ssd'),
   logNum?: int32(name='LogNum', example='4'),
-  logSingleStorage?: int32(name='LogSingleStorage'),
+  logSingleStorage?: int32(name='LogSingleStorage', description='The storage capacity of the disk of a single log node. This parameter is returned only for multi-zone instances.', example='400GB'),
   logSpec?: string(name='LogSpec', example='lindorm.sn1.large'),
   maintainEndTime?: string(name='MaintainEndTime', example='20:00Z'),
   maintainStartTime?: string(name='MaintainStartTime', example='00:00Z'),
@@ -418,7 +462,7 @@ model GetLindormInstanceResponseBody = {
   primaryZoneId?: string(name='PrimaryZoneId', example='cn-shanghai-e'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   requestId?: string(name='RequestId', example='633F1BE4-C8DA-5744-8FDF-A3075C3FE37F'),
-  resourceGroupId?: string(name='ResourceGroupId'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2wvd6oia****'),
   serviceType?: string(name='ServiceType', example='lindorm'),
   standbyVSwitchId?: string(name='StandbyVSwitchId', example='vsw-2zec0kcn08cgdtr6****'),
   standbyZoneId?: string(name='StandbyZoneId', example='cn-shanghai-f'),
@@ -705,6 +749,32 @@ async function renewLindormInstance(request: RenewLindormInstanceRequest): Renew
   return @handler.do('RPC', 'RenewLindormInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model SwitchLSQLV3MySQLServiceRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  actionType: int32(name='ActionType', example='1', position='Query'),
+  instanceId: string(name='InstanceId', example='ld-bp1o3y0yme2i2****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model SwitchLSQLV3MySQLServiceResponseBody = {
+  requestId?: string(name='RequestId', example='1556DCB0-043A-4444-8BD9-CF4A68E7EE64'),
+}
+
+model SwitchLSQLV3MySQLServiceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: SwitchLSQLV3MySQLServiceResponseBody(name='body'),
+}
+
+async function switchLSQLV3MySQLService(request: SwitchLSQLV3MySQLServiceRequest): SwitchLSQLV3MySQLServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SwitchLSQLV3MySQLService', 'POST', '/', 'json', false, 'json', request);
+}
+
 model TagResourcesRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
@@ -780,16 +850,16 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 
 model UpdateInstanceIpWhiteListRequest {
   regionId?: string(name='RegionId', position='Host'),
-  delete?: boolean(name='Delete', position='Query'),
-  groupName?: string(name='GroupName', description='The name of the group to which the instance belongs. The group name can contain only letters, digits, and underscores (\\_).', example='test_group', position='Query'),
+  delete?: boolean(name='Delete', description='Specifies whether to clear all IP addresses and CIDR blocks in the whitelist.', example='false', position='Query'),
+  groupName?: string(name='GroupName', example='test_group', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance for which you want to configure a whitelist. You can call the [GetLindormInstanceList](~~426069~~) operation to obtain the ID.', example='ld-bp1z3506imz2f****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', minimum=1, maximum=9223372036854775807, position='Query'),
-  securityIpList: string(name='SecurityIpList', description='The IP addresses that you want to add to the whitelist. For example, if you add 192.168.0.0/24 to the whitelist, you can use all IP addresses within this CIDR block to access the Lindorm instance.
+  securityIpList: string(name='SecurityIpList', description='The IP addresses or CIDR blocks that you want to add to the whitelist.
 
-> If you add 127.0.0.1 to the whitelist, all IP addresses cannot be used to access the Lindorm instance. Separate multiple IP addresses or CIDR blocks with commas (,).', example='106.11.XX.XX/24', position='Query'),
+>  If you add 127.0.0.1 to the whitelist, all IP addresses cannot be used to access the Lindorm instance. If you add the CIDR block 192.168.0.0/24 to the whitelist, you can use all IP addresses in the CIDR block to access the Lindorm instance. Separate multiple IP addresses or CIDR blocks with commas (,).', example='106.11.XX.XX/24', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
 }
 
