@@ -61,6 +61,18 @@ model AlgorithmDefinition {
   updateTime?: string(name='UpdateTime', example='2023-05-31T10:19:40.572325888+08:00'),
 }
 
+model App {
+  appDescription?: string(name='AppDescription'),
+  appId?: string(name='AppId'),
+  appKey?: string(name='AppKey'),
+  appName?: string(name='AppName'),
+  appRegion?: long(name='AppRegion'),
+  appType?: long(name='AppType'),
+  englishName?: string(name='EnglishName'),
+  ownerId?: string(name='OwnerId'),
+  packageName?: string(name='PackageName'),
+}
+
 model AssumeRoleChain {
   chain?: [
     AssumeRoleChainNode
@@ -178,6 +190,7 @@ model CustomParams {
 model DataIngestion {
   actions?: [ 
     {
+      fastFailPolicy?: FastFailPolicy(name='FastFailPolicy'),
       name?: string(name='Name'),
       parameters?: [ string ](name='Parameters'),
     }
@@ -191,6 +204,7 @@ model DataIngestion {
     endpoint?: string(name='Endpoint'),
     topic?: string(name='Topic'),
   }(name='Notification'),
+  phase?: string(name='Phase', example='IncrementalScanning'),
   state?: string(name='State'),
   statistic?: {
     submitFailure?: long(name='SubmitFailure'),
@@ -215,6 +229,10 @@ model Dataset {
   templateId?: string(name='TemplateId'),
   totalFileSize?: long(name='TotalFileSize'),
   updateTime?: string(name='UpdateTime'),
+}
+
+model FastFailPolicy {
+  action?: string(name='Action', example='abort'),
 }
 
 model Figure {
@@ -431,8 +449,10 @@ model InputFile {
     }
   ](name='Figures'),
   fileHash?: string(name='FileHash'),
+  latLong?: string(name='LatLong'),
   mediaType?: string(name='MediaType'),
   OSSURI?: string(name='OSSURI'),
+  produceTime?: string(name='ProduceTime'),
   URI?: string(name='URI'),
 }
 
@@ -1068,6 +1088,7 @@ async function addStoryFiles(request: AddStoryFilesRequest): AddStoryFilesRespon
 }
 
 model AttachOSSBucketRequest {
+  description?: string(name='Description'),
   OSSBucket?: string(name='OSSBucket', example='examplebucket'),
   projectName?: string(name='ProjectName', example='immtest'),
 }
@@ -1085,6 +1106,9 @@ model AttachOSSBucketResponse = {
 async function attachOSSBucketWithOptions(request: AttachOSSBucketRequest, runtime: Util.RuntimeOptions): AttachOSSBucketResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
   if (!Util.isUnset(request.OSSBucket)) {
     query['OSSBucket'] = request.OSSBucket;
   }
@@ -1596,6 +1620,7 @@ async function createArchiveFileInspectionTask(request: CreateArchiveFileInspect
 model CreateBatchRequest {
   actions?: [ 
     {
+      fastFailPolicy?: FastFailPolicy(name='FastFailPolicy'),
       name?: string(name='Name', example='doc/convert'),
       parameters?: [ string ](name='Parameters'),
     }
@@ -2298,6 +2323,7 @@ model CreateFileCompressionTaskRequest {
   sources?: [ 
     {
       alias?: string(name='Alias', example='/new-dir/'),
+      mode?: string(name='Mode'),
       URI?: string(name='URI', example='oss://test-bucket/test-object'),
     }
   ](name='Sources'),
@@ -3559,6 +3585,7 @@ async function createStory(request: CreateStoryRequest): CreateStoryResponse {
 model CreateTriggerRequest {
   actions?: [ 
     {
+      fastFailPolicy?: FastFailPolicy(name='FastFailPolicy'),
       name?: string(name='Name', example='doc/convert'),
       parameters?: [ string ](name='Parameters'),
     }
@@ -4931,6 +4958,18 @@ model FuzzyQueryRequest {
   projectName?: string(name='ProjectName', example='test-project'),
   query?: string(name='Query'),
   sort?: string(name='Sort', example='Size,Filename'),
+  withFields?: [ string ](name='WithFields'),
+}
+
+model FuzzyQueryShrinkRequest {
+  datasetName?: string(name='DatasetName', example='test-dataset'),
+  maxResults?: long(name='MaxResults', example='1'),
+  nextToken?: string(name='NextToken', example='MTIzNDU2Nzg6aW1tdGVzdDpleGFtcGxlYnVja2V0OmRhdGFzZXQwMDE6b3NzOi8vZXhhbXBsZWJ1Y2tldC9zYW1wbGVvYmplY3QxLmpwZw=='),
+  order?: string(name='Order', example='asc,desc'),
+  projectName?: string(name='ProjectName', example='test-project'),
+  query?: string(name='Query'),
+  sort?: string(name='Sort', example='Size,Filename'),
+  withFieldsShrink?: string(name='WithFields'),
 }
 
 model FuzzyQueryResponseBody = {
@@ -4948,8 +4987,13 @@ model FuzzyQueryResponse = {
   body: FuzzyQueryResponseBody(name='body'),
 }
 
-async function fuzzyQueryWithOptions(request: FuzzyQueryRequest, runtime: Util.RuntimeOptions): FuzzyQueryResponse {
-  Util.validateModel(request);
+async function fuzzyQueryWithOptions(tmpReq: FuzzyQueryRequest, runtime: Util.RuntimeOptions): FuzzyQueryResponse {
+  Util.validateModel(tmpReq);
+  var request = new FuzzyQueryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.withFields)) {
+    request.withFieldsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.withFields, 'WithFields', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.datasetName)) {
     query['DatasetName'] = request.datasetName;
@@ -4971,6 +5015,9 @@ async function fuzzyQueryWithOptions(request: FuzzyQueryRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.sort)) {
     query['Sort'] = request.sort;
+  }
+  if (!Util.isUnset(request.withFieldsShrink)) {
+    query['WithFields'] = request.withFieldsShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -5474,8 +5521,11 @@ model GetOSSBucketAttachmentRequest {
 }
 
 model GetOSSBucketAttachmentResponseBody = {
+  createTime?: string(name='CreateTime'),
+  description?: string(name='Description'),
   projectName?: string(name='ProjectName', example='immtest'),
   requestId?: string(name='RequestId', example='5F74C5C9-5AC0-49F9-914D-E01589D3****'),
+  updateTime?: string(name='UpdateTime'),
 }
 
 model GetOSSBucketAttachmentResponse = {
@@ -7161,18 +7211,28 @@ async function searchImageFigureCluster(request: SearchImageFigureClusterRequest
 model SemanticQueryRequest {
   datasetName?: string(name='DatasetName', example='immDatatest'),
   maxResults?: int32(name='MaxResults', example='10'),
+  mediaTypes?: [ string ](name='MediaTypes'),
   nextToken?: string(name='NextToken', example='MTIzNDU2Nzg6aW1tdGVzdDpleGFtcGxlYnVja2V0OmRhdGFzZXQwMDE6b3NzOi8vZXhhbXBsZWJ1Y2tldC9zYW1wbGVvYmplY3QxLmpwZw=='),
   projectName?: string(name='ProjectName', example='immtest'),
   query?: string(name='Query'),
+  withFields?: [ string ](name='WithFields'),
+}
+
+model SemanticQueryShrinkRequest {
+  datasetName?: string(name='DatasetName', example='immDatatest'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  mediaTypesShrink?: string(name='MediaTypes'),
+  nextToken?: string(name='NextToken', example='MTIzNDU2Nzg6aW1tdGVzdDpleGFtcGxlYnVja2V0OmRhdGFzZXQwMDE6b3NzOi8vZXhhbXBsZWJ1Y2tldC9zYW1wbGVvYmplY3QxLmpwZw=='),
+  projectName?: string(name='ProjectName', example='immtest'),
+  query?: string(name='Query'),
+  withFieldsShrink?: string(name='WithFields'),
 }
 
 model SemanticQueryResponseBody = {
   files?: [
     File
   ](name='Files'),
-  nextToken?: string(name='NextToken', example='MTIzNDU2Nzg6aW1tdGVzdDpleGFtcGxlYnVja2V0OmRhdGFzZXQwMDE6b3NzOi8vZXhhbXBsZWJ1Y2tldC9zYW1wbGVvYmplY3QxLmpwZw=='),
   requestId?: string(name='RequestId', example='2C5C1E0F-D8B8-4DA0-8127-EC32C771****'),
-  totalHits?: long(name='TotalHits'),
 }
 
 model SemanticQueryResponse = {
@@ -7181,14 +7241,25 @@ model SemanticQueryResponse = {
   body: SemanticQueryResponseBody(name='body'),
 }
 
-async function semanticQueryWithOptions(request: SemanticQueryRequest, runtime: Util.RuntimeOptions): SemanticQueryResponse {
-  Util.validateModel(request);
+async function semanticQueryWithOptions(tmpReq: SemanticQueryRequest, runtime: Util.RuntimeOptions): SemanticQueryResponse {
+  Util.validateModel(tmpReq);
+  var request = new SemanticQueryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.mediaTypes)) {
+    request.mediaTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.mediaTypes, 'MediaTypes', 'json');
+  }
+  if (!Util.isUnset(tmpReq.withFields)) {
+    request.withFieldsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.withFields, 'WithFields', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.datasetName)) {
     query['DatasetName'] = request.datasetName;
   }
   if (!Util.isUnset(request.maxResults)) {
     query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.mediaTypesShrink)) {
+    query['MediaTypes'] = request.mediaTypesShrink;
   }
   if (!Util.isUnset(request.nextToken)) {
     query['NextToken'] = request.nextToken;
@@ -7198,6 +7269,9 @@ async function semanticQueryWithOptions(request: SemanticQueryRequest, runtime: 
   }
   if (!Util.isUnset(request.query)) {
     query['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.withFieldsShrink)) {
+    query['WithFields'] = request.withFieldsShrink;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -7236,6 +7310,7 @@ model SimpleQueryRequest {
   query?: SimpleQuery(name='Query'),
   sort?: string(name='Sort', example='Size,Filename'),
   withFields?: [ string ](name='WithFields'),
+  withoutTotalHits?: boolean(name='WithoutTotalHits'),
 }
 
 model SimpleQueryShrinkRequest {
@@ -7248,6 +7323,7 @@ model SimpleQueryShrinkRequest {
   queryShrink?: string(name='Query'),
   sort?: string(name='Sort', example='Size,Filename'),
   withFieldsShrink?: string(name='WithFields'),
+  withoutTotalHits?: boolean(name='WithoutTotalHits'),
 }
 
 model SimpleQueryResponseBody = {
@@ -7318,6 +7394,9 @@ async function simpleQueryWithOptions(tmpReq: SimpleQueryRequest, runtime: Util.
   }
   if (!Util.isUnset(request.withFieldsShrink)) {
     query['WithFields'] = request.withFieldsShrink;
+  }
+  if (!Util.isUnset(request.withoutTotalHits)) {
+    query['WithoutTotalHits'] = request.withoutTotalHits;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
