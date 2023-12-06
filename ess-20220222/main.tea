@@ -10378,6 +10378,52 @@ model ScaleWithAdjustmentRequest {
 *   Valid values if you set the AdjustmentType parameter to TotalCapacity: 0 to 2000.', example='100'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that the value is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-42665544****'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances allowed in each adjustment. This parameter takes effect only if you set the `AdjustmentType` parameter to `PercentChangeInCapacity`.', example='1'),
+  overrides?: {
+    containerOverrides?: [ 
+      {
+        args?: [ string ](name='Args'),
+        commands?: [ string ](name='Commands'),
+        cpu?: float(name='Cpu'),
+        environmentVars?: [ 
+          {
+            key?: string(name='Key'),
+            value?: string(name='Value'),
+          }
+        ](name='EnvironmentVars'),
+        memory?: float(name='Memory'),
+        name?: string(name='Name'),
+      }
+    ](name='ContainerOverrides'),
+    cpu?: float(name='Cpu'),
+    memory?: float(name='Memory'),
+  }(name='Overrides'),
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-j6c1o397427hyjdc****'),
+  syncActivity?: boolean(name='SyncActivity', description='Specifies whether to trigger the scaling activity in a synchronous manner. This parameter takes effect only on scaling groups for which you specified an expected number of instances. Valid values:
+
+*   true: triggers the scaling activity in a synchronous manner. The scaling activity is triggered at the time when the scaling rule is executed.
+*   false: does not trigger the scaling activity in a synchronous manner. After you change the expected number of instances for the scaling group, Auto Scaling checks whether the total number of instances in the scaling group matches the new expected number of instances and determines whether to trigger the scaling activity based on the check result.
+
+> For more information about the Expected Number of Instances feature, see [Expected number of instances](~~146231~~).
+
+Default value: false.', example='false'),
+}
+
+model ScaleWithAdjustmentShrinkRequest {
+  adjustmentType?: string(name='AdjustmentType', description='The type of the scaling policy. Valid values:
+
+*   QuantityChangeInCapacity: adds the specified number of ECS instances to or removes the specified number of ECS instances from the scaling group.
+*   PercentChangeInCapacity: adds the specified percentage of ECS instances to or removes the specified percentage of ECS instances from the scaling group.
+*   TotalCapacity: adjusts the number of ECS instances in the scaling group to a specified number.', example='QuantityChangeInCapacity'),
+  adjustmentValue?: int32(name='AdjustmentValue', description='The number of instances in each adjustment. The number of ECS instances in each adjustment cannot exceed 1,000.
+
+*   Valid values if you set the AdjustmentType parameter to QuantityChangeInCapacity: -1000 to 1000.
+*   Valid values if you set the AdjustmentType parameter to PercentChangeInCapacity: -100 to 10000.
+*   Valid values if you set the AdjustmentType parameter to TotalCapacity: 0 to 2000.', example='100'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that the value is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-42665544****'),
+  minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances allowed in each adjustment. This parameter takes effect only if you set the `AdjustmentType` parameter to `PercentChangeInCapacity`.', example='1'),
+  overridesShrink?: string(name='Overrides'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-j6c1o397427hyjdc****'),
@@ -10415,12 +10461,17 @@ model ScaleWithAdjustmentResponse = {
   * *   If the removal of a specified number of ECS instances from a scaling group causes the total number of ECS instances in the scaling group to drop below the minimum number of instances allowed, Auto Scaling removes only a specific number of ECS instances to ensure that the total number of instances is equal to the minimum number of instances.
   * A successful call indicates that Auto Scaling accepts the request. However, the scaling activity may still fail. You can obtain the status of a scaling activity by using the value of the `ScalingActivityId` parameter in the response.
   *
-  * @param request ScaleWithAdjustmentRequest
+  * @param tmpReq ScaleWithAdjustmentRequest
   * @param runtime runtime options for this request RuntimeOptions
   * @return ScaleWithAdjustmentResponse
  */
-async function scaleWithAdjustmentWithOptions(request: ScaleWithAdjustmentRequest, runtime: Util.RuntimeOptions): ScaleWithAdjustmentResponse {
-  Util.validateModel(request);
+async function scaleWithAdjustmentWithOptions(tmpReq: ScaleWithAdjustmentRequest, runtime: Util.RuntimeOptions): ScaleWithAdjustmentResponse {
+  Util.validateModel(tmpReq);
+  var request = new ScaleWithAdjustmentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.overrides)) {
+    request.overridesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.overrides, 'Overrides', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.adjustmentType)) {
     query['AdjustmentType'] = request.adjustmentType;
@@ -10433,6 +10484,9 @@ async function scaleWithAdjustmentWithOptions(request: ScaleWithAdjustmentReques
   }
   if (!Util.isUnset(request.minAdjustmentMagnitude)) {
     query['MinAdjustmentMagnitude'] = request.minAdjustmentMagnitude;
+  }
+  if (!Util.isUnset(request.overridesShrink)) {
+    query['Overrides'] = request.overridesShrink;
   }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
