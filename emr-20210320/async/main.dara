@@ -232,7 +232,6 @@ model Cluster {
   resourceGroupId?: string(name='ResourceGroupId', description='资源组ID。', example='rg-acfmzabjyop****'),
   securityMode?: string(name='SecurityMode', description='Kerberos安全模式。', example='NORMAL'),
   stateChangeReason?: ClusterStateChangeReason(name='StateChangeReason'),
-  status?: string(name='Status', description='集群状态，值同clusterState', example='RUNNING'),
   subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='预付费配置。'),
   tags?: [
     Tag
@@ -293,21 +292,13 @@ model ClusterSummary {
   releaseVersion?: string(name='ReleaseVersion', description='EMR发行版。', example='EMR-5.8.0'),
   resourceGroupId?: string(name='ResourceGroupId', description='资源组ID。', example='rg-acfmzabjyop****'),
   stateChangeReason?: ClusterStateChangeReason(name='StateChangeReason', description='失败原因。'),
-  status?: string(name='Status', description='集群状态。取值范围：
-- STARTING：启动中。
-- START_FAILED：启动失败。
-- BOOTSTRAPPING：引导操作初始化。
-- RUNNING：运行中。
-- TERMINATING：终止中。
-- TERMINATED：已终止。
-- TERMINATED_WITH_ERRORS：发生异常导致终止。
-- TERMINATE_FAILED：终止失败。', example='RUNNING'),
   tags?: [
     Tag
   ](name='Tags', description='标签列表。'),
 }
 
 model ComponentInstanceSelector {
+  actionScope?: string(name='ActionScope', deprecated='true'),
   applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
   componentInstances?: [ 
     {
@@ -323,7 +314,10 @@ model ComponentInstanceSelector {
     }
   ](name='Components', description='组件列表。
 actionScope为COPONENT时使用。'),
-  runActionScope?: string(name='RunActionScope', description='执行范围。'),
+  runActionScope: string(name='RunActionScope', description='动作执行范围。取值范围：
+- APPLICATION：应用级别。
+- COMPONENT：组件级别。
+- COMPONENT_INSTANCE：组件实例级别。', example='APPLICATION'),
 }
 
 model ComponentLayout {
@@ -562,6 +556,7 @@ model Node {
   autoRenew?: boolean(name='AutoRenew', description='节点是否自动续费。', example='false'),
   autoRenewDuration?: int32(name='AutoRenewDuration', description='节点自动续费时长。', example='1'),
   autoRenewDurationUnit?: string(name='AutoRenewDurationUnit', description='节点自动续费时长单位。', example='Month'),
+  createTime?: long(name='CreateTime'),
   expireTime?: long(name='ExpireTime', description='节点过期时间。', example='1603728394857'),
   instanceType?: string(name='InstanceType', description='实例类型。', example='ecs.g6e.xlarge'),
   maintenanceStatus?: string(name='MaintenanceStatus', description='运维模式状态。取值范围：
@@ -640,6 +635,7 @@ model NodeGroup {
 默认值：false。', example='true'),
   spotStrategy?: string(name='SpotStrategy', description='是否支持竞价实例。', example='NoSpot'),
   stateChangeReason?: NodeGroupStateChangeReason(name='StateChangeReason', description='状态变化原因。'),
+  status?: string(name='Status', description='节点组状态，NodeGroupState别名。', example='CREATED'),
   systemDisk?: SystemDisk(name='SystemDisk', description='系统盘信息。'),
   vSwitchIds?: [ string ](name='VSwitchIds', description='虚拟机交换机ID列表。', example='["vsw-hp35g7ya5ymw68mmg****"]'),
   withPublicIp?: boolean(name='WithPublicIp', description='是否开公网IP。取值范围：
@@ -1315,6 +1311,88 @@ async function deleteCluster(request: DeleteClusterRequest): DeleteClusterRespon
   return @handler.do('RPC', 'DeleteCluster', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetApmDataRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。非必传参数。', example='c-b933c5aac8fe****', position='Query'),
+  componentName: string(name='ComponentName', position='Query'),
+  language?: string(name='Language', position='Query'),
+  provider?: string(name='Provider', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定', position='Query'),
+}
+
+model GetApmDataResponseBody = {
+  data?: {
+    data?: string(name='Data'),
+    type?: string(name='Type'),
+  }(name='Data', description='Created on 2022/7/11 3:16 PM'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model GetApmDataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetApmDataResponseBody(name='body'),
+}
+
+async function getApmData(request: GetApmDataRequest): GetApmDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetApmData', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetApplicationRequest {
+  applicationName: string(name='ApplicationName', description='应用名称。', example='HDFS', position='Query'),
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+}
+
+model GetApplicationResponseBody = {
+  application?: {
+    actions?: [ 
+      {
+        actionName?: string(name='ActionName', description='操作名称。', example='START'),
+        actionParams?: [ 
+          {
+            description?: string(name='Description', description='动作参数描述。', example='start'),
+            key?: string(name='Key', description='动作参数KEY。'),
+            valueAttribute?: {
+              description?: string(name='Description', description='值表述。', example='描述'),
+              valueIncrementStep?: string(name='ValueIncrementStep', description='值步长。', example='2'),
+              valueMaximum?: string(name='ValueMaximum', description='最大值。', example='20'),
+              valueMinimum?: string(name='ValueMinimum', description='最小值。', example='1'),
+              valueType?: string(name='ValueType', description='属性值类型。', example='STRING'),
+              valueUnit?: string(name='ValueUnit', description='值单位。', example='number'),
+            }(name='ValueAttribute', description='动作参数属性。'),
+          }
+        ](name='ActionParams', description='操作参数。'),
+        command?: string(name='Command', description='命令。', example='START'),
+        componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
+        description?: string(name='Description', description='操作描述。', example='描述'),
+        runActionScope?: string(name='RunActionScope', description='执行范围。', example='CLUSTER'),
+      }
+    ](name='Actions', description='操作列表。'),
+    applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
+    applicationState?: string(name='ApplicationState', description='应用操作状态。'),
+    applicationVersion?: string(name='ApplicationVersion', description='应用版本。', example='2.8.5'),
+    communityVersion?: string(name='CommunityVersion', description='社区版本。', example='2.8.5'),
+  }(name='Application'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model GetApplicationResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: GetApplicationResponseBody(name='body'),
+}
+
+/**
+  * 查询应用详情。
+  *
+ */
+async function getApplication(request: GetApplicationRequest): GetApplicationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetApplication', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetAutoScalingActivityRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
@@ -1433,10 +1511,6 @@ model GetClusterResponse = {
   body: GetClusterResponseBody(name='body'),
 }
 
-/**
-  * 调用GetCluster获取集群详情。
-  *
- */
 async function getCluster(request: GetClusterRequest): GetClusterResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetCluster', 'POST', '/', 'json', false, 'json', request);
@@ -1509,77 +1583,83 @@ async function getDoctorApplication(request: GetDoctorApplicationRequest): GetDo
 }
 
 model GetDoctorComputeSummaryRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   componentInfo?: {
-    componentName?: string(name='ComponentName', example='MAPREDUCE'),
-    componentType?: string(name='ComponentType', example='engine'),
-  }(name='ComponentInfo', position='Query'),
-  dateTime: string(name='DateTime', example='2023-01-01', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+    componentName?: string(name='ComponentName', description='Set the filter condition name based on the value of ComponentType. For example, if you set ComponentType to queue, you can specify a specific queue name to obtain the resource usage of a specific queue.', example='MAPREDUCE'),
+    componentType?: string(name='ComponentType', description='The resource type for filtering. Valid values:
+
+*   engine: filters results by engine.
+*   queue: filters results by queue.
+*   cluster: displays the results at the cluster level.
+
+If you do not specify this parameter, the information at the cluster level is displayed by default.', example='engine'),
+  }(name='ComponentInfo', description='The resource information, which is used to filter the results.', position='Query'),
+  dateTime: string(name='DateTime', description='Specify the date in the ISO 8601 standard. For example, 2023-01-01 represents January 1, 2023.', example='2023-01-01', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model GetDoctorComputeSummaryResponseBody = {
   data?: {
     analysis?: {
-      healthyJobCount?: long(name='HealthyJobCount', example='3'),
-      needAttentionJobCount?: long(name='NeedAttentionJobCount', example='234'),
-      score?: int32(name='Score', example='73'),
-      scoreDayGrowthRatio?: float(name='ScoreDayGrowthRatio', example='0.02'),
-      subHealthyJobCount?: long(name='SubHealthyJobCount', example='1123'),
-      unhealthyJobCount?: long(name='UnhealthyJobCount', example='23'),
-    }(name='Analysis'),
+      healthyJobCount?: long(name='HealthyJobCount', description='The total number of healthy jobs.', example='3'),
+      needAttentionJobCount?: long(name='NeedAttentionJobCount', description='The total number of jobs that require attention.', example='234'),
+      score?: int32(name='Score', description='The score for jobs.', example='73'),
+      scoreDayGrowthRatio?: float(name='ScoreDayGrowthRatio', description='The day-to-day growth rate of the score for jobs.', example='0.02'),
+      subHealthyJobCount?: long(name='SubHealthyJobCount', description='The total number of sub-healthy jobs.', example='1123'),
+      unhealthyJobCount?: long(name='UnhealthyJobCount', description='The total number of unhealthy jobs.', example='23'),
+    }(name='Analysis', description='The resource analysis information.'),
     metrics?: {
       memSeconds?: {
-        description?: string(name='Description', example='Total memory usage over time in seconds'),
-        name?: string(name='Name', example='memSeconds'),
-        unit?: string(name='Unit', example='MB * Sec'),
-        value?: long(name='Value', example='12312312'),
-      }(name='MemSeconds'),
+        description?: string(name='Description', description='The description of the metric.', example='Total memory usage over time in seconds'),
+        name?: string(name='Name', description='The name of the metric.', example='memSeconds'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB * Sec'),
+        value?: long(name='Value', description='The value of the metric.', example='12312312'),
+      }(name='MemSeconds', description='The total memory consumption over time in seconds.'),
       memSecondsDayGrowthRatio?: {
-        description?: string(name='Description', example='Growth ratio of memory usage in seconds per day'),
-        name?: string(name='Name', example='memSecondsDayGrowthRatio'),
-        unit?: string(name='Unit', example='“”'),
-        value?: float(name='Value', example='0.36'),
-      }(name='MemSecondsDayGrowthRatio'),
+        description?: string(name='Description', description='The description of the metric.', example='Growth ratio of memory usage in seconds per day'),
+        name?: string(name='Name', description='The name of the metric.', example='memSecondsDayGrowthRatio'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+        value?: float(name='Value', description='The value of the metric.', example='0.36'),
+      }(name='MemSecondsDayGrowthRatio', description='The day-to-day growth rate of the total memory consumption over time in seconds.'),
       memUtilization?: {
-        description?: string(name='Description', example='Ratio of used memory to total available memory'),
-        name?: string(name='Name', example='memUtilization'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='0.82'),
-      }(name='MemUtilization'),
+        description?: string(name='Description', description='The description of the metric.', example='Ratio of used memory to total available memory'),
+        name?: string(name='Name', description='The name of the metric.', example='memUtilization'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='0.82'),
+      }(name='MemUtilization', description='The average memory usage.'),
       readSize?: {
-        description?: string(name='Description', example='Total cumulative size of data read in megabytes (MB)'),
-        name?: string(name='Name', example='readSize'),
-        unit?: string(name='Unit', example='MB'),
-        value?: long(name='Value', example='504888659968'),
-      }(name='ReadSize'),
+        description?: string(name='Description', description='The description of the metric.', example='Total cumulative size of data read in megabytes (MB)'),
+        name?: string(name='Name', description='The name of the metric.', example='readSize'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+        value?: long(name='Value', description='The value of the metric.', example='504888659968'),
+      }(name='ReadSize', description='The total amount of data read from the file system.'),
       vcoreSeconds?: {
-        description?: string(name='Description', example='Total vcore usage over time in seconds'),
-        name?: string(name='Name', example='vcoreSeconds'),
-        unit?: string(name='Unit', example='VCores * Sec'),
-        value?: long(name='Value', example='1231412'),
-      }(name='VcoreSeconds'),
+        description?: string(name='Description', description='The description of the metric.', example='Total vcore usage over time in seconds'),
+        name?: string(name='Name', description='The name of the metric.', example='vcoreSeconds'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='VCores * Sec'),
+        value?: long(name='Value', description='The value of the metric.', example='1231412'),
+      }(name='VcoreSeconds', description='The total CPU consumption over time in seconds.'),
       vcoreSecondsDayGrowthRatio?: {
-        description?: string(name='Description', example='Growth ratio of virtual core usage in seconds per day'),
-        name?: string(name='Name', example='vcoreSecondsDayGrowthRatio'),
-        unit?: string(name='Unit', example='“”'),
-        value?: float(name='Value', example='0.22'),
-      }(name='VcoreSecondsDayGrowthRatio'),
+        description?: string(name='Description', description='The description of the metric.', example='Growth ratio of virtual core usage in seconds per day'),
+        name?: string(name='Name', description='The name of the metric.', example='vcoreSecondsDayGrowthRatio'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+        value?: float(name='Value', description='The value of the metric.', example='0.22'),
+      }(name='VcoreSecondsDayGrowthRatio', description='The day-to-day growth rate of the total CPU consumption over time in seconds.'),
       vcoreUtilization?: {
-        description?: string(name='Description', example='Ratio of used vcore to total available cores'),
-        name?: string(name='Name', example='vcoreUtilization'),
-        unit?: string(name='Unit', example='“”'),
-        value?: float(name='Value', example='32.1'),
-      }(name='VcoreUtilization'),
+        description?: string(name='Description', description='The description of the metric.', example='Ratio of used vcore to total available cores'),
+        name?: string(name='Name', description='The name of the metric.', example='vcoreUtilization'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+        value?: float(name='Value', description='The value of the metric.', example='32.1'),
+      }(name='VcoreUtilization', description='The average CPU utilization. The meaning is the same as the %CPU parameter in the output of the top command in Linux.'),
       writeSize?: {
-        description?: string(name='Description', example='Total cumulative size of data written in megabytes (MB)'),
-        name?: string(name='Name', example='writeSize'),
-        unit?: string(name='Unit', example='MB'),
-        value?: long(name='Value', example='6294093393920'),
-      }(name='WriteSize'),
-    }(name='Metrics'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+        description?: string(name='Description', description='The description of the metric.', example='Total cumulative size of data written in megabytes (MB)'),
+        name?: string(name='Name', description='The name of the metric.', example='writeSize'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+        value?: long(name='Value', description='The value of the metric.', example='6294093393920'),
+      }(name='WriteSize', description='The total amount of data written to the file system.'),
+    }(name='Metrics', description='The metrics.'),
+  }(name='Data', description='The details of resource usage.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetDoctorComputeSummaryResponse = {
@@ -1598,104 +1678,104 @@ async function getDoctorComputeSummary(request: GetDoctorComputeSummaryRequest):
 }
 
 model GetDoctorHBaseClusterRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
-  dateTime: string(name='DateTime', example='2023-01-01', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
+  dateTime: string(name='DateTime', description='The date.', example='2023-01-01', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model GetDoctorHBaseClusterResponseBody = {
   data?: {
     analysis?: {
-      hbaseScore?: int32(name='HbaseScore', example='85'),
-    }(name='Analysis'),
+      hbaseScore?: int32(name='HbaseScore', description='The overall score of the HBase cluster.', example='85'),
+    }(name='Analysis', description='The analysis result.'),
     metrics?: {
       avgLoad?: {
-        description?: string(name='Description', example='The average load under normal working conditions'),
-        name?: string(name='Name', example='avgLoad'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='36.0'),
-      }(name='AvgLoad'),
+        description?: string(name='Description', description='The description of the metric.', example='The average load under normal working conditions'),
+        name?: string(name='Name', description='The name of the metric.', example='avgLoad'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='36.0'),
+      }(name='AvgLoad', description='The average load.'),
       dailyReadRequest?: {
-        description?: string(name='Description', example='Number of read requests per day'),
-        name?: string(name='Name', example='dailyReadRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='430'),
-      }(name='DailyReadRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of read requests per day'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyReadRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='430'),
+      }(name='DailyReadRequest', description='The number of read requests in a day.'),
       dailyWriteRequest?: {
-        description?: string(name='Description', example='Number of write requests per day'),
-        name?: string(name='Name', example='dailyWriteRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='128'),
-      }(name='DailyWriteRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of write requests per day'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='128'),
+      }(name='DailyWriteRequest', description='The number of write requests in a day.'),
       memHeap?: {
-        description?: string(name='Description', example='Memory heap usage in megabytes (MB)'),
-        name?: string(name='Name', example='memHeap'),
-        unit?: string(name='Unit', example='MB'),
-        value?: long(name='Value', example='240'),
-      }(name='MemHeap'),
+        description?: string(name='Description', description='The description of the metric.', example='Memory heap usage in megabytes (MB)'),
+        name?: string(name='Name', description='The name of the metric.', example='memHeap'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+        value?: long(name='Value', description='The value of the metric.', example='240'),
+      }(name='MemHeap', description='The memory size.'),
       normalAvgLoad?: {
-        description?: string(name='Description', example='The average load under normal working conditions'),
-        name?: string(name='Name', example='normalAvgLoad'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='526.4'),
-      }(name='NormalAvgLoad'),
+        description?: string(name='Description', description='The description of the metric.', example='The average load under normal working conditions'),
+        name?: string(name='Name', description='The name of the metric.', example='normalAvgLoad'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='526.4'),
+      }(name='NormalAvgLoad', description='The normal average load.'),
       regionBalance?: {
-        description?: string(name='Description', example='The ability to evenly distribute Regions on different RegionServer nodes'),
-        name?: string(name='Name', example='regionBalance'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='1.0'),
-      }(name='RegionBalance'),
+        description?: string(name='Description', description='The description of the metric.', example='The ability to evenly distribute Regions on different RegionServer nodes'),
+        name?: string(name='Name', description='The name of the metric.', example='regionBalance'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='1.0'),
+      }(name='RegionBalance', description='The region balance degree.'),
       regionCount?: {
-        description?: string(name='Description', example='Number of regions count'),
-        name?: string(name='Name', example='regionCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='161'),
-      }(name='RegionCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of regions count'),
+        name?: string(name='Name', description='The name of the metric.', example='regionCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='161'),
+      }(name='RegionCount', description='The number of regions.'),
       regionServerCount?: {
-        description?: string(name='Description', example='Number of region servers count'),
-        name?: string(name='Name', example='regionServerCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='6'),
-      }(name='RegionServerCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of region servers count'),
+        name?: string(name='Name', description='The name of the metric.', example='regionServerCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='6'),
+      }(name='RegionServerCount', description='The number of region servers.'),
       storeFileCount?: {
-        description?: string(name='Description', example='Number of store files'),
-        name?: string(name='Name', example='storeFileCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='298'),
-      }(name='StoreFileCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of store files'),
+        name?: string(name='Name', description='The name of the metric.', example='storeFileCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='298'),
+      }(name='StoreFileCount', description='The number of StoreFiles.'),
       tableCount?: {
-        description?: string(name='Description', example='Number of tables'),
-        name?: string(name='Name', example='tableCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='10'),
-      }(name='TableCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of tables'),
+        name?: string(name='Name', description='The name of the metric.', example='tableCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='10'),
+      }(name='TableCount', description='The number of tables.'),
       totalDataSize?: {
-        description?: string(name='Description', example='Total data size in megabytes (MB)'),
-        name?: string(name='Name', example='totalDataSize'),
-        unit?: string(name='Unit', example='MB'),
-        value?: long(name='Value', example='256'),
-      }(name='TotalDataSize'),
+        description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
+        name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+        value?: long(name='Value', description='The value of the metric.', example='256'),
+      }(name='TotalDataSize', description='The size of the cluster.'),
       totalReadRequest?: {
-        description?: string(name='Description', example='Total number of read requests'),
-        name?: string(name='Name', example='totalReadRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='430'),
-      }(name='TotalReadRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of read requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalReadRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='430'),
+      }(name='TotalReadRequest', description='The total number of read requests.'),
       totalRequest?: {
-        description?: string(name='Description', example='Total number of requests'),
-        name?: string(name='Name', example='totalRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='576'),
-      }(name='TotalRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='576'),
+      }(name='TotalRequest', description='The total number of requests in the cluster.'),
       totalWriteRequest?: {
-        description?: string(name='Description', example='Total number of write requests'),
-        name?: string(name='Name', example='totalWriteRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='520'),
-      }(name='TotalWriteRequest'),
-    }(name='Metrics'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of write requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalWriteRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='520'),
+      }(name='TotalWriteRequest', description='The total number of write requests.'),
+    }(name='Metrics', description='The metric information.'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetDoctorHBaseClusterResponse = {
@@ -1737,10 +1817,10 @@ model GetDoctorHBaseRegionResponseBody = {
       }(name='DailyWriteRequest'),
       storeFileCount?: {
         description?: string(name='Description', example='Number of store file'),
-        name?: string(name='Name', example='storeFileCount'),
+        name?: string(name='Name', description='The name of the metric.', example='storeFileCount'),
         unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='100'),
-      }(name='StoreFileCount'),
+        value?: long(name='Value', description='The value of the metric.', example='100'),
+      }(name='StoreFileCount', description='The number of StoreFiles.'),
       totalReadRequest?: {
         description?: string(name='Description', example='Total read request'),
         name?: string(name='Name', example='totalReadRequest'),
@@ -1753,10 +1833,10 @@ model GetDoctorHBaseRegionResponseBody = {
         unit?: string(name='Unit', example='""'),
         value?: long(name='Value', example='1000'),
       }(name='TotalWriteRequest'),
-    }(name='Metrics'),
+    }(name='Metrics', description='The metric information.'),
     regionServerHost?: string(name='RegionServerHost', example='emr-worker-2.cluster-20****'),
     tableName?: string(name='TableName', example='tb_item'),
-  }(name='Data'),
+  }(name='Data', description='The returned data.'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -1776,78 +1856,78 @@ async function getDoctorHBaseRegion(request: GetDoctorHBaseRegionRequest): GetDo
 }
 
 model GetDoctorHBaseRegionServerRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
-  dateTime: string(name='DateTime', example='2023-01-01', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
-  regionServerHost: string(name='RegionServerHost', example='emr-worker-4.cluster-20****', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
+  dateTime: string(name='DateTime', description='The date.', example='2023-01-01', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  regionServerHost: string(name='RegionServerHost', description='The host of the region server.', example='emr-worker-4.cluster-20****', position='Query'),
 }
 
 model GetDoctorHBaseRegionServerResponseBody = {
   data?: {
     metrics?: {
       avgGc?: {
-        description?: string(name='Description', example='The efficiency of garbage collection in the system'),
-        name?: string(name='Name', example='avgGc'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='42.3'),
-      }(name='AvgGc'),
+        description?: string(name='Description', description='The description of the metric.', example='The efficiency of garbage collection in the system'),
+        name?: string(name='Name', description='The name of the metric.', example='avgGc'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='42.3'),
+      }(name='AvgGc', description='The average garbage collection (GC) duration.'),
       cacheRatio?: {
-        description?: string(name='Description', example='Ratio of the BlockCache memory size'),
-        name?: string(name='Name', example='cacheRatio'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='95.3'),
-      }(name='CacheRatio'),
+        description?: string(name='Description', description='The description of the metric.', example='Ratio of the BlockCache memory size'),
+        name?: string(name='Name', description='The name of the metric.', example='cacheRatio'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='95.3'),
+      }(name='CacheRatio', description='The cache hit ratio.'),
       dailyReadRequest?: {
-        description?: string(name='Description', example='Number of read requests per day'),
-        name?: string(name='Name', example='dailyReadRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='1000'),
-      }(name='DailyReadRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of read requests per day'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyReadRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='1000'),
+      }(name='DailyReadRequest', description='The number of daily read requests.'),
       dailyReadRequestDayGrowthRatio?: {
-        description?: string(name='Description', example='The growth rate of daily read request quantity.'),
-        name?: string(name='Name', example='dailyReadRequestDayGrowthRatio'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='1.0'),
-      }(name='DailyReadRequestDayGrowthRatio'),
+        description?: string(name='Description', description='The description of the metric.', example='The growth rate of daily read request quantity.'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyReadRequestDayGrowthRatio'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='1.0'),
+      }(name='DailyReadRequestDayGrowthRatio', description='The day-to-day increment rate of the number of daily read requests.'),
       dailyWriteRequest?: {
-        description?: string(name='Description', example='Number of write requests per day'),
-        name?: string(name='Name', example='dailyWriteRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='1000'),
-      }(name='DailyWriteRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of write requests per day'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='1000'),
+      }(name='DailyWriteRequest', description='The number of daily write requests.'),
       dailyWriteRequestDayGrowthRatio?: {
-        description?: string(name='Description', example='The growth rate of daily write request quantity.'),
-        name?: string(name='Name', example='dailyWriteRequestDayGrowthRatio'),
-        unit?: string(name='Unit', example='""'),
-        value?: float(name='Value', example='1.0'),
-      }(name='DailyWriteRequestDayGrowthRatio'),
+        description?: string(name='Description', description='The description of the metric.', example='The growth rate of daily write request quantity.'),
+        name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequestDayGrowthRatio'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: float(name='Value', description='The value of the metric.', example='1.0'),
+      }(name='DailyWriteRequestDayGrowthRatio', description='The day-to-day increment rate of the number of daily write requests.'),
       regionCount?: {
-        description?: string(name='Description', example='Number of regions count'),
-        name?: string(name='Name', example='regionCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='15'),
-      }(name='RegionCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Number of regions count'),
+        name?: string(name='Name', description='The name of the metric.', example='regionCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='15'),
+      }(name='RegionCount', description='The number of regions.'),
       totalReadRequest?: {
-        description?: string(name='Description', example='Total number of read requests'),
-        name?: string(name='Name', example='totalReadRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='1000'),
-      }(name='TotalReadRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of read requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalReadRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='1000'),
+      }(name='TotalReadRequest', description='The cumulative number of read requests.'),
       totalRequest?: {
-        description?: string(name='Description', example='Total number of requests'),
-        name?: string(name='Name', example='totalRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='1000'),
-      }(name='TotalRequest'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='1000'),
+      }(name='TotalRequest', description='The cumulative number of total requests.'),
       totalWriteRequest?: {
-        description?: string(name='Description', example='Total number of write requests'),
-        name?: string(name='Name', example='totalWriteRequest'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='1000'),
-      }(name='TotalWriteRequest'),
-    }(name='Metrics'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+        description?: string(name='Description', description='The description of the metric.', example='Total number of write requests'),
+        name?: string(name='Name', description='The name of the metric.', example='totalWriteRequest'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='1000'),
+      }(name='TotalWriteRequest', description='The cumulative number of write requests.'),
+    }(name='Metrics', description='The metric information.'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetDoctorHBaseRegionServerResponse = {
@@ -1876,13 +1956,13 @@ model GetDoctorHBaseTableResponseBody = {
   data?: {
     analysis?: {
       readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', example='null'),
-      readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion'),
+      readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='The description of read imbalance.'),
       requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', example='null'),
-      requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion'),
+      requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='The description of read/write imbalance.'),
       tableScore?: int32(name='TableScore', example='85'),
       writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', example='null'),
-      writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion'),
-    }(name='Analysis'),
+      writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='The description of write imbalance.'),
+    }(name='Analysis', description='The diagnosis result.'),
     metrics?: {
       coldAccessDay?: {
         description?: string(name='Description', example='Cold access day'),
@@ -2029,7 +2109,7 @@ model GetDoctorHBaseTableResponseBody = {
         value?: float(name='Value', example='0.5'),
       }(name='WriteRequestBalance'),
     }(name='Metrics'),
-  }(name='Data'),
+  }(name='Data', description='The returned data.'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -2632,9 +2712,9 @@ model GetDoctorHiveClusterResponseBody = {
     formats?: [ 
       {
         formatName?: string(name='FormatName', description='The name of the storage format.', example='TextInputFormat'),
-        formatRatio?: float(name='FormatRatio', description='The proportion of data in a specific storage format.', example='0.5'),
-        formatSize?: long(name='FormatSize', description='The size of storage format-specific data.', example='100'),
-        formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the data size.', example='MB'),
+        formatRatio?: float(name='FormatRatio', description='The proportion of the data in the format.', example='0.5'),
+        formatSize?: long(name='FormatSize', description='The amount of data in the format.', example='100'),
+        formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the amount of data in the format.', example='MB'),
       }
     ](name='Formats', description='The information from the perspective of storage formats.'),
     metrics?: {
@@ -2643,25 +2723,25 @@ model GetDoctorHiveClusterResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='coldDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Cold data ratio'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of cold files'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of cold data size'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       databaseCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of databases'),
         name?: string(name='Name', description='The name of the metric.', example='databaseCount'),
@@ -2721,25 +2801,25 @@ model GetDoctorHiveClusterResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='hotDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Hot data ratio'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of hot files'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of hot data size'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       largeFileCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of large files'),
         name?: string(name='Name', description='The name of the metric.', example='largeFileCount'),
@@ -2853,7 +2933,7 @@ model GetDoctorHiveClusterResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='totalDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='TotalDataDayGrowthSize', description='The daily incremental of the total data volume.'),
+      }(name='TotalDataDayGrowthSize', description='The daily incremental of the amount of total data.'),
       totalDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
         name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
@@ -2889,25 +2969,25 @@ model GetDoctorHiveClusterResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='warmDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='-100'),
-      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of warm data'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of warm files'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of warm data size'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
     }(name='Metrics', description='The metric information.'),
   }(name='Data', description='The analysis results of the Hive cluster.'),
   requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -3616,8 +3696,8 @@ model GetDoctorReportComponentSummaryResponseBody = {
   data?: {
     score?: int32(name='Score', example='88'),
     suggestion?: string(name='Suggestion'),
-    summary?: string(name='Summary'),
-  }(name='Data'),
+    summary?: string(name='Summary', description='The summary of the report.'),
+  }(name='Data', description='The content of the report.'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -3747,13 +3827,39 @@ model JoinResourceGroupResponse = {
   body: JoinResourceGroupResponseBody(name='body'),
 }
 
-/**
-  * 加入资源组。
-  *
- */
 async function joinResourceGroup(request: JoinResourceGroupRequest): JoinResourceGroupResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'JoinResourceGroup', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListApmMetadataRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。非必传参数。', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定', position='Query'),
+  type?: string(name='Type', description='元数据类型。', position='Query'),
+}
+
+model ListApmMetadataResponseBody = {
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  metadata?: [ 
+    {
+      value?: string(name='Value', description='元数据值。'),
+    }
+  ](name='Metadata'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListApmMetadataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListApmMetadataResponseBody(name='body'),
+}
+
+async function listApmMetadata(request: ListApmMetadataRequest): ListApmMetadataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListApmMetadata', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListApplicationConfigsRequest {
@@ -3970,6 +4076,127 @@ async function listClusters(request: ListClustersRequest): ListClustersResponse 
   return @handler.do('RPC', 'ListClusters', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListComponentInstancesRequest {
+  applicationNames?: [ string ](name='ApplicationNames', description='应用名称列表。', example='["HDFS"]', position='Query'),
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  componentNames?: [ string ](name='ComponentNames', description='组件名称列表。', example='["DataNode"]', position='Query'),
+  componentStates?: [ string ](name='ComponentStates', example='null', position='Query'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  nodeIds?: [ string ](name='NodeIds', description='节点ID列表。', example='["i-bp1cudc25w2bfwl5****"]', position='Query'),
+  nodeNames?: [ string ](name='NodeNames', description='节点名称列表。', example='["core1-1"]', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+}
+
+model ListComponentInstancesResponseBody = {
+  componentInstances?: [ 
+    {
+      applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
+      bizState?: string(name='BizState', description='组件服务状态，取值如下：
+- active：主服务
+- standby：备用服务。', example='active'),
+      commissionState?: string(name='CommissionState', description='Commission状态，取值如下：
+- COMMISSIONED：已上线
+- COMMISSIONING：上线中
+- DECOMMISSIONED：已下线
+- DECOMMISSIONINPROGRESS：下线进程中
+- DECOMMISSIONFAILED：下线失败
+- INSERVICE：服务中
+- UNKNOWN：未知状态。
+<p>', example='INSERVICE'),
+      componentInstanceState?: string(name='ComponentInstanceState', description='组件实例操作状态，取值如下：
+- WAITING：等待中
+- INSTALLING：安装中
+- INSTALLED：已安装
+- INSTALL_FAILED：安装失败
+- STARTING：启动中
+- STARTED：已启动
+- START_FAILED：启动失败
+- STOPPING：停止中
+- STOPPED：已停止
+- STOP_FAILED：停止失败'),
+      componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
+      createTime?: long(name='CreateTime', description='安装时间戳。', example='1628248947000'),
+      desiredState?: string(name='DesiredState', description='期望状态，取值如下：
+- WAITING：等待中
+- INSTALLING：安装中
+- INSTALLED：已安装
+- INSTALL_FAILED：安装失败
+- STARTING：启动中
+- STARTED：已启动
+- START_FAILED：启动失败
+- STOPPING：停止中
+- STOPPED：已停止
+- STOP_FAILED：停止失败。', example='STARTED'),
+      nodeId?: string(name='NodeId', description='节点ID。', example='i-bp1cudc25w2bfwl5****'),
+      nodeName?: string(name='NodeName', description='节点名称。', example='core1-1'),
+    }
+  ](name='ComponentInstances'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListComponentInstancesResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListComponentInstancesResponseBody(name='body'),
+}
+
+/**
+  * 查询组件实例列表。
+  *
+ */
+async function listComponentInstances(request: ListComponentInstancesRequest): ListComponentInstancesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListComponentInstances', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListComponentsRequest {
+  applicationNames?: [ string ](name='ApplicationNames', description='应用名称列表。', example='["HDFS"]', position='Query'),
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  componentNames?: [ string ](name='ComponentNames', description='组件名称列表。', example='["DataNode"]', position='Query'),
+  componentStates?: [ string ](name='ComponentStates', example='null', position='Query'),
+  includeExpiredConfig?: boolean(name='IncludeExpiredConfig', description='是否包含过期配置。', example='true', position='Query'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+}
+
+model ListComponentsResponseBody = {
+  components?: [ 
+    {
+      applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
+      attributes?: [
+        Attribute
+      ](name='Attributes', description='属性列表。'),
+      componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
+      namespace?: string(name='Namespace', description='命名空间。'),
+      replica?: int32(name='Replica', description='安装该组件的机器总数。', example='1'),
+    }
+  ](name='Components'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListComponentsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ListComponentsResponseBody(name='body'),
+}
+
+/**
+  * 查询组件列表。
+  *
+ */
+async function listComponents(request: ListComponentsRequest): ListComponentsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListComponents', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListDoctorApplicationsRequest {
   appIds?: [ string ](name='AppIds', description='The IDs of jobs that are submitted to YARN.', example='null', position='Query'),
   clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
@@ -4061,84 +4288,108 @@ async function listDoctorApplications(request: ListDoctorApplicationsRequest): L
 }
 
 model ListDoctorComputeSummaryRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
-  componentTypes?: [ string ](name='ComponentTypes', example='null', position='Query'),
-  dateTime: string(name='DateTime', example='2023-01-01', position='Query'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
-  orderBy?: string(name='OrderBy', example='score', position='Query'),
-  orderType?: string(name='OrderType', example='ASC', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
+  componentTypes?: [ string ](name='ComponentTypes', description='The resource types, which are used to filter query results. Valid values:
+
+*   engine: filters results by engine.
+*   queue: filters results by queue.
+*   cluster: displays the results at the cluster level.
+
+If you do not specify this parameter, the information at the cluster level is displayed by default. Currently, only one resource type is supported. If you specify multiple resource types, the first resource type is used by default.', example='null', position='Query'),
+  dateTime: string(name='DateTime', description='Specify the date in the ISO 8601 standard. For example, 2023-01-01 represents January 1, 2023.', example='2023-01-01', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  orderBy?: string(name='OrderBy', description='The basis on which you want to sort the query results. Valid values:
+
+1.  vcoreSeconds: the total CPU consumption over time in seconds.
+2.  memSeconds: the total memory consumption over time in seconds.
+3.  vcoreUtilization: the average CPU utilization. The meaning is the same as the %CPU parameter in the output of the top command in Linux.
+4.  memUtilization: the average memory usage.
+5.  vcoreSecondsDayGrowthRatio: the day-to-day growth rate of the total CPU consumption over time in seconds.
+6.  memSecondsDayGrowthRatio: the day-to-day growth rate of the total memory consumption over time in seconds.
+7.  readSize: the total amount of data read from the file system.
+8.  writeSize: the total amount of data written to the file system.
+9.  healthyJobCount: the total number of healthy jobs.
+10. subHealthyJobCount: the total number of sub-healthy jobs.
+11. unhealthyJobCount: the total number of unhealthy jobs.
+12. needAttentionJobCount: the total number of jobs that require attention.
+13. score: the score for jobs.
+14. scoreDayGrowthRatio: the day-to-day growth rate of the score for jobs.', example='score', position='Query'),
+  orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid values:
+
+*   ASC: in ascending order.
+*   DESC: in descending order.', example='ASC', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model ListDoctorComputeSummaryResponseBody = {
   data?: [ 
     {
       analysis?: {
-        healthyJobCount?: long(name='HealthyJobCount', example='3'),
-        needAttentionJobCount?: long(name='NeedAttentionJobCount', example='23'),
-        score?: int32(name='Score', example='56'),
-        scoreDayGrowthRatio?: float(name='ScoreDayGrowthRatio', example='0.03'),
-        subHealthyJobCount?: long(name='SubHealthyJobCount', example='13'),
-        unhealthyJobCount?: long(name='UnhealthyJobCount', example='123'),
-      }(name='Analysis'),
-      componentName?: string(name='ComponentName', example='DW'),
+        healthyJobCount?: long(name='HealthyJobCount', description='The total number of healthy jobs.', example='3'),
+        needAttentionJobCount?: long(name='NeedAttentionJobCount', description='The total number of jobs that require attention.', example='23'),
+        score?: int32(name='Score', description='The score for jobs.', example='56'),
+        scoreDayGrowthRatio?: float(name='ScoreDayGrowthRatio', description='The day-to-day growth rate of the score for jobs.', example='0.03'),
+        subHealthyJobCount?: long(name='SubHealthyJobCount', description='The total number of sub-healthy jobs.', example='13'),
+        unhealthyJobCount?: long(name='UnhealthyJobCount', description='The total number of unhealthy jobs.', example='123'),
+      }(name='Analysis', description='The resource analysis results.'),
+      componentName?: string(name='ComponentName', description='The name of the resource whose details are obtained based on the value of ComponentTypes. For example, if the value of ComponentTypes is Queue, the value of this parameter is a queue, such as DW.', example='DW'),
       metrics?: {
         memSeconds?: {
-          description?: string(name='Description', example='Total memory usage over time in seconds'),
-          name?: string(name='Name', example='memSeconds'),
-          unit?: string(name='Unit', example='MB * Sec'),
-          value?: long(name='Value', example='12312312'),
-        }(name='MemSeconds'),
+          description?: string(name='Description', description='The description of the metric.', example='Total memory usage over time in seconds'),
+          name?: string(name='Name', description='The name of the metric.', example='memSeconds'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB * Sec'),
+          value?: long(name='Value', description='The value of the metric.', example='12312312'),
+        }(name='MemSeconds', description='The total memory consumption over time in seconds.'),
         memSecondsDayGrowthRatio?: {
-          description?: string(name='Description', example='Growth ratio of memory usage in seconds per day'),
-          name?: string(name='Name', example='memSecondsDayGrowthRatio'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='0.36'),
-        }(name='MemSecondsDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Growth ratio of memory usage in seconds per day'),
+          name?: string(name='Name', description='The name of the metric.', example='memSecondsDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='0.36'),
+        }(name='MemSecondsDayGrowthRatio', description='The day-to-day growth rate of the total memory consumption over time in seconds.'),
         memUtilization?: {
-          description?: string(name='Description', example='Ratio of used memory to total available memory'),
-          name?: string(name='Name', example='memUtilization'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='0.82'),
-        }(name='MemUtilization'),
+          description?: string(name='Description', description='The description of the metric.', example='Ratio of used memory to total available memory'),
+          name?: string(name='Name', description='The name of the metric.', example='memUtilization'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='0.82'),
+        }(name='MemUtilization', description='The average memory usage.'),
         readSize?: {
-          description?: string(name='Description', example='Total cumulative size of data read in megabytes (MB)'),
-          name?: string(name='Name', example='readSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='504888659968'),
-        }(name='ReadSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Total cumulative size of data read in megabytes (MB)'),
+          name?: string(name='Name', description='The name of the metric.', example='readSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='504888659968'),
+        }(name='ReadSize', description='The total amount of data read from the file system.'),
         vcoreSeconds?: {
-          description?: string(name='Description', example='Total vcore usage over time in seconds'),
-          name?: string(name='Name', example='vcoreSeconds'),
-          unit?: string(name='Unit', example='VCores * Sec'),
-          value?: long(name='Value', example='1231412'),
-        }(name='VcoreSeconds'),
+          description?: string(name='Description', description='The description of the metric.', example='Total vcore usage over time in seconds'),
+          name?: string(name='Name', description='The name of the metric.', example='vcoreSeconds'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='VCores * Sec'),
+          value?: long(name='Value', description='The value of the metric.', example='1231412'),
+        }(name='VcoreSeconds', description='The total CPU consumption over time in seconds.'),
         vcoreSecondsDayGrowthRatio?: {
-          description?: string(name='Description', example='Growth ratio of virtual core usage in seconds per day'),
-          name?: string(name='Name', example='vcoreSecondsDayGrowthRatio'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='0.22'),
-        }(name='VcoreSecondsDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Growth ratio of virtual core usage in seconds per day'),
+          name?: string(name='Name', description='The name of the metric.', example='vcoreSecondsDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='0.22'),
+        }(name='VcoreSecondsDayGrowthRatio', description='The day-to-day growth rate of the total CPU consumption over time in seconds.'),
         vcoreUtilization?: {
-          description?: string(name='Description', example='Ratio of used vcore to total available cores'),
-          name?: string(name='Name', example='vcoreUtilization'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='32.1'),
-        }(name='VcoreUtilization'),
+          description?: string(name='Description', description='The description of the metric.', example='Ratio of used vcore to total available cores'),
+          name?: string(name='Name', description='The name of the metric.', example='vcoreUtilization'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='32.1'),
+        }(name='VcoreUtilization', description='The average CPU utilization. The meaning is the same as the %CPU parameter in the output of the top command in Linux.'),
         writeSize?: {
-          description?: string(name='Description', example='Total cumulative size of data written in megabytes (MB)'),
-          name?: string(name='Name', example='writeSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='6294093393920'),
-        }(name='WriteSize'),
-      }(name='Metrics'),
+          description?: string(name='Description', description='The description of the metric.', example='Total cumulative size of data written in megabytes (MB)'),
+          name?: string(name='Name', description='The name of the metric.', example='writeSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='6294093393920'),
+        }(name='WriteSize', description='The total amount of data written to the file system.'),
+      }(name='Metrics', description='The metric information.'),
     }
-  ](name='Data'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  ](name='Data', description='The details of resource usage.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries that are returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorComputeSummaryResponse = {
@@ -4157,14 +4408,19 @@ async function listDoctorComputeSummary(request: ListDoctorComputeSummaryRequest
 }
 
 model ListDoctorHBaseRegionServersRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
-  dateTime: string(name='DateTime', example='2023-01-01', position='Query'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
-  orderBy?: string(name='OrderBy', example='regionCount', position='Query'),
-  orderType?: string(name='OrderType', example='ASC', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
-  regionServerHosts?: [ string ](name='RegionServerHosts', example='null', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
+  dateTime: string(name='DateTime', description='The query date.', example='2023-01-01', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  orderBy?: string(name='OrderBy', description='The field that you use to sort the query results. Valid value:
+
+*   regionCount: the number of regions.', example='regionCount', position='Query'),
+  orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid value:
+
+*   ASC: in ascending order
+*   DESC: in descending order', example='ASC', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  regionServerHosts?: [ string ](name='RegionServerHosts', description='The RegionServer hosts.', example='null', position='Query'),
 }
 
 model ListDoctorHBaseRegionServersResponseBody = {
@@ -4172,73 +4428,73 @@ model ListDoctorHBaseRegionServersResponseBody = {
     {
       metrics?: {
         avgGc?: {
-          description?: string(name='Description', example='The efficiency of garbage collection in the system'),
-          name?: string(name='Name', example='avgGc'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='37.9'),
-        }(name='AvgGc'),
+          description?: string(name='Description', description='The description of the metric.', example='The efficiency of garbage collection in the system'),
+          name?: string(name='Name', description='The name of the metric.', example='avgGc'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='37.9'),
+        }(name='AvgGc', description='The average garbage collection (GC) duration.'),
         cacheRatio?: {
-          description?: string(name='Description', example='Ratio of the BlockCache memory size'),
-          name?: string(name='Name', example='cacheRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='96.7'),
-        }(name='CacheRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Ratio of the BlockCache memory size'),
+          name?: string(name='Name', description='The name of the metric.', example='cacheRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='96.7'),
+        }(name='CacheRatio', description='The cache hit ratio.'),
         dailyReadRequest?: {
-          description?: string(name='Description', example='Number of read requests per day'),
-          name?: string(name='Name', example='dailyReadRequest'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='42571'),
-        }(name='DailyReadRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of read requests per day'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyReadRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='42571'),
+        }(name='DailyReadRequest', description='The number of daily read requests.'),
         dailyReadRequestDayGrowthRatio?: {
-          description?: string(name='Description', example='The growth rate of daily read request quantity.'),
-          name?: string(name='Name', example='dailyReadRequestDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='DailyReadRequestDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='The growth rate of daily read request quantity.'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyReadRequestDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='DailyReadRequestDayGrowthRatio', description='The growth rate of the number of daily read requests.'),
         dailyWriteRequest?: {
-          description?: string(name='Description', example='Number of write requests per day'),
-          name?: string(name='Name', example='dailyWriteRequest'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='23124'),
-        }(name='DailyWriteRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of write requests per day'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='23124'),
+        }(name='DailyWriteRequest', description='The number of daily write requests.'),
         dailyWriteRequestDayGrowthRatio?: {
-          description?: string(name='Description', example='The growth rate of daily write request quantity.'),
-          name?: string(name='Name', example='dailyWriteRequestDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='DailyWriteRequestDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='The growth rate of daily write request quantity.'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequestDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='DailyWriteRequestDayGrowthRatio', description='The growth rate of the number of daily write requests.'),
         regionCount?: {
-          description?: string(name='Description', example='Number of regions count'),
-          name?: string(name='Name', example='regionCount'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='81'),
-        }(name='RegionCount'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of regions count'),
+          name?: string(name='Name', description='The name of the metric.', example='regionCount'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='81'),
+        }(name='RegionCount', description='The number of regions.'),
         totalReadRequest?: {
-          description?: string(name='Description', example='Total number of read requests'),
-          name?: string(name='Name', example='totalReadRequest'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='170500567'),
-        }(name='TotalReadRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Total number of read requests'),
+          name?: string(name='Name', description='The name of the metric.', example='totalReadRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='170500567'),
+        }(name='TotalReadRequest', description='The cumulative number of read requests.'),
         totalRequest?: {
-          description?: string(name='Description', example='Total number of requests'),
-          name?: string(name='Name', example='totalRequest'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='89499511'),
-        }(name='TotalRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Total number of requests'),
+          name?: string(name='Name', description='The name of the metric.', example='totalRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='89499511'),
+        }(name='TotalRequest', description='The cumulative number of all requests.'),
         totalWriteRequest?: {
-          description?: string(name='Description', example='Total number of write requests'),
-          name?: string(name='Name', example='totalWriteRequest'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='30109837'),
-        }(name='TotalWriteRequest'),
-      }(name='Metrics'),
-      regionServerHost?: string(name='RegionServerHost', example='emr-worker-4.cluster-20****'),
+          description?: string(name='Description', description='The description of the metric.', example='Total number of write requests'),
+          name?: string(name='Name', description='The name of the metric.', example='totalWriteRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='30109837'),
+        }(name='TotalWriteRequest', description='The cumulative number of write requests.'),
+      }(name='Metrics', description='The metric information.'),
+      regionServerHost?: string(name='RegionServerHost', description='The RegionServer host.', example='emr-worker-4.cluster-20****'),
     }
-  ](name='Data'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  ](name='Data', description='The returned data.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries that are returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorHBaseRegionServersResponse = {
@@ -4271,163 +4527,163 @@ model ListDoctorHBaseTablesResponseBody = {
   data?: [ 
     {
       analysis?: {
-        readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', example='null'),
-        readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion'),
-        requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', example='null'),
-        requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion'),
-        tableScore?: int32(name='TableScore', example='67'),
-        writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', example='null'),
-        writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion'),
-      }(name='Analysis'),
+        readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', description='The partitions that have read hotspot issues.', example='null'),
+        readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='The description of read imbalance.'),
+        requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', description='The partitions that have read/write hotspot issues.', example='null'),
+        requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='The description of read/write imbalance.'),
+        tableScore?: int32(name='TableScore', description='The score of the table.', example='67'),
+        writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', description='The partitions that have write hotspot issues.', example='null'),
+        writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='The description of write imbalance.'),
+      }(name='Analysis', description='The diagnosis result.'),
       metrics?: {
         coldAccessDay?: {
-          description?: string(name='Description', example='Cold access day'),
-          name?: string(name='Name', example='coldAccessDay'),
-          unit?: string(name='Unit', example='day'),
-          value?: long(name='Value', example='1'),
-        }(name='ColdAccessDay'),
+          description?: string(name='Description', description='The description of the metric.', example='Cold access day'),
+          name?: string(name='Name', description='The name of the metric.', example='coldAccessDay'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='day'),
+          value?: long(name='Value', description='The value of the metric.', example='1'),
+        }(name='ColdAccessDay', description='The number of days during which the table was not accessed.'),
         coldConfigDay?: {
-          description?: string(name='Description', example='Cold config day'),
-          name?: string(name='Name', example='coldConfigDay'),
-          unit?: string(name='Unit', example='dat'),
-          value?: long(name='Value', example='1'),
-        }(name='ColdConfigDay'),
+          description?: string(name='Description', description='The description of the metric.', example='Cold config day'),
+          name?: string(name='Name', description='The name of the metric.', example='coldConfigDay'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='dat'),
+          value?: long(name='Value', description='The value of the metric.', example='1'),
+        }(name='ColdConfigDay', description='The number of consecutive days without access to data before the data is considered as cold data.'),
         coldDataSize?: {
-          description?: string(name='Description', example='Size of the cold data size'),
-          name?: string(name='Name', example='coldDataSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='100'),
-        }(name='ColdDataSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Size of the cold data size'),
+          name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='100'),
+        }(name='ColdDataSize', description='The size of cold data.'),
         dailyReadRequest?: {
-          description?: string(name='Description', example='Number of read requests per day'),
-          name?: string(name='Name', example='dailyReadRequest'),
-          unit?: string(name='Unit', example='“”'),
-          value?: long(name='Value', example='1000'),
-        }(name='DailyReadRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of read requests per day'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyReadRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: long(name='Value', description='The value of the metric.', example='1000'),
+        }(name='DailyReadRequest', description='The total number of read requests for the table in a day.'),
         dailyReadRequestDayGrowthRatio?: {
-          description?: string(name='Description', example='Day growth ratio of read requests'),
-          name?: string(name='Name', example='dailyReadRequestDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='0.8'),
-        }(name='DailyReadRequestDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of read requests'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyReadRequestDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='0.8'),
+        }(name='DailyReadRequestDayGrowthRatio', description='The daily increment ratio of the number of read requests in a day.'),
         dailyWriteRequest?: {
-          description?: string(name='Description', example='Number of write requests per day'),
-          name?: string(name='Name', example='dailyWriteRequest'),
-          unit?: string(name='Unit', example='“”'),
-          value?: long(name='Value', example='1000'),
-        }(name='DailyWriteRequest'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of write requests per day'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequest'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: long(name='Value', description='The value of the metric.', example='1000'),
+        }(name='DailyWriteRequest', description='The total number of write requests for the table in a day.'),
         dailyWriteRequestDayGrowthRatio?: {
-          description?: string(name='Description', example='The balance of distributing requests'),
-          name?: string(name='Name', example='dailyWriteRequestDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='0.8'),
-        }(name='DailyWriteRequestDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='The balance of distributing requests'),
+          name?: string(name='Name', description='The name of the metric.', example='dailyWriteRequestDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='0.8'),
+        }(name='DailyWriteRequestDayGrowthRatio', description='The daily increment ratio of the number of write requests in a day.'),
         freezeConfigDay?: {
-          description?: string(name='Description', example='Freeze config day'),
-          name?: string(name='Name', example='freezeConfigDay'),
-          unit?: string(name='Unit', example='day'),
-          value?: long(name='Value', example='1'),
-        }(name='FreezeConfigDay'),
+          description?: string(name='Description', description='The description of the metric.', example='Freeze config day'),
+          name?: string(name='Name', description='The name of the metric.', example='freezeConfigDay'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='day'),
+          value?: long(name='Value', description='The value of the metric.', example='1'),
+        }(name='FreezeConfigDay', description='The number of consecutive days without access to data before the data is considered as very cold data.'),
         freezeDataSize?: {
-          description?: string(name='Description', example='Size of the freeze data size'),
-          name?: string(name='Name', example='freezeDataSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='100'),
-        }(name='FreezeDataSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Size of the freeze data size'),
+          name?: string(name='Name', description='The name of the metric.', example='freezeDataSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='100'),
+        }(name='FreezeDataSize', description='The size of very cold data.'),
         hotDataSize?: {
-          description?: string(name='Description', example='Size of the hot data size'),
-          name?: string(name='Name', example='hotDataSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='100'),
-        }(name='HotDataSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Size of the hot data size'),
+          name?: string(name='Name', description='The name of the metric.', example='hotDataSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='100'),
+        }(name='HotDataSize', description='The size of hot data.'),
         locality?: {
-          description?: string(name='Description', example='The locality of data'),
-          name?: string(name='Name', example='locality'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='0'),
-        }(name='Locality'),
+          description?: string(name='Description', description='The description of the metric.', example='The locality of data'),
+          name?: string(name='Name', description='The name of the metric.', example='locality'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='0'),
+        }(name='Locality', description='The localization rate.'),
         readRequestBalance?: {
-          description?: string(name='Description', example='The balance of distributing read requests'),
-          name?: string(name='Name', example='readRequestBalance'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='ReadRequestBalance'),
+          description?: string(name='Description', description='The description of the metric.', example='The balance of distributing read requests'),
+          name?: string(name='Name', description='The name of the metric.', example='readRequestBalance'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='ReadRequestBalance', description='The read balancing degree.'),
         regionBalance?: {
-          description?: string(name='Description', example='The ability to evenly distribute Regions on different RegionServer nodes'),
-          name?: string(name='Name', example='regionBalance'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='1.0'),
-        }(name='RegionBalance'),
+          description?: string(name='Description', description='The description of the metric.', example='The ability to evenly distribute Regions on different RegionServer nodes'),
+          name?: string(name='Name', description='The name of the metric.', example='regionBalance'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='RegionBalance', description='The balancing degree.'),
         regionCount?: {
-          description?: string(name='Description', example='Number of regions count'),
-          name?: string(name='Name', example='regionCount'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='3'),
-        }(name='RegionCount'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of regions count'),
+          name?: string(name='Name', description='The name of the metric.', example='regionCount'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='3'),
+        }(name='RegionCount', description='The number of partitions that are composed of the table.'),
         regionCountDayGrowthRatio?: {
-          description?: string(name='Description', example='Day growth ratio of region count'),
-          name?: string(name='Name', example='regionCountDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='RegionCountDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of region count'),
+          name?: string(name='Name', description='The name of the metric.', example='regionCountDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='RegionCountDayGrowthRatio', description='The daily increment ratio of the number of partitions.'),
         regionServerCount?: {
-          description?: string(name='Description', example='Number of region servers count'),
-          name?: string(name='Name', example='regionServerCount'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='2'),
-        }(name='RegionServerCount'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of region servers count'),
+          name?: string(name='Name', description='The name of the metric.', example='regionServerCount'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='2'),
+        }(name='RegionServerCount', description='The number of region servers that host the table.'),
         requestBalance?: {
-          description?: string(name='Description', example='The balance of distributing requests'),
-          name?: string(name='Name', example='requestBalance'),
-          unit?: string(name='Unit', example='“”'),
-          value?: float(name='Value', example='0.9'),
-        }(name='RequestBalance'),
+          description?: string(name='Description', description='The description of the metric.', example='The balance of distributing requests'),
+          name?: string(name='Name', description='The name of the metric.', example='requestBalance'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='“”'),
+          value?: float(name='Value', description='The value of the metric.', example='0.9'),
+        }(name='RequestBalance', description='The request balancing degree.'),
         storeFileCount?: {
-          description?: string(name='Description', example='Number of store files'),
-          name?: string(name='Name', example='storeFileCount'),
-          unit?: string(name='Unit', example='""'),
-          value?: long(name='Value', example='36'),
-        }(name='StoreFileCount'),
+          description?: string(name='Description', description='The description of the metric.', example='Number of store files'),
+          name?: string(name='Name', description='The name of the metric.', example='storeFileCount'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: long(name='Value', description='The value of the metric.', example='36'),
+        }(name='StoreFileCount', description='The number of StoreFiles.'),
         storeFileCountDayGrowthRatio?: {
-          description?: string(name='Description', example='Day growth ratio of store file count'),
-          name?: string(name='Name', example='storeFileCountDayGrowthRatio'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='0.7'),
-        }(name='StoreFileCountDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of store file count'),
+          name?: string(name='Name', description='The name of the metric.', example='storeFileCountDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='0.7'),
+        }(name='StoreFileCountDayGrowthRatio', description='The daily increment ratio of the number of StoreFiles.'),
         tableSize?: {
-          description?: string(name='Description', example='Size of the table'),
-          name?: string(name='Name', example='tableSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='678'),
-        }(name='TableSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Size of the table'),
+          name?: string(name='Name', description='The name of the metric.', example='tableSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='678'),
+        }(name='TableSize', description='The size of the table.'),
         tableSizeDayGrowthRatio?: {
-          description?: string(name='Description', example='Day growth ratio of table size'),
-          name?: string(name='Name', example='tableSizeDayGrowthRatio'),
-          unit?: string(name='Unit', example='\\""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='TableSizeDayGrowthRatio'),
+          description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of table size'),
+          name?: string(name='Name', description='The name of the metric.', example='tableSizeDayGrowthRatio'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='\\""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='TableSizeDayGrowthRatio', description='The daily increment ratio of the table size.'),
         warmConfigDay?: {
-          description?: string(name='Description', example='Warm config day'),
-          name?: string(name='Name', example='warmConfigDay'),
-          unit?: string(name='Unit', example='day'),
-          value?: long(name='Value', example='1'),
-        }(name='WarmConfigDay'),
+          description?: string(name='Description', description='The description of the metric.', example='Warm config day'),
+          name?: string(name='Name', description='The name of the metric.', example='warmConfigDay'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='day'),
+          value?: long(name='Value', description='The value of the metric.', example='1'),
+        }(name='WarmConfigDay', description='The number of consecutive days without access to data before the data is considered as warm data.'),
         warmDataSize?: {
-          description?: string(name='Description', example='Size of the warm data size'),
-          name?: string(name='Name', example='warmDataSize'),
-          unit?: string(name='Unit', example='MB'),
-          value?: long(name='Value', example='100'),
-        }(name='WarmDataSize'),
+          description?: string(name='Description', description='The description of the metric.', example='Size of the warm data size'),
+          name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
+          value?: long(name='Value', description='The value of the metric.', example='100'),
+        }(name='WarmDataSize', description='The size of warm data.'),
         writeRequestBalance?: {
-          description?: string(name='Description', example='The balance of distributing write requests'),
-          name?: string(name='Name', example='writeRequestBalance'),
-          unit?: string(name='Unit', example='""'),
-          value?: float(name='Value', example='1.0'),
-        }(name='WriteRequestBalance'),
-      }(name='Metrics'),
-      tableName?: string(name='TableName', example='tb_item'),
+          description?: string(name='Description', description='The description of the metric.', example='The balance of distributing write requests'),
+          name?: string(name='Name', description='The name of the metric.', example='writeRequestBalance'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+          value?: float(name='Value', description='The value of the metric.', example='1.0'),
+        }(name='WriteRequestBalance', description='The write balancing degree.'),
+      }(name='Metrics', description='The metric information.'),
+      tableName?: string(name='TableName', description='The name of the table.', example='tb_item'),
     }
-  ](name='Data'),
+  ](name='Data', description='The returned data.'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
   nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -5446,60 +5702,76 @@ async function listDoctorHiveTables(request: ListDoctorHiveTablesRequest): ListD
 }
 
 model ListDoctorJobsRequest {
-  appIds?: [ string ](name='AppIds', description='app ID数组', example='null', position='Query'),
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  appIds?: [ string ](name='AppIds', description='The IDs of the jobs that are submitted to YARN.', example='null', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   endRange?: {
-    endTime?: long(name='EndTime', example='1666865137099'),
-    startTime?: long(name='StartTime', example='1679135111960'),
-  }(name='EndRange', description='结束range', position='Query'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
-  orderBy?: string(name='OrderBy', description='排序字段', example='vcoreSeconds', position='Query'),
-  orderType?: string(name='OrderType', description='排序类型', example='ASC', position='Query'),
-  queues?: [ string ](name='Queues', example='null', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+    endTime?: long(name='EndTime', description='The end of the time range during which jobs ended. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1666865137099'),
+    startTime?: long(name='StartTime', description='The beginning of the time range during which jobs ended. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1679135111960'),
+  }(name='EndRange', description='The range of end time. You can filter jobs whose end time falls within the specified time range.', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  orderBy?: string(name='OrderBy', description='The field that you use to sort the query results. Valid values:
+
+*   vcoreSeconds: the aggregated number of vCPUs that are allocated to the job multiplied by the number of seconds the job has been running
+*   memSeconds: the aggregated amount of memory that is allocated to the job multiplied by the number of seconds the job has been running', example='vcoreSeconds', position='Query'),
+  orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid values:
+
+*   ASC: the ascending order
+*   DESC: the descending order', example='ASC', position='Query'),
+  queues?: [ string ](name='Queues', description='The YARN queues to which the jobs are submitted.', example='null', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   startRange?: {
-    endTime?: long(name='EndTime', example='1683340662020'),
-    startTime?: long(name='StartTime', example='1683340662016'),
-  }(name='StartRange', description='开始range', position='Query'),
-  types?: [ string ](name='Types', example='null', position='Query'),
-  users?: [ string ](name='Users', example='null', position='Query'),
+    endTime?: long(name='EndTime', description='The end of the time range during which jobs were submitted. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1683340662020'),
+    startTime?: long(name='StartTime', description='The beginning of the time range during which jobs were submitted. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1683340662016'),
+  }(name='StartRange', description='The range of start time. You can filter jobs whose start time falls within the specified time range.', position='Query'),
+  types?: [ string ](name='Types', description='The YARN engines to which the jobs are submitted.', example='null', position='Query'),
+  users?: [ string ](name='Users', description='The users who submit the jobs.', example='null', position='Query'),
 }
 
 model ListDoctorJobsResponseBody = {
   data?: [ 
     {
-      appId?: string(name='AppId', example='application_1607584549220_*****'),
-      appName?: string(name='AppName', example='tpcds'),
-      elapsedTime?: long(name='ElapsedTime', example='242'),
-      finalStatus?: string(name='FinalStatus', example='KILLED'),
-      finishTime?: long(name='FinishTime', example='1683690929000'),
-      launchTime?: long(name='LaunchTime', example='1672148400000'),
+      appId?: string(name='AppId', description='The ID of the job that was submitted to YARN.', example='application_1607584549220_*****'),
+      appName?: string(name='AppName', description='The name of the job.', example='tpcds'),
+      elapsedTime?: long(name='ElapsedTime', description='The total running time of the job. Unit: milliseconds.', example='242'),
+      finalStatus?: string(name='FinalStatus', description='The final state of the job. Valid values:
+
+*   SUCCEEDED
+*   FAILED
+*   KILLED
+*   ENDED
+*   UNDEFINED', example='KILLED'),
+      finishTime?: long(name='FinishTime', description='The end time of the job. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1683690929000'),
+      launchTime?: long(name='LaunchTime', description='The time when the job was started. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1672148400000'),
       metrics?: {
         memSeconds?: {
-          description?: string(name='Description', example='Total memory usage over time in seconds'),
-          name?: string(name='Name', example='memSeconds'),
-          unit?: string(name='Unit', example='MB * Sec'),
-          value?: long(name='Value', example='12312312'),
-        }(name='MemSeconds'),
+          description?: string(name='Description', description='The description of the metric.', example='Total memory usage over time in seconds'),
+          name?: string(name='Name', description='The name of the metric.', example='memSeconds'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='MB * Sec'),
+          value?: long(name='Value', description='The value of the metric.', example='12312312'),
+        }(name='MemSeconds', description='The amount of memory consumed.'),
         vcoreSeconds?: {
-          description?: string(name='Description', example='Total vcore usage over time in seconds'),
-          name?: string(name='Name', example='vcoreSeconds'),
-          unit?: string(name='Unit', example='VCores * Sec'),
-          value?: long(name='Value', example='11123'),
-        }(name='VcoreSeconds'),
-      }(name='Metrics'),
-      queue?: string(name='Queue', example='DW'),
-      startTime?: long(name='StartTime', example='1675180800000'),
-      state?: string(name='State', example='FINISHED'),
-      type?: string(name='Type', example='SPARK'),
-      user?: string(name='User', example='DW'),
+          description?: string(name='Description', description='The description of the metric.', example='Total vcore usage over time in seconds'),
+          name?: string(name='Name', description='The name of the metric.', example='vcoreSeconds'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='VCores * Sec'),
+          value?: long(name='Value', description='The value of the metric.', example='11123'),
+        }(name='VcoreSeconds', description='The CPU usage.'),
+      }(name='Metrics', description='The data about the metrics.'),
+      queue?: string(name='Queue', description='The YARN queue to which the job was submitted.', example='DW'),
+      startTime?: long(name='StartTime', description='The time when the job was submitted. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1675180800000'),
+      state?: string(name='State', description='The running state of the job. Valid values:
+
+*   FINISHED
+*   FAILED
+*   KILLED', example='FINISHED'),
+      type?: string(name='Type', description='The type of the compute engine.', example='SPARK'),
+      user?: string(name='User', description='The username that was used to submit the job.', example='DW'),
     }
-  ](name='Data'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  ](name='Data', description='The information about the jobs.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorJobsResponse = {
@@ -5518,53 +5790,61 @@ async function listDoctorJobs(request: ListDoctorJobsRequest): ListDoctorJobsRes
 }
 
 model ListDoctorJobsStatsRequest {
-  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   endRange?: {
-    endTime?: long(name='EndTime', example='1680019200000'),
-    startTime?: long(name='StartTime', example='1675180800000'),
-  }(name='EndRange', position='Query'),
-  groupBy?: [ string ](name='GroupBy', example='null', position='Query'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
-  orderBy?: string(name='OrderBy', example='vcoreSeconds', position='Query'),
-  orderType?: string(name='OrderType', example='ASC', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+    endTime?: long(name='EndTime', description='The end of the time range during which jobs ended. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1680019200000'),
+    startTime?: long(name='StartTime', description='The beginning of the time range during which jobs ended. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1675180800000'),
+  }(name='EndRange', description='The range of end time. You can filter jobs whose end time falls within the specified time range.', position='Query'),
+  groupBy?: [ string ](name='GroupBy', description='The fields that are used for grouping data.
+
+Currently, only the first value is used for grouping data. Combinations of multiple values will be supported in the future.', example='null', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  orderBy?: string(name='OrderBy', description='The field that you use to sort the query results. Valid values:
+
+*   vcoreSeconds: the aggregated number of vCPUs that are allocated to the job multiplied by the number of seconds the job has been running
+*   memSeconds: the aggregated amount of memory that is allocated to the job multiplied by the number of seconds the job has been running', example='vcoreSeconds', position='Query'),
+  orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid values:
+
+*   ASC: in ascending order
+*   DESC: in descending order', example='ASC', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   startRange?: {
-    endTime?: long(name='EndTime', example='1666406820000'),
-    startTime?: long(name='StartTime', example='1679036826987'),
-  }(name='StartRange', position='Query'),
+    endTime?: long(name='EndTime', description='The end of the time range during which jobs were submitted. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1666406820000'),
+    startTime?: long(name='StartTime', description='The beginning of the time range during which jobs were submitted. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. Unit: milliseconds.', example='1679036826987'),
+  }(name='StartRange', description='The range of start time. You can filter jobs whose start time falls within the specified time range.', position='Query'),
 }
 
 model ListDoctorJobsStatsResponseBody = {
   data?: [ 
     {
       appsCount?: {
-        description?: string(name='Description', example='Total apps count'),
-        name?: string(name='Name', example='appsCount'),
-        unit?: string(name='Unit', example='""'),
-        value?: long(name='Value', example='123'),
-      }(name='AppsCount'),
+        description?: string(name='Description', description='The description of the metric.', example='Total apps count'),
+        name?: string(name='Name', description='The name of the metric.', example='appsCount'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='""'),
+        value?: long(name='Value', description='The value of the metric.', example='123'),
+      }(name='AppsCount', description='The total number of jobs.'),
       memSeconds?: {
-        description?: string(name='Description', example='Total memory usage over time in seconds'),
-        name?: string(name='Name', example='memSeconds'),
-        unit?: string(name='Unit', example='MB * Sec'),
-        value?: long(name='Value', example='12312312'),
-      }(name='MemSeconds'),
-      queue?: string(name='Queue', example='DW'),
-      type?: string(name='Type', example='SPARK'),
-      user?: string(name='User', example='DW'),
+        description?: string(name='Description', description='The description of the metric.', example='Total memory usage over time in seconds'),
+        name?: string(name='Name', description='The name of the metric.', example='memSeconds'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='MB * Sec'),
+        value?: long(name='Value', description='The value of the metric.', example='12312312'),
+      }(name='MemSeconds', description='The aggregated amount of memory that is allocated to the job multiplied by the number of seconds the job has been running.'),
+      queue?: string(name='Queue', description='The YARN queue to which the job was submitted.', example='DW'),
+      type?: string(name='Type', description='The type of the compute engine.', example='SPARK'),
+      user?: string(name='User', description='The username that is used to submit the job.', example='DW'),
       vcoreSeconds?: {
-        description?: string(name='Description', example='Total vcore usage over time in seconds'),
-        name?: string(name='Name', example='vcoreSeconds'),
-        unit?: string(name='Unit', example='VCores * Sec'),
-        value?: long(name='Value', example='11123'),
-      }(name='VcoreSeconds'),
+        description?: string(name='Description', description='The description of the metric.', example='Total vcore usage over time in seconds'),
+        name?: string(name='Name', description='The name of the metric.', example='vcoreSeconds'),
+        unit?: string(name='Unit', description='The unit of the metric.', example='VCores * Sec'),
+        value?: long(name='Value', description='The value of the metric.', example='11123'),
+      }(name='VcoreSeconds', description='The aggregated number of vCPUs that are allocated to the job multiplied by the number of seconds the job has been running.'),
     }
-  ](name='Data'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  ](name='Data', description='The summary of job information.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorJobsStatsResponse = {
@@ -5592,15 +5872,65 @@ model ListDoctorReportsRequest {
 model ListDoctorReportsResponseBody = {
   data?: [ 
     {
-      componentTypes?: [ string ](name='ComponentTypes', example='null'),
-      dateTime?: string(name='DateTime', example='2023-06-29'),
+      componentTypes?: [ string ](name='ComponentTypes', description='The service types.
+
+Valid values:
+
+*   compute
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   hive
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   hdfs
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   yarn
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   oss
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   hbase
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='null'),
+      dateTime?: string(name='DateTime', description='The date on which the report was generated.', example='2023-06-29'),
       summaryReport?: {
-        score?: int32(name='Score', example='88'),
-        suggestion?: string(name='Suggestion'),
-        summary?: string(name='Summary'),
-      }(name='SummaryReport'),
+        score?: int32(name='Score', description='The score.', example='88'),
+        suggestion?: string(name='Suggestion', description='The optimization suggestion.'),
+        summary?: string(name='Summary', description='The summary of the report.'),
+      }(name='SummaryReport', description='The summary of the report.'),
     }
-  ](name='Data'),
+  ](name='Data', description='The reports.'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
   nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -5701,10 +6031,6 @@ model ListNodeGroupsResponse = {
   body: ListNodeGroupsResponseBody(name='body'),
 }
 
-/**
-  * 查询节点组。
-  *
- */
 async function listNodeGroups(request: ListNodeGroupsRequest): ListNodeGroupsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListNodeGroups', 'POST', '/', 'json', false, 'json', request);
@@ -5742,10 +6068,6 @@ model ListNodesResponse = {
   body: ListNodesResponseBody(name='body'),
 }
 
-/**
-  * 查询节点。
-  *
- */
 async function listNodes(request: ListNodesRequest): ListNodesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListNodes', 'POST', '/', 'json', false, 'json', request);
@@ -5754,7 +6076,7 @@ async function listNodes(request: ListNodesRequest): ListNodesResponse {
 model ListReleaseVersionsRequest {
   clusterType: string(name='ClusterType', description='The type of the cluster.', example='DATALAKE', position='Query'),
   iaasType?: string(name='IaasType', description='The type of the IaaS resource.', example='ECS', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model ListReleaseVersionsResponseBody = {
@@ -5762,13 +6084,11 @@ model ListReleaseVersionsResponseBody = {
   nextToken?: string(name='NextToken', description='Returns the location of the data that was read.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   releaseVersions?: [ 
     {
-      iaasType?: string(name='IaasType', description='IaaS类型。取值范围：
-- ECS：基于ECS构建。
-- K8S：基于K8S构建。', example='ECS'),
-      releaseVersion?: string(name='ReleaseVersion', description='EMR发行版。', example='EMR-5.3.0'),
-      series?: string(name='Series', description='版本序列。', example='EMR-6.X'),
+      iaasType?: string(name='IaasType', description='The IaaS type.', example='ECS'),
+      releaseVersion?: string(name='ReleaseVersion', description='The EMR version.', example='EMR-5.3.0'),
+      series?: string(name='Series', description='The version series.', example='EMR-6.X'),
     }
-  ](name='ReleaseVersions'),
+  ](name='ReleaseVersions', description='The major EMR versions.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
@@ -5855,6 +6175,69 @@ async function putAutoScalingPolicy(request: PutAutoScalingPolicyRequest): PutAu
   return @handler.do('RPC', 'PutAutoScalingPolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
+model QueryApmComponentsRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  provider?: string(name='Provider', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定', position='Query'),
+}
+
+model QueryApmComponentsResponseBody = {
+  data?: {
+    data?: string(name='Data'),
+  }(name='Data', description='Created on 2022/7/11 5:27 PM'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model QueryApmComponentsResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryApmComponentsResponseBody(name='body'),
+}
+
+async function queryApmComponents(request: QueryApmComponentsRequest): QueryApmComponentsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryApmComponents', 'POST', '/', 'json', false, 'json', request);
+}
+
+model QueryApmGrafanaDataRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  dashboardId?: string(name='DashboardId', position='Query'),
+  end?: string(name='End', position='Query'),
+  provider?: string(name='Provider', position='Query'),
+  query?: string(name='Query', position='Query'),
+  queryParams?: {
+    panelId?: long(name='PanelId'),
+    refId?: string(name='RefId'),
+    variableName?: string(name='VariableName'),
+  }(name='QueryParams', position='Query'),
+  queryUrl: string(name='QueryUrl', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定', position='Query'),
+  start?: string(name='Start', position='Query'),
+  step?: string(name='Step', position='Query'),
+  time?: string(name='Time', position='Query'),
+  variables?: map[string]string(name='Variables', shrink='json', position='Query'),
+}
+
+model QueryApmGrafanaDataResponseBody = {
+  data?: {
+    queryGrafanaData?: string(name='QueryGrafanaData'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model QueryApmGrafanaDataResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: QueryApmGrafanaDataResponseBody(name='body'),
+}
+
+async function queryApmGrafanaData(request: QueryApmGrafanaDataRequest): QueryApmGrafanaDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryApmGrafanaData', 'POST', '/', 'json', false, 'json', request);
+}
+
 model RemoveAutoScalingPolicyRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   nodeGroupId: string(name='NodeGroupId', description='The ID of the node group.', example='ng-869471354ecd****', position='Query'),
@@ -5886,7 +6269,7 @@ model RunApplicationActionRequest {
 *   refresh_queues', example='start', position='Query'),
   batchSize?: int32(name='BatchSize', description='The number of applications in each batch.', example='1', position='Query'),
   clusterId: string(name='ClusterId', description='The cluster ID.', example='C-C95F0A39D8FF****', position='Query'),
-  componentInstanceSelector: ComponentInstanceSelector(name='ComponentInstanceSelector', description='The name of the operation.', position='Query'),
+  componentInstanceSelector: ComponentInstanceSelector(name='ComponentInstanceSelector', description='The operation object.', position='Query'),
   description?: string(name='Description', description='The description of the execution.', example='运行描述', position='Query'),
   executeStrategy?: string(name='ExecuteStrategy', description='The execution policy. Valid values:
 
@@ -5898,6 +6281,12 @@ model RunApplicationActionRequest {
 }
 
 model RunApplicationActionResponseBody = {
+  abnInstances?: [ 
+    {
+      nodeId?: string(name='NodeId'),
+      nodeName?: string(name='NodeName'),
+    }
+  ](name='AbnInstances', description='异常节点列表。'),
   operationId?: string(name='OperationId', description='The operation ID.', example='op-13c37a77c505****'),
   requestId?: string(name='RequestId', description='The request ID.', example='9E3A7161-EB7B-172B-8D18-FFB06BA3****'),
 }
@@ -5908,10 +6297,6 @@ model RunApplicationActionResponse = {
   body: RunApplicationActionResponseBody(name='body'),
 }
 
-/**
-  * 执行应用操作。
-  *
- */
 async function runApplicationAction(request: RunApplicationActionRequest): RunApplicationActionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RunApplicationAction', 'POST', '/', 'json', false, 'json', request);
@@ -5978,7 +6363,7 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 model UpdateApplicationConfigsRequest {
   applicationConfigs: [
     UpdateApplicationConfig
-  ](name='ApplicationConfigs', description='The list of application configurations.', example='CLUSTER', position='Query'),
+  ](name='ApplicationConfigs', description='The application configurations.', example='CLUSTER', position='Query'),
   applicationName: string(name='ApplicationName', description='The application name.', example='HDFS', position='Query'),
   clusterId: string(name='ClusterId', description='The cluster ID.', example='c-e6a9d46e9267****', position='Query'),
   configAction?: string(name='ConfigAction', description='The operation performed on configuration items. Valid values:
@@ -5991,7 +6376,7 @@ model UpdateApplicationConfigsRequest {
 *   CLUSTER
 *   NODE_GROUP', example='CLUSTER', position='Query'),
   description?: string(name='Description', description='The description.', example='更新YARN内存配置。', position='Query'),
-  nodeGroupId?: string(name='NodeGroupId', description='The ID of the node group.', example='ng-869471354ecd****', position='Query'),
+  nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-869471354ecd****', position='Query'),
   nodeId?: string(name='NodeId', description='The node ID.', example='i-bp1cudc25w2bfwl5****', position='Query'),
   regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
