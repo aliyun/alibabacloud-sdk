@@ -75,6 +75,7 @@ model DataDisk {
   category?: string(name='category', example='cloud_ssd'),
   encrypted?: string(name='encrypted', example='true'),
   fileSystem?: string(name='file_system', example='ext4'),
+  kmsKeyId?: string(name='kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
   mountTarget?: string(name='mount_target', example='/mnt/path1'),
   performanceLevel?: string(name='performance_level', example='PL1'),
   provisionedIops?: long(name='provisioned_iops', example='1000'),
@@ -144,16 +145,31 @@ model Nodepool {
     userData?: string(name='user_data', example='MXM='),
   }(name='kubernetes_config'),
   management?: {
-    autoRepair?: boolean(name='auto_repair', example='false'),
-    enable?: boolean(name='enable', example='false'),
+    autoRepair?: boolean(name='auto_repair', example='true'),
+    autoRepairPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+    }(name='auto_repair_policy'),
+    autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+    autoUpgradePolicy?: {
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+    }(name='auto_upgrade_policy'),
+    autoVulFix?: boolean(name='auto_vul_fix', example='true'),
+    autoVulFixPolicy?: {
+      restartNode?: boolean(name='restart_node', example='true'),
+      vulLevel?: string(name='vul_level', example='asap,nntf'),
+    }(name='auto_vul_fix_policy'),
+    enable?: boolean(name='enable', example='true'),
     upgradeConfig?: {
-      autoUpgrade?: boolean(name='auto_upgrade', example='false'),
-      maxUnavailable?: long(name='max_unavailable', example='0'),
-      surge?: long(name='surge', example='0'),
-      surgePercentage?: long(name='surge_percentage', example='0'),
-    }(name='upgrade_config'),
+      autoUpgrade?: boolean(name='auto_upgrade', example='true'),
+      maxUnavailable?: long(name='max_unavailable', example='1'),
+      surge?: long(name='surge', example='5'),
+      surgePercentage?: long(name='surge_percentage', example='50'),
+    }(name='upgrade_config', deprecated='true'),
   }(name='management'),
   maxNodes?: long(name='max_nodes', example='10'),
+  nodeConfig?: {
+    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
+  }(name='node_config'),
   nodepoolInfo?: {
     name?: string(name='name', example='np-test'),
     resourceGroupId?: string(name='resource_group_id', example='rg-acfmyvw3wjm****'),
@@ -175,13 +191,14 @@ model Nodepool {
     internetChargeType?: string(name='internet_charge_type', example='PayByBandwidth'),
     internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', example='10'),
     keyPair?: string(name='key_pair', example='np-key'),
+    loginAsNonRoot?: boolean(name='login_as_non_root'),
     loginPassword?: string(name='login_password', example='Hello1234,,'),
     multiAzPolicy?: string(name='multi_az_policy', example='COST_OPTIMIZED'),
     onDemandBaseCapacity?: long(name='on_demand_base_capacity', example='0'),
     onDemandPercentageAboveBaseCapacity?: long(name='on_demand_percentage_above_base_capacity', example='20'),
     period?: long(name='period', example='0'),
     periodUnit?: string(name='period_unit', example='Month'),
-    platform?: string(name='platform', example='AliyunLinux'),
+    platform?: string(name='platform', example='AliyunLinux', deprecated='true'),
     privatePoolOptions?: {
       id?: string(name='id'),
       matchCriteria?: string(name='match_criteria'),
@@ -200,7 +217,11 @@ model Nodepool {
     ](name='spot_price_limit'),
     spotStrategy?: string(name='spot_strategy', example='NoSpot'),
     systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories'),
     systemDiskCategory?: string(name='system_disk_category', example='cloud_efficiency'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', example='PL1'),
     systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
     systemDiskSize?: long(name='system_disk_size', example='120'),
@@ -1586,6 +1607,7 @@ Set the value in the customized,aliyun,ip,com format. The value consists of four
     taints?: [
       Taint
     ](name='taints', description='The configurations of the taints.'),
+    unschedulable?: boolean(name='unschedulable', example='true'),
     userData?: string(name='user_data', description='The user data on the node.', example='dGhpcyBpcyBhIGV4YW1wbGU='),
   }(name='kubernetes_config', description='The configurations about the cluster.'),
   management?: {
@@ -1619,9 +1641,12 @@ Set the value in the customized,aliyun,ip,com format. The value consists of four
 Default value: 1.', example='1'),
       surge?: long(name='surge', description='The number of additional nodes.', example='0'),
       surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes to the nodes in the node pool. You must set this parameter or `surge`.', example='0'),
-    }(name='upgrade_config', description='The configurations about auto update. The configurations take effect only when you specify `enable=true`.'),
+    }(name='upgrade_config', description='The configurations about auto update. The configurations take effect only when you specify `enable=true`.', deprecated='true'),
   }(name='management', description='The configurations about the managed node pool feature.'),
   maxNodes?: long(name='max_nodes', description='The maximum number of nodes that can be created in the edge node pool. You must specify a value that is equal to or larger than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools of the ess type or default edge node pools.', example='10'),
+  nodeConfig?: {
+    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
+  }(name='node_config'),
   nodepoolInfo?: {
     name?: string(name='name', description='The name of the node pool.', example='cluster-demo'),
     resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group to which the node pool belongs.', example='rg-acfmyvw3wjmb****'),
@@ -1640,6 +1665,7 @@ Default value: `true`.', example='true'),
     autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This property takes effect and is required only when you set instance_charge_type to PrePaid and auto_renew to true. If `PeriodUnit=Month` is configured, the valid values are 1, 2, 3, 6, and 12.
 
 Default value: 1.', example='1'),
+    cisEnabled?: boolean(name='cis_enabled', example='false'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Specifies whether to automatically create pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as the cost or insufficient inventory. This parameter takes effect when you set `multi_az_policy` to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: automatically creates pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created.
@@ -1675,6 +1701,7 @@ Default value: `PostPaid`.', example='PrePaid'),
     keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter.
 
 >  If you create a managed node pool, only `key_pair` is supported.', example='np-key-name'),
+    loginAsNonRoot?: boolean(name='login_as_non_root', example='true'),
     loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello1234'),
     multiAzPolicy?: string(name='multi_az_policy', description='The ECS instance scaling policy for a multi-zone scaling group. Valid values:
 
@@ -1702,7 +1729,7 @@ Default value: 1.', example='1'),
 *   `Windows`
 *   `WindowsCore`
 
-Default value: `AliyunLinux`.', example='AliyunLinux'),
+Default value: `AliyunLinux`.', example='AliyunLinux', deprecated='true'),
     privatePoolOptions?: {
       id?: string(name='id', description='The ID of the private node pool.', example='eap-bp67acfmxazb4****'),
       matchCriteria?: string(name='match_criteria', description='The type of private node pool. This parameter specifies the type of private pool that you want to use to create instances. A private pool is generated when an elasticity assurance or a capacity reservation takes effect. The system selects a private pool to start instances. Valid values:
@@ -1720,6 +1747,7 @@ Default value: `AliyunLinux`.', example='AliyunLinux'),
 Default value: `release`.', example='release'),
     securityGroupId?: string(name='security_group_id', description='Specifies the ID of the security group to which you want to add the node pool. You must set this parameter or `security_group_ids`. We recommend that you set `security_group_ids`.', example='sg-wz9a8g2mt6x5llu0****'),
     securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of security groups to which you want to add the node pool. You must set this parameter or `security_group_id`. We recommend that you set `security_group_ids`. If you set both `security_group_id` and `security_group_ids`, `security_group_ids` is used.'),
+    socEnabled?: boolean(name='soc_enabled', example='false'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Specifies whether to supplement preemptible instances. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values: Valid values:
 
@@ -1745,6 +1773,7 @@ For more information, see [Preemptible instances](~~165053~~).', example='NoSpot
 - false：否。
 
 当`SystemDiskCategory`取值为`cloud_auto`时才支持设置该参数。更多信息，请参见[ESSD AutoPL云盘](~~368372~~)。', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories'),
     systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
@@ -1752,6 +1781,9 @@ For more information, see [Preemptible instances](~~165053~~).', example='NoSpot
 *   `cloud_essd`: enhanced SSD.
 
 Default value: `cloud_efficiency`.', example='cloud_efficiency'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', example='false'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for ESSDs.
 
 *   PL0: moderate maximum concurrent I/O performance and low I/O latency
@@ -1815,6 +1847,9 @@ async function createClusterNodePoolWithOptions(ClusterId: string, request: Crea
   }
   if (!Util.isUnset(request.maxNodes)) {
     body['max_nodes'] = request.maxNodes;
+  }
+  if (!Util.isUnset(request.nodeConfig)) {
+    body['node_config'] = request.nodeConfig;
   }
   if (!Util.isUnset(request.nodepoolInfo)) {
     body['nodepool_info'] = request.nodepoolInfo;
@@ -2273,6 +2308,7 @@ model DeleteClusterNodepoolRequest {
 
 model DeleteClusterNodepoolResponseBody = {
   requestId?: string(name='request_id', description='The request ID.', example='7263C978-3DBD-4E06-B319-793B38A2F388'),
+  taskId?: string(name='task_id', example='T-655ace947e0e6603af000004'),
 }
 
 model DeleteClusterNodepoolResponse = {
@@ -3342,6 +3378,7 @@ For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, t
     taints?: [
       Taint
     ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
+    unschedulable?: boolean(name='unschedulable', example='true'),
     userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFDSyEi'),
   }(name='kubernetes_config', description='The configuration of the cluster where the node pool is deployed.'),
   management?: {
@@ -3401,6 +3438,7 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
     autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
 If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='1'),
+    cisEnabled?: boolean(name='cis_enabled', example='false'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as cost or insufficient inventory. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: Pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created.
@@ -3411,6 +3449,7 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
     deploymentsetId?: string(name='deploymentset_id', description='The ID of the deployment set to which the ECS instances in the node pool belong.', example='ds-bp1d19mmbsv3jf6xxxxx'),
     desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
     imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
+    imageType?: string(name='image_type', example='AliyunLinux'),
     instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
 *   `PrePaid`: the subscription billing method.
@@ -3419,6 +3458,7 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
     internetChargeType?: string(name='internet_charge_type', description='The billing method of the public IP address of the node.', example='PayByBandwidth'),
     internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', description='The maximum outbound bandwidth of the public IP address of the node. Unit: Mbit/s. Valid values: 1 to 100.', example='10'),
     keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter. You must set `key_pair` if the node pool is a managed node pool.', example='pro-nodepool'),
+    loginAsNonRoot?: boolean(name='login_as_non_root', example='true'),
     loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.
 
 For security purposes, the returned password is encrypted.', example='********'),
@@ -3466,6 +3506,7 @@ Valid value: `Month`.', example='Month'),
 *   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
     securityGroupId?: string(name='security_group_id', description='The ID of the security group to which the node pool is added. If the node pool is added to multiple security groups, the first ID in the value of `security_group_ids` is returned.', example='sg-2ze60ockeekspl3d****'),
     securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of the security groups to which the node pool is added.'),
+    socEnabled?: boolean(name='soc_enabled', example='false'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances are supplemented when the number of preemptible instances drops below the specified minimum number. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values: Valid values:
 
@@ -3486,11 +3527,17 @@ Unit: USD/hour.', example='0.39'),
 *   SpotAsPriceGo: a preemptible instance for which the system automatically bids based on the current market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='NoSpot'),
+    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories'),
     systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
 *   `cloud_ssd`: standard SSD.', example='cloud_efficiency'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', example='false'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs (ESSDs).', example='PL1'),
+    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
     systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
 Valid values: 20 to 500.', example='120'),
@@ -3617,6 +3664,7 @@ For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, t
         taints?: [
           Taint
         ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
+        unschedulable?: boolean(name='unschedulable', example='true'),
         userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFD****'),
       }(name='kubernetes_config', description='The configuration of the cluster where the node pool is deployed.'),
       management?: {
@@ -3684,6 +3732,7 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
         autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
 If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='0'),
+        cisEnabled?: boolean(name='cis_enabled', example='false'),
         compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as cost or insufficient inventory. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: Pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created.
@@ -3694,6 +3743,7 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
         deploymentsetId?: string(name='deploymentset_id', description='The ID of the deployment set to which the ECS instances in the node pool belong.', example='ds-bp1d19mmbsv3jf6xxxxx'),
         desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
         imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
+        imageType?: string(name='image_type', example='AliyunLinux'),
         instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
 *   `PrePaid`: the subscription billing method.
@@ -3704,6 +3754,7 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
         keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter.
 
 You must set `key_pair` if the node pool is a managed node pool.', example='pro-nodepool'),
+        loginAsNonRoot?: boolean(name='login_as_non_root', example='true'),
         loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.
 
 For security purposes, the returned password is encrypted.', example='******'),
@@ -3749,6 +3800,7 @@ Valid value: `Month`.', example='Month'),
 *   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
         securityGroupId?: string(name='security_group_id', description='The ID of the security group to which the node pool is added. If the node pool is added to multiple security groups, the first ID in the value of `security_group_ids` is returned.', example='sg-2ze1iuk12m2sb4c4****'),
         securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of the security groups to which the node pool is added.'),
+        socEnabled?: boolean(name='soc_enabled', example='false'),
         spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
         spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances are supplemented when the number of preemptible instances drops below the specified minimum number. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values: Valid values:
 
@@ -3769,11 +3821,17 @@ Unit: USD/hour.', example='0.39'),
 *   SpotAsPriceGo: a preemptible instance for which the system automatically bids based on the current market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='NoSpot'),
+        systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
+        systemDiskCategories?: [ string ](name='system_disk_categories'),
         systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
 *   `cloud_ssd`: standard SSD.', example='cloud_efficiency'),
+        systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+        systemDiskEncrypted?: boolean(name='system_disk_encrypted', example='false'),
+        systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
         systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs (ESSDs).', example='PL1'),
+        systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
         systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
 Valid values: 20 to 500.', example='120'),
@@ -6203,16 +6261,16 @@ async function fixNodePoolVuls(clusterId: string, nodepoolId: string, request: F
 }
 
 model GetClusterAddonInstanceResponseBody = {
-  config?: string(name='config'),
+  config?: string(name='config', example='{"sls_project_name":""}'),
   logging?: {
-    capable?: boolean(name='capable'),
-    enabled?: boolean(name='enabled'),
-    logProject?: string(name='log_project'),
-    logstore?: string(name='logstore'),
+    capable?: boolean(name='capable', example='false'),
+    enabled?: boolean(name='enabled', example='false'),
+    logProject?: string(name='log_project', example='my-log-project'),
+    logstore?: string(name='logstore', example='my-logstore'),
   }(name='logging'),
-  name?: string(name='name'),
-  state?: string(name='state'),
-  version?: string(name='version'),
+  name?: string(name='name', example='ack-node-problem-detector'),
+  state?: string(name='state', example='active'),
+  version?: string(name='version', example='1.2.16'),
 }
 
 model GetClusterAddonInstanceResponse = {
@@ -6546,25 +6604,25 @@ async function installClusterAddons(ClusterId: string, request: InstallClusterAd
 }
 
 model ListAddonsRequest {
-  clusterId?: string(name='cluster_id'),
-  clusterSpec?: string(name='cluster_spec'),
-  clusterType?: string(name='cluster_type'),
-  clusterVersion?: string(name='cluster_version'),
-  profile?: string(name='profile'),
-  regionId?: string(name='region_id'),
+  clusterId?: string(name='cluster_id', example='c02b3e03be10643e8a644a843ffcb****'),
+  clusterSpec?: string(name='cluster_spec', example='ack.pro.small'),
+  clusterType?: string(name='cluster_type', example='ManagedKubernetes'),
+  clusterVersion?: string(name='cluster_version', example='1.26.3-aliyun.1'),
+  profile?: string(name='profile', example='Default'),
+  regionId?: string(name='region_id', example='cn-hangzhou'),
 }
 
 model ListAddonsResponseBody = {
   addons?: [ 
     {
       architecture?: [ string ](name='architecture'),
-      category?: string(name='category'),
-      configSchema?: string(name='config_schema'),
-      installByDefault?: boolean(name='install_by_default'),
-      managed?: boolean(name='managed'),
-      name?: string(name='name'),
+      category?: string(name='category', example='monitor'),
+      configSchema?: string(name='config_schema', example='{}'),
+      installByDefault?: boolean(name='install_by_default', example='false'),
+      managed?: boolean(name='managed', example='false'),
+      name?: string(name='name', example='arms-prometheus'),
       supportedActions?: [ string ](name='supported_actions'),
-      version?: string(name='version'),
+      version?: string(name='version', example='1.1.9'),
     }
   ](name='addons'),
 }
@@ -7180,7 +7238,7 @@ Default value: 1.', example='1'),
 
 > We recommend that you set the number of additional nodes to a value that is no greater than the current number of nodes.', example='5'),
       surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes to the nodes in the node pool. You must set this parameter or `surge`.', example='0'),
-    }(name='upgrade_config', description='The configurations about auto update. The configurations take effect only when you specify `enable=true`.'),
+    }(name='upgrade_config', description='The configurations about auto update. The configurations take effect only when you specify `enable=true`.', deprecated='true'),
   }(name='management', description='The configurations about the managed node pool feature.'),
   nodepoolInfo?: {
     name?: string(name='name', description='The name of the node pool.
@@ -7207,6 +7265,7 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
     ](name='data_disks', description='The configurations of the data disks that are mounted to the nodes in the node pool. You can mount 0 to 10 data disks. You can mount at most 10 data disks to the nodes in the node pool.'),
     desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
     imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the supported images. By default, the latest image is used.', example='aliyun_2_1903_x64_20G_alibase_20200904.vhd'),
+    imageType?: string(name='image_type', example='AliyunLinux'),
     instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
 *   `PrePaid`: subscription.
@@ -7249,7 +7308,7 @@ Default value: `Month`.', example='Month'),
 *   `AliyunLinux`
 *   `CentOS`
 *   `Windows`
-*   `WindowsCore`', example='AliyunLinux'),
+*   `WindowsCore`', example='AliyunLinux', deprecated='true'),
     privatePoolOptions?: {
       id?: string(name='id', description='The ID of the private node pool.', example='eap-bp67acfmxazb4****'),
       matchCriteria?: string(name='match_criteria', description='The type of private node pool. This parameter specifies the type of private pool that you want to use to create instances. A private pool is generated when an elasticity assurance or a capacity reservation takes effect. The system selects a private pool to start instances. Valid values:
@@ -7283,13 +7342,19 @@ Unit: USD/hour.', example='0.39'),
 *   `SpotAsPriceGo`: automatically submits bids based on the up-to-date market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='SpotWithPriceLimit'),
+    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories'),
     systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
 *   `cloud_ssd`: standard SSD.
 
 Default value: `cloud_ssd`.', example='cloud_efficiency'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', example='false'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs. You can specify a higher PL if you increase the size of the system disk. For more information, see [ESSDs](~~122389~~).', example='PL1'),
+    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
     systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
 Valid values: 20 to 500.
