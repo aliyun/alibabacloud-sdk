@@ -1,16 +1,26 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'dataworks-public';
+  @version = '2018-06-01';
   @endpointRule = 'regional';
   @endpointMap = {
     ap-northeast-1 = 'dataworks.ap-northeast-1.aliyuncs.com',
@@ -38,24 +48,15 @@ init(config: OpenApi.Config){
     cn-shanghai-finance-1 = 'dataworks.aliyuncs.com',
     cn-north-2-gov-1 = 'dataworks.aliyuncs.com',
   };
-
-  checkConfig(config);
-  @endpoint = getEndpoint('dataworks-public', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model CheckCallbackRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model CheckCallbackResponseBody = {
@@ -70,40 +71,18 @@ model CheckCallbackResponse = {
   body: CheckCallbackResponseBody(name='body'),
 }
 
-async function checkCallbackWithOptions(request: CheckCallbackRequest, runtime: Util.RuntimeOptions): CheckCallbackResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CheckCallback',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function checkCallback(request: CheckCallbackRequest): CheckCallbackResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return checkCallbackWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CheckCallback', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateManualDagRequest {
-  bizdate?: string(name='Bizdate', example='2018-12-12 00:00:00'),
-  dagPara?: string(name='DagPara', example='param_k1=param_v1 param_k2=param_v2'),
-  flowName?: string(name='FlowName', example='test_flow'),
-  nodePara?: string(name='NodePara', example='{"103180025": "test=$[yyyy-mm-dd]"}'),
-  projectName?: string(name='ProjectName', example='test_project'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  bizdate: string(name='Bizdate', example='2018-12-12 00:00:00', position='Query'),
+  dagPara?: string(name='DagPara', example='param_k1=param_v1 param_k2=param_v2', position='Query'),
+  flowName: string(name='FlowName', example='test_flow', position='Query'),
+  nodePara?: string(name='NodePara', example='{"103180025": "test=$[yyyy-mm-dd]"}', position='Query'),
+  projectName: string(name='ProjectName', example='test_project', position='Query'),
 }
 
 model CreateManualDagResponseBody = {
@@ -120,50 +99,16 @@ model CreateManualDagResponse = {
   body: CreateManualDagResponseBody(name='body'),
 }
 
-async function createManualDagWithOptions(request: CreateManualDagRequest, runtime: Util.RuntimeOptions): CreateManualDagResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.bizdate)) {
-    query['Bizdate'] = request.bizdate;
-  }
-  if (!Util.isUnset(request.dagPara)) {
-    query['DagPara'] = request.dagPara;
-  }
-  if (!Util.isUnset(request.flowName)) {
-    query['FlowName'] = request.flowName;
-  }
-  if (!Util.isUnset(request.nodePara)) {
-    query['NodePara'] = request.nodePara;
-  }
-  if (!Util.isUnset(request.projectName)) {
-    query['ProjectName'] = request.projectName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateManualDag',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function createManualDag(request: CreateManualDagRequest): CreateManualDagResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createManualDagWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateManualDag', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteFileRequest {
-  fileId?: long(name='FileId'),
-  projectId?: long(name='ProjectId'),
-  projectIdentifier?: string(name='ProjectIdentifier'),
+  regionId: string(name='RegionId', position='Host'),
+  fileId: long(name='FileId', position='Body'),
+  projectId?: long(name='ProjectId', position='Body'),
+  projectIdentifier?: string(name='ProjectIdentifier', position='Body'),
 }
 
 model DeleteFileResponseBody = {
@@ -180,44 +125,16 @@ model DeleteFileResponse = {
   body: DeleteFileResponseBody(name='body'),
 }
 
-async function deleteFileWithOptions(request: DeleteFileRequest, runtime: Util.RuntimeOptions): DeleteFileResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.fileId)) {
-    body['FileId'] = request.fileId;
-  }
-  if (!Util.isUnset(request.projectId)) {
-    body['ProjectId'] = request.projectId;
-  }
-  if (!Util.isUnset(request.projectIdentifier)) {
-    body['ProjectIdentifier'] = request.projectIdentifier;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteFile',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function deleteFile(request: DeleteFileRequest): DeleteFileResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteFileWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteFile', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DescribeEmrHiveTableRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  tableName?: string(name='TableName', example='pt_table_090901_emr'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  tableName?: string(name='TableName', example='pt_table_090901_emr', position='Query'),
 }
 
 model DescribeEmrHiveTableResponseBody = {
@@ -268,46 +185,18 @@ model DescribeEmrHiveTableResponse = {
   body: DescribeEmrHiveTableResponseBody(name='body'),
 }
 
-async function describeEmrHiveTableWithOptions(request: DescribeEmrHiveTableRequest, runtime: Util.RuntimeOptions): DescribeEmrHiveTableResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.tableName)) {
-    query['TableName'] = request.tableName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'DescribeEmrHiveTable',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function describeEmrHiveTable(request: DescribeEmrHiveTableRequest): DescribeEmrHiveTableResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return describeEmrHiveTableWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeEmrHiveTable', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetDataServiceApiContextRequest {
-  apiId?: long(name='ApiId', description='apiId', example='12345'),
-  apiStatus?: int32(name='ApiStatus', example='1'),
-  cacheKey?: string(name='CacheKey', example='abc-124'),
-  forPrivateResGroup?: boolean(name='ForPrivateResGroup', example='true'),
-  verbose?: boolean(name='Verbose', example='true'),
+  regionId?: string(name='RegionId', position='Host'),
+  apiId: long(name='ApiId', description='apiId', example='12345', minimum=0, position='Query'),
+  apiStatus?: int32(name='ApiStatus', example='1', position='Query'),
+  cacheKey?: string(name='CacheKey', example='abc-124', position='Query'),
+  forPrivateResGroup?: boolean(name='ForPrivateResGroup', example='true', position='Query'),
+  verbose?: boolean(name='Verbose', example='true', position='Query'),
 }
 
 model GetDataServiceApiContextResponseBody = {
@@ -323,29 +212,13 @@ model GetDataServiceApiContextResponse = {
   body: GetDataServiceApiContextResponseBody(name='body'),
 }
 
-async function getDataServiceApiContextWithOptions(request: GetDataServiceApiContextRequest, runtime: Util.RuntimeOptions): GetDataServiceApiContextResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetDataServiceApiContext',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function getDataServiceApiContext(request: GetDataServiceApiContextRequest): GetDataServiceApiContextResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDataServiceApiContext', 'GET', '/', 'json', false, 'json', request);
 }
 
-async function getDataServiceApiContext(request: GetDataServiceApiContextRequest): GetDataServiceApiContextResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDataServiceApiContextWithOptions(request, runtime);
+model GetDataServiceContextUpdateEventRequest {
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model GetDataServiceContextUpdateEventResponseBody = {
@@ -361,29 +234,14 @@ model GetDataServiceContextUpdateEventResponse = {
   body: GetDataServiceContextUpdateEventResponseBody(name='body'),
 }
 
-async function getDataServiceContextUpdateEventWithOptions(runtime: Util.RuntimeOptions): GetDataServiceContextUpdateEventResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'GetDataServiceContextUpdateEvent',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getDataServiceContextUpdateEvent(): GetDataServiceContextUpdateEventResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getDataServiceContextUpdateEventWithOptions(runtime);
+async function getDataServiceContextUpdateEvent(request: GetDataServiceContextUpdateEventRequest): GetDataServiceContextUpdateEventResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDataServiceContextUpdateEvent', 'GET', '/', 'json', false, 'json', request);
 }
 
 model GetSwitchValueRequest {
-  switchName?: string(name='SwitchName'),
+  regionId?: string(name='RegionId', position='Host'),
+  switchName?: string(name='SwitchName', position='Query'),
 }
 
 model GetSwitchValueResponseBody = {
@@ -397,42 +255,20 @@ model GetSwitchValueResponse = {
   body: GetSwitchValueResponseBody(name='body'),
 }
 
-async function getSwitchValueWithOptions(request: GetSwitchValueRequest, runtime: Util.RuntimeOptions): GetSwitchValueResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.switchName)) {
-    query['SwitchName'] = request.switchName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetSwitchValue',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function getSwitchValue(request: GetSwitchValueRequest): GetSwitchValueResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getSwitchValueWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSwitchValue', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListEmrHiveAuditLogsRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  endTime?: int32(name='EndTime', example='1586509710'),
-  pageNumber?: int32(name='PageNumber', example='2'),
-  pageSize?: int32(name='PageSize', example='2'),
-  startTime?: int32(name='StartTime', example='1586509407'),
-  tableName?: string(name='TableName', example='test_table'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  endTime?: int32(name='EndTime', example='1586509710', position='Query'),
+  pageNumber: int32(name='PageNumber', example='2', minimum=1, position='Query'),
+  pageSize: int32(name='PageSize', example='2', minimum=1, maximum=100, position='Query'),
+  startTime?: int32(name='StartTime', example='1586509407', position='Query'),
+  tableName: string(name='TableName', example='test_table', position='Query'),
 }
 
 model ListEmrHiveAuditLogsResponseBody = {
@@ -462,54 +298,14 @@ model ListEmrHiveAuditLogsResponse = {
   body: ListEmrHiveAuditLogsResponseBody(name='body'),
 }
 
-async function listEmrHiveAuditLogsWithOptions(request: ListEmrHiveAuditLogsRequest, runtime: Util.RuntimeOptions): ListEmrHiveAuditLogsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    query['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.startTime)) {
-    query['StartTime'] = request.startTime;
-  }
-  if (!Util.isUnset(request.tableName)) {
-    query['TableName'] = request.tableName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListEmrHiveAuditLogs',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listEmrHiveAuditLogs(request: ListEmrHiveAuditLogsRequest): ListEmrHiveAuditLogsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listEmrHiveAuditLogsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEmrHiveAuditLogs', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListEmrHiveDatabasesRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
 }
 
 model ListEmrHiveDatabasesResponseBody = {
@@ -540,39 +336,17 @@ model ListEmrHiveDatabasesResponse = {
   body: ListEmrHiveDatabasesResponseBody(name='body'),
 }
 
-async function listEmrHiveDatabasesWithOptions(request: ListEmrHiveDatabasesRequest, runtime: Util.RuntimeOptions): ListEmrHiveDatabasesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListEmrHiveDatabases',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listEmrHiveDatabases(request: ListEmrHiveDatabasesRequest): ListEmrHiveDatabasesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listEmrHiveDatabasesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEmrHiveDatabases', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListEmrHiveTablesRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  pageNumber?: int32(name='PageNumber', example='2'),
-  pageSize?: int32(name='PageSize', example='2'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  pageNumber: int32(name='PageNumber', example='2', minimum=1, position='Query'),
+  pageSize: int32(name='PageSize', example='2', minimum=1, maximum=100, position='Query'),
 }
 
 model ListEmrHiveTablesResponseBody = {
@@ -618,51 +392,20 @@ model ListEmrHiveTablesResponse = {
   body: ListEmrHiveTablesResponseBody(name='body'),
 }
 
-async function listEmrHiveTablesWithOptions(request: ListEmrHiveTablesRequest, runtime: Util.RuntimeOptions): ListEmrHiveTablesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListEmrHiveTables',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listEmrHiveTables(request: ListEmrHiveTablesRequest): ListEmrHiveTablesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listEmrHiveTablesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListEmrHiveTables', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListGovernanceIssueDataServiceAPIsRequest {
-  bizDate?: string(name='BizDate'),
-  ownerId?: string(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  projectId?: long(name='ProjectId'),
-  ruleCategory?: string(name='RuleCategory'),
-  ruleId?: string(name='RuleId'),
+  regionId?: string(name='RegionId', position='Host'),
+  bizDate?: string(name='BizDate', position='Body'),
+  ownerId?: string(name='OwnerId', position='Body'),
+  pageNumber?: int32(name='PageNumber', minimum=1, maximum=500, position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+  ruleCategory: string(name='RuleCategory', position='Body'),
+  ruleId?: string(name='RuleId', position='Body'),
 }
 
 model ListGovernanceIssueDataServiceAPIsResponseBody = {
@@ -698,60 +441,20 @@ model ListGovernanceIssueDataServiceAPIsResponse = {
   body: ListGovernanceIssueDataServiceAPIsResponseBody(name='body'),
 }
 
-async function listGovernanceIssueDataServiceAPIsWithOptions(request: ListGovernanceIssueDataServiceAPIsRequest, runtime: Util.RuntimeOptions): ListGovernanceIssueDataServiceAPIsResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.bizDate)) {
-    body['BizDate'] = request.bizDate;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    body['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.projectId)) {
-    body['ProjectId'] = request.projectId;
-  }
-  if (!Util.isUnset(request.ruleCategory)) {
-    body['RuleCategory'] = request.ruleCategory;
-  }
-  if (!Util.isUnset(request.ruleId)) {
-    body['RuleId'] = request.ruleId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListGovernanceIssueDataServiceAPIs',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listGovernanceIssueDataServiceAPIs(request: ListGovernanceIssueDataServiceAPIsRequest): ListGovernanceIssueDataServiceAPIsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listGovernanceIssueDataServiceAPIsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListGovernanceIssueDataServiceAPIs', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListGovernanceIssueTablesRequest {
-  bizDate?: string(name='BizDate'),
-  ownerId?: string(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  projectId?: long(name='ProjectId'),
-  ruleCategory?: string(name='RuleCategory'),
-  ruleId?: string(name='RuleId'),
+  regionId?: string(name='RegionId', position='Host'),
+  bizDate?: string(name='BizDate', position='Body'),
+  ownerId?: string(name='OwnerId', position='Body'),
+  pageNumber?: int32(name='PageNumber', minimum=1, maximum=500, position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+  ruleCategory: string(name='RuleCategory', position='Body'),
+  ruleId?: string(name='RuleId', position='Body'),
 }
 
 model ListGovernanceIssueTablesResponseBody = {
@@ -797,60 +500,20 @@ model ListGovernanceIssueTablesResponse = {
   body: ListGovernanceIssueTablesResponseBody(name='body'),
 }
 
-async function listGovernanceIssueTablesWithOptions(request: ListGovernanceIssueTablesRequest, runtime: Util.RuntimeOptions): ListGovernanceIssueTablesResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.bizDate)) {
-    body['BizDate'] = request.bizDate;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    body['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.projectId)) {
-    body['ProjectId'] = request.projectId;
-  }
-  if (!Util.isUnset(request.ruleCategory)) {
-    body['RuleCategory'] = request.ruleCategory;
-  }
-  if (!Util.isUnset(request.ruleId)) {
-    body['RuleId'] = request.ruleId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListGovernanceIssueTables',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listGovernanceIssueTables(request: ListGovernanceIssueTablesRequest): ListGovernanceIssueTablesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listGovernanceIssueTablesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListGovernanceIssueTables', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListGovernanceIssueTasksRequest {
-  bizDate?: string(name='BizDate'),
-  ownerId?: string(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  projectId?: long(name='ProjectId'),
-  ruleCategory?: string(name='RuleCategory'),
-  ruleId?: string(name='RuleId'),
+  regionId?: string(name='RegionId', position='Host'),
+  bizDate?: string(name='BizDate', position='Body'),
+  ownerId?: string(name='OwnerId', position='Body'),
+  pageNumber?: int32(name='PageNumber', minimum=1, maximum=500, position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
+  projectId: long(name='ProjectId', position='Body'),
+  ruleCategory: string(name='RuleCategory', position='Body'),
+  ruleId?: string(name='RuleId', position='Body'),
 }
 
 model ListGovernanceIssueTasksResponseBody = {
@@ -887,57 +550,17 @@ model ListGovernanceIssueTasksResponse = {
   body: ListGovernanceIssueTasksResponseBody(name='body'),
 }
 
-async function listGovernanceIssueTasksWithOptions(request: ListGovernanceIssueTasksRequest, runtime: Util.RuntimeOptions): ListGovernanceIssueTasksResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.bizDate)) {
-    body['BizDate'] = request.bizDate;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    body['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.projectId)) {
-    body['ProjectId'] = request.projectId;
-  }
-  if (!Util.isUnset(request.ruleCategory)) {
-    body['RuleCategory'] = request.ruleCategory;
-  }
-  if (!Util.isUnset(request.ruleId)) {
-    body['RuleId'] = request.ruleId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListGovernanceIssueTasks',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listGovernanceIssueTasks(request: ListGovernanceIssueTasksRequest): ListGovernanceIssueTasksResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listGovernanceIssueTasksWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListGovernanceIssueTasks', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListGovernanceRulesRequest {
-  category?: string(name='Category'),
-  issueType?: string(name='IssueType'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  regionId?: string(name='RegionId', position='Host'),
+  category?: string(name='Category', position='Body'),
+  issueType?: string(name='IssueType', position='Body'),
+  pageNumber?: int32(name='PageNumber', minimum=1, maximum=500, position='Body'),
+  pageSize?: int32(name='PageSize', minimum=1, maximum=100, position='Body'),
 }
 
 model ListGovernanceRulesResponseBody = {
@@ -973,48 +596,17 @@ model ListGovernanceRulesResponse = {
   body: ListGovernanceRulesResponseBody(name='body'),
 }
 
-async function listGovernanceRulesWithOptions(request: ListGovernanceRulesRequest, runtime: Util.RuntimeOptions): ListGovernanceRulesResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.category)) {
-    body['Category'] = request.category;
-  }
-  if (!Util.isUnset(request.issueType)) {
-    body['IssueType'] = request.issueType;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    body['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    body['PageSize'] = request.pageSize;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListGovernanceRules',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listGovernanceRules(request: ListGovernanceRulesRequest): ListGovernanceRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listGovernanceRulesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListGovernanceRules', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListHiveColumnLineagesRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
-  columnName?: string(name='ColumnName', example='balance'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  tableName?: string(name='TableName', example='test_table'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
+  columnName: string(name='ColumnName', example='balance', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  tableName: string(name='TableName', example='test_table', position='Query'),
 }
 
 model ListHiveColumnLineagesResponseBody = {
@@ -1063,47 +655,16 @@ model ListHiveColumnLineagesResponse = {
   body: ListHiveColumnLineagesResponseBody(name='body'),
 }
 
-async function listHiveColumnLineagesWithOptions(request: ListHiveColumnLineagesRequest, runtime: Util.RuntimeOptions): ListHiveColumnLineagesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.columnName)) {
-    query['ColumnName'] = request.columnName;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.tableName)) {
-    query['TableName'] = request.tableName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListHiveColumnLineages',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listHiveColumnLineages(request: ListHiveColumnLineagesRequest): ListHiveColumnLineagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listHiveColumnLineagesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListHiveColumnLineages', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListHiveTableLineagesRequest {
-  clusterId?: string(name='ClusterId', example='C-D033DD5FB82436A6'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  tableName?: string(name='TableName', example='pt_table_090901_emr'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-D033DD5FB82436A6', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  tableName: string(name='TableName', example='pt_table_090901_emr', position='Query'),
 }
 
 model ListHiveTableLineagesResponseBody = {
@@ -1148,47 +709,19 @@ model ListHiveTableLineagesResponse = {
   body: ListHiveTableLineagesResponseBody(name='body'),
 }
 
-async function listHiveTableLineagesWithOptions(request: ListHiveTableLineagesRequest, runtime: Util.RuntimeOptions): ListHiveTableLineagesResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.tableName)) {
-    query['TableName'] = request.tableName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListHiveTableLineages',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listHiveTableLineages(request: ListHiveTableLineagesRequest): ListHiveTableLineagesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listHiveTableLineagesWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListHiveTableLineages', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListTablePartitionsRequest {
-  clusterId?: string(name='ClusterId', example='C-2A51D3826C701234'),
-  databaseName?: string(name='DatabaseName', example='default'),
-  order?: string(name='Order', example='ASC/DESC'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  tableName?: string(name='TableName', example='test_table'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  clusterId: string(name='ClusterId', example='C-2A51D3826C701234', position='Query'),
+  databaseName: string(name='DatabaseName', example='default', position='Query'),
+  order?: string(name='Order', example='ASC/DESC', position='Query'),
+  pageNumber: int32(name='PageNumber', example='1', minimum=1, position='Query'),
+  pageSize: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
+  tableName: string(name='TableName', example='test_table', position='Query'),
 }
 
 model ListTablePartitionsResponseBody = {
@@ -1218,51 +751,13 @@ model ListTablePartitionsResponse = {
   body: ListTablePartitionsResponseBody(name='body'),
 }
 
-async function listTablePartitionsWithOptions(request: ListTablePartitionsRequest, runtime: Util.RuntimeOptions): ListTablePartitionsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.databaseName)) {
-    query['DatabaseName'] = request.databaseName;
-  }
-  if (!Util.isUnset(request.order)) {
-    query['Order'] = request.order;
-  }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.tableName)) {
-    query['TableName'] = request.tableName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListTablePartitions',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function listTablePartitions(request: ListTablePartitionsRequest): ListTablePartitionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listTablePartitionsWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTablePartitions', 'POST', '/', 'json', false, 'json', request);
 }
 
 model OpenDataWorksStandardServiceRequest {
-  region?: string(name='Region'),
+  region: string(name='Region', position='Query'),
 }
 
 model OpenDataWorksStandardServiceResponseBody = {
@@ -1276,37 +771,15 @@ model OpenDataWorksStandardServiceResponse = {
   body: OpenDataWorksStandardServiceResponseBody(name='body'),
 }
 
-async function openDataWorksStandardServiceWithOptions(request: OpenDataWorksStandardServiceRequest, runtime: Util.RuntimeOptions): OpenDataWorksStandardServiceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.region)) {
-    query['Region'] = request.region;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'OpenDataWorksStandardService',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function openDataWorksStandardService(request: OpenDataWorksStandardServiceRequest): OpenDataWorksStandardServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return openDataWorksStandardServiceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'OpenDataWorksStandardService', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SearchManualDagNodeInstanceRequest {
-  dagId?: long(name='DagId', example='123434234'),
-  projectName?: string(name='ProjectName', example='test_odps_project'),
+  regionId?: string(name='RegionId', example='cn-shanghai', position='Host'),
+  dagId: long(name='DagId', example='123434234', position='Query'),
+  projectName: string(name='ProjectName', example='test_odps_project', position='Query'),
 }
 
 model SearchManualDagNodeInstanceResponseBody = {
@@ -1341,48 +814,23 @@ model SearchManualDagNodeInstanceResponse = {
   body: SearchManualDagNodeInstanceResponseBody(name='body'),
 }
 
-async function searchManualDagNodeInstanceWithOptions(request: SearchManualDagNodeInstanceRequest, runtime: Util.RuntimeOptions): SearchManualDagNodeInstanceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.dagId)) {
-    query['DagId'] = request.dagId;
-  }
-  if (!Util.isUnset(request.projectName)) {
-    query['ProjectName'] = request.projectName;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'SearchManualDagNodeInstance',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function searchManualDagNodeInstance(request: SearchManualDagNodeInstanceRequest): SearchManualDagNodeInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return searchManualDagNodeInstanceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SearchManualDagNodeInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SendTaskMetaCallbackRequest {
-  code?: string(name='Code'),
-  connectionInfo?: string(name='ConnectionInfo'),
-  endTime?: long(name='EndTime'),
-  resources?: [ string ](name='Resources'),
-  startTime?: long(name='StartTime'),
-  subType?: string(name='SubType'),
-  taskEnvParam?: string(name='TaskEnvParam'),
-  tenantId?: long(name='TenantId'),
-  type?: string(name='Type'),
-  user?: string(name='User'),
+  regionId: string(name='RegionId', position='Host'),
+  code: string(name='Code', position='Body'),
+  connectionInfo: string(name='ConnectionInfo', position='Body'),
+  endTime: long(name='EndTime', minimum=1, maximum=9223372036854775807, position='Body'),
+  resources?: [ string ](name='Resources', position='Body'),
+  startTime: long(name='StartTime', minimum=1, maximum=9223372036854775807, position='Body'),
+  subType: string(name='SubType', position='Body'),
+  taskEnvParam: string(name='TaskEnvParam', position='Body'),
+  tenantId: long(name='TenantId', minimum=1, maximum=9223372036854775807, position='Body'),
+  type: string(name='Type', position='Body'),
+  user?: string(name='User', position='Body'),
 }
 
 model SendTaskMetaCallbackResponseBody = {
@@ -1398,64 +846,15 @@ model SendTaskMetaCallbackResponse = {
   body: SendTaskMetaCallbackResponseBody(name='body'),
 }
 
-async function sendTaskMetaCallbackWithOptions(request: SendTaskMetaCallbackRequest, runtime: Util.RuntimeOptions): SendTaskMetaCallbackResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.code)) {
-    body['Code'] = request.code;
-  }
-  if (!Util.isUnset(request.connectionInfo)) {
-    body['ConnectionInfo'] = request.connectionInfo;
-  }
-  if (!Util.isUnset(request.endTime)) {
-    body['EndTime'] = request.endTime;
-  }
-  if (!Util.isUnset(request.resources)) {
-    body['Resources'] = request.resources;
-  }
-  if (!Util.isUnset(request.startTime)) {
-    body['StartTime'] = request.startTime;
-  }
-  if (!Util.isUnset(request.subType)) {
-    body['SubType'] = request.subType;
-  }
-  if (!Util.isUnset(request.taskEnvParam)) {
-    body['TaskEnvParam'] = request.taskEnvParam;
-  }
-  if (!Util.isUnset(request.tenantId)) {
-    body['TenantId'] = request.tenantId;
-  }
-  if (!Util.isUnset(request.type)) {
-    body['Type'] = request.type;
-  }
-  if (!Util.isUnset(request.user)) {
-    body['User'] = request.user;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'SendTaskMetaCallback',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function sendTaskMetaCallback(request: SendTaskMetaCallbackRequest): SendTaskMetaCallbackResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return sendTaskMetaCallbackWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SendTaskMetaCallback', 'POST', '/', 'json', true, 'form', request);
 }
 
 model SetSwitchValueRequest {
-  switchName?: string(name='SwitchName'),
-  switchValue?: string(name='SwitchValue'),
+  regionId?: string(name='RegionId', position='Host'),
+  switchName?: string(name='SwitchName', position='Query'),
+  switchValue?: string(name='SwitchValue', position='Query'),
 }
 
 model SetSwitchValueResponseBody = {
@@ -1469,39 +868,14 @@ model SetSwitchValueResponse = {
   body: SetSwitchValueResponseBody(name='body'),
 }
 
-async function setSwitchValueWithOptions(request: SetSwitchValueRequest, runtime: Util.RuntimeOptions): SetSwitchValueResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.switchName)) {
-    query['SwitchName'] = request.switchName;
-  }
-  if (!Util.isUnset(request.switchValue)) {
-    query['SwitchValue'] = request.switchValue;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'SetSwitchValue',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function setSwitchValue(request: SetSwitchValueRequest): SetSwitchValueResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return setSwitchValueWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SetSwitchValue', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StartCheckQualityRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model StartCheckQualityResponseBody = {
@@ -1564,36 +938,14 @@ model StartCheckQualityResponse = {
   body: StartCheckQualityResponseBody(name='body'),
 }
 
-async function startCheckQualityWithOptions(request: StartCheckQualityRequest, runtime: Util.RuntimeOptions): StartCheckQualityResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StartCheckQuality',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function startCheckQuality(request: StartCheckQualityRequest): StartCheckQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return startCheckQualityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartCheckQuality', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StartCollectQualityRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model StartCollectQualityResponseBody = {
@@ -1640,36 +992,14 @@ model StartCollectQualityResponse = {
   body: StartCollectQualityResponseBody(name='body'),
 }
 
-async function startCollectQualityWithOptions(request: StartCollectQualityRequest, runtime: Util.RuntimeOptions): StartCollectQualityResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StartCollectQuality',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function startCollectQuality(request: StartCollectQualityRequest): StartCollectQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return startCollectQualityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartCollectQuality', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StartDoCheckQualityRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model StartDoCheckQualityResponseBody = {
@@ -1684,36 +1014,14 @@ model StartDoCheckQualityResponse = {
   body: StartDoCheckQualityResponseBody(name='body'),
 }
 
-async function startDoCheckQualityWithOptions(request: StartDoCheckQualityRequest, runtime: Util.RuntimeOptions): StartDoCheckQualityResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StartDoCheckQuality',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function startDoCheckQuality(request: StartDoCheckQualityRequest): StartDoCheckQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return startDoCheckQualityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartDoCheckQuality', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StartTaskQualityRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model StartTaskQualityResponseBody = {
@@ -1760,36 +1068,14 @@ model StartTaskQualityResponse = {
   body: StartTaskQualityResponseBody(name='body'),
 }
 
-async function startTaskQualityWithOptions(request: StartTaskQualityRequest, runtime: Util.RuntimeOptions): StartTaskQualityResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StartTaskQuality',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function startTaskQuality(request: StartTaskQualityRequest): StartTaskQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return startTaskQualityWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StartTaskQuality', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StopCollectQualityRequest {
-  callbackResultString?: string(name='CallbackResultString'),
+  regionId?: string(name='RegionId', position='Host'),
+  callbackResultString: string(name='CallbackResultString', position='Body'),
 }
 
 model StopCollectQualityResponseBody = {
@@ -1806,32 +1092,13 @@ model StopCollectQualityResponse = {
   body: StopCollectQualityResponseBody(name='body'),
 }
 
-async function stopCollectQualityWithOptions(request: StopCollectQualityRequest, runtime: Util.RuntimeOptions): StopCollectQualityResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackResultString)) {
-    body['CallbackResultString'] = request.callbackResultString;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'StopCollectQuality',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
+async function stopCollectQuality(request: StopCollectQualityRequest): StopCollectQualityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'StopCollectQuality', 'POST', '/', 'json', true, 'form', request);
 }
 
-async function stopCollectQuality(request: StopCollectQualityRequest): StopCollectQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return stopCollectQualityWithOptions(request, runtime);
+model TriggerDataLoaderRequest {
+  regionId?: string(name='RegionId', position='Host'),
 }
 
 model TriggerDataLoaderResponseBody = {
@@ -1845,24 +1112,8 @@ model TriggerDataLoaderResponse = {
   body: TriggerDataLoaderResponseBody(name='body'),
 }
 
-async function triggerDataLoaderWithOptions(runtime: Util.RuntimeOptions): TriggerDataLoaderResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'TriggerDataLoader',
-    version = '2018-06-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function triggerDataLoader(): TriggerDataLoaderResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return triggerDataLoaderWithOptions(runtime);
+async function triggerDataLoader(request: TriggerDataLoaderRequest): TriggerDataLoaderResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TriggerDataLoader', 'POST', '/', 'json', false, 'json', request);
 }
 
