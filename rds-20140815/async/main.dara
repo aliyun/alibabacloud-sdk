@@ -218,18 +218,18 @@ model AllocateReadWriteSplittingConnectionRequest {
   connectionStringPrefix?: string(name='ConnectionStringPrefix', description='The prefix of the read-only routing endpoint. The prefix must be unique. It can be up to 30 characters in length and can contain lowercase letters and hyphens (-). It must start with a lowercase letter.
 
 >  The default prefix consists of the name of the primary instance followed by the letters rw.', example='rr-m5exxxxx-rw.mysql.rds.aliyuncs.com', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the primary instance. You can call the [DescribeDBInstances](~~26232~~) operation to query the ID of the instance.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The primary instance ID. You can call the DescribeDBInstances operation to query the primary instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   distributionType?: string(name='DistributionType', description='The method that is used to assign read weights. Valid values:
 
-*   **Standard**: ApsaraDB RDS automatically assigns read weights to the primary and read-only instances based on the specifications of these instances.
+*   **Standard**: The system automatically assigns read weights to the primary and read-only instances based on the specifications of these instances.
 *   **Custom**: You must manually assign a read weight to each instance.', example='Standard', position='Query'),
   maxDelayTime?: string(name='MaxDelayTime', description='The threshold of the latency that is allowed on the read-only instances. Valid values: 0 to 7200. Default value: 30. Unit: seconds.
 
 >  If the latency on a read-only instance exceeds the specified threshold, ApsaraDB RDS does not forward read requests to the read-only instance.', example='30', position='Query'),
   netType?: string(name='NetType', description='The network type of the read-only routing endpoint. Valid values:
 
-*   **Internet**: Internet
-*   **Intranet**: internal network
+*   **Internet**
+*   **Intranet**
 
 >  The default value is Intranet. Make sure that the network type of the read-only routing endpoint is the same as that of the primary instance.', example='Intranet', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -239,15 +239,18 @@ model AllocateReadWriteSplittingConnectionRequest {
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   weight?: string(name='Weight', description='The read weights of the primary instance and its read-only instances. The read weight is increased in increments of 100. The maximum value is 10000.
 
-* For ApsaraDB RDS instances, the value of this parameter is in the following format: `{"<ID of the read-only instance >":<Weight>,"master":<Weight>,"slave":<Weight>}`.
-* For ApsaraDB MyBase instances, the value of this parameter is in the following format: `[{"instanceName":"<ID of the primary instance>","weight":<Weight>,"role":"master"},{"instanceName":"<ID of the primary instance>","weight":<Weight>,"role":"slave"},{"instanceName":"<ID of the read-only instance>","weight":<Weight>,"role":"master"}]`
+*   For ApsaraDB RDS instances, the value of this parameter is in the following format: `{"<ID of the read-only instance >":<Weight>,"master":<Weight>,"slave":<Weight>}`.
+*   For ApsaraDB MyBase instances, the value of this parameter is in the following format: `[{"instanceName":"<Primary instance ID>","weight":<Weight>,"role":"master"},{"instanceName":"<Primary instance ID>","weight":<Weight>,"role":"slave"},{"instanceName":"<Read-only instance ID>","weight":<Weight>,"role":"master"}]`
 
-> * If you set the **DistributionType** parameter to **Custom**, you must also specify this parameter.
-> * If you set the **DistributionType** parameter to **Standard**, this parameter is invalid.', example='{"rm-bp1**********":800,"master":400,"slave":400}', position='Query'),
+> 
+
+*   This parameter must be specified when **DistributionType** is set to **Custom**.
+
+*   If **DistributionType** is set to **Standard**, this parameter is invalid.', example='{"rm-bp1**********":800,"master":400,"slave":400}', position='Query'),
 }
 
 model AllocateReadWriteSplittingConnectionResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='4C467B38-3910-447D-87BC-AC049166F216'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4C467B38-3910-447D-87BC-AC049166F216'),
 }
 
 model AllocateReadWriteSplittingConnectionResponse = {
@@ -257,15 +260,20 @@ model AllocateReadWriteSplittingConnectionResponse = {
 }
 
 /**
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   SQL Server
+  * ### [](#)Feature description
   * If read-only instances are attached to a primary ApsaraDB RDS for SQL Server instance, you can call this operation to apply for a unified read-only routing endpoint for the primary instance. After you apply for a read-only routing endpoint for a primary instance, the existing endpoints of the primary instance and its read-only instances remain valid. In addition, you can still apply for internal and public endpoints.
+  * ### [](#)Prerequisites
   * Before you call this operation, make sure that the following requirements are met:
-  * *   If the instance runs MySQL, the instance uses a shared proxy.
+  * *   The shared proxy feature is enabled for your ApsaraDB RDS for MySQL instance.
   * *   The instance is in the Running state.
   * *   Read-only instances are attached to the primary instance.
   * *   The instance does not have an ongoing Data Transmission Service (DTS) migration task.
   * *   The instance runs one of the following database versions and RDS editions:
-  *     *   SQL Server (cluster edition)
-  *     *   MySQL 5.7 on RDS High-availability Edition with local SSDs
+  *     *   SQL Server on RDS Cluster Edition
+  *     *   MySQL 5.7 on RDS High-availability Edition (with local disks)
   *     *   MySQL 5.6
   *
  */
@@ -501,9 +509,9 @@ async function checkCloudResourceAuthorized(request: CheckCloudResourceAuthorize
 }
 
 model CheckCreateDdrDBInstanceRequest {
-  backupSetId?: string(name='BackupSetId', description='The ID of the backup set that is used for the restoration. You can call the [DescribeCrossRegionBackups](~~121733~~) operation to query the ID of the backup set.
+  backupSetId?: string(name='BackupSetId', description='The ID of the backup set that is used for the restoration. You can call the DescribeCrossRegionBackups operation to query the backup set ID.
 
-> If you set **RestoreType** to **0**, you must also specify this parameter.', example='14358', position='Query'),
+>  This parameter must be specified when the **RestoreType** parameter is set to **0**.', example='14358', position='Query'),
   DBInstanceClass: string(name='DBInstanceClass', description='The instance type of the destination instance. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~).', example='rds.mysql.s1.small', position='Query'),
   DBInstanceStorage: int32(name='DBInstanceStorage', description='The storage capacity of the destination instance. Valid values: **5 to 2000**. Unit: GB. You can increase the storage capacity in increments of 5 GB. For more information, see [Primary instance types](~~26312~~).', example='20', position='Query'),
   engine: string(name='Engine', description='The database engine of the destination instance. Valid values:
@@ -517,8 +525,8 @@ model CheckCreateDdrDBInstanceRequest {
 *   Valid values when Engine is set to SQLServer: **2008r2, 08r2\\_ent_ha, 2012, 2012\\_ent_ha, 2012\\_std_ha, 2012\\_web, 2014\\_std_ha, 2016\\_ent_ha, 2016\\_std_ha, 2016\\_web, 2017\\_std_ha, 2017\\_ent, 2019\\_std_ha, and 2019\\_ent**
 *   PostgreSQL: **10.0, 11.0, 12.0, 13.0, 14.0, and 15.0**', example='5.6', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The region ID of the destination instance. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. You can call the [DescribeDBInstanceAttribute](~~610394~~) to obtain the ID of the resource group.', example='rg-acfmy****', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the destination instance. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can call the DescribeDBInstanceAttribute to query the resource group ID.', example='rg-acfmy****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTime?: string(name='RestoreTime', description='The point in time to which you want to restore data. The point in time that you specify must be earlier than the current time. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
@@ -532,7 +540,7 @@ model CheckCreateDdrDBInstanceRequest {
 Default value: **0**.', example='0', position='Query'),
   sourceDBInstanceName?: string(name='SourceDBInstanceName', description='The ID of the source instance if you want to restore data to a point in time.
 
-> If you set **RestoreType** to **1**, you must also specify this parameter.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+>  This parameter must be specified when the **RestoreType** parameter is set to **1**.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   sourceRegion?: string(name='SourceRegion', description='The region ID of the source instance if you want to restore data to a point in time.
 
 > If you set **RestoreType** to **1**, you must also specify this parameter.', example='cn-hangzhou', position='Query'),
@@ -553,11 +561,16 @@ model CheckCreateDdrDBInstanceResponse = {
 }
 
 /**
-  * Before you call this operation, make sure that the instance runs one of the following database engines:
-  * *   MySQL. For more information, see [Back up an ApsaraDB RDS for MySQL instance across regions](~~120824~~).
-  * *   SQL Server. For more information, see [Back up an ApsaraDB RDS for SQL Server instance across regions](~~187923~~).
-  * *   PostgreSQL. For more information, see [Enable cross-region backups for an ApsaraDB RDS for PostgreSQL instance](~~206671~~).
-  * > : If your RDS instance uses the new architecture and is created after October 10, 2022, this feature is not supported for the RDS instance. For more information, see [\\[Notice\\] SLR authorization is required to create an ApsaraDB RDS for PostgreSQL instance from October 10, 2022](~~452313~~).
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * >  If your ApsaraDB RDS for PostgreSQL instance uses the new architecture and is created after October 10, 2022, this feature is not supported for the RDS instance. For more information, see [\\[Notice\\] SLR authorization is required to create an ApsaraDB RDS for PostgreSQL instance from October 10, 2022](~~452313~~).
+  * ### [](#)References
+  * > Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
+  * *   [Use the cross-region backup feature of an ApsaraDB RDS for MySQL instance](~~120824~~) and [Restore the data of an ApsaraDB RDS for MySQL instance across regions](~~120875~~)
+  * *   [Use the cross-region backup feature of an ApsaraDB RDS for PostgreSQL instance](~~206671~~) and [Restore the data of an ApsaraDB RDS for PostgreSQL across regions](~~206662~~)
+  * *   [Use the cross-region backup feature of an ApsaraDB RDS for SQL Server instance](~~187923~~) and [Restore the data of an ApsaraDB RDS for SQL Server across regions](~~187924~~)
   *
  */
 async function checkCreateDdrDBInstance(request: CheckCreateDdrDBInstanceRequest): CheckCreateDdrDBInstanceResponse {
@@ -858,11 +871,11 @@ async function cloneParameterGroup(request: CloneParameterGroupRequest): ClonePa
 
 model ConfirmNotifyRequest {
   confirmor: long(name='Confirmor', description='The ID of the Alibaba Cloud account that is used to confirm the notification. You can set this parameter to **0**, which indicates that the notification is confirmed by the system.', example='0', position='Body'),
-  notifyIdList: [ long ](name='NotifyIdList', description='The IDs of the notifications that needs to be confirmed. You can call the [QueryNotify](~~427959~~) operation to query notifications for an instance.', shrink='json', position='Body'),
+  notifyIdList: [ long ](name='NotifyIdList', description='The notification IDs.', shrink='json', position='Body'),
 }
 
 model ConfirmNotifyResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='6919FA39-04CF-571F-A6B0-DCC7AECB4170'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6919FA39-04CF-571F-A6B0-DCC7AECB4170'),
 }
 
 model ConfirmNotifyResponse = {
@@ -872,7 +885,13 @@ model ConfirmNotifyResponse = {
 }
 
 /**
-  * After you call the QueryNotify operation to query notifications for an instance, you can call this operation to mark the notifications as confirmed. For more information, see [Query notifications for an ApsaraDB RDS instance](~~427959~~).
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * *   MariaDB
+  * ### [](#)Feature description
+  * After you call the [QueryNotify](~~610443~~) operation to query notifications for an instance, you can call this operation to mark the notifications as confirmed.
   *
  */
 async function confirmNotify(request: ConfirmNotifyRequest): ConfirmNotifyResponse {
@@ -2264,10 +2283,10 @@ async function createGADInstance(request: CreateGADInstanceRequest): CreateGADIn
 }
 
 model CreateGadInstanceMemberRequest {
-  centralDBInstanceId: string(name='CentralDBInstanceId', description='The ID of the central node. You can call the [DescribeGadInstances](~~330105~~) operation to query the ID of the central node.', example='gad-rm-bp1npi2j8****', position='Query'),
-  centralRdsDtsAdminAccount: string(name='CentralRdsDtsAdminAccount', description='The username of the privileged account of the central node. You can call the [DescribeAccounts](~~26265~~) operation to query the privileged account of the central node.', example='test', position='Query'),
+  centralDBInstanceId: string(name='CentralDBInstanceId', description='The ID of the central node . You can call the DescribeGadInstances operation to query the ID.', example='gad-rm-bp1npi2j8****', position='Query'),
+  centralRdsDtsAdminAccount: string(name='CentralRdsDtsAdminAccount', description='The username of the privileged account of the central node. You can call the DescribeAccounts operation to query the privileged account of the central node.', example='test', position='Query'),
   centralRdsDtsAdminPassword: string(name='CentralRdsDtsAdminPassword', description='The password of the privileged account of the central node.', example='Test12345', position='Query'),
-  centralRegionId: string(name='CentralRegionId', description='The region ID of the central node. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  centralRegionId: string(name='CentralRegionId', description='The region ID of the central node. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   DBList: string(name='DBList', description='A JSON array that consists of the information about the databases on the central node. All database information that you specify in this array is synchronized to the unit nodes of the global active database cluster. The JSON array contains the following fields:
 
 *   **name**: the name of the database.
@@ -2277,7 +2296,7 @@ model CreateGadInstanceMemberRequest {
 Example: `{ "testdb": { "name": "testdb", "all": false, "Table": { "order": { "name": "order", "all": true }, "ordernew": { "name": "ordernew", "all": true } } } }`
 
 >  For more information, see [Objects of DTS tasks](~~209545~~).', example='{    "testdb": {     "name": "testdb",     "all": false,     "Table": {       "order": {         "name": "order",         "all": true       },       "ordernew": {         "name": "ordernew",         "all": true       }     }   } }', position='Query'),
-  gadInstanceId: string(name='GadInstanceId', description='The ID of the global active database cluster. You can call the [DescribeGadInstances](~~330105~~) operation to query the ID of the global active database cluster.', example='gad-rm-bp1npi2j8****', position='Query'),
+  gadInstanceId: string(name='GadInstanceId', description='The ID of the global active database cluster. You can call the DescribeGadInstances operation to query the ID.', example='gad-rm-bp1npi2j8****', position='Query'),
   unitNode: [ 
     {
       DBInstanceDescription?: string(name='DBInstanceDescription', description='The name of the unit node that you want to create. The name must meet the following requirements:
@@ -2287,17 +2306,17 @@ Example: `{ "testdb": { "name": "testdb", "all": false, "Table": { "order": { "n
 *   The name cannot start with `http://` or `https://`.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='test'),
-      DBInstanceStorage?: long(name='DBInstanceStorage', description='The storage capacity of the unit node that you want to create. Unit: GB. You can adjust the storage capacity in increments of 5 GB. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~). You can call the [DescribeAvailableResource](~~134039~~) operation to query the storage capacity range that is supported for a specified instance type in a region.
+      DBInstanceStorage?: long(name='DBInstanceStorage', description='The storage capacity of the unit node that you want to create. Unit: GB. You can adjust the storage capacity in increments of 5 GB. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~). You can also call the DescribeAvailableResource operation to query the storage capacity range that is available for a specific instance type in a region.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='20'),
       DBInstanceStorageType?: string(name='DBInstanceStorageType', description='The storage type of the new instance. Valid values:
 
 *   **local_ssd**: local SSDs
 *   **cloud_ssd**: standard SSDs
-*   **cloud_essd**: enhanced SSDs (ESSDs) of performance level 1 (PL1)
-*   **cloud_essd2**: ESSDs of PL2.
-*   **cloud_essd3**: ESSD of PL3.', example='cloud_essd'),
-      dbInstanceClass?: string(name='DbInstanceClass', description='The instance type of the unit node that you want to create. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~). You can call the [DescribeAvailableResource](~~134039~~) operation to query the available instance types in a region.
+*   **cloud_essd**: PL1 ESSDs
+*   **cloud_essd2**: PL2 ESSDs
+*   **cloud_essd3**: PL3 ESSD', example='cloud_essd'),
+      dbInstanceClass?: string(name='DbInstanceClass', description='The instance type of the unit node that you want to create. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~). You can call the DescribeAvailableResource operation to query the available instance types in a region.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='rds.mysql.t1.small'),
       dtsConflict: string(name='DtsConflict', description='The conflict resolution policy based on which Data Transmission Service (DTS) responds to primary key conflicts during data synchronization to the unit node that you want to create. Valid values:
@@ -2328,7 +2347,7 @@ Example: `{ "testdb": { "name": "testdb", "all": false, "Table": { "order": { "n
 *   **5.5**
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='8.0'),
-      regionID: string(name='RegionID', description='The region ID of the unit node that you want to create. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.
+      regionID: string(name='RegionID', description='The region ID of the unit node that you want to create. You can call the DescribeRegions operation to query the most recent region list.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='cn-hangzhou'),
       securityIPList?: string(name='SecurityIPList', description='The IP address whitelist of the unit node that you want to create. For more information, see [IP address whitelist](~~43185~~). If you want to add more than one entry to the IP address whitelist, separate the entries with commas (,). Each entry must be unique. The IP address whitelist can contain up to 1,000 entries. The entries in the IP address whitelist must be in one of the following formats:
@@ -2343,16 +2362,16 @@ Example: `{ "testdb": { "name": "testdb", "all": false, "Table": { "order": { "n
       vpcID: string(name='VpcID', description='The virtual private cloud (VPC) ID of the unit node that you want to create.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='vpc-bp19ame5m1r3o****'),
-      zoneID?: string(name='ZoneID', description='The zone ID of the unit node that you want to create. You can call the [DescribeRegions](~~26243~~) operation to query the ID of the zone.
+      zoneID?: string(name='ZoneID', description='The zone ID of the unit node that you want to create. You can call the DescribeRegions operation to query zone ID.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='cn-hangzhou-h'),
-      zoneIDSlave1?: string(name='ZoneIDSlave1', description='The zone ID of the secondary node of the unit node that you want to create. You can call the [DescribeRegions](~~26243~~) operation to query the ID of the zone.
+      zoneIDSlave1?: string(name='ZoneIDSlave1', description='The zone ID of the secondary node of the unit node that you want to create. You can call the DescribeRegions operation to query the zone ID.
 
 *   If the value of this parameter is the same as the **zone ID** of the unit node that you want to create, the single-zone deployment method is used.
 *   If the value of this parameter is different from the **zone ID** of the unit node that you want to create, the multiple-zone deployment method is used.
 
 **N** specifies unit node N. The value of N is an integer that ranges from **1 to 10**. You can create up to 10 unit nodes in a global active database cluster.', example='cn-hangzhou-h'),
-      zoneIDSlave2?: string(name='ZoneIDSlave2', description='The zone ID of the logger node of the unit node that you want to create. You can call the [DescribeRegions](~~26243~~) operation to query the ID of the zone.
+      zoneIDSlave2?: string(name='ZoneIDSlave2', description='The zone ID of the logger node of the unit node that you want to create. You can call the DescribeRegions operation to query the zone ID.
 
 *   If the value of this parameter is the same as the **zone ID** of the unit node that you want to create, the single-zone deployment method is used.
 *   If the value of this parameter is different from the **zone ID** of the unit node that you want to create, the multiple-zone deployment method is used.
@@ -2377,9 +2396,11 @@ model CreateGadInstanceMemberResponse = {
 }
 
 /**
-  * ## [](#)Prerequisites
-  * An ApsaraDB RDS global active database cluster is created. You can call the [CreateGADInstance](~~336893~~) operation to create a global active database cluster.
-  * For more information, see [Add unit nodes to or move unit nodes from an ApsaraDB RDS global active database cluster](~~331851~~).
+  * ### [](#)Supported database engines
+  * *   RDS MySQL
+  * ### [](#)References
+  * > Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
+  * [Add or remove unit nodes](~~331851~~)
   *
  */
 async function createGadInstanceMember(request: CreateGadInstanceMemberRequest): CreateGadInstanceMemberResponse {
@@ -3152,10 +3173,9 @@ model DeleteBackupFileResponse = {
 }
 
 /**
-  * ### Supported database engine
-  * SQL Server
-  * ### Usage notes
-  * This operation is available for users whose accounts are added to the whitelist. If your account is not added to the whitelist, you can join the Database Backup (DBS) DingTalk group whose ID is 35585947 and contact the on-duty engineer to add your account to the whitelist.
+  * ### [](#)Supported database engines
+  * RDS SQL Server
+  * >  This operation is available only for users that are added to the whitelist.
   *
  */
 async function deleteBackupFile(request: DeleteBackupFileRequest): DeleteBackupFileResponse {
@@ -3423,9 +3443,9 @@ async function deleteGadInstance(request: DeleteGadInstanceRequest): DeleteGadIn
 
 model DeleteParameterGroupRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  parameterGroupId: string(name='ParameterGroupId', description='The ID of the parameter template. You can call the [DescribeParameterGroups](~~144491~~) operation to query the ID of the parameter template.', example='rpg-gfs****', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can call the [DescribeDBInstanceAttribute](~~610394~~) to obtain the ID of the resource group.', example='rg-acfmy*****', position='Query'),
+  parameterGroupId: string(name='ParameterGroupId', description='The parameter template ID. You can call the DescribeParameterGroups operation to query the parameter template ID.', example='rpg-gfs****', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can call the DescribeDBInstanceAttribute to obtain the resource group ID.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3445,8 +3465,6 @@ model DeleteParameterGroupResponse = {
   * ### [](#)Supported database engines
   * *   MySQL
   * *   PostgreSQL
-  * *   SQL Server
-  * *   MariaDB
   * ### [](#)References
   * > Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
   * *   [Use a parameter template to configure the parameters of ApsaraDB RDS for MySQL instances](~~130565~~)
@@ -3577,10 +3595,10 @@ async function deleteSlot(request: DeleteSlotRequest): DeleteSlotResponse {
 }
 
 model DeleteUserBackupFileRequest {
-  backupId: string(name='BackupId', description='The ID of the full backup file. You can call the [ListUserBackupFiles](~~257821~~) operation to query the ID of the file.', example='b-w1haya7e4i25********', position='Query'),
+  backupId: string(name='BackupId', description='The ID of the full backup file. You can call the ListUserBackupFiles operation to query the information about all full backup files in a region.', example='b-w1haya7e4i25********', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. You can call the [DescribeDBInstanceAttribute](~~610394~~) to obtain the ID of the resource group.', example='rg-acfmy*****', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the instance. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can call the DescribeDBInstanceAttribute operation to query the resource group ID.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -3597,11 +3615,11 @@ model DeleteUserBackupFileResponse = {
 }
 
 /**
-  * ### [](#)Supported database engines
+  * ### [](#)Supported database engine
   * *   MySQL
-  * ### [](#)Description
+  * ### [](#)Usage notes
   * *   A full backup file contains the data of a self-managed MySQL instance. You can restore the data of a self-managed MySQL instance from a full backup file to an ApsaraDB RDS for MySQL instance. For more information, see [Migrate the data of a self-managed MySQL 5.7 instance to the cloud](~~251779~~).
-  * *   This operation deletes full backup files only from the ApsaraDB RDS console. This operation does not affect the full backup files that are stored as objects in Object Storage Service (OSS) buckets. After you call this operation to delete a full backup file, you can call the [ImportUserBackupFile](~~260266~~) operation to import the full backup file again.
+  * *   This operation deletes full backup files only from the ApsaraDB RDS console. This operation does not affect the full backup files that are stored as objects in Object Storage Service (OSS) buckets. After you call this operation to delete a full backup file, you can call the ImportUserBackupFile operation to reimport the full backup file.
   *
  */
 async function deleteUserBackupFile(request: DeleteUserBackupFileRequest): DeleteUserBackupFileResponse {
@@ -6681,7 +6699,7 @@ async function describeDBInstancePromoteActivity(request: DescribeDBInstanceProm
 }
 
 model DescribeDBInstanceProxyConfigurationRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxxxxxx', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -6693,11 +6711,10 @@ model DescribeDBInstanceProxyConfigurationResponseBody = {
 *   **Enable**
 *   **Disable**
 
-The return value is a JSON string. Examples:
+The return value is a JSON string. Example:
 
-{"status":"Disable", "check_interval_seconds": 60,
-
-"max_failed_login_attempts": 60, "blocking_seconds": 600}
+    {"status":"Disable", "check_interval_seconds": 60,
+              "max_failed_login_attempts": 60, "blocking_seconds": 600}
 
 Description:
 
@@ -6713,10 +6730,10 @@ Description:
 *   **Enable**
 *   **Disable**
 
-The return value is a JSON string. Example:
+In this case, the return value is a JSON string. Examples:
 
-{"status":"Disable"}.', example='{\\"status\\":\\"Disable\\"}'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='E9DD55F4-1A5F-48CA-BA57-DFB3CA8C4C34'),
+    {"status":"Disable"}.', example='{\\"status\\":\\"Disable\\"}'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E9DD55F4-1A5F-48CA-BA57-DFB3CA8C4C34'),
   transparentSwitchConfiguration?: string(name='TransparentSwitchConfiguration', description='Indicates whether the transparent switchover feature is enabled.
 
 *   **Enable**
@@ -6724,7 +6741,7 @@ The return value is a JSON string. Example:
 
 The return value is a JSON string. Example:
 
-{"status":"Enable"}.', example='{\\"status\\":\\"Enable\\"}'),
+    {"status":"Enable"}', example='{\\"status\\":\\"Enable\\"}'),
 }
 
 model DescribeDBInstanceProxyConfigurationResponse = {
@@ -6734,7 +6751,12 @@ model DescribeDBInstanceProxyConfigurationResponse = {
 }
 
 /**
-  * This operation is used to query the original settings of shared proxies rather than the latest settings of dedicated proxies. For more information about how to query the settings of dedicated proxies, see [DescribeDBProxy](~~141055~~).
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   SQL Server
+  * ### [](#)Feature description
+  * This operation is used to query the shared proxy settings of an instance that runs MySQL or the read/write splitting settings of an instance that runs SQL Server. For more information about how to query the dedicated proxy settings of an ApsaraDB RDS for MySQL instance, see [DescribeDBProxy](~~610506~~).
+  * ### [](#)Prerequisites
   * Before you call this operation, make sure that the following requirements are met:
   * *   The shared proxy feature must be enabled for the primary instance.
   * *   The read/write splitting feature must be enabled for the primary instance.
@@ -7511,20 +7533,20 @@ async function describeDBInstancesForClone(request: DescribeDBInstancesForCloneR
 }
 
 model DescribeDBMiniEngineVersionsRequest {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance. You can call the [DescribeDBInstances](~~26232~~) operation to query the ID of the instance.', example='rm-uf6wjk5*******', position='Query'),
-  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The dedicated cluster ID. You can call the [DescribeDedicatedHostGroups](~~141946~~) operation to query the ID of the dedicated cluster.', example='dhg-4n*****', position='Query'),
+  DBInstanceId?: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5*******', position='Query'),
+  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The dedicated cluster ID. You can call the DescribeDedicatedHostGroups operation to query the dedicated cluster ID.', example='dhg-4n*****', position='Query'),
   engine?: string(name='Engine', description='The database engine of the instance. Valid values: **MySQL** and **PostgreSQL**.', example='MySQL', position='Query'),
   engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values:
 
 *   Valid values when you set the Engine parameter to MySQL: **8.0**, **5.7**, **5.6**, and **5.5**
 *   Valid values when you set the Engine parameter to PostgreSQL: **15.0**, **14.0**, **13.0**, **12.0**, **11.0**, and **10.0**', example='5.7', position='Query'),
   minorVersionTag?: string(name='MinorVersionTag', description='The minor engine version of the instance. You can specify this parameter to query the minor engine version of the instance.', example='rds_20220731', position='Query'),
-  nodeType?: string(name='NodeType', description='The RDS edition of the instance. Valid values:
+  nodeType?: string(name='NodeType', description='The instance edition. Valid values:
 
 *   **Basic**: RDS Basic Edition
 *   **HighAvailability**: RDS High-availability Edition
 *   **Finance**: RDS Enterprise Edition', example='HighAvailability', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   storageType?: string(name='StorageType', description='The storage type of the instance. Valid values:
 
@@ -7590,6 +7612,10 @@ model DescribeDBMiniEngineVersionsResponse = {
 }
 
 /**
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * ### [](#)Usage notes
   * Before you purchase or upgrade an instance that runs MySQL or PostgreSQL, you can call the DescribeDBMiniEngineVersions operation to query the minor engine versions that are available for the instance.
   *
  */
@@ -7656,7 +7682,7 @@ For example, a value of 4/8 indicates that the proxy instance has 4 cores and 8 
 *   2: dedicated proxy
 
 >  ApsaraDB RDS for PostgreSQL instances support only dedicated proxies.', example='2'),
-  DBProxyPersistentConnectionSupport?: string(name='DBProxyPersistentConnectionSupport', description='An internal parameter. You can ignore this parameter.', example='test'),
+  DBProxyPersistentConnectionStatus?: string(name='DBProxyPersistentConnectionStatus'),
   DBProxyServiceStatus?: string(name='DBProxyServiceStatus', description='The status of the database proxy.
 
 *   Shutdown: disabled
@@ -8084,80 +8110,80 @@ async function describeDedicatedHostGroups(request: DescribeDedicatedHostGroupsR
 }
 
 model DescribeDedicatedHostsRequest {
-  allocationStatus?: string(name='AllocationStatus', description='Specifies whether to query the hosts on which you can create instances or those on which you cannot create instances. Valid values:
+  allocationStatus?: string(name='AllocationStatus', description='Specifies whether instances can be deployed on the host. Valid values:
 
-*   **0**: queries the hosts on which you cannot create instances
-*   **1**: queries the hosts on which you can create instances', example='1', position='Query'),
-  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The ID of the dedicated cluster. You can call the [DescribeDedicatedHostGroups](~~141946~~) operation to query the IDs of dedicated clusters.', example='dhg-7a9xxxxxxxx', position='Query'),
-  dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the host.', example='ch-t4nn100ddxxxxxxxx', position='Query'),
-  hostStatus?: string(name='HostStatus', description='The status of the hosts. Valid values:
+*   **0**: Instances cannot be deployed on the host.
+*   **1**: Instances can be deployed on the host.', example='1', position='Query'),
+  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The dedicated cluster ID. You can call the DescribeDedicatedHostGroups operation to query the dedicated cluster ID.', example='dhg-7a9xxxxxxxx', position='Query'),
+  dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the host in the dedicated cluster.', example='ch-t4nn100ddxxxxxxxx', position='Query'),
+  hostStatus?: string(name='HostStatus', description='The status of the host. Valid values:
 
-*   **0**: queries the hosts that are being created
-*   **1**: queries the hosts that are running
-*   **2**: queries the hosts that are faulty
-*   **3**: queries the hosts that are being replaced
-*   **4**: queries the hosts that are deprecated
-*   **5**: queries the hosts that are being deleted
-*   **6**: queries the hosts that are restarting', example='1', position='Query'),
-  hostType?: string(name='HostType', description='The type of storage media that is used for the hosts. Valid values:
+*   **0**: creating
+*   **1**: running
+*   **2**: faulty
+*   **3**: being replaced
+*   **4**: deprecated
+*   **5**: deleting
+*   **6**: restarting', example='1', position='Query'),
+  hostType?: string(name='HostType', description='The storage type of the host. Valid values:
 
-*   **dhg_cloud_ssd**: enhanced solid-state drive (SSD)
+*   **dhg_cloud_ssd**: enhanced SSD (ESSD)
 *   **dhg_local_ssd**: local SSD', example='dhg_cloud_ssd', position='Query'),
-  orderId?: long(name='OrderId', description='The ID of the order.', example='102565235', position='Query'),
+  orderId?: long(name='OrderId', description='The order ID.', example='102565235', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', description='The region ID of the hosts. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  zoneId?: string(name='ZoneId', description='The zone ID of the hosts.', example='cn-hangzhou-i', position='Query'),
+  zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-i', position='Query'),
 }
 
 model DescribeDedicatedHostsResponseBody = {
-  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The ID of the dedicated cluster.', example='dhg-7a9xxxxxxxx'),
+  dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The host group ID.', example='dhg-7a9xxxxxxxx'),
   dedicatedHosts?: {
     dedicatedHosts?: [ 
     {
-      accountName?: string(name='AccountName', description='The account of the host. You can call the [CreateDedicatedHostAccount](~~196877~~) operation to create a host account.', example='test123'),
-      allocationStatus?: string(name='AllocationStatus', description='Indicates whether the system allows you to create instances on the host. Valid values:
+      accountName?: string(name='AccountName', description='The host account. You can call the [CreateDedicatedHostAccount](~~196877~~) operation to create a host account.', example='test123'),
+      allocationStatus?: string(name='AllocationStatus', description='Specifies whether instances can be deployed on the host. Valid values:
 
-*   **0**: The system does not allow you to create instances on the host.
-*   **1**: The system allows you to create instances on the host.', example='1'),
-      bastionInstanceId?: string(name='BastionInstanceId', description='The ID of the bastion host.', example='bastionhost-cn-m7xxxxxxxx'),
-      CPUAllocationRatio?: string(name='CPUAllocationRatio', description='The core overcommitment ratio of the dedicated cluster. Unit: %. For more information about the core overcommitment ratio, see [Manage a dedicated cluster](~~182328~~).', example='200'),
-      cpuUsed?: string(name='CpuUsed', description='The number of used cores on the host.', example='4'),
+*   **0**: Instances cannot be deployed on the host.
+*   **1**: Instances can be deployed on the host.', example='1'),
+      bastionInstanceId?: string(name='BastionInstanceId', description='The bastion host ID.', example='bastionhost-cn-m7xxxxxxxx'),
+      CPUAllocationRatio?: string(name='CPUAllocationRatio', description='The core overcommitment ratio of the dedicated cluster. Unit: percentage. For more information about the core overcommitment ratio, see [Manage a dedicated cluster](~~182328~~).', example='200'),
+      cpuUsed?: string(name='CpuUsed', description='The number of used CPU cores on the host. Unit: cores.', example='4'),
       createdTime?: string(name='CreatedTime', description='The time when the host was created.', example='2021-03-25 17:29:06.0'),
-      dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The ID of the dedicated cluster.', example='dhg-7a9xxxxxxxx'),
-      dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the host.', example='i-bpxxxxxxx'),
-      diskAllocationRatio?: string(name='DiskAllocationRatio', description='The disk overcommitment ratio of the dedicated cluster. Unit: %. For more information about the disk overcommitment ratio, see [Manage a dedicated cluster](~~182328~~).', example='200'),
+      dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The dedicated cluster ID.', example='dhg-7a9xxxxxxxx'),
+      dedicatedHostId?: string(name='DedicatedHostId', description='The host ID.', example='i-bpxxxxxxx'),
+      diskAllocationRatio?: string(name='DiskAllocationRatio', description='The disk overcommitment ratio of the dedicated cluster. Unit: percentage. For more information about the core overcommitment ratio, see [Manage a dedicated cluster](~~182328~~).', example='200'),
       endTime?: string(name='EndTime', description='The time when the host expires.', example='2021-04-25T16:00:00Z'),
       engine?: string(name='Engine', description='The database engine of instances that are created on the host.', example='mysql'),
-      hostCPU?: string(name='HostCPU', description='The total number of cores that are configured for the host.', example='8'),
-      hostClass?: string(name='HostClass', description='The specifications of the host.', example='ecs.i2.16xlarge'),
+      hostCPU?: string(name='HostCPU', description='The total number of CPU cores that are configured for the host. Unit: cores.', example='8'),
+      hostClass?: string(name='HostClass', description='The instance type of the host.', example='ecs.i2.16xlarge'),
       hostMem?: string(name='HostMem', description='The total memory space of the host. Unit: MB.', example='32238'),
-      hostName?: string(name='HostName', description='The name of the host.', example='testHost1'),
+      hostName?: string(name='HostName', description='The host name.', example='testHost1'),
       hostStatus?: string(name='HostStatus', description='The status of the host. Valid values:
 
-*   **0**: The host is being created.
-*   **1**: The host is running.
-*   **2**: The host is faulty.
-*   **3**: The host is being replaced.
-*   **4**: The host is deprecated.
-*   **5**: The host is being deleted.
-*   **6**: The host is restarting.', example='1'),
+*   **0**: creating
+*   **1**: running
+*   **2**: faulty
+*   **3**: being replaced
+*   **4**: deprecated
+*   **5**: deleting
+*   **6**: restarting', example='1'),
       hostStorage?: string(name='HostStorage', description='The storage capacity of the host. Unit: MB.', example='2097152'),
-      hostType?: string(name='HostType', description='The type of storage media that is used for the host. Valid values:
+      hostType?: string(name='HostType', description='The storage type of the host. Valid values:
 
-*   **dhg_cloud_ssd**: enhanced SSD
+*   **dhg_cloud_ssd**: ESSD
 *   **dhg_local_ssd**: local SSD', example='dhg_cloud_ssd'),
       IPAddress?: string(name='IPAddress', description='The internal IP address of the host.', example='192.xx.xx.xx'),
-      imageCategory?: string(name='ImageCategory', description='The image of the host. This parameter is returned only when the **Engine** parameter is set to **mssql**. Valid values:
+      imageCategory?: string(name='ImageCategory', description='The host image. This parameter is returned only when the **Engine** parameter is set to **mssql**. Valid values:
 
-*   **WindowsWithMssqlStdLicense**: a Windows image, which contains the licenses of the SQL Server Standard Edition
-*   **WindowsWithMssqlEntLisence**: a Windows image, which contains the licenses of the SQL Server Enterprise Edition
-*   **WindowsWithMssqlWebLisence**: a Windows image, which contains the licenses of the SQL Server Web Edition', example='WindowsWithMssqlStdLicense'),
+*   **WindowsWithMssqlStdLicense**: a Windows image that contains the licenses of SQL Server Standard Edition
+*   **WindowsWithMssqlEntLisence**: a Windows image that contains the licenses of SQL Server Enterprise Edition
+*   **WindowsWithMssqlWebLisence**: a Windows image that contains the licenses of SQL Server Web Edition', example='WindowsWithMssqlStdLicense'),
       instanceNumber?: string(name='InstanceNumber', description='The total number of instances that are created on the host.', example='4'),
       memAllocationRatio?: string(name='MemAllocationRatio', description='The maximum memory usage per host in the dedicated cluster.', example='90'),
-      memoryUsed?: string(name='MemoryUsed', description='The amount of used memory space on the host. Unit: MB.', example='16384'),
-      openPermission?: string(name='OpenPermission', description='Indicates whether the operating system permissions of the host can be granted. Valid values:
+      memoryUsed?: string(name='MemoryUsed', description='The size of the used memory. Unit: MB.', example='16384'),
+      openPermission?: string(name='OpenPermission', description='Indicates whether the feature that allows you to have the OS permissions on the host is enabled. Valid values:
 
 *   **0** or **null**: The permissions cannot be granted.
 *   **1**: The permissions can be granted.
@@ -8168,8 +8194,8 @@ model DescribeDedicatedHostsResponseBody = {
       zoneId?: string(name='ZoneId', description='The zone ID of the host.', example='cn-hangzhou-i'),
     }
   ](name='DedicatedHosts')
-  }(name='DedicatedHosts', description='An array that consists of hosts returned.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C860658E-68A6-46C1-AF6E-3AE7C4D3CACF'),
+  }(name='DedicatedHosts', description='The host information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C860658E-68A6-46C1-AF6E-3AE7C4D3CACF'),
 }
 
 model DescribeDedicatedHostsResponse = {
@@ -8950,17 +8976,17 @@ async function describeHostGroupElasticStrategyParameters(request: DescribeHostG
 
 model DescribeHostWebShellRequest {
   accountName: string(name='AccountName', description='The username of the account that is used to log on to the host of the instance.', example='testOsAccount1', position='Query'),
-  accountPassword: string(name='AccountPassword', description='The password of the account.', example='***', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxxx', position='Query'),
-  hostName: string(name='HostName', description='The hostname of the instance. You can call the [DescribeDBInstanceIpHostname](~~610525~~) operation to query the hostname.', example='testHost1', position='Query'),
+  accountPassword: string(name='AccountPassword', description='The password of the host account.', example='***', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  hostName: string(name='HostName', description='The instance hostname. You can call the DescribeDBInstanceIpHostname operation to query the hostname.', example='testHost1', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionID: string(name='RegionID', description='The region ID of the instance. You can call the [DescribeDBInstanceAttribute](~~610394~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionID: string(name='RegionID', description='The region ID of the instance. You can call the DescribeDBInstanceAttribute operation to query the region ID.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeHostWebShellResponseBody = {
-  loginUrl?: string(name='LoginUrl', description='The URL of the webshell.', example='***'),
+  loginUrl?: string(name='LoginUrl', description='The webshell URL.', example='***'),
   requestId?: string(name='RequestId', description='The request ID.', example='842B73C8-5776-4BD9-9872-69C8C46DD7D3'),
 }
 
@@ -8971,15 +8997,18 @@ model DescribeHostWebShellResponse = {
 }
 
 /**
-  * >  This operation is available only for instances that run SQL Server. If you require this operation, contact **Alibaba Cloud technical support**.
+  * ### [](#)Supported database engine
+  * *   SQL Server
+  * ### [](#)Usage notes
+  * This operation is available only for ApsaraDB RDS for SQL Server instances and specific users. If you want to call this operation, contact **Alibaba Cloud technical support**.
   * ### [](#)Prerequisites
-  * The instance meets the following requirements:
-  * *   The instance resides in a region other than the China (Zhangjiakou) region.
-  * *   The instance runs RDS Basic Edition, RDS Cluster Edition, or RDS High-availability Edition. If your instance runs RDS High-availability Edition, make sure that the instance runs SQL Server 2012 or later.
-  * *   The instance belongs to the general-purpose or dedicated instance family. The shared instance family is not supported.
-  * *   The instance resides in a virtual private cloud (VPC). For more information about how to change the network type of an RDS instance, see [Change the network type](~~95707~~).
-  * *   If the instance runs RDS High-availability Edition or RDS Cluster Edition, the instance is created on or after January 1, 2021. If the instance runs RDS Basic Edition, the instance is created on or after September 02, 2022. You can view the **Creation Time** parameter of an instance in the **Status** section of the **Basic Information** page in the ApsaraDB RDS console.
-  * Your **Alibaba Cloud account** is used for logons.
+  * *   The instance meets the following requirements:
+  *     *   The instance resides in a region other than the China (Zhangjiakou) region.
+  *     *   The instance runs RDS Basic Edition, RDS Cluster Edition, or RDS High-availability Edition. If your instance runs RDS High-availability Edition, make sure that the instance runs SQL Server 2012 or later.
+  *     *   The instance belongs to the general-purpose or dedicated instance family. The shared instance family is not supported.
+  *     *   The instance resides in a virtual private cloud (VPC). For more information about how to change the network type of an RDS instance, see [Change the network type](~~95707~~).
+  *     *   If the instance runs RDS High-availability Edition or RDS Cluster Edition, the instance is created on or after January 1, 2021. If the instance runs RDS Basic Edition, the instance is created on or after September 02, 2022. You can view the **Creation Time** parameter of an instance in the **Status** section of the **Basic Information** page in the ApsaraDB RDS console.
+  * *   Your **Alibaba Cloud account** is used for logons.
   *
  */
 async function describeHostWebShell(request: DescribeHostWebShellRequest): DescribeHostWebShellResponse {
@@ -10387,39 +10416,35 @@ async function describeRdsResourceSettings(request: DescribeRdsResourceSettingsR
 }
 
 model DescribeReadDBInstanceDelayRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the primary instance.', example='rm-bp*****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The primary instance ID. You can call the DescribeDBInstances operation to query the primary instance ID.', example='rm-bp*****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  readInstanceId: string(name='ReadInstanceId', description='The ID of the read-only instance.', example='rr-bp*****', position='Query'),
-  regionId?: string(name='RegionId', description='The ID of the region where the global active database clusters that you want to query reside. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  readInstanceId: string(name='ReadInstanceId', description='The read-only instance ID. You can call the DescribeDBInstances operation to query the read-only instance ID.', example='rr-bp*****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
 }
 
 model DescribeReadDBInstanceDelayResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the primary instance.', example='rm-bp*****'),
-  delayTime?: int32(name='DelayTime', description='The latency of data replication between the primary instance and the read-only instance.', example='0'),
+  DBInstanceId?: string(name='DBInstanceId', description='The primary instance ID.', example='rm-bp*****'),
+  delayTime?: int32(name='DelayTime', description='The latency of data replication. Unit: seconds.', example='0'),
   items?: {
     items?: [ 
     {
-      DBInstanceId?: string(name='DBInstanceId', description='The ID of the primary instance.', example='rm-bp*****'),
+      DBInstanceId?: string(name='DBInstanceId', description='The primary instance ID.', example='rm-bp*****'),
       readDBInstanceNames?: {
         readDBInstanceName?: [ string ](name='ReadDBInstanceName')
-      }(name='ReadDBInstanceNames', description='An array that consists of information about the read-only instance.
-
->  This parameter is returned only when the primary instance runs the MySQL database engine.'),
+      }(name='ReadDBInstanceNames', description='An array that consists of information about the read-only instance.'),
       readDelayTimes?: {
         readDelayTime?: [ string ](name='ReadDelayTime')
-      }(name='ReadDelayTimes', description='An array that consists of latencies.
-
->  This parameter is returned only when the primary instance runs the MySQL database engine.'),
+      }(name='ReadDelayTimes', description='The latency of data replication.'),
       readonlyInstanceDelay?: {
         readonlyInstanceDelay?: [ 
         {
           flushLag?: string(name='FlushLag', description='The duration that is allowed for the latency in the persistence of WAL data. Unit: seconds.', example='0'),
           flushLatency?: string(name='FlushLatency', description='The data size that is allowed for the latency in the persistence of WAL data. Unit: MB.', example='0'),
-          readDBInstanceName?: string(name='ReadDBInstanceName', description='The ID of the read-only instance.', example='rr-bp*****'),
+          readDBInstanceName?: string(name='ReadDBInstanceName', description='The read-only instance ID.', example='rr-bp*****'),
           replayLag?: string(name='ReplayLag', description='The duration that is allowed for the latency in the playback of WAL data. Unit: seconds.', example='0'),
           replayLatency?: string(name='ReplayLatency', description='The data size that is allowed for the latency in the playback of WAL data. Unit: MB.', example='0'),
           sendLatency?: string(name='SendLatency', description='The data size that is allowed for the latency in the sending of WAL data. Unit: MB.', example='0'),
@@ -10427,14 +10452,14 @@ model DescribeReadDBInstanceDelayResponseBody = {
           writeLatency?: string(name='WriteLatency', description='The data size that is allowed for the latency in the write-back of WAL data. Unit: MB.', example='0'),
         }
       ](name='ReadonlyInstanceDelay')
-      }(name='ReadonlyInstanceDelay', description='An array that consists of information about the write-ahead log (WAL) latency.
+      }(name='ReadonlyInstanceDelay', description='The information about the write-ahead log (WAL) latency.
 
->  This parameter is returned only when the primary instance runs the PostgreSQL database engine.'),
+>  This parameter is returned only when the primary instance runs PostgreSQL.'),
     }
   ](name='Items')
-  }(name='Items', description='An array that consists of latency information.'),
-  readDBInstanceId?: string(name='ReadDBInstanceId', description='The ID of the read-only instance.', example='rr-bp*****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='F1BDDEA8-452D-450B-AB10-CD5C5BAFC5DF'),
+  }(name='Items', description='The latency information.'),
+  readDBInstanceId?: string(name='ReadDBInstanceId', description='The read-only instance ID.', example='rr-bp*****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F1BDDEA8-452D-450B-AB10-CD5C5BAFC5DF'),
 }
 
 model DescribeReadDBInstanceDelayResponse = {
@@ -10444,9 +10469,9 @@ model DescribeReadDBInstanceDelayResponse = {
 }
 
 /**
-  * Before you call this operation, make sure that the following requirements are met:
-  * *   The primary instance must run the MySQL or PostgreSQL database engine.
-  * *   The primary instance must be attached with a read-only instance.
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
   *
  */
 async function describeReadDBInstanceDelay(request: DescribeReadDBInstanceDelayRequest): DescribeReadDBInstanceDelayResponse {
@@ -10797,7 +10822,7 @@ async function describeSQLCollectorRetention(request: DescribeSQLCollectorRetent
 }
 
 model DescribeSQLLogFilesRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxx', position='Query'),
   fileName?: string(name='FileName', description='The name of the audit log file.', example='custinsxxxxx.csv', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -10811,7 +10836,7 @@ model DescribeSQLLogFilesResponseBody = {
   items?: {
     logFile?: [ 
     {
-      fileID?: string(name='FileID', description='The name of the file.', example='custinsxxxxx.csv'),
+      fileID?: string(name='FileID', description='The file name.', example='custinsxxxxx.csv'),
       logDownloadURL?: string(name='LogDownloadURL', description='The download URL of the file. If the audit log file cannot be downloaded, this parameter is null.', example='http://rdslog-hz-v3.oss-cn-hangzhou.aliyuncs.com/xxxxx'),
       logEndTime?: string(name='LogEndTime', description='The time at which the last SQL statement recorded in the audit log file was executed. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2015-05-24T07:00:00Z'),
       logSize?: string(name='LogSize', description='The size of the audit log file. Unit: bytes.', example='3000'),
@@ -10837,13 +10862,15 @@ model DescribeSQLLogFilesResponse = {
 }
 
 /**
-  * Before you call this operation, make sure that the instance runs one of the following database engines:
+  * ### [](#)Supported database engines
   * *   MySQL
-  * *   SQL Server 2008 R2
   * *   PostgreSQL
-  * > 
-  * *   The DescribeSQLLogFiles operation cannot be called to query the log files that are generated by SQL Explorer Trial Edition for an ApsaraDB RDS for MySQL instance.
-  * *   The DescribeSQLLogFiles operation cannot be called to query the log files that are generated by the SQL Explorer feature and manually exported from the ApsaraDB RDS console. The DescribeSQLLogFiles operation can be called to query the SQL Explorer log files that are generated by calling the [DescribeSQLLogRecords](~~610533~~) operation with the request parameter **Form** set to **File**.
+  * *   SQL Server
+  *     **
+  *     **Note** Only SQL Server 2008 R2 is supported.
+  * ### [](#)Precautions
+  * *   The DescribeSQLLogFiles operation does not return the log files that are generated by SQL Explorer Trial Edition for an ApsaraDB RDS for MySQL instance.
+  * *   The DescribeSQLLogFiles operation does not return the log files that are generated by the SQL Explorer feature and manually exported from the ApsaraDB RDS console. The DescribeSQLLogFiles operation returns the SQL Explorer log files that are generated by calling the [DescribeSQLLogRecords](~~610533~~) operation with the request parameter **Form** set to **File**.
   *
  */
 async function describeSQLLogFiles(request: DescribeSQLLogFilesRequest): DescribeSQLLogFilesResponse {
@@ -10926,16 +10953,16 @@ async function describeSQLLogRecords(request: DescribeSQLLogRecordsRequest): Des
 }
 
 model DescribeSQLLogReportListRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance. You can call the [DescribeDBInstances](~~26232~~) operation to query the IDs of instances.', example='rm-uf6wjk5xxxxxxx', position='Query'),
-  endTime: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  endTime: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mm:ssZ* format. The time must be in UTC.**
 
 >  The end time must be later than the start time.', example='2021-03-18T16:00:00Z', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Valid values: any **non-zero** positive integer.
+  pageNumber?: int32(name='PageNumber', description='The page number. Valid values: any **non-zero** positive integer.
 
 Default value: **1**.', example='1', minimum=1, maximum=2147483647, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values:
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
 
 *   **30**
 *   **50**
@@ -10956,7 +10983,7 @@ model DescribeSQLLogReportListResponseBody = {
         {
           avgLatency?: long(name='AvgLatency', description='The average time that is required to execute the SQL statement. Unit: milliseconds.', example='500'),
           SQLExecuteTimes?: long(name='SQLExecuteTimes', description='The number of times that the SQL statement is executed.', example='5'),
-          SQLText?: string(name='SQLText', description='The SQL statement returned.
+          SQLText?: string(name='SQLText', description='The SQL statement.
 
 >  Only the first 128 characters of the SQL statement are returned. In addition, only the SQL statements that take more than 100 ms to execute are returned.', example='SELECT * FROM table_name;'),
         }
@@ -10966,7 +10993,7 @@ model DescribeSQLLogReportListResponseBody = {
         QPSTopNItem?: [ 
         {
           SQLExecuteTimes?: long(name='SQLExecuteTimes', description='The number of times that the SQL statement is executed.', example='5'),
-          SQLText?: string(name='SQLText', description='The SQL statement returned. 
+          SQLText?: string(name='SQLText', description='The SQL statement.
 
 >  Only the first 128 characters of the SQL statement are returned. In addition, only the SQL statements that take more than 5 ms to execute are returned.', example='SELECT * FROM table_name;'),
         }
@@ -10976,10 +11003,10 @@ model DescribeSQLLogReportListResponseBody = {
     }
   ](name='Item')
   }(name='Items', description='An array that consists of SQL log reports.'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageRecordCount?: int32(name='PageRecordCount', description='The number of reports on the current page.', example='30'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='08A3B71B-FE08-4B03-974F-CC7EA6DB1828'),
-  totalRecordCount?: int32(name='TotalRecordCount', description='The total number of records returned.', example='60'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', description='The number of SQL log reports on the current page.', example='30'),
+  requestId?: string(name='RequestId', description='The request ID.', example='08A3B71B-FE08-4B03-974F-CC7EA6DB1828'),
+  totalRecordCount?: int32(name='TotalRecordCount', description='The total number of entries.', example='60'),
 }
 
 model DescribeSQLLogReportListResponse = {
@@ -10988,6 +11015,14 @@ model DescribeSQLLogReportListResponse = {
   body: DescribeSQLLogReportListResponseBody(name='body'),
 }
 
+/**
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * *   MariaDB
+  *
+ */
 async function describeSQLLogReportList(request: DescribeSQLLogReportListRequest): DescribeSQLLogReportListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeSQLLogReportList', 'POST', '/', 'json', false, 'json', request);
@@ -11385,16 +11420,17 @@ model DescribeSlowLogsResponse = {
 }
 
 /**
-  * ### Supported database engines
+  * ### [](#)Supported database engines
   * *   MySQL
   *     **
-  *     **Note**MySQL 5.7 on RDS Basic Edition is not supported.
+  *     **Note** This operation is not supported for RDS instances that run MySQL 5.7 on RDS Basic Edition.
   * *   SQL Server
   *     **
-  *     **Note**Only SQL Server 2008 R2 is supported.
+  *     **Note** This operation is supported only for RDS instances that run SQL Server 2008 R2.
   * *   MariaDB
-  * ### Usage notes
-  * Slow query logs are not collected in real time and may show a latency of 6 hours to 8 hours.
+  * ### [](#)Precautions
+  * *   Slow query logs are not collected in real time and may show a latency of 6 to 8 hours.
+  * *   If the return result is empty, check whether the StartTime and EndTime parameters meet the UTC format. If the parameters meet the UTC format, no slow logs are generated within the specified time range.
   *
  */
 async function describeSlowLogs(request: DescribeSlowLogsRequest): DescribeSlowLogsResponse {
@@ -11551,25 +11587,23 @@ async function describeTasks(request: DescribeTasksRequest): DescribeTasksRespon
 }
 
 model DescribeUpgradeMajorVersionPrecheckTaskRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='pgm-bp1c808s731l****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='pgm-bp1c808s731l****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return in the upgrade check report.
+  pageNumber?: int32(name='PageNumber', description='The page number.
 
-Valid values: any non-zero positive integer. Default value: 1.', example='1', minimum=1, maximum=2147483647, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page of the upgrade check report.
+Valid values: any non-zero positive integer. Default value: 1', example='1', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
 
 Valid values:
 
-*   30 (This is the default value.)
+*   30 (default)
 *   50
 *   100', example='30', minimum=30, maximum=100, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  targetMajorVersion?: string(name='TargetMajorVersion', description='The new major engine version of the instance. The new major engine version must be later than the original major engine version.
-
-For example, if the original major engine version is PostgreSQL 9.4, the new major engine version can be PostgreSQL 10, PostgreSQL 11, PostgreSQL 12, or PostgreSQL 13.', example='12.0', position='Query'),
-  taskId?: int32(name='TaskId', description='The ID of the upgrade check task. You can obtain the ID of the upgrade check task from the **TaskId** parameter that is returned from the call of the [UpgradeDBInstanceMajorVersionPrecheck](~~330050~~) operation.', example='416980000', position='Query'),
+  targetMajorVersion?: string(name='TargetMajorVersion', description='The new major engine version of the instance. The new major engine version must be later than the original major engine version.', example='12.0', position='Query'),
+  taskId?: int32(name='TaskId', description='The ID of the upgrade check task. You can obtain the ID of the upgrade check task from the **TaskId** parameter in the response to the UpgradeDBInstanceMajorVersionPrecheck operation.', example='416980000', position='Query'),
 }
 
 model DescribeUpgradeMajorVersionPrecheckTaskResponseBody = {
@@ -11589,15 +11623,15 @@ Valid values:
 *   Success
 *   Fail
 
->  If the check result is **Fail**, you must check the value of the **Detail** parameter to obtain the information about the errors that occurred. After you handle the errors, you can try again. For more information about how to handle common errors, see [Introduction to the check report for a major engine version upgrade to an ApsaraDB RDS for PostgreSQL instance](~~218391~~).', example='Success'),
+>  If the check result is **Fail**, you must check the value of the **Detail** parameter to obtain the information about the errors that occurred, resolve the errors, and then try again. For more information about how to resolve common errors, see [Introduction to the check report for a major engine version upgrade to an ApsaraDB RDS for PostgreSQL instance](~~218391~~).', example='Success'),
       sourceMajorVersion?: string(name='SourceMajorVersion', description='The original major engine version of the instance.', example='11.0'),
       targetMajorVersion?: string(name='TargetMajorVersion', description='The new major engine version of the instance.', example='12.0'),
       taskId?: int32(name='TaskId', description='The ID of the upgrade check task.', example='416980000'),
     }
-  ](name='Items', description='An array that consists of the attributes in the upgrade check report.'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageRecordCount?: int32(name='PageRecordCount', description='The number of entries returned per page.', example='30'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D1586777-41B5-5F9E-81E8-93DFDD379024'),
+  ](name='Items', description='The information about the upgrade check report.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageRecordCount?: int32(name='PageRecordCount', description='The number of entries per page.', example='30'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D1586777-41B5-5F9E-81E8-93DFDD379024'),
   totalRecordCount?: int32(name='TotalRecordCount', description='The total number of entries in the upgrade check report.', example='1'),
 }
 
@@ -11608,8 +11642,12 @@ model DescribeUpgradeMajorVersionPrecheckTaskResponse = {
 }
 
 /**
-  * Before you upgrade the major engine version of an ApsaraDB RDS for PostgreSQL instance, you must perform an upgrade check and make sure that the check result is **Success**. You can call this operation to query the upgrade check report.  
-  * If the check result is **Fail**, you must handle the errors that occurred. For more information about how to handle common errors, see [Introduction to the check report for a major engine version upgrade to an ApsaraDB RDS for PostgreSQL instance](https://www.alibabacloud.com/help/en/apsaradb-for-rds/latest/introduction-to-the-check-report-of-a-major-engine-version-upgrade-for-an-apsaradb-rds-for-postgresql-instance).
+  * ### [](#)Supported database engines
+  * PostgreSQL
+  * ### [](#)References
+  * > Before you call this operation, read the following documentation and make sure that you fully understand the prerequisites and impacts of this operation.
+  * *   [Upgrade the major engine version of an ApsaraDB RDS for PostgreSQL instance](~~203309~~)
+  * *   [Introduction to the check report of a major engine version upgrade for an ApsaraDB RDS for PostgreSQL instance](~~218391~~)
   *
  */
 async function describeUpgradeMajorVersionPrecheckTask(request: DescribeUpgradeMajorVersionPrecheckTaskRequest): DescribeUpgradeMajorVersionPrecheckTaskResponse {
@@ -12817,17 +12855,20 @@ async function modifyAccountDescription(request: ModifyAccountDescriptionRequest
 }
 
 model ModifyActionEventPolicyRequest {
-  enableEventLog: string(name='EnableEventLog', description='Specifies whether to enable the event history feature. Valid values: **True | False**.', example='True', position='Query'),
+  enableEventLog: string(name='EnableEventLog', description='Specifies whether to enable the event history feature. Valid values:
+
+*   **True**
+*   **False**', example='True', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region for which you want to enable the event history feature. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ModifyActionEventPolicyResponseBody = {
   enableEventLog?: string(name='EnableEventLog', description='Indicates whether the event history feature is enabled.', example='True'),
-  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='BAC0952C-0EB3-4DE7-A567-B83269BFE43F'),
+  regionId?: string(name='RegionId', description='The ID of the region for which the event history feature is enabled or disabled.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BAC0952C-0EB3-4DE7-A567-B83269BFE43F'),
 }
 
 model ModifyActionEventPolicyResponse = {
@@ -12837,7 +12878,17 @@ model ModifyActionEventPolicyResponse = {
 }
 
 /**
-  * The event history feature enables you to view historical events that occurred in a region over a specific time range. These events include instance creation and parameter reconfiguration. For more information, see [Event history](~~129759~~).
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * *   MariaDB
+  * ### [](#)References
+  * > Before you call this operation, read the following documentation and make sure that you fully understand the prerequisites and impacts of this operation.
+  * *   [View the event history of an ApsaraDB RDS for MySQL instance](~~129759~~)
+  * *   [View the event history of an ApsaraDB RDS for PostgreSQL instance](~~131008~~)
+  * *   [View the event history of an ApsaraDB RDS for SQL Server instance](~~131013~~)
+  * *   [View the event history of an ApsaraDB RDS for MariaDB instance](~~131010~~)
   *
  */
 async function modifyActionEventPolicy(request: ModifyActionEventPolicyRequest): ModifyActionEventPolicyResponse {
@@ -12846,20 +12897,20 @@ async function modifyActionEventPolicy(request: ModifyActionEventPolicyRequest):
 }
 
 model ModifyActiveOperationTasksRequest {
-  ids: string(name='Ids', description='The ID of the O\\&M task. Separate multiple IDs with commas (,).
+  ids: string(name='Ids', description='The O\\&M task ID. Separate multiple IDs with commas (,).
 
-> You can call the DescribeActiveOperationTask operation to query the IDs of O\\&M tasks.', example='11111,22222', position='Query'),
+>  You can call the DescribeActiveOperationTask operation to query the O\\&M task ID.', example='11111,22222', position='Query'),
   immediateStart?: int32(name='ImmediateStart', description='Specifies whether to immediately start scheduling. The value 0 indicates that scheduling is not immediately started. This is the default value. The value 1 indicates that scheduling is immediately started. If you set this parameter to 0, SwitchTime takes effect. If you set this parameter to 1, SwitchTimer does not take effect. In this case, the start time of the task is set to the current time, and the system determines the switching time based on the start time.
 
-> Immediate scheduling indicates that the task enters the preparation state instead of the immediate switchover. After the preparation is complete, the switchover is performed. You can call the DescribeActiveOperationTasks operation to obtain the period of time for preparation. The period of time for preparation is returned in PrepareInterva.', example='0', position='Query'),
+>  Immediate scheduling indicates that the task enters the preparing state instead of the immediate switchover. After the preparation is complete, the switchover is performed. You can call the DescribeActiveOperationTasks operation and obtain the preparation time from the value of the PrepareInterval response parameter.', example='0', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
-  switchTime: string(name='SwitchTime', description='The scheduled switching time that you want to specify. Specify the time in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+  switchTime: string(name='SwitchTime', description='The scheduled switching time for the task. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
 
-> The time that you specify cannot be later than the deadline for performing the O\\&M task. You can call DescribeActiveOperationTasks to query the deadlines of O\\&M tasks. The deadline of a task is returned in Deadline.', example='2019-10-17T18:50:00Z', position='Query'),
+>  The time that you specify cannot be later than the deadline of the O\\&M task. You can call the DescribeActiveOperationTasks operation and obtain the deadline of the O\\&M task from the value of the Deadline response parameter.', example='2019-10-17T18:50:00Z', position='Query'),
 }
 
 model ModifyActiveOperationTasksResponseBody = {
@@ -14338,6 +14389,7 @@ model ModifyDBProxyRequest {
 
 > This parameter is required if you enable the database proxy feature for an ApsaraDB RDS for MySQL instance that uses cloud disks or an ApsaraDB RDS for PostgreSQL instance.', example='VPC', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  persistentConnectionStatus?: string(name='PersistentConnectionStatus', example='Enabled', position='Query'),
   regionId?: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -14561,27 +14613,27 @@ async function modifyDBProxyInstance(request: ModifyDBProxyInstanceRequest): Mod
 }
 
 model ModifyDTCSecurityIpHostsForSQLServerRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  securityIpHosts: string(name='SecurityIpHosts', description='The IP address of the ECS instance and the hostname of the Windows computer. Format: IP address,Hostname. Multiple values are separated with semicolons (;).
+  securityIpHosts: string(name='SecurityIpHosts', description='The IP address of the ECS instance and the hostname of the Windows computer. Format: `IP address,Hostname`. Separate multiple entries with semicolon (;).
 
 >  For more information about how to query the computer hostname, see [Configure a distributed transaction whitelist](~~124321~~).', example='192.168.1.100,k3ecstest', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
-  whiteListGroupName: string(name='WhiteListGroupName', description='The name of the whitelist.', example='test1', position='Query'),
+  whiteListGroupName: string(name='WhiteListGroupName', description='The name of the IP address whitelist.', example='test1', position='Query'),
 }
 
 model ModifyDTCSecurityIpHostsForSQLServerResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxxx'),
-  DTCSetResult?: string(name='DTCSetResult', description='The result of the whitelist configuration. Valid values:
+  DBInstanceId?: string(name='DBInstanceId', description='The instance ID.', example='rm-uf6wjk5xxxxxxx'),
+  DTCSetResult?: string(name='DTCSetResult', description='The result of the IP address whitelist configuration. Valid values:
 
 *   **Success**
 *   **Fail**', example='Success'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='671B6D32-B907-4EFF-A3B7-94D2EAD5E3A3'),
-  taskId?: string(name='TaskId', description='The ID of the task.', example='178968983'),
+  requestId?: string(name='RequestId', description='The request ID.', example='671B6D32-B907-4EFF-A3B7-94D2EAD5E3A3'),
+  taskId?: string(name='TaskId', description='The task ID.', example='178968983'),
 }
 
 model ModifyDTCSecurityIpHostsForSQLServerResponse = {
@@ -14591,8 +14643,11 @@ model ModifyDTCSecurityIpHostsForSQLServerResponse = {
 }
 
 /**
-  * Distributed transaction whitelists allow for distributed transactions between an Elastic Compute Service (ECS) instance and an RDS instance. For more information, see [Configure a distributed transaction whitelist](~~124321~~).
-  * This operation is applicable to instances that run one of the following SQL Server versions in the RDS High-Availability Edition: 2012 SE, 2012 EE, 2014 SE, 2016 SE, 2016 EE, and 2017 SE.
+  * ### [](#)Supported database engine
+  * SQL Server
+  * ### [](#)References
+  * > Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
+  * [Configure a distributed transaction whitelist](~~124321~~)
   *
  */
 async function modifyDTCSecurityIpHostsForSQLServer(request: ModifyDTCSecurityIpHostsForSQLServerRequest): ModifyDTCSecurityIpHostsForSQLServerResponse {
@@ -14839,21 +14894,24 @@ async function modifyHASwitchConfig(request: ModifyHASwitchConfigRequest): Modif
 }
 
 model ModifyInstanceAutoRenewalAttributeRequest {
-  autoRenew?: string(name='AutoRenew', description='Specifies whether to enable or disable auto-renewal. Valid values: **True and False**.', example='True', position='Query'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that it is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCzxxxxxx', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-bpxxxxx', position='Query'),
+  autoRenew?: string(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+*   **True**
+*   **False**', example='True', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCzxxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-bpxxxxx', position='Query'),
   duration?: string(name='Duration', description='The number of months for auto-renewal. Valid values: **1 to 12**.
 
->  You must specify this parameter if you set the** AutoRenew **parameter to** True**.', example='2', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', example='testuser@aliyun.com', position='Query'),
+>  This parameter must be specified when **AutoRenew** is set to **True**.', example='2', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](~~26243~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ModifyInstanceAutoRenewalAttributeResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
 }
 
 model ModifyInstanceAutoRenewalAttributeResponse = {
@@ -14863,7 +14921,17 @@ model ModifyInstanceAutoRenewalAttributeResponse = {
 }
 
 /**
-  * If you enable auto-renewal for your instance, you do not need to manually renew your subscription or be concerned about business interruptions caused by subscription expiration. For more information, see [Configure auto-renewal](~~96049~~).
+  * ### Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * *   MariaDB
+  * ### References
+  * ><notice>Fees are generated if the call is successful. Before you call this operation, carefully read the following topics:></notice>
+  * *   [Use the auto-renewal feature for an ApsaraDB RDS for MySQL instance](~~96049~~)
+  * *   [Use the auto-renewal feature for an ApsaraDB RDS for PostgreSQL instance](~~96740~~)
+  * *   [Use the auto-renewal feature for an ApsaraDB RDS for SQL Server instance](~~95635~~)
+  * *   [Use the auto-renewal feature for an ApsaraDB RDS for MariaDB instance](~~97121~~)
   *
  */
 async function modifyInstanceAutoRenewalAttribute(request: ModifyInstanceAutoRenewalAttributeRequest): ModifyInstanceAutoRenewalAttributeResponse {
@@ -15939,21 +16007,26 @@ async function receiveDBInstance(request: ReceiveDBInstanceRequest): ReceiveDBIn
 }
 
 model RecoveryDBInstanceRequest {
-  backupId?: string(name='BackupId', description='The ID of the backup set. You can call the [DescribeBackups](~~26273~~) operation to query the ID of the backup set.
+  backupId?: string(name='BackupId', description='The backup set ID. You can call the DescribeBackups operation to query the backup set ID.
 
 If you specify this parameter, you do not need to specify **DBInstanceId**.
 
-> You must specify at least one of **BackupId** and **RestoreTime**.', example='29304****', position='Query'),
+>  You must specify at least one of the **BackupId** or **RestoreTime** parameters.', example='29304****', position='Query'),
   DBInstanceClass?: string(name='DBInstanceClass', description='The instance type of the new instance. For more information, see [Instance types](~~26312~~).', example='rds.mysql.s2.large', position='Query'),
   DBInstanceId?: string(name='DBInstanceId', description='The ID of the original instance.
 
-> *   If you specify BackupId, you do not need to specify this parameter.
-> *   If you specify RestoreTime, you must also specify this parameter.', example='rm-xxxxxxxx1', position='Query'),
-  DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the new instance. Unit: GB. For more information, see [Instance types](~~26312~~).', example='5', position='Query'),
+> 
+
+*   If you specify BackupId, you do not need to specify this parameter.
+
+*   If you specify RestoreTime, you must also specify this parameter.', example='rm-xxxxxxxx1', position='Query'),
+  DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the new instance. Unit: GB. For more information, see [Instance types](~~26312~~).
+
+>  You must set this parameter to a value that is greater than or equal to the storage capacity of the original instance.', example='5', position='Query'),
   DBInstanceStorageType?: string(name='DBInstanceStorageType', description='The storage type of the new instance. Valid values:
 
 *   **local_ssd/ephemeral_ssd**: local SSD
-*   **cloud_ssd**: standard SSD
+*   **cloud_ssd**: standard SSD.
 *   **cloud_essd**: enhanced SSD (ESSD)', example='local_ssd', position='Query'),
   dbNames: string(name='DbNames', description='The name of the database.
 
@@ -15967,15 +16040,15 @@ If you specify this parameter, you do not need to specify **DBInstanceId**.
 By default, the new instance uses the same network type as the original instance.', example='VPC', position='Query'),
   payType?: string(name='PayType', description='The billing method of the new instance. Valid values:
 
-*   **Postpaid**: pay-as-you-go
-*   **Prepaid**: subscription', example='Postpaid', position='Query'),
+*   **Postpaid**: pay-as-you-go.
+*   **Prepaid**: subscription.', example='Postpaid', position='Query'),
   period?: string(name='Period', description='The unit that is used to calculate the billing cycle of the new instance. This parameter takes effect only when you select the subscription billing method for the new instance. Valid values:
 
 *   **Year**
 *   **Month**
 
 > This parameter must be specified when **PayType** is set to **Prepaid**.', example='Month', position='Query'),
-  privateIpAddress?: string(name='PrivateIpAddress', description='The internal IP address of the new instance. The internal IP address must be within the CIDR block that is supported by the specified vSwitch. The system automatically assigns a private IP address to an instance based on the values of **VPCId** and **VSwitchId**.', example='172.XXX.XXX.69', position='Query'),
+  privateIpAddress?: string(name='PrivateIpAddress', description='The internal IP address of the new instance. The internal IP address must be within the CIDR block that is supported by the specified vSwitch. The system automatically assigns an internal IP address based on the values of the **VPCId** and **VSwitchId** parameters.', example='172.XXX.XXX.69', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   restoreTime?: string(name='RestoreTime', description='The point in time to which you want to restore data. The point in time must fall within the specified log backup retention period. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.
 
@@ -15994,9 +16067,9 @@ If you specify this parameter, you must also specify **DBInstanceId**.
 }
 
 model RecoveryDBInstanceResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.', example='rm-xxxxxxx'),
-  orderId?: string(name='OrderId', description='The ID of the order.', example='54325****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='EFB6083A-7699-489B-8278-C0CB4793A96E'),
+  DBInstanceId?: string(name='DBInstanceId', description='The instance ID.', example='rm-xxxxxxx'),
+  orderId?: string(name='OrderId', description='The order ID.', example='54325****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EFB6083A-7699-489B-8278-C0CB4793A96E'),
 }
 
 model RecoveryDBInstanceResponse = {
@@ -16006,11 +16079,11 @@ model RecoveryDBInstanceResponse = {
 }
 
 /**
-  * You can call this operation to restore databases to a new instance or an existing instance. If you want to restore databases to an existing instance, we recommend that you call the [Copy databases](~~88810~~) operation.
-  * If you want to restore databases to a new instance, you must create an instance and then restore specific or all databases to the new instance.
-  * *   If you specify the name of a database, only the specified database is restored to the new instance.
-  * *   If you do not specify the name of a database, all databases are restored to the new instance.
-  * > This operation is supported only for instances that run SQL Server 2012 or later.
+  * ### [](#)Supported database engines
+  * SQL Server 2012 or later
+  * ### [](#)References
+  * > Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
+  * [Restore the data of an ApsaraDB RDS for SQL Server instance](~~95722~~)
   *
  */
 async function recoveryDBInstance(request: RecoveryDBInstanceRequest): RecoveryDBInstanceResponse {
@@ -16060,8 +16133,8 @@ async function releaseInstanceConnection(request: ReleaseInstanceConnectionReque
 }
 
 model ReleaseInstancePublicConnectionRequest {
-  currentConnectionString: string(name='CurrentConnectionString', description='The public endpoint.', example='rm-uf6wjk5xxxx.mysql.rds.aliyuncs.com', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  currentConnectionString: string(name='CurrentConnectionString', description='The public endpoint. You can call the DescribeDBInstanceNetInfo to query the public endpoint.', example='rm-uf6wjk5xxxx.mysql.rds.aliyuncs.com', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -16069,7 +16142,7 @@ model ReleaseInstancePublicConnectionRequest {
 }
 
 model ReleaseInstancePublicConnectionResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='65BDA532-28AF-4122-AA39-B382721EEE64'),
+  requestId?: string(name='RequestId', description='The request ID.', example='65BDA532-28AF-4122-AA39-B382721EEE64'),
 }
 
 model ReleaseInstancePublicConnectionResponse = {
@@ -16079,7 +16152,17 @@ model ReleaseInstancePublicConnectionResponse = {
 }
 
 /**
-  * To ensure data security, you can release the public endpoint when you do not need to access the database from the Internet.
+  * ### [](#)Supported database engines
+  * *   MySQL
+  * *   PostgreSQL
+  * *   SQL Server
+  * *   MariaDB
+  * ### [](#)References
+  * > Before you call this operation, read the following documentation and make sure that you fully understand the prerequisites and impacts of this operation.
+  * *   [Release the public endpoint of an ApsaraDB RDS for MySQL instance](~~26128~~)
+  * *   [Release the public endpoint of an ApsaraDB RDS for PostgreSQL instance](~~97738~~)
+  * *   [Release the public endpoint of an ApsaraDB RDS for SQL Server instance](~~97736~~)
+  * *   [Release the public endpoint of an ApsaraDB RDS for MariaDB instance](~~97740~~)
   *
  */
 async function releaseInstancePublicConnection(request: ReleaseInstancePublicConnectionRequest): ReleaseInstancePublicConnectionResponse {
