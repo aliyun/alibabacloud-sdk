@@ -94,6 +94,7 @@ model RecognizeBankCardResponseBody = {
   data?: {
     bankName?: string(name='BankName'),
     cardNumber?: string(name='CardNumber', example='6212262315007683105'),
+    cardType?: string(name='CardType'),
     validDate?: string(name='ValidDate', example='07/26'),
   }(name='Data'),
   requestId?: string(name='RequestId', example='D9C7521-0367-42EE-9646-FD066CCADB26'),
@@ -205,136 +206,6 @@ async function recognizeBankCardAdvance(request: RecognizeBankCardAdvanceRequest
   }
   var recognizeBankCardResp = recognizeBankCardWithOptions(recognizeBankCardReq, runtime);
   return recognizeBankCardResp;
-}
-
-model RecognizeBusinessCardRequest {
-  imageURL?: string(name='ImageURL', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/ocr/RecognizeBusinessCard/RecognizeBusinessCard1.jpg'),
-}
-
-model RecognizeBusinessCardAdvanceRequest {
-  imageURLObject?: readable(name='ImageURL', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/ocr/RecognizeBusinessCard/RecognizeBusinessCard1.jpg'),
-}
-
-model RecognizeBusinessCardResponseBody = {
-  data?: {
-    addresses?: [ string ](name='Addresses'),
-    cellPhoneNumbers?: [ string ](name='CellPhoneNumbers'),
-    companies?: [ string ](name='Companies'),
-    departments?: [ string ](name='Departments'),
-    emails?: [ string ](name='Emails'),
-    name?: string(name='Name'),
-    officePhoneNumbers?: [ string ](name='OfficePhoneNumbers'),
-    titles?: [ string ](name='Titles'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='0068957A-C493-481F-BA14-C3F89BF75BD4'),
-}
-
-model RecognizeBusinessCardResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RecognizeBusinessCardResponseBody(name='body'),
-}
-
-async function recognizeBusinessCardWithOptions(request: RecognizeBusinessCardRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
-    body['ImageURL'] = request.imageURL;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'RecognizeBusinessCard',
-    version = '2019-12-30',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function recognizeBusinessCard(request: RecognizeBusinessCardRequest): RecognizeBusinessCardResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeBusinessCardWithOptions(request, runtime);
-}
-
-async function recognizeBusinessCardAdvance(request: RecognizeBusinessCardAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeBusinessCardResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new OpenApi.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeBusinessCardReq = new RecognizeBusinessCardRequest{};
-  OpenApiUtil.convert(request, recognizeBusinessCardReq);
-
-  if(!Util.isUnset(request.imageURLObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeBusinessCardReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
-  }
-  var recognizeBusinessCardResp = recognizeBusinessCardWithOptions(recognizeBusinessCardReq, runtime);
-  return recognizeBusinessCardResp;
 }
 
 model RecognizeBusinessLicenseRequest {
@@ -658,12 +529,14 @@ model RecognizeDriverLicenseResponseBody = {
     }(name='BackResult'),
     faceResult?: {
       address?: string(name='Address'),
+      birthDate?: string(name='BirthDate'),
       endDate?: string(name='EndDate', example='20190201'),
       gender?: string(name='Gender'),
       issueDate?: string(name='IssueDate', example='20130208'),
       issueUnit?: string(name='IssueUnit'),
       licenseNumber?: string(name='LicenseNumber', example='210288898898898888'),
       name?: string(name='Name'),
+      nationality?: string(name='Nationality'),
       startDate?: string(name='StartDate', example='20130208'),
       vehicleType?: string(name='VehicleType', example='C1'),
     }(name='FaceResult'),
@@ -1678,148 +1551,6 @@ async function recognizeQuotaInvoiceAdvance(request: RecognizeQuotaInvoiceAdvanc
   }
   var recognizeQuotaInvoiceResp = recognizeQuotaInvoiceWithOptions(recognizeQuotaInvoiceReq, runtime);
   return recognizeQuotaInvoiceResp;
-}
-
-model RecognizeStampRequest {
-  imageURL?: string(name='ImageURL', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/ocr/RecognizeStamp/RecognizeStamp1.jpg'),
-}
-
-model RecognizeStampAdvanceRequest {
-  imageURLObject?: readable(name='ImageURL', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/ocr/RecognizeStamp/RecognizeStamp1.jpg'),
-}
-
-model RecognizeStampResponseBody = {
-  data?: {
-    results?: [ 
-      {
-        generalText?: [ 
-          {
-            confidence?: float(name='Confidence', example='0.9650014638900757'),
-            content?: string(name='Content'),
-          }
-        ](name='GeneralText'),
-        roi?: {
-          height?: int32(name='Height', example='264'),
-          left?: int32(name='Left', example='189'),
-          top?: int32(name='Top', example='187'),
-          width?: int32(name='Width', example='262'),
-        }(name='Roi'),
-        text?: {
-          confidence?: float(name='Confidence', example='0.9978633522987366'),
-          content?: string(name='Content'),
-        }(name='Text'),
-      }
-    ](name='Results'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='D6C24839-91A7-41DA-B31F-98F08EF80CC0'),
-}
-
-model RecognizeStampResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RecognizeStampResponseBody(name='body'),
-}
-
-async function recognizeStampWithOptions(request: RecognizeStampRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  Util.validateModel(request);
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
-    body['ImageURL'] = request.imageURL;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'RecognizeStamp',
-    version = '2019-12-30',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function recognizeStamp(request: RecognizeStampRequest): RecognizeStampResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return recognizeStampWithOptions(request, runtime);
-}
-
-async function recognizeStampAdvance(request: RecognizeStampAdvanceRequest, runtime: Util.RuntimeOptions): RecognizeStampResponse {
-  // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
-  var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.isUnset(openPlatformEndpoint)) {
-    openPlatformEndpoint ='openplatform.aliyuncs.com';
-  }
-  if(Util.isUnset(credentialType)) {
-    credentialType ='access_key';
-  }
-  var authConfig = new OpenApi.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    securityToken = securityToken,
-    type = credentialType,
-    endpoint = openPlatformEndpoint,
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ocr',
-    regionId = @regionId,
-  };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
-  };
-  var ossClient : OSS = null;
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
-  var recognizeStampReq = new RecognizeStampRequest{};
-  OpenApiUtil.convert(request, recognizeStampReq);
-
-  if(!Util.isUnset(request.imageURLObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
-      content = request.imageURLObject,
-      contentType = '',
-    };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
-      file = fileObj,
-      successActionStatus = '201',
-    };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    recognizeStampReq.imageURL = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
-  }
-  var recognizeStampResp = recognizeStampWithOptions(recognizeStampReq, runtime);
-  return recognizeStampResp;
 }
 
 model RecognizeTableRequest {
