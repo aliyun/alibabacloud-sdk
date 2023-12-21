@@ -352,6 +352,7 @@ model Subscription {
   ](name='Conditions'),
   createTime?: string(name='CreateTime'),
   description?: string(name='Description'),
+  enabled?: boolean(name='Enabled'),
   name: string(name='Name'),
   relation?: string(name='Relation'),
   strategyUuid?: string(name='StrategyUuid'),
@@ -1350,28 +1351,33 @@ model CreateHybridMonitorNamespaceRequest {
   namespace: string(name='Namespace', description='The name of the namespace.
 
 The name can contain lowercase letters, digits, and hyphens (-).', example='aliyun', position='Query'),
-  namespaceRegion?: string(name='NamespaceRegion', position='Query'),
-  namespaceType?: string(name='NamespaceType', position='Query'),
-  spec?: string(name='Spec', description='The data retention period of the namespace. Valid values:
+  namespaceRegion?: string(name='NamespaceRegion', description='The region where the metric data is stored.', example='cn-hangzhou', position='Query'),
+  namespaceType?: string(name='NamespaceType', description='The storage scheme of metric data. Valid values:
 
-*   cms.s1.large: 15 days
-*   cms.s1.xlarge: 32 days
-*   cms.s1.2xlarge: 63 days
-*   cms.s1.3xlarge (default value): 93 days
-*   cms.s1.6xlarge: 185 days
-*   cms.s1.12xlarge: 376 days
+*   m_prom_pool: The metric data is stored in Simple Log Service.
+*   m_prometheus: The metric data is stored in the storage space provided by CloudMonitor.
+
+>  For more information about the storage schemes of metric data, see [Storage schemes of metric data in Hybrid Cloud Monitoring](~~2594921~~).', example='m_prometheus', position='Query'),
+  spec?: string(name='Spec', description='The data retention period. Valid values:
+
+*   cms.s1.large (Retention Period 15 Days)
+*   cms.s1.xlarge (Retention Period 32 Days)
+*   cms.s1.2xlarge (Retention Period 63 Days)
+*   cms.s1.3xlarge (Retention Period 93 Days) (default)
+*   cms.s1.6xlarge (Retention Period 185 Days)
+*   cms.s1.12xlarge (Retention Period 367 Days)
 
 For information about the pricing for different retention periods, see the **Pricing** section in [Billing of the dashboard feature](~~223532~~).', example='cms.s1.3xlarge', position='Query'),
 }
 
 model CreateHybridMonitorNamespaceResponseBody = {
-  code?: string(name='Code', description='The returned message.', example='Success'),
-  message?: string(name='Message', description='The error message.', example='Namespace.Existed'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='3843D23A-FB9E-5DC8-BCCC-458768B79296'),
-  success?: string(name='Success', description='Indicates whether the call was successful. Valid values:
+  code?: string(name='Code', description='The response code.', example='Success'),
+  message?: string(name='Message', description='The error message returned.', example='Namespace.Existed'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3843D23A-FB9E-5DC8-BCCC-458768B79296'),
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='true'),
+*   true
+*   false', example='true'),
 }
 
 model CreateHybridMonitorNamespaceResponse = {
@@ -1381,8 +1387,10 @@ model CreateHybridMonitorNamespaceResponse = {
 }
 
 /**
-  * ## Prerequisites
+  * # [](#)Prerequisites
   * Hybrid Cloud Monitoring is activated. For more information, see [Activate Hybrid Cloud Monitoring](~~250773~~).
+  * # [](#)Description
+  * This topic provides an example on how to create a namespace named `aliyun`. In this example, the data retention period of the namespace is set to `cms.s1.3xlarge`. The returned result indicates that the namespace is created.
   *
  */
 async function createHybridMonitorNamespace(request: CreateHybridMonitorNamespaceRequest): CreateHybridMonitorNamespaceResponse {
@@ -1455,11 +1463,14 @@ model CreateHybridMonitorTaskRequest {
       name?: string(name='Name', description='The tag key of the metric.', example='app_service'),
       value?: string(name='Value', description='The tag value of the metric.', example='testValue'),
     }
-  ](name='AttachLabels', position='Query'),
-  collectInterval?: string(name='CollectInterval', description='The interval at which metrics are collected. Valid values:
+  ](name='AttachLabels', description='The tags of the metric.
+
+>  This parameter is required only if the `TaskType` parameter is set to `aliyun_sls`.', position='Query'),
+  cloudAccessId?: [ string ](name='CloudAccessId', position='Query'),
+  collectInterval?: string(name='CollectInterval', description='The collection period of the metric. Valid values:
 
 *   15
-*   60 (default value)
+*   60 (default)
 
 Unit: seconds.
 
@@ -1480,14 +1491,14 @@ For information about how to obtain the name of a namespace, see [DescribeHybrid
   SLSProcessConfig?: {
     express?: [ 
       {
-        alias?: string(name='Alias', description='The alias of the extended field that specifies the result of basic operations that are performed on aggregation results.', example='SuccRate'),
-        express?: string(name='Express', description='The extended field that specifies the result of basic operations that are performed on aggregation results.', example='success_count'),
+        alias?: string(name='Alias', description='The alias of the extended field that specifies the result of basic operations performed on aggregation results.', example='SuccRate'),
+        express?: string(name='Express', description='The extended field that specifies the result of basic operations performed on aggregation results.', example='success_count'),
       }
-    ](name='Express', description='The extended fields that specify the results of basic operations that are performed on aggregation results.'),
+    ](name='Express', description='The extended fields that specify the results of basic operations performed on aggregation results.'),
     filter?: {
       filters?: [ 
         {
-          operator?: string(name='Operator', description='The method that is used to filter logs imported from Log Service. Valid values:
+          operator?: string(name='Operator', description='The method that is used to filter logs imported from Simple Log Service. Valid values:
 
 *   `contain`: contains
 *   `notContain`: does not contain
@@ -1497,36 +1508,53 @@ For information about how to obtain the name of a namespace, see [DescribeHybrid
 *   `! =`: not equal to
 *   `>=`: greater than or equal to
 *   `<=`: less than or equal to', example='='),
-          SLSKeyName?: string(name='SLSKeyName', description='The name of the key that is used to filter logs imported from Log Service.', example='code'),
-          value?: string(name='Value', description='The value of the key that is used to filter logs imported from Log Service.', example='200'),
+          SLSKeyName?: string(name='SLSKeyName', description='The name of the key that is used to filter logs imported from Simple Log Service.', example='code'),
+          value?: string(name='Value', description='The value of the key that is used to filter logs imported from Simple Log Service.', example='200'),
         }
-      ](name='Filters', description='The conditions that are used to filter logs imported from Log Service.'),
+      ](name='Filters', description='The conditions that are used to filter logs imported from Simple Log Service.'),
       relation?: string(name='Relation', description='The relationship between multiple filter conditions. Valid values:
 
-*   and (default value): Logs are processed only if all filter conditions are met.
+*   and (default): Logs are processed only if all filter conditions are met.
 *   or: Logs are processed if one of the filter conditions is met.', example='and'),
-    }(name='Filter', description='The conditions that are used to filter logs imported from Log Service.'),
+    }(name='Filter', description='The conditions that are used to filter logs imported from Simple Log Service.'),
     groupBy?: [ 
       {
         alias?: string(name='Alias', description='The alias of the aggregation result.', example='ApiResult'),
-        SLSKeyName?: string(name='SLSKeyName', description='The name of the key that is used to aggregate logs imported from Log Service.', example='code'),
+        SLSKeyName?: string(name='SLSKeyName', description='The name of the key that is used to aggregate logs imported from Simple Log Service.', example='code'),
       }
     ](name='GroupBy', description='The dimension based on which data is aggregated. This parameter is equivalent to the GROUP BY clause in SQL.'),
     statistics?: [ 
       {
-        alias?: string(name='Alias', example='level_count'),
-        function?: string(name='Function', example='count'),
-        parameter1?: string(name='Parameter1', example='200'),
-        parameter2?: string(name='Parameter2', example='299'),
-        SLSKeyName?: string(name='SLSKeyName', example='name'),
+        alias?: string(name='Alias', description='The alias of the aggregation result.', example='level_count'),
+        function?: string(name='Function', description='The function that is used to aggregate the log data of a statistical period. Valid values:
+
+*   count: counts the number.
+*   sum: calculates the total value.
+*   avg: calculates the average value.
+*   max: calculates the maximum value.
+*   min: calculates the minimum value.
+*   value: collects samples within the statistical period.
+*   countps: calculates the number of values of the specified field divided by the total number of seconds within a statistical period.
+*   sumps: calculates the sum of the values of the specified field divided by the total number of seconds within a statistical period.
+*   distinct: calculates the number of unique values of the specified field within a statistical period.
+*   distribution: calculates the number of logs that meet a specified condition within the statistical period.
+*   percentile: sorts the values of the specified field in ascending order, and then returns the value that is at the specified percentile within the statistical period. Example: P50.', example='count'),
+        parameter1?: string(name='Parameter1', description='The value of the function that is used to aggregate logs imported from Simple Log Service.
+
+*   If the `Function` parameter is set to `distribution`, this parameter specifies the lower limit of the statistical interval. For example, if you want to calculate the number of HTTP requests whose status code is 2XX, set this parameter to 200.
+*   If the `Function` parameter is set to `percentile`, this parameter specifies the percentile at which the expected value is. For example, 0.5 specifies P50.', example='200'),
+        parameter2?: string(name='Parameter2', description='The value of the function that is used to aggregate logs imported from Simple Log Service.
+
+>  This parameter is required only if the `Function` parameter is set to `distribution`. This parameter specifies the upper limit of the statistical interval. For example, if you want to calculate the number of HTTP requests whose status code is 2XX, set this parameter to 299.', example='299'),
+        SLSKeyName?: string(name='SLSKeyName', description='The name of the key that is used to aggregate logs imported from Simple Log Service.', example='name'),
       }
-    ](name='Statistics'),
-  }(name='SLSProcessConfig', description='The configurations of the logs that are imported from Log Service.
+    ](name='Statistics', description='The method that is used to aggregate logs imported from Simple Log Service.'),
+  }(name='SLSProcessConfig', description='The configurations of the logs that are imported from Simple Log Service.
 
 >  This parameter is required only if the `TaskType` parameter is set to `aliyun_sls`.', position='Query'),
   targetUserId?: string(name='TargetUserId', description='The ID of the member account.
 
-If you call API operations by using a management account, you can connect the Alibaba Cloud services that are activated for a member account in a resource directory to Hybrid Cloud Monitoring. You can use the resource directory to monitor Alibaba Cloud services across enterprise accounts.
+If you call this operation by using the management account of a resource directory, you can connect the Alibaba Cloud services that are activated for all members in the resource directory to Hybrid Cloud Monitoring. You can use the resource directory to monitor Alibaba Cloud services across enterprise accounts.
 
 >  This parameter is required only if the `TaskType` parameter is set to `aliyun_fc`.', example='120886317861****', position='Query'),
   targetUserIdList?: string(name='TargetUserIdList', description='The IDs of the member accounts. Separate multiple member account IDs with commas (,).
@@ -1535,11 +1563,11 @@ If you call API operations by using a management account, you can connect the Al
   taskName?: string(name='TaskName', description='The name of the metric import task.
 
 *   If the `TaskType` parameter is set to `aliyun_fc`, enter the name of the metric import task.
-*   If the `TaskType` parameter is set to `aliyun_sls`, enter the name of the metric for logs imported from Log Service.', example='aliyun_task', position='Query'),
-  taskType: string(name='TaskType', description='Specifies whether to create a metric import task for an Alibaba Cloud service or create a metric for logs imported from Log Service. Valid values:
+*   If the `TaskType` parameter is set to `aliyun_sls`, enter the name of the metric for logs imported from Simple Log Service.', example='aliyun_task', position='Query'),
+  taskType: string(name='TaskType', description='The type of the metric import task. Valid values:
 
-*   aliyun_fc: creates a metric import task for an Alibaba Cloud service
-*   aliyun_sls: creates a metric for logs imported from Log Service', example='aliyun_fc', position='Query'),
+*   aliyun_fc: metric import tasks for Alibaba Cloud services.
+*   aliyun_sls: metrics for logs imported from Simple Log Service.', example='aliyun_fc', position='Query'),
   YARMConfig?: string(name='YARMConfig', description='The configuration file of the Alibaba Cloud service that you want to monitor by using Hybrid Cloud Monitoring.
 
 *   namespace: the namespace of the Alibaba Cloud service. For information about how to query the namespace of an Alibaba Cloud service, see [DescribeMetricMetaList](~~98846~~).
@@ -1547,41 +1575,38 @@ If you call API operations by using a management account, you can connect the Al
 
 The following code shows a sample configuration file:
 
-```
-
-products:
-- namespace: acs_ecs_dashboard
-  metric_info:
-  - metric_list:
-    - cpu_total
-    - cpu_idle
-    - diskusage_utilization
-    - CPUUtilization
-    - DiskReadBPS
-    - InternetOut
-    - IntranetOut
-    - cpu_system
-- namespace: acs_rds_dashboard
-  metric_info:
-  - metric_list:
-    - MySQL_QPS
-    - MySQL_TPS
-```
+    products:
+    - namespace: acs_ecs_dashboard
+      metric_info:
+      - metric_list:
+        - cpu_total
+        - cpu_idle
+        - diskusage_utilization
+        - CPUUtilization
+        - DiskReadBPS
+        - InternetOut
+        - IntranetOut
+        - cpu_system
+    - namespace: acs_rds_dashboard
+      metric_info:
+      - metric_list:
+        - MySQL_QPS
+        - MySQL_TPS
 
 >  This parameter is required only if the `TaskType` parameter is set to `aliyun_fc`.', example='products:- namespace: acs_ecs_dashboard  metric_info:  - metric_list:    - cpu_total', position='Query'),
 }
 
 model CreateHybridMonitorTaskResponseBody = {
-  code?: string(name='Code', description='The HTTP status code.
+  code?: string(name='Code', description='The response code.
 
->  The status code 200 indicates that the call was successful.', example='200'),
-  message?: string(name='Message', description='The error message.', example='yamlConfigFail'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='28CEA2E0-3E90-51B2-A7E8-B1ED75534E49'),
-  success?: string(name='Success', description='Indicates whether the call was successful. Valid values:
+>  The status code 200 indicates that the request was successful.', example='200'),
+  message?: string(name='Message', description='The error message returned.', example='yamlConfigFail'),
+  requestId?: string(name='RequestId', description='The request ID.', example='28CEA2E0-3E90-51B2-A7E8-B1ED75534E49'),
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='true'),
-  taskId?: long(name='TaskId', description='The ID of the metric import task.', example='36****'),
+*   true
+*   false', example='true'),
+  taskId?: long(name='TaskId', description='The ID of the monitoring task.', example='36****'),
 }
 
 model CreateHybridMonitorTaskResponse = {
@@ -1591,9 +1616,11 @@ model CreateHybridMonitorTaskResponse = {
 }
 
 /**
-  * ## Prerequisites
+  * # [](#)Prerequisites
   * *   Hybrid Cloud Monitoring is activated. For more information, see [Activate Hybrid Cloud Monitoring](~~250773~~).
-  * *   If you want to create a metric for logs imported from Log Service, make sure that you have activated Log Service and created a project and a Logstore. For more information, see [Getting Started](~~54604~~).
+  * *   If you want to create a metric for logs imported from Simple Log Service, make sure that you have activated Simple Log Service and created a project and a Logstore. For more information, see [Getting Started](~~54604~~).
+  * # [](#)Description
+  * This topic provides an example on how to create a metric import task named `aliyun_task` for Elastic Compute Service (ECS). The task imports the `cpu_total` metric to the `aliyun` namespace. The response shows that the metric import task is created.
   *
  */
 async function createHybridMonitorTask(request: CreateHybridMonitorTaskRequest): CreateHybridMonitorTaskResponse {
@@ -3263,7 +3290,7 @@ Unit: milliseconds.
 
 You can query only the alert logs within the last year. If the query time is longer than one year, the return value of the `AlertLogCount` parameter is empty.
 
->  The interval between the start time (`StartTime`) and end time (`EndTime`) must be less than or equal to 15 days.', example='1610074409694', position='Query'),
+>  The interval between the start time (StartTime) and end time (EndTime) must be less than or equal to 15 days. The start time and end time must be specified or left empty at the same time. If you do not specify the start time and end time, the alert logs within the last 15 minutes are queried by default.', example='1610074409694', position='Query'),
   eventType?: string(name='EventType', position='Query'),
   groupBy: string(name='GroupBy', description='The dimension based on which data is aggregated. This parameter is similar to the Group By clause of SQL statements. Valid values:
 
@@ -3312,7 +3339,7 @@ Unit: milliseconds.
 
 You can query only the alert logs within the last year. If the query time is longer than one year, the return value of the `AlertLogCount` parameter is empty.
 
->  The interval between the start time (`StartTime`) and end time (`EndTime`) must be less than or equal to 15 days.', example='1609988009694', position='Query'),
+>  The interval between the start time (StartTime) and end time (EndTime) must be less than or equal to 15 days. The start time and end time must be specified or left empty at the same time. If you do not specify the start time and end time, the alert logs within the last 15 minutes are queried by default.', example='1609988009694', position='Query'),
 }
 
 model DescribeAlertLogCountResponseBody = {
@@ -3345,7 +3372,8 @@ model DescribeAlertLogCountResponse = {
 }
 
 /**
-  * This topic provides an example to show how to query the statistics of alert logs for Elastic Compute Service (ECS) based on the `product` dimension.
+  * Queries the statistics of alert logs.
+  * This topic provides an example on how to query the statistics of alert logs for Elastic Compute Service (ECS) based on the `product` dimension.
   *
  */
 async function describeAlertLogCount(request: DescribeAlertLogCountRequest): DescribeAlertLogCountResponse {
@@ -3455,9 +3483,15 @@ async function describeAlertLogHistogram(request: DescribeAlertLogHistogramReque
 
 model DescribeAlertLogListRequest {
   contactGroup?: string(name='ContactGroup', description='The alert contact group.', example='ECS_Group', position='Query'),
-  endTime?: long(name='EndTime', description='The end timestamp of the alert logs to be queried. Unit: milliseconds.', example='1610074409694', position='Query'),
+  endTime?: long(name='EndTime', description='The end timestamp of the alert logs to be queried.
+
+Unit: milliseconds.
+
+You can query only the alert logs within the last year. If the query time is longer than one year, the return value of the `AlertLogList` parameter is empty.
+
+>  The time period between the start time specified by `StartTime` and end time specified by `EndTime` must be less than or equal to 15 days. You must specify StartTime and EndTime at the same time, or leave StartTime and EndTime empty at the same time. If you do not specify this parameter, the alert logs within the last 15 minutes are queried by default.', example='1610074409694', position='Query'),
   eventType?: string(name='EventType', position='Query'),
-  groupBy?: string(name='GroupBy', description='The dimension based on which data is aggregated. This parameter is equivalent to the GROUP BY clause in SQL. Valid values:
+  groupBy?: string(name='GroupBy', description='The dimensions based on which data is aggregated. This parameter is equivalent to the GROUP BY clause in SQL. Valid values:
 
 *   `product`: aggregates data by cloud service.
 *   `level`: aggregates data by alert level.
@@ -3475,11 +3509,19 @@ model DescribeAlertLogListRequest {
 > For more information about the metrics of different cloud services, see [Appendix 1: Metrics](~~163515~~).', example='IntranetInRate', position='Query'),
   namespace?: string(name='Namespace', description='The namespace of the cloud service.
 
-> For more information about the namespaces of different cloud services, see [Appendix 1: Metrics](~~163515~~).', example='acs_ecs_dashboard', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10', position='Query'),
-  product?: string(name='Product', description='The abbreviation of the cloud service name.', example='ECS', position='Query'),
-  ruleId?: string(name='RuleId', description='The ID of the alert rule. For more information about how to query the ID of an alert rule, see [DescribeMetricRuleList](~~114941~~).', example='bc369e8_30f87e517ed2fc****', position='Query'),
+>  For information about how to query the namespace of a cloud service, see [Appendix 1: Metrics](~~163515~~).', example='acs_ecs_dashboard', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.
+
+Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+Default value: 10.', example='10', position='Query'),
+  product?: string(name='Product', description='The abbreviation of the service name.
+
+For information about how to obtain the abbreviation of a cloud service name, see [DescribeProductsOfActiveMetricRule](~~114930~~).', example='ECS', position='Query'),
+  ruleId?: string(name='RuleId', description='The ID of the alert rule.
+
+For information about how to obtain the ID of an alert rule, see [DescribeMetricRuleList](~~114941~~).', example='bc369e8_30f87e517ed2fc****', position='Query'),
   ruleName?: string(name='RuleName', description='The name of the alert rule.', example='test123', position='Query'),
   searchKey?: string(name='SearchKey', description='The search keyword that is used to query alert logs.', example='alert', position='Query'),
   sendStatus?: string(name='SendStatus', description='The status of the alert. Valid values:
@@ -3491,41 +3533,43 @@ model DescribeAlertLogListRequest {
 *   4: No alert notification is sent.
 
 If the value of the SendStatus parameter is 0, the value P4 of the Level parameter indicates a triggered alert and the value OK indicates a cleared alert.', example='0', position='Query'),
-  sourceType?: string(name='SourceType', example='METRIC', position='Query'),
-  startTime?: long(name='StartTime', description='The start timestamp of the alert logs to be queried. Unit: milliseconds.', example='1609988009694', position='Query'),
+  sourceType?: string(name='SourceType', description='The type of the alert rule. Valid value: METRIC. This value indicates an alert rule for time series metrics.', example='METRIC', position='Query'),
+  startTime?: long(name='StartTime', description='The start timestamp of the alert logs to be queried.
+
+Unit: milliseconds.
+
+You can query only the alert logs within the last year. If the query time is longer than one year, the return value of the `AlertLogList` parameter is empty.
+
+>  The time period between the start time specified by `StartTime` and the end time specified by `EndTime` must be less than or equal to 15 days. You must specify StartTime and EndTime at the same time, or leave StartTime and EndTime empty at the same time. If you do not specify this parameter, the alert logs within the last 15 minutes are queried by default.', example='1609988009694', position='Query'),
 }
 
 model DescribeAlertLogListResponseBody = {
   alertLogList?: [ 
     {
-      alertTime?: string(name='AlertTime', description='The timestamp that was generated when the alert was triggered. Unit: milliseconds.', example='1610043776621'),
+      alertTime?: string(name='AlertTime', description='The timestamp that was generated when the alert was triggered.
+
+Unit: milliseconds.', example='1610043776621'),
       blackListDetail?: string(name='BlackListDetail', description='The details of the blacklist policy.', example='BlackListDetail'),
       blackListName?: string(name='BlackListName', description='The name of the blacklist policy.', example='{"id":123,"metricProject":"acs_ecs_dashboard","userId":1736511134389110,"uuid":"8410dbbd-7d30-41c5-94cb-***","name":"alert-***","productCategory":"ecs","instances":[{"instanceId":"host-***"}],"metrics":null,"scopeType":"USER","scopeValue":"","startTime":"0001-01-01T00:00:00Z","endTime":"9999-12-31T23:59:59.999999999+08:00","effectiveTime":null,"isEnable":true,"status":1,"gmtCreate":"2021-11-02T16:35:59+08:00","gmtModified":"2021-11-02T16:35:59+08:00","loadTime":"2021-11-02T16:36:15.213072177+08:00"}'),
       blackListUUID?: string(name='BlackListUUID', description='The ID of the blacklist policy.', example='8410dbbd-7d30-41c5-94cb-*****'),
-      contactALIIWWList?: [ string ](name='ContactALIIWWList', description='The TradeManager IDs of the alert contacts.
-
-> This parameter is valid only on the China site (aliyun.com).'),
-      contactDingList?: [ string ](name='ContactDingList', description='The DingTalk chatbots of the alert contacts.'),
-      contactGroups?: [ string ](name='ContactGroups', description='The alert contact groups.'),
-      contactMailList?: [ string ](name='ContactMailList', description='The email addresses of the alert contacts.'),
-      contactOnCallList?: [ string ](name='ContactOnCallList', description='The phone numbers of the alert contacts that receive alert phone calls.
-
-> This parameter is valid only on the China site (aliyun.com).'),
-      contactSMSList?: [ string ](name='ContactSMSList', description='The phone numbers of the alert contacts that receive alert text messages.
-
-> This parameter is valid only on the China site (aliyun.com).'),
+      contactALIIWWList?: [ string ](name='ContactALIIWWList'),
+      contactDingList?: [ string ](name='ContactDingList'),
+      contactGroups?: [ string ](name='ContactGroups'),
+      contactMailList?: [ string ](name='ContactMailList'),
+      contactOnCallList?: [ string ](name='ContactOnCallList'),
+      contactSMSList?: [ string ](name='ContactSMSList'),
       dimensions?: [ 
         {
           key?: string(name='Key', description='The key of the dimension.', example='instanceId'),
           value?: string(name='Value', description='The value of the dimension.', example='i-m5e1qg6uo38rztr4****'),
         }
       ](name='Dimensions', description='The dimensions of the resource that triggered alerts.'),
-      dingdingWebhookList?: [ string ](name='DingdingWebhookList', description='The webhook URLs of the alert contacts.'),
+      dingdingWebhookList?: [ string ](name='DingdingWebhookList'),
       escalation?: {
         expression?: string(name='Expression', description='The description of the alert rule.
 
-> The content of the alert rule. If the metric value meets the alert condition, an alert is triggered.', example='$Average<90'),
-        level?: string(name='Level', description='The severity level and notification methods of the alert. Valid values:
+>  The content of the alert rule. This parameter indicates the conditions that trigger an alert.', example='$Average<90'),
+        level?: string(name='Level', description='The alert level and the methods that are used to send alert notifications. Valid values:
 
 *   P4: Alert notifications are sent by using emails and DingTalk chatbots.
 *   OK: No alert is generated.', example='P4'),
@@ -3542,7 +3586,7 @@ model DescribeAlertLogListResponseBody = {
       groupName?: string(name='GroupName', description='The name of the application group.', example='ECS_Instances'),
       instanceId?: string(name='InstanceId', description='The resource ID.', example='i-m5e1qg6uo38rztr4****'),
       instanceName?: string(name='InstanceName', description='The resource name.', example='portalHost'),
-      level?: string(name='Level', description='The severity level and notification methods of the alert. Valid values:
+      level?: string(name='Level', description='The alert level and the methods that are used to send alert notifications. Valid values:
 
 *   P4: Alert notifications are sent by using emails and DingTalk chatbots.
 *   OK: No alert is generated.', example='P4'),
@@ -3584,7 +3628,7 @@ model DescribeAlertLogListResponseBody = {
 
 *   true
 *   false', example='true'),
-                notifyTargetList?: [ string ](name='notifyTargetList', description='The queried resources.'),
+                notifyTargetList?: [ string ](name='notifyTargetList'),
               }
             ](name='ResultList', description='The sending results of alert notifications.'),
           }
@@ -3593,18 +3637,18 @@ model DescribeAlertLogListResponseBody = {
 
 *   If the alert notifications are sent, the value "success" is returned.
 *   If the configuration is invalid, no alert notification is sent and an error code is returned.', example='success'),
-      }(name='SendDetail', description='The details of the alert notification method.'),
+      }(name='SendDetail', description='The details about the sending results of alert notifications.'),
       sendResultList?: [ 
         {
           key?: string(name='Key', description='The category of the alert notification method. Valid values:
 
-*   Mail: email
+*   MAIL: email
 *   ALIIM: TradeManager
 *   SMS: text message
 *   CALL: phone call
 *   DING: DingTalk chatbot
 *   Merged: alert merging', example='Mail'),
-          value?: [ string ](name='Value', description='The alert notification methods.'),
+          value?: [ string ](name='Value', description='The notification object corresponding to the alert notification method.'),
         }
       ](name='SendResultList', description='The sending results of alert notifications.'),
       sendStatus?: string(name='SendStatus', description='The status of the alert. Valid values:
@@ -3645,6 +3689,7 @@ model DescribeAlertLogListResponse = {
 }
 
 /**
+  * You can call the operation to query only the alert logs within the last year.
   * This topic provides an example to show how to query the alert logs of Elastic Compute Service (ECS) based on the `product` dimension.
   *
  */
@@ -8344,26 +8389,26 @@ model DescribeSystemEventAttributeResponseBody = {
   systemEvents?: {
     systemEvent?: [ 
     {
-      content?: string(name='Content', description='The details of the system event.', example='[{"product":"CloudMonitor","content":"{\\"ipGroup\\":\\"112.126.XX.XX,10.163.XX.XX\\",\\"tianjimonVersion\\":\\"1.2.22\\"}","groupId":"176,177,178,179,180,692,120812,1663836,96,2028302","time":"1552209568000","resourceId":"acs:ecs:cn-beijing:173651113438****:instance/i-25k35****","level":"CRITICAL","status":"stopped","instanceName":"cmssiteprobebj-6","name":"Agent_Status_Stopped","regionId":"cn-beijing"}]'),
+      content?: string(name='Content', description='The details of the event.', example='[{"product":"CloudMonitor","content":"{\\"ipGroup\\":\\"112.126.XX.XX,10.163.XX.XX\\",\\"tianjimonVersion\\":\\"1.2.22\\"}","groupId":"176,177,178,179,180,692,120812,1663836,96,2028302","time":"1552209568000","resourceId":"acs:ecs:cn-beijing:173651113438****:instance/i-25k35****","level":"CRITICAL","status":"stopped","instanceName":"cmssiteprobebj-6","name":"Agent_Status_Stopped","regionId":"cn-beijing"}]'),
       groupId?: string(name='GroupId', description='The ID of the application group.', example='12345'),
       id?: string(name='Id'),
-      instanceName?: string(name='InstanceName', description='The name of the instance.', example='instanceId1'),
-      level?: string(name='Level', description='The level of the system event. Valid values:
+      instanceName?: string(name='InstanceName', description='The instance name.', example='instanceId1'),
+      level?: string(name='Level', description='The severity level of the alert. Valid values:
 
-*   CRITICAL: critical
-*   WARN: warning
-*   INFO: information', example='WARN'),
-      name?: string(name='Name', description='The name of the system event.', example='Agent_Status_Stopped'),
+*   CRITICAL
+*   WARN
+*   INFO', example='WARN'),
+      name?: string(name='Name', description='The event name.', example='Agent_Status_Stopped'),
       product?: string(name='Product', description='The abbreviation of the service name.', example='CloudMonitor'),
-      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
-      resourceId?: string(name='ResourceId', description='The ID of the resource.', example='xxxxx-1'),
-      status?: string(name='Status', description='The status of the system event.', example='normal'),
-      time?: long(name='Time', description='The timestamp when the system event occurred.
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='xxxxx-1'),
+      status?: string(name='Status', description='The status of the event.', example='normal'),
+      time?: long(name='Time', description='The time when the event occurred. The value is a timestamp.
 
 Unit: milliseconds.', example='1552199984000'),
     }
   ](name='SystemEvent')
-  }(name='SystemEvents', description='The details of the system event.'),
+  }(name='SystemEvents', description='The details of the event.'),
 }
 
 model DescribeSystemEventAttributeResponse = {
@@ -11243,7 +11288,7 @@ model PutResourceMetricRulesRequest {
             times?: int32(name='Times'),
         }(name='Warn'),
       }(name='Escalations'),
-      contactGroups: string(name='ContactGroups', description='The alert contact group. The alert notifications are sent to the alert contacts in the alert contact group.
+      contactGroups: string(name='ContactGroups', description='The alert contact groups. The alert notifications are sent to the alert contacts in the alert contact group.
 
 Valid values of N: 1 to 500.
 
@@ -11254,7 +11299,7 @@ Valid values of N: 1 to 500.', example='00:00-23:59'),
       emailSubject?: string(name='EmailSubject', description='The subject of the alert notification email.
 
 Valid values of N: 1 to 500.'),
-      interval?: string(name='Interval', description='The interval at which the alert rule is executed.
+      interval?: string(name='Interval', description='The interval at which alerts are triggered based on the alert rule.
 
 Unit: seconds.
 
@@ -11263,13 +11308,13 @@ Valid values of N: 1 to 500.
 >  For information about how to query the statistical period of a metric, see [Appendix 1: Metrics](~~163515~~).', example='60'),
       labels?: [ 
         {
-          key?: string(name='Key', description='The key of the tag.', example='tagKey1'),
-          value?: string(name='Value', description='The value of the tag.
+          key?: string(name='Key', description='The tag key.', example='tagKey1'),
+          value?: string(name='Value', description='The tag value.
 
 >  You can use a template parameter to specify a tag value. CloudMonitor replaces the value of the template parameter with an actual tag value.', example='ECS'),
         }
-      ](name='Labels'),
-      metricName?: string(name='MetricName', description='The name of the metric.
+      ](name='Labels', description='If the metric meets the specified condition in the alert rule and CloudMonitor sends an alert notification, the tag is also written to the metric and displayed in the alert notification.'),
+      metricName?: string(name='MetricName', description='The metric name.
 
 Valid values of N: 1 to 500.
 
@@ -11281,7 +11326,7 @@ Valid values of N: 1 to 500.
 For information about how to query the namespace of a cloud service, see [Appendix 1: Metrics](~~163515~~).', example='acs_ecs_dashboard'),
       noDataPolicy?: string(name='NoDataPolicy', description='The method that is used to handle alerts when no monitoring data is found. Valid values:
 
-*   KEEP_LAST_STATE (default value): No operation is performed.
+*   KEEP_LAST_STATE (default): No operation is performed.
 *   INSUFFICIENT_DATA: An alert whose content is "Insufficient data" is triggered.
 *   OK: The status is considered normal.
 
@@ -11296,7 +11341,7 @@ Unit: seconds. The default value is the interval at which the monitoring data of
 Valid values of N: 1 to 500.
 
 >  For information about how to query the statistical period of a metric, see [Appendix 1: Metrics](~~163515~~).', example='60'),
-      resources: string(name='Resources', description='The information about the resource. Examples: `[{"instanceId":"i-uf6j91r34rnwawoo****"}]` and `[{"userId":"100931896542****"}]`.
+      resources: string(name='Resources', description='The information about the resource. Example: `[{"instanceId":"i-uf6j91r34rnwawoo****"}]` or `[{"userId":"100931896542****"}]`.
 
 Valid values of N: 1 to 500.
 
@@ -11307,15 +11352,15 @@ Valid values of N: 1 to 500.
 
 You can specify a new ID or the ID of an existing alert rule. For information about how to query the ID of an alert rule, see [DescribeMetricRuleList](~~114941~~).
 
->  If you specify a new ID, you create a threshold-triggered alert rule.', example='a151cd6023eacee2f0978e03863cc1697c89508****'),
+>  If you specify a new ID, a threshold-triggered alert rule is created.', example='a151cd6023eacee2f0978e03863cc1697c89508****'),
       ruleName: string(name='RuleName', description='The name of the alert rule.
 
 Valid values of N: 1 to 500.
 
 You can specify a new name or the name of an existing alert rule. For information about how to query the name of an alert rule, see [DescribeMetricRuleList](~~114941~~).
 
->  If you specify a new name, you create a threshold-triggered alert rule.', example='test123'),
-      silenceTime?: int32(name='SilenceTime', description='The mute period during which new alerts are not sent even if the trigger conditions are met.
+>  If you specify a new name, a threshold-triggered alert rule is created.', example='test123'),
+      silenceTime?: int32(name='SilenceTime', description='The mute period during which new alert notifications are not sent even if the trigger conditions are met.
 
 Unit: seconds. Default value: 86400.
 
@@ -11326,34 +11371,36 @@ Valid values of N: 1 to 500.
 
 Valid values of N: 1 to 500.', example='https://alert.aliyun.com.com:8080/callback'),
     }
-  ](name='Rules', position='Query'),
+  ](name='Rules', description='The threshold-triggered alert rules.
+
+Valid values of N: 1 to 500.', position='Query'),
 }
 
 model PutResourceMetricRulesResponseBody = {
-  code?: string(name='Code', description='The HTTP status code.
+  code?: string(name='Code', description='The response code.
 
->  The status code 200 indicates that the call was successful.', example='200'),
+>  The status code 200 indicates that the request was successful.', example='200'),
   failedListResult?: {
     target?: [ 
     {
       result?: {
-        code?: string(name='Code', description='The HTTP status code.', example='404'),
-        message?: string(name='Message', description='The error message.', example='The request processing has failed due to some unknown error.'),
-        success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+        code?: string(name='Code', description='The response code.', example='404'),
+        message?: string(name='Message', description='The error message returned.', example='The request processing has failed due to some unknown error.'),
+        success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='false'),
+*   true
+*   false', example='false'),
       }(name='Result', description='The alert rule that failed to be created.'),
       ruleId?: string(name='RuleId', description='The ID of the alert rule.', example='a151cd6023eacee2f0978e03863cc1697c89508****'),
     }
   ](name='Target')
   }(name='FailedListResult', description='The alert rules that failed to be created for the resource.'),
-  message?: string(name='Message', description='The error message.', example='The request processing has failed due to some unknown error.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='15D1440E-BF24-5A41-93E4-36864635179E'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+  message?: string(name='Message', description='The error message returned.', example='The request processing has failed due to some unknown error.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='15D1440E-BF24-5A41-93E4-36864635179E'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true: The call was successful.
-*   false: The call failed.', example='true'),
+*   true
+*   false', example='true'),
 }
 
 model PutResourceMetricRulesResponse = {
@@ -11363,7 +11410,7 @@ model PutResourceMetricRulesResponse = {
 }
 
 /**
-  * This topic provides an example on how to create a threshold-triggered alert rule for the `cpu_total` metric of the `i-uf6j91r34rnwawoo****` instance that belongs to Elastic Compute Service (ECS). The namespace of ECS is `acs_ecs_dashboard`. In this example, the alert contact group of the alert rule is `ECS_Group`, the name of the alert rule is `test123`, and the ID of the alert rule is `a151cd6023eacee2f0978e03863cc1697c89508****`. The statistical method for Critical-level alerts is `Average`, the comparison operator for Critical-level alerts is `GreaterThanOrEqualToThreshold`, the threshold for Critical-level alerts is `90`, and the consecutive number of times for which the metric value is measured before a Critical-level alert is triggered is `3`.
+  * This topic provides an example on how to create a threshold-triggered alert rule for the `cpu_total` metric of an Elastic Compute Service (ECS) instance whose ID is `i-uf6j91r34rnwawoo****`. The namespace of ECS metrics is `acs_ecs_dashboard`. The alert contact group of the alert rule is `ECS_Group`. The name of the alert rule is `test123`. The ID of the alert rule is `a151cd6023eacee2f0978e03863cc1697c89508****`. The statistical method for Critical-level alerts is `Average`. The comparison operator for Critical-level alerts is `GreaterThanOrEqualToThreshold`. The threshold for Critical-level alerts is `90`. The consecutive number of times for which the metric value meets the trigger condition before a Critical-level alert is triggered is `3`.
   *
  */
 async function putResourceMetricRules(request: PutResourceMetricRulesRequest): PutResourceMetricRulesResponse {
