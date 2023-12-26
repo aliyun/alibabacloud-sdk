@@ -848,6 +848,7 @@ model GetServiceResponseBody = {
         mappings?: [ 
           {
             billCode?: string(name='BillCode'),
+            entity?: string(name='Entity'),
             meteringAssist?: string(name='MeteringAssist'),
           }
         ](name='Mappings'),
@@ -1743,6 +1744,7 @@ model ListServiceInstancesResponseBody = {
   requestId?: string(name='RequestId', example='E50287CB-AABF-4877-92C0-289B339A1546'),
   serviceInstances?: [ 
     {
+      bizStatus?: string(name='BizStatus'),
       createTime?: string(name='CreateTime', example='2021-05-20T00:00:00Z'),
       enableInstanceOps?: boolean(name='EnableInstanceOps', example='true'),
       endTime?: string(name='EndTime', example='2022-01-01T12:00:00'),
@@ -1874,26 +1876,7 @@ model ListServiceUsagesResponseBody = {
       supplierName?: string(name='SupplierName'),
       updateTime?: string(name='UpdateTime', example='2022-05-25T02:02:02Z'),
       userAliUid?: long(name='UserAliUid', example='127383705958xxxx'),
-      userInformation?: {
-        company?: string(name='Company', example='alibaba'),
-        contactEmail?: string(name='ContactEmail'),
-        contactNumber?: string(name='ContactNumber'),
-        contactPerson?: string(name='ContactPerson'),
-        contactPersonTitle?: string(name='ContactPersonTitle'),
-        country?: string(name='Country', example='china'),
-        emailAddress?: string(name='EmailAddress', example='a****@xyc.com'),
-        industry?: string(name='Industry'),
-        name?: string(name='Name'),
-        productBusiness?: string(name='ProductBusiness'),
-        productDeliveryTypes?: string(name='ProductDeliveryTypes'),
-        productSellTypes?: string(name='ProductSellTypes'),
-        source?: string(name='Source', example='223.2.1.3.xxxx'),
-        supplierDesc?: string(name='SupplierDesc'),
-        supplierName?: string(name='SupplierName'),
-        supplierUrl?: string(name='SupplierUrl'),
-        telephone?: string(name='Telephone', example='12345xxxxxx'),
-        title?: string(name='Title'),
-      }(name='UserInformation'),
+      userInformation?: map[string]string(name='UserInformation'),
     }
   ](name='ServiceUsages'),
   totalCount?: int32(name='TotalCount', example='1'),
@@ -1976,6 +1959,7 @@ model ListServicesResponseBody = {
       createTime?: string(name='CreateTime', example='2021-05-20T00:00:00Z'),
       defaultVersion?: boolean(name='DefaultVersion', example='true'),
       deployType?: string(name='DeployType', example='ros'),
+      hasBeta?: boolean(name='HasBeta'),
       hasDraft?: boolean(name='HasDraft'),
       latestResellSourceServiceVersion?: string(name='LatestResellSourceServiceVersion'),
       publishTime?: string(name='PublishTime', example='2021-05-21T00:00:00Z'),
@@ -2548,6 +2532,16 @@ async function updateServiceInstanceAttribute(request: UpdateServiceInstanceAttr
 model UpgradeServiceInstanceRequest {
   clientToken?: string(name='ClientToken', example='10CM943JP0EN9D51H'),
   dryRun?: string(name='DryRun', example='false'),
+  parameters?: map[string]any(name='Parameters'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  serviceInstanceId?: string(name='ServiceInstanceId', example='si-5cbae874da0e47xxxxxx'),
+  serviceVersion?: string(name='ServiceVersion', example='2'),
+}
+
+model UpgradeServiceInstanceShrinkRequest {
+  clientToken?: string(name='ClientToken', example='10CM943JP0EN9D51H'),
+  dryRun?: string(name='DryRun', example='false'),
+  parametersShrink?: string(name='Parameters'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   serviceInstanceId?: string(name='ServiceInstanceId', example='si-5cbae874da0e47xxxxxx'),
   serviceVersion?: string(name='ServiceVersion', example='2'),
@@ -2566,14 +2560,22 @@ model UpgradeServiceInstanceResponse = {
   body: UpgradeServiceInstanceResponseBody(name='body'),
 }
 
-async function upgradeServiceInstanceWithOptions(request: UpgradeServiceInstanceRequest, runtime: Util.RuntimeOptions): UpgradeServiceInstanceResponse {
-  Util.validateModel(request);
+async function upgradeServiceInstanceWithOptions(tmpReq: UpgradeServiceInstanceRequest, runtime: Util.RuntimeOptions): UpgradeServiceInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpgradeServiceInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.parameters)) {
+    request.parametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.parameters, 'Parameters', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
   }
   if (!Util.isUnset(request.dryRun)) {
     query['DryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.parametersShrink)) {
+    query['Parameters'] = request.parametersShrink;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
