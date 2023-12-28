@@ -187,6 +187,8 @@ Valid values:
   periodUnit?: string(name='PeriodUnit', description='The unit of the valid duration of the purchased resources.     
 Valid value for subscription: Month or Year.
 Default value: Month for subscription, and Hour for pay-as-you-go.', example='Month'),
+  primaryInstance?: string(name='PrimaryInstance', example='ob3h8ytroxxxxx'),
+  primaryRegion?: string(name='PrimaryRegion', example='cn-hangzhou'),
   replicaMode?: string(name='ReplicaMode', example='3'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-bp67acfmxazb4p****'),
   series?: string(name='Series', description='The series of the OceanBase cluster. Valid values:    
@@ -251,6 +253,12 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, runtime
   }
   if (!Util.isUnset(request.periodUnit)) {
     body['PeriodUnit'] = request.periodUnit;
+  }
+  if (!Util.isUnset(request.primaryInstance)) {
+    body['PrimaryInstance'] = request.primaryInstance;
+  }
+  if (!Util.isUnset(request.primaryRegion)) {
+    body['PrimaryRegion'] = request.primaryRegion;
   }
   if (!Util.isUnset(request.replicaMode)) {
     body['ReplicaMode'] = request.replicaMode;
@@ -1550,21 +1558,17 @@ model CreateTenantUserRequest {
 
 model CreateTenantUserResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C'),
-  tenantUser?: [ 
-    {
-      roles?: [ 
-        {
-          database?: string(name='Database', description='The name of the database.', example='db_pay1'),
-          role?: string(name='Role', description='The role of the account.  In Oracle mode, a role is a schema-level role. Valid values: - ReadWrite: a role that has the read and write privileges, including CREATE TABLE, CREATE VIEW, CREATE PROCEDURE, CREATE SYNONYM, CREATE SEQUENCE, CREATE TRIGGER, CREATE TYPE, CREATE SESSION, EXECUTE ANY PROCEDURE, CREATE ANY OUTLINE, ALTER ANY OUTLINE, DROP ANY OUTLINE, CREATE ANY PROCEDURE, ALTER ANY PROCEDURE, DROP ANY PROCEDURE, CREATE ANY SEQUENCE, ALTER ANY SEQUENCE, DROP ANY SEQUENCE, CREATE ANY TYPE, ALTER ANY TYPE, DROP ANY TYPE, SYSKM, CREATE ANY TRIGGER, ALTER ANY TRIGGER, DROP ANY TRIGGER, CREATE PROFILE, ALTER PROFILE, and DROP PROFILE. - ReadOnly: a role that has only the read-only privilege SELECT.
-In MySQL mode, a role is a database-level role. Valid values: - ReadWrite: a role that has the read and write privileges, namely ALL PRIVILEGES. - ReadOnly: a role that has only the read-only privilege SELECT. - DDL: a role that has the DDL privileges such as CREATE, DROP, ALTER, SHOW VIEW, and CREATE VIEW. - DML: a role that has the DML privileges such as SELECT, INSERT, UPDATE, DELETE, and SHOW VIEW. 
-* By default, an Oracle account has the read and write privileges on its own schema, which are not listed here.', example='ReadOnly'),
-        }
-      ](name='Roles', description='The roles of the accounts.'),
-      userName?: string(name='UserName', description='The name of the database account.', example='pay_test'),
-      userStatus?: string(name='UserStatus', description='The status of the database account. Valid values:  - Locked: The account is locked. - ONLINE: The account is unlocked. The default status of a new account is ONLINE after it is created.', example='ONLINE'),
-      userType?: string(name='UserType', description='The type of the database account. Valid values:  - Admin: the super administrator account. - Normal: a general account.', example='Normal'),
-    }
-  ](name='TenantUser', description='The list of database accounts in the tenant.'),
+  tenantUser?: {
+    roles?: [ 
+      {
+        database?: string(name='Database', example='db_pay1'),
+        role?: string(name='Role', example='ReadOnly'),
+      }
+    ](name='Roles'),
+    userName?: string(name='UserName', example='pay_test'),
+    userStatus?: string(name='UserStatus', example='ONLINE'),
+    userType?: string(name='UserType'),
+  }(name='TenantUser', description='The list of database accounts in the tenant.'),
 }
 
 model CreateTenantUserResponse = {
@@ -2399,6 +2403,7 @@ model DescribeAvailableSpecResponseBody = {
           min?: long(name='Min', example='1000'),
           step?: long(name='Step', example='5'),
         }(name='DiskSizeRange'),
+        diskTypes?: [ string ](name='DiskTypes'),
         instanceClass?: string(name='InstanceClass', example='4C16GB'),
         logDiskSizeRange?: {
           max?: long(name='Max', example='4000'),
@@ -2753,6 +2758,43 @@ model DescribeInstanceResponseBody = {
     payType?: string(name='PayType', description='The list of zones.', example='PREPAY'),
     proxyClusterId?: string(name='ProxyClusterId'),
     proxyServiceStatus?: string(name='ProxyServiceStatus'),
+    readOnlyResource?: {
+      capacityUnit?: {
+        maxCapacityUnit?: int32(name='MaxCapacityUnit'),
+        minCapacityUnit?: int32(name='MinCapacityUnit'),
+        usedCapacityUnit?: string(name='UsedCapacityUnit'),
+      }(name='CapacityUnit'),
+      cpu?: {
+        originalTotalCpu?: long(name='OriginalTotalCpu', example='14'),
+        totalCpu?: long(name='TotalCpu', example='14'),
+        unitCpu?: long(name='UnitCpu', example='10'),
+        usedCpu?: long(name='UsedCpu', example='10'),
+      }(name='Cpu'),
+      diskSize?: {
+        dataUsedSize?: double(name='DataUsedSize'),
+        maxDiskSize?: double(name='MaxDiskSize'),
+        maxDiskUsedObServer?: [ string ](name='MaxDiskUsedObServer'),
+        maxDiskUsedPercent?: double(name='MaxDiskUsedPercent'),
+        originalTotalDiskSize?: long(name='OriginalTotalDiskSize', example='200'),
+        totalDiskSize?: long(name='TotalDiskSize', example='200'),
+        unitDiskSize?: long(name='UnitDiskSize', example='200'),
+        usedDiskSize?: long(name='UsedDiskSize', example='100'),
+      }(name='DiskSize'),
+      logDiskSize?: {
+        logAssignedSize?: string(name='LogAssignedSize'),
+        maxLogAssignedObServer?: [ string ](name='MaxLogAssignedObServer'),
+        maxLogAssignedPercent?: string(name='MaxLogAssignedPercent'),
+        totalDiskSize?: long(name='TotalDiskSize', example='400'),
+        unitDiskSize?: long(name='UnitDiskSize', example='200'),
+      }(name='LogDiskSize'),
+      memory?: {
+        originalTotalMemory?: long(name='OriginalTotalMemory', example='72'),
+        totalMemory?: long(name='TotalMemory', example='70'),
+        unitMemory?: long(name='UnitMemory', example='10'),
+        usedMemory?: long(name='UsedMemory', example='10'),
+      }(name='Memory'),
+      unitCount?: long(name='UnitCount', example='1'),
+    }(name='ReadOnlyResource'),
     replicaMode?: string(name='ReplicaMode'),
     resource?: {
       capacityUnit?: {
@@ -2795,6 +2837,7 @@ The default value is cloud_essd_pl1, which indicates an ESSD cloud disk.', examp
         logAssignedSize?: string(name='LogAssignedSize'),
         maxLogAssignedObServer?: [ string ](name='MaxLogAssignedObServer'),
         maxLogAssignedPercent?: string(name='MaxLogAssignedPercent'),
+        originalTotalDiskSize?: int32(name='OriginalTotalDiskSize'),
         totalDiskSize?: long(name='TotalDiskSize', description='The ID of the region.', example='400'),
         unitDiskSize?: long(name='UnitDiskSize', description='The request ID.', example='200'),
       }(name='LogDiskSize', description='The server with the highest disk usage.'),
@@ -3143,6 +3186,7 @@ This field is valid only for units that are being manually immigrated or emigrat
                 enableMigrateUnit?: boolean(name='EnableMigrateUnit', description='The return result of the request.', example='true'),
                 manualMigrate?: boolean(name='ManualMigrate', description='The return result of the request.', example='true'),
                 nodeId?: string(name='NodeId', description='It is an online CLI tool that allows you to quickly retrieve and debug APIs. It can dynamically generate executable SDK code samples.', example='i-bp16niirq4zdmgvm****'),
+                replicaType?: string(name='ReplicaType'),
                 unitCpu?: float(name='UnitCpu', description='Alibaba Cloud CLI', example='2'),
                 unitDataSize?: long(name='UnitDataSize', description='The operation that you want to perform.   
 Set the value to **DescribeInstanceTopology**.', example='10'),
@@ -3159,6 +3203,7 @@ Set the value to **DescribeInstanceTopology**.', example='10'),
       {
         nodes?: [ 
           {
+            fullCopyId?: long(name='FullCopyId'),
             nodeCopyId?: long(name='NodeCopyId', description='The information of zones.', example='1'),
             nodeId?: string(name='NodeId', description='The ID of the resource unit.', example='i-bp16niirq4zdmgvm****'),
             nodeResource?: [ 
@@ -3189,6 +3234,8 @@ Set the value to **DescribeInstanceTopology**.', example='10'),
               }
             ](name='NodeResource', description='The ID of the node.'),
             nodeStatus?: string(name='NodeStatus', description='The ID of the OBServer where the resource unit resides.', example='ONLINE'),
+            readOnlyCopyId?: long(name='ReadOnlyCopyId'),
+            replicaType?: string(name='ReplicaType'),
           }
         ](name='Nodes', description='The ID of the region.'),
         region?: string(name='Region', description='The zone information of the cluster.', example='cn-hangzhou'),
@@ -3403,6 +3450,7 @@ model DescribeMetricsDataRequest {
   labels?: string(name='Labels', example='app:OB,clusterId:ob***'),
   limit?: string(name='Limit', example='5'),
   metrics?: string(name='Metrics', example='tps'),
+  replicaType?: string(name='ReplicaType'),
   sortMetricKey?: string(name='SortMetricKey', example='tps'),
   sortOrder?: string(name='SortOrder', example='DESC'),
   startTime?: string(name='StartTime', example='2021-06-13T15:40:43Z'),
@@ -3455,8 +3503,13 @@ async function describeMetricsDataWithOptions(request: DescribeMetricsDataReques
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
   }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.replicaType)) {
+    body['ReplicaType'] = request.replicaType;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'DescribeMetricsData',
@@ -6922,6 +6975,7 @@ model DescribeTenantResponseBody = {
     clogServiceStatus?: string(name='ClogServiceStatus', description='地址类型', example='CLOSED'),
     collation?: string(name='Collation', description='The request ID.', example='utf8mb4_general_ci'),
     createTime?: string(name='CreateTime', description='You can call this operation to create a single tenant in a specific cluster.', example='2021-09-17 15:52:17'),
+    dataMergeTime?: string(name='DataMergeTime'),
     deployMode?: string(name='DeployMode', description='The list of zones.', example='1-1-1'),
     deployType?: string(name='DeployType', description='The series of the instance.', example='multiple'),
     description?: string(name='Description', description='Indicates whether to enable read/write splitting endpoint.', example='The information of the tenant.'),
@@ -6998,6 +7052,31 @@ http(s)://[Endpoint]/?Action=DescribeTenant
     payType?: string(name='PayType', example='POSTPAY'),
     primaryZone?: string(name='PrimaryZone', description='The type of the payment.', example='cn-hangzhou-i'),
     primaryZoneDeployType?: string(name='PrimaryZoneDeployType', description='Example 1', example='RANDOM'),
+    readOnlyResource?: {
+      capacityUnit?: {
+        maxCapacityUnit?: int32(name='MaxCapacityUnit'),
+        minCapacityUnit?: int32(name='MinCapacityUnit'),
+        usedCapacit?: int32(name='UsedCapacit'),
+      }(name='CapacityUnit'),
+      cpu?: {
+        totalCpu?: float(name='TotalCpu', example='10'),
+        unitCpu?: float(name='UnitCpu', example='8'),
+        usedCpu?: float(name='UsedCpu'),
+      }(name='Cpu'),
+      diskSize?: {
+        usedDiskSize?: float(name='UsedDiskSize', example='86'),
+      }(name='DiskSize'),
+      logDiskSize?: {
+        totalLogDisk?: int32(name='TotalLogDisk'),
+        unitLogDisk?: int32(name='UnitLogDisk'),
+      }(name='LogDiskSize'),
+      memory?: {
+        totalMemory?: float(name='TotalMemory', example='64'),
+        unitMemory?: float(name='UnitMemory', example='32'),
+        usedMemory?: float(name='UsedMemory', example='30'),
+      }(name='Memory'),
+      unitNum?: int32(name='UnitNum'),
+    }(name='ReadOnlyResource'),
     series?: string(name='Series', description='<DescribeTenantResponse>
     <RequestId>EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C</RequestId>
     <Tenant>
@@ -7053,6 +7132,7 @@ http(s)://[Endpoint]/?Action=DescribeTenant
     tenantConnections?: [ 
       {
         addressType?: string(name='AddressType', description='The primary zone of the tenant.', example='MASTER'),
+        connectionReplicaType?: string(name='ConnectionReplicaType'),
         connectionZones?: [ string ](name='ConnectionZones', description='The Internet address for accessing the tenant.', example='["cn-hangzhou-i", "cn-hangzhou-j"]'),
         enableTransactionSplit?: boolean(name='EnableTransactionSplit'),
         internetAddress?: string(name='InternetAddress', description='The ID of the VPC.', example='t32a7ru5u****mo.oceanbase.aliyuncs.com'),
@@ -7135,6 +7215,16 @@ Closed: The address is disabled.
       {
         region?: string(name='Region', description='是否允许开启读写分离地址', example='cn-hangzhou'),
         tenantZoneId?: string(name='TenantZoneId', description='The intranet port for accessing the tenant.', example='cn-hangzhou-i'),
+        tenantZoneReplicas?: [ 
+          {
+            fullCopyId?: int32(name='FullCopyId'),
+            logicZoneName?: string(name='LogicZoneName'),
+            readOnlyCopyId?: string(name='ReadOnlyCopyId'),
+            zoneCopyId?: int32(name='ZoneCopyId'),
+            zoneNodes?: string(name='ZoneNodes'),
+            zoneReplicaType?: string(name='ZoneReplicaType'),
+          }
+        ](name='TenantZoneReplicas'),
         tenantZoneRole?: string(name='TenantZoneRole', description='The character set.', example='ReadOnly'),
       }
     ](name='TenantZones', description='The standby zone corresponding to the address for accessing the tenant.'),
@@ -9237,6 +9327,7 @@ async function modifyInstanceNodeNum(request: ModifyInstanceNodeNumRequest): Mod
 
 model ModifyInstanceSpecRequest {
   diskSize?: long(name='DiskSize', example='200'),
+  diskType?: string(name='DiskType', example='cloud_essd_pl1'),
   dryRun?: boolean(name='DryRun'),
   instanceClass?: string(name='InstanceClass', example='14C70GB'),
   instanceId?: string(name='InstanceId', example='ob3h8ytroxxxxx'),
@@ -9261,6 +9352,9 @@ async function modifyInstanceSpecWithOptions(request: ModifyInstanceSpecRequest,
   var body : map[string]any = {};
   if (!Util.isUnset(request.diskSize)) {
     body['DiskSize'] = request.diskSize;
+  }
+  if (!Util.isUnset(request.diskType)) {
+    body['DiskType'] = request.diskType;
   }
   if (!Util.isUnset(request.dryRun)) {
     body['DryRun'] = request.dryRun;
@@ -9341,13 +9435,14 @@ async function modifyInstanceTags(request: ModifyInstanceTagsRequest): ModifyIns
 }
 
 model ModifyInstanceTemporaryCapacityRequest {
-  diskSize?: string(name='DiskSize', example='400'),
-  instanceId?: string(name='InstanceId', example='ob317v4uif****'),
-  spec?: string(name='Spec', example='oceanbase.cluster.i2.small'),
+  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN'),
+  diskSize?: string(name='DiskSize', description='The disk size. Unit: GB.', example='400'),
+  instanceId?: string(name='InstanceId', description='The ID of the OceanBase cluster.', example='ob317v4uif****'),
+  spec?: string(name='Spec', description='Specification.', example='oceanbase.cluster.i2.small'),
 }
 
 model ModifyInstanceTemporaryCapacityResponseBody = {
-  requestId?: string(name='RequestId', example='EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C'),
 }
 
 model ModifyInstanceTemporaryCapacityResponse = {
@@ -9359,6 +9454,9 @@ model ModifyInstanceTemporaryCapacityResponse = {
 async function modifyInstanceTemporaryCapacityWithOptions(request: ModifyInstanceTemporaryCapacityRequest, runtime: Util.RuntimeOptions): ModifyInstanceTemporaryCapacityResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    body['AcceptLanguage'] = request.acceptLanguage;
+  }
   if (!Util.isUnset(request.diskSize)) {
     body['DiskSize'] = request.diskSize;
   }
@@ -9576,8 +9674,10 @@ http(s)://[Endpoint]/?Action=ModifyTenantPrimaryZone
 &Common request parameters
 ```', example='cn-hangzhou-h'),
   primaryZone?: string(name='PrimaryZone', description='The ID of the vSwitch.', example='cn-hangzhou-h'),
+  tenantEndpointDirectId?: string(name='TenantEndpointDirectId'),
   tenantEndpointId?: string(name='TenantEndpointId', example='obe-4tw51gp7****'),
   tenantId?: string(name='TenantId', description='The return result of the request.', example='ob2mr3oae0****'),
+  userDirectVSwitchId?: string(name='UserDirectVSwitchId'),
   userVSwitchId?: string(name='UserVSwitchId', description='The request ID.', example='vsw-xxx'),
 }
 
@@ -9603,11 +9703,17 @@ async function modifyTenantPrimaryZoneWithOptions(request: ModifyTenantPrimaryZo
   if (!Util.isUnset(request.primaryZone)) {
     body['PrimaryZone'] = request.primaryZone;
   }
+  if (!Util.isUnset(request.tenantEndpointDirectId)) {
+    body['TenantEndpointDirectId'] = request.tenantEndpointDirectId;
+  }
   if (!Util.isUnset(request.tenantEndpointId)) {
     body['TenantEndpointId'] = request.tenantEndpointId;
   }
   if (!Util.isUnset(request.tenantId)) {
     body['TenantId'] = request.tenantId;
+  }
+  if (!Util.isUnset(request.userDirectVSwitchId)) {
+    body['UserDirectVSwitchId'] = request.userDirectVSwitchId;
   }
   if (!Util.isUnset(request.userVSwitchId)) {
     body['UserVSwitchId'] = request.userVSwitchId;
