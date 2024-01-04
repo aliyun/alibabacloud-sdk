@@ -743,6 +743,45 @@ async function allocateEipSegmentAddress(request: AllocateEipSegmentAddressReque
   return @handler.do('RPC', 'AllocateEipSegmentAddress', 'POST', '/', 'json', false, 'json', request);
 }
 
+model AllocateIpv6AddressRequest {
+  clientToken?: string(name='ClientToken', example='02fb3da4-130e-11e9-8e44-0016e04****', position='Query'),
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  ipv6Address?: string(name='Ipv6Address', example='2408:XXXX:153:3921:851c:c435:7b12:1c5f', position='Query'),
+  ipv6AddressDescription?: string(name='Ipv6AddressDescription', example='ipv6-description', position='Query'),
+  ipv6AddressName?: string(name='Ipv6AddressName', example='ipv6-name', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-bp67acfmxazb4ph****', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='FinanceDept'),
+      value?: string(name='Value', example='FinanceJoshua'),
+    }
+  ](name='Tag', position='Query'),
+  vSwitchId: string(name='VSwitchId', example='vsw-asdfjlnaue4g****', position='Query'),
+}
+
+model AllocateIpv6AddressResponseBody = {
+  ipv6Address?: string(name='Ipv6Address', example='2408:XXXX:153:3921:851c:c435:7b12:1c5f'),
+  ipv6AddressId?: string(name='Ipv6AddressId', example='ipv6-2zen5j4axcp5l5qyy****'),
+  requestId?: string(name='RequestId', example='54B48E3D-DF70-471B-AA93-08E683A1B45'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxazdjdhd****'),
+}
+
+model AllocateIpv6AddressResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: AllocateIpv6AddressResponseBody(name='body'),
+}
+
+async function allocateIpv6Address(request: AllocateIpv6AddressRequest): AllocateIpv6AddressResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AllocateIpv6Address', 'POST', '/', 'json', false, 'json', request);
+}
+
 model AllocateIpv6InternetBandwidthRequest {
   bandwidth: int32(name='Bandwidth', description='The Internet bandwidth of the IPv6 gateway. Unit: Mbit/s. Valid values: **1 to 5000**.', example='2', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
@@ -5289,14 +5328,22 @@ model CreateVpnAttachmentRequest {
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
-  bgpConfig?: string(name='BgpConfig', description='The Border Gateway Protocol (BGP) configuration:
+  bgpConfig?: string(name='BgpConfig', description='The Border Gateway Protocol (BGP) configurations:
 
 *   **BgpConfig.EnableBgp**: specifies whether to enable BGP. Valid values: **true** and **false**. Default value: false.
+
 *   **BgpConfig.LocalAsn**: the ASN on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
-*   **BgpConfig.TunnelCidr**: the CIDR block of the IPsec tunnel. The CIDR block must belong to 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
-*   **LocalBgpIp:** the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block of the IPsec tunnel.
- >- Before you configure BGP, we recommend that you learn about how BGP works and the limits. For more information, see [BGP dynamic routing ](~~170235~~).
- >- We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+
+    You can enter the ASN in two segments. Separate the first 16 bits of the ASN from the remaining 16 bits with a period (.). Enter the number in each segment in decimal format.
+
+    For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.
+
+*   **BgpConfig.TunnelCidr**: the CIDR block of the IPsec tunnel. The CIDR block falls within 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
+
+*   **LocalBgpIp:** the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block range of the IPsec tunnel.
+
+> *   Before you configure BGP, we recommend that you learn about how BGP works and the limits. For more information, see [BGP dynamic routing ](~~170235~~).
+> *   We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -5338,9 +5385,7 @@ You can use the client to generate the token, but you must make sure that the to
     *   It must be 1 to 100 characters in length, and can contain letters, digits, and the following characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
     *   If you do not specify a pre-shared key, the system generates a random 16-character string as the pre-shared key. You can call the [DescribeVpnConnection](~~448847~~) operation to query the pre-shared key that is generated by the system.
 
-    **
-
-    **Note** The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the data center. Otherwise, a connection cannot be established between the data center and the VPN gateway.
+    > The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the data center. Otherwise, a connection cannot be established between the data center and the VPN gateway.
 
 *   **IkeConfig.IkeVersion**: the IKE version. Valid values: **ikev1** and **ikev2**. Default value: **ikev1**.
 
@@ -5393,9 +5438,8 @@ The following routing modes are supported:
 *   If you set **LocalSubnet** and **RemoteSubnet** to specific CIDR blocks, the routing mode of the IPsec-VPN connection is set to Protected Data Flows.', example='10.1.3.0/24,10.1.4.0/24', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IPsec-VPN connection belongs.
 
-- You can call the [ListResourceGroups](~~158855~~) operation to query the resource group list.
-
-- If you do not specify a resource group, the IPsec-VPN connection will belong to the default resource group after being created.', example='rg-acfmzs372yg****', position='Query'),
+*   You can call the [ListResourceGroups](~~158855~~) operation to query resource group IDs.
+*   If you do not specify a resource group ID, the IPsec-VPN connection belongs to the default resource group.', example='rg-acfmzs372yg****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   tags?: [ 
@@ -8398,12 +8442,12 @@ This value is a UNIX timestamp representing the number of milliseconds that have
   requestId?: string(name='RequestId', description='The request ID.', example='A0457BC9-6C0F-4437-AB9D-FB2EABC1D6A2'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the customer gateway belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
   tags?: {
     tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.', example='TagKey'),
-      value?: string(name='Value', description='The tag value.', example='TagValue'),
+      key?: string(name='Key', description='The key of tag N.', example='TagKey'),
+      value?: string(name='Value', description='The value of tag N.', example='TagValue'),
     }
   ](name='Tag')
   }(name='Tags', description='The list of tags added to the customer gateway.'),
@@ -8570,16 +8614,16 @@ You can specify up to 50 EIP IDs. Separate multiple IDs with commas (,).
 
 >  If both **EipAddress** and **AllocationId** are specified, you can specify up to 50 EIP IDs for **AllocationId**, and specify up to 50 EIPs for **EipAddress**.', example='eip-2zeerraiwb7ujxscd****', position='Query'),
   associatedInstanceId?: string(name='AssociatedInstanceId', description='The ID of the instance associated with the EIP.', example='i-2zebb08phyccdvf****', position='Query'),
-  associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of the cloud resource with which you want to associate the elastic IP address (EIP). Valid values:
+  associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of the cloud resource with which you want to associate the EIP. Valid values:
 
 *   **EcsInstance** (default): an Elastic Compute Service (ECS) instance in a virtual private cloud (VPC).
-*   **SlbInstance**: a Server Load Balancer (SLB) instance in a VPC.
+*   **SlbInstance**: a CLB instance in a VPC.
 *   **Nat**: a NAT gateway.
-*   **HaVip**: a high-availability virtual IP address (HAVIP).
-*   **NetworkInterface**: a secondary elastic network interface (ENI).
+*   **HaVip**: an HAVIP.
+*   **NetworkInterface**: a secondary ENI.
 *   **IpAddress**: an IP address.
 
->  Each ECS instance, CLB instance, HAVIP, and IP address can be associated with only one EIP. A NAT gateway can be associated with multiple EIPs. The number of EIPs that you can associate with a secondary ENI depends on the association mode. For more information, see [EIP overview](~~72125~~).', example='EcsInstance', position='Query'),
+>  Each ECS instance, CLB instance, HAVIP, and IP address can be associated with only one EIP. A NAT gateway can be associated with multiple EIPs. The number of EIPs that you can associate with a secondary ENI depends on the association mode. For more information, see [Associate EIPs with and disassociate EIPs from cloud resources](~~72125~~).', example='EcsInstance', position='Query'),
   chargeType?: string(name='ChargeType', description='The billing method of the EIP. Valid values:
 
 *   **PostPaid**: pay-as-you-go.
@@ -8632,7 +8676,7 @@ You can call the [DescribeRegions](~~36063~~) operation to query the region ID.'
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the EIP belongs.', example='rg-acfmxazb4pcdvf****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  securityProtectionEnabled?: boolean(name='SecurityProtectionEnabled', description='Specifies whether Anti-DDoS Pro/Premium is activated. Valid value:
+  securityProtectionEnabled?: boolean(name='SecurityProtectionEnabled', description='Specifies whether to activate Anti-DDoS Pro/Premium. Valid values:
 
 *   **false**
 *   **true**', example='false', position='Query'),
@@ -8665,12 +8709,12 @@ model DescribeEipAddressesResponseBody = {
       bandwidth?: string(name='Bandwidth', description='The maximum bandwidth of the EIP. Unit: Mbit/s.', example='5'),
       bandwidthPackageBandwidth?: string(name='BandwidthPackageBandwidth', description='The maximum bandwidth of the Internet Shared Bandwidth instance with which the EIP is associated. Unit: Mbit/s.', example='50'),
       bandwidthPackageId?: string(name='BandwidthPackageId', description='The ID of the Internet Shared Bandwidth instance.', example='cbwp-bp1ego3i4j07ccdvf****'),
-      bandwidthPackageType?: string(name='BandwidthPackageType', description='The bandwidth type. Only **CommonBandwidthPackage** may be returned, which indicates Internet Shared Bandwidth.', example='CommonBandwidthPackage'),
+      bandwidthPackageType?: string(name='BandwidthPackageType', description='The type of the bandwidth. Only **CommonBandwidthPackage** may be returned, which indicates Internet Shared Bandwidth.', example='CommonBandwidthPackage'),
       bizType?: string(name='BizType', description='The service type. Valid values:
 
 *   **CloudBox** Only cloud box users can select this type.
 *   **Default** (default)', example='CloudBox'),
-      businessStatus?: string(name='BusinessStatus', description='The service status of the EIP. Valid values:
+      businessStatus?: string(name='BusinessStatus', description='The service state of the EIP. Valid values:
 
 *   **Normal**
 *   **FinancialLocked**', example='Normal'),
@@ -8695,8 +8739,8 @@ model DescribeEipAddressesResponseBody = {
 *   **true** A value of **true** is returned only when **IncludeReservationData** is set to **true** and some orders have not taken effect.', example='false'),
       ISP?: string(name='ISP', description='The line type. Valid values:
 
-*   **BGP**: BGP (Multi-ISP). All regions support BGP (Multi-ISP) EIPs.
-*   **BGP_PRO**: BGP (Multi-ISP) Pro. BGP (Multi-ISP) Pro is supported only in the China (Hong Kong), Singapore, Japan (Tokyo), Malaysia (Kuala Lumpur), Philippines (Manila), Indonesia (Jakarta), and Thailand (Bangkok) regions.
+*   **BGP**: BGP (Multi-ISP). The BGP (Multi-ISP) line is supported in all regions.
+*   **BGP_PRO**: BGP (Multi-ISP) Pro lines. BGP (Multi-ISP) Pro line is supported only in the China (Hong Kong), Singapore, Japan (Tokyo), Malaysia (Kuala Lumpur), Philippines (Manila), Indonesia (Jakarta), and Thailand (Bangkok) regions.
 
 For more information about BGP (Multi-ISP) and BGP (Multi-ISP) Pro, see the [Line types](~~32321~~) section of the "What is EIP?" topic.
 
@@ -8724,12 +8768,11 @@ If your services are deployed in China East 1 Finance, **BGP_FinanceCloud** is r
 
 *   **PayByBandwidth**
 *   **PayByTraffic**', example='PayByBandwidth'),
-      ipAddress?: string(name='IpAddress', description='The IP address of the EIP.', example='47.75.XX.XX'),
+      ipAddress?: string(name='IpAddress', description='The EIP.', example='47.75.XX.XX'),
       mode?: string(name='Mode', description='The association mode. Valid values:
-
-*   **NAT**: NAT mode
-*   **MULTI_BINDED**: multi-EIP-to-ENI mode
-*   **BINDED**: cut-through mode', example='NAT'),
+- **NAT**: NAT mode
+- **MULTI_BINDED**: multi-EIP-to-ENI mode
+- **BINDED**: cut-through mode', example='NAT'),
       name?: string(name='Name', description='The name of the EIP.', example='EIP-01'),
       netmode?: string(name='Netmode', description='The network type. Only **public** may be returned.', example='public'),
       operationLocks?: {
@@ -8767,13 +8810,13 @@ If your services are deployed in China East 1 Finance, **BGP_FinanceCloud** is r
 
 *   If an empty value is returned, it indicates that Anti-DDoS Origin Basic is used.
 *   If **AntiDDoS_Enhanced** is returned, it indicates that Anti-DDoS Pro/Premium is used.'),
-      segmentInstanceId?: string(name='SegmentInstanceId', description='The IDs of contiguous EIPs.
+      segmentInstanceId?: string(name='SegmentInstanceId', description='The ID of the contiguous EIP group.
 
 This value is returned only when you query contiguous EIPs.', example='eipsg-t4nr90yik5oy38xd****'),
       serviceManaged?: int32(name='ServiceManaged', description='Indicates whether the resource is created by the service account. Valid values:
 
-*   **0**: no
-*   **1**: yes', example='0'),
+*   **0**
+*   **1**', example='0'),
       status?: string(name='Status', description='The status of the EIP. Valid values:
 
 *   **Associating**
@@ -13792,7 +13835,7 @@ If the order type is **RENEWCHANGE** (renewal with a specification change) or **
 > This set of parameters is returned only when **IncludeReservationData** is set to **true**.'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the VPN gateway belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
   spec?: string(name='Spec', description='The maximum bandwidth of the VPN gateway. Unit: Mbit/s.', example='5'),
   sslMaxConnections?: long(name='SslMaxConnections', description='The maximum number of concurrent SSL-VPN connections.', example='5'),
   sslVpn?: string(name='SslVpn', description='The status of the SSL-VPN feature. Valid values:
@@ -13837,8 +13880,8 @@ This parameter is returned only when the VPN gateway is a public VPN gateway and
   tags?: {
     tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.', example='aaa'),
-      value?: string(name='Value', description='The tag value.', example='bbb'),
+      key?: string(name='Key', description='The key of tag N.', example='aaa'),
+      value?: string(name='Value', description='The value of tag N.', example='bbb'),
     }
   ](name='Tag')
   }(name='Tags', description='The tag value.'),
@@ -17674,7 +17717,7 @@ model ModifyCustomerGatewayAttributeResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='8AA5CE21-2E6A-4530-BDF5-F055849476E6'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the customer gateway belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
 }
 
 model ModifyCustomerGatewayAttributeResponse = {
@@ -19536,12 +19579,16 @@ model ModifyVpnAttachmentAttributeRequest {
 
 *   **BgpConfig.LocalAsn**: the autonomous system number (ASN) on the Alibaba Cloud side. Valid values: **1** to **4294967295**.
 
+    You can enter the ASN in two segments. Separate the first 16 bits of the ASN from the remaining 16 bits with a period (.). Enter the number in each segment in decimal format.
+
+    For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.
+
 *   **BgpConfig.TunnelCidr:** the CIDR block of the IPsec tunnel. The CIDR block falls within 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
 
 *   **LocalBgpIp:** the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block of the IPsec tunnel.
 
->*   Before you configure BGP, we recommend that you learn how BGP dynamic routing works and the limits of using BGP dynamic routing. For more information, see [VPN Gateway supports BGP dynamic routing](~~170235~~).
->*   We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+> - Before you configure BGP, we recommend that you learn how BGP dynamic routing works and the limits of using BGP dynamic routing. For more information, see [BGP dynamic routing ](~~170235~~).
+> - We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -19560,25 +19607,25 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true** After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec tunnel.
 *   **false**', example='true', position='Query'),
-  healthCheckConfig?: string(name='HealthCheckConfig', description='The health check configuration:
+  healthCheckConfig?: string(name='HealthCheckConfig', description='The health check configurations:
 
 *   **HealthCheckConfig.enable**: specifies whether to enable the health check feature. Valid values:
 
     *   **true**
     *   **false**
 
-*   **HealthCheckConfig.dip**: the destination IP address that is used for health checks. Enter the IP address of the data center with which the VPC can communicate based on the IPsec-VPN connection.
+*   **HealthCheckConfig.dip**: the destination IP address that is used for health checks. Enter the IP address on the data center side that the VPC can communicate with through the IPsec-VPN connection.
 
-*   **HealthCheckConfig.sip**: the source IP address that is used for health checks. Enter the IP address of the VPC with which the data center can communicate based on the IPsec-VPN connection.
+*   **HealthCheckConfig.sip**: the source IP address that is used for health checks. Enter the IP address on the VPC side that the data center can communicate with through the IPsec-VPN connection.
 
 *   **HealthCheckConfig.interval**: the interval between two consecutive health checks. Unit: seconds.
 
-*   **HealthCheckConfig.retry**: the maximum number of health check retries.
+*   **HealthCheckConfig.retry:** the maximum number of health check retries.
 
 *   **HealthCheckConfig.Policy**: specifies whether to withdraw advertised routes when health checks fail. Valid values:
 
-    - **revoke_route**: withdraws advertised routes.
-    - **reserve_route**: does not withdraw advertised routes.', example='{"enable":"true","dip":"192.168.1.1","sip":"10.1.1.1","interval":"3","retry":"3","Policy": "revoke_route"}', position='Query'),
+    *   **revoke_route**
+    *   **reserve_route**', example='{"enable":"true","dip":"192.168.1.1","sip":"10.1.1.1","interval":"3","retry":"3","Policy": "revoke_route"}', position='Query'),
   ikeConfig?: string(name='IkeConfig', description='The configuration of Phase 1 negotiations:
 
 *   **IkeConfig.Psk**: The pre-shared key that is used for authentication between the VPN gateway and the data center.
@@ -19695,7 +19742,7 @@ This value is a UNIX timestamp representing the number of milliseconds that have
   requestId?: string(name='RequestId', description='The request ID.', example='35822A84-867F-3936-A2E6-A4C4E3ED11C0'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IPsec-VPN connection belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
   spec?: string(name='Spec', description='The bandwidth specification of the IPsec-VPN connection.
 
 A value of **M** in the response indicates **Mbit/s**.', example='1000M'),
@@ -19764,23 +19811,27 @@ model ModifyVpnConnectionAttributeRequest {
 
 *   **true**
 *   **false**', example='true', position='Query'),
-  bgpConfig?: string(name='BgpConfig', description='You can specify this parameter if you modify the configuration of a single-tunnel IPsec-VPN connection.
+  bgpConfig?: string(name='BgpConfig', description='This parameter is supported by single-tunnel IPsec-VPN connections.
 
-The Border Gateway Protocol (BGP) configuration:
+The Border Gateway Protocol (BGP) configurations:
 
 *   **BgpConfig.EnableBgp:** specifies whether to enable BGP. Valid values: **true** and **false**.
 
-*   **BgpConfig.LocalAsn**: the autonomous system number (ASN) on the Alibaba Cloud side. Valid values: **1** to **4294967295**.
+*   **BgpConfig.LocalAsn:** the autonomous system number (ASN) on the Alibaba Cloud side. Valid values: **1** to **4294967295**.
 
-*   **BgpConfig.TunnelCidr:** the CIDR block of the IPsec tunnel. The CIDR block falls within 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
+    You can enter the ASN in two segments. Separate the first 16 bits of the ASN from the remaining 16 bits with a period (.). Enter the number in each segment in decimal format.
 
-    >The CIDR block of the IPsec tunnel of each IPsec-VPN connection must be unique on a VPN gateway.
+    For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.
 
-*   **LocalBgpIp**: the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block of the IPsec tunnel.
+*   **BgpConfig.TunnelCidr**: the CIDR block of the IPsec tunnel. The CIDR block must belong to 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
 
-> *   This parameter is required when the VPN gateway has dynamic BGP enabled.
->*   Before you configure BGP, we recommend that you learn how BGP dynamic routing works and the limits of using BGP dynamic routing. For more information, see [VPN Gateway supports BGP dynamic routing](~~170235~~).
->*   We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"65530","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+    > The CIDR block of the IPsec tunnel of each IPsec-VPN connection must be unique on a VPN gateway.
+
+*   **LocalBgpIp**: the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block range of the IPsec tunnel.
+
+> - This parameter is required when the VPN gateway has dynamic BGP enabled.
+> - Before you configure BGP, we recommend that you learn about how BGP works and its limits. For more information, see [BGP dynamic routing ](~~170235~~).
+> - We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. For information about the range of private ASNs, see the relevant documentation.', example='{"EnableBgp":"true","LocalAsn":"65530","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -19910,15 +19961,15 @@ The following routing modes are supported:
 If the VPN gateway does not use an SM certificate, this parameter is not supported.', example='-----BEGIN CERTIFICATE----- MIIB7zCCAZW**** -----END CERTIFICATE-----'),
       role?: string(name='Role', description='The tunnel role. Valid values:
 
-- **master**: The tunnel is an active tunnel.
-- **slave**: The tunnel is a standby tunnel.', example='master'),
+*   **master**: The tunnel is an active tunnel.
+*   **slave**: The tunnel is a standby tunnel.', example='master'),
       tunnelBgpConfig?: {
-        localAsn?: long(name='LocalAsn', description='The ASN on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
+        localAsn?: long(name='LocalAsn', description='The ASN of the tunnel on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
 
-> *   You can specify or modify this parameter if BGP is enabled for the IPsec-VPN connection (**EnableTunnelsBgp** is set to **true**).
-> *   Before you configure BGP, we recommend that you learn about how BGP works and its limits. For more information, see [VPN Gateway supports BGP dynamic routing](~~170235~~).
-> *   We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. For information about the range of private ASNs, see the relevant documentation.', example='65530'),
-        localBgpIp?: string(name='LocalBgpIp', description='The BGP address on the Alibaba Cloud side. The address is an IP address that falls within the BGP CIDR block range.', example='169.254.10.1'),
+> - You can specify or modify this parameter if BGP is enabled for the IPsec-VPN connection (**EnableTunnelsBgp** is set to **true**).
+> - Before you configure BGP, we recommend that you learn about how BGP works and its limits. For more information, see [VPN Gateway supports BGP dynamic routing](~~170235~~).
+> - We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. For information about the range of private ASNs, see the relevant documentation.', example='65530'),
+        localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel on the Alibaba Cloud side. The address is an IP address that falls within the BGP CIDR block range.', example='169.254.10.1'),
         tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel. The CIDR block must belong to 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
 
 >  The BGP CIDR block of a tunnel associated with a VPN gateway must be unique.', example='169.254.10.0/30'),
@@ -19934,20 +19985,20 @@ Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**.', examp
 
 Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.', example='aes'),
         ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime that is determined by Phase 1 negotiations. Unit: seconds. Valid values: **0** to **86400**.', example='86400'),
-        ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values:
+        ikeMode?: string(name='IkeMode', description='The IKE negotiation mode. Valid values:
 
 *   **main**: This mode offers higher security during negotiations.
 *   **aggressive**: This mode is faster and has a higher success rate.', example='main'),
         ikePfs?: string(name='IkePfs', description='The DH key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
         ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol. Valid values: **ikev1** and **ikev2**.
 
-Compared with IKEv1, IKEv2 simplifies the SA negotiation process and is more suitable for scenarios in which multiple CIDR blocks are used.', example='ikev1'),
+Compared with IKEv1, IKEv2 simplifies the security association (SA) negotiation process and is more suitable for scenarios in which multiple CIDR blocks are used.', example='ikev1'),
         localId?: string(name='LocalId', description='The identifier on the Alibaba Cloud side, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length. The default identifier is the IP address of the tunnel.
 
 You can set **LocalId** to a fully qualified domain name (FQDN). In this case, we recommend that you set IkeMode to **aggressive**.', example='47.21.XX.XX'),
         psk?: string(name='Psk', description='The pre-shared key, which is used for identity authentication between the tunnel and the tunnel peer.
 
-*   It must be 1 to 100 characters in length, and can contain letters, digits, and the following characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+*   The key must be 1 to 100 characters in length and can contain digits, letters, and the following characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
 *   If you do not specify a pre-shared key, the system generates a random 16-character string as the pre-shared key. You can call the [DescribeVpnConnection](~~448847~~) operation to query the pre-shared key that is generated by the system.
 
 >  The tunnel and the tunnel peer must use the same pre-shared key. Otherwise, the tunnel cannot be established.', example='123456****'),
@@ -20039,9 +20090,7 @@ Compared with IKEv1, IKEv2 simplifies the SA negotiation process and is more sui
   requestId?: string(name='RequestId', description='The request ID.', example='7DB79D0C-5F27-4AB5-995B-79BE55102F90'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IPsec-VPN connection belongs.
 
-The IPsec-VPN connection has the same resource group as its associated VPN gateway instance. 
-
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+The IPsec-VPN connection and the VPN gateway associated with the IPsec-VPN connection belong to the same resource group. You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
   tunnelOptionsSpecification?: {
     tunnelOptions?: [ 
     {
@@ -20081,7 +20130,7 @@ This parameter is returned only if the VPN gateway is of the SM type.', example=
         ikeLifetime?: long(name='IkeLifetime', description='The lifetime in the IKE phase. Unit: seconds.', example='86400'),
         ikeMode?: string(name='IkeMode', description='The IKE negotiation mode.
 
-*   **main**: This mode offers higher security during negotiations.
+*   **main:** This mode offers higher security during negotiations.
 *   **aggressive**: This mode is faster and has a higher success rate.', example='main'),
         ikePfs?: string(name='IkePfs', description='The DH group in the IKE phase.', example='group2'),
         ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol.', example='ikev1'),
@@ -20832,6 +20881,32 @@ model ReleaseEipSegmentAddressResponse = {
 async function releaseEipSegmentAddress(request: ReleaseEipSegmentAddressRequest): ReleaseEipSegmentAddressResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ReleaseEipSegmentAddress', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ReleaseIpv6AddressRequest {
+  clientToken?: string(name='ClientToken', example='0c593ea1-3bea-11e9-b96b-88e9fe63****', position='Query'),
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  ipv6AddressId: string(name='Ipv6AddressId', example='ipv6-2zen5j4axcp5l5qyy****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ReleaseIpv6AddressResponseBody = {
+  requestId?: string(name='RequestId', example='C44F62BE-9CE7-4277-B117-69243F3988BF'),
+}
+
+model ReleaseIpv6AddressResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ReleaseIpv6AddressResponseBody(name='body'),
+}
+
+async function releaseIpv6Address(request: ReleaseIpv6AddressRequest): ReleaseIpv6AddressResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReleaseIpv6Address', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RemoveCommonBandwidthPackageIpRequest {
