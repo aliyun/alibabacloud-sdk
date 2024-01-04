@@ -230,13 +230,13 @@ async function associateCenBandwidthPackage(request: AssociateCenBandwidthPackag
 model AssociateTransitRouterAttachmentWithRouteTableRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the token, but you must make sure that the token is unique among all requests. The token can contain only ASCII characters.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
->  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run to check information such as the permissions and the instance status. Default values:
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** is different for each request.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
 
-*   **false** (default): performs a dry run and sends the request.
-*   **true**: performs a dry run. The system checks the required parameters and request syntax. If the request fails the dry run, an error message is returned. If the request passes the dry run, the DryRunOperation error code is returned.', example='false', position='Query'),
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -256,9 +256,10 @@ model AssociateTransitRouterAttachmentWithRouteTableResponse = {
 }
 
 /**
-  * After you create a network instance connection on a transit router, you can configure an associated forwarding correlation to associate the network instance connection with a route table. Then, the network instance connection can forward network traffic based on the associated route table. Before you begin, we recommend that you take note of the following rules:
-  * *   Only Enterprise Edition transit routers support associated forwarding correlations. For more information about the regions and zones that support Enterprise Edition transit routers, see [Transit routers](~~181681~~).
-  * *   **AssociateTransitRouterAttachmentWithRouteTable** is an asynchronous operation. After you send a request, the system returns a **request ID** and runs the task in the background. You can call the **ListTransitRouterRouteTableAssociations** operation to query the status of an associated forwarding correlation.
+  * After you create a network instance connection on a transit router, you can configure an associated forwarding correlation to associate the network instance connection with the route table of an Enterprise Edition transit router. The Enterprise Edition transit router forwards traffic for the network instance based on the routes in the route table. Before you begin, we recommend that you take note of the following rules:
+  * *   Only route tables of an Enterprise Edition transit router support associated forwarding correlations. For more information about the regions and zones that support Enterprise Edition transit routers, see [What is CEN?](~~181681~~)
+  * *   Each network instance connection can have an associated forwarding correlation with one route tables of Enterprise Edition transit router.
+  * *   **AssociateTransitRouterAttachmentWithRouteTable** is an asynchronous operation. After a request is sent, the system returns a **request ID** and runs the task in the background. You can call the **ListTransitRouterRouteTableAssociations** operation to query the status of an associated forwarding correlation.
   *     *   If an associated forwarding correlation is in the **Associating** state, the associated forwarding correlation is being created. You can query the associated forwarding correlation but cannot perform other operations.
   *     *   If an associated forwarding correlation is in the **Active** state, the associated forwarding correlation is created.
   *
@@ -516,7 +517,7 @@ async function createCenBandwidthPackage(request: CreateCenBandwidthPackageReque
 }
 
 model CreateCenChildInstanceRouteEntryToAttachmentRequest {
-  cenId: string(name='CenId', description='The ID of the Cloud Enterprise Network (CEN) instance.', example='vpc-bp1n6cbxcszp55vxo****', position='Query'),
+  cenId: string(name='CenId', description='The CEN instance ID.', example='vpc-bp1n6cbxcszp55vxo****', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -718,28 +719,37 @@ async function createCenInterRegionTrafficQosQueue(request: CreateCenInterRegion
 }
 
 model CreateCenRouteMapRequest {
-  asPathMatchMode?: string(name='AsPathMatchMode', description='The ID of the CEN instance.', example='Include', position='Query'),
-  cenId: string(name='CenId', description='The type of source network instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
-  cenRegionId: string(name='CenRegionId', description='The ID of the source region.', example='cn-hangzhou', position='Query'),
-  cidrMatchMode?: string(name='CidrMatchMode', description='The ID of the source network instance.', example='Include', position='Query'),
-  communityMatchMode?: string(name='CommunityMatchMode', description='The prefix list.', example='Include', position='Query'),
-  communityOperateMode?: string(name='CommunityOperateMode', description='The AS path.', example='Additive', position='Query'),
-  description?: string(name='Description', description='The priority of the routing policy. Valid values: **1** to **100**. A smaller value indicates a higher priority.
+  asPathMatchMode?: string(name='AsPathMatchMode', description='The match method that is used to match routes against the AS paths. Valid values:
 
->  You cannot specify the same priority for routing policies that apply in the same region and direction. The system matches routes against the match conditions of routing policies in descending order of priority. A smaller value indicates a higher priority. You must set the priorities to proper values.', example='desctest', position='Query'),
-  destinationChildInstanceTypes?: [ string ](name='DestinationChildInstanceTypes', description='The action that is performed on the community. Valid values:
+*   **Include**: fuzzy match. A route meets the match condition if the AS path of the route overlaps with the AS paths specified in the match condition.
+*   **Complete**: exact match. A route is a match only if the AS path of the route is the same as an AS path specified in the match condition.', example='Include', position='Query'),
+  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
+  cenRegionId: string(name='CenRegionId', description='The ID of the region in which the routing policy is applied.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  cidrMatchMode?: string(name='CidrMatchMode', description='The match method that is used to match routes against the prefix list. Valid values:
+
+*   **Include**: fuzzy match. A route is a match if the route prefix is included in the match conditions.
+
+    For example, if you set the match condition to 10.10.0.0/16 and fuzzy match is enabled, the route whose prefix is 10.10.1.0/24 is a match.
+
+*   **Complete**: exact match. A route is a match only if the route prefix is the same as the prefix specified in the match condition.
+
+    For example, if you set the match condition to 10.10.0.0/16 and exact match is enabled, a route is a match only if the prefix is 10.10.0.0/16.', example='Include', position='Query'),
+  communityMatchMode?: string(name='CommunityMatchMode', description='The match method that is used to match routes based on the community. Valid values:
+
+*   **Include**: fuzzy match. A route meets the match condition if the community of the route overlaps with the community specified in the match condition.
+*   **Complete**: exact match. A route meets the match condition only if the community of the route is the same as the community specified in the match condition.', example='Include', position='Query'),
+  communityOperateMode?: string(name='CommunityOperateMode', description='The action that is performed on the community. Valid values:
 
 *   **Additive**: adds the community to the route.
 *   **Replace**: replaces the original community of the route.
 
-This parameter specifies the action to be performed when a route meets the match condition.', example='VPC', position='Query'),
-  destinationCidrBlocks?: [ string ](name='DestinationCidrBlocks', description='The ID of the destination route table.', example='10.10.10.0/24', position='Query'),
-  destinationInstanceIds?: [ string ](name='DestinationInstanceIds', description='The new priority of the route.
+This parameter specifies the action to be performed when a route meets the match condition.', example='Additive', position='Query'),
+  description?: string(name='Description', description='The description of the routing policy.
 
-Valid values: **1** to **100**. The default priority is **50**. A smaller value indicates a higher priority.
-
-This parameter specifies the action to be performed when a route meets the match condition.', example='vpc-afrfs434465fdf****', position='Query'),
-  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='The types of destination network instance to which the routes belong. The following types of network instances are supported:
+The description must be 2 to 256 characters in length, and can contain letters, digits, hyphens (-), periods (.), and underscores (\\_). It must start with a letter and cannot start with `http://` or `https://`.', example='desctest', position='Query'),
+  destinationChildInstanceTypes?: [ string ](name='DestinationChildInstanceTypes', description='The types of destination network instance to which the routes belong. The following types of network instances are supported:
 
 *   **VPC**: VPC
 
@@ -749,101 +759,141 @@ This parameter specifies the action to be performed when a route meets the match
 
 *   **VPN**: IPsec connection
 
-    **
-
-    **Note** This parameter does not take effect if the IPsec-VPN connection or SSL client is associated with a transit router through a VPN gateway and a VPC. This parameter takes effect only if the IPsec connection is directly connected to the transit router.
+    >This parameter does not take effect if the IPsec-VPN connection or SSL client is associated with a transit router through a VPN gateway and a VPC. This parameter takes effect only if the IPsec connection is directly connected to the transit router.
 
 You can specify one or more network instance types.
 
->  The destination network instance types are valid only if the routing policy is applied to scenarios where routes are advertised from the gateway in the current region to network instances in the current region.', example='false', position='Query'),
-  destinationRouteTableIds?: [ string ](name='DestinationRouteTableIds', description='The prefix list against which routes are matched.
+> The destination network instance types are valid only if the routing policy is applied to scenarios where routes are advertised from the gateway in the current region to network instances in the current region.', example='VPC', position='Query'),
+  destinationCidrBlocks?: [ string ](name='DestinationCidrBlocks', description='The prefix list against which routes are matched.
 
-You must specify the IP addresses in CIDR notation. You can enter at most 32 CIDR blocks.', example='vtb-adefrgtr144vf****', position='Query'),
-  mapResult: string(name='MapResult', description='The types of source network instance to which the routes belong. The following types of network instances are supported:
-
-*   **VPC**: VPC
-*   **VBR**: VBR
-*   **CCN**: CCN instance
-*   **VPN**: VPN gateway or IPsec connection
-    *   If the IPsec-VPN connection or SSL client is associated with a VPN gateway, the VPC associated with the VPN gateway must be connected to a transit router, and the VPN gateway must use BGP dynamic routing. Otherwise, this parameter cannot take effect.
-    *   This parameter takes effect if the IPsec connection is directly connected to a transit router.
-
-You can specify one or more network instance types.', example='Permit', position='Query'),
-  matchAddressType?: string(name='MatchAddressType', description='Specifies whether to exclude the destination network instance IDs. Valid values:
-
-*   **false** (default value): A route is a match if its destination network instance ID is in the list specified by **DestinationInstanceIds.N**.
-*   **true**: A route meets the match condition if its destination network instance ID is not in the list specified by **DestinationInstanceIds.N**.', example='IPv4', position='Query'),
-  matchAsns?: [ long ](name='MatchAsns', description='The IDs of the source network instances to which the routes belong. The following network instance types are supported:
+You must specify the IP addresses in CIDR notation. You can enter at most 32 CIDR blocks.', example='10.10.10.0/24', position='Query'),
+  destinationInstanceIds?: [ string ](name='DestinationInstanceIds', description='The IDs of the destination network instances to which the routes belong. The following network instance types are supported:
 
 *   VPC
 *   VBR
 *   CCN instance
 *   SAG instance
-*   The ID of the IPsec connection.
+*   The ID of the IPsec-VPN connection.
 
-You can enter at most 32 IDs.', example='65501', position='Query'),
-  matchCommunitySet?: [ string ](name='MatchCommunitySet', description='The community.', example='65501:1', position='Query'),
-  nextPriority?: int32(name='NextPriority', description='The action to be performed on a route that meets all match conditions. Valid values:
+You can enter at most 32 IDs.
+
+> The destination instance IDs take effect only when Direction is set to Export from Regional Gateway and the destination instances are deployed in the current region.', example='vpc-afrfs434465fdf****', position='Query'),
+  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='Specifies whether to exclude the destination network instance IDs. Valid values:
+
+*   **false** (default value): A route is a match if its destination network instance ID is in the list specified by **DestinationInstanceIds.N**.
+*   **true**: A route meets the match condition if its destination network instance ID is not in the list specified by **DestinationInstanceIds.N**.', example='false', position='Query'),
+  destinationRouteTableIds?: [ string ](name='DestinationRouteTableIds', description='The IDs of the destination route tables to which routes are evaluated. You can enter at most 32 route table IDs.
+
+> The destination route table IDs take effect only when Direction is set to Export from Regional Gateway and the destination route tables belong to network instances deployed in the current region.', example='vtb-adefrgtr144vf****', position='Query'),
+  mapResult: string(name='MapResult', description='The action to be performed on a route that meets all match conditions. Valid values:
 
 *   **Permit**: the route is permitted.
-*   **Deny**: the route is denied.', example='20', minimum=1, maximum=1000, position='Query'),
-  operateCommunitySet?: [ string ](name='OperateCommunitySet', description='The type of route to be matched against the match condition. The following route types are supported:
+*   **Deny**: the route is denied.', example='Permit', position='Query'),
+  matchAddressType?: string(name='MatchAddressType', description='The type of IP address in the match condition. Valid values:
 
-*   **System**: system routes that are automatically generated by the system.
-*   **Custom**: custom routes that are manually added.
-*   **BGP**: routes that are advertised over BGP.
+*   **IPv4**: IPv4 address
+*   **IPv6**: IPv6 address
 
-You can specify multiple route types.', example='65501:1', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
-  preference?: int32(name='Preference', description='The community against which routes are matched.
+This parameter can be empty. If no value is specified, all types of IP address are a match.', example='IPv4', position='Query'),
+  matchAsns?: [ long ](name='MatchAsns', description='The AS paths based on which routes are compared.
+
+You can specify at most 32 AS numbers.
+
+> Only the AS-SEQUENCE parameter is supported. The AS-SET, AS-CONFED-SEQUENCE, and AS-CONFED-SET parameters are not supported. In other words, only the AS number list is supported. Sets and sub-lists are not supported.', example='65501', position='Query'),
+  matchCommunitySet?: [ string ](name='MatchCommunitySet', description='The community set based on which routes are compared.
 
 Specify the community in the format of n:m. Valid values of n and m: **1** to **65535**. Each community must comply with the RFC 1997 standard. The RFC 8092 standard that defines Border Gateway Protocol (BGP) large communities is not supported.
 
 You can specify at most 32 communities.
 
->  If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='50', minimum=1, maximum=100, position='Query'),
-  prependAsPath?: [ long ](name='PrependAsPath', description='The ID of the source route table.', example='65501', position='Query'),
-  priority: int32(name='Priority', description='The IDs of the source route tables from which routes are evaluated. You can enter at most 32 route table IDs.', example='3', minimum=1, maximum=2999, position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  routeTypes?: [ string ](name='RouteTypes', description='The ID of the route table of the transit router.
+> If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='65501:1', position='Query'),
+  nextPriority?: int32(name='NextPriority', description='The priority of the routing policy that you want to associate with the current one.
 
-If you do not specify a route table ID, the routing policy is automatically associated with the default route table of the transit router.', example='System', position='Query'),
-  sourceChildInstanceTypes?: [ string ](name='SourceChildInstanceTypes', description='The IDs of the destination network instances to which the routes belong. The following network instance types are supported:
-
-*   VPC
-*   VBR
-*   CCN instance
-*   SAG instance
-*   The ID of the IPsec connection.
-
-You can enter at most 32 IDs.
-
->  The destination network instance IDs are valid only if the routing policy is applied to scenarios where routes are advertised from the gateway in the current region to network instances in the current region.', example='VPC', position='Query'),
-  sourceInstanceIds?: [ string ](name='SourceInstanceIds', description='The ID of the routing policy.', example='vpc-adeg3544fdf34vf****', position='Query'),
-  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='The community set on which actions are performed.
+*   This parameter takes effect only when the **MapResult** parameter is set to **Permit**. This way, the permitted route is matched against the next routing policy.
+*   The region and direction of the routing policy to be associated must be the same as those of the current routing policy.
+*   The priority of the next routing policy must be lower than the priority of the current routing policy.', example='20', minimum=1, maximum=1000, position='Query'),
+  operateCommunitySet?: [ string ](name='OperateCommunitySet', description='The community set on which actions are performed.
 
 Specify the community in the format of n:m. Valid values of n and m: **1** to **65535**. Each community must comply with RFC 1997. The RFC 8092 standard that defines BGP large communities is not supported.
 
 You can specify at most 32 communities.
 
->  If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='false', position='Query'),
-  sourceRegionIds?: [ string ](name='SourceRegionIds', description='The priority of the routing policy that you want to associate with the current one.
+> If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='65501:1', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  preference?: int32(name='Preference', description='The new priority of the route.
 
-*   This parameter takes effect only when the **MapResult** parameter is set to **Permit**. This way, the permitted route is matched against the next routing policy.
-*   The region and direction of the routing policy to be associated must be the same as those of the current routing policy.
-*   The priority of the next routing policy must be lower than the priority of the current routing policy.', example='cn-beijing', position='Query'),
-  sourceRouteTableIds?: [ string ](name='SourceRouteTableIds', description='The ID of the region where the routing policy is applied.
+Valid values: **1** to **100**. The default priority is **50**. A smaller value indicates a higher priority.
 
-You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='vtb-adfr233vf34rvd4****', position='Query'),
-  transitRouterRouteTableId?: string(name='TransitRouterRouteTableId', description='The type of destination network instance.', example='vtb-gw8nx3515m1mbd1z1****', position='Query'),
-  transmitDirection: string(name='TransmitDirection', description='The operation that you want to perform. Set the value to **CreateCenRouteMap**.', example='RegionIn', position='Query'),
+This parameter specifies the action to be performed when a route meets the match condition.', example='50', minimum=1, maximum=100, position='Query'),
+  prependAsPath?: [ long ](name='PrependAsPath', description='The AS paths that are prepended by using an action statement when regional gateways receive or advertise routes.
+
+The AS paths vary based on the direction in which the routing policy is applied:
+
+*   If AS paths are prepended to a routing policy that is applied in the inbound direction, you must specify source network instance IDs and the source region in the match condition. In addition, the source region must be the same as the region where the routing policy is applied.
+*   If AS paths are prepended to a routing policy that is applied in the outbound direction, you must specify destination network instance IDs in the match condition.
+
+This parameter specifies the action to be performed when a route meets the match condition. You can specify at most 32 AS numbers.', example='65501', position='Query'),
+  priority: int32(name='Priority', description='The priority of the routing policy. Valid values: **1** to **100**. A smaller value indicates a higher priority.
+
+> You cannot specify the same priority for routing policies that apply in the same region and direction. The system matches routes against the match conditions of routing policies in descending order of priority. A smaller value indicates a higher priority. You must set the priorities to proper values.', example='3', minimum=1, maximum=2999, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  routeTypes?: [ string ](name='RouteTypes', description='The type of route to be compared. Valid values: The following route types are supported:
+
+*   **System**: system routes that are automatically generated by the system.
+*   **Custom**: custom routes that are manually added.
+*   **BGP**: routes that are advertised over BGP.
+
+You can specify multiple route types.', example='System', position='Query'),
+  sourceChildInstanceTypes?: [ string ](name='SourceChildInstanceTypes', description='The types of source network instance to which the routes belong. The following types of network instances are supported:
+
+*   **VPC**: VPC
+
+*   **VBR**: VBR
+
+*   **CCN**: CCN instance
+
+*   **VPN**: VPN gateway or IPsec connection
+
+    *   If the IPsec-VPN connection or SSL client is associated with a VPN gateway, the VPC associated with the VPN gateway must be connected to a transit router, and the VPN gateway must use BGP dynamic routing. Otherwise, this parameter cannot take effect.
+    *   This parameter takes effect if the IPsec connection is directly connected to a transit router.
+
+You can specify one or more network instance types.', example='VPC', position='Query'),
+  sourceInstanceIds?: [ string ](name='SourceInstanceIds', description='The IDs of the source network instances to which the routes belong. The following network instance types are supported:
+
+*   Virtual private cloud (VPC)
+*   Virtual border router (VBR)
+*   Cloud Connect Network (CCN) instance
+*   Smart Access Gateway (SAG) instance
+*   The ID of the IPsec-VPN connection.
+
+You can enter at most 32 IDs.', example='vpc-adeg3544fdf34vf****', position='Query'),
+  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='Specifies whether to exclude the source network instance IDs. Valid values:
+
+*   **false** (default value): A route is a match if its source network instance ID is in the list specified by **SourceInstanceIds.N**.
+*   **true**: A route is a match if its source network instance ID is not in the list specified by **SourceInstanceIds.N**.', example='false', position='Query'),
+  sourceRegionIds?: [ string ](name='SourceRegionIds', description='The IDs of the source regions from which routes are evaluated. You can enter at most 32 region IDs.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-beijing', position='Query'),
+  sourceRouteTableIds?: [ string ](name='SourceRouteTableIds', description='The IDs of the source route tables from which routes are evaluated. You can enter at most 32 route table IDs.', example='vtb-adfr233vf34rvd4****', position='Query'),
+  transitRouterRouteTableId?: string(name='TransitRouterRouteTableId', description='The ID of the route table of the transit router.
+
+If you do not specify a route table ID, the routing policy is automatically associated with the default route table of the transit router.', example='vtb-gw8nx3515m1mbd1z1****', position='Query'),
+  transmitDirection: string(name='TransmitDirection', description='The direction in which the routing policy is applied. Valid values:
+
+*   **RegionIn**: Routes are advertised to the gateways in the regions that are connected by the CEN instance.
+
+    For example, routes are advertised from network instances deployed in the current region or other regions to the gateway deployed in the current region.
+
+*   **RegionOut**: Routes are advertised from the gateways in the regions that are connected by the CEN instance.
+
+    For example, routes are advertised from the gateway deployed in the current region to network instances deployed in the same region, or to gateways deployed in other regions.', example='RegionIn', position='Query'),
 }
 
 model CreateCenRouteMapResponseBody = {
-  requestId?: string(name='RequestId', example='62172DD5-6BAC-45DF-8D44-56SDF467BAC'),
-  routeMapId?: string(name='RouteMapId', example='cenrmap-w4yf7toozfol3q****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='62172DD5-6BAC-45DF-8D44-56SDF467BAC'),
+  routeMapId?: string(name='RouteMapId', description='The ID of the routing policy.', example='cenrmap-w4yf7toozfol3q****'),
 }
 
 model CreateCenRouteMapResponse = {
@@ -853,8 +903,10 @@ model CreateCenRouteMapResponse = {
 }
 
 /**
-  * The IDs of the source regions from which routes are evaluated. You can enter at most 32 region IDs.
-  * You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.
+  * Routing policies are sorted by priority. A smaller value indicates a higher priority. Each routing policy is a collection of conditional statements and execution statements. Starting from the routing policy with the highest priority, the system matches routes against the match conditions specified by routing policies. If a route meets all the match conditions of a routing policy, the system permits or denies the route based on the action specified in the routing policy. You can also modify the attributes of permitted routes. By default, the system permits routes that meet none of the match conditions. For more information, see [Routing policy overview](~~124157~~).
+  * `CreateCenRouteMap` is an asynchronous operation. After you send a request, the routing policy ID is returned but the operation is still being performed in the system background. You can call `DescribeCenRouteMaps` to query the status of a routing policy.
+  * *   If a routing policy is in the **Creating** state, the routing policy is being created. In this case, you can query the routing policy but cannot perform other operations.
+  * *   If a routing policy is in the **Active** state, the routing policy is created.
   *
  */
 async function createCenRouteMap(request: CreateCenRouteMapRequest): CreateCenRouteMapResponse {
@@ -1127,36 +1179,81 @@ async function createTransitRouteTableAggregation(request: CreateTransitRouteTab
 }
 
 model CreateTransitRouterRequest {
-  cenId: string(name='CenId', example='cen-j3jzhw1zpau2km****', position='Query'),
-  clientToken?: string(name='ClientToken', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  cenId: string(name='CenId', description='The ID of the Cloud Enterprise Network (CEN) instance.', example='cen-j3jzhw1zpau2km****', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
+
+>  If you do not set this parameter, the system automatically uses **RequestId** as **ClientToken**. The value of **RequestId** of each API request is different.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to check the request without performing the operation. Check items include permissions and the status of the specified cloud resources. Valid values:
+
+*   **false** (default): sends the request. If the request passes the check, an Enterprise Edition transit router is created.
+*   **true**: checks the request but does not create the Enterprise Edition transit router. If you use this value, the system checks whether the required parameters are set, and whether the request syntax is valid. If the request fails the check, an error message is returned. If the request passes the check, the `DryRunOperation` error code is returned.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', example='cn-zhangjiakou', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the Enterprise Edition transit router is deployed.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-zhangjiakou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  supportMulticast?: boolean(name='SupportMulticast', example='false', position='Query'),
+  supportMulticast?: boolean(name='SupportMulticast', description='Specifies whether to enable the multicast feature for the Enterprise Edition transit router. Valid values:
+
+*   **false** (default): no
+*   **true**: yes
+
+The multicast feature is supported only in specific regions. You can call [ListTransitRouterAvailableResource](~~261356~~) to query the regions that support multicast.', example='false', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', example='tagtest'),
-      value?: string(name='Value', example='TagValue'),
+      key?: string(name='Key', description='The tag key.
+
+The tag key cannot be an empty string. The tag key can be up to 64 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.
+
+You can specify at most 20 tag keys.', example='tagtest'),
+      value?: string(name='Value', description='The tag value.
+
+The tag value can be 0 to 128 characters in length, and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.
+
+Each tag key has a unique tag value. You can specify at most 20 tag values in each call.', example='TagValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The information about the tags.
+
+You can specify at most 20 tags in each call.', position='Query'),
   transitRouterCidrList?: [ 
     {
-      cidr?: string(name='Cidr', example='192.168.10.0/24'),
-      description?: string(name='Description', example='desctest'),
-      name?: string(name='Name', example='nametest'),
-      publishCidrRoute?: boolean(name='PublishCidrRoute', example='true'),
+      cidr?: string(name='Cidr', description='The CIDR block of the transit router.', example='192.168.10.0/24'),
+      description?: string(name='Description', description='The description of the CIDR block.
+
+The description must be 1 to 256 characters in length.', example='desctest'),
+      name?: string(name='Name', description='The name of the CIDR block.
+
+The name must be 1 to 128 characters in length.', example='nametest'),
+      publishCidrRoute?: boolean(name='PublishCidrRoute', description='Specifies whether to allow the system to automatically add a route that points to the CIDR block to the route table of the transit router.
+
+*   **true** (default): yes.
+
+    A value of true specifies that after you create a private VPN connection and enable route learning for the connection, the system automatically adds a blackhole route to the route table of the transit router to which the VPN connection is attached.
+
+    The destination CIDR block of the blackhole route is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections.
+
+    The blackhole route is only advertised to the route table of the virtual border router (VBR) that is connected to the transit router.
+
+*   **false**: no.', example='true'),
     }
-  ](name='TransitRouterCidrList', shrink='json', position='Query'),
-  transitRouterDescription?: string(name='TransitRouterDescription', example='testdesc', position='Query'),
-  transitRouterName?: string(name='TransitRouterName', example='testname', position='Query'),
+  ](name='TransitRouterCidrList', description='The CIDR blocks of the transit router.
+
+You can add up to five CIDR blocks at a time. For more information about CIDR blocks of transit routers, see [CIDR blocks of transit routers](~~462635~~).
+
+>  Only Enterprise Edition transit routers support CIDR blocks.', shrink='json', position='Query'),
+  transitRouterDescription?: string(name='TransitRouterDescription', description='The description of the Enterprise Edition transit router.
+
+The description must be 2 to 256 characters in length. The description must start with a letter but cannot start with `http://` or `https://`.', example='testdesc', position='Query'),
+  transitRouterName?: string(name='TransitRouterName', description='The name of the Enterprise Edition transit router.
+
+The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='testname', position='Query'),
 }
 
 model CreateTransitRouterResponseBody = {
-  requestId?: string(name='RequestId', example='404DA7EC-F495-44B5-B543-6EDCDF90F3D1'),
-  transitRouterId?: string(name='TransitRouterId', example='tr-uf6llz2286805i44g****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='404DA7EC-F495-44B5-B543-6EDCDF90F3D1'),
+  transitRouterId?: string(name='TransitRouterId', description='The ID of the Enterprise Edition transit router.', example='tr-uf6llz2286805i44g****'),
 }
 
 model CreateTransitRouterResponse = {
@@ -1166,7 +1263,10 @@ model CreateTransitRouterResponse = {
 }
 
 /**
-  * The ID of the request.
+  * *   You can call **CreateTransitRouter** to create an Enterprise Edition transit router. For more information about the regions that support Enterprise Edition transit routers, see [What is CEN?](~~181681~~)
+  * *   **CreateTransitRouter** is an asynchronous operation. After you send a request, the transit router ID is returned but the operation is still being performed in the system background. You can call [ListTransitRouters](~~261219~~) to query the status of an Enterprise Edition transit router.
+  *     *   If an Enterprise Edition transit router is in the **Creating** state, the Enterprise Edition transit router is being created. In this case, you can query the Enterprise Edition transit router but cannot perform other operations.
+  *     *   If an Enterprise Edition transit router is in the **Active** state, the Enterprise Edition transit router is created.
   *
  */
 async function createTransitRouter(request: CreateTransitRouterRequest): CreateTransitRouterResponse {
@@ -1175,25 +1275,32 @@ async function createTransitRouter(request: CreateTransitRouterRequest): CreateT
 }
 
 model CreateTransitRouterCidrRequest {
-  cidr: string(name='Cidr', description='The operation that you want to perform. Set the value to **CreateTransitRouterCidr**.', example='192.168.10.0/24', position='Query'),
-  clientToken?: string(name='ClientToken', description='Specifies whether to allow the system to automatically add a route that points to the CIDR block to the route table of the transit router.
+  cidr: string(name='Cidr', description='The CIDR block of the transit router.', example='192.168.10.0/24', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-*   **true** (default): yes
+You can use the client to generate the value, but you must make sure that the value is unique among different requests. The client token can contain only ASCII characters.
 
-    A value of true specifies that after you create a private VPN connection and enable route learning for the connection, the system automatically adds a blackhole route to the route table of the transit router to which the VPN connection is attached. The destination CIDR block of the blackhole route is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections. The blackhole route is advertised only to the route table of the virtual border router (VBR) that is connected to the transit router.
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-426****', position='Query'),
+  description?: string(name='Description', description='The description of the CIDR block.
 
-*   **false**: no', example='123e4567-e89b-12d3-a456-426****', position='Query'),
-  description?: string(name='Description', description='The name of the CIDR block.
+The description must be 2 to 256 characters in length. The description must start with a letter but cannot start with `http://` or `https://`.', example='desctest', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='desctest', position='Query'),
-  dryRun?: boolean(name='DryRun', description='The ID of the request.', example='false', position='Query'),
-  name?: string(name='Name', description='The CIDR block that you want to create for the transit router.', example='nametest', position='Query'),
+*   **true**: performs a dry run. The system checks the required parameters, request syntax, and limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and sends the request.', example='false', position='Query'),
+  name?: string(name='Name', description='The name of the CIDR block.
+
+The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='nametest', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  publishCidrRoute?: boolean(name='PublishCidrRoute', description='The description of the CIDR block.
+  publishCidrRoute?: boolean(name='PublishCidrRoute', description='Specifies whether to allow the system to automatically add a route that points to the CIDR block to the route table of the transit router.
+- **true** (default): yes
 
-The description must be 2 to 256 characters in length. The description must start with a letter but cannot start with `http://` or `https://`.', example='true', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region where the transit router is deployed.
+  A value of true specifies that after you create a private VPN connection and enable route learning for the connection, the system automatically adds a blackhole route to the route table of the transit router to which the VPN connection is attached. 
+
+  The blackhole route is advertised only to the route tables of virtual border routers (VBRs) that are connected to the transit router. 
+- **false**: no', example='true', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the transit router.
 
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='ap-southeast-2', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -1202,8 +1309,8 @@ You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query t
 }
 
 model CreateTransitRouterCidrResponseBody = {
-  requestId?: string(name='RequestId', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
-  transitRouterCidrId?: string(name='TransitRouterCidrId', example='cidr-0zv0q9crqpntzz****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
+  transitRouterCidrId?: string(name='TransitRouterCidrId', description='The ID of the CIDR block.', example='cidr-0zv0q9crqpntzz****'),
 }
 
 model CreateTransitRouterCidrResponse = {
@@ -1213,9 +1320,17 @@ model CreateTransitRouterCidrResponse = {
 }
 
 /**
-  * The client token that is used to ensure the idempotence of the request.
-  * You can use the client to generate the value, but you must make sure that it is unique among different requests. ClientToken can contain only ASCII characters.
-  * >  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.
+  * You can specify a CIDR block for a transit router. The CIDR block works in a similar way as the CIDR block of the loopback interface on a router. IP addresses within the CIDR block can be assigned to IPsec-VPN connections. For more information, see [Transit router CIDR blocks](~~462635~~).
+  * The **CreateTransitRouterCidr** operation can be used to create a CIDR block only after you create a transit router.
+  * The CIDR block must meet the following requirements:
+  * *   Only Enterprise Edition transit routers support custom CIDR blocks.
+  * *   For more information, see [Limits in transit router CIDR blocks](~~462635~~).
+  * *   Each transit router supports at most five CIDR blocks. The subnet mask of a CIDR block must be 16 bits to 24 bits in length.
+  * *   The following CIDR blocks and their subnets are not supported: 100.64.0.0/10, 224.0.0.0/4, 127.0.0.0/8, and 169.254.0.0/16.
+  * *   The CIDR block cannot overlap with the CIDR blocks of the network instances that communicate with each other by using the CEN instance.
+  * *   On the same CEN instance, each transit router CIDR block must be unique.
+  * *   When you create the first VPN connection after you add a CIDR block for a transit router, three CIDR blocks within the CIDR block are reserved. An IP address is allocated from the remaining CIDR blocks to the IPsec-VPN connection.
+  *     You can call the [ListTransitRouterCidrAllocation](~~464173~~) operation to query reserved CIDR blocks and IP addresses allocated to network connections.
   *
  */
 async function createTransitRouterCidr(request: CreateTransitRouterCidrRequest): CreateTransitRouterCidrResponse {
@@ -1306,7 +1421,9 @@ If this parameter is not set, the system allocates bandwidth that is used for te
 You can use the client to generate the value, but you must make sure that it is unique among all requests. The client token can contain only ASCII characters.
 
 >  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  defaultLinkType?: string(name='DefaultLinkType', position='Query'),
+  defaultLinkType?: string(name='DefaultLinkType', description='The default link type. Valid values:
+- **Platinum**: only available for the **Pay-By-Data-Transfer** bandwidth.
+- **Gold** (default)', example='Gold', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Default values:
 
 *   **false** (default): performs a dry run and sends the request.
@@ -1428,20 +1545,20 @@ async function createTransitRouterPrefixListAssociation(request: CreateTransitRo
 model CreateTransitRouterRouteEntryRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the value, but you must make sure that it is unique among different requests. ClientToken can contain only ASCII characters.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
->  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** may be different for each API request.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a precheck to check information such as the permissions and instance status. Valid values:
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** is different for each request.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
 
-*   **false** (default): sends the request. If the request passes the precheck, the route entry is added.
-*   **true**: sends a precheck request but does not add the route. If you use this value, the system checks the required parameters and the request syntax. If the request fails to pass the precheck, an error message is returned. If the request passes the check, the `DryRunOperation` error code is returned.', example='false', position='Query'),
+*   **false** (default): performs a dry run and performs the actual request.
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   transitRouterRouteEntryDescription?: string(name='TransitRouterRouteEntryDescription', description='The description of the route.
 
-The description must be 0 to 256 characters in length, and can contain letters, digits, and the following special characters: , . ; / @ \\_ -.', example='testdesc', position='Query'),
+The description must be 0 to 256 characters in length, and can contain letters, digits, commas (,), periods (.), semicolons (;), forward slashes (/), at signs (@), underscores (\\_), and hyphens (-).', example='testdesc', position='Query'),
   transitRouterRouteEntryDestinationCidrBlock: string(name='TransitRouterRouteEntryDestinationCidrBlock', description='The destination CIDR block of the route.', example='192.168.0.0/24', position='Query'),
   transitRouterRouteEntryName?: string(name='TransitRouterRouteEntryName', description='The name of the route.
 
@@ -1812,7 +1929,7 @@ model DeactiveFlowLogRequest {
 
 You can use the client to generate the value, but you must make sure that it is unique among all requests. The token can contain only ASCII characters.
 
->  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request is different.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   flowLogId: string(name='FlowLogId', description='The ID of the flow log.', example='flowlog-m5evbtbpt****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -2175,8 +2292,8 @@ model DeleteRouteServiceInCenResponse = {
 
 /**
   * **DeleteRouteServiceInCen** is an asynchronous operation. After you send a request, the system returns a **request ID** and runs the task in the background. You can call the **DescribeRouteServicesInCen** operation to query the status of the connection to a cloud service.
-  *     - If a cloud service is in the **Deleting** state, the configuration of the cloud service is being deleted. You can query the configuration but cannot perform other operations. 
-  *     - If no configuration of a cloud service can be found, the configuration of the cloud service is deleted.
+  * - If a cloud service is in the **Deleting** state, the configuration of the cloud service is being deleted. You can query the configuration but cannot perform other operations. 
+  * - If no configuration of a cloud service can be found, the configuration of the cloud service is deleted.
   *
  */
 async function deleteRouteServiceInCen(request: DeleteRouteServiceInCenRequest): DeleteRouteServiceInCenResponse {
@@ -3342,26 +3459,23 @@ async function describeCenPrivateZoneRoutes(request: DescribeCenPrivateZoneRoute
 }
 
 model DescribeCenRegionDomainRouteEntriesRequest {
-  cenId: string(name='CenId', description='The status of the routes that you want to query. Valid values:
+  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6j****', position='Query'),
+  cenRegionId: string(name='CenRegionId', description='The ID of the region that you want to query.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  status?: string(name='Status', description='The status of the routes that you want to query. Valid values:
 
 *   **Active** (default value): active routes
 *   **Candidate**: standby routes
 *   **Rejected**: rejected routes
 *   **Prohibited**: prohibited routes
-*   **All**: all routes', example='cen-7qthudw0ll6j****', position='Query'),
-  cenRegionId: string(name='CenRegionId', description='The ID of the CEN instance.', example='cn-hangzhou', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The ID of the region where the route map is applied.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='Whether the route can be advertised to other regions. Valid values: 
-
-- **Active**: The route can be advertised to other regions.
-- **Prohibited**: The route cannot be advertised to other regions.', example='10', position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  status?: string(name='Status', description='The ID of the region that you want to query.
-
-You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='Active', position='Query'),
+*   **All**: all routes', example='Active', position='Query'),
 }
 
 model DescribeCenRegionDomainRouteEntriesResponseBody = {
@@ -3370,57 +3484,60 @@ model DescribeCenRegionDomainRouteEntriesResponseBody = {
     {
       asPaths?: {
         asPath?: [ string ](name='AsPath')
-      }(name='AsPaths'),
+      }(name='AsPaths', description='The AS paths of the routes.'),
       cenOutRouteMapRecords?: {
         cenOutRouteMapRecord?: [ 
         {
-          regionId?: string(name='RegionId', description='312501', example='ccn-cn-shanghai'),
-          routeMapId?: string(name='RouteMapId', description='DescribeCenRegionDomainRouteEntries', example='cenrmap-dbarzidzp7ek4k****'),
+          regionId?: string(name='RegionId', description='The ID of the region where the route map is applied.', example='ccn-cn-shanghai'),
+          routeMapId?: string(name='RouteMapId', description='The ID of the route map.', example='cenrmap-dbarzidzp7ek4k****'),
         }
       ](name='CenOutRouteMapRecord')
-      }(name='CenOutRouteMapRecords', description='Queries the routes of a Cloud Enterprise Network (CEN) instance in a specified region.'),
+      }(name='CenOutRouteMapRecords', description='The route maps that the routes match in the outbound direction.'),
       cenRouteMapRecords?: {
         cenRouteMapRecord?: [ 
         {
-          regionId?: string(name='RegionId', description='The ID of the request.', example='cn-hangzhou'),
-          routeMapId?: string(name='RouteMapId', description='The ID of the region where the network instance specified as the next hop in the route belongs.', example='cenrmap-cz5axczdxb7yfu****'),
+          regionId?: string(name='RegionId', description='The ID of the region where the route map is applied.', example='cn-hangzhou'),
+          routeMapId?: string(name='RouteMapId', description='The ID of the route map.', example='cenrmap-cz5axczdxb7yfu****'),
         }
       ](name='CenRouteMapRecord')
-      }(name='CenRouteMapRecords', description='The number of entries returned per page.'),
+      }(name='CenRouteMapRecords', description='The route maps that the routes match in the inbound direction.'),
       communities?: {
         community?: [ string ](name='Community')
-      }(name='Communities'),
-      destinationCidrBlock?: string(name='DestinationCidrBlock', description='The number of entries to return on each page. Default value: **10**. Valid values: **1** to **50**.', example='192.168.1.0/24'),
-      nextHopInstanceId?: string(name='NextHopInstanceId', description='The priority of the route. 
-
-> A smaller value indicates a higher priority.', example='vpc-bp1j8728mm6pweeod****'),
-      nextHopRegionId?: string(name='NextHopRegionId', description='The type of the network instance specified as the next hop in the route. 
+      }(name='Communities', description='The community attributes of the routes.'),
+      destinationCidrBlock?: string(name='DestinationCidrBlock', description='The destination CIDR block of the route.', example='192.168.1.0/24'),
+      nextHopInstanceId?: string(name='NextHopInstanceId', description='The ID of the instance specified as the next hop in the route.', example='vpc-bp1j8728mm6pweeod****'),
+      nextHopRegionId?: string(name='NextHopRegionId', description='The ID of the region where the network instance specified as the next hop in the route belongs.', example='cn-hangzhou'),
+      nextHopType?: string(name='NextHopType', description='The type of the network instance specified as the next hop in the route. 
 
 - **VPC**
 - **VBR**
 - **CCN**
-- **local_service**: system route. No next hop is specified.', example='cn-hangzhou'),
-      nextHopType?: string(name='NextHopType', description='The type of the route. Valid values: 
+- **local_service**: system route. No next hop is specified.', example='VPC'),
+      preference?: int32(name='Preference', description='The priority of the route. 
 
-- **CEN**: route that is advertised through CEN
-- **Custom**: custom route
-- **System**: system route', example='VPC'),
-      preference?: int32(name='Preference', description='The page number of the returned page.', example='50'),
-      status?: string(name='Status', description='The AS paths of the routes.', example='Active'),
-      toOtherRegionStatus?: string(name='ToOtherRegionStatus', description='The ID of the route map.', example='Active'),
-      type?: string(name='Type', description='The destination CIDR block of the route.', example='CEN'),
-    }
-  ](name='CenRouteEntry')
-  }(name='CenRouteEntries', description='The status of the route. Valid values: 
+> A smaller value indicates a higher priority.', example='50'),
+      status?: string(name='Status', description='The status of the route. Valid values: 
 
 - **Active**: The route is active.
 - **Candidate**: The route is a standby route.
 - **Rejected**: The route is rejected.
-- **Prohibited**: The route is prohibited.'),
-  pageNumber?: int32(name='PageNumber', description='The route maps that the routes match in the outbound direction.', example='1'),
-  pageSize?: int32(name='PageSize', description='The ID of the route map.', example='10'),
-  requestId?: string(name='RequestId', description='The number of the page to return. Default value: **1**.', example='004E99FB-E996-5777-888E-BA1D8F215407'),
-  totalCount?: int32(name='TotalCount', description='The ID of the instance specified as the next hop in the route.', example='4'),
+- **Prohibited**: The route is prohibited.', example='Active'),
+      toOtherRegionStatus?: string(name='ToOtherRegionStatus', description='Whether the route can be advertised to other regions. Valid values: 
+
+- **Active**: The route can be advertised to other regions.
+- **Prohibited**: The route cannot be advertised to other regions.', example='Active'),
+      type?: string(name='Type', description='The type of the route. Valid values: 
+
+- **CEN**: route that is advertised through CEN
+- **Custom**: custom route
+- **System**: system route', example='CEN'),
+    }
+  ](name='CenRouteEntry')
+  }(name='CenRouteEntries', description='The array of routes.'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='004E99FB-E996-5777-888E-BA1D8F215407'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='4'),
 }
 
 model DescribeCenRegionDomainRouteEntriesResponse = {
@@ -3612,6 +3729,7 @@ model DescribeCenVbrHealthCheckResponseBody = {
     vbrHealthCheck?: [ 
     {
       cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-6hpdgj7ni6pz1k****'),
+      description?: string(name='Description', description='The description of the health check.', example='healthcheck_description'),
       healthCheckInterval?: int32(name='HealthCheckInterval', description='The time interval at which probe packets are sent during the health check. Unit: seconds.', example='2'),
       healthCheckOnly?: boolean(name='HealthCheckOnly', description='Indicates whether probing is enabled. Valid values:
 
@@ -3783,88 +3901,96 @@ async function describeChildInstanceRegions(request: DescribeChildInstanceRegion
 }
 
 model DescribeFlowlogsRequest {
-  cenId?: string(name='CenId', description='The name of the Logstore where the flow log is stored.
+  cenId?: string(name='CenId', description='The ID of the Cloud Enterprise Network (CEN) instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-The name must be 3 to 63 characters in length, and can contain lowercase letters, digits, underscores (\\_), and hyphens (-). It must start or end with a lowercase letter or a digit.', example='cen-7qthudw0ll6jmc****', position='Query'),
-  clientToken?: string(name='ClientToken', description='The name of the flow log.
+You can use the client to generate the value, but you must make sure that it is unique among all requests. The token can contain only ASCII characters.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
-  description?: string(name='Description', description='The name of the project where the flow log is stored.
-
-The name must be 3 to 63 characters in length, and can contain lowercase letters, digits, and hyphens (-). It must start or end with a lowercase letter or a digit.', example='myFlowlog', position='Query'),
-  flowLogId?: string(name='FlowLogId', description='The ID of the Cloud Enterprise Network (CEN) instance.', example='flowlog-m5evbtbpt****', position='Query'),
-  flowLogName?: string(name='FlowLogName', description='The description of the flow log.
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  description?: string(name='Description', description='The description of the flow log.
 
 The description must be 2 to 256 characters in length. It must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
-  logStoreName?: string(name='LogStoreName', description='The number of the page to return. Default value: **1**.', example='FlowLogStore', position='Query'),
+  flowLogId?: string(name='FlowLogId', description='The ID of the flow log.', example='flowlog-m5evbtbpt****', position='Query'),
+  flowLogName?: string(name='FlowLogName', description='The name of the flow log.
+
+The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
+  logStoreName?: string(name='LogStoreName', description='The name of the Logstore where the flow log is stored.
+
+The name must be 3 to 63 characters in length, and can contain lowercase letters, digits, underscores (\\_), and hyphens (-). It must start or end with a lowercase letter or a digit.', example='FlowLogStore', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The information about the tags.
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Minimum value: **1**. Default value: **20**.', example='20', position='Query'),
+  projectName?: string(name='ProjectName', description='The name of the project where the flow log is stored.
 
-You can specify at most 20 tags in each call.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The tag key.
+The name must be 3 to 63 characters in length, and can contain lowercase letters, digits, and hyphens (-). It must start or end with a lowercase letter or a digit.', example='FlowLogProject', position='Query'),
+  regionId?: string(name='RegionId', description='The ID of the region where the flow log is deployed.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  status?: string(name='Status', description='The status of the flow log. Valid values:
+
+*   **Active**: The flow log is enabled.
+*   **Inactive**: The flow log is disabled.', example='Active', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The tag key.
 
 The tag key cannot be an empty string. The tag key can be up to 64 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.
 
-You can specify at most 20 tag keys.', example='20', position='Query'),
-  projectName?: string(name='ProjectName', description='The status of the flow log. Valid values:
-
-*   **Active**: The flow log is enabled.
-*   **Inactive**: The flow log is disabled.', example='FlowLogProject', position='Query'),
-  regionId?: string(name='RegionId', description='The ID of the flow log.', example='cn-hangzhou', position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  status?: string(name='Status', description='The number of entries to return on each page. Minimum value: **1**. Default value: **20**.', example='Active', position='Query'),
-  tag?: [ 
-    {
-      key?: string(name='Key', description='The ID of the network instance connection.', example='TagKey'),
-      value?: string(name='Value', description='The response.', example='TagValue'),
-    }
-  ](name='Tag', description='The tag value.
+You can specify at most 20 tag keys.', example='TagKey'),
+      value?: string(name='Value', description='The tag value.
 
 The tag value can be 0 to 128 characters in length, and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.
 
-Each tag key must have a unique tag value. You can specify at most 20 tag values in each call.', position='Query'),
-  transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The number of entries returned per page.', example='tr-attach-qieks13jnt1cchy***', position='Query'),
+Each tag key must have a unique tag value. You can specify at most 20 tag values in each call.', example='TagValue'),
+    }
+  ](name='Tag', description='The information about the tags.
+
+You can specify at most 20 tags in each call.', position='Query'),
+  transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the network instance connection.', example='tr-attach-qieks13jnt1cchy****', position='Query'),
 }
 
 model DescribeFlowlogsResponseBody = {
   flowLogs?: {
     flowLog?: [ 
     {
-      cenId?: string(name='CenId', description='The ID of the region where the flow log is deployed.', example='cen-7qthudw0ll6jmc****'),
-      creationTime?: string(name='CreationTime', description='The description of the flow log.', example='2021-07-24T13:00:52Z'),
-      description?: string(name='Description', description='The ID of the CEN instance.', example='myFlowlog'),
-      flowLogId?: string(name='FlowLogId', description='The time window for collecting log data. Unit: seconds. Valid values: **60** and **600**. Default value: **600**.', example='flowlog-m5evbtbpt****'),
-      flowLogName?: string(name='FlowLogName', description='The name of the project where the flow log is stored.', example='myFlowlog'),
-      interval?: long(name='Interval', description='The tag value.', example='60'),
-      logStoreName?: string(name='LogStoreName', description='The ID of the flow log.', example='FlowLogStore'),
-      projectName?: string(name='ProjectName', description='The name of the Logstore where the flow log is stored.', example='FlowLogProject'),
-      regionId?: string(name='RegionId', description='The ID of the network instance connection.', example='cn-hangzhou'),
-      status?: string(name='Status', description='The name of the flow log.', example='Active'),
+      cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6jmc****'),
+      creationTime?: string(name='CreationTime', description='The time when the flow log was created.
+
+The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.', example='2021-07-24T13:00:52Z'),
+      description?: string(name='Description', description='The description of the flow log.', example='myFlowlog'),
+      flowLogId?: string(name='FlowLogId', description='The ID of the flow log.', example='flowlog-m5evbtbpt****'),
+      flowLogName?: string(name='FlowLogName', description='The name of the flow log.', example='myFlowlog'),
+      interval?: long(name='Interval', description='The time window for collecting log data. Unit: seconds. Valid values: **60** and **600**. Default value: **600**.', example='60'),
+      logStoreName?: string(name='LogStoreName', description='The name of the Logstore where the flow log is stored.', example='FlowLogStore'),
+      projectName?: string(name='ProjectName', description='The name of the project where the flow log is stored.', example='FlowLogProject'),
+      regionId?: string(name='RegionId', description='The ID of the region where the flow log is deployed.', example='cn-hangzhou'),
+      status?: string(name='Status', description='The status of the flow log. Valid values:
+
+*   **Active**: The flow log is enabled.
+*   **Inactive**: The flow log is disabled.', example='Active'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', example='TagKey'),
-          value?: string(name='Value', example='TagValue'),
+          key?: string(name='Key', description='The tag key.', example='TagKey'),
+          value?: string(name='Value', description='The tag value.', example='TagValue'),
         }
       ](name='Tag')
-      }(name='Tags'),
-      transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='A list of tags.', example='The tag key.'),
+      }(name='Tags', description='A list of tags.'),
+      transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the network instance connection.', example='tr-attach-5x4o4ynzuqbv6g****'),
     }
   ](name='FlowLog')
-  }(name='FlowLogs', description='The status of the flow log. Valid values:
-
-*   **Active**: The flow log is enabled.
-*   **Inactive**: The flow log is disabled.'),
-  pageNumber?: string(name='PageNumber', description='The total number of entries returned.', example='1'),
-  pageSize?: string(name='PageSize', description='The ID of the request.', example='20'),
-  requestId?: string(name='RequestId', description='Indicates whether the call is successful. Valid values:
+  }(name='FlowLogs', description='A list of flow logs.'),
+  pageNumber?: string(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries returned per page.', example='20'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='F7DDDC17-FA06-4AC2-8F35-59D2470FCFC1'),
+  success?: string(name='Success', description='Indicates whether the call is successful. Valid values:
 
 *   **true**: yes
-*   **false**: no', example='F7DDDC17-FA06-4AC2-8F35-59D2470FCFC1'),
-  success?: string(name='Success', description='The information about the flow log.', example='true'),
-  totalCount?: string(name='TotalCount', description='A list of flow logs.', example='1'),
+*   **false**: no', example='true'),
+  totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model DescribeFlowlogsResponse = {
@@ -3931,7 +4057,7 @@ model DescribeGrantRulesToCenRequest {
 *   **VBR**
 *   **CCN**
 *   **VPN**', example='VPC', position='Query'),
-  regionId: string(name='RegionId', description='The region ID of the network instance.
+  regionId?: string(name='RegionId', description='The region ID of the network instance.
 
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -3953,6 +4079,7 @@ model DescribeGrantRulesToCenResponseBody = {
 *   **VBR**
 *   **CCN**
 *   **VPN**', example='VPC'),
+      createTime?: long(name='CreateTime'),
       orderType?: string(name='OrderType', description='The entity that pays the fees of the network instance. Valid values:
 
 *   **PayByCenOwner**: The fees of the connections and data forwarding on the transit router are paid by the Alibaba Cloud account to which the CEN instance belongs.
@@ -3995,7 +4122,7 @@ model DescribeGrantRulesToResourceRequest {
 *   **VPC**: virtual private cloud (VPC)
 *   **ExpressConnect**: virtual border router (VBR)
 *   **VPN**: IPsec-VPN connection', example='VPC', position='Query'),
-  regionId: string(name='RegionId', description='The region ID of the network instance.
+  regionId?: string(name='RegionId', description='The region ID of the network instance.
 
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceId: string(name='ResourceId', description='The network instance ID.', example='vpc-p0wfut1iqauelpdpb****', position='Query'),
@@ -4008,6 +4135,7 @@ model DescribeGrantRulesToResourceResponseBody = {
     {
       cenId?: string(name='CenId', description='The CEN instance ID.', example='cen-44m0p68spvlrqq****'),
       cenOwnerId?: long(name='CenOwnerId', description='The ID of the Alibaba Cloud account to which the CEN instance belongs.', example='1250123456123456'),
+      createTime?: string(name='CreateTime'),
       orderType?: string(name='OrderType', description='The entity that pays the fees of the network instance. Valid values: Valid values:
 
 *   **PayByCenOwner**: The fees of the connections and data forwarding on the transit router are paid by the Alibaba Cloud account to which the CEN instance belongs.
@@ -4192,48 +4320,48 @@ async function describeRouteConflict(request: DescribeRouteConflictRequest): Des
 }
 
 model DescribeRouteServicesInCenRequest {
-  accessRegionId?: string(name='AccessRegionId', description='The operation that you want to perform. Set the value to **DescribeRouteServicesInCen**.', example='cn-hangzhou', position='Query'),
-  cenId: string(name='CenId', description='The information about the cloud services.', example='cen-pfa6ugf3xl0qsd****', position='Query'),
-  host?: string(name='Host', description='The description of the cloud service.', example='100.118.28.0/24', position='Query'),
-  hostRegionId?: string(name='HostRegionId', description='The status of the cloud service. Valid values:
+  accessRegionId?: string(name='AccessRegionId', description='The ID of the region where the cloud service is accessed.', example='cn-hangzhou', position='Query'),
+  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-pfa6ugf3xl0qsd****', position='Query'),
+  host?: string(name='Host', description='The service address of the cloud service.
 
-*   **Creating**: The cloud service is being created.
-*   **Active**: The cloud service is available.
-*   **Deleting**: The cloud service is being deleted.', example='cn-hangzhou', position='Query'),
-  hostVpcId?: string(name='HostVpcId', description='The ID of the region where the cloud service is deployed.
+You can enter a domain name, an IP address, or a CIDR block.', example='100.118.28.0/24', position='Query'),
+  hostRegionId?: string(name='HostRegionId', description='The ID of the region where the cloud service is deployed.
 
-You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='vpc-bp1h8vbrbcgohcju5****', position='Query'),
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  hostVpcId?: string(name='HostVpcId', description='The ID of the virtual private cloud (VPC) that is associated with the cloud service.', example='vpc-bp1h8vbrbcgohcju5****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The ID of the virtual private cloud (VPC) that is associated with the cloud service.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The ID of the CEN instance.', example='10', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeRouteServicesInCenResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The ID of the region where the cloud service is deployed.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the region where the cloud service is accessed.', example='196C99CA-6997-5951-9721-AE89720DF856'),
+  pageNumber?: int32(name='PageNumber', description='The number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='196C99CA-6997-5951-9721-AE89720DF856'),
   routeServiceEntries?: {
     routeServiceEntry?: [ 
     {
-      accessRegionId?: string(name='AccessRegionId', description='Queries the cloud services that are configured on a Cloud Enterprise Network (CEN) instance.', example='cn-hangzhou'),
-      cenId?: string(name='CenId', description='The ID of the request.', example='cen-pfa6ugf3xl0qsd****'),
+      accessRegionId?: string(name='AccessRegionId', description='The ID of the region where the cloud service is accessed.', example='cn-hangzhou'),
+      cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-pfa6ugf3xl0qsd****'),
       cidrs?: {
         cidr?: [ string ](name='Cidr')
-      }(name='Cidrs'),
-      description?: string(name='Description', description='The service address of the cloud service.', example='descname'),
-      host?: string(name='Host', description='The number of the returned page.', example='100.118.28.0/24'),
-      hostRegionId?: string(name='HostRegionId', example='cn-hangzhou'),
-      hostVpcId?: string(name='HostVpcId', description='The number of entries returned per page.', example='vpc-bp1h8vbrbcgohcju5****'),
-      status?: string(name='Status', description='The service address of the cloud service.
+      }(name='Cidrs', description='The service addresses of the cloud service.'),
+      description?: string(name='Description', description='The description of the cloud service.', example='descname'),
+      host?: string(name='Host', description='The service address of the cloud service.', example='100.118.28.0/24'),
+      hostRegionId?: string(name='HostRegionId', description='The ID of the region where the cloud service is deployed.', example='cn-hangzhou'),
+      hostVpcId?: string(name='HostVpcId', description='The ID of the VPC that is associated with the cloud service.', example='vpc-bp1h8vbrbcgohcju5****'),
+      status?: string(name='Status', description='The status of the cloud service. Valid values:
 
-You can enter a domain name, an IP address, or a CIDR block.', example='Active'),
+*   **Creating**: The cloud service is being created.
+*   **Active**: The cloud service is available.
+*   **Deleting**: The cloud service is being deleted.', example='Active'),
     }
   ](name='RouteServiceEntry')
-  }(name='RouteServiceEntries', description='The ID of the region where the cloud service is accessed.'),
-  totalCount?: int32(name='TotalCount', description='The ID of the VPC that is associated with the cloud service.', example='2'),
+  }(name='RouteServiceEntries', description='The information about the cloud services.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model DescribeRouteServicesInCenResponse = {
@@ -4531,6 +4659,7 @@ async function dissociateTransitRouterAttachmentFromRouteTable(request: Dissocia
 
 model EnableCenVbrHealthCheckRequest {
   cenId: string(name='CenId', description='The ID of the Cloud Enterprise Network (CEN) instance.', example='cen-hahhfskfkseig****', position='Query'),
+  description?: string(name='Description', position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The time interval at which probe packets are sent during a health check. Unit: seconds. Default value: **2**. Valid values: **2 to 3**.', example='2', minimum=1, maximum=3, position='Query'),
   healthCheckOnly?: boolean(name='HealthCheckOnly', description='Specifies whether to enable probing during the health check. Valid values:
 
@@ -4643,7 +4772,7 @@ model GrantInstanceToTransitRouterRequest {
 *   **PayByResourceOwner**: the Alibaba Cloud account that owns the network instance.', example='PayByCenOwner', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region where the network instance is deployed.
+  regionId?: string(name='RegionId', description='The ID of the region where the network instance is deployed.
 
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -4907,7 +5036,7 @@ async function listGrantVSwitchEnis(request: ListGrantVSwitchEnisRequest): ListG
 }
 
 model ListGrantVSwitchesToCenRequest {
-  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-44m0p68spvlrqq****', position='Query'),
+  cenId: string(name='CenId', description='The CEN instance ID.', example='cen-44m0p68spvlrqq****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number of the page to return. Default value: **1**.', example='1', minimum=0, maximum=1000, position='Query'),
@@ -4917,7 +5046,7 @@ model ListGrantVSwitchesToCenRequest {
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  vpcId: string(name='VpcId', description='The ID of the VPC.', example='vpc-bp12ge2tq5gzdc915****', position='Query'),
+  vpcId: string(name='VpcId', description='The VPC ID.', example='vpc-bp12ge2tq5gzdc915****', position='Query'),
   zoneId?: string(name='ZoneId', description='The ID of the zone.
 
 *   If you specify a zone ID, the system queries the information about the vSwitches in the specified zone.
@@ -5176,30 +5305,51 @@ async function listTransitRouterAvailableResource(request: ListTransitRouterAvai
 }
 
 model ListTransitRouterCidrRequest {
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426****', position='Query'),
-  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the value, but you must make sure that it is unique among different requests. The token can contain only ASCII characters.
+
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId may be different for each request.', example='123e4567-e89b-12d3-a456-426****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether only to precheck the API request. Valid values:
+
+*   **true**: prechecks the request but does not query the CIDR block. The system checks the required parameters, the request format, and the service limits. If the request fails the check, an error message is returned. If the request passes the check, the `DryRunOperation` error code is returned.
+*   **false** (default): sends the request. After the request passes the check, the operation is performed.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', example='ap-southeast-2', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the transit router is deployed.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='ap-southeast-2', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  transitRouterCidrId?: string(name='TransitRouterCidrId', example='cidr-0zv0q9crqpntzz****', position='Query'),
-  transitRouterId: string(name='TransitRouterId', example='tr-p0w3x8c9em72a40nw****', position='Query'),
+  transitRouterCidrId?: string(name='TransitRouterCidrId', description='The ID of the CIDR block.', example='cidr-0zv0q9crqpntzz****', position='Query'),
+  transitRouterId: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-p0w3x8c9em72a40nw****', position='Query'),
 }
 
 model ListTransitRouterCidrResponseBody = {
   cidrLists?: [ 
     {
-      cidr?: string(name='Cidr', example='192.168.10.0/24'),
-      description?: string(name='Description', example='desctest'),
-      family?: string(name='Family', example='IPv4'),
-      name?: string(name='Name', example='nametest'),
-      publishCidrRoute?: boolean(name='PublishCidrRoute', example='true'),
-      transitRouterCidrId?: string(name='TransitRouterCidrId', example='cidr-0zv0q9crqpntzz****'),
-      transitRouterId?: string(name='TransitRouterId', example='tr-p0w3x8c9em72a40nw****'),
+      cidr?: string(name='Cidr', description='The CIDR block of the transit router.', example='192.168.10.0/24'),
+      description?: string(name='Description', description='The description of the CIDR block.', example='desctest'),
+      family?: string(name='Family', description='The type of the CIDR block.
+
+The value is set to **IPv4**, which indicates that the CIDR block is of the IPv4 type.', example='IPv4'),
+      name?: string(name='Name', description='The name of the CIDR block.', example='nametest'),
+      publishCidrRoute?: boolean(name='PublishCidrRoute', description='Indicates whether the system is allowed to automatically add a route to the route table of the transit router.
+
+- **true**: yes.
+
+     A value of true indicates that if you create a private VPN connection and add a route learning policy for the VPC connection, the system automatically adds the following route to the route table of the transit router that is in route learning relationship with the VPN connection:
+      
+    A blackhole route whose destination CIDR block is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections. 
+          
+   The blackhole route is advertised only to the route tables of VBRs that are connected to the transit router. 
+
+- **false**: no.', example='true'),
+      transitRouterCidrId?: string(name='TransitRouterCidrId', description='The ID of the CIDR block.', example='cidr-0zv0q9crqpntzz****'),
+      transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-p0w3x8c9em72a40nw****'),
     }
-  ](name='CidrLists'),
-  requestId?: string(name='RequestId', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
+  ](name='CidrLists', description='The CIDR blocks of the transit router.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
 }
 
 model ListTransitRouterCidrResponse = {
@@ -5236,7 +5386,7 @@ Set the value to **VPN**, which specifies the CIDR block that is reserved for VP
 
 *   If a value is specified for **MaxResults**, it indicates that you need to query results in batches. Valid values: **1** to **100**. We recommend that you set **MaxResults** to **20**.
 
-        The value of **MaxResults** in the response indicates the number of entries in the current batch.', example='20', minimum=5, maximum=100, position='Query'),
+    The value of **MaxResults** in the response indicates the number of entries in the current batch.', example='20', minimum=5, maximum=100, position='Query'),
   nextToken?: string(name='NextToken', description='The token that determines the start point of the query. Valid values:
 
 *   If this is your first query or no subsequent query is to be sent, ignore this parameter.
@@ -5476,21 +5626,17 @@ Each multicast group is identified by its IP address.', example='239.XX.XX.2', p
 *   **false**: no
 *   **true**: yes
 
-> This parameter can be set together with the IsGroupMember parameter.
-
-*   If you do not set IsGroupMember or IsGroupSource, both the multicast sources and members are queried.
-
-*   If you set only one of them or both of them, the specified values prevail.', example='false', position='Query'),
+>- This parameter can be set together with the IsGroupMember parameter.
+>- If you do not set IsGroupMember or IsGroupSource, both the multicast sources and members are queried.
+>- If you set only one of them or both of them, the specified values prevail.', example='false', position='Query'),
   isGroupSource?: boolean(name='IsGroupSource', description='Specifies whether to query the multicast sources. Valid values:
 
 *   **false**: no
 *   **true**: yes
 
-> This parameter can be set together with the IsGroupMember parameter.
-
-*   If you do not set IsGroupSource or IsGroupMember, both the multicast sources and members are queried.
-
-*   If you set only one of them or both of them, the specified values prevail.', example='true', position='Query'),
+>- This parameter can be set together with the IsGroupMember parameter.
+>- If you do not set IsGroupSource or IsGroupMember, both the multicast sources and members are queried.
+>- If you set only one of them or both of them, the specified values prevail.', example='true', position='Query'),
   maxResults?: long(name='MaxResults', description='The number of entries to return on each page. Default value: **20**.', example='20', position='Query'),
   networkInterfaceIds?: [ string ](name='NetworkInterfaceIds', description='The IDs of ENIs.', position='Query'),
   nextToken?: string(name='NextToken', description='The token that determines the start point of the query. Valid values:
@@ -5640,7 +5786,9 @@ model ListTransitRouterPeerAttachmentsResponseBody = {
       creationTime?: string(name='CreationTime', description='The time when the inter-region connection was created.
 
 The time follows the ISO8601 standard in the `YYYY-MM-DDThh:mmZ` format. The time is displayed in UTC.', example='2021-06-16T02:50Z'),
-      defaultLinkType?: string(name='DefaultLinkType'),
+      defaultLinkType?: string(name='DefaultLinkType', description='The default link type. Valid values:
+- **Gold**
+- **Platinum**', example='Gold'),
       geographicSpanId?: string(name='GeographicSpanId', description='The areas that are connected by the bandwidth plan.', example='china_china'),
       peerTransitRouterId?: string(name='PeerTransitRouterId', description='The ID of the peer transit router.', example='tr-m5eq27g6bndum7e88****'),
       peerTransitRouterOwnerId?: long(name='PeerTransitRouterOwnerId', description='The ID of the Alibaba Cloud account to which the peer transit router belongs.', example='253460731706911258'),
@@ -6218,6 +6366,7 @@ model ListTransitRouterVbrAttachmentsResponseBody = {
       creationTime?: string(name='CreationTime', description='The time when the VBR connection was established.
 
 The time follows the ISO8601 standard in the YYYY-MM-DDThh:mmZ format. The time is displayed in UTC.', example='2021-06-15T15:20Z'),
+      orderType?: string(name='OrderType'),
       resourceType?: string(name='ResourceType', description='The type of resource to which the transit router is connected. Valid values:
 
 *   **VPC**: VPC
@@ -6493,66 +6642,116 @@ async function listTransitRouterVpnAttachments(request: ListTransitRouterVpnAtta
 }
 
 model ListTransitRoutersRequest {
-  cenId?: string(name='CenId', example='cen-j3jzhw1zpau2km****', position='Query'),
+  cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-j3jzhw1zpau2km****', position='Query'),
   featureFilter?: [ 
     {
-      key?: string(name='Key', example='Multicast'),
-      value?: [ string ](name='Value'),
+      key?: string(name='Key', description='The value of the field that is used to enable or disable a feature of the transit router. Supported fields:
+
+*   **Multicast**: the multicast feature.', example='Multicast'),
+      value?: [ string ](name='Value', description='The fields that are used to enable or disable the features of the transit router. The **Multicast** field supports only one value. Valid values:
+
+*   **Enabled**: enables multicast.
+*   **Disabled**: disables multicast.'),
     }
-  ](name='FeatureFilter', position='Query'),
+  ](name='FeatureFilter', description='The field that is used to enable or disable a feature of the transit router.', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
-  regionId?: string(name='RegionId', example='ap-southeast-2', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: **1** to **50**. Default value: **10**.', example='10', position='Query'),
+  regionId?: string(name='RegionId', description='The ID of the region where the transit router is deployed.
+
+You can call the [DescribeRegions](~~36063~~) operation to query the most recent region list.', example='ap-southeast-2', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  status?: string(name='Status', example='Active', position='Query'),
+  status?: string(name='Status', description='The status of the transit router. Valid values:
+
+*   **Creating**: The transit router is being created.
+*   **Active**: The transit router is available.
+*   **Modifying**: The transit router is being modified
+*   **Deleting**: The transit router is being deleted.
+*   **Upgrading**: The transit router is being upgraded.', example='Active', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', example='TagKey'),
-      value?: string(name='Value', example='TagValue'),
+      key?: string(name='Key', description='The tag key.
+
+The tag key cannot be an empty string. The tag key can be up to 64 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.
+
+You can specify at most 20 tag keys.', example='TagKey'),
+      value?: string(name='Value', description='The tag value.
+
+The tag value can be 0 to 128 characters in length, and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.
+
+Each tag key must have a unique tag value. You can specify at most 20 tag values in each call.', example='TagValue'),
     }
-  ](name='Tag', position='Query'),
-  transitRouterId?: string(name='TransitRouterId', example='tr-uf654ttymmljlvh2x****', position='Query'),
-  transitRouterName?: string(name='TransitRouterName', example='testname', position='Query'),
-  type?: string(name='Type', example='Enterprise', position='Query'),
+  ](name='Tag', description='The information about the tags.
+
+You can specify at most 20 tags in each call.', position='Query'),
+  transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-uf654ttymmljlvh2x****', position='Query'),
+  transitRouterName?: string(name='TransitRouterName', description='The name of the Enterprise Edition transit router.
+
+The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='testname', position='Query'),
+  type?: string(name='Type', description='The edition of the transit router. Valid values:
+
+*   **Enterprise**: Enhance Edition
+*   **Basic**: Basic Edition', example='Enterprise', position='Query'),
 }
 
 model ListTransitRoutersResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='68521297-5FA6-46CB-B4EB-658F1C68C8CC'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='68521297-5FA6-46CB-B4EB-658F1C68C8CC'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
   transitRouters?: [ 
     {
-      aliUid?: long(name='AliUid', example='1210123456123456'),
-      cenId?: string(name='CenId', example='cen-j3jzhw1zpau2km****'),
-      creationTime?: string(name='CreationTime', example='2021-03-15T09:39Z'),
-      regionId?: string(name='RegionId', example='ap-southeast-2'),
-      status?: string(name='Status', example='Active'),
-      supportMulticast?: boolean(name='SupportMulticast', example='false'),
+      aliUid?: long(name='AliUid', description='The ID of the Alibaba Cloud account to which the CEN instance belongs.', example='1210123456123456'),
+      cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-j3jzhw1zpau2km****'),
+      creationTime?: string(name='CreationTime', description='The time when the transit router was created.
+
+The time follows the ISO8601 standard in the `YYYY-MM-DDThh:mmZ` format. The time is displayed in UTC.', example='2021-03-15T09:39Z'),
+      regionId?: string(name='RegionId', description='The ID of the region where the transit router is deployed.', example='ap-southeast-2'),
+      status?: string(name='Status', description='The status of the transit router. Valid values:
+
+*   **Creating**: The transit router is being created.
+*   **Active**: The transit router is available.
+*   **Modifying**: The transit router is being modified
+*   **Deleting**: The transit router is being deleted.
+*   **Upgrading**: The transit router is being upgraded.', example='Active'),
+      supportMulticast?: boolean(name='SupportMulticast', description='Indicates whether multicast is enabled for the transit router. Valid values:
+
+*   **true**: enabled
+*   **false**: disabled', example='false'),
       tags?: [ 
         {
-          key?: string(name='Key', example='TagKey'),
-          value?: string(name='Value', example='TagValue'),
+          key?: string(name='Key', description='The tag key.', example='TagKey'),
+          value?: string(name='Value', description='The tag value.', example='TagValue'),
         }
-      ](name='Tags'),
+      ](name='Tags', description='A list of tags.'),
       transitRouterCidrList?: [ 
         {
-          cidr?: string(name='Cidr', example='192.168.1.0/24'),
-          description?: string(name='Description', example='CIDRdesc'),
-          name?: string(name='Name', example='CIDRname'),
-          publishCidrRoute?: boolean(name='PublishCidrRoute', example='true'),
-          transitRouterCidrId?: string(name='TransitRouterCidrId', example='cidr-46p5ceg21e8152****'),
+          cidr?: string(name='Cidr', description='The CIDR block of the transit router.', example='192.168.1.0/24'),
+          description?: string(name='Description', description='The description of the CIDR block.', example='CIDRdesc'),
+          name?: string(name='Name', description='The name of the CIDR block.', example='CIDRname'),
+          publishCidrRoute?: boolean(name='PublishCidrRoute', description='Indicates whether the system is allowed to automatically add a route to the route table of the transit router. Valid values:
+
+- **true**: yes
+
+  A value of **true** indicates that after you create a private VPN connection and create a route learning correlation for the private VPC connection, the system automatically adds the following route to the route table of the transit router that is in route learning correlation with the private VPN connection: A blackhole route whose destination CIDR block is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections. 
+         
+  The blackhole route is advertised only to the route tables of virtual border routers (VBRs) that are connected to the transit router. 
+
+- **false**: no', example='true'),
+          transitRouterCidrId?: string(name='TransitRouterCidrId', description='The ID of the CIDR block.', example='cidr-46p5ceg21e8152****'),
         }
-      ](name='TransitRouterCidrList'),
-      transitRouterDescription?: string(name='TransitRouterDescription', example='testdesc'),
-      transitRouterId?: string(name='TransitRouterId', example='tr-bp1su1ytdxtataupl****'),
-      transitRouterName?: string(name='TransitRouterName', example='testname'),
-      type?: string(name='Type', example='Enterprise'),
+      ](name='TransitRouterCidrList', description='The CIDR blocks of the transit router.'),
+      transitRouterDescription?: string(name='TransitRouterDescription', description='The description of the transit router.', example='testdesc'),
+      transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-bp1su1ytdxtataupl****'),
+      transitRouterName?: string(name='TransitRouterName', description='The name of the transit router.', example='testname'),
+      type?: string(name='Type', description='The edition of the transit router. Valid values:
+
+*   **Enterprise**: Enhance Edition
+*   **Basic**: Basic Edition', example='Enterprise'),
     }
-  ](name='TransitRouters'),
+  ](name='TransitRouters', description='A list of transit routers.'),
 }
 
 model ListTransitRoutersResponse = {
@@ -6562,7 +6761,11 @@ model ListTransitRoutersResponse = {
 }
 
 /**
-  * The tag value.
+  * You can set the **RegionId** and **TransitRouterId** parameters based on your requirements.
+  * *   If you do not set **RegionId** or **TransitRouterId**, the system queries all transit routers that are connected to the specified CEN instance.
+  * *   If you set only **RegionId**, the system queries transit routers that are deployed in the specified region.
+  * *   If you set only **TransitRouterId**, the system queries the specified transit router.
+  * *   If you set both **RegionId** and **TransitRouterId**, the system queries the specified transit router in the specified region.
   *
  */
 async function listTransitRouters(request: ListTransitRoutersRequest): ListTransitRoutersResponse {
@@ -6664,25 +6867,53 @@ async function modifyCenBandwidthPackageSpec(request: ModifyCenBandwidthPackageS
 }
 
 model ModifyCenRouteMapRequest {
-  asPathMatchMode?: string(name='AsPathMatchMode', description='The AS paths against which routes are matched.
-
-> Only the AS-SEQUENCE parameter is supported. The AS-SET, AS-CONFED-SEQUENCE, and AS-CONFED-SET parameters are not supported. In other words, only the AS number list is supported. Sets and sub-lists are not supported.', example='Include', position='Query'),
-  cenId: string(name='CenId', description='The ID of the routing policy.', example='cen-7qthudw0ll6jmc****', position='Query'),
-  cenRegionId: string(name='CenRegionId', description='22', example='cn-hangzhou', position='Query'),
-  cidrMatchMode?: string(name='CidrMatchMode', description='vtb-adfg53c322v****', example='Include', position='Query'),
-  communityMatchMode?: string(name='CommunityMatchMode', description='The description of the routing policy.
-
-The description cannot start with `http://` or `https://`. It must start with a letter and can contain letters, digits, hyphens (-), periods (.), and underscores (\\_).', example='Include', position='Query'),
-  communityOperateMode?: string(name='CommunityOperateMode', description='The match method that is used to match routes against the AS paths. Valid values:
+  asPathMatchMode?: string(name='AsPathMatchMode', description='The match method that is used to match routes against the AS paths. Valid values:
 
 *   **Include**: fuzzy match. A route meets the match condition if the AS path of the route overlaps with the AS paths specified in the match condition.
-*   **Complete**: exact match. A route is a match only if the AS path of the route is the same as an AS path specified in the match condition.', example='Additive', position='Query'),
-  description?: string(name='Description', description='cn-beijing', example='desctest', position='Query'),
-  destinationChildInstanceTypes?: [ string ](name='DestinationChildInstanceTypes', description='VPC', example='VPC', position='Query'),
-  destinationCidrBlocks?: [ string ](name='DestinationCidrBlocks', description='The ID of the request.', example='10.10.10.0/24', position='Query'),
-  destinationInstanceIds?: [ string ](name='DestinationInstanceIds', description='vtb-acdbvtbr342cd****', example='vpc-avcdsg34ds****', position='Query'),
-  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='System', example='false', position='Query'),
-  destinationRouteTableIds?: [ string ](name='DestinationRouteTableIds', description='The IDs of the destination network instances to which the routes belong. The following network instance types are supported:
+*   **Complete**: exact match. A route is a match only if the AS path of the route is the same as an AS path specified in the match condition.', example='Include', position='Query'),
+  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
+  cenRegionId: string(name='CenRegionId', description='The ID of the region in which the routing policy is applied.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  cidrMatchMode?: string(name='CidrMatchMode', description='The match method that is used to match routes against the prefix list. Valid values:
+
+*   **Include**: fuzzy match. A route is a match if the route prefix is included in the match conditions.
+
+    For example, if you set the match condition to 10.10.0.0/16 and fuzzy match is enabled, the route whose prefix is 10.10.1.0/24 is a match.
+
+*   **Complete**: exact match. A route is a match only if the route prefix is the same as the prefix specified in the match condition.
+
+    For example, if you set the match condition to 10.10.0.0/16 and exact match is enabled, a route is a match only if the prefix is 10.10.0.0/16.', example='Include', position='Query'),
+  communityMatchMode?: string(name='CommunityMatchMode', description='The match method that is sed to match routes based on the community. Valid values:
+
+*   **Include**: fuzzy match. A route meets the match condition if the community of the route overlaps with the community specified in the match condition.
+*   **Complete**: exact match. A route meets the match condition only if the community of the route is the same as the community specified in the match condition.', example='Include', position='Query'),
+  communityOperateMode?: string(name='CommunityOperateMode', description='The action that is performed on the community. Valid values:
+
+*   **Additive**: adds the community to the route.
+*   **Replace**: replaces the original community of the route.
+
+This parameter specifies the action to be performed when a route meets the match condition.', example='Additive', position='Query'),
+  description?: string(name='Description', description='The description of the routing policy.
+
+The description cannot start with `http://` or `https://`. It must start with a letter and can contain letters, digits, hyphens (-), periods (.), and underscores (\\_).', example='desctest', position='Query'),
+  destinationChildInstanceTypes?: [ string ](name='DestinationChildInstanceTypes', description='The types of destination network instance to which the routes belong. The following types of network instances are supported:
+
+*   **VPC**: VPC
+
+*   **VBR**: VBR
+
+*   **CCN**: CCN instance
+
+*   **VPN**: IPsec connection
+
+    > This parameter does not take effect if the IPsec-VPN connection or SSL client is associated with a transit router through a VPN gateway and a VPC. This parameter takes effect only if the IPsec connection is directly connected to the transit router.
+
+The destination network instance types are valid only if the routing policy is applied to scenarios where routes are advertised from the gateway in the current region to network instances in the current region.', example='VPC', position='Query'),
+  destinationCidrBlocks?: [ string ](name='DestinationCidrBlocks', description='The prefix list against which routes are matched.
+
+You must specify the IP addresses in CIDR notation. You can enter at most 32 CIDR blocks.', example='10.10.10.0/24', position='Query'),
+  destinationInstanceIds?: [ string ](name='DestinationInstanceIds', description='The IDs of the destination network instances to which the routes belong. The following network instance types are supported:
 
 *   VPC
 *   VBR
@@ -6692,72 +6923,105 @@ The description cannot start with `http://` or `https://`. It must start with a 
 
 You can enter at most 32 IDs.
 
-> The destination instance IDs take effect only when Direction is set to Export from Regional Gateway and the destination instances are deployed in the current region.', example='vtb-adfg53c322v****', position='Query'),
-  mapResult: string(name='MapResult', description='Specifies whether to exclude the destination network instance IDs. Valid values:
+> The destination instance IDs take effect only when Direction is set to Export from Regional Gateway and the destination instances are deployed in the current region.', example='vpc-avcdsg34ds****', position='Query'),
+  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='Specifies whether to exclude the destination network instance IDs. Valid values:
 
 *   **false** (default value): A route is a match if its destination network instance ID is in the list specified by **DestinationInstanceIds.N**.
-*   **true**: A route meets the match condition if its destination network instance ID is not in the list specified by **DestinationInstanceIds.N**.', example='Permit', position='Query'),
-  matchAddressType?: string(name='MatchAddressType', description='cn-beijing', example='IPv4', position='Query'),
-  matchAsns?: [ int32 ](name='MatchAsns', description='The ID of the CEN instance.', example='65501', position='Query'),
-  matchCommunitySet?: [ string ](name='MatchCommunitySet', description='The ID of the routing policy.', example='65501:1', position='Query'),
-  nextPriority?: int32(name='NextPriority', description='10.10.10.0/24', example='20', minimum=1, maximum=1000, position='Query'),
-  operateCommunitySet?: [ string ](name='OperateCommunitySet', description='The action to be performed on a route that meets all match conditions. Valid values:
+*   **true**: A route meets the match condition if its destination network instance ID is not in the list specified by **DestinationInstanceIds.N**.', example='false', position='Query'),
+  destinationRouteTableIds?: [ string ](name='DestinationRouteTableIds', description='The IDs of the destination route tables to which the routes belong. You can enter at most 32 route table IDs.
+
+> The destination route table IDs take effect only when Direction is set to Export from Regional Gateway and the destination route tables belong to network instances deployed in the current region.', example='vtb-adfg53c322v****', position='Query'),
+  mapResult: string(name='MapResult', description='The action to be performed on a route that meets all match conditions. Valid values:
 
 *   **Permit**: the route is permitted.
-*   **Deny**: the route is denied.', example='65501:1', position='Query'),
-  ownerAccount?: string(name='OwnerAccount', position='Query'),
-  ownerId?: long(name='OwnerId', position='Query'),
-  preference?: int32(name='Preference', description='The community against which routes are matched.
+*   **Deny**: the route is denied.', example='Permit', position='Query'),
+  matchAddressType?: string(name='MatchAddressType', description='The type of IP address in the match condition. Valid values:
+
+*   **IPv4**: IPv4 address
+*   **IPv6**: IPv6 address
+
+This parameter can be empty. If no value is specified, all types of IP address are a match.', example='IPv4', position='Query'),
+  matchAsns?: [ int32 ](name='MatchAsns', description='The AS paths against which routes are matched.
+
+> Only the AS-SEQUENCE parameter is supported. The AS-SET, AS-CONFED-SEQUENCE, and AS-CONFED-SET parameters are not supported. In other words, only the AS number list is supported. Sets and sub-lists are not supported.', example='65501', position='Query'),
+  matchCommunitySet?: [ string ](name='MatchCommunitySet', description='The community against which routes are matched.
 
 Specify the community in the format of n:m. Valid values of n and m: **1** to **65535**. Each community must comply with the RFC 1997 standard. The RFC 8092 standard that defines BGP large communities is not supported.
 
 You can specify at most 32 communities.
 
-**
+> If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='65501:1', position='Query'),
+  nextPriority?: int32(name='NextPriority', description='The priority of the routing policy that you want to associate with the current one.
 
-**If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='22', minimum=1, maximum=100, position='Query'),
-  prependAsPath?: [ long ](name='PrependAsPath', description='The match method that is used to match routes against the prefix list. Valid values:
+*   This parameter takes effect only when the **MapResult** parameter is set to **Permit**. This way, the permitted route is matched against the next routing policy.
+*   The region and direction of the routing policy to be associated must be the same as those of the current routing policy.
+*   The priority of the routing policy to be associated must be lower than the priority of the current routing policy.', example='20', minimum=1, maximum=1000, position='Query'),
+  operateCommunitySet?: [ string ](name='OperateCommunitySet', description='The community set on which actions are performed.
 
-*   **Include**: fuzzy match. A route is a match if the route prefix is included in the match conditions.
+Specify the community in the format of n:m. Valid values of n and m: **1** to **65535**. Each community must comply with RFC 1997. The RFC 8092 standard that defines BGP large communities is not supported.
 
-For example, if you set the match condition to 10.10.0.0/16 and fuzzy match is enabled, the route whose prefix is 10.10.1.0/24 is a match.
+You can specify at most 32 communities.
 
-*   **Complete**: exact match. A route is a match only if the route prefix is the same as the prefix specified in the match condition.
+> If the configurations of the communities are incorrect, routes may fail to be advertised to your data center.', example='65501:1', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  preference?: int32(name='Preference', description='The new priority of the route.
 
-For example, if you set the match condition to 10.10.0.0/16 and exact match is enabled, a route is a match only if the prefix is 10.10.0.0/16.', example='65501', position='Query'),
-  priority: int32(name='Priority', description='VPC', example='10', minimum=1, maximum=1000, position='Query'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  routeMapId: string(name='RouteMapId', description='vpc-avcdsg34ds****', example='cenrmap-abcdedfghij****', position='Query'),
-  routeTypes?: [ string ](name='RouteTypes', description='Modifies a routing policy of a Cloud Enterprise Network (CEN) instance.', example='System', position='Query'),
-  sourceChildInstanceTypes?: [ string ](name='SourceChildInstanceTypes', description='The AS paths that are prepended by using an action statement when regional gateways receive or advertise routes.
+Valid values: **1** to **100**. The default priority is **50**. A smaller value indicates a higher priority.
+
+This parameter specifies the action to be performed when a route meets the match condition.', example='22', minimum=1, maximum=100, position='Query'),
+  prependAsPath?: [ long ](name='PrependAsPath', description='The AS paths that are prepended by using an action statement when regional gateways receive or advertise routes.
 
 The AS paths vary based on the direction in which the routing policy is applied:
 
 *   If AS paths are prepended to a routing policy that is applied in the inbound direction, you must specify source network instance IDs and the source region in the match condition. In addition, the source region must be the same as the region where the routing policy is applied.
 *   If AS paths are prepended to a routing policy that is applied in the outbound direction, you must specify destination network instance IDs in the match condition.
 
-This parameter specifies the action to be performed when a route meets the match condition.', example='VPC', position='Query'),
-  sourceInstanceIds?: [ string ](name='SourceInstanceIds', description='20', example='vpc-afsfdf5435vcvc****', position='Query'),
-  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='The IDs of the destination route tables to which the routes belong. You can enter at most 32 route table IDs.
+This parameter specifies the action to be performed when a route meets the match condition.', example='65501', position='Query'),
+  priority: int32(name='Priority', description='The priority of the routing policy. Valid values: **1** to **100**. A smaller value indicates a higher priority.
 
-> The destination route table IDs take effect only when Direction is set to Export from Regional Gateway and the destination route tables belong to network instances deployed in the current region.', example='false', position='Query'),
-  sourceRegionIds?: [ string ](name='SourceRegionIds', description='The IDs of the source route tables to which the routes belong. You can enter at most 32 route table IDs.', example='cn-beijing', position='Query'),
-  sourceRouteTableIds?: [ string ](name='SourceRouteTableIds', description='The action that is performed on the community. Valid values:
+> You cannot specify the same priority for routing policies that apply in the same region and direction. The system matches routes against the match conditions of routing policies in descending order of priority. A smaller value indicates a higher priority. You must set the priorities to proper values.', example='10', minimum=1, maximum=1000, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  routeMapId: string(name='RouteMapId', description='The ID of the routing policy.', example='cenrmap-abcdedfghij****', position='Query'),
+  routeTypes?: [ string ](name='RouteTypes', description='The type of route to be matched against the match condition. The following route types are supported:
 
-*   **Additive**: adds the community to the route.
-*   **Replace**: replaces the original community of the route.
+*   **System**: system routes that are automatically generated by the system.
+*   **Custom**: custom routes that are manually added.
+*   **BGP**: routes that are advertised over BGP.', example='System', position='Query'),
+  sourceChildInstanceTypes?: [ string ](name='SourceChildInstanceTypes', description='The types of source network instance to which the routes belong. The following types of network instances are supported:
 
-This parameter specifies the action to be performed when a route meets the match condition.', example='vtb-acdbvtbr342cd****', position='Query'),
+*   **VPC**: VPC
+
+*   **VBR**: VBR
+
+*   **CCN**: CCN instance
+
+*   **VPN** :VPN gateway or IPsec-VPN connection
+
+    *   If the IPsec-VPN connection or SSL client is associated with a VPN gateway, the VPC associated with the VPN gateway must be connected to a transit router, and the VPN gateway must use Border Gateway Protocol (BGP) dynamic routing. Otherwise, this parameter cannot take effect.
+    *   This parameter takes effect if the IPsec connection is directly connected to a transit router.', example='VPC', position='Query'),
+  sourceInstanceIds?: [ string ](name='SourceInstanceIds', description='The IDs of the source network instances to which the routes belong. The following network instance types are supported:
+
+*   Virtual private cloud (VPC)
+*   Virtual border router (VBR)
+*   Cloud Connect Network (CCN) instance
+*   Smart Access Gateway (SAG) instance
+*   The ID of the IPsec-VPN connection.
+
+You can enter at most 32 IDs.', example='vpc-afsfdf5435vcvc****', position='Query'),
+  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='Specifies whether to exclude the source network instance IDs. Valid values:
+
+*   **false** (default value): A route is a match if its source network instance ID is in the list specified by **SourceInstanceIds.N**.
+*   **true**: A route is a match if its source network instance ID is not in the list specified by **SourceInstanceIds.N**.', example='false', position='Query'),
+  sourceRegionIds?: [ string ](name='SourceRegionIds', description='The IDs of the source regions to which the routes belong. You can enter at most 32 region IDs.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-beijing', position='Query'),
+  sourceRouteTableIds?: [ string ](name='SourceRouteTableIds', description='The IDs of the source route tables to which the routes belong. You can enter at most 32 route table IDs.', example='vtb-acdbvtbr342cd****', position='Query'),
 }
 
 model ModifyCenRouteMapResponseBody = {
-  requestId?: string(name='RequestId', description='The action that is performed on the community. Valid values:
-
-*   **Additive**: adds the community to the route.
-*   **Replace**: replaces the original community of the route.
-
-This parameter specifies the action to be performed when a route meets the match condition.', example='54B48E3D-DF70-471B-AA93-08E683A1B457'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='54B48E3D-DF70-471B-AA93-08E683A1B457'),
 }
 
 model ModifyCenRouteMapResponse = {
@@ -6767,7 +7031,9 @@ model ModifyCenRouteMapResponse = {
 }
 
 /**
-  * The response.
+  * `ModifyCenRouteMap` is an asynchronous operation. After you send a request, the system returns a **request ID** and runs the task in the background. You can call the `DescribeCenRouteMaps` operation to query the status of a routing policy.
+  * *   **Modifying**: indicates that the system is modifying the routing policy. You can only query the routing policy, but cannot perform other operations.
+  * *   **Active**: indicates that the routing policy is modified.
   *
  */
 async function modifyCenRouteMap(request: ModifyCenRouteMapRequest): ModifyCenRouteMapResponse {
@@ -6776,21 +7042,34 @@ async function modifyCenRouteMap(request: ModifyCenRouteMapRequest): ModifyCenRo
 }
 
 model ModifyFlowLogAttributeRequest {
-  cenId: string(name='CenId', example='cen-7qthudw0ll6jmc****', position='Query'),
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
-  description?: string(name='Description', example='myFlowlog', position='Query'),
-  flowLogId: string(name='FlowLogId', example='flowlog-m5evbtbpt****', position='Query'),
-  flowLogName?: string(name='FlowLogName', example='myFlowlog', position='Query'),
+  cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the value, but you must make sure that the value is unique among different requests. The client token can contain only ASCII characters.
+
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  description?: string(name='Description', description='The new description of the flow log.
+
+The description must be 2 to 256 characters in length. It must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
+  flowLogId: string(name='FlowLogId', description='The ID of the flow log.', example='flowlog-m5evbtbpt****', position='Query'),
+  flowLogName?: string(name='FlowLogName', description='The new name of the flow log.
+
+The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the flow log is deployed.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ModifyFlowLogAttributeResponseBody = {
-  requestId?: string(name='RequestId', example='9A411874-2EC8-4633-9D30-9012DCE89DD1'),
-  success?: string(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='9A411874-2EC8-4633-9D30-9012DCE89DD1'),
+  success?: string(name='Success', description='Indicates whether the call is successful. Valid values:
+
+*   **true**: yes
+*   **false**: no', example='true'),
 }
 
 model ModifyFlowLogAttributeResponse = {
@@ -6799,50 +7078,58 @@ model ModifyFlowLogAttributeResponse = {
   body: ModifyFlowLogAttributeResponseBody(name='body'),
 }
 
+/**
+  * `ModifyFlowLogAttribute` is an asynchronous operation. After you send a request, the system returns a **request ID** and runs the task in the background. You can call the `DescribeFlowlogs` operation to query the status of a flow log.
+  * *   If a flow log is in the **Modifying** state, the flow log is being modified. In this case, you can query the flow log but cannot perform other operations.
+  * *   If a flow log is in the **Active** state, the flow log is modified.
+  *
+ */
 async function modifyFlowLogAttribute(request: ModifyFlowLogAttributeRequest): ModifyFlowLogAttributeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyFlowLogAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyTransitRouterCidrRequest {
-  cidr?: string(name='Cidr', description='The ID of the region where the transit router is deployed.
+  cidr?: string(name='Cidr', description='The new CIDR block of the transit router.', example='192.168.10.0/24', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='192.168.10.0/24', position='Query'),
-  clientToken?: string(name='ClientToken', description='Specifies whether to allow the system to automatically add routes that point to the CIDR block to the route table of the transit router.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
-*   **true**: yes
+>  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-426****', position='Query'),
+  description?: string(name='Description', description='The new description of the transit router CIDR block.
 
-    A value of true specifies that after you create a private VPN connection and enable route learning for the connection, the system automatically adds a blackhole route to the route table of the transit route to which the VPN connection is attached.
+The description must be 1 to 256 characters in length.', example='desctest', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
 
-    The destination CIDR block of the blackhole route is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections.
+*   **true**: performs a dry run. The system checks the required parameters, request syntax, and limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false**: performs a dry run and sends the request.', example='false', position='Query'),
+  name?: string(name='Name', description='The new name of the transit router CIDR block.
 
-    The blackhole route is advertised only to the route table of the virtual border router (VBR) that is connected to the transit router.
-
-*   **false**: no', example='123e4567-e89b-12d3-a456-426****', position='Query'),
-  description?: string(name='Description', description='The new CIDR block of the transit router.', example='desctest', position='Query'),
-  dryRun?: boolean(name='DryRun', description='The ID of the request.', example='false', position='Query'),
-  name?: string(name='Name', description='The ID of the transit router CIDR block.
-
-You can call [ListTransitRouterCidr](~~462772~~) to query the ID of a transit route CIDR block.', example='nametest', position='Query'),
+The name must be 1 to 128 characters in length.', example='nametest', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  publishCidrRoute?: boolean(name='PublishCidrRoute', description='The operation that you want to perform. Set the value to **ModifyTransitRouterCidr**.', example='true', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the transit router.', example='ap-southeast-2', position='Query'),
+  publishCidrRoute?: boolean(name='PublishCidrRoute', description='Specifies whether to allow the system to automatically add a route that points to the CIDR block to the route table of the transit router.
+- **true**: yes
+  
+  A value of **true** specifies that after you create a private VPN connection and enable route learning for the connection, the system automatically adds the following blackhole route to the route table of the transit router to which the VPN connection is attached:
+
+   The destination CIDR block of the blackhole route is the CIDR block of the transit router. The CIDR block of the transit router refers to the CIDR block from which gateway IP addresses are allocated to IPsec-VPN connections. 
+
+    The blackhole route is advertised only to the route tables of virtual border routers (VBRs) that are connected to the transit router. 
+-  **false**: no', example='true', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the transit router is deployed.
+
+You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='ap-southeast-2', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  transitRouterCidrId: string(name='TransitRouterCidrId', description='Specifies whether only to precheck the request. Valid values:
+  transitRouterCidrId: string(name='TransitRouterCidrId', description='The ID of the CIDR block.
 
-*   **true**: checks the request but does not modify the CIDR block. The system checks the required parameters, the request format, and the service limits. If the request fails to pass the precheck, an error message is returned. If the request passes the precheck, the `DryRunOperation` error code is returned.
-*   **false**: sends the request. If the request passes the precheck, the CIDR block of the transit router is modified.', example='cidr-0zv0q9crqpntzz****', position='Query'),
-  transitRouterId: string(name='TransitRouterId', description='The client token that is used to ensure the idempotence of the request.
-
-You can use the client to generate the value, but you must make sure that it is unique among different requests. ClientToken can contain only ASCII characters.
-
->  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='tr-gw8ergozrv77rtbjd****', position='Query'),
+You can call the [ListTransitRouterCidr](~~462772~~) operation to query the ID of a CIDR block.', example='cidr-0zv0q9crqpntzz****', position='Query'),
+  transitRouterId: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-gw8ergozrv77rtbjd****', position='Query'),
 }
 
 model ModifyTransitRouterCidrResponseBody = {
-  requestId?: string(name='RequestId', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='0876E54E-3E36-5C31-89F0-9EE8A9266F9A'),
 }
 
 model ModifyTransitRouterCidrResponse = {
@@ -6852,8 +7139,12 @@ model ModifyTransitRouterCidrResponse = {
 }
 
 /**
-  * The new description of the transit router CIDR block.
-  * The description must be 1 to 256 characters in length.
+  * *   Before you modify the CIDR block of a transit router, we recommend that you read the [limits on transit router CIDR blocks](~~462635~~).
+  * *   If IP addresses within the CIDR block have been allocated to network instances, you cannot modify the CIDR block.
+  * *   When you call **ModifyTransitRouterCidr**, if no parameter of the **PublishCidrRoute** operation is modified, ModifyTransitRouterCidr is a synchronous operation. After you call the operation, the new settings are immediately applied.
+  * *   If a parameter of the **PublishCidrRoute** operation is modified, **ModifyTransitRouterCidr** is an asynchronous operation. After you call the operation, the request ID (**RequestId**) is returned but the operation is still being performed in the system background. You can call **ListTransitRouterCidr** to query the status of the CIDR block of the transit router.
+  *     *   If the CIDR block of the transit router remains unchanged, the CIDR block is still being modified.
+  *     *   If the CIDR block of the transit router is changed to the one that you specify in the request, the CIDR block has been modified.
   *
  */
 async function modifyTransitRouterCidr(request: ModifyTransitRouterCidrRequest): ModifyTransitRouterCidrResponse {
@@ -7076,19 +7367,17 @@ async function registerTransitRouterMulticastGroupMembers(request: RegisterTrans
 model RegisterTransitRouterMulticastGroupSourcesRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the value, but you must make sure that it is unique among different requests. ClientToken can contain only ASCII characters.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
->  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
-  dryRun?: boolean(name='DryRun', description='Specifies whether only to check the request. Valid values:
+>  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID is different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run, without sending the actual request. Default values:
 
-*   **true**: prechecks the request but does not create the multicast source. The system checks the required parameters, the request format, and the service limits. If the request fails to pass the precheck, an error message is returned. If the request passes the precheck, the `DryRunOperation` error code is returned.
-*   **false** (default): sends the request. After the request passes the precheck, the multicast source is created.', example='false', position='Query'),
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error code is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false', position='Query'),
   groupIpAddress: string(name='GroupIpAddress', description='The IP address of the multicast group to which the multicast source belongs. Valid values: **224.0.0.1** to **239.255.255.254**.
 
 If the multicast group does not exist in the multicast domain, the system automatically creates the multicast group in the multicast domain.', example='239.XX.XX.2', position='Query'),
-  networkInterfaceIds?: [ string ](name='NetworkInterfaceIds', description='The IDs of the ENIs.
-
-You can create only one multicast source in a multicast group.
+  networkInterfaceIds?: [ string ](name='NetworkInterfaceIds', description='The IDs of ENIs.
 
 >  This parameter is required.', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -7103,7 +7392,7 @@ You can create only one multicast source in a multicast group.
 }
 
 model RegisterTransitRouterMulticastGroupSourcesResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='9C5D5D70-0AFF-5E5C-8D8A-E92C90C8FB08'),
+  requestId?: string(name='RequestId', description='The request ID.', example='9C5D5D70-0AFF-5E5C-8D8A-E92C90C8FB08'),
 }
 
 model RegisterTransitRouterMulticastGroupSourcesResponse = {
@@ -7113,12 +7402,12 @@ model RegisterTransitRouterMulticastGroupSourcesResponse = {
 }
 
 /**
-  * - You can specify only elastic network interfaces (ENIs) as multicast sources.
-  * - `RegisterTransitRouterMulticastGroupSources` is an asynchronous operation. After you send a request, the **request ID** is returned but the operation is still being performed in the system background. You can call `ListTransitRouterMulticastGroups` to query the status of a multicast source.     
-  *   - If a multicast source is in the **Registering** state, the multicast source is being created. You can query the multicast source but cannot perform other operations.
-  *   - If a multicast source is in the **Registered** state, the multicast source is created.
-  * #### Prerequisites
-  * Before you call `RegisterTransitRouterMulticastGroupSources`, make sure that the vSwitch on which the ENI is created is associated with the multicast domain. For more information, see [AssociateTransitRouterMulticastDomain](https://www.alibabacloud.com/help/en/cloud-enterprise-network/latest/associatetransitroutermulticastdomain).
+  * *   You can specify only elastic network interfaces (ENIs) as multicast sources.
+  * *   `RegisterTransitRouterMulticastGroupSources` is an asynchronous operation. After a request is sent, the system returns a **request ID** and runs the task in the background. You can call `ListTransitRouterMulticastGroups` to query the status of a multicast source.
+  *     *   If a multicast source is in the **Registering** state, the multicast source is being created. You can query the multicast source but cannot perform other operations.
+  *     *   If a multicast source is in the **Registered** state, the multicast source is created.
+  * ### Prerequisites
+  * Before you call `RegisterTransitRouterMulticastGroupSources`, make sure that the vSwitch on which the ENI is created is associated with the multicast domain. For more information, see [AssociateTransitRouterMulticastDomain](~~429778~~).
   *
  */
 async function registerTransitRouterMulticastGroupSources(request: RegisterTransitRouterMulticastGroupSourcesRequest): RegisterTransitRouterMulticastGroupSourcesResponse {
@@ -7303,7 +7592,7 @@ model RevokeInstanceFromTransitRouterRequest {
 *   **VPN**: IPsec connection', example='VPC', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='The region ID of the network instance.
+  regionId?: string(name='RegionId', description='The region ID of the network instance.
 
 You can call the [DescribeChildInstanceRegions](~~132080~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -7808,7 +8097,9 @@ model UpdateTransitRouterPeerAttachmentAttributeRequest {
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
 >  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  defaultLinkType?: string(name='DefaultLinkType', position='Query'),
+  defaultLinkType?: string(name='DefaultLinkType', description='The default link type. Valid values:
+- **Platinum**: only available for the **Pay-By-Data-Transfer** bandwidth.
+- **Gold** (default)', example='Gold', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run to check information such as the permissions and the instance status. Default values:
 
 *   **false** (default): performs a dry run and sends the request.
@@ -7850,9 +8141,9 @@ async function updateTransitRouterPeerAttachmentAttribute(request: UpdateTransit
 model UpdateTransitRouterRouteEntryRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
->  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** is different for each request.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Default values:
 
 *   **false** (default): performs a dry run and sends the request.
@@ -7863,7 +8154,7 @@ You can use the client to generate the token, but you must make sure that the to
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   transitRouterRouteEntryDescription?: string(name='TransitRouterRouteEntryDescription', description='The new description of the route.
 
-The description must be 1 to 256 characters in length, and can contain letters, digits, and the following special characters: , . ; / @ \\_ -. You can also leave the description empty.', example='testdesc', position='Query'),
+The description must be 0 to 256 characters in length, and can contain letters, digits, commas (,), periods (.), semicolons (;), forward slashes (/), at signs (@), underscores (\\_), and hyphens (-).', example='testdesc', position='Query'),
   transitRouterRouteEntryId: string(name='TransitRouterRouteEntryId', description='The ID of the route.', example='rte-ksssq7kto4wfdx****', position='Query'),
   transitRouterRouteEntryName?: string(name='TransitRouterRouteEntryName', description='The new name of the route.
 
