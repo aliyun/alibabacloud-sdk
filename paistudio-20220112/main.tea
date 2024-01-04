@@ -748,6 +748,12 @@ model CreateResourceGroupRequest {
   description?: string(name='Description'),
   name?: string(name='Name'),
   resourceType?: string(name='ResourceType'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
   userVpc?: UserVpc(name='UserVpc'),
 }
 
@@ -776,6 +782,9 @@ async function createResourceGroupWithOptions(request: CreateResourceGroupReques
   }
   if (!Util.isUnset(request.resourceType)) {
     body['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    body['Tag'] = request.tag;
   }
   if (!Util.isUnset(request.userVpc)) {
     body['UserVpc'] = request.userVpc;
@@ -1366,12 +1375,24 @@ async function getQuota(QuotaId: string): GetQuotaResponse {
 
 model GetResourceGroupRequest {
   isAIWorkspaceDataEnabled?: boolean(name='IsAIWorkspaceDataEnabled'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
+}
+
+model GetResourceGroupShrinkRequest {
+  isAIWorkspaceDataEnabled?: boolean(name='IsAIWorkspaceDataEnabled'),
+  tagShrink?: string(name='Tag'),
 }
 
 model GetResourceGroupResponseBody = {
   clusterID?: string(name='ClusterID'),
   computingResourceProvider?: string(name='ComputingResourceProvider'),
   creatorID?: string(name='CreatorID'),
+  description?: string(name='Description'),
   gmtCreatedTime?: string(name='GmtCreatedTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
   name?: string(name='Name'),
@@ -1379,6 +1400,12 @@ model GetResourceGroupResponseBody = {
   resourceType?: string(name='ResourceType'),
   status?: string(name='Status'),
   supportRDMA?: boolean(name='SupportRDMA'),
+  tags?: [ 
+    {
+      tagKey?: string(name='TagKey'),
+      tagValue?: string(name='TagValue'),
+    }
+  ](name='Tags'),
   userVpc?: UserVpc(name='UserVpc'),
   workspaceID?: string(name='WorkspaceID'),
 }
@@ -1389,11 +1416,19 @@ model GetResourceGroupResponse = {
   body: GetResourceGroupResponseBody(name='body'),
 }
 
-async function getResourceGroupWithOptions(ResourceGroupID: string, request: GetResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupResponse {
-  Util.validateModel(request);
+async function getResourceGroupWithOptions(ResourceGroupID: string, tmpReq: GetResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetResourceGroupShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'Tag', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.isAIWorkspaceDataEnabled)) {
     query['IsAIWorkspaceDataEnabled'] = request.isAIWorkspaceDataEnabled;
+  }
+  if (!Util.isUnset(request.tagShrink)) {
+    query['Tag'] = request.tagShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1420,6 +1455,19 @@ async function getResourceGroup(ResourceGroupID: string, request: GetResourceGro
   return getResourceGroupWithOptions(ResourceGroupID, request, headers, runtime);
 }
 
+model GetResourceGroupMachineGroupRequest {
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
+}
+
+model GetResourceGroupMachineGroupShrinkRequest {
+  tagShrink?: string(name='Tag'),
+}
+
 model GetResourceGroupMachineGroupResponseBody = {
   cpu?: string(name='Cpu'),
   defaultDriver?: string(name='DefaultDriver'),
@@ -1433,6 +1481,7 @@ model GetResourceGroupMachineGroupResponseBody = {
   gpuType?: string(name='GpuType'),
   machineGroupID?: string(name='MachineGroupID'),
   memory?: string(name='Memory'),
+  name?: string(name='Name'),
   paymentDuration?: string(name='PaymentDuration'),
   paymentDurationUnit?: string(name='PaymentDurationUnit'),
   paymentType?: string(name='PaymentType'),
@@ -1440,6 +1489,12 @@ model GetResourceGroupMachineGroupResponseBody = {
   resourceGroupID?: string(name='ResourceGroupID'),
   status?: string(name='Status'),
   supportedDrivers?: [ string ](name='SupportedDrivers'),
+  tags?: [ 
+    {
+      tagKey?: string(name='TagKey'),
+      tagValue?: string(name='TagValue'),
+    }
+  ](name='Tags'),
 }
 
 model GetResourceGroupMachineGroupResponse = {
@@ -1448,9 +1503,21 @@ model GetResourceGroupMachineGroupResponse = {
   body: GetResourceGroupMachineGroupResponseBody(name='body'),
 }
 
-async function getResourceGroupMachineGroupWithOptions(MachineGroupID: string, ResourceGroupID: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupMachineGroupResponse {
+async function getResourceGroupMachineGroupWithOptions(MachineGroupID: string, ResourceGroupID: string, tmpReq: GetResourceGroupMachineGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceGroupMachineGroupResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetResourceGroupMachineGroupShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'Tag', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.tagShrink)) {
+    query['Tag'] = request.tagShrink;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetResourceGroupMachineGroup',
@@ -1466,10 +1533,10 @@ async function getResourceGroupMachineGroupWithOptions(MachineGroupID: string, R
   return callApi(params, req, runtime);
 }
 
-async function getResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string): GetResourceGroupMachineGroupResponse {
+async function getResourceGroupMachineGroup(MachineGroupID: string, ResourceGroupID: string, request: GetResourceGroupMachineGroupRequest): GetResourceGroupMachineGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, headers, runtime);
+  return getResourceGroupMachineGroupWithOptions(MachineGroupID, ResourceGroupID, request, headers, runtime);
 }
 
 model GetResourceGroupRequestRequest {
@@ -2774,6 +2841,8 @@ async function updateQuota(QuotaId: string, request: UpdateQuotaRequest): Update
 }
 
 model UpdateResourceGroupRequest {
+  description?: string(name='Description'),
+  name?: string(name='Name'),
   unbind?: boolean(name='Unbind'),
   userVpc?: UserVpc(name='UserVpc'),
 }
@@ -2792,6 +2861,12 @@ model UpdateResourceGroupResponse = {
 async function updateResourceGroupWithOptions(ResourceGroupID: string, request: UpdateResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateResourceGroupResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
   if (!Util.isUnset(request.unbind)) {
     body['Unbind'] = request.unbind;
   }
