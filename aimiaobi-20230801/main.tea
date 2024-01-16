@@ -1,0 +1,80 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('aimiaobi', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model CreateTokenRequest {
+  agentKey?: string(name='AgentKey', example='2daaa2e0c209xb26acb97009ea77bd4b_p_efm'),
+}
+
+model CreateTokenResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    expiredTime?: long(name='ExpiredTime', example='1705388704855'),
+    token?: string(name='Token', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  }(name='Data'),
+  httpStatusCode?: string(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateTokenResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: CreateTokenResponseBody(name='body'),
+}
+
+async function createTokenWithOptions(request: CreateTokenRequest, runtime: Util.RuntimeOptions): CreateTokenResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.agentKey)) {
+    query['AgentKey'] = request.agentKey;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateToken',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createToken(request: CreateTokenRequest): CreateTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createTokenWithOptions(request, runtime);
+}
+
