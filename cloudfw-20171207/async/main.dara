@@ -76,6 +76,7 @@ model AddAddressBookResponseBody = {
 
 model AddAddressBookResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: AddAddressBookResponseBody(name='body'),
 }
 
@@ -222,6 +223,7 @@ model AddControlPolicyResponseBody = {
 
 model AddControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: AddControlPolicyResponseBody(name='body'),
 }
 
@@ -251,6 +253,7 @@ model AddInstanceMembersResponseBody = {
 
 model AddInstanceMembersResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: AddInstanceMembersResponseBody(name='body'),
 }
 
@@ -291,6 +294,7 @@ model BatchCopyVpcFirewallControlPolicyResponseBody = {
 
 model BatchCopyVpcFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: BatchCopyVpcFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -317,7 +321,7 @@ Valid values:
 *   **drop**: denies the traffic.
 *   **log**: monitors the traffic.', example='log', position='Query'),
   applicationNameList?: [ string ](name='ApplicationNameList', description='The application types supported by the access control policy.', position='Query'),
-  description: string(name='Description', description='The description of the access control policy.', position='Query'),
+  description: string(name='Description', description='The description of the access control policy.', example='allow', position='Query'),
   destPort?: string(name='DestPort', description='The destination port in the access control policy. Valid values:
 
 *   If Proto is set to ICMP, DestPort is automatically left empty.
@@ -365,12 +369,14 @@ Valid values:
   direction?: string(name='Direction', description='The direction of the traffic to which the access control policy applies. Valid values:
 
 *   **out**: outbound traffic', example='out', position='Query'),
-  domainResolveType?: int32(name='DomainResolveType', description='The domain name resolution method of the access control policy. By default, an access control policy is enabled after it is created. Valid values:
+  domainResolveType?: int32(name='DomainResolveType', description='The domain name resolution method of the access control policy. By default, the access control policy is enabled after the policy is created. Valid values:
 
-*   **0**: Fully qualified domain name (FQDN)-based resolution
+*   **0**: fully qualified domain name (FQDN)-based resolution
 *   **1**: Domain Name System (DNS)-based dynamic resolution
 *   **2**: FQDN and DNS-based dynamic resolution', example='0', position='Query'),
-  endTime?: long(name='EndTime', position='Query'),
+  endTime?: long(name='EndTime', description='The time when the access control policy stops taking effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of StartTime.
+
+>  If RepeatType is set to Permanent, EndTime is left empty. If RepeatType is set to None, Daily, Weekly, or Monthly, this parameter must be specified.', example='1694764800', position='Query'),
   ipVersion?: string(name='IpVersion', description='The IP version supported by the access control policy. Valid values:
 
 *   **4**: IPv4 (default)', example='4', position='Query'),
@@ -381,7 +387,7 @@ Valid values:
 *   **zh**: Chinese (default)
 *   **en**: English', example='zh', position='Query'),
   natGatewayId: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='ngx-xxxxxxx', position='Query'),
-  newOrder: string(name='NewOrder', description='The new priority of the access control policy.', example='1', position='Query'),
+  newOrder: string(name='NewOrder', description='The priority of the access control policy. The priority value starts from 1. A small priority value indicates a high priority.', example='1', position='Query'),
   proto: string(name='Proto', description='The protocol type in the access control policy.
 
 Valid values:
@@ -394,10 +400,29 @@ Valid values:
 
 *   **true**
 *   **false**', example='true', position='Query'),
-  repeatDays?: [ long ](name='RepeatDays', position='Query'),
-  repeatEndTime?: string(name='RepeatEndTime', position='Query'),
-  repeatStartTime?: string(name='RepeatStartTime', position='Query'),
-  repeatType?: string(name='RepeatType', position='Query'),
+  repeatDays?: [ long ](name='RepeatDays', description='The days of a week or of a month on which the access control policy takes effect.
+
+*   If RepeatType is set to `Permanent`, `None`, or `Daily`, RepeatDays is left empty. Example: \\[].
+*   If RepeatType is set to Weekly, RepeatDays must be specified. Example: \\[0, 6].
+
+>  If RepeatType is set to Weekly, the fields in the value of RepeatDays cannot be repeated.
+
+*   If RepeatType is set to `Monthly`, RepeatDays must be specified. Example: \\[1, 31].
+
+>  If RepeatType is set to Monthly, the fields in the value of RepeatDays cannot be repeated.', position='Query'),
+  repeatEndTime?: string(name='RepeatEndTime', description='The point in time when the recurrence ends. Example: 23:30. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of RepeatStartTime.
+
+>  If RepeatType is set to Permanent or None, RepeatEndTime is left empty. If RepeatType is set to Daily, Weekly, or Monthly, this parameter must be specified.', example='23:30', position='Query'),
+  repeatStartTime?: string(name='RepeatStartTime', description='The point in time when the recurrence starts. Example: 08:00. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of RepeatEndTime.
+
+>  If RepeatType is set to Permanent or None, RepeatStartTime is left empty. If RepeatType is set to Daily, Weekly, or Monthly, this parameter must be specified.', example='08:00', position='Query'),
+  repeatType?: string(name='RepeatType', description='The recurrence type for the access control policy to take effect. Valid values:
+
+*   **Permanent** (default): The policy always takes effect.
+*   **None**: The policy takes effect for only once.
+*   **Daily**: The policy takes effect on a daily basis.
+*   **Weekly**: The policy takes effect on a weekly basis.
+*   **Monthly**: The policy takes effect on a monthly basis.', example='Permanent', position='Query'),
   source: string(name='Source', description='The source address in the access control policy.
 
 Valid values:
@@ -415,23 +440,26 @@ Valid values:
 
 *   **net**: source CIDR block
 *   **group**: source address book', example='net', position='Query'),
-  startTime?: long(name='StartTime', position='Query'),
+  startTime?: long(name='StartTime', description='The time when the access control policy starts to take effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of EndTime.
+
+>  If RepeatType is set to Permanent, StartTime is left empty. If RepeatType is set to None, Daily, Weekly, or Monthly, this parameter must be specified.', example='1694761200', position='Query'),
 }
 
 model CreateNatFirewallControlPolicyResponseBody = {
-  aclUuid?: string(name='AclUuid', description='The UUID of the access control policy.
+  aclUuid?: string(name='AclUuid', description='The unique ID of the access control policy.
 
-> If you want to modify an access control policy, you must provide the UUID of the policy. You can call the DescribeNatFirewallControlPolicy operation to query the UUIDs of access control policies.', example='6504d2fb-ab36-49c3-92a6-822a56549783'),
+>  To modify an access control policy, you must specify the unique ID of the policy. You can call the DescribeNatFirewallControlPolicy operation to obtain the ID.', example='6504d2fb-ab36-49c3-92a6-822a56549783'),
   requestId?: string(name='RequestId', description='The request ID.', example='0DC783F1-B3A7-578D-8A63-687CC9B82C0A'),
 }
 
 model CreateNatFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateNatFirewallControlPolicyResponseBody(name='body'),
 }
 
 /**
-  * You can use this operation to create an access control policy to allow, deny, or monitor traffic that passes through a NAT firewall.
+  * You can call this operation to create a policy that allows, denies, or monitors the traffic that passes through the NAT firewall.
   *
  */
 async function createNatFirewallControlPolicy(request: CreateNatFirewallControlPolicyRequest): CreateNatFirewallControlPolicyResponse {
@@ -470,6 +498,7 @@ model CreateTrFirewallV2ResponseBody = {
 
 model CreateTrFirewallV2Response = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateTrFirewallV2ResponseBody(name='body'),
 }
 
@@ -505,6 +534,7 @@ model CreateTrFirewallV2RoutePolicyResponseBody = {
 
 model CreateTrFirewallV2RoutePolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateTrFirewallV2RoutePolicyResponseBody(name='body'),
 }
 
@@ -554,6 +584,7 @@ model CreateVpcFirewallCenConfigureResponseBody = {
 
 model CreateVpcFirewallCenConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateVpcFirewallCenConfigureResponseBody(name='body'),
 }
 
@@ -604,6 +635,7 @@ model CreateVpcFirewallConfigureResponseBody = {
 
 model CreateVpcFirewallConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateVpcFirewallConfigureResponseBody(name='body'),
 }
 
@@ -710,6 +742,7 @@ model CreateVpcFirewallControlPolicyResponseBody = {
 
 model CreateVpcFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: CreateVpcFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -741,6 +774,7 @@ model DeleteAddressBookResponseBody = {
 
 model DeleteAddressBookResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteAddressBookResponseBody(name='body'),
 }
 
@@ -780,6 +814,7 @@ model DeleteControlPolicyResponseBody = {
 
 model DeleteControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteControlPolicyResponseBody(name='body'),
 }
 
@@ -806,6 +841,7 @@ model DeleteFirewallV2RoutePoliciesResponseBody = {
 
 model DeleteFirewallV2RoutePoliciesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteFirewallV2RoutePoliciesResponseBody(name='body'),
 }
 
@@ -824,6 +860,7 @@ model DeleteInstanceMembersResponseBody = {
 
 model DeleteInstanceMembersResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteInstanceMembersResponseBody(name='body'),
 }
 
@@ -860,6 +897,7 @@ model DeleteNatFirewallControlPolicyResponseBody = {
 
 model DeleteNatFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteNatFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -886,6 +924,7 @@ model DeleteTrFirewallV2ResponseBody = {
 
 model DeleteTrFirewallV2Response = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteTrFirewallV2ResponseBody(name='body'),
 }
 
@@ -909,6 +948,7 @@ model DeleteVpcFirewallCenConfigureResponseBody = {
 
 model DeleteVpcFirewallCenConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteVpcFirewallCenConfigureResponseBody(name='body'),
 }
 
@@ -938,6 +978,7 @@ model DeleteVpcFirewallConfigureResponseBody = {
 
 model DeleteVpcFirewallConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteVpcFirewallConfigureResponseBody(name='body'),
 }
 
@@ -978,6 +1019,7 @@ model DeleteVpcFirewallControlPolicyResponseBody = {
 
 model DeleteVpcFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DeleteVpcFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -1019,6 +1061,7 @@ model DescribeACLProtectTrendResponseBody = {
 
 model DescribeACLProtectTrendResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeACLProtectTrendResponseBody(name='body'),
 }
 
@@ -1093,6 +1136,7 @@ model DescribeAddressBookResponseBody = {
 
 model DescribeAddressBookResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeAddressBookResponseBody(name='body'),
 }
 
@@ -1242,6 +1286,7 @@ Valid values:
 
 model DescribeAssetListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeAssetListResponseBody(name='body'),
 }
 
@@ -1434,6 +1479,7 @@ Quota that is consumed by an access control policy = Number of source CIDR block
 
 model DescribeControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeControlPolicyResponseBody(name='body'),
 }
 
@@ -1467,6 +1513,7 @@ model DescribeDefaultIPSConfigResponseBody = {
 
 model DescribeDefaultIPSConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeDefaultIPSConfigResponseBody(name='body'),
 }
 
@@ -1500,6 +1547,7 @@ model DescribeDomainResolveResponseBody = {
 
 model DescribeDomainResolveResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeDomainResolveResponseBody(name='body'),
 }
 
@@ -1548,6 +1596,7 @@ model DescribeInstanceMembersResponseBody = {
 
 model DescribeInstanceMembersResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeInstanceMembersResponseBody(name='body'),
 }
 
@@ -1629,6 +1678,7 @@ model DescribeInternetOpenIpResponseBody = {
 
 model DescribeInternetOpenIpResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeInternetOpenIpResponseBody(name='body'),
 }
 
@@ -1693,6 +1743,7 @@ model DescribeInternetTrafficTrendResponseBody = {
 
 model DescribeInternetTrafficTrendResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeInternetTrafficTrendResponseBody(name='body'),
 }
 
@@ -1801,6 +1852,7 @@ model DescribeInvadeEventListResponseBody = {
 
 model DescribeInvadeEventListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeInvadeEventListResponseBody(name='body'),
 }
 
@@ -1948,6 +2000,7 @@ The priority value starts from 1. A smaller priority value indicates a higher pr
 
 model DescribeNatFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeNatFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -1984,6 +2037,7 @@ model DescribeNatFirewallPolicyPriorUsedResponseBody = {
 
 model DescribeNatFirewallPolicyPriorUsedResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeNatFirewallPolicyPriorUsedResponseBody(name='body'),
 }
 
@@ -2194,6 +2248,7 @@ model DescribeOutgoingDestinationIPResponseBody = {
 
 model DescribeOutgoingDestinationIPResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeOutgoingDestinationIPResponseBody(name='body'),
 }
 
@@ -2353,6 +2408,7 @@ model DescribeOutgoingDomainResponseBody = {
 
 model DescribeOutgoingDomainResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeOutgoingDomainResponseBody(name='body'),
 }
 
@@ -2379,6 +2435,7 @@ model DescribePolicyAdvancedConfigResponseBody = {
 
 model DescribePolicyAdvancedConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribePolicyAdvancedConfigResponseBody(name='body'),
 }
 
@@ -2427,6 +2484,7 @@ model DescribePolicyPriorUsedResponseBody = {
 
 model DescribePolicyPriorUsedResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribePolicyPriorUsedResponseBody(name='body'),
 }
 
@@ -2627,6 +2685,7 @@ model DescribeRiskEventGroupResponseBody = {
 
 model DescribeRiskEventGroupResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeRiskEventGroupResponseBody(name='body'),
 }
 
@@ -2676,6 +2735,7 @@ model DescribeRiskEventPayloadResponseBody = {
 
 model DescribeRiskEventPayloadResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeRiskEventPayloadResponseBody(name='body'),
 }
 
@@ -2685,26 +2745,30 @@ async function describeRiskEventPayload(request: DescribeRiskEventPayloadRequest
 }
 
 model DescribeTrFirewallPolicyBackUpAssociationListRequest {
-  firewallId?: string(name='FirewallId', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
-  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', position='Query'),
+  firewallId?: string(name='FirewallId', description='The instance ID of the VPC firewall.', example='vfw-tr-8b268ce1b26e4c68****', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the response. Valid values:
+
+*   **zh** (default): Chinese
+*   **en**: English', example='zh', position='Query'),
+  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', description='The ID of the routing policy.', example='policy-5dcafb12ff794a56****', position='Query'),
 }
 
 model DescribeTrFirewallPolicyBackUpAssociationListResponseBody = {
   policyAssociationBackupConfigs?: [ 
     {
-      candidateId?: string(name='CandidateId'),
-      candidateName?: string(name='CandidateName'),
-      candidateType?: string(name='CandidateType', example='VPC'),
-      currentRouteTableId?: string(name='CurrentRouteTableId'),
-      originalRouteTableId?: string(name='OriginalRouteTableId'),
+      candidateId?: string(name='CandidateId', description='The ID of the traffic redirection instance.', example='vpc-wz9grb8ng3y7h7lf2****'),
+      candidateName?: string(name='CandidateName', description='The name of the traffic redirection instance.'),
+      candidateType?: string(name='CandidateType', description='The type of the traffic redirection instance.', example='VPC'),
+      currentRouteTableId?: string(name='CurrentRouteTableId', description='The route table that is used after traffic redirection.', example='vtb-wz9898grickmh5j09****'),
+      originalRouteTableId?: string(name='OriginalRouteTableId', description='The ID of the route table.', example='vtb-wz9slp3s7m4qrzvnq****'),
     }
-  ](name='PolicyAssociationBackupConfigs'),
-  requestId?: string(name='RequestId', example='C264A756-9B48-57E3-B312-716941E146C6'),
+  ](name='PolicyAssociationBackupConfigs', description='The route tables.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C264A756-9B48-57E3-B312-716941E146C6'),
 }
 
 model DescribeTrFirewallPolicyBackUpAssociationListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeTrFirewallPolicyBackUpAssociationListResponseBody(name='body'),
 }
 
@@ -2763,6 +2827,7 @@ model DescribeTrFirewallV2RoutePolicyListResponseBody = {
 
 model DescribeTrFirewallV2RoutePolicyListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeTrFirewallV2RoutePolicyListResponseBody(name='body'),
 }
 
@@ -2818,6 +2883,7 @@ model DescribeTrFirewallsV2DetailResponseBody = {
 
 model DescribeTrFirewallsV2DetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeTrFirewallsV2DetailResponseBody(name='body'),
 }
 
@@ -2932,6 +2998,7 @@ model DescribeTrFirewallsV2ListResponseBody = {
 
 model DescribeTrFirewallsV2ListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeTrFirewallsV2ListResponseBody(name='body'),
 }
 
@@ -2962,6 +3029,7 @@ model DescribeTrFirewallsV2RouteListResponseBody = {
 
 model DescribeTrFirewallsV2RouteListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeTrFirewallsV2RouteListResponseBody(name='body'),
 }
 
@@ -2993,6 +3061,7 @@ model DescribeUserAssetIPTrafficInfoResponseBody = {
 
 model DescribeUserAssetIPTrafficInfoResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeUserAssetIPTrafficInfoResponseBody(name='body'),
 }
 
@@ -3030,6 +3099,7 @@ model DescribeUserIPSWhitelistResponseBody = {
 
 model DescribeUserIPSWhitelistResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeUserIPSWhitelistResponseBody(name='body'),
 }
 
@@ -3081,6 +3151,7 @@ Valid values:
 
 model DescribeVpcFirewallAclGroupListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallAclGroupListResponseBody(name='body'),
 }
 
@@ -3175,6 +3246,7 @@ model DescribeVpcFirewallCenDetailResponseBody = {
 
 model DescribeVpcFirewallCenDetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallCenDetailResponseBody(name='body'),
 }
 
@@ -3320,6 +3392,7 @@ model DescribeVpcFirewallCenListResponseBody = {
 
 model DescribeVpcFirewallCenListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallCenListResponseBody(name='body'),
 }
 
@@ -3366,11 +3439,17 @@ Maximum value: 50.', example='10', position='Query'),
 *   **ANY**: all protocol types
 
 > If you do not specify this parameter, access control policies of all protocol types are queried.', example='TCP', position='Query'),
-  release?: string(name='Release', description='Specifies whether the access control policy is enabled. By default, an access control policy is enabled after the policy is created. Valid values:
+  release?: string(name='Release', description='The status of the access control policy. Valid values:
 
-*   **true**: The access control policy is enabled.
-*   **false**: The access control policy is disabled.', example='true', position='Query'),
-  repeatType?: string(name='RepeatType', position='Query'),
+*   **true**: enabled
+*   **false**: disabled', example='true', position='Query'),
+  repeatType?: string(name='RepeatType', description='The recurrence type for the access control policy to take effect. Valid values:
+
+*   **Permanent** (default): The policy always takes effect.
+*   **None**: The policy takes effect for only once.
+*   **Daily**: The policy takes effect on a daily basis.
+*   **Weekly**: The policy takes effect on a weekly basis.
+*   **Monthly**: The policy takes effect on a monthly basis.', example='Permanent', position='Query'),
   source?: string(name='Source', description='The source address in the access control policy. Fuzzy match is supported.
 
 > The value of this parameter can be a CIDR block or an address book name.', example='192.0.XX.XX/24', position='Query'),
@@ -3388,11 +3467,11 @@ model DescribeVpcFirewallControlPolicyResponseBody = {
       aclAction?: string(name='AclAction', description='The action that Cloud Firewall performs on the traffic. Valid values:
 
 *   **accept**: allows the traffic.
-*   **drop**: blocks the traffic.
+*   **drop**: denies the traffic.
 *   **log**: monitors the traffic.', example='accept'),
-      aclUuid?: string(name='AclUuid', description='The unique ID of the access control policy.', example='4037fbf7-3e39-4634-92a4-d0155247****'),
+      aclUuid?: string(name='AclUuid', description='The UUID of the access control policy.', example='4037fbf7-3e39-4634-92a4-d0155247****'),
       applicationId?: string(name='ApplicationId', description='The application ID in the access control policy.', example='10**'),
-      applicationName?: string(name='ApplicationName', description='The application type in the access control policy. Valid values:
+      applicationName?: string(name='ApplicationName', description='The application types supported by the access control policy. We recommend that you specify ApplicationNameList. Valid values:
 
 *   **HTTP**
 *   **HTTPS**
@@ -3408,12 +3487,12 @@ model DescribeVpcFirewallControlPolicyResponseBody = {
 *   **Memcache**
 *   **SSL**
 *   **ANY**: all application types', example='HTTP'),
-      applicationNameList?: [ string ](name='ApplicationNameList'),
-      createTime?: long(name='CreateTime'),
+      applicationNameList?: [ string ](name='ApplicationNameList', description='The application types supported by the access control policy.'),
+      createTime?: long(name='CreateTime', description='The time when the access control policy was created. The value is a UNIX timestamp. Unit: seconds.', example='1761062400'),
       description?: string(name='Description', description='The description of the access control policy.', example='test'),
       destPort?: string(name='DestPort', description='The destination port in the access control policy.', example='80'),
       destPortGroup?: string(name='DestPortGroup', description='The name of the destination port address book in the access control policy.', example='my_port_group'),
-      destPortGroupPorts?: [ string ](name='DestPortGroupPorts', description='An array that consists of the ports in the destination port address book of the access control policy.'),
+      destPortGroupPorts?: [ string ](name='DestPortGroupPorts', description='The ports in the destination port address book of the access control policy.'),
       destPortType?: string(name='DestPortType', description='The type of the destination port in the access control policy. Valid values:
 
 *   **port**: port
@@ -3423,7 +3502,7 @@ model DescribeVpcFirewallControlPolicyResponseBody = {
 *   If **DestinationType** is set to `net`, the value of this parameter is a CIDR block.
 *   If **DestinationType** is set to `domain`, the value of this parameter is a domain name.
 *   If **DestinationType** is set to `group`, the value of this parameter is an address book name.', example='192.0.XX.XX/24'),
-      destinationGroupCidrs?: [ string ](name='DestinationGroupCidrs', description='An array that consists of the CIDR blocks in the destination address book of the access control policy.'),
+      destinationGroupCidrs?: [ string ](name='DestinationGroupCidrs', description='The CIDR blocks in the destination address book of the access control policy.'),
       destinationGroupType?: string(name='DestinationGroupType', description='The type of the destination address book in the access control policy. Valid values:
 
 *   **ip**: an address book that includes one or more CIDR blocks
@@ -3433,11 +3512,13 @@ model DescribeVpcFirewallControlPolicyResponseBody = {
 *   **net**: CIDR block
 *   **group**: address book
 *   **domain**: domain name', example='net'),
-      endTime?: long(name='EndTime'),
-      hitLastTime?: long(name='HitLastTime'),
+      endTime?: long(name='EndTime', description='The time when the access control policy stops taking effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of StartTime.
+
+>  If RepeatType is set to Permanent, EndTime is left empty. If RepeatType is set to None, Daily, Weekly, or Monthly, EndTime must be specified.', example='1694764800'),
+      hitLastTime?: long(name='HitLastTime', description='The time when the access control policy was last hit. The value is a UNIX timestamp. Unit: seconds.', example='1579261141'),
       hitTimes?: long(name='HitTimes', description='The number of hits for the access control policy.', example='100'),
       memberUid?: string(name='MemberUid', description='The UID of the member that is managed by your Alibaba Cloud account.', example='258039427902****'),
-      modifyTime?: long(name='ModifyTime'),
+      modifyTime?: long(name='ModifyTime', description='The time when the access control policy was modified. The value is a UNIX timestamp. Unit: seconds.', example='1761062400'),
       order?: int32(name='Order', description='The priority of the access control policy.
 
 The priority value starts from 1. A smaller priority value indicates a higher priority.', example='1'),
@@ -3447,34 +3528,56 @@ The priority value starts from 1. A smaller priority value indicates a higher pr
 *   **UDP**
 *   **ICMP**
 *   **ANY**: all protocol types', example='TCP'),
-      release?: string(name='Release', description='Indicates whether the access control policy is enabled. By default, an access control policy is enabled after the policy is created. Valid values:
+      release?: string(name='Release', description='Indicates whether the access control policy is enabled. By default, an access control policy is enabled after it is created. Valid values:
 
-*   **true**: The access control policy is enabled.
-*   **false**: The access control policy is disabled.', example='true'),
-      repeatDays?: [ long ](name='RepeatDays'),
-      repeatEndTime?: string(name='RepeatEndTime'),
-      repeatStartTime?: string(name='RepeatStartTime'),
-      repeatType?: string(name='RepeatType'),
+*   **true**
+*   **false**', example='true'),
+      repeatDays?: [ long ](name='RepeatDays', description='The days of a week or of a month on which the access control policy takes effect.
+
+*   If RepeatType is set to `Permanent`, `None`, or `Daily`, RepeatDays is left empty. Example: \\[].
+*   If RepeatType is set to Weekly, RepeatDays must be specified. Example: \\[0, 6].
+
+>  If RepeatType is set to Weekly, the fields in the value of RepeatDays cannot be repeated.
+
+*   If RepeatType is set to `Monthly`, RepeatDays must be specified. Example: \\[1, 31].
+
+>  If RepeatType is set to Monthly, the fields in the value of RepeatDays cannot be repeated.'),
+      repeatEndTime?: string(name='RepeatEndTime', description='The point in time when the recurrence ends. Example: 23:30. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of RepeatStartTime.
+
+>  If RepeatType is set to Permanent or None, RepeatEndTime is left empty. If RepeatType is set to Daily, Weekly, or Monthly, RepeatEndTime must be specified.', example='23:30'),
+      repeatStartTime?: string(name='RepeatStartTime', description='The point in time when the recurrence starts. Example: 08:00. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of RepeatEndTime.
+
+>  If RepeatType is set to Permanent or None, RepeatStartTime is left empty. If RepeatType is set to Daily, Weekly, or Monthly, this parameter must be specified.', example='08:00'),
+      repeatType?: string(name='RepeatType', description='The recurrence type for the access control policy to take effect. Valid values:
+
+*   **Permanent** (default): The policy always takes effect.
+*   **None**: The policy takes effect for only once.
+*   **Daily**: The policy takes effect on a daily basis.
+*   **Weekly**: The policy takes effect on a weekly basis.
+*   **Monthly**: The policy takes effect on a monthly basis.', example='Permanent'),
       source?: string(name='Source', description='The source address in the access control policy. Valid values:
 
 *   If **SourceType** is set to `net`, the value of this parameter is a CIDR block.
 *   If **SourceType** is set to `group`, the value of this parameter is an address book name.', example='192.0.XX.XX/24'),
-      sourceGroupCidrs?: [ string ](name='SourceGroupCidrs', description='An array that consists of the CIDR blocks in the source address book of the access control policy.'),
-      sourceGroupType?: string(name='SourceGroupType', description='The type of the source address in the access control policy. The value is fixed as **ip**. The value indicates an address book that includes one or more CIDR blocks.', example='ip'),
+      sourceGroupCidrs?: [ string ](name='SourceGroupCidrs', description='The CIDR blocks in the source address book of the access control policy.'),
+      sourceGroupType?: string(name='SourceGroupType', description='The type of the source address book in the access control policy. The value is fixed as **ip**. The value indicates an address book that includes one or more CIDR blocks.', example='ip'),
       sourceType?: string(name='SourceType', description='The type of the source address in the access control policy. Valid values:
 
 *   **net**: CIDR block
 *   **group**: address book', example='net'),
-      spreadCnt?: long(name='SpreadCnt'),
-      startTime?: long(name='StartTime'),
+      spreadCnt?: long(name='SpreadCnt', description='The total quota consumed by the returned access control policies, which is the sum of the quota consumed by each policy. The quota that is consumed by an access control policy is calculated by using the following formula: Quota that is consumed by an access control policy = Number of source addresses × Number of destination addresses (number of CIDR blocks or domain names) × Number of applications × Number of port ranges.', example='10,000'),
+      startTime?: long(name='StartTime', description='The time when the access control policy starts to take effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of EndTime.
+
+>  If RepeatType is set to Permanent, StartTime is left empty. If RepeatType is set to None, Daily, Weekly, or Monthly, StartTime must be specified.', example='1694761200'),
     }
-  ](name='Policys', description='The information about the access control policies.'),
+  ](name='Policys', description='The access control policies.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='CBF1E9B7-D6A0-4E9E-AD3E-2B47E6C2837D'),
   totalCount?: string(name='TotalCount', description='The total number of access control policies returned.', example='20'),
 }
 
 model DescribeVpcFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -3515,6 +3618,7 @@ model DescribeVpcFirewallDefaultIPSConfigResponseBody = {
 
 model DescribeVpcFirewallDefaultIPSConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallDefaultIPSConfigResponseBody(name='body'),
 }
 
@@ -3596,6 +3700,7 @@ model DescribeVpcFirewallDetailResponseBody = {
 
 model DescribeVpcFirewallDetailResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallDetailResponseBody(name='body'),
 }
 
@@ -3728,6 +3833,7 @@ model DescribeVpcFirewallListResponseBody = {
 
 model DescribeVpcFirewallListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallListResponseBody(name='body'),
 }
 
@@ -3769,6 +3875,7 @@ model DescribeVpcFirewallPolicyPriorUsedResponseBody = {
 
 model DescribeVpcFirewallPolicyPriorUsedResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVpcFirewallPolicyPriorUsedResponseBody(name='body'),
 }
 
@@ -3940,6 +4047,7 @@ model DescribeVulnerabilityProtectedListResponseBody = {
 
 model DescribeVulnerabilityProtectedListResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: DescribeVulnerabilityProtectedListResponseBody(name='body'),
 }
 
@@ -3986,6 +4094,7 @@ model ModifyAddressBookResponseBody = {
 
 model ModifyAddressBookResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyAddressBookResponseBody(name='body'),
 }
 
@@ -4114,6 +4223,7 @@ model ModifyControlPolicyResponseBody = {
 
 model ModifyControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyControlPolicyResponseBody(name='body'),
 }
 
@@ -4154,6 +4264,7 @@ model ModifyControlPolicyPositionResponseBody = {
 
 model ModifyControlPolicyPositionResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyControlPolicyPositionResponseBody(name='body'),
 }
 
@@ -4187,6 +4298,7 @@ model ModifyDefaultIPSConfigResponseBody = {
 
 model ModifyDefaultIPSConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyDefaultIPSConfigResponseBody(name='body'),
 }
 
@@ -4196,19 +4308,29 @@ async function modifyDefaultIPSConfig(request: ModifyDefaultIPSConfigRequest): M
 }
 
 model ModifyFirewallV2RoutePolicySwitchRequest {
-  firewallId?: string(name='FirewallId', position='Query'),
-  lang?: string(name='Lang', example='zh', position='Query'),
-  shouldRecover?: string(name='ShouldRecover', example='false', position='Query'),
-  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', position='Query'),
-  trFirewallRoutePolicySwitchStatus?: string(name='TrFirewallRoutePolicySwitchStatus', example='open', position='Query'),
+  firewallId?: string(name='FirewallId', description='The instance ID of the virtual private cloud (VPC) firewall.', example='vfw-tr-5b202e7f0be64611****', position='Query'),
+  lang?: string(name='Lang', description='The language of the content within the response. Valid values:
+
+*   **zh** (default): Chinese
+*   **en**: English', example='zh', position='Query'),
+  shouldRecover?: string(name='ShouldRecover', description='Specifies whether to restore the traffic redirection configurations. Valid values:
+
+*   true: roll back
+*   false: withdraw', example='false', position='Query'),
+  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', description='The ID of the routing policy.', example='policy-93684cc5caa44b2e****', position='Query'),
+  trFirewallRoutePolicySwitchStatus?: string(name='TrFirewallRoutePolicySwitchStatus', description='The status of the routing policy. Valid values:
+
+*   open: enabled
+*   close: disabled', example='open', position='Query'),
 }
 
 model ModifyFirewallV2RoutePolicySwitchResponseBody = {
-  requestId?: string(name='RequestId', example='1F6D4A8D-EC01-5996-A61A-AA3B56490C00'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1F6D4A8D-EC01-5996-A61A-AA3B56490C00'),
 }
 
 model ModifyFirewallV2RoutePolicySwitchResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyFirewallV2RoutePolicySwitchResponseBody(name='body'),
 }
 
@@ -4232,6 +4354,7 @@ model ModifyInstanceMemberAttributesResponseBody = {
 
 model ModifyInstanceMemberAttributesResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyInstanceMemberAttributesResponseBody(name='body'),
 }
 
@@ -4333,6 +4456,7 @@ model ModifyNatFirewallControlPolicyResponseBody = {
 
 model ModifyNatFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyNatFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -4366,6 +4490,7 @@ model ModifyNatFirewallControlPolicyPositionResponseBody = {
 
 model ModifyNatFirewallControlPolicyPositionResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyNatFirewallControlPolicyPositionResponseBody(name='body'),
 }
 
@@ -4392,6 +4517,7 @@ model ModifyPolicyAdvancedConfigResponseBody = {
 
 model ModifyPolicyAdvancedConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyPolicyAdvancedConfigResponseBody(name='body'),
 }
 
@@ -4418,6 +4544,7 @@ model ModifyTrFirewallV2ConfigurationResponseBody = {
 
 model ModifyTrFirewallV2ConfigurationResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyTrFirewallV2ConfigurationResponseBody(name='body'),
 }
 
@@ -4429,28 +4556,29 @@ async function modifyTrFirewallV2Configuration(request: ModifyTrFirewallV2Config
 model ModifyTrFirewallV2RoutePolicyScopeRequest {
   destCandidateList?: [ 
     {
-      candidateId?: string(name='CandidateId'),
+      candidateId?: string(name='CandidateId', example='vpc-2ze9epancaw8t4shajuzi'),
       candidateType?: string(name='CandidateType', example='VPC'),
     }
   ](name='DestCandidateList', shrink='json', position='Query'),
-  firewallId?: string(name='FirewallId', position='Query'),
+  firewallId?: string(name='FirewallId', example='vfw-tr-6520de0253bc4669bbd9', position='Query'),
   lang?: string(name='Lang', example='zh', position='Query'),
   srcCandidateList?: [ 
     {
-      candidateId?: string(name='CandidateId'),
+      candidateId?: string(name='CandidateId', example='vpc-2ze9epancaw8t4shajuzi'),
       candidateType?: string(name='CandidateType', example='VPC'),
     }
   ](name='SrcCandidateList', shrink='json', position='Query'),
-  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', position='Query'),
+  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', example='policy-4d724d0139df48f18091', position='Query'),
 }
 
 model ModifyTrFirewallV2RoutePolicyScopeResponseBody = {
   requestId?: string(name='RequestId', example='E7D4D635-0C70-5CEB-A609-851E94D51FBB'),
-  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId'),
+  trFirewallRoutePolicyId?: string(name='TrFirewallRoutePolicyId', example='policy-4d724d0139df48f18091'),
 }
 
 model ModifyTrFirewallV2RoutePolicyScopeResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyTrFirewallV2RoutePolicyScopeResponseBody(name='body'),
 }
 
@@ -4475,6 +4603,7 @@ model ModifyUserIPSWhitelistResponseBody = {
 
 model ModifyUserIPSWhitelistResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyUserIPSWhitelistResponseBody(name='body'),
 }
 
@@ -4501,6 +4630,7 @@ model ModifyVpcFirewallCenConfigureResponseBody = {
 
 model ModifyVpcFirewallCenConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallCenConfigureResponseBody(name='body'),
 }
 
@@ -4536,6 +4666,7 @@ model ModifyVpcFirewallCenSwitchStatusResponseBody = {
 
 model ModifyVpcFirewallCenSwitchStatusResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallCenSwitchStatusResponseBody(name='body'),
 }
 
@@ -4581,6 +4712,7 @@ model ModifyVpcFirewallConfigureResponseBody = {
 
 model ModifyVpcFirewallConfigureResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallConfigureResponseBody(name='body'),
 }
 
@@ -4606,7 +4738,7 @@ Valid values:
   aclUuid: string(name='AclUuid', description='The unique ID of the access control policy.
 
 If you want to modify the configurations of an access control policy, you must provide the unique ID of the policy. You can call the [DescribeVpcFirewallControlPolicy](~~159758~~) operation to query the ID.', example='00281255-d220-4db1-8f4f-c4df221a****', position='Query'),
-  applicationName?: string(name='ApplicationName', description='The application type in the access control policy.
+  applicationName?: string(name='ApplicationName', description='The application type used in the access control policy.
 
 Valid values:
 
@@ -4626,7 +4758,7 @@ Valid values:
 *   Memcache
 *   SSL
 *   ANY: all application types', example='HTTP', position='Query'),
-  applicationNameList?: [ string ](name='ApplicationNameList', position='Query'),
+  applicationNameList?: [ string ](name='ApplicationNameList', description='The application names.', position='Query'),
   description: string(name='Description', description='The description of the access control policy.', example='test', position='Query'),
   destPort?: string(name='DestPort', description='The destination port in the access control policy.', example='80', position='Query'),
   destPortGroup?: string(name='DestPortGroup', description='The name of the destination port address book in the access control policy.', example='my_port_group', position='Query'),
@@ -4654,7 +4786,9 @@ Valid values:
 *   **net**: CIDR block
 *   **group**: address book
 *   **domain**: domain name', example='net', position='Query'),
-  endTime?: long(name='EndTime', position='Query'),
+  endTime?: long(name='EndTime', description='The time when the access control policy stops taking effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of StartTime.
+
+>  If you set RepeatType to Permanent, leave this parameter empty. If you set RepeatType to None, Daily, Weekly, or Monthly, you must specify this parameter.', example='1694764800', position='Query'),
   lang?: string(name='Lang', description='The language of the content within the response.
 
 Valid values:
@@ -4673,10 +4807,29 @@ Valid values:
 
 *   **true**: enables the access control policy.
 *   **false**: disables the access control policy.', example='true', position='Query'),
-  repeatDays?: [ long ](name='RepeatDays', position='Query'),
-  repeatEndTime?: string(name='RepeatEndTime', position='Query'),
-  repeatStartTime?: string(name='RepeatStartTime', position='Query'),
-  repeatType?: string(name='RepeatType', position='Query'),
+  repeatDays?: [ long ](name='RepeatDays', description='The days of a week or of a month on which the access control policy takes effect.
+
+*   If you set RepeatType to `Permanent`, `None`, or `Daily`, the value of this parameter is an empty array. Example: \\[].
+*   If you set RepeatType to Weekly, you must specify this parameter. Example: \\[0, 6].
+
+>  If you set RepeatType to Weekly, the fields in the value of this parameter cannot be repeated.
+
+*   If you set RepeatType to `Monthly`, you must specify this parameter. Example: \\[1, 31].
+
+>  If you set RepeatType to Monthly, the fields in the value of this parameter cannot be repeated.', position='Query'),
+  repeatEndTime?: string(name='RepeatEndTime', description='The point in time when the recurrence ends. Example: 23:30. The value must be on the hour or on the half hour, and at least 30 minutes later than the value of RepeatStartTime.
+
+>  If you set RepeatType to Permanent or None, leave this parameter empty. If you set RepeatType to Daily, Weekly, or Monthly, you must specify this parameter.', example='23:30', position='Query'),
+  repeatStartTime?: string(name='RepeatStartTime', description='The point in time when the recurrence starts. Example: 08:00. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of RepeatEndTime.
+
+>  If you set RepeatType to Permanent or None, leave this parameter empty. If you set RepeatType to Daily, Weekly, or Monthly, you must specify this parameter.', example='08:00', position='Query'),
+  repeatType?: string(name='RepeatType', description='The recurrence type for the access control policy to take effect. Valid values:
+
+*   **Permanent** (default): The policy always takes effect.
+*   **None**: The policy takes effect for only once.
+*   **Daily**: The policy takes effect on a daily basis.
+*   **Weekly**: The policy takes effect on a weekly basis.
+*   **Monthly**: The policy takes effect on a monthly basis.', example='Permanent', position='Query'),
   source: string(name='Source', description='The source address in the access control policy.
 
 Valid values:
@@ -4694,7 +4847,9 @@ Valid values:
 
 *   **net**: CIDR block
 *   **group**: address book', example='net', position='Query'),
-  startTime?: long(name='StartTime', position='Query'),
+  startTime?: long(name='StartTime', description='The time when the access control policy starts to take effect. The value is a UNIX timestamp. Unit: seconds. The value must be on the hour or on the half hour, and at least 30 minutes earlier than the value of EndTime.
+
+>  If you set RepeatType to Permanent, leave this parameter empty. If you set RepeatType to None, Daily, Weekly, or Monthly, you must specify this parameter.', example='1694761200', position='Query'),
   vpcFirewallId: string(name='VpcFirewallId', description='The instance ID of the VPC firewall. You can call the [DescribeVpcFirewallAclGroupList](~~159760~~) operation to query the ID.
 
 *   If the VPC firewall is used to protect a CEN instance, the value of this parameter must be the ID of the CEN instance.
@@ -4712,6 +4867,7 @@ model ModifyVpcFirewallControlPolicyResponseBody = {
 
 model ModifyVpcFirewallControlPolicyResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallControlPolicyResponseBody(name='body'),
 }
 
@@ -4759,6 +4915,7 @@ model ModifyVpcFirewallControlPolicyPositionResponseBody = {
 
 model ModifyVpcFirewallControlPolicyPositionResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallControlPolicyPositionResponseBody(name='body'),
 }
 
@@ -4804,6 +4961,7 @@ model ModifyVpcFirewallDefaultIPSConfigResponseBody = {
 
 model ModifyVpcFirewallDefaultIPSConfigResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallDefaultIPSConfigResponseBody(name='body'),
 }
 
@@ -4839,6 +4997,7 @@ model ModifyVpcFirewallSwitchStatusResponseBody = {
 
 model ModifyVpcFirewallSwitchStatusResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ModifyVpcFirewallSwitchStatusResponseBody(name='body'),
 }
 
@@ -4869,6 +5028,7 @@ model PutDisableAllFwSwitchResponseBody = {
 
 model PutDisableAllFwSwitchResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: PutDisableAllFwSwitchResponseBody(name='body'),
 }
 
@@ -4906,6 +5066,7 @@ model PutDisableFwSwitchResponseBody = {
 
 model PutDisableFwSwitchResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: PutDisableFwSwitchResponseBody(name='body'),
 }
 
@@ -4935,6 +5096,7 @@ model PutEnableAllFwSwitchResponseBody = {
 
 model PutEnableAllFwSwitchResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: PutEnableAllFwSwitchResponseBody(name='body'),
 }
 
@@ -4997,6 +5159,7 @@ model PutEnableFwSwitchResponseBody = {
 
 model PutEnableFwSwitchResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: PutEnableFwSwitchResponseBody(name='body'),
 }
 
@@ -5009,6 +5172,28 @@ model PutEnableFwSwitchResponse = {
 async function putEnableFwSwitch(request: PutEnableFwSwitchRequest): PutEnableFwSwitchResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'PutEnableFwSwitch', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ReleasePostInstanceRequest {
+  instanceId?: string(name='InstanceId', example='cfw_elasticity_public_cn-xxx', position='Query'),
+}
+
+model ReleasePostInstanceResponseBody = {
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  releaseStatus?: boolean(name='ReleaseStatus', example='true'),
+  requestId?: string(name='RequestId', example='EE316A19-xxxx-5043-9DF1-C04458ABC570'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ReleasePostInstanceResponse = {
+  headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
+  body: ReleasePostInstanceResponseBody(name='body'),
+}
+
+async function releasePostInstance(request: ReleasePostInstanceRequest): ReleasePostInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ReleasePostInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ResetVpcFirewallRuleHitCountRequest {
@@ -5027,6 +5212,7 @@ model ResetVpcFirewallRuleHitCountResponseBody = {
 
 model ResetVpcFirewallRuleHitCountResponse = {
   headers: map[string]string(name='headers'),
+  statusCode: int32(name='statusCode'),
   body: ResetVpcFirewallRuleHitCountResponseBody(name='body'),
 }
 
