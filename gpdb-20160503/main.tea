@@ -9033,6 +9033,24 @@ model QueryContentRequest {
   collection?: string(name='Collection', example='document'),
   content?: string(name='Content'),
   DBInstanceId?: string(name='DBInstanceId', example='gp-xxxxxxxxx'),
+  fileName?: string(name='FileName'),
+  fileUrl?: string(name='FileUrl'),
+  filter?: string(name='Filter', example='title = \\"test\\"'),
+  metrics?: string(name='Metrics', example='cosine'),
+  namespace?: string(name='Namespace', example='mynamespace'),
+  namespacePassword?: string(name='NamespacePassword', example='testpassword'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  topK?: int32(name='TopK', example='10'),
+  useFullTextRetrieval?: boolean(name='UseFullTextRetrieval', example='true'),
+}
+
+model QueryContentAdvanceRequest {
+  collection?: string(name='Collection', example='document'),
+  content?: string(name='Content'),
+  DBInstanceId?: string(name='DBInstanceId', example='gp-xxxxxxxxx'),
+  fileName?: string(name='FileName'),
+  fileUrlObject?: readable(name='FileUrl'),
   filter?: string(name='Filter', example='title = \\"test\\"'),
   metrics?: string(name='Metrics', example='cosine'),
   namespace?: string(name='Namespace', example='mynamespace'),
@@ -9050,6 +9068,7 @@ model QueryContentResponseBody = {
     {
       content?: string(name='Content'),
       fileName?: string(name='FileName', example='my_doc.txt'),
+      fileURL?: string(name='FileURL'),
       id?: string(name='Id', example='doca-1234'),
       loaderMetadata?: string(name='LoaderMetadata', example='{"page_pos": 1}'),
       metadata?: map[string]string(name='Metadata'),
@@ -9064,6 +9083,10 @@ model QueryContentResponseBody = {
   message?: string(name='Message', example='success'),
   requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
   status?: string(name='Status', example='success'),
+  usage?: {
+    embeddingEntries?: string(name='EmbeddingEntries'),
+    embeddingTokens?: string(name='EmbeddingTokens'),
+  }(name='Usage'),
 }
 
 model QueryContentResponse = {
@@ -9083,6 +9106,12 @@ async function queryContentWithOptions(request: QueryContentRequest, runtime: Ut
   }
   if (!Util.isUnset(request.DBInstanceId)) {
     query['DBInstanceId'] = request.DBInstanceId;
+  }
+  if (!Util.isUnset(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
   }
   if (!Util.isUnset(request.filter)) {
     query['Filter'] = request.filter;
@@ -9128,6 +9157,80 @@ async function queryContentWithOptions(request: QueryContentRequest, runtime: Ut
 async function queryContent(request: QueryContentRequest): QueryContentResponse {
   var runtime = new Util.RuntimeOptions{};
   return queryContentWithOptions(request, runtime);
+}
+
+async function queryContentAdvance(request: QueryContentAdvanceRequest, runtime: Util.RuntimeOptions): QueryContentResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'gpdb',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var queryContentReq = new QueryContentRequest{};
+  OpenApiUtil.convert(request, queryContentReq);
+
+  if(!Util.isUnset(request.fileUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    queryContentReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var queryContentResp = queryContentWithOptions(queryContentReq, runtime);
+  return queryContentResp;
 }
 
 model RebalanceDBInstanceRequest {
