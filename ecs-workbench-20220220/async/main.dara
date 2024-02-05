@@ -1,34 +1,37 @@
 /**
  *
  */
-import Util;
-import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
 
-extends OpenApi;
-
-
-init(config: OpenApi.Config){
-  super(config);
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'ecs-workbench';
+  @version = '2022-02-20';
   @endpointRule = '';
-  
-  checkConfig(config);
-  @endpoint = getEndpoint('ecs-workbench', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+  @endpointMap = {
+  };
 }
 
-function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
-    return endpoint;
-  }
-  
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
-    return endpointMap[regionId];
-  }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+function close(): void {
+  @handler.close();
 }
 
 model LoginInstanceRequest {
+  regionId?: string(name='RegionId', position='Host'),
   instanceLoginInfo?: {
     authenticationType?: string(name='AuthenticationType', example='password/certificate'),
     certificate?: string(name='Certificate', example='----begin----
@@ -75,11 +78,11 @@ model LoginInstanceRequest {
     shortcutToken?: string(name='ShortcutToken'),
     username?: string(name='Username', example='root/Administrator'),
     vpcId?: string(name='VpcId', example='vpc-abc'),
-  }(name='InstanceLoginInfo'),
+  }(name='InstanceLoginInfo', position='Query'),
   partnerInfo?: {
     partnerId?: string(name='PartnerId', example='abc'),
     partnerName?: string(name='PartnerName', example='abc'),
-  }(name='PartnerInfo'),
+  }(name='PartnerInfo', position='Query'),
   userAccount?: {
     accountId?: long(name='AccountId', example='1234'),
     accountPlatform?: string(name='AccountPlatform', example='aas'),
@@ -92,7 +95,7 @@ model LoginInstanceRequest {
       loginLimit?: long(name='LoginLimit', example='3'),
     }(name='Options'),
     parentId?: long(name='ParentId', example='1234'),
-  }(name='UserAccount'),
+  }(name='UserAccount', position='Query'),
 }
 
 model LoginInstanceResponseBody = {
@@ -127,37 +130,8 @@ model LoginInstanceResponse = {
   body?: LoginInstanceResponseBody(name='body'),
 }
 
-async function loginInstanceWithOptions(request: LoginInstanceRequest, runtime: Util.RuntimeOptions): LoginInstanceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceLoginInfo)) {
-    query['InstanceLoginInfo'] = request.instanceLoginInfo;
-  }
-  if (!Util.isUnset(request.partnerInfo)) {
-    query['PartnerInfo'] = request.partnerInfo;
-  }
-  if (!Util.isUnset(request.userAccount)) {
-    query['UserAccount'] = request.userAccount;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'LoginInstance',
-    version = '2022-02-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
 async function loginInstance(request: LoginInstanceRequest): LoginInstanceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return loginInstanceWithOptions(request, runtime);
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'LoginInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
