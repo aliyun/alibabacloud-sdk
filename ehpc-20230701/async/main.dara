@@ -129,7 +129,6 @@ model AddImageRequest {
   }(name='ContainerImageSpec', shrink='json', position='Query'),
   description?: string(name='Description', position='Query'),
   name: string(name='Name', example='app-image', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
   VMImageSpec?: {
     imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
   }(name='VMImageSpec', shrink='json', position='Query'),
@@ -189,6 +188,7 @@ model CreateJobRequest {
             vm?: {
               image: string(name='Image', example='m-xxxx'),
               prologScript?: string(name='PrologScript'),
+              script?: string(name='Script'),
             }(name='VM'),
           }
         ](name='TaskExecutor'),
@@ -245,7 +245,6 @@ async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
 
 model GetImageRequest {
   imageId: string(name='ImageId', example='m-2ze74g5mvy4pjg******', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model GetImageResponseBody = {
@@ -296,15 +295,19 @@ model GetJobRequest {
 
 model GetJobResponseBody = {
   jobInfo?: {
+    createTime?: string(name='CreateTime'),
     deploymentPolicy?: {
       allocationSpec?: string(name='AllocationSpec', example='Dedicated'),
       network?: {
         vswitch?: [ string ](name='Vswitch'),
       }(name='Network'),
     }(name='DeploymentPolicy'),
+    endTime?: string(name='EndTime'),
     jobDescription?: string(name='JobDescription'),
     jobId?: string(name='JobId', example='job-xxxx'),
     jobName?: string(name='JobName', example='testJob'),
+    startTime?: string(name='StartTime'),
+    status?: string(name='Status'),
     tasks?: [ 
       {
         executorPolicy?: {
@@ -342,6 +345,7 @@ model GetJobResponseBody = {
               vm?: {
                 image?: string(name='Image', example='m-xxxx'),
                 prologScript?: string(name='PrologScript', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+                script?: string(name='Script'),
               }(name='VM'),
             }
           ](name='TaskExecutor'),
@@ -369,7 +373,6 @@ model ListImagesRequest {
   imageNames?: [ string ](name='ImageNames', shrink='json', position='Query'),
   pageNumber?: long(name='PageNumber', example='1', position='Query'),
   pageSize?: long(name='PageSize', example='10', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model ListImagesResponseBody = {
@@ -401,8 +404,47 @@ async function listImages(request: ListImagesRequest): ListImagesResponse {
   return @handler.do('RPC', 'ListImages', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListJobExecutorsRequest {
+  jobId?: string(name='JobId', example='Job-xxxxx', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='10', position='Query'),
+  taskName?: string(name='TaskName', description='Task ID', example='task0', position='Query'),
+}
+
+model ListJobExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason'),
+    }
+  ](name='Executors'),
+  jobId?: string(name='JobId', example='job-xxxxx'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', description='Id of the request', example='xxxx-xxxx-xxx-xxxx'),
+  taskName?: string(name='TaskName', example='task0'),
+  totalCount?: string(name='TotalCount', example='50'),
+}
+
+model ListJobExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobExecutorsResponseBody(name='body'),
+}
+
+async function listJobExecutors(request: ListJobExecutorsRequest): ListJobExecutorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListJobExecutors', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListJobsRequest {
   filter?: {
+    jobId?: string(name='JobId'),
     jobName?: string(name='JobName', example='testJob'),
     status?: string(name='Status', example='Running'),
     timeCreatedAfter?: int32(name='TimeCreatedAfter'),
@@ -420,13 +462,16 @@ model ListJobsResponseBody = {
   jobList?: [ 
     {
       createTime?: string(name='CreateTime', example='2024-01-25 12:29:21'),
+      endTime?: string(name='EndTime'),
       executorCount?: int32(name='ExecutorCount', example='1'),
       jobDescription?: string(name='JobDescription'),
       jobId?: string(name='JobId', example='job-xxx'),
       jobName?: string(name='JobName', example='testJob'),
       ownerUid?: string(name='OwnerUid', example='129xxxx'),
+      startTime?: string(name='StartTime'),
       status?: string(name='Status', example='Running'),
       taskCount?: int32(name='TaskCount', example='1'),
+      taskSustainable?: boolean(name='TaskSustainable'),
     }
   ](name='JobList'),
   pageNumber?: int32(name='PageNumber', example='1'),
@@ -448,7 +493,6 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 
 model RemoveImageRequest {
   imageId: string(name='ImageId', example='m-bp14wakr1rkxtb******', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model RemoveImageResponseBody = {
