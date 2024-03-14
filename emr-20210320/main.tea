@@ -50,14 +50,14 @@ model AckConfig {
   dataDiskSize?: int32(name='DataDiskSize'),
   dataDiskStorageClass?: string(name='DataDiskStorageClass'),
   limitCpu?: float(name='LimitCpu', description='Pod的CPU限制值。'),
-  limitMemory?: string(name='LimitMemory', description='Pod的内存限制值。'),
+  limitMemory?: float(name='LimitMemory', description='Pod的内存限制值。'),
   mountHostCgroup?: boolean(name='MountHostCgroup'),
   namespace?: string(name='Namespace', description='ack 命名空间'),
   nodeSelectors?: [
     Tag
   ](name='NodeSelectors', description='ack的节点标签限制'),
   requestCpu?: float(name='RequestCpu', description='Pod的CPU请求值'),
-  requestMemory?: string(name='RequestMemory', description='Pod的内存请求值。'),
+  requestMemory?: float(name='RequestMemory', description='Pod的内存请求值。'),
   tolerations?: [
     Toleration
   ](name='Tolerations', description='ack的节点污点容忍'),
@@ -763,6 +763,11 @@ model Operation {
   stateChangeReason?: OperationStateChangeReason(name='StateChangeReason', description='状态转换原因。'),
 }
 
+model OperationData {
+  actualDeliveredAmounts?: int32(name='actualDeliveredAmounts'),
+  toBeDeliveredAmounts?: int32(name='toBeDeliveredAmounts'),
+}
+
 model OperationStateChangeReason {
   code?: string(name='Code', description='状态码。', example='OutOfStock'),
   message?: string(name='Message', description='状态变化信息。', example='The requested resource is sold out in the specified zone, try other types of resources or other regions and zones.'),
@@ -961,6 +966,7 @@ model ScalingRule {
   adjustmentValue?: int32(name='AdjustmentValue', description='调整值。需要为正数，代表需要扩容或者缩容的实例数量。', example='100'),
   metricsTrigger?: MetricsTrigger(name='MetricsTrigger', description='按照负载伸缩描述。
 <p>'),
+  minAdjustmentValue?: int32(name='MinAdjustmentValue'),
   ruleName?: string(name='RuleName', description='规则名称。', example='scale-out-memory'),
   timeTrigger?: TimeTrigger(name='TimeTrigger', description='按照时间伸缩描述。
 <p>'),
@@ -1174,61 +1180,62 @@ model ValueConstraints {
 model CreateClusterRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='应用配置。数组元素个数N的取值范围：1~1000。'),
+  ](name='ApplicationConfigs', description='The configurations of the applications. Valid values of N: 1 to 1000.'),
   applications?: [
     Application
-  ](name='Applications', description='应用列表。数组元素个数N的取值范围：1~100。'),
+  ](name='Applications', description='The applications that you want to add to the cluster. Valid values of N: 1 to 100.'),
   bootstrapScripts?: [
     Script
-  ](name='BootstrapScripts', description='引导脚本。数组元素个数N的取值范围：1~10。'),
-  clientToken?: string(name='ClientToken', description='幂等客户端TOKEN。同一个ClientToken多次调用的返回结果一致，同一个ClientToken最多只创建一个集群。', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****'),
-  clusterName?: string(name='ClusterName', description='集群名称。长度为1~128个字符，必须以大小字母或中文开头，不能以http://和https://开头。可以包含中文、英文、数字、半角冒号（:）、下划线（_）、半角句号（.）或者短划线（-）', example='emrtest'),
-  clusterType?: string(name='ClusterType', description='创建的EMR集群类型。取值范围：
-- DATALAKE：新版数据湖。
-- OLAP：数据分析。
-- DATAFLOW：实时数据流。
-- DATASERVING：数据服务。
-- CUSTOM：自定义集群。
-- HADOOP：旧版数据湖（不推荐使用，建议使用新版数据湖）。', example='DATALAKE'),
-  deployMode?: string(name='DeployMode', description='集群中的应用部署模式。取值范围：
-- NORMAL：非高可用部署。集群1个MASTER节点。
-- HA：高可用部署。高可用部署要求至少3个MASTER节点。
+  ](name='BootstrapScripts', description='The array of scripts for the bootstrap actions. Valid values of N: 1 to 10.'),
+  clientToken?: string(name='ClientToken', description='The idempotent client token. If you call the same ClientToken multiple times, the returned results are the same. Only one cluster can be created with the same ClientToken.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****'),
+  clusterName?: string(name='ClusterName', description='The name of the cluster. The name must be 1 to 128 characters in length. It must start with a letter and cannot start with http:// or https://. It can contain letters, digits, colons (:), underscores (\\_), periods (.), and hyphens (-).', example='emrtest'),
+  clusterType?: string(name='ClusterType', description='The type of the cluster. Valid values:
 
-默认值：NORMAL。', example='HA'),
-  nodeAttributes?: NodeAttributes(name='NodeAttributes', description='节点属性。集群中的ECS节点基础属性。'),
+*   DATALAKE: data lake
+*   OLAP: online analytical processing (OLAP)
+*   DATAFLOW: Dataflow
+*   DATASERVING: DataServing
+*   CUSTOM: a custom hybrid cluster.
+*   HADOOP: the old data lake. We recommend that you use the new data lake.
+
+If you create an EMR cluster for the first time after 17:00 (UTC +8) on December 19, 2022, you cannot select the HADOOP, DATA_SCIENCE, PRESTO, or ZOOKEEPER cluster type.', example='DATALAKE'),
+  deployMode?: string(name='DeployMode', description='The deployment mode of applications in the cluster. Valid values:
+
+*   NORMAL: regular mode. A master node is deployed in the cluster.
+*   HA: high availability mode. At least three master nodes are deployed in the cluster.', example='HA'),
+  nodeAttributes?: NodeAttributes(name='NodeAttributes', description='The attributes of all Elastic Compute Service (ECS) nodes in the cluster. The basic attributes of all ECS nodes in the cluster.'),
   nodeGroups?: [
     NodeGroupConfig
-  ](name='NodeGroups', description='节点组。数组元素个数N的取值范围：1~100。
-<p>', example='NORMAL'),
-  paymentType?: string(name='PaymentType', description='集群的付费类型。取值范围：
-- PayAsYouGo：后付费。
-- Subscription：预付费。
+  ](name='NodeGroups', description='The array of configurations of the node groups. Valid values of N: 1 to 100.', example='NORMAL'),
+  paymentType?: string(name='PaymentType', description='The billing cycle of the instance. Valid values:
 
-默认值：PayAsYouGo。', example='PayAsYouGo'),
-  regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
-  releaseVersion?: string(name='ReleaseVersion', description='EMR发行版。', example='EMR-5.8.0'),
-  resourceGroupId?: string(name='ResourceGroupId', description='集群所在的企业资源组ID。', example='rg-acfmzabjyop****'),
-  securityMode?: string(name='SecurityMode', description='Kerberos安全模式。取值范围：
-- NORMAL：普通模式，不开启Kerberos模式。
-- KERBEROS：开启Kerberos模式。
+*   PayAsYouGo: pay-as-you-go
+*   Subscription: subscription
 
-默认值：NORMAL', example='NORMAL'),
-  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='预付费配置。当PaymentType取值Subscription时该参数生效。'),
+Default value: PayAsYouGo.', example='PayAsYouGo'),
+  regionId?: string(name='RegionId', description='The ID of the region in which you want to create the instance.', example='cn-hangzhou'),
+  releaseVersion?: string(name='ReleaseVersion', description='The version of EMR. You can view the EMR release version on the EMR cluster purchase page.', example='EMR-5.8.0'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which to assign the ENI.', example='rg-acfmzabjyop****'),
+  securityMode?: string(name='SecurityMode', description='The security mode of the cluster. Valid values:
+
+*   NORMAL: regular mode. Kerberos is not enabled.
+*   KERBEROS: Kerberos mode. Kerberos is enabled.', example='NORMAL'),
+  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations. This parameter is required when the PaymentType parameter is set to Subscription.'),
   tags?: [
     Tag
-  ](name='Tags', description='标签。数组元数个数N的取值范围：0~20。', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****'),
+  ](name='Tags', description='The tag that you want to add to the cloud desktop. Valid values of N: 0 to 20.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****'),
 }
 
 model CreateClusterResponseBody = {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac7f7***'),
-  operationId?: string(name='OperationId', description='操作ID。', example='op-13c37a77c505****'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  clusterId?: string(name='ClusterId', description='The ID of cluster.', example='c-b933c5aac7f7***'),
+  operationId?: string(name='OperationId', description='The ID of the operation.', example='op-13c37a77c505****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model CreateClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateClusterResponseBody(name='body'),
 }
 
 async function createClusterWithOptions(request: CreateClusterRequest, runtime: Util.RuntimeOptions): CreateClusterResponse {
@@ -1316,9 +1323,9 @@ model CreateNodeGroupResponseBody = {
 }
 
 model CreateNodeGroupResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateNodeGroupResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateNodeGroupResponseBody(name='body'),
 }
 
 /**
@@ -1382,9 +1389,9 @@ model DecreaseNodesResponseBody = {
 }
 
 model DecreaseNodesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DecreaseNodesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DecreaseNodesResponseBody(name='body'),
 }
 
 /**
@@ -1451,9 +1458,9 @@ model DeleteClusterResponseBody = {
 }
 
 model DeleteClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteClusterResponseBody(name='body'),
 }
 
 async function deleteClusterWithOptions(request: DeleteClusterRequest, runtime: Util.RuntimeOptions): DeleteClusterResponse {
@@ -1485,72 +1492,6 @@ async function deleteClusterWithOptions(request: DeleteClusterRequest, runtime: 
 async function deleteCluster(request: DeleteClusterRequest): DeleteClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteClusterWithOptions(request, runtime);
-}
-
-model GetApmDataRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。非必传参数。', example='c-b933c5aac8fe****'),
-  componentName?: string(name='ComponentName'),
-  language?: string(name='Language'),
-  provider?: string(name='Provider'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定'),
-}
-
-model GetApmDataResponseBody = {
-  data?: {
-    data?: string(name='Data'),
-    type?: string(name='Type'),
-  }(name='Data', description='Created on 2022/7/11 3:16 PM'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-}
-
-model GetApmDataResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetApmDataResponseBody(name='body'),
-}
-
-async function getApmDataWithOptions(request: GetApmDataRequest, runtime: Util.RuntimeOptions): GetApmDataResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.componentName)) {
-    query['ComponentName'] = request.componentName;
-  }
-  if (!Util.isUnset(request.language)) {
-    query['Language'] = request.language;
-  }
-  if (!Util.isUnset(request.provider)) {
-    query['Provider'] = request.provider;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    query['ResourceGroupId'] = request.resourceGroupId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetApmData',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getApmData(request: GetApmDataRequest): GetApmDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getApmDataWithOptions(request, runtime);
 }
 
 model GetApplicationRequest {
@@ -1593,9 +1534,9 @@ model GetApplicationResponseBody = {
 }
 
 model GetApplicationResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetApplicationResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetApplicationResponseBody(name='body'),
 }
 
 /**
@@ -1657,7 +1598,7 @@ model GetAutoScalingActivityResponseBody = {
     activityId?: string(name='ActivityId', description='The ID of the scaling activity.', example='asa-36373b084d6b4b13aa50f4129a9e****'),
     activityResults?: [
       ScalingActivityResult
-    ](name='ActivityResults', description='The instances corresponding to this scaling activity.'),
+    ](name='ActivityResults', description='The instances that correspond to the scaling activity.'),
     activityState?: string(name='ActivityState', description='The status of the scaling activity. Valid values:
 
 *   REJECTED
@@ -1678,13 +1619,13 @@ model GetAutoScalingActivityResponseBody = {
     ruleDetail?: ScalingRule(name='RuleDetail', description='The description of the scaling rule.'),
     ruleName?: string(name='RuleName', description='The name of the scaling rule.', example='scaling-out-memory'),
     startTime?: long(name='StartTime', description='The time when scaling started.', example='1639714634819'),
-  }(name='ScalingActivity'),
+  }(name='ScalingActivity', description='The information about the scaling activity.'),
 }
 
 model GetAutoScalingActivityResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAutoScalingActivityResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAutoScalingActivityResponseBody(name='body'),
 }
 
 /**
@@ -1771,9 +1712,9 @@ model GetAutoScalingPolicyResponseBody = {
 }
 
 model GetAutoScalingPolicyResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAutoScalingPolicyResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAutoScalingPolicyResponseBody(name='body'),
 }
 
 /**
@@ -1824,19 +1765,19 @@ async function getAutoScalingPolicy(request: GetAutoScalingPolicyRequest): GetAu
 }
 
 model GetClusterRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster.', example='c-b933c5aac8fe****'),
+  regionId?: string(name='RegionId', description='The ID of the region in which you want to create the instance.', example='cn-hangzhou'),
 }
 
 model GetClusterResponseBody = {
-  cluster?: Cluster(name='Cluster'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  cluster?: Cluster(name='Cluster', description='The details of the master instance.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetClusterResponseBody(name='body'),
 }
 
 async function getClusterWithOptions(request: GetClusterRequest, runtime: Util.RuntimeOptions): GetClusterResponse {
@@ -1922,9 +1863,9 @@ model GetDoctorApplicationResponseBody = {
 }
 
 model GetDoctorApplicationResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorApplicationResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorApplicationResponseBody(name='body'),
 }
 
 /**
@@ -2058,9 +1999,9 @@ model GetDoctorComputeSummaryResponseBody = {
 }
 
 model GetDoctorComputeSummaryResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorComputeSummaryResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorComputeSummaryResponseBody(name='body'),
 }
 
 /**
@@ -2215,9 +2156,9 @@ model GetDoctorHBaseClusterResponseBody = {
 }
 
 model GetDoctorHBaseClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHBaseClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHBaseClusterResponseBody(name='body'),
 }
 
 /**
@@ -2315,9 +2256,9 @@ model GetDoctorHBaseRegionResponseBody = {
 }
 
 model GetDoctorHBaseRegionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHBaseRegionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHBaseRegionResponseBody(name='body'),
 }
 
 /**
@@ -2446,9 +2387,9 @@ model GetDoctorHBaseRegionServerResponseBody = {
 }
 
 model GetDoctorHBaseRegionServerResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHBaseRegionServerResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHBaseRegionServerResponseBody(name='body'),
 }
 
 /**
@@ -2670,9 +2611,9 @@ model GetDoctorHBaseTableResponseBody = {
 }
 
 model GetDoctorHBaseTableResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHBaseTableResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHBaseTableResponseBody(name='body'),
 }
 
 /**
@@ -2995,9 +2936,9 @@ model GetDoctorHDFSClusterResponseBody = {
 }
 
 model GetDoctorHDFSClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHDFSClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHDFSClusterResponseBody(name='body'),
 }
 
 /**
@@ -3064,19 +3005,19 @@ model GetDoctorHDFSDirectoryResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='coldDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='-182636577752'),
-      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Size of the cold data size'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='5570958082267'),
-      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of cold data size'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
         value?: float(name='Value', description='The value of the metric.', example='-0.03'),
-      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       emptyFileCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of empty files'),
         name?: string(name='Name', description='The name of the metric.', example='emptyFileCount'),
@@ -3118,19 +3059,19 @@ model GetDoctorHDFSDirectoryResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='hotDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='123154'),
-      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Size of the hot data size'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='6701531944206'),
-      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of hot data size'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
         value?: float(name='Value', description='The value of the metric.', example='0.1114'),
-      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       largeFileCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of large files'),
         name?: string(name='Name', description='The name of the metric.', example='largeFileCount'),
@@ -3208,7 +3149,7 @@ model GetDoctorHDFSDirectoryResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='totalDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='256482228248'),
-      }(name='TotalDataDayGrowthSize', description='The daily incremental of the total data volume.'),
+      }(name='TotalDataDayGrowthSize', description='The daily incremental of the total amount of data.'),
       totalDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
         name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
@@ -3244,19 +3185,19 @@ model GetDoctorHDFSDirectoryResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='warmDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='-64806998319'),
-      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Size of the warm data size'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='4062349775577'),
-      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of warm data size'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
         value?: float(name='Value', description='The value of the metric.', example='-0.015'),
-      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
     }(name='Metrics', description='The metric information.'),
     user?: string(name='User', description='The directory owner.', example='DW'),
   }(name='Data', description='The analysis results of the HDFS directory.'),
@@ -3264,9 +3205,9 @@ model GetDoctorHDFSDirectoryResponseBody = {
 }
 
 model GetDoctorHDFSDirectoryResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHDFSDirectoryResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHDFSDirectoryResponseBody(name='body'),
 }
 
 /**
@@ -3357,9 +3298,9 @@ model GetDoctorHDFSUGIResponseBody = {
 }
 
 model GetDoctorHDFSUGIResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHDFSUGIResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHDFSUGIResponseBody(name='body'),
 }
 
 /**
@@ -3714,9 +3655,9 @@ model GetDoctorHiveClusterResponseBody = {
 }
 
 model GetDoctorHiveClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHiveClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHiveClusterResponseBody(name='body'),
 }
 
 /**
@@ -3776,19 +3717,19 @@ model GetDoctorHiveDatabaseRequest {
 model GetDoctorHiveDatabaseResponseBody = {
   data?: {
     analysis?: {
-      hiveDistributionScore?: int32(name='HiveDistributionScore', description='The score for the distribution of files of different sizes stored in the Hive database.', example='85'),
-      hiveFormatScore?: int32(name='HiveFormatScore', description='The score for the distribution of files stored in different formats in the Hive database.', example='85'),
+      hiveDistributionScore?: int32(name='HiveDistributionScore', description='The score for the file sizes of the Hive database.', example='85'),
+      hiveFormatScore?: int32(name='HiveFormatScore', description='The score for the data formats of the Hive database.', example='85'),
       hiveFrequencyScore?: int32(name='HiveFrequencyScore', description='The score for the access frequency of the Hive database.', example='85'),
       hiveScore?: int32(name='HiveScore', description='The overall score of the Hive database.', example='85'),
     }(name='Analysis', description='The analysis results.'),
     formats?: [ 
       {
-        formatDayGrowthSize?: long(name='FormatDayGrowthSize', description='The daily increment of storage format-specific data.', example='1000'),
+        formatDayGrowthSize?: long(name='FormatDayGrowthSize', description='The daily increment of data in the format.', example='1000'),
         formatName?: string(name='FormatName', description='The name of the storage format.', example='TextInputFormat'),
-        formatRatio?: float(name='FormatRatio', description='The proportion of data in a specific storage format.', example='0.5'),
-        formatSize?: long(name='FormatSize', description='The amount of storage format-specific data.', example='1000'),
-        formatSizeDayGrowthRatio?: float(name='FormatSizeDayGrowthRatio', description='The day-to-day growth rate of storage format-specific data.', example='0.5'),
-        formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the amount of storage format-specific data.', example='MB'),
+        formatRatio?: float(name='FormatRatio', description='The proportion of the data in the format.', example='0.5'),
+        formatSize?: long(name='FormatSize', description='The amount of data in the format.', example='1000'),
+        formatSizeDayGrowthRatio?: float(name='FormatSizeDayGrowthRatio', description='The day-to-day growth rate of data in the format.', example='0.5'),
+        formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the amount of data in the format.', example='MB'),
       }
     ](name='Formats', description='The information from the perspective of storage formats.'),
     metrics?: {
@@ -3797,25 +3738,25 @@ model GetDoctorHiveDatabaseResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='coldDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Cold data ratio'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of cold files'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       coldDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of cold data size'),
         name?: string(name='Name', description='The name of the metric.', example='coldDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+      }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
       emptyFileCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of empty files'),
         name?: string(name='Name', description='The name of the metric.', example='emptyFileCount'),
@@ -3869,25 +3810,25 @@ model GetDoctorHiveDatabaseResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='hotDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Hot data ratio'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of hot files'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       hotDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of hot data size'),
         name?: string(name='Name', description='The name of the metric.', example='hotDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+      }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
       largeFileCount?: {
         description?: string(name='Description', description='The description of the metric.', example='Number of large files'),
         name?: string(name='Name', description='The name of the metric.', example='largeFileCount'),
@@ -4001,7 +3942,7 @@ model GetDoctorHiveDatabaseResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='totalDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='TotalDataDayGrowthSize', description='The daily incremental of the total data volume.'),
+      }(name='TotalDataDayGrowthSize', description='The daily incremental of the total amount of data.'),
       totalDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
         name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
@@ -4037,34 +3978,34 @@ model GetDoctorHiveDatabaseResponseBody = {
         name?: string(name='Name', description='The name of the metric.', example='warmDataDayGrowthSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of warm data'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSize?: {
         description?: string(name='Description', description='The description of the metric.', example='Ratio of warm files'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
         unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
         value?: long(name='Value', description='The value of the metric.', example='1000'),
-      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       warmDataSizeDayGrowthRatio?: {
         description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of warm data size'),
         name?: string(name='Name', description='The name of the metric.', example='warmDataSizeDayGrowthRatio'),
         unit?: string(name='Unit', description='The unit of the metric.', example='""'),
         value?: float(name='Value', description='The value of the metric.', example='0.5'),
-      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+      }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
     }(name='Metrics', description='The metric information.'),
   }(name='Data', description='The analysis results of the Hive database.'),
   requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model GetDoctorHiveDatabaseResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHiveDatabaseResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHiveDatabaseResponseBody(name='body'),
 }
 
 /**
@@ -4408,9 +4349,9 @@ model GetDoctorHiveTableResponseBody = {
 }
 
 model GetDoctorHiveTableResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorHiveTableResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorHiveTableResponseBody(name='body'),
 }
 
 /**
@@ -4511,9 +4452,9 @@ model GetDoctorJobResponseBody = {
 }
 
 model GetDoctorJobResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorJobResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorJobResponseBody(name='body'),
 }
 
 /**
@@ -4580,9 +4521,9 @@ model GetDoctorReportComponentSummaryResponseBody = {
 }
 
 model GetDoctorReportComponentSummaryResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDoctorReportComponentSummaryResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDoctorReportComponentSummaryResponseBody(name='body'),
 }
 
 /**
@@ -4647,9 +4588,9 @@ model GetNodeGroupResponseBody = {
 }
 
 model GetNodeGroupResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetNodeGroupResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNodeGroupResponseBody(name='body'),
 }
 
 /**
@@ -4711,9 +4652,9 @@ model GetOperationResponseBody = {
 }
 
 model GetOperationResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetOperationResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOperationResponseBody(name='body'),
 }
 
 /**
@@ -4775,6 +4716,7 @@ model IncreaseNodesRequest {
 Default value: false', example='false'),
   clusterId?: string(name='ClusterId', description='The ID of the cluster.', example='c-b933c5aac8fe****'),
   increaseNodeCount?: int32(name='IncreaseNodeCount', description='The number of nodes. The number of incremental nodes for this scale-out. Valid values: 1 to 500.', example='3'),
+  minIncreaseNodeCount?: int32(name='MinIncreaseNodeCount'),
   nodeGroupId?: string(name='NodeGroupId', description='The ID of the node group. The target node group to which you want to scale out the cluster.', example='ng-869471354ecd****'),
   paymentDuration?: int32(name='PaymentDuration', description='The subscription duration. Valid values when the PaymentDurationUnit value is Month: 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36, 48, and 60.', example='12'),
   paymentDurationUnit?: string(name='PaymentDurationUnit', description='The unit of the subscription duration. Valid values:
@@ -4789,18 +4731,11 @@ model IncreaseNodesResponseBody = {
 }
 
 model IncreaseNodesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: IncreaseNodesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IncreaseNodesResponseBody(name='body'),
 }
 
-/**
-  * 扩容节点。
-  *
-  * @param request IncreaseNodesRequest
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return IncreaseNodesResponse
- */
 async function increaseNodesWithOptions(request: IncreaseNodesRequest, runtime: Util.RuntimeOptions): IncreaseNodesResponse {
   Util.validateModel(request);
   var query = {};
@@ -4815,6 +4750,9 @@ async function increaseNodesWithOptions(request: IncreaseNodesRequest, runtime: 
   }
   if (!Util.isUnset(request.increaseNodeCount)) {
     query['IncreaseNodeCount'] = request.increaseNodeCount;
+  }
+  if (!Util.isUnset(request.minIncreaseNodeCount)) {
+    query['MinIncreaseNodeCount'] = request.minIncreaseNodeCount;
   }
   if (!Util.isUnset(request.nodeGroupId)) {
     query['NodeGroupId'] = request.nodeGroupId;
@@ -4845,19 +4783,13 @@ async function increaseNodesWithOptions(request: IncreaseNodesRequest, runtime: 
   return callApi(params, req, runtime);
 }
 
-/**
-  * 扩容节点。
-  *
-  * @param request IncreaseNodesRequest
-  * @return IncreaseNodesResponse
- */
 async function increaseNodes(request: IncreaseNodesRequest): IncreaseNodesResponse {
   var runtime = new Util.RuntimeOptions{};
   return increaseNodesWithOptions(request, runtime);
 }
 
 model JoinResourceGroupRequest {
-  regionId?: string(name='RegionId', description='The ID of the region in which you want to create the instance.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****'),
   resourceId?: string(name='ResourceId', description='The ID of the resource.', example='c-c95f0a39d8ff****'),
   resourceType?: string(name='ResourceType', description='The type of the resource. Valid values:
@@ -4870,9 +4802,9 @@ model JoinResourceGroupResponseBody = {
 }
 
 model JoinResourceGroupResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: JoinResourceGroupResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: JoinResourceGroupResponseBody(name='body'),
 }
 
 async function joinResourceGroupWithOptions(request: JoinResourceGroupRequest, runtime: Util.RuntimeOptions): JoinResourceGroupResponse {
@@ -4912,68 +4844,6 @@ async function joinResourceGroup(request: JoinResourceGroupRequest): JoinResourc
   return joinResourceGroupWithOptions(request, runtime);
 }
 
-model ListApmMetadataRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。非必传参数。', example='c-b933c5aac8fe****'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定'),
-  type?: string(name='Type', description='元数据类型。'),
-}
-
-model ListApmMetadataResponseBody = {
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  metadata?: [ 
-    {
-      value?: string(name='Value', description='元数据值。'),
-    }
-  ](name='Metadata'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
-}
-
-model ListApmMetadataResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListApmMetadataResponseBody(name='body'),
-}
-
-async function listApmMetadataWithOptions(request: ListApmMetadataRequest, runtime: Util.RuntimeOptions): ListApmMetadataResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    query['ResourceGroupId'] = request.resourceGroupId;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListApmMetadata',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function listApmMetadata(request: ListApmMetadataRequest): ListApmMetadataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listApmMetadataWithOptions(request, runtime);
-}
-
 model ListApplicationConfigsRequest {
   applicationName?: string(name='ApplicationName', description='The name of the application.', example='HDFS'),
   clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-e6a9d46e9267****'),
@@ -4993,28 +4863,28 @@ model ListApplicationConfigsResponseBody = {
       applicationName?: string(name='ApplicationName', description='The name of the application.', example='HDFS'),
       configEffectState?: string(name='ConfigEffectState', description='The status of the configuration value.', example='EFFECT'),
       configFileName?: string(name='ConfigFileName', description='The name of the configuration file.', example='hdfs-site.xml'),
-      configItemKey?: string(name='ConfigItemKey', description='The name of the configuration item.', example='dfs.replication'),
+      configItemKey?: string(name='ConfigItemKey', description='The key of the configuration item.', example='dfs.replication'),
       configItemValue?: string(name='ConfigItemValue', description='The value of the configuration item.', example='2'),
-      createTime?: long(name='CreateTime', description='The time when the application was created.', example='1628589439114'),
+      createTime?: long(name='CreateTime', description='The creation time.', example='1628589439114'),
       custom?: boolean(name='Custom', description='Indicates whether the configurations are custom.', example='false'),
       description?: string(name='Description', description='The description.', example='dfs.replication description'),
       initValue?: string(name='InitValue', description='The initial value.', example='2'),
       modifier?: string(name='Modifier', description='The person who modified the configurations.', example='170906468757****'),
-      nodeGroupId?: string(name='NodeGroupId', description='The ID of the node group.', example='ng-d555335ced5****'),
+      nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-d555335ced5****'),
       nodeId?: string(name='NodeId', description='The node ID.', example='i-bp18y0ng3qqxog4mw****'),
-      updateTime?: long(name='UpdateTime', description='The time when the application was updated.', example='1628589439114'),
+      updateTime?: long(name='UpdateTime', description='The update time.', example='1628589439114'),
     }
   ](name='ApplicationConfigs', description='The application configurations.'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page.', example='100'),
   nextToken?: string(name='NextToken', description='The page number of the next page returned.', example='1'),
   requestId?: string(name='RequestId', description='The request ID.', example='9E3A7161-EB7B-172B-8D18-FFB06BA3****'),
-  totalCount?: int32(name='TotalCount', description='The total number of pages.', example='100'),
+  totalCount?: int32(name='TotalCount', description='The total number of pages returned.', example='100'),
 }
 
 model ListApplicationConfigsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListApplicationConfigsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListApplicationConfigsResponseBody(name='body'),
 }
 
 /**
@@ -5109,9 +4979,9 @@ model ListApplicationsResponseBody = {
 }
 
 model ListApplicationsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListApplicationsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListApplicationsResponseBody(name='body'),
 }
 
 /**
@@ -5215,9 +5085,9 @@ model ListAutoScalingActivitiesResponseBody = {
 }
 
 model ListAutoScalingActivitiesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListAutoScalingActivitiesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAutoScalingActivitiesResponseBody(name='body'),
 }
 
 /**
@@ -5300,29 +5170,31 @@ model ListClustersRequest {
 
 Valid values:
 
-*   center
-*   cn-hangzhou
-*   cn-shanghai
 *   cn-qingdao
 *   cn-beijing
 *   cn-zhangjiakou
 *   cn-huhehaote
-*   cn-wulanchabu
+*   cn-hangzhou
+*   cn-shanghai
 *   cn-shenzhen
 *   cn-chengdu
 *   cn-hongkong
+*   cn-wulanchabu
+*   cn-heyuan-acdr-1
+*   cn-qingdao-acdr-ut-1
+*   ap-northeast-1
 *   ap-southeast-1
 *   ap-southeast-2
 *   ap-southeast-3
 *   ap-southeast-5
-*   ap-northeast-1
+*   ap-south-1
+*   us-east-1
+*   us-west-1
+*   me-east-1
+*   me-central-1
 *   eu-central-1
 *   eu-west-1
-*   us-west-1
-*   us-east-1
-*   ap-south-1
-*   me-east-1
-*   me-central-1', example='cn-hangzhou'),
+*   cn-north-2-gov-1', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****'),
   tags?: [
     Tag
@@ -5340,9 +5212,9 @@ model ListClustersResponseBody = {
 }
 
 model ListClustersResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListClustersResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListClustersResponseBody(name='body'),
 }
 
 async function listClustersWithOptions(request: ListClustersRequest, runtime: Util.RuntimeOptions): ListClustersResponse {
@@ -5463,9 +5335,9 @@ model ListComponentInstancesResponseBody = {
 }
 
 model ListComponentInstancesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListComponentInstancesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListComponentInstancesResponseBody(name='body'),
 }
 
 /**
@@ -5563,9 +5435,9 @@ model ListComponentsResponseBody = {
 }
 
 model ListComponentsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListComponentsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListComponentsResponseBody(name='body'),
 }
 
 /**
@@ -5706,9 +5578,9 @@ model ListDoctorApplicationsResponseBody = {
 }
 
 model ListDoctorApplicationsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorApplicationsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorApplicationsResponseBody(name='body'),
 }
 
 /**
@@ -5888,9 +5760,9 @@ model ListDoctorComputeSummaryResponseBody = {
 }
 
 model ListDoctorComputeSummaryResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorComputeSummaryResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorComputeSummaryResponseBody(name='body'),
 }
 
 /**
@@ -6046,9 +5918,9 @@ model ListDoctorHBaseRegionServersResponseBody = {
 }
 
 model ListDoctorHBaseRegionServersResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHBaseRegionServersResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHBaseRegionServersResponseBody(name='body'),
 }
 
 /**
@@ -6114,27 +5986,34 @@ async function listDoctorHBaseRegionServers(request: ListDoctorHBaseRegionServer
 }
 
 model ListDoctorHBaseTablesRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  dateTime?: string(name='DateTime', example='2023-01-01'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  orderBy?: string(name='OrderBy', example='tableSize'),
-  orderType?: string(name='OrderType', example='ASC'),
-  regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
-  tableNames?: [ string ](name='TableNames', example='null'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster.', example='c-b933c5aac8fe****'),
+  dateTime?: string(name='DateTime', description='The query date.', example='2023-01-01'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries that are returned.', example='20'),
+  nextToken?: string(name='NextToken', description='Marks the current position to start reading. If this field is empty, the data is read from the beginning.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  orderBy?: string(name='OrderBy', description='The field that you use to sort the query results.
+
+Valid values:
+
+*   tableSize', example='tableSize'),
+  orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid value:
+
+*   ASC: in ascending order
+*   DESC: in descending order', example='ASC'),
+  regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
+  tableNames?: [ string ](name='TableNames', description='The table names, which are used to filter the query results.', example='null'),
 }
 
 model ListDoctorHBaseTablesResponseBody = {
   data?: [ 
     {
       analysis?: {
-        readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', description='The partitions that have read hotspot issues.', example='null'),
-        readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='The description of read imbalance.'),
-        requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', description='The partitions that have read/write hotspot issues.', example='null'),
-        requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='The description of read/write imbalance.'),
+        readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', description='The regions that have read hotspot issues.', example='null'),
+        readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='The description of read imbalance.', example='read request unbalance is <p class=\\"report-detail-topic\\">'),
+        requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', description='The regions that have read/write hotspot issues.', example='null'),
+        requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='The description of read/write imbalance.', example='read request unbalance is <p class=\\"report-detail-topic\\">'),
         tableScore?: int32(name='TableScore', description='The score of the table.', example='67'),
-        writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', description='The partitions that have write hotspot issues.', example='null'),
-        writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='The description of write imbalance.'),
+        writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', description='The regions that have write hotspot issues.', example='null'),
+        writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='The description of write imbalance.', example='write request unbalance is <p class=\\"report-detail-topic\\">'),
       }(name='Analysis', description='The diagnosis result.'),
       metrics?: {
         coldAccessDay?: {
@@ -6148,7 +6027,7 @@ model ListDoctorHBaseTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='coldConfigDay'),
           unit?: string(name='Unit', description='The unit of the metric.', example='dat'),
           value?: long(name='Value', description='The value of the metric.', example='1'),
-        }(name='ColdConfigDay', description='The number of consecutive days without access to data before the data is considered as cold data.'),
+        }(name='ColdConfigDay', description='The number of consecutive days without access to data before the data is considered as very cold data.'),
         coldDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the cold data size'),
           name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
@@ -6184,7 +6063,7 @@ model ListDoctorHBaseTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='freezeConfigDay'),
           unit?: string(name='Unit', description='The unit of the metric.', example='day'),
           value?: long(name='Value', description='The value of the metric.', example='1'),
-        }(name='FreezeConfigDay', description='The number of consecutive days without access to data before the data is considered as very cold data.'),
+        }(name='FreezeConfigDay', description='The number of consecutive days without access to data before the data was considered as very cold data.'),
         freezeDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the freeze data size'),
           name?: string(name='Name', description='The name of the metric.', example='freezeDataSize'),
@@ -6220,13 +6099,13 @@ model ListDoctorHBaseTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='regionCount'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: long(name='Value', description='The value of the metric.', example='3'),
-        }(name='RegionCount', description='The number of partitions that are composed of the table.'),
+        }(name='RegionCount', description='The number of regions that host the table.'),
         regionCountDayGrowthRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of region count'),
           name?: string(name='Name', description='The name of the metric.', example='regionCountDayGrowthRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: float(name='Value', description='The value of the metric.', example='1.0'),
-        }(name='RegionCountDayGrowthRatio', description='The daily increment ratio of the number of partitions.'),
+        }(name='RegionCountDayGrowthRatio', description='The daily increment ratio of the number of regions.'),
         regionServerCount?: {
           description?: string(name='Description', description='The description of the metric.', example='Number of region servers count'),
           name?: string(name='Name', description='The name of the metric.', example='regionServerCount'),
@@ -6268,7 +6147,7 @@ model ListDoctorHBaseTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='warmConfigDay'),
           unit?: string(name='Unit', description='The unit of the metric.', example='day'),
           value?: long(name='Value', description='The value of the metric.', example='1'),
-        }(name='WarmConfigDay', description='The number of consecutive days without access to data before the data is considered as warm data.'),
+        }(name='WarmConfigDay', description='The number of consecutive days without access to data before the data is considered as cold data.'),
         warmDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the warm data size'),
           name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
@@ -6284,17 +6163,17 @@ model ListDoctorHBaseTablesResponseBody = {
       }(name='Metrics', description='The metric information.'),
       tableName?: string(name='TableName', description='The name of the table.', example='tb_item'),
     }
-  ](name='Data', description='The returned data.'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  ](name='Data', description='The response parameters.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='NextToken', description='The page number of the next page returned.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorHBaseTablesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHBaseTablesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHBaseTablesResponseBody(name='body'),
 }
 
 /**
@@ -6586,9 +6465,9 @@ model ListDoctorHDFSDirectoriesResponseBody = {
 }
 
 model ListDoctorHDFSDirectoriesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHDFSDirectoriesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHDFSDirectoriesResponseBody(name='body'),
 }
 
 /**
@@ -6707,9 +6586,9 @@ model ListDoctorHDFSUGIResponseBody = {
 }
 
 model ListDoctorHDFSUGIResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHDFSUGIResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHDFSUGIResponseBody(name='body'),
 }
 
 /**
@@ -7085,9 +6964,9 @@ model ListDoctorHiveDatabasesResponseBody = {
 }
 
 model ListDoctorHiveDatabasesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHiveDatabasesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHiveDatabasesResponseBody(name='body'),
 }
 
 /**
@@ -7157,7 +7036,7 @@ model ListDoctorHiveTablesRequest {
   dateTime?: string(name='DateTime', description='Specify the date in the ISO 8601 standard. For example, 2023-01-01 represents January 1, 2023.', example='2023-01-01'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  orderBy?: string(name='OrderBy', description='The basis on which you want to sort the query results. Valid value:
+  orderBy?: string(name='OrderBy', description='The basis on which you want to sort the query results. Valid values:
 
 *   partitionNum: the number of partitions.
 *   totalFileCount: the total number of files.
@@ -7171,14 +7050,14 @@ model ListDoctorHiveTablesRequest {
 *   smallFileRatio: the proportion of small files. Small files are those with a size greater than or equal to 10 MB and less than 128 MB.
 *   tinyFileRatio: the proportion of very small files. Very small files are those with a size greater than 0 MB and less than 10 MB.
 *   emptyFileRatio: the proportion of empty files. Empty files are those with a size of 0 MB.
-*   hotDataSize: the amount of hot data. Hot data refers to data that is accessed in recent seven days.
-*   warmDataSize: the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.
-*   coldDataSize: the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.
+*   hotDataSize: the amount of hot data. Hot data refers to data that is accessed in previous seven days.
+*   WarmDataSize: the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.
+*   coldDataSize: the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.
 *   freezeDataSize: the amount of very cold data. Very cold data refers to data that is not accessed for more than 90 days.
 *   totalDataSize: the total amount of data.
-*   hotDataRatio: the proportion of hot data. Hot data refers to data that is accessed in recent seven days.
-*   awmDataRatio: the proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.
-*   coldDataRatio: the proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.
+*   hotDataRatio: the proportion of hot data. Hot data refers to data that is accessed in previous seven days.
+*   WarmDataRatio: the proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.
+*   coldDataRatio: the proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.
 *   freezeDataRatio: the proportion of very cold data. Very cold data refers to data that is not accessed for more than 90 days.
 *   totalFileDayGrowthCount: the daily increment of the total number of files.
 *   largeFileDayGrowthCount: the daily increment of the number of large files. Large files are those with a size greater than 1 GB.
@@ -7186,22 +7065,22 @@ model ListDoctorHiveTablesRequest {
 *   smallFileDayGrowthCount: the daily increment of the number of small files. Small files are those with a size greater than or equal to 10 MB and less than 128 MB.
 *   tinyFileDayGrowthCount: the daily increment of the number of very small files. Very small files are those with a size greater than 0 MB and less than 10 MB.
 *   emptyFileDayGrowthCount: the daily increment of the number of empty files. Empty files are those with a size of 0 MB.
-*   hotDataDayGrowthSize: The daily increment of the amount of hot data. Hot data refers to data that is accessed in recent seven days.
-*   warmDataDayGrowthSize: the daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.
-*   coldDataDayGrowthSize: The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.
-*   freezeDataDayGrowthSize: The daily increment of the amount of very cold data. Very cold data refers to data that is not accessed for more than 90 days.
-*   totalDataDayGrowthSize: the daily incremental of the total data volume.
+*   hotDataDayGrowthSize: the daily increment of the amount of hot data. Hot data refers to data that is accessed in previous seven days.
+*   warmDataDayGrowthSize: the daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.
+*   coldDataDayGrowthSize: the daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.
+*   freezeDataDayGrowthSize: the daily increment of the amount of very cold data. Very cold data refers to data that is not accessed for more than 90 days.
+*   totalDataDayGrowthSize: the daily increment of the amount of total data.
 *   totalFileCountDayGrowthRatio: the day-to-day growth rate of the total number of files.
 *   largeFileCountDayGrowthRatio: the day-to-day growth rate of the number of large files. Large files are those with a size greater than 1 GB.
 *   mediumFileCountDayGrowthRatio: the day-to-day growth rate of the number of medium files. Medium files are those with a size greater than or equal to 128 MB and less than or equal to 1 GB.
 *   smallFileCountDayGrowthRatio: the day-to-day growth rate of the number of small files. Small files are those with a size greater than or equal to 10 MB and less than 128 MB.
 *   tinyFileCountDayGrowthRatio: the day-to-day growth rate of the number of very small files. Very small files are those with a size greater than 0 MB and less than 10 MB.
 *   emptyFileCountDayGrowthRatio: the day-to-day growth rate of the number of empty files. Empty files are those with a size of 0 MB.
-*   hotDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in recent seven days.
-*   warmDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.
-*   coldDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.
+*   hotDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in previous seven days.
+*   warmDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.
+*   coldDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.
 *   freezeDataSizeDayGrowthRatio: the day-to-day growth rate of the amount of very cold data. Very cold data refers to data that is not accessed for more than 90 days.
-*   totalDataSizeDayGrowthRatio: the day-to-day growth rate of the total data volume.', example='totalFileCount'),
+*   totalDataSizeDayGrowthRatio: the day-to-day growth rate of the total amount of data.', example='totalFileCount'),
   orderType?: string(name='OrderType', description='The order in which you want to sort the query results. Valid value:
 
 *   ASC: in ascending order
@@ -7214,46 +7093,46 @@ model ListDoctorHiveTablesResponseBody = {
   data?: [ 
     {
       analysis?: {
-        hiveDistributionScore?: int32(name='HiveDistributionScore', description='The score for the distribution of files of different sizes stored in the Hive table.', example='80'),
-        hiveFormatScore?: int32(name='HiveFormatScore', description='The score for the distribution of files stored in different formats in the Hive table.', example='60'),
+        hiveDistributionScore?: int32(name='HiveDistributionScore', description='The score for the file sizes of the Hive table.', example='80'),
+        hiveFormatScore?: int32(name='HiveFormatScore', description='The score for the data formats of the Hive table.', example='60'),
         hiveFrequencyScore?: int32(name='HiveFrequencyScore', description='The score for the access frequency of the Hive table.', example='70'),
         hiveScore?: int32(name='HiveScore', description='The overall score of the Hive table.', example='80'),
       }(name='Analysis', description='The analysis results.'),
       formats?: [ 
         {
-          formatDayGrowthSize?: long(name='FormatDayGrowthSize', description='The daily amount increment of the data in a specific storage format.', example='1232124'),
+          formatDayGrowthSize?: long(name='FormatDayGrowthSize', description='The daily increment of data in the format.', example='1232124'),
           formatName?: string(name='FormatName', description='The name of the storage format.', example='TextInputFormat'),
-          formatRatio?: float(name='FormatRatio', description='The proportion of the data in a specific storage format.', example='0.23'),
-          formatSize?: long(name='FormatSize', description='The size of storage format-specific data.', example='506930200'),
-          formatSizeDayGrowthRatio?: float(name='FormatSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of the data in a specific storage format.', example='0.04'),
-          formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the data size.', example='MB'),
+          formatRatio?: float(name='FormatRatio', description='The proportion of the data in the format.', example='0.23'),
+          formatSize?: long(name='FormatSize', description='The amount of data in the format.', example='506930200'),
+          formatSizeDayGrowthRatio?: float(name='FormatSizeDayGrowthRatio', description='The day-to-day growth rate of data in the format.', example='0.04'),
+          formatSizeUnit?: string(name='FormatSizeUnit', description='The unit of the amount of data in the format.', example='MB'),
         }
-      ](name='Formats', description='The information from the perspective of formats.'),
+      ](name='Formats', description='The table format information.'),
       metrics?: {
         coldDataDayGrowthSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Day growth size of cold data'),
           name?: string(name='Name', description='The name of the metric.', example='coldDataDayGrowthSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='217715'),
-        }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+        }(name='ColdDataDayGrowthSize', description='The daily increment of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
         coldDataRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Cold data ratio'),
           name?: string(name='Name', description='The name of the metric.', example='coldDataRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+        }(name='ColdDataRatio', description='The proportion of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
         coldDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the cold data size'),
           name?: string(name='Name', description='The name of the metric.', example='coldDataSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='217715'),
-        }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+        }(name='ColdDataSize', description='The amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
         coldDataSizeDayGrowthRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of cold data size'),
           name?: string(name='Name', description='The name of the metric.', example='coldDataSizeDayGrowthRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in 90 days.'),
+        }(name='ColdDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of cold data. Cold data refers to data that is not accessed for more than 30 days but is accessed in previous 90 days.'),
         emptyFileCount?: {
           description?: string(name='Description', description='The description of the metric.', example='Number of empty files'),
           name?: string(name='Name', description='The name of the metric.', example='emptyFileCount'),
@@ -7307,25 +7186,25 @@ model ListDoctorHiveTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='hotDataDayGrowthSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='203431'),
-        }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+        }(name='HotDataDayGrowthSize', description='The daily increment of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
         hotDataRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Hot data ratio'),
           name?: string(name='Name', description='The name of the metric.', example='hotDataRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in recent seven days.'),
+        }(name='HotDataRatio', description='The proportion of hot data. Hot data refers to data that is accessed in previous seven days.'),
         hotDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the hot data size'),
           name?: string(name='Name', description='The name of the metric.', example='hotDataSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='203431'),
-        }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+        }(name='HotDataSize', description='The amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
         hotDataSizeDayGrowthRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of hot data size'),
           name?: string(name='Name', description='The name of the metric.', example='hotDataSizeDayGrowthRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in recent seven days.'),
+        }(name='HotDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of hot data. Hot data refers to data that is accessed in previous seven days.'),
         largeFileCount?: {
           description?: string(name='Description', description='The description of the metric.', example='Number of large files'),
           name?: string(name='Name', description='The name of the metric.', example='largeFileCount'),
@@ -7433,7 +7312,7 @@ model ListDoctorHiveTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='totalDataDayGrowthSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='33800296'),
-        }(name='TotalDataDayGrowthSize', description='The daily incremental of the total data volume.'),
+        }(name='TotalDataDayGrowthSize', description='The daily increment of the total amount of data.'),
         totalDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
           name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
@@ -7445,7 +7324,7 @@ model ListDoctorHiveTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='totalDataSizeDayGrowthRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='TotalDataSizeDayGrowthRatio', description='The day-to-day growth rate of the total data volume.'),
+        }(name='TotalDataSizeDayGrowthRatio', description='The day-to-day growth rate of the total amount of data.'),
         totalFileCount?: {
           description?: string(name='Description', description='The description of the metric.', example='Number of total files'),
           name?: string(name='Name', description='The name of the metric.', example='totalFileCount'),
@@ -7469,28 +7348,28 @@ model ListDoctorHiveTablesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='warmDataDayGrowthSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='149841'),
-        }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+        }(name='WarmDataDayGrowthSize', description='The daily increment of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
         warmDataRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Ratio of warm data'),
           name?: string(name='Name', description='The name of the metric.', example='warmDataRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='""'),
           value?: float(name='Value', description='The value of the metric.', example='0.1'),
-        }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+        }(name='WarmDataRatio', description='The proportion of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
         warmDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Size of the warm data size'),
           name?: string(name='Name', description='The name of the metric.', example='warmDataSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='14981'),
-        }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+        }(name='WarmDataSize', description='The amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
         warmDataSizeDayGrowthRatio?: {
           description?: string(name='Description', description='The description of the metric.', example='Day growth ratio of warm data size'),
           name?: string(name='Name', description='The name of the metric.', example='warmDataSizeDayGrowthRatio'),
           unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
           value?: float(name='Value', description='The value of the metric.', example='0.01'),
-        }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in 30 days.'),
+        }(name='WarmDataSizeDayGrowthRatio', description='The day-to-day growth rate of the amount of warm data. Warm data refers to data that is not accessed for more than 7 days but is accessed in previous 30 days.'),
       }(name='Metrics', description='The metric information.'),
       owner?: string(name='Owner', description='The owner.', example='DW'),
-      tableName?: string(name='TableName', description='The table name. The table name must follow the naming rule in Hive. A name in the {database name.table identifier} format uniquely identifies a table.', example='dw.dwd_creta_service_order_long_renew_long_da'),
+      tableName?: string(name='TableName', description='The table name. The table name must follow the naming rule in Hive. A name in the {Database name.Table name} format uniquely identifies a table.', example='dw.dwd_creta_service_order_long_renew_long_da'),
     }
   ](name='Data', description='The analysis results of Hive tables.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries that are returned.', example='20'),
@@ -7500,9 +7379,9 @@ model ListDoctorHiveTablesResponseBody = {
 }
 
 model ListDoctorHiveTablesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorHiveTablesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorHiveTablesResponseBody(name='body'),
 }
 
 /**
@@ -7641,9 +7520,9 @@ model ListDoctorJobsResponseBody = {
 }
 
 model ListDoctorJobsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorJobsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorJobsResponseBody(name='body'),
 }
 
 /**
@@ -7779,9 +7658,9 @@ model ListDoctorJobsStatsResponseBody = {
 }
 
 model ListDoctorJobsStatsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorJobsStatsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorJobsStatsResponseBody(name='body'),
 }
 
 /**
@@ -7850,16 +7729,16 @@ async function listDoctorJobsStats(request: ListDoctorJobsStatsRequest): ListDoc
 }
 
 model ListDoctorReportsRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****'),
+  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListDoctorReportsResponseBody = {
   data?: [ 
     {
-      componentTypes?: [ string ](name='ComponentTypes', description='The service types.
+      componentTypes?: [ string ](name='ComponentTypes', description='The component types.
 
 Valid values:
 
@@ -7913,21 +7792,21 @@ Valid values:
       dateTime?: string(name='DateTime', description='The date on which the report was generated.', example='2023-06-29'),
       summaryReport?: {
         score?: int32(name='Score', description='The score.', example='88'),
-        suggestion?: string(name='Suggestion', description='The optimization suggestion.'),
-        summary?: string(name='Summary', description='The summary of the report.'),
+        suggestion?: string(name='Suggestion', description='The optimization suggestion.', example='block'),
+        summary?: string(name='Summary', description='The summary of the report.', example='eastbuy-mse-plugin-auth'),
       }(name='SummaryReport', description='The summary of the report.'),
     }
   ](name='Data', description='The reports.'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
 }
 
 model ListDoctorReportsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDoctorReportsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDoctorReportsResponseBody(name='body'),
 }
 
 /**
@@ -8022,9 +7901,9 @@ model ListInstanceTypesResponseBody = {
 }
 
 model ListInstanceTypesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListInstanceTypesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstanceTypesResponseBody(name='body'),
 }
 
 async function listInstanceTypesWithOptions(request: ListInstanceTypesRequest, runtime: Util.RuntimeOptions): ListInstanceTypesResponse {
@@ -8107,9 +7986,9 @@ model ListNodeGroupsResponseBody = {
 }
 
 model ListNodeGroupsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListNodeGroupsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNodeGroupsResponseBody(name='body'),
 }
 
 async function listNodeGroupsWithOptions(request: ListNodeGroupsRequest, runtime: Util.RuntimeOptions): ListNodeGroupsResponse {
@@ -8188,9 +8067,9 @@ model ListNodesResponseBody = {
 }
 
 model ListNodesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListNodesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListNodesResponseBody(name='body'),
 }
 
 async function listNodesWithOptions(request: ListNodesRequest, runtime: Util.RuntimeOptions): ListNodesResponse {
@@ -8272,9 +8151,9 @@ model ListReleaseVersionsResponseBody = {
 }
 
 model ListReleaseVersionsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListReleaseVersionsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListReleaseVersionsResponseBody(name='body'),
 }
 
 /**
@@ -8324,6 +8203,97 @@ async function listReleaseVersions(request: ListReleaseVersionsRequest): ListRel
   return listReleaseVersionsWithOptions(request, runtime);
 }
 
+model ListScriptsRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='10'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='dd6b1b2a-5837-5237-abe4-ff0c89568980'),
+  regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
+  scriptType?: string(name='ScriptType', description='集群脚本类型。', example='BOOTSTRAP'),
+}
+
+model ListScriptsResponseBody = {
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='10'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='dd6b1b2a-5837-5237-abe4-ff0c89568982'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  scripts?: [ 
+    {
+      action?: string(name='Action', description='API名称。', example='ListScripts'),
+      endTime?: long(name='EndTime', description='结束执行时间。', example='1639715635819'),
+      executionFailStrategy?: string(name='ExecutionFailStrategy', description='执行失败策略。', example='FAILED_CONTINUE'),
+      executionMoment?: string(name='ExecutionMoment', description='执行时机。', example='BEFORE_INSTALL'),
+      executionState?: string(name='ExecutionState'),
+      lastUpdateTime?: long(name='LastUpdateTime', description='最近一次编辑时间。', example='1639714634819'),
+      nodeSelector?: NodeSelector(name='NodeSelector', description='节点选择器。'),
+      regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
+      scriptArgs?: string(name='ScriptArgs', description='集群脚本执行参数。', example='--mode=client -h -p'),
+      scriptId?: string(name='ScriptId', description='脚本ID。', example='cs-bf25219d103043a0820613e32781****'),
+      scriptName?: string(name='ScriptName', description='集群脚本名称。', example='check_env'),
+      scriptPath?: string(name='ScriptPath', description='集群脚本路径。', example='oss://bucket1/check_evn.sh'),
+      startTime?: long(name='StartTime', description='开始执行时间。', example='1639714634000'),
+    }
+  ](name='Scripts'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListScriptsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListScriptsResponseBody(name='body'),
+}
+
+/**
+  * 查询集群脚本。
+  *
+  * @param request ListScriptsRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return ListScriptsResponse
+ */
+async function listScriptsWithOptions(request: ListScriptsRequest, runtime: Util.RuntimeOptions): ListScriptsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.scriptType)) {
+    query['ScriptType'] = request.scriptType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListScripts',
+    version = '2021-03-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+  * 查询集群脚本。
+  *
+  * @param request ListScriptsRequest
+  * @return ListScriptsResponse
+ */
+async function listScripts(request: ListScriptsRequest): ListScriptsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listScriptsWithOptions(request, runtime);
+}
+
 model ListTagResourcesRequest {
   maxResults?: int32(name='MaxResults', description='The number of maximum number of records to obtain at a time.', example='20'),
   nextToken?: string(name='NextToken', description='Marks the current position to start reading. If this field is empty, the data is read from the beginning.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
@@ -8351,9 +8321,9 @@ model ListTagResourcesResponseBody = {
 }
 
 model ListTagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListTagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
 }
 
 async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
@@ -8415,13 +8385,13 @@ model PutAutoScalingPolicyResponseBody = {
 }
 
 model PutAutoScalingPolicyResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: PutAutoScalingPolicyResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PutAutoScalingPolicyResponseBody(name='body'),
 }
 
 /**
-  * 设置弹性伸缩规则。
+  * You can call this operation to configure auto scaling policies.
   *
   * @param request PutAutoScalingPolicyRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -8463,7 +8433,7 @@ async function putAutoScalingPolicyWithOptions(request: PutAutoScalingPolicyRequ
 }
 
 /**
-  * 设置弹性伸缩规则。
+  * You can call this operation to configure auto scaling policies.
   *
   * @param request PutAutoScalingPolicyRequest
   * @return PutAutoScalingPolicyResponse
@@ -8471,185 +8441,6 @@ async function putAutoScalingPolicyWithOptions(request: PutAutoScalingPolicyRequ
 async function putAutoScalingPolicy(request: PutAutoScalingPolicyRequest): PutAutoScalingPolicyResponse {
   var runtime = new Util.RuntimeOptions{};
   return putAutoScalingPolicyWithOptions(request, runtime);
-}
-
-model QueryApmComponentsRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  provider?: string(name='Provider'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定'),
-}
-
-model QueryApmComponentsResponseBody = {
-  data?: {
-    data?: string(name='Data'),
-  }(name='Data', description='Created on 2022/7/11 5:27 PM'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-}
-
-model QueryApmComponentsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: QueryApmComponentsResponseBody(name='body'),
-}
-
-async function queryApmComponentsWithOptions(request: QueryApmComponentsRequest, runtime: Util.RuntimeOptions): QueryApmComponentsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.provider)) {
-    query['Provider'] = request.provider;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    query['ResourceGroupId'] = request.resourceGroupId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryApmComponents',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function queryApmComponents(request: QueryApmComponentsRequest): QueryApmComponentsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryApmComponentsWithOptions(request, runtime);
-}
-
-model QueryApmGrafanaDataRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  dashboardId?: string(name='DashboardId'),
-  end?: string(name='End'),
-  provider?: string(name='Provider'),
-  query?: string(name='Query'),
-  queryParams?: {
-    panelId?: long(name='PanelId'),
-    refId?: string(name='RefId'),
-    variableName?: string(name='VariableName'),
-  }(name='QueryParams'),
-  queryUrl?: string(name='QueryUrl'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定'),
-  start?: string(name='Start'),
-  step?: string(name='Step'),
-  time?: string(name='Time'),
-  variables?: map[string]string(name='Variables'),
-}
-
-model QueryApmGrafanaDataShrinkRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  dashboardId?: string(name='DashboardId'),
-  end?: string(name='End'),
-  provider?: string(name='Provider'),
-  query?: string(name='Query'),
-  queryParams?: {
-    panelId?: long(name='PanelId'),
-    refId?: string(name='RefId'),
-    variableName?: string(name='VariableName'),
-  }(name='QueryParams'),
-  queryUrl?: string(name='QueryUrl'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', description='如果存在clusterId，从Cluster中获取该值，如果clusterId为空，用户显式指定'),
-  start?: string(name='Start'),
-  step?: string(name='Step'),
-  time?: string(name='Time'),
-  variablesShrink?: string(name='Variables'),
-}
-
-model QueryApmGrafanaDataResponseBody = {
-  data?: {
-    queryGrafanaData?: string(name='QueryGrafanaData'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-}
-
-model QueryApmGrafanaDataResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: QueryApmGrafanaDataResponseBody(name='body'),
-}
-
-async function queryApmGrafanaDataWithOptions(tmpReq: QueryApmGrafanaDataRequest, runtime: Util.RuntimeOptions): QueryApmGrafanaDataResponse {
-  Util.validateModel(tmpReq);
-  var request = new QueryApmGrafanaDataShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.variables)) {
-    request.variablesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.variables, 'Variables', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.dashboardId)) {
-    query['DashboardId'] = request.dashboardId;
-  }
-  if (!Util.isUnset(request.end)) {
-    query['End'] = request.end;
-  }
-  if (!Util.isUnset(request.provider)) {
-    query['Provider'] = request.provider;
-  }
-  if (!Util.isUnset(request.query)) {
-    query['Query'] = request.query;
-  }
-  if (!Util.isUnset(request.queryParams)) {
-    query['QueryParams'] = request.queryParams;
-  }
-  if (!Util.isUnset(request.queryUrl)) {
-    query['QueryUrl'] = request.queryUrl;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceGroupId)) {
-    query['ResourceGroupId'] = request.resourceGroupId;
-  }
-  if (!Util.isUnset(request.start)) {
-    query['Start'] = request.start;
-  }
-  if (!Util.isUnset(request.step)) {
-    query['Step'] = request.step;
-  }
-  if (!Util.isUnset(request.time)) {
-    query['Time'] = request.time;
-  }
-  if (!Util.isUnset(request.variablesShrink)) {
-    query['Variables'] = request.variablesShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryApmGrafanaData',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function queryApmGrafanaData(request: QueryApmGrafanaDataRequest): QueryApmGrafanaDataResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return queryApmGrafanaDataWithOptions(request, runtime);
 }
 
 model RemoveAutoScalingPolicyRequest {
@@ -8663,9 +8454,9 @@ model RemoveAutoScalingPolicyResponseBody = {
 }
 
 model RemoveAutoScalingPolicyResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RemoveAutoScalingPolicyResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveAutoScalingPolicyResponseBody(name='body'),
 }
 
 async function removeAutoScalingPolicyWithOptions(request: RemoveAutoScalingPolicyRequest, runtime: Util.RuntimeOptions): RemoveAutoScalingPolicyResponse {
@@ -8729,15 +8520,15 @@ model RunApplicationActionResponseBody = {
       nodeId?: string(name='NodeId'),
       nodeName?: string(name='NodeName'),
     }
-  ](name='AbnInstances', description='异常节点列表。'),
+  ](name='AbnInstances', description='The abnormal nodes.'),
   operationId?: string(name='OperationId', description='The operation ID.', example='op-13c37a77c505****'),
   requestId?: string(name='RequestId', description='The request ID.', example='9E3A7161-EB7B-172B-8D18-FFB06BA3****'),
 }
 
 model RunApplicationActionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RunApplicationActionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunApplicationActionResponseBody(name='body'),
 }
 
 async function runApplicationActionWithOptions(request: RunApplicationActionRequest, runtime: Util.RuntimeOptions): RunApplicationActionResponse {
@@ -8808,9 +8599,9 @@ model TagResourcesResponseBody = {
 }
 
 model TagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: TagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
 }
 
 async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: Util.RuntimeOptions): TagResourcesResponse {
@@ -8868,9 +8659,9 @@ model UntagResourcesResponseBody = {
 }
 
 model UntagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UntagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UntagResourcesResponseBody(name='body'),
 }
 
 /**
@@ -8953,9 +8744,9 @@ model UpdateApplicationConfigsResponseBody = {
 }
 
 model UpdateApplicationConfigsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UpdateApplicationConfigsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateApplicationConfigsResponseBody(name='body'),
 }
 
 async function updateApplicationConfigsWithOptions(request: UpdateApplicationConfigsRequest, runtime: Util.RuntimeOptions): UpdateApplicationConfigsResponse {
