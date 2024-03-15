@@ -311,6 +311,7 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model DeleteJobsRequest {
+  executorIds?: [ string ](name='ExecutorIds'),
   jobSpec?: [ 
     {
       jobId?: string(name='JobId', example='job-xxxx'),
@@ -325,6 +326,7 @@ model DeleteJobsRequest {
 }
 
 model DeleteJobsShrinkRequest {
+  executorIdsShrink?: string(name='ExecutorIds'),
   jobSpecShrink?: string(name='JobSpec'),
 }
 
@@ -342,10 +344,16 @@ async function deleteJobsWithOptions(tmpReq: DeleteJobsRequest, runtime: Util.Ru
   Util.validateModel(tmpReq);
   var request = new DeleteJobsShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.executorIds)) {
+    request.executorIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.executorIds, 'ExecutorIds', 'json');
+  }
   if (!Util.isUnset(tmpReq.jobSpec)) {
     request.jobSpecShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobSpec, 'JobSpec', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.executorIdsShrink)) {
+    query['ExecutorIds'] = request.executorIdsShrink;
+  }
   if (!Util.isUnset(request.jobSpecShrink)) {
     query['JobSpec'] = request.jobSpecShrink;
   }
@@ -540,6 +548,93 @@ async function getJobWithOptions(request: GetJobRequest, runtime: Util.RuntimeOp
 async function getJob(request: GetJobRequest): GetJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return getJobWithOptions(request, runtime);
+}
+
+model ListExecutorsRequest {
+  filter?: {
+    executorIds?: [ string ](name='ExecutorIds'),
+    ipAddresses?: [ string ](name='IpAddresses'),
+    jobName?: string(name='JobName', example='testJob'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', example='1703820113'),
+  }(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+}
+
+model ListExecutorsShrinkRequest {
+  filterShrink?: string(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+}
+
+model ListExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      executorId?: string(name='ExecutorId', example='job-xxxx-task0-1'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      jobId?: string(name='JobId', example='job-hy1nggvyukuvkrtfpe70'),
+      jobName?: string(name='JobName', example='testJob'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason', example='Succeeded to release executor resource'),
+      taskName?: string(name='TaskName', example='task0'),
+    }
+  ](name='Executors'),
+  jobId?: string(name='JobId', example='job-hy1nggvyukuvkrtfpe70'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  taskName?: string(name='TaskName', example='task0'),
+  totalCount?: string(name='TotalCount', example='40'),
+}
+
+model ListExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExecutorsResponseBody(name='body'),
+}
+
+async function listExecutorsWithOptions(tmpReq: ListExecutorsRequest, runtime: Util.RuntimeOptions): ListExecutorsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListExecutorsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'Filter', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.filterShrink)) {
+    query['Filter'] = request.filterShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListExecutors',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listExecutors(request: ListExecutorsRequest): ListExecutorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listExecutorsWithOptions(request, runtime);
 }
 
 model ListImagesRequest {
