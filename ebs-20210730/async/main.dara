@@ -473,6 +473,30 @@ async function createEnterpriseSnapshotPolicy(request: CreateEnterpriseSnapshotP
   return @handler.do('RPC', 'CreateEnterpriseSnapshotPolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteDiskRequest {
+  diskId: string(name='DiskId', description='The ID of the disk.', example='d-cd4************', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the primary or secondary disk in the replication pair. You can call the [DescribeRegions](~~354276~~) operation to query the most recent list of regions in which async replication is supported.', example='cn-hangzhou', position='Query'),
+}
+
+model DeleteDiskResponseBody = {
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C123F94F-4E38-19AE-942A-A8D6F44F****'),
+}
+
+model DeleteDiskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDiskResponseBody(name='body'),
+}
+
+/**
+  * Currently, this API is only available for use with ACS resource hosting and is not yet open for direct invocation.
+  *
+ */
+async function deleteDisk(request: DeleteDiskRequest): DeleteDiskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteDisk', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteDiskReplicaGroupRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25693~~).', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the replication pair-consistent group.', example='cn-beijing', position='Query'),
@@ -861,11 +885,15 @@ model DescribeDiskMonitorDataResponseBody = {
       burstIOCount?: long(name='BurstIOCount', description='The number of burst I/O operations.', example='0'),
       diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp1bq5g3dxxo1x4o****'),
       IOPSPercent?: long(name='IOPSPercent', description='The percentage of IOPS.', example='80(%)'),
-      readBPS?: long(name='ReadBPS', description='The read bandwidth of the disk. Unit: Mbit/s.', example='10'),
+      readBPS?: long(name='ReadBPS', description='The read bandwidth of the disk. Unit: MByte/s.', example='10'),
+      readBlockSize?: long(name='ReadBlockSize', description='Read IO block size. Unit: Bytes', example='4096'),
       readIOPS?: long(name='ReadIOPS', description='The maximum number of read IOPS.', example='2000'),
+      readLatency?: long(name='ReadLatency', description='Read IO latency. Unit:  microsecond', example='100'),
       timestamp?: string(name='Timestamp', description='The timestamp that is used to query the near real-time monitoring data of the disk. The time follows the [ISO 8601](~~25696~~) standard in the `yyyy-MM-ddTHH:mm:ssZ` format. The time is displayed in UTC.', example='2022-06-01T08:00:00Z'),
-      writeBPS?: long(name='WriteBPS', description='The write bandwidth of the disk. Unit: Mbit/s.', example='204'),
+      writeBPS?: long(name='WriteBPS', description='The write bandwidth of the disk. Unit: MByte/s.', example='204'),
+      writeBlockSize?: long(name='WriteBlockSize', description='Write IO block size. Unit: Bytes', example='4096'),
       writeIOPS?: long(name='WriteIOPS', description='The maximum number of write IOPS.', example='2000'),
+      writeLatency?: long(name='WriteLatency', description='Write IO latency. Unit: microsecond', example='100'),
     }
   ](name='MonitorData', description='The near real-time monitoring data of the disk.'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
@@ -1187,6 +1215,139 @@ model DescribeDiskReplicaPairsResponse = {
 async function describeDiskReplicaPairs(request: DescribeDiskReplicaPairsRequest): DescribeDiskReplicaPairsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeDiskReplicaPairs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeDisksRequest {
+  category?: string(name='Category', description='The category of disks.', example='cloud_ssd', position='Query'),
+  diskIds?: string(name='DiskIds', description='The IDs of the disks. The value is a JSON array that contains multiple disk IDs. Separate the IDs with commas (,).', example='iscsi-cluster-id', position='Query'),
+  diskName?: string(name='DiskName', description='The name of the disk.', example='d-xxx', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page. Valid values: 1 to 100.
+
+Default values:
+
+*   If this parameter is not specified or is set to a value smaller than 10, the default value is 10.
+*   If this parameter is set to a value greater than 100, the default value is 100.', example='10', position='Query'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='AAAAAdDWBF2****', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the disk belongs.', example='rg-acfmvs*******', position='Query'),
+  status?: string(name='Status', description='The states of disk. Valid values:
+
+*   In_use
+*   Available
+*   Attaching
+*   Detaching
+*   Creating
+*   ReIniting', example='In_use', position='Query'),
+  tag?: [ 
+    {
+      key: string(name='Key', description='The key of the tag.', example='tag-key'),
+      value: string(name='Value', description='The value of the tag.', example='tag-value'),
+    }
+  ](name='Tag', description='The resource tags. You can specify up to 20 tags.', position='Query'),
+  zoneId?: string(name='ZoneId', description='The ID of the zone.', example='cn-hangzhou-a', position='Query'),
+}
+
+model DescribeDisksResponseBody = {
+  data?: [ 
+    {
+      accessAuthorization?: [ 
+        {
+          accessToken?: string(name='AccessToken', description='The token that is used to access the disk.', example='b34385a***************'),
+          ecs?: {
+            instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-assd***********'),
+          }(name='Ecs', description='The information of ecs.'),
+          pod?: {
+            clusterId?: string(name='ClusterId', description='The cluster ID.', example='cid*******'),
+            podId?: string(name='PodId', description='The pod ID.', example='pid******'),
+          }(name='Pod', description='The information of pod.'),
+        }
+      ](name='AccessAuthorization', description='The access authorization information of the disk.'),
+      attachedTime?: string(name='AttachedTime', description='The time when the disk was attached.', example='2021-06-07T06:08:56Z'),
+      attachments?: [ 
+        {
+          attachedTime?: string(name='AttachedTime', description='The time when the disk was attached.', example='2021-06-07T06:08:56Z'),
+          instanceId?: string(name='InstanceId', description='The instance ID.', example='i-aaaa********'),
+          namespaceId?: int32(name='NamespaceId', description='The ID of the namespace.', example='4c47c411-b9***********'),
+        }
+      ](name='Attachments', description='The attachment information of the disk.'),
+      burstingEnabled?: boolean(name='BurstingEnabled', description='Specifies whether to enable the performance burst feature for the disk. Valid values:
+
+*   true: enable the performance burst feature.
+*   false: disable the performance burst feature.', example='true'),
+      category?: string(name='Category', description='The category of disk.', example='cloud_essd'),
+      creationTime?: string(name='CreationTime', description='The time when the disk was created.', example='2023-12-30 12:00:00'),
+      description?: string(name='Description', description='The description of the disk. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='desc'),
+      detachedTime?: string(name='DetachedTime', description='The time when the disk was detached.', example='2021-06-07T21:01:22Z'),
+      deviceNguid?: string(name='DeviceNguid', description='The maximum number of read and write operations per second. Unit: operations/s.', example='4000'),
+      diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp10jtnecw0yc6s96p0o'),
+      diskName?: string(name='DiskName', description='The name of the disk.', example='disk-name'),
+      encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk. Valid values:
+
+*   true
+*   false
+
+Default value: false.', example='true'),
+      iops?: long(name='Iops', description='IOPS.', example='26800'),
+      iopsRead?: long(name='IopsRead', description='The maximum number of read operations per second. Unit: operations/s.', example='2000'),
+      iopsWrite?: long(name='IopsWrite', description='The maximum number of write operations per second. Unit: operations/s.', example='2000'),
+      kmsKeyId?: string(name='KmsKeyId', description='The ID of the KMS key.', example='key-hzz65*********'),
+      modifyAt?: string(name='ModifyAt', description='The time when the disk was modified.', example='2023-12-30 12:00:00'),
+      performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD. Valid values:
+
+*   PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
+*   PL1: A single ESSD can deliver up to 50,000 random read/write IOPS.
+*   PL2: A single ESSD can deliver up to 100,000 random read/write IOPS.
+*   PL3: A single ESSD can deliver up to 1,000,000 random read/write IOPS.
+
+Default value: PL1.
+
+For more information about ESSD performance levels, see [ESSDs](~~122389~~).', example='PL0'),
+      provisionedIops?: long(name='ProvisionedIops', description='The provisioned read/write IOPS of the ESSD AutoPL disk. Valid values: 0 to min{50,000, 1,000 × Capacity - Baseline IOPS}
+
+Baseline IOPS = min{1,800 + 50 × Capacity, 50,000}
+
+>  This parameter is available only if the DiskCategory parameter is set to cloud_auto. For more information, see [ESSD AutoPL disks](~~368372~~) and [Modify the performance configurations of an ESSD AutoPL disk](~~413275~~).', example='3200'),
+      regionId?: string(name='RegionId', description='The region ID of the disk.', example='cn-hangzhou'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the disk belongs.', example='rg-aekz********'),
+      size?: long(name='Size', description='The size of the disk. Unit: GB.', example='40'),
+      status?: string(name='Status', description='The states of disk. Valid values:
+
+*   In_use
+*   Available
+*   Attaching
+*   Detaching
+*   Creating
+*   ReIniting', example='Available'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey', description='The tag key.', example='empty-str-0'),
+          tagValue?: string(name='TagValue', description='The tag value.', example='000098dab001c600'),
+        }
+      ](name='Tags', description='The details of the tags.'),
+      throughput?: long(name='Throughput', description='The throughput of the disk.
+
+Unit: MB/s.', example='600'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the disk.', example='cn-shenzhen-e'),
+    }
+  ](name='Data', description='The data returned.'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='NextToken'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C123F94F-4E38-19AE-942A-A8D6F44F****'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='1'),
+}
+
+model DescribeDisksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDisksResponseBody(name='body'),
+}
+
+async function describeDisks(request: DescribeDisksRequest): DescribeDisksResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeDisks', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeEnterpriseSnapshotPolicyRequest {
@@ -1514,6 +1675,36 @@ async function describeReplicaGroupDrills(request: DescribeReplicaGroupDrillsReq
   return @handler.do('RPC', 'DescribeReplicaGroupDrills', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeSolutionInstanceConfigurationRequest {
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25693~~).', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  parameters?: [ 
+    {
+      parameterKey: string(name='ParameterKey', description='The key of the parameter.', example='***'),
+      parameterValue: string(name='ParameterValue', description='The value of the parameter.
+
+> The Parameters parameter is optional. If you specify Parameters, you must specify ParameterValue.', example='***'),
+    }
+  ](name='Parameters', description='The parameters.', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-shanghai', position='Query'),
+  solutionId: string(name='SolutionId', description='The ID of the solution.', example='sln-xxxxx', position='Query'),
+}
+
+model DescribeSolutionInstanceConfigurationResponseBody = {
+  data?: [ map[string]any ](name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='11B55F58-D3A4-4A9B-9596-342420D0****'),
+}
+
+model DescribeSolutionInstanceConfigurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeSolutionInstanceConfigurationResponseBody(name='body'),
+}
+
+async function describeSolutionInstanceConfiguration(request: DescribeSolutionInstanceConfigurationRequest): DescribeSolutionInstanceConfigurationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeSolutionInstanceConfiguration', 'POST', '/', 'json', false, 'json', request);
+}
+
 model FailoverDiskReplicaGroupRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25693~~).', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the secondary site of the replication pair-consistent group.', example='cn-shanghai', position='Query'),
@@ -1571,6 +1762,102 @@ model FailoverDiskReplicaPairResponse = {
 async function failoverDiskReplicaPair(request: FailoverDiskReplicaPairRequest): FailoverDiskReplicaPairResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'FailoverDiskReplicaPair', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetDiskRequest {
+  diskId: string(name='DiskId', description='The ID of the disk.', example='d-bp67***********', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the disk.', example='cn-hangzhou', position='Query'),
+}
+
+model GetDiskResponseBody = {
+  disk?: {
+    accessAuthorization?: [ 
+      {
+        accessToken?: string(name='AccessToken', description='The token that is used to access the disk.', example='4cd9******************'),
+        ecs?: {
+          instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-uf6*******************'),
+        }(name='Ecs', description='The information of ecs.'),
+        pod?: {
+          clusterId?: string(name='ClusterId', description='The cluster ID.', example='ccf9**************'),
+          podId?: string(name='PodId', description='The pod ID.', example='pid****************'),
+        }(name='Pod', description='The information of pod.'),
+      }
+    ](name='AccessAuthorization', description='The access authorization information of the disk.'),
+    attachedTime?: string(name='AttachedTime', description='The time when the disk was attached.', example='2021-11-18T19:30:16+08:00'),
+    attachments?: [ 
+      {
+        attachedTime?: string(name='AttachedTime', description='The time when the disk was attached.', example='2021-11-18T19:30:16+08:00'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='i-cad***********'),
+        namespaceId?: int32(name='NamespaceId', description='The ID of the namespace.', example='308e2*****************'),
+      }
+    ](name='Attachments', description='The attachment information of the disk.'),
+    burstingEnabled?: boolean(name='BurstingEnabled', description='Specifies whether to enable the performance burst feature for the disk. Valid values:
+
+* true: enable the performance burst feature.
+* false: disable the performance burst feature.', example='true'),
+    category?: string(name='Category', description='The category of the disk.', example='cloud_essd'),
+    creationTime?: string(name='CreationTime', description='The time when the disk was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC. For more information, see [ISO 8601](~~25696~~).', example='2021-11-18T19:30:16+08:00'),
+    description?: string(name='Description', description='The description of the disk.', example='desc'),
+    detachedTime?: string(name='DetachedTime', description='The time when the disk was detached.', example='2021-11-18T19:30:16+08:00'),
+    deviceNguid?: string(name='DeviceNguid', description='The maximum number of read and write operations per second. Unit: operations/s.', example='4cd************'),
+    diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp19c*********'),
+    diskName?: string(name='DiskName', description='The name of the disk.', example='diskName'),
+    encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk. Valid values:
+
+*   true
+*   false
+
+Default value: false.', example='true'),
+    iops?: long(name='Iops', description='IOPS.', example='46800'),
+    iopsRead?: long(name='IopsRead', description='The maximum number of read operations per second. Unit: operations/s.', example='500'),
+    iopsWrite?: long(name='IopsWrite', description='The maximum number of write operations per second. Unit: operations/s.', example='500'),
+    kmsKeyId?: string(name='KmsKeyId', description='The ID of the KMS key.', example='key-hz**************'),
+    modifyAt?: string(name='ModifyAt', description='The time when the disk was modfied.', example='2021-11-18T19:30:16+08:00'),
+    performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD. Valid values:
+
+* PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
+* PL1: A single ESSD can deliver up to 50,000 random read/write IOPS.
+* PL2: A single ESSD can deliver up to 100,000 random read/write IOPS.
+* PL3: A single ESSD can deliver up to 1,000,000 random read/write IOPS.', example='PL1'),
+    provisionedIops?: long(name='ProvisionedIops', description='The provisioned read/write IOPS of the ESSD AutoPL disk. Valid values: 0 to min{50,000, 1,000 × Capacity - Baseline IOPS}
+
+Baseline IOPS = min{1,800 + 50 × Capacity, 50,000}
+
+>  This parameter is available only if the DiskCategory parameter is set to cloud_auto. For more information, see [ESSD AutoPL disks](~~368372~~) and [Modify the performance configurations of an ESSD AutoPL disk](~~413275~~).', example='5000'),
+    regionId?: string(name='RegionId', description='The region ID of the disk. You can call the [DescribeRegions](~~25609~~) operation to query the most recent region list.', example='cn-hangzhou'),
+    resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the disk belongs.', example='rg-aek*************'),
+    size?: long(name='Size', description='The size of the disk. Unit: GB.', example='20'),
+    status?: string(name='Status', description='The states of disk. Valid values:
+
+* In_use
+* Available
+* Attaching
+* Detaching
+* Creating
+* ReIniting', example='Available'),
+    tags?: [ 
+      {
+        tagKey?: string(name='TagKey', description='The tag key.', example='tag_key'),
+        tagValue?: string(name='TagValue', description='The tag value.', example='tag_value'),
+      }
+    ](name='Tags', description='The details of the tags.'),
+    throughput?: long(name='Throughput', description='The throughput of the disk.
+
+Unit: MB/s.', example='600'),
+    zoneId?: string(name='ZoneId', description='The ID of the zone where the disk resides.', example='cn-hangzhou-k'),
+  }(name='Disk', description='The information of the disk.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B9C4B3B3-0D72-5FB0-9319-F4D3BB9E22AC'),
+}
+
+model GetDiskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDiskResponseBody(name='body'),
+}
+
+async function getDisk(request: GetDiskRequest): GetDiskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetDisk', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListTagResourcesRequest {
@@ -1729,13 +2016,35 @@ async function modifyDiskReplicaPair(request: ModifyDiskReplicaPairRequest): Mod
   return @handler.do('RPC', 'ModifyDiskReplicaPair', 'POST', '/', 'json', false, 'json', request);
 }
 
+model QueryDedicatedBlockStorageClusterDiskThroughputStatusRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  qosRequestId: string(name='QosRequestId', example='A37597B5-BB99-19B3-85EA-4C2B91F0****', position='Body'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Body'),
+}
+
+model QueryDedicatedBlockStorageClusterDiskThroughputStatusResponseBody = {
+  requestId?: string(name='RequestId', example='A37597A6-BB99-19B3-85EA-4C2B91F0****'),
+  status?: string(name='Status', example='Running'),
+}
+
+model QueryDedicatedBlockStorageClusterDiskThroughputStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryDedicatedBlockStorageClusterDiskThroughputStatusResponseBody(name='body'),
+}
+
+async function queryDedicatedBlockStorageClusterDiskThroughputStatus(request: QueryDedicatedBlockStorageClusterDiskThroughputStatusRequest): QueryDedicatedBlockStorageClusterDiskThroughputStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'QueryDedicatedBlockStorageClusterDiskThroughputStatus', 'POST', '/', 'json', true, 'form', request);
+}
+
 model QueryDedicatedBlockStorageClusterInventoryDataRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that it is unique among different requests.
 
 The ClientToken value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How do I ensure idempotence ](~~25693~~).', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   dbscId: string(name='DbscId', description='The ID of the dedicated block storage cluster.', example='dbsc-xxx', position='Body'),
   endTime: long(name='EndTime', description='End timestamp of trend data.', example='1606403800', position='Body'),
-  period: int32(name='Period', description='The time interval （seconds） between data retrieval points.', example='60', position='Body'),
+  period: int32(name='Period', description='The time interval (seconds) between data retrieval points.', example='60', position='Body'),
   regionId: string(name='RegionId', description='The region ID of the dedicated block storage cluster.', example='cn-shenzhen', position='Body'),
   startTime: long(name='StartTime', description='Start timestamp of trend data.', example='1606303800', position='Body'),
 }
@@ -1867,6 +2176,28 @@ model ReprotectDiskReplicaPairResponse = {
 async function reprotectDiskReplicaPair(request: ReprotectDiskReplicaPairRequest): ReprotectDiskReplicaPairResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ReprotectDiskReplicaPair', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SetDedicatedBlockStorageClusterDiskThroughputRequest {
+  bps: int32(name='Bps', example='100', position='Body'),
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  diskId: string(name='DiskId', example='d-bp67acfmxazb4p****', position='Body'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Body'),
+}
+
+model SetDedicatedBlockStorageClusterDiskThroughputResponseBody = {
+  requestId?: string(name='RequestId', example='17EE62D8-064E-5404-8B0D-72122478****'),
+}
+
+model SetDedicatedBlockStorageClusterDiskThroughputResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetDedicatedBlockStorageClusterDiskThroughputResponseBody(name='body'),
+}
+
+async function setDedicatedBlockStorageClusterDiskThroughput(request: SetDedicatedBlockStorageClusterDiskThroughputRequest): SetDedicatedBlockStorageClusterDiskThroughputResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SetDedicatedBlockStorageClusterDiskThroughput', 'POST', '/', 'json', true, 'form', request);
 }
 
 model StartDiskReplicaGroupRequest {
