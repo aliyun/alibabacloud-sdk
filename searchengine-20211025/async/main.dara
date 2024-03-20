@@ -38,24 +38,24 @@ model ErrorResponse {
 
 model BuildIndexRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-7mz2iv7sq01', position='Path'),
-  buildMode?: string(name='buildMode', description='The mode in which reindexing is performed.', example='indexRecover', position='Body'),
+  buildMode?: string(name='buildMode', description='The reindexing mode.', example='indexRecover', position='Body'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='my_data_source', position='Body'),
   dataSourceType?: string(name='dataSourceType', description='The type of the data source.', example='swift', position='Body'),
-  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. This parameter is required if you import data from the data source by calling API operations.', example='1640867288', position='Body'),
-  domain?: string(name='domain', description='The data center in which the data source resides.', example='test', position='Body'),
-  generation?: long(name='generation', description='The ID of the generation.', example='160131146', position='Body'),
-  partition?: string(name='partition', description='The data partition. This parameter is required if the dataSourceType parameter is set to odps.', example='20201010', position='Body'),
+  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. It is of the INT type. This parameter is required for the API-pushed data source.', example='1640867288', position='Body'),
+  domain?: string(name='domain', description='The data center where the data source is deployed.', example='test', position='Body'),
+  generation?: long(name='generation', description='The data restoration version.', example='160131146', position='Body'),
+  partition?: string(name='partition', description='This parameter is required for the odps data source.', example='20201010', position='Body'),
 }
 
 model BuildIndexResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
-  result?: map[string]any(name='result', description='The result returned.', example='{}'),
+  requestId?: string(name='requestId', description='id of request', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
+  result?: map[string]any(name='result', description='The list of clusters', example='{}'),
 }
 
 model BuildIndexResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: BuildIndexResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BuildIndexResponseBody(name='body'),
 }
 
 /**
@@ -71,27 +71,27 @@ async function buildIndex(request: BuildIndexRequest): BuildIndexResponse {
 }
 
 model CreateClusterRequest {
-  instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-0ju2k3qer02', position='Path'),
-  autoLoad?: boolean(name='autoLoad', description='Specifies whether to automatically balance the load between QRS workers.', example='true', position='Body'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-0ju2k3qer02', position='Path'),
+  autoLoad?: boolean(name='autoLoad', description='The remarks of the query node', example='true', position='Body'),
   dataNode?: {
-    number?: int32(name='number', description='The number of Searcher workers.', example='2'),
-  }(name='dataNode', description='The information about Searcher workers.', position='Body'),
-  description?: string(name='description', description='The description of the cluster.', example='"ha-tets"', position='Body'),
-  name?: string(name='name', description='The name of the cluster.', example='ha-cn-zvp2qr1sk01_qrs', position='Body'),
+    number?: int32(name='number', description='The number of data nodes', example='2'),
+  }(name='dataNode', description='The description of the data node', position='Body'),
+  description?: string(name='description', description='The description of the cluster', example='"ha-tets"', position='Body'),
+  name?: string(name='name', description='The name of the node', example='ha-cn-zvp2qr1sk01_qrs', position='Body'),
   queryNode?: {
-    number?: int32(name='number', description='The number of QRS workers.', example='2'),
-  }(name='queryNode', description='The information about Query Result Searcher (QRS) workers.', position='Body'),
+    number?: int32(name='number', description='The number of nodes to query', example='2'),
+  }(name='queryNode', description='The description of the query node', position='Body'),
 }
 
 model CreateClusterResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
-  result?: map[string]any(name='result', description='The result returned.', example='{}'),
+  requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', description='The result returned', example='{}'),
 }
 
 model CreateClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateClusterResponseBody(name='body'),
 }
 
 /**
@@ -132,20 +132,16 @@ model CreateDataSourceRequest {
 }
 
 model CreateDataSourceResponseBody = {
-  requestId?: string(name='requestId', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
   result?: map[string]any(name='result', description='The returned results.', example='{}'),
 }
 
 model CreateDataSourceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateDataSourceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDataSourceResponseBody(name='body'),
 }
 
-/**
-  * The result returned
-  *
- */
 async function createDataSource(request: CreateDataSourceRequest): CreateDataSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateDataSource', 'POST', '/openapi/ha3/instances/{instanceId}/data-sources', 'json', false, 'json', request);
@@ -154,36 +150,53 @@ async function createDataSource(request: CreateDataSourceRequest): CreateDataSou
 model CreateIndexRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42ppr7901', position='Path'),
   content?: string(name='content', description='The content of the index.', example='{\\"summarys\\":{\\"summary_fields\\":[\\"id\\"]},\\"indexs\\":[{\\"index_name\\":\\"index_id\\",\\"index_type\\":\\"PRIMARYKEY64\\",\\"index_fields\\":\\"id\\",\\"has_primary_key_attribute\\":true,\\"is_primary_key_sorted\\":false}],\\"attributes\\":[\\"id\\"],\\"fields\\":[{\\"field_name\\":\\"id\\",\\"field_type\\":\\"UINT16\\"}],\\"table_name\\":\\"index_2\\"}', position='Body'),
-  dataSource?: string(name='dataSource', description='Optional. The data source, which can be MaxCompute, Message Service (MNS), Realtime Compute for Apache Flink, or StreamCompute.', example='test1', position='Body'),
+  dataSource?: string(name='dataSource', description='The data source type. Valid values: odps, mns, flink, and streaming. This parameter can be ignored.', example='test1', position='Body'),
   dataSourceInfo?: {
-    autoBuildIndex?: boolean(name='autoBuildIndex'),
+    autoBuildIndex?: boolean(name='autoBuildIndex', description='是否开启自动全量', example='true'),
     config?: {
-      accessKey?: string(name='accessKey'),
-      accessSecret?: string(name='accessSecret'),
-      endpoint?: string(name='endpoint'),
-      partition?: string(name='partition'),
-      project?: string(name='project'),
-      table?: string(name='table'),
-    }(name='config'),
-    processPartitionCount?: int32(name='processPartitionCount'),
-    type?: string(name='type'),
-  }(name='dataSourceInfo', position='Body'),
-  domain?: string(name='domain', description='The data center in which the data source resides.', example='vpc_hz_domain_1', position='Body'),
-  extend?: map[string]any(name='extend', position='Body'),
+      accessKey?: string(name='accessKey', description='odps数据源ak', example='L***p'),
+      accessSecret?: string(name='accessSecret', description='odps数据源ak secret', example='5**9a6'),
+      bucket?: string(name='bucket'),
+      endpoint?: string(name='endpoint', description='odps数据源的endpoint, oss数据源的endpoint', example='https://oss-cn-hangzhou.aliyuncs.com'),
+      namespace?: string(name='namespace'),
+      ossPath?: string(name='ossPath'),
+      partition?: string(name='partition', description='数据源为odps时必填', example='ds=20230114'),
+      path?: string(name='path'),
+      project?: string(name='project', description='odps数据源项目名称', example='bbt_algo_pai'),
+      table?: string(name='table', description='表名称', example='bbt_rec_swing_u2i2i_score_be_v1'),
+    }(name='config', description='odps相关'),
+    dataTimeSec?: int32(name='dataTimeSec'),
+    domain?: string(name='domain'),
+    name?: string(name='name'),
+    processPartitionCount?: int32(name='processPartitionCount', description='数据更新资源数', example='4'),
+    saroConfig?: {
+      namespace?: string(name='namespace'),
+      tableName?: string(name='tableName'),
+    }(name='saroConfig'),
+    type?: string(name='type', description='数据源类型
+odps
+swift
+saro
+oss', example='odps'),
+  }(name='dataSourceInfo', description='数据源相关信息 （向量检索版新版本必填）', position='Body'),
+  domain?: string(name='domain', description='The data center where the data source is deployed.', example='vpc_hz_domain_1', position='Body'),
+  extend?: map[string]any(name='extend', description='字段配置的扩展的内容
+key: 向量字段(vector)、
+需embeding字段(embeding)', position='Body'),
   name?: string(name='name', description='The name of the index.', example='ha-cn-zvp2qr1sk01_qrs', position='Body'),
-  partition?: int32(name='partition', description='The data partition.', example='2', position='Body'),
-  dryRun?: boolean(name='dryRun', position='Query'),
+  partition?: int32(name='partition', description='The data partition.', example='20211202', position='Body'),
+  dryRun?: boolean(name='dryRun', description='是否dryRun创建（仅校验数据源是否合法）。取值：-true 是 -false 否', example='true', position='Query'),
 }
 
 model CreateIndexResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
-  result?: map[string]any(name='result', description='The information about the index.', example='{}'),
+  requestId?: string(name='requestId', description='id of request', example='407BFD91-DE7D-50BA-8F88-CDE52A3B5E46'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model CreateIndexResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateIndexResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateIndexResponseBody(name='body'),
 }
 
 /**
@@ -203,31 +216,31 @@ async function createIndex(request: CreateIndexRequest): CreateIndexResponse {
 }
 
 model CreateInstanceRequest {
-  chargeType?: string(name='chargeType', description='The billing method of the instance. Valid values: PREPAY and POSTPAY. PREPAY: subscription. If you set this parameter to PREPAY, make sure that your Alibaba Cloud account supports balance payment or credit payment. Otherwise, the system returns the InvalidPayMethod error message. In addition, you must specify the paymentInfo parameter. POSTPAY: pay-as-you-go. This billing method is not supported.', example='""', position='Body'),
+  chargeType?: string(name='chargeType', description='The billing method of the instance. Valid values: PREPAY and POSTPAY. PREPAY indicates the instance is a subscription instance. When you set this parameter to PREPAY, make sure that your Alibaba Cloud account supports balance payment or credit card payment. Otherwise, the system returns the InvalidPayMethod error message. If you set this parameter to PREPAY, you must also specify the paymentInfo parameter. POSTPAY indicates that the instance is a pay-as-you-go instance. This billing method is not supported.', example='""', position='Body'),
   components?: [ 
     {
-      code?: string(name='code', description='The name of the specification. The value must be the same as the name of a parameter on the buy page.', example='""'),
-      value?: string(name='value', description='The value of the specification.', example='""'),
+      code?: string(name='code', description='The specification code, which must be consistent with values of the corresponding module parameters.', example='""'),
+      value?: string(name='value', description='Values that you specify for the corresponding module components on the buy page.', example='""'),
     }
-  ](name='components', description='The specifications of the instance.', position='Body'),
+  ](name='components', description='A list of instance-related specifications.', position='Body'),
   order?: {
     autoRenew?: boolean(name='autoRenew', description='Specifies whether to enable auto-renewal. Valid values: true and false.', example='true'),
-    duration?: long(name='duration', description='The billing cycle. Valid values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, and 12.', example='29'),
-    pricingCycle?: string(name='pricingCycle', description='The unit of the billing cycle. Valid values: Month and Year.', example='""'),
-  }(name='order', description='The information about billing.', position='Body'),
+    duration?: long(name='duration', description='The billing duration. Valid values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, and 12.', example='29'),
+    pricingCycle?: string(name='pricingCycle', description='The unit of the billing duration. Valid values: Month and Year.', example='""'),
+  }(name='order', description='The billing information.', position='Body'),
 }
 
 model CreateInstanceResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
+  requestId?: string(name='requestId', description='The ID of the request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
   result?: {
-    instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42ppr7901'),
-  }(name='result', description='The result returned.'),
+    instanceId?: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ppr7901'),
+  }(name='result', description='The result returned'),
 }
 
 model CreateInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateInstanceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInstanceResponseBody(name='body'),
 }
 
 /**
@@ -253,9 +266,9 @@ model DeleteAdvanceConfigResponseBody = {
 }
 
 model DeleteAdvanceConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteAdvanceConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAdvanceConfigResponseBody(name='body'),
 }
 
 /**
@@ -281,9 +294,9 @@ model DeleteDataSourceResponseBody = {
 }
 
 model DeleteDataSourceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteDataSourceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDataSourceResponseBody(name='body'),
 }
 
 /**
@@ -299,25 +312,28 @@ async function deleteDataSource(request: DeleteDataSourceRequest): DeleteDataSou
 }
 
 model DeleteIndexRequest {
-  instanceId: string(name='instanceId', description='WB01240825', example='ha-cn-2r42p5oi202', position='Path'),
-  indexName: string(name='indexName', example='generation', position='Path'),
-  dataSource: string(name='dataSource', example='ha-cn-pl32rf0js04_test', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42p5oi202', position='Path'),
+  indexName: string(name='indexName', description='The name of the index', example='generation', position='Path'),
+  dataSource: string(name='dataSource', description='The data source', example='ha-cn-pl32rf0js04_test', position='Query'),
   deleteDataSource?: boolean(name='deleteDataSource', position='Query'),
 }
 
 model DeleteIndexResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
-  result?: map[string]any(name='result', example='{}'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model DeleteIndexResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteIndexResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteIndexResponseBody(name='body'),
 }
 
 /**
-  * The information about the index
+  * ## Method
+  *     DELETE
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}?dataSource=xxx
   *
  */
 async function deleteIndex(request: DeleteIndexRequest): DeleteIndexResponse {
@@ -326,24 +342,27 @@ async function deleteIndex(request: DeleteIndexRequest): DeleteIndexResponse {
 }
 
 model DeleteIndexVersionRequest {
-  instanceId: string(name='instanceId', description='WB01240825', example='ha-cn-0ju2rrogr01', position='Path'),
-  indexName: string(name='indexName', example='generation', position='Path'),
-  versionName: string(name='versionName', example='ha-cn-pl32rf0js04@ha-cn-pl32rf0js04_shenzhen_test_01@sz_vpc_domain_1@api_test@index_config_v1', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-0ju2rrogr01', position='Path'),
+  indexName: string(name='indexName', description='The name of the index', example='generation', position='Path'),
+  versionName: string(name='versionName', description='The name of the version', example='ha-cn-pl32rf0js04@ha-cn-pl32rf0js04_shenzhen_test_01@sz_vpc_domain_1@api_test@index_config_v1', position='Path'),
 }
 
 model DeleteIndexVersionResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
-  result?: map[string]any(name='result', example='{}'),
+  result?: map[string]any(name='result', description='The result', example='{}'),
 }
 
 model DeleteIndexVersionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteIndexVersionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteIndexVersionResponseBody(name='body'),
 }
 
 /**
-  * The result
+  * ## Method
+  *     DELETE
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}
   *
  */
 async function deleteIndexVersion(request: DeleteIndexVersionRequest): DeleteIndexVersionResponse {
@@ -352,22 +371,25 @@ async function deleteIndexVersion(request: DeleteIndexVersionRequest): DeleteInd
 }
 
 model DeleteInstanceRequest {
-  instanceId: string(name='instanceId', example='ha-cn-7pp2m0ozr01', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7pp2m0ozr01', position='Path'),
 }
 
 model DeleteInstanceResponseBody = {
-  requestId?: string(name='requestId', example='E45380E8-994A-5402-9806-F114B3295FCF'),
-  result?: map[string]any(name='result', example='{}'),
+  requestId?: string(name='requestId', description='The ID of the request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
+  result?: map[string]any(name='result', description='The result returned', example='{}'),
 }
 
 model DeleteInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteInstanceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstanceResponseBody(name='body'),
 }
 
 /**
-  * The result returned
+  * ### Method
+  * `DELETE`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}`
   *
  */
 async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceResponse {
@@ -376,19 +398,19 @@ async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceRes
 }
 
 model ForceSwitchRequest {
-  instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-tl32m2c4u01', position='Path'),
-  fsmId: string(name='fsmId', description='The ID of the task.', example='tisplus_opensearch@roll_index_fsm@ha-cn-0ju2je4zj01@bj_vpc_domain_2@null@bj_vpc_domain_2_general_odps_false@1644312508597@934743', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-tl32m2c4u01', position='Path'),
+  fsmId: string(name='fsmId', description='The ID of the FSM task', example='tisplus_opensearch@roll_index_fsm@ha-cn-0ju2je4zj01@bj_vpc_domain_2@null@bj_vpc_domain_2_general_odps_false@1644312508597@934743', position='Path'),
 }
 
 model ForceSwitchResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='0B1FF998-BB8D-5182-BFC0-E471AA77095A'),
-  result?: map[string]any(name='result', description='The index information.', example='{}'),
+  requestId?: string(name='requestId', description='id of request', example='0B1FF998-BB8D-5182-BFC0-E471AA77095A'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model ForceSwitchResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ForceSwitchResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ForceSwitchResponseBody(name='body'),
 }
 
 /**
@@ -434,9 +456,9 @@ model GetAdvanceConfigResponseBody = {
 }
 
 model GetAdvanceConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAdvanceConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAdvanceConfigResponseBody(name='body'),
 }
 
 /**
@@ -452,24 +474,31 @@ async function getAdvanceConfig(request: GetAdvanceConfigRequest): GetAdvanceCon
 }
 
 model GetAdvanceConfigFileRequest {
-  instanceId: string(name='instanceId', description='Obtains the information in a specified advanced configuration file.', example='ha-cn-2r42ostoc01', position='Path'),
-  configName: string(name='configName', example='ha-cn-7pp2pcna701_online_config_v5', position='Path'),
-  fileName: string(name='fileName', example='/intervene_dict/chn_ecommerce_general.dict', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
+  configName: string(name='configName', description='The name of the configuration', example='ha-cn-7pp2pcna701_online_config_v5', position='Path'),
+  fileName: string(name='fileName', description='The name of the file', example='/intervene_dict/chn_ecommerce_general.dict', position='Query'),
 }
 
 model GetAdvanceConfigFileResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
   result?: {
-    content?: string(name='content'),
-  }(name='result'),
+    content?: string(name='content', description='The content of the file', example='{"summarys":{"parameter":{"file_compressor":"zstd"},"summary_fields":["id"]},"file_compress":[{"name":"file_compressor","type":"zstd"},{"name":"no_compressor","type":""}],"indexs":[{"index_fields":"name","index_name":"ids","index_type":"STRING"},{"has_primary_key_attribute":true,"index_fields":"id","is_primary_key_sorted":false,"index_name":"id","index_type":"PRIMARYKEY64"}],"attributes":[{"file_compress":"no_compressor","field_name":"id"}],"fields":[{"user_defined_param":{},"compress_type":"uniq","field_type":"STRING","field_name":"id"},{"compress_type":"uniq","field_type":"STRING","field_name":"name"}],"table_name":"api"}'),
+  }(name='result', description='The result'),
 }
 
 model GetAdvanceConfigFileResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAdvanceConfigFileResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAdvanceConfigFileResponseBody(name='body'),
 }
 
+/**
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+  *
+ */
 async function getAdvanceConfigFile(request: GetAdvanceConfigFileRequest): GetAdvanceConfigFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetAdvanceConfigFile', 'GET', '/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file', 'json', false, 'json', request);
@@ -505,9 +534,9 @@ model GetClusterResponseBody = {
 }
 
 model GetClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetClusterResponseBody(name='body'),
 }
 
 /**
@@ -530,137 +559,121 @@ model GetClusterRunTimeInfoResponseBody = {
   requestId?: string(name='requestId', description='Id of the request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: [ 
     {
-      clusterName?: string(name='clusterName', description='The name of the cluster', example='vpc_hz_domain_1'),
+      clusterName?: string(name='clusterName', description='The name of the cluster.', example='vpc_hz_domain_1'),
       dataNodes?: [ 
         {
           configStatusList?: [ 
             {
-              configUpdateTime?: string(name='configUpdateTime'),
-              donePercent?: int32(name='donePercent'),
-              doneSize?: int32(name='doneSize'),
-              name?: string(name='name'),
-              totalSize?: int32(name='totalSize'),
+              configUpdateTime?: string(name='configUpdateTime', description='The time when the cluster was updated.', example='""'),
+              donePercent?: int32(name='donePercent', description='The overall progress.', example='100'),
+              doneSize?: int32(name='doneSize', description='The number of nodes that are configured.', example='1'),
+              name?: string(name='name', description='The name of the cluster.', example='test_0704'),
+              totalSize?: int32(name='totalSize', description='The total number of nodes that you specify when you create the cluster.', example='0'),
             }
-          ](name='configStatusList'),
+          ](name='configStatusList', description='The configuration status list.'),
           dataStatusList?: [ 
             {
               advanceConfigInfo?: {
-                configMetaName?: string(name='configMetaName'),
-                version?: long(name='version'),
-              }(name='advanceConfigInfo'),
-              deployFailedWorker?: [ string ](name='deployFailedWorker'),
-              docSize?: int32(name='docSize'),
-              donePercent?: int32(name='donePercent'),
-              doneSize?: int32(name='doneSize'),
-              errorMsg?: string(name='errorMsg'),
-              fullUpdateTime?: string(name='fullUpdateTime'),
-              fullVersion?: long(name='fullVersion'),
-              incUpdateTime?: string(name='incUpdateTime'),
-              incVersion?: long(name='incVersion'),
+                configMetaName?: string(name='configMetaName', description='The name of the index configuration.', example='index_meta_name'),
+                version?: long(name='version', description='The version number.', example='1.0'),
+              }(name='advanceConfigInfo', description='The information about advanced configurations.'),
+              deployFailedWorker?: [ string ](name='deployFailedWorker', description='The name of the worker that failed because of a deployment failure.'),
+              docSize?: int32(name='docSize', description='The storage capacity. Unit: GB.', example='2'),
+              donePercent?: int32(name='donePercent', description='The overall progress.', example='100'),
+              doneSize?: int32(name='doneSize', description='The number of nodes that are configured.', example='100'),
+              errorMsg?: string(name='errorMsg', description='The error message.', example='0A3B1C48006A6C0905F6375F4821EB50'),
+              fullUpdateTime?: string(name='fullUpdateTime', description='The time when the full data was updated.', example='" "'),
+              fullVersion?: long(name='fullVersion', description='The full version.', example='123423'),
+              incUpdateTime?: string(name='incUpdateTime', description='The time when the incremental data was updated.', example='""'),
+              incVersion?: long(name='incVersion', description='The incremental version.', example='123423'),
               indexConfigInfo?: {
-                configMetaName?: string(name='configMetaName'),
-                version?: long(name='version'),
-              }(name='indexConfigInfo'),
-              indexSize?: long(name='indexSize'),
-              lackDiskWorker?: [ string ](name='lackDiskWorker'),
-              lackMemWorker?: [ string ](name='lackMemWorker'),
-              name?: string(name='name'),
-              totalSize?: int32(name='totalSize'),
+                configMetaName?: string(name='configMetaName', description='The name of the index configuration.', example='index_meta_name'),
+                version?: long(name='version', description='The version of the index template.', example='1.0.0'),
+              }(name='indexConfigInfo', description='The configuration information of the index.'),
+              indexSize?: long(name='indexSize', description='The size of the index.', example='100'),
+              lackDiskWorker?: [ string ](name='lackDiskWorker', description='The name of the worker that failed because of insufficient disk space.'),
+              lackMemWorker?: [ string ](name='lackMemWorker', description='The name of the worker that failed because of insufficient memory.'),
+              name?: string(name='name', description='The name of the node.', example='ha-cn-c4d2rq7nt04_qrs'),
+              totalSize?: int32(name='totalSize', description='The total number of nodes that you specify when you create the cluster.', example='1'),
             }
-          ](name='dataStatusList'),
+          ](name='dataStatusList', description='The dataStatusList.'),
           serviceStatus?: {
-            donePercent?: int32(name='donePercent'),
-            doneSize?: int32(name='doneSize'),
-            name?: string(name='name'),
-            totalSize?: int32(name='totalSize'),
-          }(name='serviceStatus'),
+            donePercent?: int32(name='donePercent', description='The overall progress.', example='100'),
+            doneSize?: int32(name='doneSize', description='The number of nodes being processed in the cluster.', example='100'),
+            name?: string(name='name', description='The name.', example='ha-cn-0ju2s170b03_qrs'),
+            totalSize?: int32(name='totalSize', description='The total number of nodes in the cluster.', example='100'),
+          }(name='serviceStatus', description='The service status.'),
         }
-      ](name='dataNodes', description='dataNodes', example='{}'),
+      ](name='dataNodes', description='The information about the data node.'),
       queryNode?: {
         configStatusList?: [ 
           {
-            configUpdateTime?: string(name='configUpdateTime', description='configUpdateTime', example='" "'),
-            donePercent?: int32(name='donePercent', description='donePercent', example='100'),
-            doneSize?: int32(name='doneSize', description='doneSize', example='100'),
-            name?: string(name='name', description='name', example='ha-cn-zvp2qr1sk01_qrs'),
-            totalSize?: int32(name='totalSize', description='totalSize', example='6'),
+            configUpdateTime?: string(name='configUpdateTime', description='The time when the cluster was updated.', example='" "'),
+            donePercent?: int32(name='donePercent', description='The progress.', example='100'),
+            doneSize?: int32(name='doneSize', description='The number of nodes that are configured.', example='100'),
+            name?: string(name='name', description='The name of the cluster.', example='ha-cn-zvp2qr1sk01_qrs'),
+            totalSize?: int32(name='totalSize', description='The total number of nodes that you specify when you create the cluster.', example='6'),
           }
-        ](name='configStatusList', description='configStatusList'),
+        ](name='configStatusList', description='The dataStatusList.'),
         serviceStatus?: {
-          donePercent?: int32(name='donePercent', description='donePercent', example='100'),
-          doneSize?: int32(name='doneSize', description='doneSize', example='100'),
+          donePercent?: int32(name='donePercent', description='The progress.', example='100'),
+          doneSize?: int32(name='doneSize', description='The number of nodes that are configured.', example='100'),
           name?: string(name='name', description='The name of the cluster.', example='ha-cn-c4d2rq7nt04_qrs'),
-          totalSize?: int32(name='totalSize', description='totalSize', example='100'),
-        }(name='serviceStatus', description='serviceStatus'),
-      }(name='queryNode', description='The specifications of the query node.'),
+          totalSize?: int32(name='totalSize', description='The total number of nodes that you specify when you create the cluster.', example='100'),
+        }(name='serviceStatus', description='The service status.'),
+      }(name='queryNode', description='The information about the query node.'),
     }
-  ](name='result', description='The configuration progress. Unit: percentage.'),
+  ](name='result', description='The result set.'),
 }
 
 model GetClusterRunTimeInfoResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetClusterRunTimeInfoResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetClusterRunTimeInfoResponseBody(name='body'),
 }
 
+/**
+  * ### Method
+  * GET
+  * ### URI
+  * /openapi/ha3/instances/{instanceId}/cluster-run-time-info
+  *
+ */
 async function getClusterRunTimeInfo(request: GetClusterRunTimeInfoRequest): GetClusterRunTimeInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetClusterRunTimeInfo', 'GET', '/openapi/ha3/instances/{instanceId}/cluster-run-time-info', 'json', false, 'json', request);
 }
 
 model GetDataSourceRequest {
-  instanceId?: string(name='instanceId', description='### Sample requests
-
-`GET /openapi/ha3/instances/ha3_instances_id/data-sources/my_data_source`', example='ha-cn-2r42ostoc01', position='Path'),
-  dataSourceName?: string(name='dataSourceName', description='### Sample responses
-
-    {
-      "requestId": "0A6EB64B-B4C8-CF02-810F-E660812972FF",
-      "result": {
-        "name": "data_source_name",
-        "type": "odps",
-        "domain": "test",  // The data center of the data source that is deployed in offline mode    
-        "indexes": [
-          "index1",
-          "index2"
-        ],
-        "partitions": [
-          "ds=2020",
-          "ds=2021"
-        ],
-        "lastFulTime": 1628502036000,
-        "config":{
-          "accessKey": "xxx",
-          "accessSecret": "xxxs",
-          "project":"xxxx",
-          "table":"xxx",
-          "partition":"xxxx"
-        },
-        "autoBuildIndex": true,
-        "status": "new"	   // The state of the data source. new indicates that the data source is being created, publish indicates that the data source is normal, and trash indicates that the data source is being deleted.
-       
-      }
-    }', example='ha-cn-2r42ostoc01_people_info', position='Path'),
+  instanceId?: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
+  dataSourceName?: string(name='dataSourceName', description='The name of the data source', example='ha-cn-2r42ostoc01_people_info', position='Path'),
 }
 
 model GetDataSourceResponseBody = {
   requestId?: string(name='requestId', description='Id of the request', example='FE03180A-0E29-5474-8A86-33F0683294A4'),
   result?: {
-    domain?: string(name='domain', example='vpc_hz_domain_1'),
-    indexes?: [ string ](name='indexes'),
-    lastFulTime?: long(name='lastFulTime'),
-    name?: string(name='name', example='my_index'),
-    status?: string(name='status', example='NEW'),
-    type?: string(name='type', description='The type of the data source.', example='odps'),
-  }(name='result', description='The information about the data source.'),
+    domain?: string(name='domain', description='The data center where the data source is deployed in offline mode', example='vpc_hz_domain_1'),
+    indexes?: [ string ](name='indexes', description='The list of index information'),
+    lastFulTime?: long(name='lastFulTime', description='The time when an index for full data was last built'),
+    name?: string(name='name', description='The name of the data source', example='my_index'),
+    status?: string(name='status', description='The state of the data source', example='NEW'),
+    type?: string(name='type', description='The type of the data source', example='odps'),
+  }(name='result', description='The list of information about the data source'),
 }
 
 model GetDataSourceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDataSourceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDataSourceResponseBody(name='body'),
 }
 
+/**
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+  *
+ */
 async function getDataSource(request: GetDataSourceRequest): GetDataSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDataSource', 'GET', '/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}', 'json', false, 'json', request);
@@ -715,9 +728,9 @@ model GetDataSourceDeployResponseBody = {
 }
 
 model GetDataSourceDeployResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDataSourceDeployResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDataSourceDeployResponseBody(name='body'),
 }
 
 async function getDataSourceDeploy(request: GetDataSourceDeployRequest): GetDataSourceDeployResponse {
@@ -726,7 +739,7 @@ async function getDataSourceDeploy(request: GetDataSourceDeployRequest): GetData
 }
 
 model GetDeployGraphRequest {
-  instanceId?: string(name='instanceId', example='ha-cn-7pp2pcna701', position='Path'),
+  instanceId?: string(name='instanceId', description='The ID of the instance', example='ha-cn-7pp2pcna701', position='Path'),
 }
 
 model GetDeployGraphResponseBody = {
@@ -742,7 +755,7 @@ model GetDeployGraphResponseBody = {
           tag?: string(name='tag'),
           zoneName?: string(name='zoneName'),
         }
-      ](name='indexMetas'),
+      ](name='indexMetas', description='索引元信息'),
       onlineMaster?: [ 
         {
           domainName?: string(name='domainName'),
@@ -750,8 +763,8 @@ model GetDeployGraphResponseBody = {
           id?: long(name='id'),
           name?: string(name='name'),
         }
-      ](name='onlineMaster'),
-      tableIndexRelation?: map[string][ string ](name='tableIndexRelation'),
+      ](name='onlineMaster', description='在线集群元信息'),
+      tableIndexRelation?: map[string][ string ](name='tableIndexRelation', description='数据源和索引关联关系'),
       tableMetas?: [ 
         {
           buildDeployId?: long(name='buildDeployId'),
@@ -761,8 +774,8 @@ model GetDeployGraphResponseBody = {
           tag?: string(name='tag'),
           type?: string(name='type'),
         }
-      ](name='tableMetas'),
-      zoneIndexRelation?: map[string][ string ](name='zoneIndexRelation'),
+      ](name='tableMetas', description='数据源元信息'),
+      zoneIndexRelation?: map[string][ string ](name='zoneIndexRelation', description='zone和索引关联关系'),
       zoneMetas?: [ 
         {
           domainInfo?: string(name='domainInfo'),
@@ -771,21 +784,23 @@ model GetDeployGraphResponseBody = {
           tag?: string(name='tag'),
           type?: string(name='type'),
         }
-      ](name='zoneMetas'),
+      ](name='zoneMetas', description='zone元信息'),
     }(name='graph'),
-  }(name='result', example='{}'),
+  }(name='result', description='The result returned', example='{}'),
 }
 
 model GetDeployGraphResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetDeployGraphResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDeployGraphResponseBody(name='body'),
 }
 
 /**
-  * ### Sample requests
+  * ## Method
+  * GET
+  * ## URI
   * ```java
-  * GET /openapi/ha3/instances/{instanceId}/deploy-graph
+  * /openapi/ha3/instances/{instanceId}/deploy-graph
   * ```
   *
  */
@@ -795,50 +810,37 @@ async function getDeployGraph(request: GetDeployGraphRequest): GetDeployGraphRes
 }
 
 model GetFileRequest {
-  instanceId: string(name='instanceId', description='## Method
-
-    GET
-
-## URI
-
-    /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt', example='ha-cn-i7m2rpzm605', position='Path'),
-  indexName: string(name='indexName', description='## Sample responses
-
-Success responses
-
-    {
-      "requestId": "e1eef569-1ff7-4bf8-acf7-1cecca9894ce",
-      "result": {
-        "name":"version1",  // The file name
-        "fullPathName": "/root/version1",   // The name of the full path
-        "dataSource": "odps1", // The data source
-        "partition": 1,  // The number of shards
-        "isDir": false, // Indicates whether it is a directory.
-        "content": ""
-      }
-    }', example='ecmon_table_index_test', position='Path'),
-  versionName: string(name='versionName', example='ha-cn-tl32nd2nq01@ha-cn-tl32nd2nq01_00@bj_vpc_domain_1@point_cloud_3d@index_config_edit', position='Path'),
-  fileName: string(name='fileName', example='/schemas/automobile_vector_schema.json', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-i7m2rpzm605', position='Path'),
+  indexName: string(name='indexName', description='The name of the index', example='ecmon_table_index_test', position='Path'),
+  versionName: string(name='versionName', description='The name of the version', example='ha-cn-tl32nd2nq01@ha-cn-tl32nd2nq01_00@bj_vpc_domain_1@point_cloud_3d@index_config_edit', position='Path'),
+  fileName: string(name='fileName', description='The name of the file in full path', example='/schemas/automobile_vector_schema.json', position='Query'),
 }
 
 model GetFileResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: {
-    content?: string(name='content', example='None'),
-    dataSource?: string(name='dataSource', example='ha-cn-2r42p5oi202_xijie_test'),
-    fullPathName?: string(name='fullPathName', example='""'),
-    isDir?: boolean(name='isDir', example='True'),
-    name?: string(name='name', example='ha-cn-2r42ostoc01_qrs'),
-    partition?: long(name='partition', example='ds=20210828'),
-  }(name='result'),
+    content?: string(name='content', description='The content of the file.', example='None'),
+    dataSource?: string(name='dataSource', description='The data source.', example='ha-cn-2r42p5oi202_xijie_test'),
+    fullPathName?: string(name='fullPathName', description='The name of the full path.', example='""'),
+    isDir?: boolean(name='isDir', description='Indicates whether it is a directory.', example='True'),
+    name?: string(name='name', description='The name of the file.', example='ha-cn-2r42ostoc01_qrs'),
+    partition?: long(name='partition', description='The number of shards.', example='ds=20210828'),
+  }(name='result', description='The information about the index.'),
 }
 
 model GetFileResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetFileResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetFileResponseBody(name='body'),
 }
 
+/**
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+  *
+ */
 async function getFile(request: GetFileRequest): GetFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetFile', 'GET', '/openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file', 'json', false, 'json', request);
@@ -963,9 +965,9 @@ model GetIndexResponseBody = {
 }
 
 model GetIndexResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetIndexResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetIndexResponseBody(name='body'),
 }
 
 async function getIndex(request: GetIndexRequest): GetIndexResponse {
@@ -974,35 +976,36 @@ async function getIndex(request: GetIndexRequest): GetIndexResponse {
 }
 
 model GetIndexVersionRequest {
-  instanceId: string(name='instanceId', example='ha-cn-2r42ostoc01', position='Path'),
-  clusterName: string(name='clusterName', example='vpc_hz_domain_1', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
+  clusterName: string(name='clusterName', description='The name of the cluster', example='vpc_hz_domain_1', position='Path'),
 }
 
 model GetIndexVersionResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
-    cluster?: string(name='cluster', example='ayoss-cn-zhangjiakou-b'),
+    cluster?: string(name='cluster', description='The name of the cluster', example='ayoss-cn-zhangjiakou-b'),
     indexVersions?: [ 
       {
-        buildDeployId?: string(name='buildDeployId', example='" "'),
+        buildDeployId?: string(name='buildDeployId', description='The ID of the index deployed in offline mode', example='" "'),
         currentVersion?: long(name='currentVersion'),
-        indexName?: string(name='indexName', example='table4'),
-        versions?: [ long ](name='versions'),
+        indexName?: string(name='indexName', description='The name of the index table', example='table4'),
+        versions?: [ long ](name='versions', description='The version of the index'),
       }
-    ](name='indexVersions'),
-  }(name='result'),
+    ](name='indexVersions', description='The time when the cluster was updated'),
+  }(name='result', description='The list of cluster details'),
 }
 
 model GetIndexVersionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetIndexVersionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetIndexVersionResponseBody(name='body'),
 }
 
 /**
-  * ## Examples
-  * Sample requests
-  *     GET  /openapi/ha3/instances/ha3_instance_id_1/clusters/cluster1/index-version
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
   *
  */
 async function getIndexVersion(request: GetIndexVersionRequest): GetIndexVersionResponse {
@@ -1011,89 +1014,48 @@ async function getIndexVersion(request: GetIndexVersionRequest): GetIndexVersion
 }
 
 model GetInstanceRequest {
-  instanceId: string(name='instanceId', description='The lock status.', example='ha-cn-7pp2pcna701', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7pp2pcna701', position='Path'),
 }
 
 model GetInstanceResponseBody = {
-  requestId?: string(name='requestId', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
-    chargeType?: string(name='chargeType', description='付费类型', example='POSYPAY'),
-    commodityCode?: string(name='commodityCode', description='商品code', example='commodityCode'),
-    createTime?: string(name='createTime', description='代表创建时间的资源属性字段', example='2022-06-17T02:01:26Z'),
-    description?: string(name='description', description='The ID of the request.', example='ha3_test'),
-    expiredTime?: string(name='expiredTime', description='WB01240825', example='1634609702'),
-    inDebt?: boolean(name='inDebt', description='是否欠费', example='false'),
-    instanceId?: string(name='instanceId', description='代表资源一级ID的资源属性字段', example='ha-cn-7mz2qsgq301'),
-    lockMode?: string(name='lockMode', description='锁定状态', example='Unlock'),
-    resourceGroupId?: string(name='resourceGroupId', description='### Sample responses
+    chargeType?: string(name='chargeType', description='The billing method.', example='POSYPAY'),
+    commodityCode?: string(name='commodityCode', description='The product code.', example='commodityCode'),
+    createTime?: string(name='createTime', description='The time when the instance was created.', example='2022-06-17T02:01:26Z'),
+    description?: string(name='description', description='The description of the instance.', example='ha3_test'),
+    expiredTime?: string(name='expiredTime', description='The expiration time.', example='1634609702'),
+    inDebt?: boolean(name='inDebt', description='Indicates whether an overdue payment is involved.', example='false'),
+    instanceId?: string(name='instanceId', description='The ID of the resource.', example='ha-cn-7mz2qsgq301'),
+    lockMode?: string(name='lockMode', description='The lock status.', example='Unlock'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzjvw24el5lma'),
+    status?: string(name='status', description='The status of the instance. Valid values:
 
-**Sample success responses**
-
-    {
-      "requestId": "90D6B8F5-FE97-4509-9AAB-367836C51818",
-      "result": 
-      {
-        "instanceId":"fadsfsafs",
-        "inDebt":true,
-        "lockMode":"Unlock",
-        "expiredTime":"asdfas",
-        "updateTime":"dfasf",
-        "createTime":"dfasf",
-        "resourceGroupId":"resourceGroupID",
-        "commodityCode":"commodityCode",
-        "chargeType":"POSYPAY",
-        "description":"this is description",
-        "apiVersion": "tisplus/v1",
-        "network": {
-          "vSwitchId": "vswitch_id_xxx",
-          "vpcId": "vpc_id_xxx",	  
-        },
-        "userName": "user",
-        "spec": {
-          "searchResource": {
-            "disk": 50,
-            "mem": 8,
-            "cpu": 2,
-            "nodeCount": 2
-          },
-          "qrsResource": {
-            "disk": 50,
-            "mem": 8,
-            "cpu": 2,
-            "nodeCount": 2
-          }
-        },
-       "status": "INIT",
-      }
-    }
-
-**Sample error responses**
-
-    {
-      "requestId": "BD1EA715-DF6F-06C2-004C-C1FA0D3A9820",
-      "httpCode": 404,
-      "code": "App.NotFound",
-      "message": "App not found"
-    }', example='rg-aekzjvw24el5lma'),
-    status?: string(name='status', example='INIT'),
+*   INIT: being initialized
+*   WAIT_CONFIG: to be configured
+*   CONFIG_UPDATING: configuration taking effect
+*   READY: normal', example='INIT'),
     tags?: [ 
       {
-        key?: string(name='key', example='env'),
-        value?: string(name='value', example='prod'),
+        key?: string(name='key', description='标签键', example='env'),
+        value?: string(name='value', description='标签值', example='prod'),
       }
-    ](name='tags'),
-    updateTime?: string(name='updateTime', description='更新时间', example='1634609702'),
-  }(name='result', description='The description of the instance.'),
+    ](name='tags', description='标签。'),
+    updateTime?: string(name='updateTime', description='The time when the instance was last updated.', example='1634609702'),
+  }(name='result', description='The result returned.'),
 }
 
 model GetInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetInstanceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetInstanceResponseBody(name='body'),
 }
 
 /**
-  * The billing method.
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}`
   *
  */
 async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
@@ -1102,51 +1064,28 @@ async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
 }
 
 model GetNodeConfigRequest {
-  instanceId: string(name='instanceId', description='### Sample responses
-
-Success responses ﻿
-
-```java
-{
-﻿
-  "requestId": "0A6EB64B-B4C8-CF02-810F-E660812972FF",
-﻿
-  "result": {
-﻿
-    "dataFragmentNumber":1,
-﻿
-    "dataDuplicateNumber":1,
-﻿
-    "minServicePercent":20,
-﻿
-    "published":true,
-﻿
-    "active": true  // Indicates whether the online configurations have taken effect.
-﻿
-  }
-﻿
-}
-```', example='ha-cn-0ju2rewdi02', position='Path'),
-  clusterName?: string(name='clusterName', example='vpc_sh_domain_2', position='Query'),
-  name?: string(name='name', example='ha-cn-30174dhoz53_qrs', position='Query'),
-  type?: string(name='type', example='index', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-0ju2rewdi02', position='Path'),
+  clusterName?: string(name='clusterName', description='The name of the cluster', example='vpc_sh_domain_2', position='Query'),
+  name?: string(name='name', description='The name of the cluster.', example='ha-cn-30174dhoz53_qrs', position='Query'),
+  type?: string(name='type', description='The type of the node. Valid values: qrs, search, index, and cluster. qrs indicates a query node, search indicates a data node, index indicates an index node, and cluster indicates a cluster node.', example='index', position='Query'),
 }
 
 model GetNodeConfigResponseBody = {
   requestId?: string(name='requestId', description='Id of the request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: {
-    active?: boolean(name='active'),
-    dataDuplicateNumber?: int32(name='dataDuplicateNumber'),
-    dataFragmentNumber?: int32(name='dataFragmentNumber'),
-    minServicePercent?: int32(name='minServicePercent'),
-    published?: boolean(name='published'),
-  }(name='result'),
+    active?: boolean(name='active', description='Indicates whether the expression is the default one.', example='1'),
+    dataDuplicateNumber?: int32(name='dataDuplicateNumber', description='The number of data replicas.', example='2'),
+    dataFragmentNumber?: int32(name='dataFragmentNumber', description='The number of data shards.', example='2'),
+    flowRatio?: int32(name='flowRatio'),
+    minServicePercent?: int32(name='minServicePercent', description='The minimum service ratio.', example='100'),
+    published?: boolean(name='published', description='Indicates whether the node is associated with the cluster.', example='true'),
+  }(name='result', description='The result set.'),
 }
 
 model GetNodeConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetNodeConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNodeConfigResponseBody(name='body'),
 }
 
 async function getNodeConfig(request: GetNodeConfigRequest): GetNodeConfigResponse {
@@ -1155,32 +1094,34 @@ async function getNodeConfig(request: GetNodeConfigRequest): GetNodeConfigRespon
 }
 
 model ListAdvanceConfigDirRequest {
-  instanceId: string(name='instanceId', example='ha-cn-tl32n3iu801', position='Path'),
-  configName: string(name='configName', example='ha-cn-2r42ostoc01_online_config_v3', position='Path'),
-  dirName: string(name='dirName', example='/zones/general', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-tl32n3iu801', position='Path'),
+  configName: string(name='configName', description='The name of the configuration', example='ha-cn-2r42ostoc01_online_config_v3', position='Path'),
+  dirName: string(name='dirName', description='The name of the directory', example='/zones/general', position='Query'),
 }
 
 model ListAdvanceConfigDirResponseBody = {
-  requestId?: string(name='requestId', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
   result?: [ 
     {
-      fullPathName?: string(name='fullPathName', example='"/path/wpd/nae"'),
-      isDir?: boolean(name='isDir', example='true'),
-      isTemplate?: boolean(name='isTemplate', example='true'),
-      name?: string(name='name', example='file_name_1'),
+      fullPathName?: string(name='fullPathName', description='The name of the absolute path.', example='"/path/wpd/nae"'),
+      isDir?: boolean(name='isDir', description='Indicates whether it is a directory. Valid values: true and false. true indicates that it is a directory, and false indicates that it is not a directory.', example='true'),
+      isTemplate?: boolean(name='isTemplate', description='Indicates whether it is a template. Valid values: **true** and **false**. true indicates that it is a template, and false indicates that it is not a template.', example='true'),
+      name?: string(name='name', description='The name of the cluster.', example='file_name_1'),
     }
-  ](name='result'),
+  ](name='result', description='The file list in the advanced configuration directory.'),
 }
 
 model ListAdvanceConfigDirResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListAdvanceConfigDirResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAdvanceConfigDirResponseBody(name='body'),
 }
 
 /**
-  * ## Sample requests
-  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
+  * ## Method
+  * `GET`
+  * ## URI
+  * `/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/dir?dirName={dirName}`
   *
  */
 async function listAdvanceConfigDir(request: ListAdvanceConfigDirRequest): ListAdvanceConfigDirResponse {
@@ -1189,42 +1130,43 @@ async function listAdvanceConfigDir(request: ListAdvanceConfigDirRequest): ListA
 }
 
 model ListAdvanceConfigsRequest {
-  instanceId: string(name='instanceId', description='Obtains a list of advanced configurations.', example='ha-cn-pl32rf0js04', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-pl32rf0js04', position='Path'),
   dataSourceName?: string(name='dataSourceName', position='Query'),
   indexName?: string(name='indexName', position='Query'),
-  type?: string(name='type', example='online', position='Query'),
+  type?: string(name='type', description='The type of the advanced configurations. Valid values: online and offline. - online The default value is offline.', example='online', position='Query'),
 }
 
 model ListAdvanceConfigsResponseBody = {
-  requestId?: string(name='requestId', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
-      content?: string(name='content', description='配置内容 http，git 请求时不为空'),
-      contentType?: string(name='contentType', description='配置内容的类型 (FILE, GIT, HTTP, ODPS)'),
-      desc?: string(name='desc', example='test'),
+      content?: string(name='content'),
+      contentType?: string(name='contentType'),
+      desc?: string(name='desc', description='The description.', example='test'),
       files?: [ 
         {
-          fullPathName?: string(name='fullPathName', example='/path/wpd/nae'),
-          isDir?: boolean(name='isDir', example='true'),
-          isTemplate?: boolean(name='isTemplate', example='true'),
-          name?: string(name='name', example='file_name_1'),
+          fullPathName?: string(name='fullPathName', description='The name of the absolute path.', example='/path/wpd/nae'),
+          isDir?: boolean(name='isDir', description='Indicates whether it is a directory. Valid values: true and false. true indicates that it is a directory, and false indicates that it is not a directory.', example='true'),
+          isTemplate?: boolean(name='isTemplate', description='Indicates whether it is a template. Valid values: true and false. true indicates that it is a directory, and false indicates that it is not a directory.', example='true'),
+          name?: string(name='name', description='The name of the file.', example='file_name_1'),
         }
-      ](name='files'),
-      name?: string(name='name', example='my_index'),
-      status?: string(name='status', example='drafting'),
-      updateTime?: long(name='updateTime', example='1631070464000'),
+      ](name='files', description='The list of file names.'),
+      name?: string(name='name', description='The name of the advanced configuration.', example='my_index'),
+      status?: string(name='status', description='The state of the advanced configuration. Valid values: drafting, used, unused, and trash. drafting indicates that the advanced configuration is a draft. used indicates that the advanced configuration is in use. unused indicates that the advanced configuration is unused. trash indicates that the advanced configuration is being deleted.', example='drafting'),
+      updateTime?: long(name='updateTime', description='The update time.', example='1631070464000'),
     }
-  ](name='result'),
+  ](name='result', description='The list of advanced configurations.'),
 }
 
 model ListAdvanceConfigsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListAdvanceConfigsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAdvanceConfigsResponseBody(name='body'),
 }
 
 /**
-  * http
+  * ## Sample requests
+  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
   *
  */
 async function listAdvanceConfigs(request: ListAdvanceConfigsRequest): ListAdvanceConfigsResponse {
@@ -1238,23 +1180,23 @@ model ListClusterNamesRequest {
 model ListClusterNamesResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='F6E3D968-529C-5C40-AFDD-133A8B8FD930'),
   result?: {
-    description?: string(name='description', example='ha3_test'),
-    id?: long(name='id', example='25030'),
-    name?: string(name='name', example='my_index'),
-  }(name='result'),
+    description?: string(name='description', description='The description of the cluster', example='ha3_test'),
+    id?: long(name='id', description='The ID of the cluster', example='25030'),
+    name?: string(name='name', description='The name of the cluster', example='my_index'),
+  }(name='result', description='The result set'),
 }
 
 model ListClusterNamesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListClusterNamesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListClusterNamesResponseBody(name='body'),
 }
 
 /**
-  * ### Sample requests
-  * ```java
-  * GET /openapi/ha3/instances/ha3_instance_name/cluster-names
-  * ```
+  * ### Method
+  * GET
+  * ### URI
+  * /openapi/ha3/instances/{instanceId}/cluster-names
   *
  */
 async function listClusterNames(request: ListClusterNamesRequest): ListClusterNamesResponse {
@@ -1263,103 +1205,111 @@ async function listClusterNames(request: ListClusterNamesRequest): ListClusterNa
 }
 
 model ListClusterTasksRequest {
-  instanceId: string(name='instanceId', description='The sequence number of the task.', example='ha-cn-i7m2roiy504', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-i7m2roiy504', position='Path'),
 }
 
 model ListClusterTasksResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='CC5EC8FA-5C0D-56AF-BEF4-6FCCEABD0511'),
   result?: [ 
     {
-      extraAttribute?: string(name='extraAttribute', example='" "'),
-      field3?: string(name='field3', example='" "'),
+      extraAttribute?: string(name='extraAttribute', description='The additional attributes of the card.', example='" "'),
+      field3?: string(name='field3', description='The field3 field that is passed through when you create a state machine.', example='" "'),
       fsmId?: string(name='fsmId', description='fsmId', example='tisplus_opensearch@datasource_flow_fsm@1865410598556969-ha-cn-zvp2ljiwe01_api2@bj_vpc_domain_1@null@MANUAL-ha-cn-zvp2ljiwe01_api2@1649729867698@028315'),
-      groupType?: string(name='groupType', description='### Method
-
-```java
-GET
-```
-
-### URI
-
-```java
-/openapi/ha3/instances/{instanceId}/cluster-tasks
-```', example='" "'),
-      name?: string(name='name', description='Displays cluster tasks .', example='ha-cn-pl32rf0js04_qrs'),
-      status?: string(name='status', example='onlyPublished'),
+      groupType?: string(name='groupType', description='Indicates whether the change is a data source task change or a cluster task change.', example='" "'),
+      name?: string(name='name', description='The task name on the card.', example='ha-cn-pl32rf0js04_qrs'),
+      status?: string(name='status', description='The overall status of FSM.', example='onlyPublished'),
       tags?: [ 
         {
-          msg?: string(name='msg', example='succeed in handling request'),
-          tagLevel?: string(name='tagLevel', example='" "'),
+          msg?: string(name='msg', description='The content of the tag.', example='succeed in handling request'),
+          tagLevel?: string(name='tagLevel', description='The level of the tag.', example='" "'),
         }
-      ](name='tags'),
+      ](name='tags', description='The status tag of the progress bar chart.'),
       taskNodes?: [ 
         {
-          finishDate?: string(name='finishDate', example='" "'),
-          index?: long(name='index', example='100'),
-          name?: string(name='name', example='general'),
-          status?: string(name='status', example='2'),
+          finishDate?: string(name='finishDate', description='The date when the task was completed.', example='" "'),
+          index?: long(name='index', description='The sequence number of the task.', example='100'),
+          name?: string(name='name', description='The name of the task.', example='general'),
+          status?: string(name='status', description='The status of the task.', example='2'),
         }
-      ](name='taskNodes'),
-      time?: string(name='time', example='1657610520'),
-      type?: string(name='type', example='qrs'),
-      user?: string(name='user', example='" "'),
+      ](name='taskNodes', description='The information about the task.'),
+      time?: string(name='time', description='The timestamp of the task on the card.', example='1657610520'),
+      type?: string(name='type', description='The type of the task on the card.', example='qrs'),
+      user?: string(name='user', description='The user who triggered the FSM process.', example='" "'),
     }
-  ](name='result', description='The date when the task was completed.'),
+  ](name='result', description='The information about the index.'),
 }
 
 model ListClusterTasksResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListClusterTasksResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListClusterTasksResponseBody(name='body'),
 }
 
+/**
+  * ### Method
+  * ```java
+  * GET
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/cluster-tasks
+  * ```
+  *
+ */
 async function listClusterTasks(request: ListClusterTasksRequest): ListClusterTasksResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListClusterTasks', 'GET', '/openapi/ha3/instances/{instanceId}/cluster-tasks', 'json', false, 'json', request);
 }
 
 model ListClustersRequest {
-  instanceId: string(name='instanceId', description='Queries the list of clusters.', example='ha-cn-zvp2jlr2g03', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-zvp2jlr2g03', position='Path'),
 }
 
 model ListClustersResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='F43E8AB4-419C-5F4C-90D6-615590DFAA3C'),
   result?: [ 
     {
-      configUpdateTime?: string(name='configUpdateTime', example='" "'),
-      currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', example='" "'),
+      configUpdateTime?: string(name='configUpdateTime', description='The time when the configuration was updated.', example='" "'),
+      currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced version.', example='" "'),
       currentOfflineDictConfigVersion?: string(name='currentOfflineDictConfigVersion', description='词典配置生效版本'),
-      currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', example='" "'),
+      currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='" "'),
       currentOnlineQueryConfigVersion?: string(name='currentOnlineQueryConfigVersion', description='查询配置生效版本'),
       dataNode?: {
-        name?: string(name='name', example='ha-cn-8ed2k7brm05_qrs'),
-        number?: int32(name='number', example='1'),
-        partition?: int32(name='partition', example='dt=20220216'),
-      }(name='dataNode'),
-      description?: string(name='description', example='fzz_test'),
-      latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion', example='" "'),
+        name?: string(name='name', description='The name of the node.', example='ha-cn-8ed2k7brm05_qrs'),
+        number?: int32(name='number', description='The number of nodes.', example='1'),
+        partition?: int32(name='partition', description='The partition ID of the node.', example='dt=20220216'),
+      }(name='dataNode', description='The information about the node in the cluster.'),
+      description?: string(name='description', description='The description of the cluster.', example='fzz_test'),
+      latestAdvanceConfigVersion?: string(name='latestAdvanceConfigVersion', description='The latest advanced configuration version.', example='" "'),
       latestOfflineDictConfigVersion?: string(name='latestOfflineDictConfigVersion', description='词典配置最新版本'),
-      latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion', example='" "'),
+      latestOnlineConfigVersion?: string(name='latestOnlineConfigVersion', description='The latest online configuration version.', example='" "'),
       latestOnlineQueryConfigVersion?: string(name='latestOnlineQueryConfigVersion', description='查询配置最新版本'),
-      name?: string(name='name', example='ha-cn-7pp2pcna701_qrs'),
+      name?: string(name='name', description='The name of the cluster.', example='ha-cn-7pp2pcna701_qrs'),
       queryNode?: {
-        name?: string(name='name', example='test_0704'),
-        number?: int32(name='number', example='1'),
-        partition?: int32(name='partition', example='dt=20211216'),
-      }(name='queryNode'),
-      status?: string(name='status', example='"starting"'),
+        name?: string(name='name', description='The name of the node.', example='test_0704'),
+        number?: int32(name='number', description='The number of nodes.', example='1'),
+        partition?: int32(name='partition', description='The number o replicas.', example='dt=20211216'),
+      }(name='queryNode', description='The query node of the cluster.'),
+      status?: string(name='status', description='The status of the cluster. Valid values: running, starting, stopping, and stopped. running indicates the cluster is running, starting indicates the cluster is starting, stopping indicates the cluster is stopping, and stopped indicates the cluster has stopped.', example='"starting"'),
     }
-  ](name='result'),
+  ](name='result', description='The list of clusters.'),
 }
 
 model ListClustersResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListClustersResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListClustersResponseBody(name='body'),
 }
 
 /**
-  * http
+  * ### Method
+  * ```java
+  * GET
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/clusters
+  * ```
   *
  */
 async function listClusters(request: ListClustersRequest): ListClustersResponse {
@@ -1368,37 +1318,40 @@ async function listClusters(request: ListClustersRequest): ListClustersResponse 
 }
 
 model ListDataSourceSchemasRequest {
-  instanceId: string(name='instanceId', example='ha-cn-zvp2s4l8f02', position='Path'),
-  dataSourceName: string(name='dataSourceName', example='ha-cn-2r42ostoc01_ecom_table_test', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-zvp2s4l8f02', position='Path'),
+  dataSourceName: string(name='dataSourceName', description='The name of the data source', example='ha-cn-2r42ostoc01_ecom_table_test', position='Path'),
 }
 
 model ListDataSourceSchemasResponseBody = {
-  requestId?: string(name='requestId', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='022F36C7-9FB4-5D67-BEBC-3D14B0984463'),
   result?: [ 
     {
-      addIndex?: boolean(name='addIndex', example='false'),
-      attribute?: boolean(name='attribute', example='false'),
-      custom?: boolean(name='custom', example='false'),
-      name?: string(name='name', example='test'),
+      addIndex?: boolean(name='addIndex', description='Indicates whether the index properties are added. Valid values: true and false. **true** indicates that the index properties are added, and **false** indicates that the index properties are not added.', example='false'),
+      attribute?: boolean(name='attribute', description='Indicates whether it is an attribute field. Valid values: true and false. **true** indicates that it is an attribute field, and **false** indicates that it is not an attribute field.', example='false'),
+      custom?: boolean(name='custom', description='Indicates whether it is a custom field. Valid values: true and false. **true** indicates that it is a custom field, and **false** indicates that it is not a custom field.', example='false'),
+      name?: string(name='name', description='The name of the field.', example='test'),
       primaryKey?: {
-        hasPrimaryKeyAttribute?: boolean(name='hasPrimaryKeyAttribute', example='false'),
-        isPrimaryKey?: boolean(name='isPrimaryKey', example='false'),
-        isPrimaryKeySorted?: boolean(name='isPrimaryKeySorted', example='false'),
-      }(name='primaryKey'),
-      summary?: boolean(name='summary', example='false'),
-      type?: string(name='type', example='STRING'),
+        hasPrimaryKeyAttribute?: boolean(name='hasPrimaryKeyAttribute', description='Indicates whether it has the primary key property. **true** indicates that it has the primary key property, and **false** indicates that it does not have the primary key property.', example='false'),
+        isPrimaryKey?: boolean(name='isPrimaryKey', description='Indicates whether it is the primary key. Valid values: true and false. **true** indicates that it is the primary key, and **false** indicates that it is not the primary key.', example='false'),
+        isPrimaryKeySorted?: boolean(name='isPrimaryKeySorted', description='Indicates whether data is sorted based on the primary key. Valid values: true and false. **true** indicates that data is sorted based on the primary key, and **false** indicates that data is not sorted based on the primary key.', example='false'),
+      }(name='primaryKey', description='The primary key.'),
+      summary?: boolean(name='summary', description='Indicates whether the information can be displayed. Valid values: true and false. **true** indicates that the information can be displayed, and **false** indicates that the information cannot be displayed.', example='false'),
+      type?: string(name='type', description='The type of the field.', example='STRING'),
     }
-  ](name='result'),
+  ](name='result', description='The result returned.'),
 }
 
 model ListDataSourceSchemasResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDataSourceSchemasResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDataSourceSchemasResponseBody(name='body'),
 }
 
 /**
-  * Obtains the schema information of a specified data source.
+  * ## Method
+  * `GET`
+  * ## URI
+  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/schemas`
   *
  */
 async function listDataSourceSchemas(request: ListDataSourceSchemasRequest): ListDataSourceSchemasResponse {
@@ -1407,91 +1360,93 @@ async function listDataSourceSchemas(request: ListDataSourceSchemasRequest): Lis
 }
 
 model ListDataSourceTasksRequest {
-  instanceId: string(name='instanceId', description='The sequence number of the task.', example='ha-cn-7e22rof5304', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7e22rof5304', position='Path'),
 }
 
 model ListDataSourceTasksResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='CC5EC8FA-5C0D-56AF-BEF4-6FCCEABD0511'),
   result?: [ 
     {
-      extraAttribute?: string(name='extraAttribute', example='""'),
-      field3?: string(name='field3', example='""'),
+      extraAttribute?: string(name='extraAttribute', description='The additional attributes of the card.', example='""'),
+      field3?: string(name='field3', description='The field3 field that is passed through when you create a state machine.', example='""'),
       fsmId?: string(name='fsmId', description='fsmId', example='tisplus_opensearch@datasource_flow_fsm@1062017779051424-ha-cn-2r42ostoc01_ecom_table@vpc_hz_domain_1@null@MANUAL-ha-cn-2r42ostoc01_ecom_table@1655974525756@006754'),
-      groupType?: string(name='groupType', description='### Method
-
-```java
-GET
-```
-
-### URI
-
-```java
-/openapi/ha3/instances/{instanceId}/data-source-tasks
-```', example='" "'),
-      name?: string(name='name', description='Displays data source tasks.', example='general'),
-      status?: string(name='status', example='2'),
+      groupType?: string(name='groupType', description='Indicates whether the change is a data source task change or a cluster task change.', example='" "'),
+      name?: string(name='name', description='The task name on the card.', example='general'),
+      status?: string(name='status', description='The overall status of FSM.', example='2'),
       tags?: [ 
         {
-          msg?: string(name='msg', example='succeed in handling request'),
-          tagLevel?: string(name='tagLevel', example='""'),
+          msg?: string(name='msg', description='The content of the tag.', example='succeed in handling request'),
+          tagLevel?: string(name='tagLevel', description='The level of the tag.', example='""'),
         }
-      ](name='tags'),
+      ](name='tags', description='The status tag of the progress bar chart.'),
       taskNodes?: [ 
         {
-          finishDate?: string(name='finishDate', example='""'),
-          index?: long(name='index', example='100'),
-          name?: string(name='name', example='ha-cn-7pp2ngv4s02_qrs'),
-          status?: string(name='status', example='onlyPublished'),
+          finishDate?: string(name='finishDate', description='The date when the task was completed.', example='""'),
+          index?: long(name='index', description='The sequence number of the task.', example='100'),
+          name?: string(name='name', description='The name of the task.', example='ha-cn-7pp2ngv4s02_qrs'),
+          status?: string(name='status', description='The status of the task.', example='onlyPublished'),
         }
-      ](name='taskNodes'),
-      time?: string(name='time', example='1646279473'),
-      type?: string(name='type', example='search'),
-      user?: string(name='user', example='""'),
+      ](name='taskNodes', description='The information about the task.'),
+      time?: string(name='time', description='The timestamp of the task on the card.', example='1646279473'),
+      type?: string(name='type', description='The type of the task on the card.', example='search'),
+      user?: string(name='user', description='The user who triggered the finite-state machine (FSM) process.', example='""'),
     }
-  ](name='result', description='The date when the task was completed.'),
+  ](name='result', description='The information about the index.'),
 }
 
 model ListDataSourceTasksResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDataSourceTasksResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDataSourceTasksResponseBody(name='body'),
 }
 
+/**
+  * ### Method
+  * ```java
+  * GET
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/data-source-tasks
+  * ```
+  *
+ */
 async function listDataSourceTasks(request: ListDataSourceTasksRequest): ListDataSourceTasksResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListDataSourceTasks', 'GET', '/openapi/ha3/instances/{instanceId}/data-source-tasks', 'json', false, 'json', request);
 }
 
 model ListDataSourcesRequest {
-  instanceId: string(name='instanceId', description='auditing', example='ha-cn-2r42ostoc01', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
 }
 
 model ListDataSourcesResponseBody = {
-  requestId?: string(name='requestId', description='## Method
-
-`GET`
-
-## URI
-
-`/openapi/ha3/instances/{instanceId}/data-sources`', example='93A9E542-8CF8-5BA6-99AB-94C0FE520429'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='93A9E542-8CF8-5BA6-99AB-94C0FE520429'),
   result?: [ 
     {
-      domain?: string(name='domain', description='The data sources deployed in offline mode.', example='test'),
-      indexes?: [ string ](name='indexes', description='The indexes.'),
-      lastFulTime?: long(name='lastFulTime', description='The time when the full data of the data source was last queried.'),
+      domain?: string(name='domain', description='The data center where the data source is deployed in offline mode.', example='test'),
+      indexes?: [ string ](name='indexes', description='The information about indexes.'),
+      lastFulTime?: long(name='lastFulTime', description='The time when an index for full data was last built.'),
       name?: string(name='name', description='The name of the data source.', example='data_source_name'),
-      status?: string(name='status', description='The status of the data source.', example='new'),
+      status?: string(name='status', description='The state of the data source.', example='new'),
       type?: string(name='type', description='The type of the data source.', example='odps'),
     }
-  ](name='result', description='The returned results.'),
+  ](name='result', description='The result returned.'),
 }
 
 model ListDataSourcesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDataSourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDataSourcesResponseBody(name='body'),
 }
 
+/**
+  * ## Method
+  * `GET`
+  * ## URI
+  * `/openapi/ha3/instances/{instanceId}/data-sources`
+  *
+ */
 async function listDataSources(request: ListDataSourcesRequest): ListDataSourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListDataSources', 'GET', '/openapi/ha3/instances/{instanceId}/data-sources', 'json', false, 'json', request);
@@ -1523,9 +1478,9 @@ model ListDateSourceGenerationsResponseBody = {
 }
 
 model ListDateSourceGenerationsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListDateSourceGenerationsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDateSourceGenerationsResponseBody(name='body'),
 }
 
 /**
@@ -1541,101 +1496,108 @@ async function listDateSourceGenerations(request: ListDateSourceGenerationsReque
 }
 
 model ListIndexesRequest {
-  instanceId: string(name='instanceId', description='Indicates whether it is a template.', example='ha-cn-2r42ostoc01', position='Path'),
-  newMode?: boolean(name='newMode', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
+  newMode?: boolean(name='newMode', description='是否为新版本控制台页面', example='true', position='Query'),
 }
 
 model ListIndexesResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
-      content?: string(name='content', description='The content of the index.'),
+      content?: string(name='content', description='schema JSON', example='{"summarys":{"parameter":{"file_compressor":"zstd"},"summary_fields":["id"]},"file_compress":[{"name":"file_compressor","type":"zstd"},{"name":"no_compressor","type":""}],"indexs":[{"index_fields":"name","index_name":"ids","index_type":"STRING"},{"has_primary_key_attribute":true,"index_fields":"id","is_primary_key_sorted":false,"index_name":"id","index_type":"PRIMARYKEY64"}],"attributes":[{"file_compress":"no_compressor","field_name":"id"}],"fields":[{"user_defined_param":{},"compress_type":"uniq","field_type":"STRING","field_name":"id"},{"compress_type":"uniq","field_type":"STRING","field_name":"name"}],"table_name":"api"}'),
       dataSource?: string(name='dataSource', description='The data source.', example='ha-cn-7mz2kvu2c01_table4'),
       dataSourceInfo?: {
-        autoBuildIndex?: boolean(name='autoBuildIndex', description='Indicates whether the automatic full indexing feature is enabled.'),
+        autoBuildIndex?: boolean(name='autoBuildIndex', description='是否开启自动全量', example='true'),
         config?: {
-          accessKey?: string(name='accessKey'),
-          accessSecret?: string(name='accessSecret'),
-          bucket?: string(name='bucket'),
-          endpoint?: string(name='endpoint', description='A parameter related to MaxCompute.'),
-          namespace?: string(name='namespace', description='A parameter related to SARO.'),
-          ossPath?: string(name='ossPath', description='A parameter related to OSS.'),
-          partition?: string(name='partition'),
-          path?: string(name='path', description='A parameter related to Apsara File Storage for HDFS.'),
-          project?: string(name='project'),
-          table?: string(name='table', description='A parameter related to SARO and MaxCompute.'),
-        }(name='config', description='The configuration of MaxCompute data sources.'),
-        domain?: string(name='domain', description='The offline deployment name of the data source.'),
-        name?: string(name='name', description='The name of the data source.'),
-        processPartitionCount?: int32(name='processPartitionCount', description='The number of resources used for data update.'),
+          accessKey?: string(name='accessKey', description='odps数据源ak', example='root'),
+          accessSecret?: string(name='accessSecret', description='odps数据源ak secret', example='root123'),
+          bucket?: string(name='bucket', description='oss命名空间', example='ha3test-oss'),
+          endpoint?: string(name='endpoint', description='odps相关', example='http://service.cn-hangzhou.maxcompute.aliyun-inc.com/api'),
+          namespace?: string(name='namespace', description='saro相关', example='TEST_dump_demo_sj_na61hunbu2_share_holo'),
+          ossPath?: string(name='ossPath', description='oss数据源相关', example='/test_opensearch/sift_oss_test.data'),
+          partition?: string(name='partition', description='数据分片', example='ds=12345'),
+          path?: string(name='path', description='hdfs相关', example='http://test_opensearch/sift_oss_test.data'),
+          project?: string(name='project', description='odps数据源项目名称', example='tisplus_dev'),
+          table?: string(name='table', description='saro、odps相关', example='dump_odps_demo'),
+        }(name='config', description='odps 数据源配置'),
+        domain?: string(name='domain', description='离线部署', example='test'),
+        name?: string(name='name', description='数据源名', example='index1'),
+        processPartitionCount?: int32(name='processPartitionCount', description='数据更新资源数', example='2'),
         saroConfig?: {
-          namespace?: string(name='namespace'),
-          tableName?: string(name='tableName'),
-        }(name='saroConfig', description='The configuration of SARO data sources.'),
-        type?: string(name='type', description='The type of the data source. Valid values: odps, swift, saro, oss, and unKnow.'),
-      }(name='dataSourceInfo', description='The information about the data source.'),
-      description?: string(name='description', description='The remarks.'),
-      domain?: string(name='domain', description='The deployment name of the index.', example='test'),
-      fullUpdateTime?: string(name='fullUpdateTime', description='The last time when full data in the index was updated.'),
-      fullVersion?: long(name='fullVersion', description='The version of the data.'),
-      incUpdateTime?: string(name='incUpdateTime', description='The last time when incremental data in the index was updated.'),
-      indexSize?: long(name='indexSize', description='The index size.'),
-      indexStatus?: string(name='indexStatus', description='The status of the index. Valid values: NEW and PUBLISH.', example='" "'),
+          namespace?: string(name='namespace', description='saro数据源的namespace', example='TEST_dump_demo_sj_na61hunbu2_share_holo'),
+          tableName?: string(name='tableName', description='saro数据表名称', example='dump_odps_demo'),
+        }(name='saroConfig', description='saro数据源配置'),
+        type?: string(name='type', description='数据源类型 (odps, swift, saro, oss, unKnow)', example='odps'),
+      }(name='dataSourceInfo', description='数据源相关信息'),
+      description?: string(name='description', description='备注', example='备注'),
+      domain?: string(name='domain', description='The name of the data center where the data source is deployed.', example='test'),
+      fullUpdateTime?: string(name='fullUpdateTime', description='全量切换时间', example='2023-07-05 10:40:38'),
+      fullVersion?: long(name='fullVersion', description='全量版本  即：索引版本', example='1688523414'),
+      incUpdateTime?: string(name='incUpdateTime', description='增量更新时间', example='2023-07-05 10:58:33'),
+      indexSize?: long(name='indexSize', description='索引大小', example='4689'),
+      indexStatus?: string(name='indexStatus', description='NEW, PUBLISH', example='" "'),
       name?: string(name='name', description='The name of the index.', example='general'),
-      partition?: int32(name='partition', description='The number of shards.'),
+      partition?: int32(name='partition', description='数据分片', example='2'),
       versions?: [ 
         {
-          desc?: string(name='desc', description='The description of the version.', example='close alarm, by 3.9.2 hotfix workflow'),
+          desc?: string(name='desc', description='The description.', example='close alarm, by 3.9.2 hotfix workflow'),
           files?: [ 
             {
-              fullPathName?: string(name='fullPathName', description='The full path of the file.', example='" "'),
-              isDir?: boolean(name='isDir', description='Indicates whether the file is a directory.', example='True'),
-              isTemplate?: boolean(name='isTemplate', description='Indicates whether the file is a template.', example='True'),
+              fullPathName?: string(name='fullPathName', description='The name of the directory for the index.', example='" "'),
+              isDir?: boolean(name='isDir', description='Indicates whether a directory exists.', example='True'),
+              isTemplate?: boolean(name='isTemplate', description='Indicates whether it is a template.', example='True'),
               name?: string(name='name', description='The name of the file.', example='ha-cn-7mz2iv7sq01_qrs'),
             }
-          ](name='files', description='The information about the files.'),
+          ](name='files', description='The list of file names.'),
           name?: string(name='name', description='The name of the version.', example='ha-cn-7pp2ngv4s02_qrs'),
-          status?: string(name='status', description='The status of the version. Valid values: drafting, used, unused, and trash.', example='2'),
-          updateTime?: long(name='updateTime', description='The last time when the version was updated.', example='" "'),
-          versionId?: int32(name='versionId', description='The ID of the version. The value is null for an edit version.', example='1'),
+          status?: string(name='status', description='The state of the version. Valid values: drafting, used, unused and trash. drafting indicates that the version is a draft, used indicates that the version is used online, unused indicates that the version is not used, and trash indicates that the version is being deleted.', example='2'),
+          updateTime?: long(name='updateTime', description='The time when the version was updated.', example='" "'),
+          versionId?: int32(name='versionId', description='The ID of the version. The value of this parameter is null for the edit version.', example='1'),
         }
-      ](name='versions', description='The information about the versions.'),
+      ](name='versions', description='The list of version information.'),
     }
-  ](name='result', description='The information about the indexes.'),
+  ](name='result', description='The index list.'),
 }
 
 model ListIndexesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListIndexesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIndexesResponseBody(name='body'),
 }
 
+/**
+  * ## Method
+  *     GET
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes
+  *
+ */
 async function listIndexes(request: ListIndexesRequest): ListIndexesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListIndexes', 'GET', '/openapi/ha3/instances/{instanceId}/indexes', 'json', false, 'json', request);
 }
 
 model ListInstanceSpecsRequest {
-  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-2r42ostoc01', position='Path'),
-  type: string(name='type', description='The node type. Valid values: qrs, search, index, and cluster. qrs specifies an Query Result Searcher (QRS) worker, search specifies a searcher worker, index specifies an index node, and cluster specifies a cluster.', example='search', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42ostoc01', position='Path'),
+  type: string(name='type', description='The node type. Valid values: qrs, search, index, and cluster. qrs indicates a query node, search indicates a data node, index indicates an index node, and cluster indicates a cluster.', example='search', position='Query'),
 }
 
 model ListInstanceSpecsResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
   result?: [ 
     {
-      cpu?: int32(name='cpu', description='The number of CPU cores.', example='1'),
-      maxDisk?: int32(name='maxDisk', description='The maximum storage space of a searcher worker.'),
-      mem?: int32(name='mem', description='The memory size. Unit: GB.', example='4'),
-      minDisk?: int32(name='minDisk', description='The minimum storage space of a searcher worker.'),
+      cpu?: int32(name='cpu', description='None', example='1'),
+      maxDisk?: int32(name='maxDisk', description='单数据节点存储空间最大值'),
+      mem?: int32(name='mem', description='Unit: GB', example='4'),
+      minDisk?: int32(name='minDisk', description='单数据节点存储空间最小值'),
     }
-  ](name='result', description='The specifications of the instances.'),
+  ](name='result', description='List'),
 }
 
 model ListInstanceSpecsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListInstanceSpecsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstanceSpecsResponseBody(name='body'),
 }
 
 /**
@@ -1651,133 +1613,62 @@ async function listInstanceSpecs(request: ListInstanceSpecsRequest): ListInstanc
 }
 
 model ListInstancesRequest {
-  description?: string(name='description', description='The description of the instance', example='The product code', position='Query'),
-  edition?: string(name='edition', description='实例类型，vector(向量索引版)，engine(召回引擎版)', example='vector', position='Query'),
-  instanceId?: string(name='instanceId', description='The time when the instance was created', example='ha-cn-83570439y0n', position='Query'),
-  pageNumber?: int32(name='pageNumber', description='The status of the instance', example='1', position='Query'),
-  pageSize?: int32(name='pageSize', description='The description of the instance. You can use this description to filter instances. Fuzzy match is supported.', example='10', position='Query'),
-  resourceGroupId?: string(name='resourceGroupId', description='The number of the page to return. Default value: 1.', example='rg-aekzgpiswzbksdi', position='Query'),
+  description?: string(name='description', description='The description of the instance. You can use this description to filter instances. Fuzzy match is supported.', example='Havenask instance', position='Query'),
+  edition?: string(name='edition', description='The Instance type, vector (vector index version),engine (recall engine version)', example='vector', position='Query'),
+  instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-83570439y0n', position='Query'),
+  pageNumber?: int32(name='pageNumber', description='The number of the page to return. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='The number of entries to return on each page. Valid values: 1 to 50. Default value: 10.', example='10', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-aekzgpiswzbksdi', position='Query'),
   tags?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', description='The key of the tag.', example='backup'),
+      value?: string(name='value', description='The value of the tag.', example='oboms-disk'),
     }
-  ](name='tags', shrink='json', position='Query'),
+  ](name='tags', description='The tag dictionary.', shrink='json', position='Query'),
 }
 
 model ListInstancesResponseBody = {
-  requestId?: string(name='requestId', example='89B968E6-1E41-58DF-BB25-5F98ECC759CE'),
+  requestId?: string(name='requestId', description='The ID of the request', example='89B968E6-1E41-58DF-BB25-5F98ECC759CE'),
   result?: [ 
     {
-      chargeType?: string(name='chargeType', description='The ID of the resource group to which the instance belongs.', example='PrePaid'),
-      commodityCode?: string(name='commodityCode', description='The total number of entries returned', example='""'),
-      createTime?: string(name='createTime', description='Havenask instance', example='2022-06-04T02:03:21Z'),
-      description?: string(name='description', description='The ID of the virtual switch', example='The billing method'),
-      expiredTime?: string(name='expiredTime', description='The ID of the Virtual Private Cloud (VPC) network', example='1634885083'),
-      inDebt?: boolean(name='inDebt', description='The ID of the request', example='false'),
-      instanceId?: string(name='instanceId', description='The access point of the gateway', example='ha-cn-2r42n8oh001'),
-      lockMode?: string(name='lockMode', description='Emergency test', example='Unlock'),
+      chargeType?: string(name='chargeType', description='The billing method', example='PrePaid'),
+      commodityCode?: string(name='commodityCode', description='The product code', example='""'),
+      createTime?: string(name='createTime', description='The time when the instance was created', example='2022-06-04T02:03:21Z'),
+      description?: string(name='description', description='The description of the instance', example='Emergency test'),
+      expiredTime?: string(name='expiredTime', description='The expiration time', example='1634885083'),
+      inDebt?: boolean(name='inDebt', description='Indicates whether an overdue payment is involved', example='false'),
+      instanceId?: string(name='instanceId', description='The ID of the resource', example='ha-cn-2r42n8oh001'),
+      lockMode?: string(name='lockMode', description='The lock status', example='Unlock'),
       network?: {
-        endpoint?: string(name='endpoint', description='353490', example='""'),
-        vSwitchId?: string(name='vSwitchId', description='### Sample responses
-
-**Sample success responses**
-
-    {
-        "requestId": "90D6B8F5-FE97-4509-9AAB-367836C51818",
-        "result": [
-            {
-                "instanceId": "igraph-cn-xxxxxx1",
-                "spec": {
-                    "password": "passwd",
-                    "searchResource": {
-                        "disk": 50,
-                        "mem": 8,
-                        "cpu": 2,
-                        "nodeCount": 2
-                    },
-                    "instanceName": "testInstance",
-                    "vSwitchId": "vswitch_id_xxx",
-                    "vpcId": "vpc_id_xxx",
-                    "qrsResource": {
-                        "disk": 50,
-                        "mem": 8,
-                        "cpu": 2,
-                        "nodeCount": 2
-                    },
-                    "region": "cn-hangzhou",
-                    "userName": "user"
-                },
-                "status": {
-                    "phase": "PENDING",
-                    "instancePhase": "INIT",
-                    "createSuccess": false
-                }
-            },
-            {
-                "instanceId": "igraph-cn-xxxxxx2",
-                "spec": {
-                    "password": "passwd",
-                    "searchResource": {
-                        "disk": 50,
-                        "mem": 8,
-                        "cpu": 2,
-                        "nodeCount": 2
-                    },
-                    "instanceName": "testInstance",
-                    "vSwitchId": "vswitch_id_xxx",
-                    "vpcId": "vpc_id_xxx",
-                    "qrsResource": {
-                        "disk": 50,
-                        "mem": 8,
-                        "cpu": 2,
-                        "nodeCount": 2
-                    },
-                    "region": "cn-hangzhou",
-                    "userName": "user"
-                },
-                "status": {
-                    "phase": "PENDING",
-                    "instancePhase": "INIT",
-                    "createSuccess": false
-                }
-            }
-        ],
-        "totalCount": 20
-    }
-
-**Sample error responses**
-
-    {
-      "requestId": "BD1EA715-DF6F-06C2-004C-C1FA0D3A9820",
-      "httpCode": 404,
-      "code": "App.NotFound",
-      "message": "App not found"
-    }', example='vsw-bp11ldcf59q2nbwkqgj6z'),
-        vpcId?: string(name='vpcId', description='Queries instances.', example='vpc-wz9axk41d9vffoc79x0oe'),
-      }(name='network', description='The lock status'),
-      resourceGroupId?: string(name='resourceGroupId', description='The number of entries to return on each page. Valid values: 1 to 50. Default value: 10.', example='rg-aekzgpiswzbksdi'),
-      status?: string(name='status', description='The expiration time', example='2'),
+        endpoint?: string(name='endpoint', description='The access point of the gateway', example='""'),
+        vSwitchId?: string(name='vSwitchId', description='The ID of the virtual switch', example='vsw-bp11ldcf59q2nbwkqgj6z'),
+        vpcId?: string(name='vpcId', description='The ID of the Virtual Private Cloud (VPC) network', example='vpc-wz9axk41d9vffoc79x0oe'),
+      }(name='network', description='Information about the instance of the network search engine'),
+      resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group', example='rg-aekzgpiswzbksdi'),
+      status?: string(name='status', description='The status of the instance', example='2'),
       tags?: [ 
         {
-          key?: string(name='key'),
-          value?: string(name='value'),
+          key?: string(name='key', description='The key of the tag.', example='env'),
+          value?: string(name='value', description='The value of the tag.', example='oboms-disk'),
         }
-      ](name='tags'),
+      ](name='tags', description='The result returned.'),
       updateTime?: string(name='updateTime', description='The time when the instance was last updated', example='2018-12-06T11:17:49.0'),
     }
   ](name='result', description='The result returned'),
-  totalCount?: int32(name='totalCount', example='5'),
+  totalCount?: int32(name='totalCount', description='The total number of entries returned', example='5'),
 }
 
 model ListInstancesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListInstancesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstancesResponseBody(name='body'),
 }
 
 /**
-  * Indicates whether an overdue payment is involved
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/[code]/instances`
   *
  */
 async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
@@ -1786,31 +1677,35 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 }
 
 model ListOnlineConfigsRequest {
-  instanceId: string(name='instanceId', example='ha-cn-0ju2s170b03', position='Path'),
-  nodeName: string(name='nodeName', example='ha-cn-2r42ostoc01_qrs', position='Path'),
-  domain: string(name='domain', example='sz_vpc_domain_1', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-0ju2s170b03', position='Path'),
+  nodeName: string(name='nodeName', description='The name of the node', example='ha-cn-2r42ostoc01_qrs', position='Path'),
+  domain: string(name='domain', description='The name of the domain', example='sz_vpc_domain_1', position='Query'),
 }
 
 model ListOnlineConfigsResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: [ 
     {
-      config?: string(name='config', example='{\\"specItems\\":[{\\"specKey\\":\\"YQ_KEYWORD_NUMBER_PLUS\\",\\"value\\":\\"1\\"}]}'),
-      indexName?: string(name='indexName', example='generation'),
+      config?: string(name='config', description='The configuration information', example='{\\"specItems\\":[{\\"specKey\\":\\"YQ_KEYWORD_NUMBER_PLUS\\",\\"value\\":\\"1\\"}]}'),
+      indexName?: string(name='indexName', description='The name of the index', example='generation'),
     }
   ](name='result', description='List'),
 }
 
 model ListOnlineConfigsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListOnlineConfigsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOnlineConfigsResponseBody(name='body'),
 }
 
 /**
-  * \\### Sample requests
+  * ### Method
   * ```java
-  * GET  /openapi/ha3/instances/ha-test1/node/ihome_searcher/online-configs?domain=pre_ea120
+  * GET
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs?domain={domain}
   * ```
   *
  */
@@ -1820,23 +1715,26 @@ async function listOnlineConfigs(request: ListOnlineConfigsRequest): ListOnlineC
 }
 
 model ListQueryResultRequest {
-  instanceId: string(name='instanceId', description='Queries the query result.', example='ha-cn-i7m2olkw201', position='Path'),
-  query?: string(name='query', description='353490', example='query%3D1%26%26config%3Dstart%3A0%2Chit%3A10%2Cformat%3Ajson%26%26cluster%3Dgeneral', position='Query'),
-  sql?: string(name='sql', example='query%3Dselect%20max(content_id)%20from%20generation', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-i7m2olkw201', position='Path'),
+  query?: string(name='query', description='The query statement', example='query%3D1%26%26config%3Dstart%3A0%2Chit%3A10%2Cformat%3Ajson%26%26cluster%3Dgeneral', position='Query'),
+  sql?: string(name='sql', description='The SQL statement that is executed in the query', example='query%3Dselect%20max(content_id)%20from%20generation', position='Query'),
 }
 
 model ListQueryResultResponseBody = {
-  requestId?: string(name='requestId', example='9E5BCFAA-98B3-51D0-9188-B1BC07589337'),
+  requestId?: string(name='requestId', description='The ID of the request', example='9E5BCFAA-98B3-51D0-9188-B1BC07589337'),
 }
 
 model ListQueryResultResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListQueryResultResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListQueryResultResponseBody(name='body'),
 }
 
 /**
-  * The ID of the instance
+  * ### Method
+  * `GET`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/query?query=xxxx`
   *
  */
 async function listQueryResult(request: ListQueryResultRequest): ListQueryResultResponse {
@@ -1858,9 +1756,9 @@ model ModifyAdvanceConfigFileResponseBody = {
 }
 
 model ModifyAdvanceConfigFileResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyAdvanceConfigFileResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyAdvanceConfigFileResponseBody(name='body'),
 }
 
 /**
@@ -1883,13 +1781,13 @@ model ModifyClusterDescRequest {
 
 model ModifyClusterDescResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
-  result?: map[string]any(name='result', description='Map'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
 }
 
 model ModifyClusterDescResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyClusterDescResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyClusterDescResponseBody(name='body'),
 }
 
 /**
@@ -1906,32 +1804,31 @@ async function modifyClusterDesc(request: ModifyClusterDescRequest): ModifyClust
 
 model ModifyClusterOfflineConfigRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-7mz2oy0bg01', position='Path'),
-  buildMode?: string(name='buildMode', description='The reindexing method. Valid values: api: API data source. indexRecover: data recovery through indexing.', example='indexRecover', position='Body'),
+  buildMode?: string(name='buildMode', description='The mode of reindexing. Valid values: api and indexRecover. api indicates to push incremental data to a data source by calling the API operations. indexRecover indicates that the data source is restored from the index.', example='indexRecover', position='Body'),
   config?: map[string]int32(name='config', description='The configuration name, which is stored as a key.', position='Body'),
-  dataSourceName?: string(name='dataSourceName', position='Body'),
-  dataSourceType?: string(name='dataSourceType', description='The type of the data source. Valid values: odps: MaxCompute. swift: Swift. unKnow: unknown type.', example='odps', position='Body'),
-  dataTimeSec?: int32(name='dataTimeSec', description='This parameter is required if the API data source experiences full indexing.', example='1640867288', position='Body'),
-  domain?: string(name='domain', description='The domain in which the data source is deployed.', example='vpc_hz_domain_1', position='Body'),
-  generation?: long(name='generation', description='The ID of the backward data delivery.', example='160142641', position='Body'),
-  partition?: string(name='partition', description='This parameter is required if the MaxCompute data source experiences full indexing.', example='20211202', position='Body'),
+  dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='test1', position='Body'),
+  dataSourceType?: string(name='dataSourceType', description='The type of the data source. Valid values: odps, swift, saro, and unKnow.', example='maxComputer', position='Body'),
+  dataTimeSec?: int32(name='dataTimeSec', description='This parameter is required when index building by using API data sources is triggered.', example='1640867288', position='Body'),
+  domain?: string(name='domain', description='The domain where the data source is deployed.', example='vpc_hz_domain_1', position='Body'),
+  generation?: long(name='generation', description='The data restoration version.', example='160142641', position='Body'),
+  partition?: string(name='partition', description='This parameter is required when index building for full data in a MaxCompute data source is triggered.', example='20211202', position='Body'),
   pushMode?: string(name='pushMode', position='Body'),
 }
 
 model ModifyClusterOfflineConfigResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
-  result?: map[string]any(name='result', description='The result of the request.', example='{}'),
+  requestId?: string(name='requestId', description='The ID of the request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='The result', example='{}'),
 }
 
 model ModifyClusterOfflineConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyClusterOfflineConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyClusterOfflineConfigResponseBody(name='body'),
 }
 
 /**
   * ## Request syntax
   *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
-  *     ...
   *
  */
 async function modifyClusterOfflineConfig(request: ModifyClusterOfflineConfigRequest): ModifyClusterOfflineConfigResponse {
@@ -1951,9 +1848,9 @@ model ModifyClusterOnlineConfigResponseBody = {
 }
 
 model ModifyClusterOnlineConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyClusterOnlineConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyClusterOnlineConfigResponseBody(name='body'),
 }
 
 /**
@@ -1969,36 +1866,28 @@ async function modifyClusterOnlineConfig(request: ModifyClusterOnlineConfigReque
 }
 
 model ModifyDataSourceRequest {
-  instanceId: string(name='instanceId', description='## Sample responses
-
-### Success responses
-
-```json
-{
-	"requestId": "0A6EB64B-B4C8-CF02-810F-E660812972FF",
-    "result": []
-}
-```
-
-For more information, see [Response struct](~~465311~~).', example='ha-cn-tl32n3iu801', position='Path'),
-  dataSourceName: string(name='dataSourceName', description='WB01240825', example='ha-cn-pl32rf0js04_test', position='Path'),
-  body?: map[string]any(name='body', description='The information about the index', example='{}', position='Body'),
-  dryRun?: boolean(name='dryRun', description='The ID of the request', example='true', position='Query'),
+  instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-tl32n3iu801', position='Path'),
+  dataSourceName: string(name='dataSourceName', description='The name of the data source.', example='ha-cn-pl32rf0js04_test', position='Path'),
+  body?: map[string]any(name='body', description='The request body.', example='{}', position='Body'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether the data source is created by using the dryRun feature. This parameter only checks whether the data source is valid. Valid values: true and false. true indicates that the data source is created by using the dryRun feature, and false indicates that the data source is not created by using the dryRun feature.', example='true', position='Query'),
 }
 
 model ModifyDataSourceResponseBody = {
-  requestId?: string(name='requestId', description='id of request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
-  result?: map[string]any(name='result', description='The schema information.', example='{}'),
+  requestId?: string(name='requestId', description='The ID of the request', example='2AE63638-5420-56DC-BF59-37D8174039A0'),
+  result?: map[string]any(name='result', description='The result returned', example='{}'),
 }
 
 model ModifyDataSourceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyDataSourceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyDataSourceResponseBody(name='body'),
 }
 
 /**
-  * The result returned
+  * ## Method
+  * `PUT`
+  * ## URI
+  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
   *
  */
 async function modifyDataSource(request: ModifyDataSourceRequest): ModifyDataSourceResponse {
@@ -2009,10 +1898,10 @@ async function modifyDataSource(request: ModifyDataSourceRequest): ModifyDataSou
 model ModifyFileRequest {
   instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-i7m2ne76e02', position='Path'),
   indexName: string(name='indexName', description='The name of the index', example='automobile_vector', position='Path'),
-  versionName: string(name='versionName', description='The name of the version', example='version1', position='Path'),
-  content?: string(name='content', description='The parameters in the request body', example='""', position='Body'),
-  partition?: int32(name='partition', description='auditing', example='1', position='Body'),
-  fileName: string(name='fileName', description='ha-cn-tl32m2c4u01@ha-cn-tl32m2c4u01_00@bj_vpc_domain_1@automobile_vector@index_config_edit', example='/schemas/generation_schema.json', position='Query'),
+  versionName: string(name='versionName', description='The name of the version', example='ha-cn-tl32m2c4u01@ha-cn-tl32m2c4u01_00@bj_vpc_domain_1@automobile_vector@index_config_edit', position='Path'),
+  content?: string(name='content', description='The content of the file.', example='""', position='Body'),
+  partition?: int32(name='partition', description='The data partition. This parameter is required if the dataSourceType parameter is set to odps.', example='1', position='Body'),
+  fileName: string(name='fileName', description='The name of the file in the full path', example='/schemas/generation_schema.json', position='Query'),
 }
 
 model ModifyFileResponseBody = {
@@ -2021,20 +1910,16 @@ model ModifyFileResponseBody = {
 }
 
 model ModifyFileResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyFileResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyFileResponseBody(name='body'),
 }
 
 /**
-  * ### Method
-  * ~~~
-  * PUT
-  * ~~~
-  * ### URI
-  * ~~~
-  * /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
-  * ~~~
+  * ## Method
+  *     PUT
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
   *
  */
 async function modifyFile(request: ModifyFileRequest): ModifyFileResponse {
@@ -2045,15 +1930,15 @@ async function modifyFile(request: ModifyFileRequest): ModifyFileResponse {
 model ModifyIndexPartitionRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-7mz2ttxta01', position='Path'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='test1', position='Body'),
-  domainName?: string(name='domainName', description='The information about each index.', example='pre_domain_1', position='Body'),
-  generation?: long(name='generation', description='The name of the data center.', example='1633293829', position='Body'),
+  domainName?: string(name='domainName', description='The name of the data center.', example='pre_domain_1', position='Body'),
+  generation?: long(name='generation', description='The primary key of generation.', example='1633293829', position='Body'),
   indexInfos?: [ 
     {
-      indexName?: string(name='indexName', description='auditing', example='atest2'),
-      parallelNum?: int32(name='parallelNum', description='The parameters in the request body.', example='1'),
+      indexName?: string(name='indexName', description='The name of the index.', example='atest2'),
+      parallelNum?: int32(name='parallelNum', description='The number of concurrency. The default value is 1.', example='1'),
       partitionCount?: int32(name='partitionCount', description='The number of shards of the index.', example='3'),
     }
-  ](name='indexInfos', description='The number of shards of the index.', position='Body'),
+  ](name='indexInfos', description='The information about shards of the index.', position='Body'),
 }
 
 model ModifyIndexPartitionResponseBody = {
@@ -2062,13 +1947,16 @@ model ModifyIndexPartitionResponseBody = {
 }
 
 model ModifyIndexPartitionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyIndexPartitionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyIndexPartitionResponseBody(name='body'),
 }
 
 /**
-  * The information about each index.
+  * ### Method
+  * `PUT`
+  * ### URI
+  * `/openapi/ha3/instances/{instanceId}/index-partition`
   *
  */
 async function modifyIndexPartition(request: ModifyIndexPartitionRequest): ModifyIndexPartitionResponse {
@@ -2094,9 +1982,9 @@ model ModifyIndexVersionResponseBody = {
 }
 
 model ModifyIndexVersionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyIndexVersionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyIndexVersionResponseBody(name='body'),
 }
 
 /**
@@ -2116,34 +2004,41 @@ model ModifyNodeConfigRequest {
   active?: boolean(name='active', position='Body'),
   dataDuplicateNumber?: int32(name='dataDuplicateNumber', position='Body'),
   dataFragmentNumber?: int32(name='dataFragmentNumber', position='Body'),
+  flowRatio?: int32(name='flowRatio', position='Body'),
   minServicePercent?: int32(name='minServicePercent', position='Body'),
   published?: boolean(name='published', position='Body'),
-  clusterName?: string(name='clusterName', description='The ID of the cluster.', example='vpc_sh_domain_2', position='Query'),
-  dataSourceName?: string(name='dataSourceName', description='The parameters in the request body.', example='ha-cn-2r42ostoc01_0704', position='Query'),
-  name: string(name='name', description='The name of the cluster.', example='ha-cn-zvp2iv9a401_qrs', position='Query'),
-  type: string(name='type', description='The original name of the node.', example='" "', position='Query'),
+  clusterName?: string(name='clusterName', description='The name of the cluster.', example='vpc_sh_domain_2', position='Query'),
+  dataSourceName?: string(name='dataSourceName', description='The name of the data source. Valid values: search and not_search. search indicates to search data. not_search indicates not to search data.', example='ha-cn-2r42ostoc01_0704', position='Query'),
+  name: string(name='name', description='The original name of the node.', example='ha-cn-zvp2iv9a401_qrs', position='Query'),
+  type: string(name='type', description='The type of the algorithm. Valid values: pop, cp, hot, hint, and suggest.
+
+*   pop indicates the popularity model.
+*   cp indicates the category prediction model.
+*   hot indicates the top search model.
+*   hint indicates the hint model.
+*   suggest indicates the drop-down suggestion model.', example='" "', position='Query'),
 }
 
 model ModifyNodeConfigResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
-  result?: map[string]any(name='result', description='auditing', example='{}'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model ModifyNodeConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyNodeConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyNodeConfigResponseBody(name='body'),
 }
 
 /**
   * ### Method
-  *  ~~~
+  * ```java
   * PUT
-  * ~~~
+  * ```
   * ### URI
-  * ~~~
+  * ```java
   * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
-  * ~~~
+  * ```
   *
  */
 async function modifyNodeConfig(request: ModifyNodeConfigRequest): ModifyNodeConfigResponse {
@@ -2164,9 +2059,9 @@ model ModifyOnlineConfigResponseBody = {
 }
 
 model ModifyOnlineConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyOnlineConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyOnlineConfigResponseBody(name='body'),
 }
 
 /**
@@ -2197,9 +2092,9 @@ model ModifyPasswordResponseBody = {
 }
 
 model ModifyPasswordResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ModifyPasswordResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyPasswordResponseBody(name='body'),
 }
 
 /**
@@ -2226,9 +2121,9 @@ model PublishAdvanceConfigResponseBody = {
 }
 
 model PublishAdvanceConfigResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: PublishAdvanceConfigResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishAdvanceConfigResponseBody(name='body'),
 }
 
 /**
@@ -2248,24 +2143,27 @@ async function publishAdvanceConfig(request: PublishAdvanceConfigRequest): Publi
 }
 
 model PublishIndexVersionRequest {
-  instanceId: string(name='instanceId', description='Publishes a specified index version.', example='ha-cn-tl32m2c4u01', position='Path'),
-  indexName: string(name='indexName', description='WB01240825', example='automobile_2d', position='Path'),
-  body?: map[string]any(name='body', example='{}', position='Body'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-tl32m2c4u01', position='Path'),
+  indexName: string(name='indexName', description='The name of the index', example='automobile_2d', position='Path'),
+  body?: map[string]any(name='body', description='The query result', example='{}', position='Body'),
 }
 
 model PublishIndexVersionResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
-  result?: map[string]any(name='result', example='{}'),
+  result?: map[string]any(name='result', description='The information about the index', example='{}'),
 }
 
 model PublishIndexVersionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: PublishIndexVersionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishIndexVersionResponseBody(name='body'),
 }
 
 /**
-  * The information about the index
+  * ## Method
+  *     POST
+  * ## URI
+  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/actions/publish
   *
  */
 async function publishIndexVersion(request: PublishIndexVersionRequest): PublishIndexVersionResponse {
@@ -2275,21 +2173,21 @@ async function publishIndexVersion(request: PublishIndexVersionRequest): Publish
 
 model RecoverIndexRequest {
   instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-zvp2jlr2g03', position='Path'),
-  buildDeployId?: int32(name='buildDeployId', description='buildDeployId', example='277', position='Body'),
+  buildDeployId?: int32(name='buildDeployId', description='The ID of the index deployed in offline mode.', example='277', position='Body'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source', example='ha-cn-pl32rf0js04_odps_first', position='Body'),
-  generation?: string(name='generation', description='generation', example='1653018575', position='Body'),
+  generation?: string(name='generation', description='The primary key of generation.', example='1653018575', position='Body'),
   indexName?: string(name='indexName', description='The name of the index', example='main_index', position='Body'),
 }
 
 model RecoverIndexResponseBody = {
-  requestId?: string(name='requestId', description='id of request', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
-  result?: map[string]any(name='result', description='Map', example='{}'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='10D5E615-69F7-5F49-B850-00169ADE513C'),
+  result?: map[string]any(name='result', description='The result returned by data search.', example='{}'),
 }
 
 model RecoverIndexResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RecoverIndexResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RecoverIndexResponseBody(name='body'),
 }
 
 /**
@@ -2305,23 +2203,30 @@ async function recoverIndex(request: RecoverIndexRequest): RecoverIndexResponse 
 }
 
 model RemoveClusterRequest {
-  instanceId: string(name='instanceId', example='ha-cn-7mz2iv7sq01', position='Path'),
-  clusterName?: string(name='clusterName', example='bj_vpc_domain_2', position='Path'),
+  instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7mz2iv7sq01', position='Path'),
+  clusterName?: string(name='clusterName', description='The name of the cluster', example='bj_vpc_domain_2', position='Path'),
 }
 
 model RemoveClusterResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
-  result?: map[string]any(name='result', example='{}'),
+  result?: map[string]any(name='result', description='The result', example='{}'),
 }
 
 model RemoveClusterResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RemoveClusterResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveClusterResponseBody(name='body'),
 }
 
 /**
-  * The result
+  * ### Method
+  * ```java
+  * DELETE
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/clusters/{clusterName}
+  * ```
   *
  */
 async function removeCluster(request: RemoveClusterRequest): RemoveClusterResponse {
@@ -2340,13 +2245,20 @@ model StopTaskResponseBody = {
 }
 
 model StopTaskResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: StopTaskResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopTaskResponseBody(name='body'),
 }
 
 /**
-  * The information about the index
+  * ### Method
+  * ```java
+  * PUT
+  * ```
+  * ### URI
+  * ```java
+  * /openapi/ha3/instances/{instanceId}/stop-task/{fsmId}
+  * ```
   *
  */
 async function stopTask(request: StopTaskRequest): StopTaskResponse {
@@ -2358,35 +2270,35 @@ model UpdateInstanceRequest {
   instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42mu9xi01', position='Path'),
   components?: [ 
     {
-      code?: string(name='code', description='The name of the specification. The value must be the same as the name of a parameter on the buy page.', example='200'),
+      code?: string(name='code', description='The specification code, which must be consistent with the values of the corresponding module parameters.', example='200'),
       value?: string(name='value', description='The value of the specification.', example='""'),
     }
-  ](name='components', description='The information about the instance type.', position='Body'),
+  ](name='components', description='A list of instance-related specifications.', position='Body'),
   description?: string(name='description', description='The description of the instance.', example='""', position='Body'),
-  orderType?: string(name='orderType', description='The type of the order. Valid values: UPGRADE and DOWNGRADE. UPGRADE indicates the instance type is to be upgraded. DOWNGRADE indicates the instance type is to be downgraded.', example='""', position='Body'),
+  orderType?: string(name='orderType', description='Valid values: UPGRADE and DOWNGRADE. UPGRADE indicates to upgrade the instance specifications. DOWNGRADE indicates to downgrade the instance specifications.', example='""', position='Body'),
 }
 
 model UpdateInstanceResponseBody = {
-  requestId?: string(name='requestId', description='The ID of the request.', example='90D6B8F5-FE97-4509-9AAB-367836C51818'),
+  requestId?: string(name='requestId', description='The ID of the request', example='90D6B8F5-FE97-4509-9AAB-367836C51818'),
   result?: {
-    chargeType?: string(name='chargeType', description='The billing method of the instance.', example='PrePaid'),
-    commodityCode?: string(name='commodityCode', description='The service code.', example='ha3-code'),
-    createTime?: string(name='createTime', description='The time when the instance was created.', example='2018-12-06T11:17:49.0'),
-    description?: string(name='description', description='The description of the instance.', example='Test instance'),
-    expiredTime?: string(name='expiredTime', description='The time when the instance expires.', example='2019-01-06T16:00:00.0'),
-    inDebt?: boolean(name='inDebt', description='Indicates whether an overdue payment is involved.', example='false'),
-    instanceId?: string(name='instanceId', description='The ID of the instance.', example='ha-cn-0ju2s170b03'),
-    lockMode?: string(name='lockMode', description='The lock mode of the instance.', example='Unlock'),
-    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aeky6hthboewpuy'),
-    status?: string(name='status', description='The state of the instance.', example='Running'),
-    updateTime?: string(name='updateTime', description='The time when the instance was last updated.', example='2018-12-06T11:17:49.0'),
-  }(name='result', description='The result returned.'),
+    chargeType?: string(name='chargeType', description='The billing method', example='PrePaid'),
+    commodityCode?: string(name='commodityCode', description='The product code', example='ha3-code'),
+    createTime?: string(name='createTime', description='The time when the instance was created', example='2018-12-06T11:17:49.0'),
+    description?: string(name='description', description='The description of the instance', example='Test instance'),
+    expiredTime?: string(name='expiredTime', description='The time when the instance expires', example='2019-01-06T16:00:00.0'),
+    inDebt?: boolean(name='inDebt', description='Indicates whether an overdue payment is involved', example='false'),
+    instanceId?: string(name='instanceId', description='The ID of the resource', example='ha-cn-0ju2s170b03'),
+    lockMode?: string(name='lockMode', description='The lock status', example='Unlock'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group', example='rg-aeky6hthboewpuy'),
+    status?: string(name='status', description='The status of the instance', example='Running'),
+    updateTime?: string(name='updateTime', description='The time when the instance was last updated', example='2018-12-06T11:17:49.0'),
+  }(name='result', description='The result returned'),
 }
 
 model UpdateInstanceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UpdateInstanceResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInstanceResponseBody(name='body'),
 }
 
 /**
