@@ -610,6 +610,7 @@ async function createChangeSet(request: CreateChangeSetRequest): CreateChangeSet
 model CreateDiagnosticRequest {
   diagnosticKey?: string(name='DiagnosticKey', description='The keyword in the diagnosis.', example='37A5679B-8488-5A5D-8D5C-90E66A577A5D'),
   diagnosticType?: string(name='DiagnosticType', description='The type of the item that is diagnosed. Set the value to Stack, which specifies that the stack is diagnosed.', example='Stack'),
+  lang?: string(name='Lang', example='zh-cn'),
   product?: string(name='Product', description='The name of the product that is diagonosed.', example='ros'),
 }
 
@@ -640,6 +641,9 @@ async function createDiagnosticWithOptions(request: CreateDiagnosticRequest, run
   }
   if (!Util.isUnset(request.diagnosticType)) {
     query['DiagnosticType'] = request.diagnosticType;
+  }
+  if (!Util.isUnset(request.lang)) {
+    query['Lang'] = request.lang;
   }
   if (!Util.isUnset(request.product)) {
     query['Product'] = request.product;
@@ -2020,7 +2024,9 @@ model DeleteStackInstancesRequest {
 The token can contain letters, digits, hyphens (-), and underscores (\\_), and cannot exceed 64 characters in length.\\
 For more information, see [How to ensure idempotence](~~134212~~).', example='123e4567-e89b-12d3-a456-42665544****'),
   deploymentTargets?: {
-    accountIds?: [ string ](name='AccountIds'),
+    accountIds?: [ string ](name='AccountIds', description='The IDs of the execution accounts within which you want to deploy stacks in self-managed mode. You can specify up to 20 execution account IDs.
+
+> To view the folder IDs, go to the **Overview** page in the **Resource Management** console. For more information, see [View the basic information about a folder](~~111223~~).'),
     rdFolderIds?: [ string ](name='RdFolderIds', description='The IDs of the folders in the resource directory. You can add up to five folder IDs.
 
 You can create stacks within all the member accounts in the specified folders. If you create stacks in the Root folder, the stacks are created within all member accounts in the resource directory.
@@ -3699,53 +3705,53 @@ async function getServiceProvisions(request: GetServiceProvisionsRequest): GetSe
 }
 
 model GetStackRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that it is unique among different requests.
-
-The token can be up to 64 characters in length,
-
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests.\\
+The token can be up to 64 characters in length.\\
 For more information, see [Ensure idempotence](~~134212~~).', example='123e4567-e89b-12d3-a456-42665544****'),
   logOption?: string(name='LogOption', description='The option for returning logs. Valid values:
 
 *   None: does not return logs.
-*   Stack: returns the logs of the stack. This is the default value.
+*   Stack (default): returns the logs of the stack.
 *   Resource: returns the logs of resources in the stack.
-*   All: returns the logs of all resources.', example='Stack'),
-  outputOption?: string(name='OutputOption', description='Specifies whether to return the output parameters of the stack. Valid values:
+*   All: returns all logs.', example='Stack'),
+  outputOption?: string(name='OutputOption', description='Specifies whether to return Outputs. Valid values:
 
-*   Enabled: returns the output parameters. This is the default value.
+*   Enabled (default)
+*   Disabled
 
-*   Disabled: does not return the output parameters.
+>  The Outputs parameter requires a long period of time to calculate. If you do not require Outputs of the stack, we recommend that you set OutputOption to Disabled to improve the response speed of the GetStack operation.', example='Disabled'),
+  regionId?: string(name='RegionId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
+  showResourceProgress?: string(name='ShowResourceProgress', description='Specifies whether to return information about ResourceProgress. Valid values:
 
-> The system takes a long period of time to calculate output parameters. If you do not want to query the output parameters, we recommend that you set the OutputOption parameter to Disabled to improve the response speed of the GetStack operation.', example='Disabled'),
-  regionId?: string(name='RegionId', description='The ID of the region in which the stack resides. You can call the [DescribeRegions](~~131035~~) operation to query the most recent list of Alibaba Cloud regions.', example='cn-hangzhou'),
-  showResourceProgress?: string(name='ShowResourceProgress', description='Specifies whether to return the ResourceProgress parameter. Valid values:
+*   Disabled (default): does not return information about ResourceProgress.
+*   PercentageOnly: returns StackOperationProgress and StackActionProgress of ResourceProgress.
 
-*   Disabled: does not return the ResourceProgress parameter. This is the default value.
+>  ROS and Terraform stacks are supported. Creation, resumed creation, update, deletion, import, and rollback operations on stacks are supported.
 
-*   EnabledIfCreateStack: returns the ResourceProgress parameter only if a stack is created.
+*   EnabledIfCreateStack (not recommend): returns \\*Count and InProgressResourceDetails of ResourceProgress only during a stack creation operation.
 
-> A stack is in one of the following states when it is created: CREATE_IN_PROGRESS, CREATE_COMPLETE, CREATE_FAILED, CREATE_ROLLBACK_IN_PROGRESS, CREATE_ROLLBACK_COMPLETE, or CREATE_ROLLBACK_FAILED.', example='Disabled'),
-  stackId?: string(name='StackId', description='The ID of the stack.', example='c754d2a4-28f1-46df-b557-9586173a****'),
+>  During a creation operation, a stack is in one of the following states: CREATE_IN_PROGRESS, CREATE_COMPLETE, CREATE_FAILED, CREATE_ROLLBACK_IN_PROGRESS, CREATE_ROLLBACK_COMPLETE, and CREATE_ROLLBACK_FAILED.', example='Disabled'),
+  stackId?: string(name='StackId', description='The stack ID.', example='c754d2a4-28f1-46df-b557-9586173a****'),
 }
 
 model GetStackResponseBody = {
-  checkedStackResourceCount?: int32(name='CheckedStackResourceCount', description='The number of resources on which drift detection is performed.
+  checkedStackResourceCount?: int32(name='CheckedStackResourceCount', description='The number of resources on which drift detection was performed.
 
->  This parameter is returned only if the drift detection on the stack is successful.', example='1'),
+>  This parameter is returned only if the most recent drift detection on the stack was successful.', example='1'),
   createTime?: string(name='CreateTime', description='The time when the stack was created. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2020-09-16T08:21:40'),
   deletionProtection?: string(name='DeletionProtection', description='Indicates whether deletion protection is enabled for the stack. Valid values:
 
 *   Enabled: Deletion protection is enabled for the stack.
-*   Disabled: Deletion protection is disabled for the stack. You can delete the stack in the Resource Orchestration Service (ROS) console or by calling the DeleteStack operation.
+*   Disabled: Deletion protection is disabled for the stack. You can delete the stack by using the ROS console or by calling the DeleteStack operation.
 
->  Deletion protection of a nested stack works in the same way as that of the root stack.', example='Disabled'),
+>  Deletion protection of a nested stack is the same as deletion protection of its root stack.', example='Disabled'),
   description?: string(name='Description', description='The description of the stack.', example='Create a VPC.'),
   disableRollback?: boolean(name='DisableRollback', description='Indicates whether rollback is disabled when the stack fails to be created. Valid values:
 
-*   true: Rollback is disabled when the stack fails to be created.
-*   false: Rollback is enabled when the stack fails to be created. This is the default value.', example='false'),
-  driftDetectionTime?: string(name='DriftDetectionTime', description='The time when the last successful drift detection operation was performed.', example='2020-09-16T09:21:40'),
-  interface?: string(name='Interface', description='The description of the web UI in the ROS console.', example='{}'),
+*   true
+*   false (default)', example='false'),
+  driftDetectionTime?: string(name='DriftDetectionTime', description='The time when the most recent successful drift detection was performed on the stack.', example='2020-09-16T09:21:40'),
+  interface?: string(name='Interface', description='The description of the console user interface (UI).', example='{}'),
   log?: {
     resourceLogs?: [ 
       {
@@ -3754,12 +3760,12 @@ model GetStackResponseBody = {
             content?: string(name='Content', description='The content of a resource log.', example='[]'),
             keys?: [ string ](name='Keys', description='The keywords of a resource log.'),
           }
-        ](name='Logs', description='The logs of all resources.'),
+        ](name='Logs', description='All the logs that are associated with the resources.'),
         resourceName?: string(name='ResourceName', description='The name of the resource that is defined in the template.', example='MyResourceCleaner'),
       }
-    ](name='ResourceLogs', description='The logs of resources in the stack. This parameter is returned if the LogOption parameter is set to Resource or All.  
+    ](name='ResourceLogs', description='The logs of resources in the stack. This parameter is returned if LogOption is set to Resource or All.
 
->  The logs are returned for resources of specific types, such as `ALIYUN::ROS::ResourceCleaner`.'),
+>  The logs are returned only for resources of specific types, such as the `ALIYUN::ROS::ResourceCleaner` type.'),
     terraformLogs?: [ 
       {
         command?: string(name='Command', description='The name of the Terraform command that is run. Valid values:
@@ -3776,50 +3782,47 @@ For more information about Terraform commands, see [Basic CLI Features](https://
 *   stdout: standard output stream
 *   stderr: standard error stream', example='stdout'),
       }
-    ](name='TerraformLogs', description='The logs of the Terraform stack. This parameter is returned only for a Terraform stack. 
+    ](name='TerraformLogs', description='The logs generated when the Terraform stack is run. This parameter is returned only for a Terraform stack. This parameter is returned if LogOption is left empty or set to Stack or All.
 
-This parameter is returned if the LogOption parameter is left empty or set to Stack or All.  
+>  This parameter is not returned for a running stack. The logs are generated from the most recent operation on the stack, such as the creation, resumed creation, update, or deletion operation.'),
+  }(name='Log', description='The log of the stack.'),
+  notCheckedStackResourceCount?: int32(name='NotCheckedStackResourceCount', description='The number of resources on which drift detection was not performed.
 
->  This parameter is not returned for a running stack. The logs are generated from the last creation, re-creation, update, or deletion operation on the stack.'),
-  }(name='Log', description='The logs of the stack.'),
-  notCheckedStackResourceCount?: int32(name='NotCheckedStackResourceCount', description='The number of resources on which drift detection is not performed.
-
->  This parameter is returned only if the drift detection on the stack is successful.', example='1'),
-  notificationURLs?: [ string ](name='NotificationURLs', description='The callback URLs that are used to receive stack events.'),
+>  This parameter is returned only if the most recent drift detection on the stack was successful.', example='1'),
+  notificationURLs?: [ string ](name='NotificationURLs', description='The callback URLs for receiving stack events.'),
   operationInfo?: {
-    action?: string(name='Action', description='The name of the API of another cloud service.', example='DeleteSecurityGroup'),
-    code?: string(name='Code', description='The error code returned.', example='DependencyViolation'),
-    logicalResourceId?: string(name='LogicalResourceId', description='The logical ID of the resource on which the operation error occurred.', example='EcsSecurityGroup'),
-    message?: string(name='Message', description='The error message returned.', example='There is still instance(s) in the specified security group.'),
-    requestId?: string(name='RequestId', description='The ID of the request to call the API of another cloud service.', example='071D6166-3F6B-5C7B-A1F0-0113FBB643A8'),
-    resourceType?: string(name='ResourceType', description='The type of the resource on which the operation error occurred.', example='ALIYUN::ECS::SecurityGroup'),
-  }(name='OperationInfo', description='The additional information that is displayed when an error occurs on a stack operation. 
+    action?: string(name='Action', description='The name of the API operation that belongs to another Alibaba Cloud service.', example='DeleteSecurityGroup'),
+    code?: string(name='Code', description='The error code.', example='DependencyViolation'),
+    logicalResourceId?: string(name='LogicalResourceId', description='The logical ID of the resource on which the operation error occurs.', example='EcsSecurityGroup'),
+    message?: string(name='Message', description='The error message.', example='There is still instance(s) in the specified security group.'),
+    requestId?: string(name='RequestId', description='The ID of the request that is initiated to call the API operation of another Alibaba Cloud service.', example='071D6166-3F6B-5C7B-A1F0-0113FBB643A8'),
+    resourceType?: string(name='ResourceType', description='The type of the resource on which the operation error occurs.', example='ALIYUN::ECS::SecurityGroup'),
+  }(name='OperationInfo', description='The supplementary information that is returned if an error occurs on a stack operation.
 
->  This property is returned in specific conditions. At least one sub-property is returned. For example, an error is reported when you call the API of another cloud service.'),
-  orderIds?: [ string ](name='OrderIds', description='The ID of the order. This parameter is returned only if you set the ChargeType parameter to PrePaid.'),
-  outputs?: [  map[string]any ](name='Outputs', description='The output parameters of the stack.
-
->  This parameter is returned if the OutputOption parameter is set to Enabled.'),
+>  This parameter is returned together with at least one sub-parameter and only under specific conditions. For example, the supplementary information is returned when an API operation of another Alibaba Cloud service fails to be called.'),
+  orderIds?: [ string ](name='OrderIds', description='The order IDs. This parameter is returned only if you configured manual payment when you created a subscription stack.'),
+  outputs?: [  map[string]any ](name='Outputs', description='The outputs of the stack.'),
   parameters?: [ 
     {
-      parameterKey?: string(name='ParameterKey', description='The name of the parameter.', example='ALIYUN::Region'),
-      parameterValue?: string(name='ParameterValue', description='The value of the parameter.', example='cn-hangzhou'),
+      parameterKey?: string(name='ParameterKey', description='The parameter name.', example='ALIYUN::Region'),
+      parameterValue?: string(name='ParameterValue', description='The parameter value.', example='cn-hangzhou'),
     }
   ](name='Parameters', description='The parameters of the stack.'),
   parentStackId?: string(name='ParentStackId', description='The ID of the parent stack.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf692****'),
-  ramRoleName?: string(name='RamRoleName', description='The name of the RAM role. ROS assumes the RAM role to create the stack and uses credentials of the role to call the APIs of Alibaba Cloud services.
-
-ROS assumes the RAM role to perform operations on the stack. If you have permissions to perform operations on the stack but do not have permissions to use the RAM role, ROS still assumes the RAM role. You must make sure that the least privileges are granted to the role.
-
-If you do not specify this parameter, ROS assumes an existing role that is associated with the stack. If no roles are available for ROS to assume, ROS uses a temporary credential that is generated from the credentials of your account.
-
-The name of the RAM role can be up to 64 bytes in length.', example='test-role'),
-  regionId?: string(name='RegionId', description='The ID of the region in which the stack is deployed. You can call the [DescribeRegions](~~131035~~) operation to query the most recent list of Alibaba Cloud regions.', example='cn-hangzhou'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='B288A0BE-D927-4888-B0F7-B35EF84B6E6F'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instances belong.', example='rg-acfmxazb4ph6aiy****'),
+  ramRoleName?: string(name='RamRoleName', description='The name of the Resource Access Management (RAM) role. ROS assumes the RAM role to create the stack and uses the credentials of the role to call the APIs of Alibaba Cloud services.\\
+ROS assumes the RAM role to perform operations on the stack. If you have permissions to perform operations on the stack, ROS assumes the RAM role even if you do not have permissions to use the RAM role. You must make sure that permissions are granted to the RAM role based on the principle of least privilege.\\
+If this parameter is not specified, ROS uses the existing role that is associated with the stack. If no roles are available, ROS uses a temporary credential that is generated from the credentials of your account.\\
+The RAM role name can be up to 64 characters in length.', example='test-role'),
+  regionId?: string(name='RegionId', description='The region ID of the stack. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B288A0BE-D927-4888-B0F7-B35EF84B6E6F'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmxazb4ph6aiy****'),
   resourceProgress?: {
-    failedResourceCount?: int32(name='FailedResourceCount', description='The number of resources that fail to be created.', example='0'),
-    inProgressResourceCount?: int32(name='InProgressResourceCount', description='The number of resources that are being created.', example='1'),
+    failedResourceCount?: int32(name='FailedResourceCount', description='The number of resources that failed to be created.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.', example='0'),
+    inProgressResourceCount?: int32(name='InProgressResourceCount', description='The number of resources that are being created.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.', example='1'),
     inProgressResourceDetails?: [ 
       {
         progressTargetValue?: float(name='ProgressTargetValue', description='The desired progress value of the resource.', example='10'),
@@ -3827,64 +3830,80 @@ The name of the RAM role can be up to 64 bytes in length.', example='test-role')
         resourceName?: string(name='ResourceName', description='The resource name.', example='WaitCondition'),
         resourceType?: string(name='ResourceType', description='The resource type.', example='ALIYUN::ROS::WaitCondition'),
       }
-    ](name='InProgressResourceDetails', description='The progress details of resources that are being created.'),
-    pendingResourceCount?: int32(name='PendingResourceCount', description='The number of resources to be created.', example='0'),
-    stackActionProgress?: float(name='StackActionProgress', example='100'),
-    stackOperationProgress?: float(name='StackOperationProgress', example='100'),
-    successResourceCount?: int32(name='SuccessResourceCount', description='The number of resources that are created.', example='1'),
-    totalResourceCount?: int32(name='TotalResourceCount', description='The total number of resources.', example='2'),
-  }(name='ResourceProgress', description='The creation progress of resources.'),
-  rootStackId?: string(name='RootStackId', description='The ID of the root stack. This parameter is returned if the specified stack is a nested stack.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf692****'),
-  serviceManaged?: boolean(name='ServiceManaged', description='Indicates whether the stack is a managed stack. Valid values: 
+    ](name='InProgressResourceDetails', description='The progress details of resources that are being created.
 
-- true
-- false', example='false'),
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.'),
+    pendingResourceCount?: int32(name='PendingResourceCount', description='The number of resources to be created.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.', example='0'),
+    stackActionProgress?: float(name='StackActionProgress', description='The creation or rollback progress of the stack, in percentage. Valid values: 0 to 100.
+
+The value progressively increases from 0 to 100 during a stack creation operation. If the stack is created, the value reaches 100. If the stack fails to be created, a rollback is started for the stack resources, and the value progressively increases from the percentage of the remaining progress (100 - Progress value generated when the stack fails to be created). The value increases to 100 when the stack resources are rolled back. This parameter indicates the creation progress during a stack creation operation and indicates the rollback progress during a stack rollback operation.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `PercentageOnly`.', example='100'),
+    stackOperationProgress?: float(name='StackOperationProgress', description='The overall creation progress of the stack, in percentage. Valid values: 0 to 100.
+
+The value progressively increases from 0 to 100 during a stack creation operation. If the stack is created, the value reaches 100. If the stack fails to be created, a rollback is started for the stack resources, and the value progressively decreases. The value decreases to 0 when the stack resources are rolled back. This parameter indicates only the overall creation progress, regardless of whether during a stack creation or rollback operation.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `PercentageOnly`.', example='100'),
+    successResourceCount?: int32(name='SuccessResourceCount', description='The number of resources that are created.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.', example='1'),
+    totalResourceCount?: int32(name='TotalResourceCount', description='The total number of resources.
+
+>  This parameter is returned only if `ShowResourceProgress` is set to `EnabledIfCreateStack`.', example='2'),
+  }(name='ResourceProgress', description='The resource creation progress.'),
+  rollbackFailedRootReason?: string(name='RollbackFailedRootReason', description='当资源栈状态为回滚失败时，该字段展示导致回滚的前一阶段执行失败的原因。', example='Resource UPDATE failed: Exception: resources.FailToCreate: FailToCreate: reason'),
+  rootStackId?: string(name='RootStackId', description='The ID of the root stack. This parameter is returned if the specified stack is a nested stack.', example='4a6c9851-3b0f-4f5f-b4ca-a14bf692****'),
+  serviceManaged?: boolean(name='ServiceManaged', description='Indicates whether the stack is a managed stack. Valid values:
+
+*   true
+*   false', example='false'),
   serviceName?: string(name='ServiceName', description='The name of the service to which the managed stack belongs.', example='ACVS'),
-  stackDriftStatus?: string(name='StackDriftStatus', description='The status of the stack in the last successful drift detection. Valid values:
+  stackDriftStatus?: string(name='StackDriftStatus', description='The state of the stack on which the most recent successful drift detection was performed. Valid values:
 
 *   DRIFTED: The stack has drifted.
 *   NOT_CHECKED: No successful drift detection is performed on the stack.
 *   IN_SYNC: The stack is being synchronized.', example='IN_SYNC'),
-  stackId?: string(name='StackId', description='The ID of the stack.', example='c754d2a4-28f1-46df-b557-9586173a****'),
-  stackName?: string(name='StackName', description='The name of the stack.
+  stackId?: string(name='StackId', description='The stack ID.', example='c754d2a4-28f1-46df-b557-9586173a****'),
+  stackName?: string(name='StackName', description='The stack name.\\
+The name can be up to 255 characters in length, and can contain digits, letters, hyphens (-), and underscores (\\_). The name must start with a digit or letter.', example='MyStack'),
+  stackType?: string(name='StackType', description='The stack type. Valid values:
 
-The name can be up to 255 characters in length, and can contain digits, letters, hyphens (-), and underscores (\\_). It must start with a digit or letter.', example='MyStack'),
-  stackType?: string(name='StackType', description='The type of the stack. Valid values:
-
-*   ROS: The ROS stack, which is created by using an ROS template.
-*   Terraform: The Terraform stack, which is created by using a Terraform template.', example='ROS'),
+*   ROS: ROS stack. The stack is created by using a ROS template.
+*   Terraform: Terraform stack. The stack is created by using a Terraform template.', example='ROS'),
   status?: string(name='Status', description='The state of the stack. Valid values:
 
 *   CREATE_IN_PROGRESS: The stack is being created.
-*   CREATE_FAILED: The stack fails to be created.
+*   CREATE_FAILED: The stack failed to be created.
 *   CREATE_COMPLETE: The stack is created.
 *   UPDATE_IN_PROGRESS: The stack is being updated.
-*   UPDATE_FAILED: The stack fails to be updated.
+*   UPDATE_FAILED: The stack failed to be updated.
 *   UPDATE_COMPLETE: The stack is updated.
 *   DELETE_IN_PROGRESS: The stack is being deleted.
-*   DELETE_FAILED: The stack fails to be deleted.
-*   CREATE_ROLLBACK_IN_PROGRESS: The stack is being rolled back after the stack fails to be created.
-*   CREATE_ROLLBACK_FAILED: The stack fails to be rolled back after the stack fails to be created.
-*   CREATE_ROLLBACK_COMPLETE: The stack is rolled back after the stack fails to be created.
-*   ROLLBACK_IN_PROGRESS: The resources in the stack are being rolled back.
-*   ROLLBACK_FAILED: The resources in the stack fail to be rolled back.
-*   ROLLBACK_COMPLETE: The resources in the stack are rolled back.
+*   DELETE_FAILED: The stack failed to be deleted.
+*   CREATE_ROLLBACK_IN_PROGRESS: The resources are being rolled back after the stack failed to be created.
+*   CREATE_ROLLBACK_FAILED: The resources failed to be rolled back after the stack failed to be created.
+*   CREATE_ROLLBACK_COMPLETE: The resources are rolled back after the stack failed to be created.
+*   ROLLBACK_IN_PROGRESS: The resources of the stack are being rolled back.
+*   ROLLBACK_FAILED: The resources of the stack failed to be rolled back.
+*   ROLLBACK_COMPLETE: The resources of the stack are rolled back.
 *   CHECK_IN_PROGRESS: The stack is being validated.
-*   CHECK_FAILED: The stack fails to be validated.
+*   CHECK_FAILED: The stack failed to be validated.
 *   CHECK_COMPLETE: The stack is validated.
 *   REVIEW_IN_PROGRESS: The stack is being reviewed.
 *   IMPORT_CREATE_IN_PROGRESS: The stack is being created by using imported resources.
-*   IMPORT_CREATE_FAILED: The stack fails to be created by using imported resources.
+*   IMPORT_CREATE_FAILED: The stack failed to be created by using imported resources.
 *   IMPORT_CREATE_COMPLETE: The stack is created by using imported resources.
-*   IMPORT_CREATE_ROLLBACK_IN_PROGRESS: The resources are being rolled back after the stack fails to be created by using imported resources.
-*   IMPORT_CREATE_ROLLBACK_FAILED: The resources fail to be rolled back after the stack fails to be created by using imported resources.
-*   IMPORT_CREATE_ROLLBACK_COMPLETE: The resources are rolled back after the stack fails to be created by using imported resources.
+*   IMPORT_CREATE_ROLLBACK_IN_PROGRESS: The resources are being rolled back after the stack failed to be created by using imported resources.
+*   IMPORT_CREATE_ROLLBACK_FAILED: The resources failed to be rolled back after the stack failed to be created by using imported resources.
+*   IMPORT_CREATE_ROLLBACK_COMPLETE: The resources are rolled back after the stack failed to be created by using imported resources.
 *   IMPORT_UPDATE_IN_PROGRESS: The stack is being updated by using imported resources.
-*   IMPORT_UPDATE_FAILED: The stack fails to be updated by using imported resources.
+*   IMPORT_UPDATE_FAILED: The stack failed to be updated by using imported resources.
 *   IMPORT_UPDATE_COMPLETE: The stack is updated by using imported resources.
-*   IMPORT_UPDATE_ROLLBACK_IN_PROGRESS: The resources are being rolled back after the stack fails to be updated by using imported resources.
-*   IMPORT_UPDATE_ROLLBACK_FAILED: The resources fail to be rolled back after the stack fails to be updated by using imported resources.
-*   IMPORT_UPDATE_ROLLBACK_COMPLETE: The resources are rolled back after the stack fails to be updated by using imported resources.', example='CREATE_COMPLETE'),
+*   IMPORT_UPDATE_ROLLBACK_IN_PROGRESS: The resources are being rolled back after the stack failed to be updated by using imported resources.
+*   IMPORT_UPDATE_ROLLBACK_FAILED: The resources failed to be rolled back after the stack failed to be updated by using imported resources.
+*   IMPORT_UPDATE_ROLLBACK_COMPLETE: The resources are rolled back after the stack failed to be updated by using imported resources.', example='CREATE_COMPLETE'),
   statusReason?: string(name='StatusReason', description='The reason why the stack is in its current state.', example='Stack CREATE completed successfully'),
   tags?: [ 
     {
@@ -3893,17 +3912,17 @@ The name can be up to 255 characters in length, and can contain digits, letters,
     }
   ](name='Tags', description='The tags of the stack.'),
   templateDescription?: string(name='TemplateDescription', description='The description of the template.', example='Create a VPC.'),
-  templateId?: string(name='TemplateId', description='The ID of the template. This parameter is returned only if the current template of the stack is a custom template or a shared template.  
+  templateId?: string(name='TemplateId', description='The template ID. This parameter is returned only if the current stack template is a custom template or shared template.
 
-If the template is a shared template, the value of this parameter is the same as the value of the TemplateARN parameter.', example='a52f81be-496f-4e1c-a286-8852ab54****'),
-  templateScratchId?: string(name='TemplateScratchId', description='The ID of the scenario. This parameter is returned only if the current template of the stack is generated from a scenario.', example='ts-7f7a704cf71c49a6****'),
-  templateURL?: string(name='TemplateURL', description='The URL of the file that contains the template body. This parameter is returned only if the current template of the stack is from a URL. The URL can point to a template that is located on an HTTP or HTTPS web server or in an Alibaba Cloud Object Storage Service (OSS) bucket.', example='oss://ros/template/demo'),
-  templateVersion?: string(name='TemplateVersion', description='The version of the template. This parameter is returned only if the current template of the stack is a custom template or a shared template.  
+If the template is a shared template, the value of this parameter is the same as the value of TemplateARN.', example='a52f81be-496f-4e1c-a286-8852ab54****'),
+  templateScratchId?: string(name='TemplateScratchId', description='The ID of the resource scenario. This parameter is returned only if the current template of the stack is generated from a resource scenario.', example='ts-7f7a704cf71c49a6****'),
+  templateURL?: string(name='TemplateURL', description='The URL of the file that contains the template body. This parameter is returned only if the current template of the stack is from a URL. The URL can point to a template that is located on an HTTP or HTTPS web server or in an Object Storage Service (OSS) bucket.', example='oss://ros/template/demo'),
+  templateVersion?: string(name='TemplateVersion', description='The version of the template. This parameter is returned only if the current stack template is a custom template or shared template.
 
-If the template is a shared template, this parameter is returned only when the VersionOption parameter is set to AllVersions.  
+If the template is a shared template, this parameter is returned only if VersionOption is set to AllVersions.
 
 Valid values: v1 to v100.', example='v1'),
-  timeoutInMinutes?: int32(name='TimeoutInMinutes', description='The timeout period within which the stack can be created. Unit: minutes.', example='10'),
+  timeoutInMinutes?: int32(name='TimeoutInMinutes', description='The timeout period for creating the stack. Unit: minutes.', example='10'),
   updateTime?: string(name='UpdateTime', description='The time when the stack was updated. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2020-09-17T08:21:40'),
 }
 
@@ -3914,7 +3933,7 @@ model GetStackResponse = {
 }
 
 /**
-  * In this topic, the information about a stack whose ID is `c754d2a4-28f1-46df-b557-9586173a****` is queried. The stack is deployed in the China (Hangzhou) region.
+  * In this example, the information about a stack whose ID is `c754d2a4-28f1-46df-b557-9586173a****` in the China (Hangzhou) region is queried.
   *
   * @param request GetStackRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -3959,7 +3978,7 @@ async function getStackWithOptions(request: GetStackRequest, runtime: Util.Runti
 }
 
 /**
-  * In this topic, the information about a stack whose ID is `c754d2a4-28f1-46df-b557-9586173a****` is queried. The stack is deployed in the China (Hangzhou) region.
+  * In this example, the information about a stack whose ID is `c754d2a4-28f1-46df-b557-9586173a****` in the China (Hangzhou) region is queried.
   *
   * @param request GetStackRequest
   * @return GetStackResponse
@@ -4351,6 +4370,7 @@ async function getStackGroupOperation(request: GetStackGroupOperationRequest): G
 }
 
 model GetStackInstanceRequest {
+  outputOption?: string(name='OutputOption'),
   regionId?: string(name='RegionId', description='The region ID of the stack group. You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
   stackGroupName?: string(name='StackGroupName', description='The name of the stack group. The name must be unique within a region.\\
 The name can be up to 255 characters in length, and can contain digits, letters, hyphens (-), and underscores (\\_). It must start with a digit or letter.', example='MyStackGroup'),
@@ -4370,6 +4390,7 @@ model GetStackInstanceResponseBody = {
     driftDetectionTime?: string(name='DriftDetectionTime', description='The time when the most recent successful drift detection was performed on the stack group.
 
 > This parameter is returned only if drift detection is performed on the stack group.', example='2020-02-27T07:47:47'),
+    outputs?: [  map[string]any ](name='Outputs'),
     parameterOverrides?: [ 
       {
         parameterKey?: string(name='ParameterKey', description='The name of the parameter that is used to override a specific parameter.', example='Amount'),
@@ -4427,6 +4448,9 @@ model GetStackInstanceResponse = {
 async function getStackInstanceWithOptions(request: GetStackInstanceRequest, runtime: Util.RuntimeOptions): GetStackInstanceResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.outputOption)) {
+    query['OutputOption'] = request.outputOption;
+  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
   }
@@ -7441,7 +7465,7 @@ You can call the [DescribeRegions](~~131035~~) operation to query the most recen
     }
   ](name='Tags', description='The tags of the scenario.'),
   templateScratchId?: string(name='TemplateScratchId', description='The ID of the scenario.', example='ts-7f7a704cf71c49a6****'),
-  templateScratchType?: string(name='TemplateScratchType', description='The type of the scenario. Valid values:
+  templateScratchType?: string(name='TemplateScratchType', description='The type of the resource scenario. Valid values:
 
 *   ArchitectureReplication: resource replication
 *   ArchitectureDetection: resource detection
@@ -7455,13 +7479,13 @@ model ListTemplateScratchesResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='D1C09606-C58B-558F-9B4E-5BF263D17D09'),
   templateScratches?: [ 
     {
-      createTime?: string(name='CreateTime', description='The time when the scenario was created.
+      createTime?: string(name='CreateTime', description='The time when the resource scenario was created.
 
 The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2021-12-07T08:06:44'),
-      description?: string(name='Description', description='The description of the scenario.', example='The description of the scenario.'),
-      failedCode?: string(name='FailedCode', description='The status code that is returned if the scenario failed to be generated.
+      description?: string(name='Description', description='The description of the resource scenario.', example='The description of the scenario.'),
+      failedCode?: string(name='FailedCode', description='The status code of the resource scenario that failed to be generated.
 
->  This parameter is returned only if Status is set to GENERATE_FAILED.', example='InvalidZoneId'),
+>  This parameter is returned only if the value of Status is GENERATE_FAILED.', example='InvalidZoneId'),
       logicalIdStrategy?: string(name='LogicalIdStrategy', description='The policy based on which the logical ID is generated. Valid values:
 
 *   LongTypePrefixAndIndexSuffix (default): long-type prefix + index-type suffix
@@ -7469,14 +7493,14 @@ The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The ti
 *   ShortTypePrefixAndHashSuffix: short-type prefix + hash-type suffix', example='LongTypePrefixAndIndexSuffix'),
       preferenceParameters?: [ 
         {
-          parameterKey?: string(name='ParameterKey', description='The name of the parameter.', example='DeletionPolicy'),
-          parameterValue?: string(name='ParameterValue', description='The value of the parameter.', example='Retain'),
+          parameterKey?: string(name='ParameterKey', description='The parameter name.', example='DeletionPolicy'),
+          parameterValue?: string(name='ParameterValue', description='The parameter value.', example='Retain'),
         }
-      ](name='PreferenceParameters', description='The parameters that are configured for the scenario.'),
+      ](name='PreferenceParameters', description='The preference parameters of the resource scenario.'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfm4nxcvht4pmi'),
       sourceResourceGroup?: {
         resourceGroupId?: string(name='ResourceGroupId', description='The ID of the source resource group.', example='rg-acfmzawhxxc****'),
-        resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The filters for resource types.'),
+        resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The resource types for filtering resources.'),
       }(name='SourceResourceGroup', description='The source resource group.'),
       sourceResources?: [ 
         {
@@ -7486,28 +7510,28 @@ The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The ti
       ](name='SourceResources', description='The source resources.'),
       sourceTag?: {
         resourceTags?: map[string]any(name='ResourceTags', description='The source tags.', example='{"a": "b"}'),
-        resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The filters for resource types.'),
+        resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The resource types for filtering resources.'),
       }(name='SourceTag', description='The source tag.'),
-      status?: string(name='Status', description='The state of the scenario.', example='GENERATE_COMPLETE'),
-      statusReason?: string(name='StatusReason', description='The reason why the scenario failed to be generated.
+      status?: string(name='Status', description='The state of the resource scenario.', example='GENERATE_COMPLETE'),
+      statusReason?: string(name='StatusReason', description='The reason why the resource scenario failed to be generated.
 
->  This parameter is returned only if Status is set to GENERATE_FAILED.', example='Resource ALIYUN::ECS::VPC vpc-m5eauuq80anx59v28**** could not be found for template scratch.'),
+>  This parameter is returned only if the value of Status is GENERATE_FAILED.', example='Resource ALIYUN::ECS::VPC vpc-m5eauuq80anx59v28**** could not be found for template scratch.'),
       tags?: [ 
         {
-          key?: string(name='Key', description='The tag key of the scenario.', example='usage1'),
-          value?: string(name='Value', description='The tag value of the scenario.', example='test1'),
+          key?: string(name='Key', description='The tag key of the resource scenario.', example='usage1'),
+          value?: string(name='Value', description='The tag value of the resource scenario.', example='test1'),
         }
-      ](name='Tags', description='The tags of the scenario.'),
-      templateScratchId?: string(name='TemplateScratchId', description='The scenario ID.', example='ts-48ad85d66cca4620****'),
-      templateScratchType?: string(name='TemplateScratchType', description='The type of the scenario. Valid values:
+      ](name='Tags', description='The tags of the resource scenario.'),
+      templateScratchId?: string(name='TemplateScratchId', description='The ID of the resource scenario.', example='ts-48ad85d66cca4620****'),
+      templateScratchType?: string(name='TemplateScratchType', description='The type of the resource scenario. Valid values:
 
 *   ResourceImport: resource management
 *   ArchitectureReplication: resource replication', example='ResourceImport'),
-      updateTime?: string(name='UpdateTime', description='The time when the scenario was updated.
+      updateTime?: string(name='UpdateTime', description='The time when the resource scenario was updated.
 
 The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2021-12-07T08:06:44'),
     }
-  ](name='TemplateScratches', description='The scenarios.'),
+  ](name='TemplateScratches', description='The resource scenarios.'),
   totalCount?: int32(name='TotalCount', description='The total number of scenarios.', example='2'),
 }
 
@@ -9774,19 +9798,19 @@ For more information, see [How to ensure idempotence](~~134212~~).', example='12
 >  If you set TemplateScratchType to ArchitectureDetection, the default value of LogicalIdStrategy is LongTypePrefixAndHashSuffix. In other cases, the default value of LogicalIdStrategy is LongTypePrefixAndIndexSuffix.', example='LongTypePrefixAndIndexSuffix'),
   preferenceParameters?: [ 
     {
-      parameterKey?: string(name='ParameterKey', description='The name of the parameter.
+      parameterKey?: string(name='ParameterKey', description='The parameter name.
 
 For more information about the valid values of ParameterKey, see the "**Additional information about request parameters**" section of this topic.
 
-> - PreferenceParameters is optional. If you specify PreferenceParameters, you must specify both ParameterKey and ParameterValue.
+>- PreferenceParameters is optional. If you specify PreferenceParameters, you must specify both ParameterKey and ParameterValue.
 > - If you set TemplateScratchType to ResourceImport, you must set ParameterKey to DeletionPolicy.', example='DeletionPolicy'),
-      parameterValue?: string(name='ParameterValue', description='The value of the parameter. The value of ParameterValue varies based on the value of ParameterKey.
+      parameterValue?: string(name='ParameterValue', description='The parameter value. The value of ParameterValue varies based on the value of ParameterKey.
 
-For more information about the valid values of ParameterValue, see the "**Additional information about request parameters**" section of this topic.
+For more information about the valid values of ParameterKey, see the "**Additional information about request parameters**" section of this topic.
 
 >  PreferenceParameters is optional. If you specify PreferenceParameters, you must specify both ParameterKey and ParameterValue.', example='Retain'),
     }
-  ](name='PreferenceParameters', description='The parameters that you want to configure for the scenario.'),
+  ](name='PreferenceParameters', description='The preference parameters of the resource scenario.'),
   regionId?: string(name='RegionId', description='The region ID of the scenario.
 
 You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
@@ -9802,7 +9826,7 @@ You can call the [DescribeRegions](~~131035~~) operation to query the most recen
     }
   ](name='SourceResources', description='The source resources.
 
-If you specify source resources as the value of SourceResources when TemplateScratchType is set to ArchitectureDetection, the system detects the schema data of all resources that are associated with the specified source resources. For example, if you specify the ID of a Classic Load Balancer (CLB) instance as the value of SourceResources, the system detects the schema data of resources, such as Elastic Compute Service (ECS) instances, vSwitches, and VPCs, that are associated with the CLB instance.
+If you specify SourceResources when TemplateScratchType is set to ArchitectureDetection, the system detects the architecture of all resources that are associated with the specified source resources. For example, if you set the value of SourceResources to an ID of a Classic Load Balancer (CLB) instance, the system detects the architecture of resources, such as Elastic Compute Service (ECS) instances, vSwitches, and virtual private clouds (VPCs), that are associated with the CLB instance.
 
 If you set TemplateScratchType to ArchitectureDetection, you can specify up to 20 source resources for SourceResources. In other cases, you can specify up to 200 source resources.'),
   sourceTag?: {
@@ -9811,7 +9835,7 @@ If you set TemplateScratchType to ArchitectureDetection, you can specify up to 2
 If you want to specify only the tag key, you must set the tag value to an empty string. Example: {"TagKey": ""}.
 
 If you set TemplateScratchType to ArchitectureDetection, you can add up to five source tags. In other cases, you can add up to 10 source tags.', example='{"a": "b"}'),
-    resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The filters for resource types.'),
+    resourceTypeFilter?: [ string ](name='ResourceTypeFilter', description='The resource types for filtering resources.'),
   }(name='SourceTag', description='The source tag.'),
   templateScratchId?: string(name='TemplateScratchId', description='The ID of the scenario.', example='ts-7f7a704cf71c49a6****'),
 }
@@ -9834,7 +9858,7 @@ For more information, see [How to ensure idempotence](~~134212~~).', example='12
 *   ShortTypePrefixAndHashSuffix: short-type prefix + hash-type suffix
 
 >  If you set TemplateScratchType to ArchitectureDetection, the default value of LogicalIdStrategy is LongTypePrefixAndHashSuffix. In other cases, the default value of LogicalIdStrategy is LongTypePrefixAndIndexSuffix.', example='LongTypePrefixAndIndexSuffix'),
-  preferenceParametersShrink?: string(name='PreferenceParameters', description='The parameters that you want to configure for the scenario.'),
+  preferenceParametersShrink?: string(name='PreferenceParameters', description='The preference parameters of the resource scenario.'),
   regionId?: string(name='RegionId', description='The region ID of the scenario.
 
 You can call the [DescribeRegions](~~131035~~) operation to query the most recent region list.', example='cn-hangzhou'),
@@ -9842,7 +9866,7 @@ You can call the [DescribeRegions](~~131035~~) operation to query the most recen
   sourceResourceGroupShrink?: string(name='SourceResourceGroup', description='The source resource group.'),
   sourceResourcesShrink?: string(name='SourceResources', description='The source resources.
 
-If you specify source resources as the value of SourceResources when TemplateScratchType is set to ArchitectureDetection, the system detects the schema data of all resources that are associated with the specified source resources. For example, if you specify the ID of a Classic Load Balancer (CLB) instance as the value of SourceResources, the system detects the schema data of resources, such as Elastic Compute Service (ECS) instances, vSwitches, and VPCs, that are associated with the CLB instance.
+If you specify SourceResources when TemplateScratchType is set to ArchitectureDetection, the system detects the architecture of all resources that are associated with the specified source resources. For example, if you set the value of SourceResources to an ID of a Classic Load Balancer (CLB) instance, the system detects the architecture of resources, such as Elastic Compute Service (ECS) instances, vSwitches, and virtual private clouds (VPCs), that are associated with the CLB instance.
 
 If you set TemplateScratchType to ArchitectureDetection, you can specify up to 20 source resources for SourceResources. In other cases, you can specify up to 200 source resources.'),
   sourceTagShrink?: string(name='SourceTag', description='The source tag.'),
