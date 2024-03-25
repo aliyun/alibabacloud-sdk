@@ -1,0 +1,941 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('aigen', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model GenerateCosplayImageRequest {
+  faceImageUrl?: string(name='FaceImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  style?: long(name='Style', example='0'),
+  templateImageUrl?: string(name='TemplateImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+}
+
+model GenerateCosplayImageAdvanceRequest {
+  faceImageUrlObject?: readable(name='FaceImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  style?: long(name='Style', example='0'),
+  templateImageUrlObject?: readable(name='TemplateImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+}
+
+model GenerateCosplayImageResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/viapi-video/person_image_cartoonizer/2023-10-25/55798d04-0957-4ab1-accc-0e4d2d01a039/20231025092636774205_styleanime_n2vedxruht.jpg?Expires=1698283596&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=ut2kn46Lz%2FRwqJ9jWJ0RBDut12****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='59697D68-2A6E-4553-89BD-0FADD07881E8'),
+}
+
+model GenerateCosplayImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateCosplayImageResponseBody(name='body'),
+}
+
+async function generateCosplayImageWithOptions(request: GenerateCosplayImageRequest, runtime: Util.RuntimeOptions): GenerateCosplayImageResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.faceImageUrl)) {
+    body['FaceImageUrl'] = request.faceImageUrl;
+  }
+  if (!Util.isUnset(request.style)) {
+    body['Style'] = request.style;
+  }
+  if (!Util.isUnset(request.templateImageUrl)) {
+    body['TemplateImageUrl'] = request.templateImageUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateCosplayImage',
+    version = '2024-01-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function generateCosplayImage(request: GenerateCosplayImageRequest): GenerateCosplayImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateCosplayImageWithOptions(request, runtime);
+}
+
+async function generateCosplayImageAdvance(request: GenerateCosplayImageAdvanceRequest, runtime: Util.RuntimeOptions): GenerateCosplayImageResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aigen',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateCosplayImageReq = new GenerateCosplayImageRequest{};
+  OpenApiUtil.convert(request, generateCosplayImageReq);
+
+  if(!Util.isUnset(request.faceImageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.faceImageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateCosplayImageReq.faceImageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.templateImageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.templateImageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateCosplayImageReq.templateImageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var generateCosplayImageResp = generateCosplayImageWithOptions(generateCosplayImageReq, runtime);
+  return generateCosplayImageResp;
+}
+
+model GenerateTextDeformationRequest {
+  async?: boolean(name='Async', description='1', example='1'),
+  fontName?: string(name='FontName', example='dongfangdakai'),
+  n?: long(name='N', example='1'),
+  outputImageRatio?: string(name='OutputImageRatio', example='1:1'),
+  prompt?: string(name='Prompt'),
+  textContent?: string(name='TextContent'),
+  ttfUrl?: string(name='TtfUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/synthesis/GenerateTextDeformation/xxx01.ttf'),
+}
+
+model GenerateTextDeformationAdvanceRequest {
+  async?: boolean(name='Async', description='1', example='1'),
+  fontName?: string(name='FontName', example='dongfangdakai'),
+  n?: long(name='N', example='1'),
+  outputImageRatio?: string(name='OutputImageRatio', example='1:1'),
+  prompt?: string(name='Prompt'),
+  textContent?: string(name='TextContent'),
+  ttfUrlObject?: readable(name='TtfUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/synthesis/GenerateTextDeformation/xxx01.ttf'),
+}
+
+model GenerateTextDeformationResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/viapi-video/person_image_cartoonizer/2023-10-25/55798d04-0957-4ab1-accc-0e4d2d01a039/20231025092636774205_styleanime_n2vedxruht.jpg?Expires=1698283596&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=ut2kn46Lz%2FRwqJ9jWJ0RBDut12****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='59697D68-2A6E-4553-89BD-0FADD07881E8'),
+}
+
+model GenerateTextDeformationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateTextDeformationResponseBody(name='body'),
+}
+
+async function generateTextDeformationWithOptions(request: GenerateTextDeformationRequest, runtime: Util.RuntimeOptions): GenerateTextDeformationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.async)) {
+    body['Async'] = request.async;
+  }
+  if (!Util.isUnset(request.fontName)) {
+    body['FontName'] = request.fontName;
+  }
+  if (!Util.isUnset(request.n)) {
+    body['N'] = request.n;
+  }
+  if (!Util.isUnset(request.outputImageRatio)) {
+    body['OutputImageRatio'] = request.outputImageRatio;
+  }
+  if (!Util.isUnset(request.prompt)) {
+    body['Prompt'] = request.prompt;
+  }
+  if (!Util.isUnset(request.textContent)) {
+    body['TextContent'] = request.textContent;
+  }
+  if (!Util.isUnset(request.ttfUrl)) {
+    body['TtfUrl'] = request.ttfUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateTextDeformation',
+    version = '2024-01-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function generateTextDeformation(request: GenerateTextDeformationRequest): GenerateTextDeformationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateTextDeformationWithOptions(request, runtime);
+}
+
+async function generateTextDeformationAdvance(request: GenerateTextDeformationAdvanceRequest, runtime: Util.RuntimeOptions): GenerateTextDeformationResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aigen',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateTextDeformationReq = new GenerateTextDeformationRequest{};
+  OpenApiUtil.convert(request, generateTextDeformationReq);
+
+  if(!Util.isUnset(request.ttfUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.ttfUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateTextDeformationReq.ttfUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var generateTextDeformationResp = generateTextDeformationWithOptions(generateTextDeformationReq, runtime);
+  return generateTextDeformationResp;
+}
+
+model GenerateTextTextureRequest {
+  alphaChannel?: boolean(name='AlphaChannel', example='false'),
+  fontName?: string(name='FontName', example='dongfangdakai'),
+  imageShortSize?: long(name='ImageShortSize', example='512'),
+  imageUrl?: string(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  n?: long(name='N', example='1'),
+  outputImageRatio?: string(name='OutputImageRatio', example='1:1'),
+  prompt?: string(name='Prompt'),
+  textContent?: string(name='TextContent'),
+  textureStyle?: string(name='TextureStyle', example='material'),
+  ttfUrl?: string(name='TtfUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+}
+
+model GenerateTextTextureAdvanceRequest {
+  alphaChannel?: boolean(name='AlphaChannel', example='false'),
+  fontName?: string(name='FontName', example='dongfangdakai'),
+  imageShortSize?: long(name='ImageShortSize', example='512'),
+  imageUrlObject?: readable(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  n?: long(name='N', example='1'),
+  outputImageRatio?: string(name='OutputImageRatio', example='1:1'),
+  prompt?: string(name='Prompt'),
+  textContent?: string(name='TextContent'),
+  textureStyle?: string(name='TextureStyle', example='material'),
+  ttfUrlObject?: readable(name='TtfUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+}
+
+model GenerateTextTextureResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/viapi-video/person_image_cartoonizer/2023-10-25/55798d04-0957-4ab1-accc-0e4d2d01a039/20231025092636774205_styleanime_n2vedxruht.jpg?Expires=1698283596&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=ut2kn46Lz%2FRwqJ9jWJ0RBDut12****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='59697D68-2A6E-4553-89BD-0FADD07881E8'),
+}
+
+model GenerateTextTextureResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateTextTextureResponseBody(name='body'),
+}
+
+async function generateTextTextureWithOptions(request: GenerateTextTextureRequest, runtime: Util.RuntimeOptions): GenerateTextTextureResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.textureStyle)) {
+    query['TextureStyle'] = request.textureStyle;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.alphaChannel)) {
+    body['AlphaChannel'] = request.alphaChannel;
+  }
+  if (!Util.isUnset(request.fontName)) {
+    body['FontName'] = request.fontName;
+  }
+  if (!Util.isUnset(request.imageShortSize)) {
+    body['ImageShortSize'] = request.imageShortSize;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.n)) {
+    body['N'] = request.n;
+  }
+  if (!Util.isUnset(request.outputImageRatio)) {
+    body['OutputImageRatio'] = request.outputImageRatio;
+  }
+  if (!Util.isUnset(request.prompt)) {
+    body['Prompt'] = request.prompt;
+  }
+  if (!Util.isUnset(request.textContent)) {
+    body['TextContent'] = request.textContent;
+  }
+  if (!Util.isUnset(request.ttfUrl)) {
+    body['TtfUrl'] = request.ttfUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateTextTexture',
+    version = '2024-01-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function generateTextTexture(request: GenerateTextTextureRequest): GenerateTextTextureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateTextTextureWithOptions(request, runtime);
+}
+
+async function generateTextTextureAdvance(request: GenerateTextTextureAdvanceRequest, runtime: Util.RuntimeOptions): GenerateTextTextureResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aigen',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var generateTextTextureReq = new GenerateTextTextureRequest{};
+  OpenApiUtil.convert(request, generateTextTextureReq);
+
+  if(!Util.isUnset(request.imageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateTextTextureReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.ttfUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.ttfUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    generateTextTextureReq.ttfUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var generateTextTextureResp = generateTextTextureWithOptions(generateTextTextureReq, runtime);
+  return generateTextTextureResp;
+}
+
+model InteractiveFullSegmentationRequest {
+  imageUrl?: string(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  returnFormat?: string(name='ReturnFormat', example='PNG'),
+}
+
+model InteractiveFullSegmentationAdvanceRequest {
+  imageUrlObject?: readable(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  returnFormat?: string(name='ReturnFormat', example='PNG'),
+}
+
+model InteractiveFullSegmentationResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/viapi-video/person_image_cartoonizer/2023-10-25/55798d04-0957-4ab1-accc-0e4d2d01a039/20231025092636774205_styleanime_n2vedxruht.jpg?Expires=1698283596&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=ut2kn46Lz%2FRwqJ9jWJ0RBDut12****'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='7574ee8f-38a3-4b1e-9280-11c33ab46e51'),
+}
+
+model InteractiveFullSegmentationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InteractiveFullSegmentationResponseBody(name='body'),
+}
+
+async function interactiveFullSegmentationWithOptions(request: InteractiveFullSegmentationRequest, runtime: Util.RuntimeOptions): InteractiveFullSegmentationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.returnFormat)) {
+    body['ReturnFormat'] = request.returnFormat;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InteractiveFullSegmentation',
+    version = '2024-01-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function interactiveFullSegmentation(request: InteractiveFullSegmentationRequest): InteractiveFullSegmentationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return interactiveFullSegmentationWithOptions(request, runtime);
+}
+
+async function interactiveFullSegmentationAdvance(request: InteractiveFullSegmentationAdvanceRequest, runtime: Util.RuntimeOptions): InteractiveFullSegmentationResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aigen',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var interactiveFullSegmentationReq = new InteractiveFullSegmentationRequest{};
+  OpenApiUtil.convert(request, interactiveFullSegmentationReq);
+
+  if(!Util.isUnset(request.imageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveFullSegmentationReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var interactiveFullSegmentationResp = interactiveFullSegmentationWithOptions(interactiveFullSegmentationReq, runtime);
+  return interactiveFullSegmentationResp;
+}
+
+model InteractiveScribbleSegmentationRequest {
+  edgeFeathering?: string(name='EdgeFeathering', example='true'),
+  imageUrl?: string(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  integratedMaskUrl?: string(name='IntegratedMaskUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx05.png'),
+  maskImageUrl?: string(name='MaskImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+  negScribbleImageUrl?: string(name='NegScribbleImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx04.png'),
+  posScribbleImageUrl?: string(name='PosScribbleImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx03.png'),
+  postprocessOption?: string(name='PostprocessOption', example='edgerefine'),
+  returnForm?: string(name='ReturnForm', example='only_alpha'),
+  returnFormat?: string(name='ReturnFormat', example='PNG'),
+}
+
+model InteractiveScribbleSegmentationAdvanceRequest {
+  edgeFeathering?: string(name='EdgeFeathering', example='true'),
+  imageUrlObject?: readable(name='ImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx01.png'),
+  integratedMaskUrlObject?: readable(name='IntegratedMaskUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx05.png'),
+  maskImageUrlObject?: readable(name='MaskImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx02.png'),
+  negScribbleImageUrlObject?: readable(name='NegScribbleImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx04.png'),
+  posScribbleImageUrlObject?: readable(name='PosScribbleImageUrl', example='http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/aigen/xxx03.png'),
+  postprocessOption?: string(name='PostprocessOption', example='edgerefine'),
+  returnForm?: string(name='ReturnForm', example='only_alpha'),
+  returnFormat?: string(name='ReturnFormat', example='PNG'),
+}
+
+model InteractiveScribbleSegmentationResponseBody = {
+  data?: {
+    resultUrl?: string(name='ResultUrl', example='https://dashscope-result-sh.oss-cn-shanghai.aliyuncs.com/viapi-video/person_image_cartoonizer/2023-10-25/55798d04-0957-4ab1-accc-0e4d2d01a039/20231025092636774205_styleanime_n2vedxruht.jpg?Expires=1698283596&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSR****&Signature=ut2kn46Lz%2FRwqJ9jWJ0RBDut12****'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='7574ee8f-38a3-4b1e-9280-11c33ab46e51'),
+}
+
+model InteractiveScribbleSegmentationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InteractiveScribbleSegmentationResponseBody(name='body'),
+}
+
+async function interactiveScribbleSegmentationWithOptions(request: InteractiveScribbleSegmentationRequest, runtime: Util.RuntimeOptions): InteractiveScribbleSegmentationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.edgeFeathering)) {
+    body['EdgeFeathering'] = request.edgeFeathering;
+  }
+  if (!Util.isUnset(request.imageUrl)) {
+    body['ImageUrl'] = request.imageUrl;
+  }
+  if (!Util.isUnset(request.integratedMaskUrl)) {
+    body['IntegratedMaskUrl'] = request.integratedMaskUrl;
+  }
+  if (!Util.isUnset(request.maskImageUrl)) {
+    body['MaskImageUrl'] = request.maskImageUrl;
+  }
+  if (!Util.isUnset(request.negScribbleImageUrl)) {
+    body['NegScribbleImageUrl'] = request.negScribbleImageUrl;
+  }
+  if (!Util.isUnset(request.posScribbleImageUrl)) {
+    body['PosScribbleImageUrl'] = request.posScribbleImageUrl;
+  }
+  if (!Util.isUnset(request.postprocessOption)) {
+    body['PostprocessOption'] = request.postprocessOption;
+  }
+  if (!Util.isUnset(request.returnForm)) {
+    body['ReturnForm'] = request.returnForm;
+  }
+  if (!Util.isUnset(request.returnFormat)) {
+    body['ReturnFormat'] = request.returnFormat;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'InteractiveScribbleSegmentation',
+    version = '2024-01-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function interactiveScribbleSegmentation(request: InteractiveScribbleSegmentationRequest): InteractiveScribbleSegmentationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return interactiveScribbleSegmentationWithOptions(request, runtime);
+}
+
+async function interactiveScribbleSegmentationAdvance(request: InteractiveScribbleSegmentationAdvanceRequest, runtime: Util.RuntimeOptions): InteractiveScribbleSegmentationResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.isUnset(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'aigen',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = null;
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var interactiveScribbleSegmentationReq = new InteractiveScribbleSegmentationRequest{};
+  OpenApiUtil.convert(request, interactiveScribbleSegmentationReq);
+
+  if(!Util.isUnset(request.imageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveScribbleSegmentationReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.integratedMaskUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.integratedMaskUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveScribbleSegmentationReq.integratedMaskUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.maskImageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.maskImageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveScribbleSegmentationReq.maskImageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.negScribbleImageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.negScribbleImageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveScribbleSegmentationReq.negScribbleImageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!Util.isUnset(request.posScribbleImageUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.posScribbleImageUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    interactiveScribbleSegmentationReq.posScribbleImageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var interactiveScribbleSegmentationResp = interactiveScribbleSegmentationWithOptions(interactiveScribbleSegmentationReq, runtime);
+  return interactiveScribbleSegmentationResp;
+}
+
