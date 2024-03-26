@@ -36,38 +36,47 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model CreateFlowRequest {
-  definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the Flow Definition Language (FDL) syntax.', example='version:&nbsp;v1.0<br/>type:&nbsp;flow<br/>steps:<br/>&nbsp;-&nbsp;type:&nbsp;pass<br/>&nbsp;name:&nbsp;mypass'),
+  definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the flow definition language (FDL) syntax. Considering compatibility, the system supports two flow definition specifications.', example='version:&nbsp;v1.0<br/>type:&nbsp;flow<br/>steps:<br/>&nbsp;-&nbsp;type:&nbsp;pass<br/>&nbsp;name:&nbsp;mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test flow'),
-  executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. The value Standard indicates an empty string.'),
+  executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values: Express and Standard. Considering compatibility, an empty string is equivalent to the Standard execution mode.', example='Standard'),
   externalStorageLocation?: string(name='ExternalStorageLocation', description='The path of the external storage.', example='/path'),
-  name?: string(name='Name', description='The name of the flow. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  name?: string(name='Name', description='The name of the flow. The name is unique within the same region and cannot be modified after the flow is created. Set this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestID'),
-  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the specified Resource Access Management (RAM) role that Serverless Workflow assumes to invoke resources when the task is executed.', example='acs:ram:${region}:${accountID}:${role}'),
-  type?: string(name='Type', description='The type of the flow. Valid value: **FDL**.', example='FDL'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, CloudFlow assumes the role to call API operations of relevant services.', example='acs:ram:${region}:${accountID}:${role}'),
+  type?: string(name='Type', description='The type of the flow. Set this parameter to **FDL**.', example='FDL'),
 }
 
 model CreateFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
-  definition?: string(name='Definition', description='The definition of the flow.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
+  definition?: string(name='Definition', description='Considering compatibility, the system supports two flow definition specifications.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test flow'),
-  executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. The value Standard indicates an empty string.'),
+  executionMode?: string(name='ExecutionMode', description='The execution mode. Valid values: Express and Standard. Considering compatibility, an empty string is equivalent to the Standard execution mode.', example='Standard'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
   name?: string(name='Name', description='The name of the flow.', example='flow'),
   requestId?: string(name='RequestId', description='The request ID. Each time an `HTTP status code` is returned, Serverless Workflow returns a value for the parameter.', example='testRequestID'),
-  roleArn?: string(name='RoleArn', description='The ARN of the RAM role.', example='acs:ram:${region}:${accountID}:${role}'),
-  type?: string(name='Type', description='The type of the flow.', example='FDL'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, CloudFlow assumes the role to call API operations of relevant services.', example='acs:ram:${region}:${accountID}:${role}'),
+  type?: string(name='Type', description='The type of the flow.
+
+Valid value:
+
+*   FDL
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='FDL'),
 }
 
 model CreateFlowResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateFlowResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateFlowResponseBody(name='body'),
 }
 
 /**
@@ -81,10 +90,6 @@ model CreateFlowResponse = {
  */
 async function createFlowWithOptions(request: CreateFlowRequest, runtime: Util.RuntimeOptions): CreateFlowResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.definition)) {
     body['Definition'] = request.definition;
@@ -108,7 +113,6 @@ async function createFlowWithOptions(request: CreateFlowRequest, runtime: Util.R
     body['Type'] = request.type;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -147,13 +151,13 @@ model CreateScheduleRequest {
 *   **false**', example='true'),
   flowName?: string(name='FlowName', description='The name of the flow that is bound to the time-based schedule.', example='flow'),
   payload?: string(name='Payload', description='The trigger message of the time-based schedule. Specify the value in the JSON format.', example='{"key": "value"}'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
   scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. Configure this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='testScheduleName'),
+  signatureVersion?: string(name='SignatureVersion'),
 }
 
 model CreateScheduleResponseBody = {
@@ -169,16 +173,16 @@ model CreateScheduleResponseBody = {
 }
 
 model CreateScheduleResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateScheduleResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateScheduleResponseBody(name='body'),
 }
 
 async function createScheduleWithOptions(request: CreateScheduleRequest, runtime: Util.RuntimeOptions): CreateScheduleResponse {
   Util.validateModel(request);
   var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
+  if (!Util.isUnset(request.signatureVersion)) {
+    query['SignatureVersion'] = request.signatureVersion;
   }
   var body : map[string]any = {};
   if (!Util.isUnset(request.cronExpression)) {
@@ -223,8 +227,7 @@ async function createSchedule(request: CreateScheduleRequest): CreateScheduleRes
 }
 
 model DeleteFlowRequest {
-  name?: string(name='Name', description='The name of the flow. The name can contain letters, digits, underscores (\\_), and hyphens (-) only. It cannot start with a digit or a hyphen (-). It must be 1 to 128 characters in length.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
+  name?: string(name='Name', description='The name of the flow. The name can contain only letters, digits, underscores (\\_), and hyphens (-). It cannot start with a digit or a hyphen (-). It must be 1 to 128 characters in length.', example='flow'),
 }
 
 model DeleteFlowResponseBody = {
@@ -232,9 +235,9 @@ model DeleteFlowResponseBody = {
 }
 
 model DeleteFlowResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteFlowResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteFlowResponseBody(name='body'),
 }
 
 /**
@@ -247,7 +250,10 @@ model DeleteFlowResponse = {
  */
 async function deleteFlowWithOptions(request: DeleteFlowRequest, runtime: Util.RuntimeOptions): DeleteFlowResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -256,7 +262,7 @@ async function deleteFlowWithOptions(request: DeleteFlowRequest, runtime: Util.R
     version = '2019-03-15',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -278,14 +284,13 @@ async function deleteFlow(request: DeleteFlowRequest): DeleteFlowResponse {
 }
 
 model DeleteScheduleRequest {
-  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name is unique within the region and cannot be modified after the time-based schedule is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name must be unique within the region and cannot be modified after the time-based schedule is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='testFlowName'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
-  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. Configure this parameter based on the following rules:
+  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -298,14 +303,20 @@ model DeleteScheduleResponseBody = {
 }
 
 model DeleteScheduleResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteScheduleResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteScheduleResponseBody(name='body'),
 }
 
 async function deleteScheduleWithOptions(request: DeleteScheduleRequest, runtime: Util.RuntimeOptions): DeleteScheduleResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.flowName)) {
+    query['FlowName'] = request.flowName;
+  }
+  if (!Util.isUnset(request.scheduleName)) {
+    query['ScheduleName'] = request.scheduleName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -314,7 +325,7 @@ async function deleteScheduleWithOptions(request: DeleteScheduleRequest, runtime
     version = '2019-03-15',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -329,19 +340,18 @@ async function deleteSchedule(request: DeleteScheduleRequest): DeleteScheduleRes
 }
 
 model DescribeExecutionRequest {
-  executionName?: string(name='ExecutionName', description='The name of the execution, which is unique within a flow. Configure this parameter based on the following rules:
+  executionName?: string(name='ExecutionName', description='The name of the execution, which is unique within a flow. Set this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='exec'),
-  flowName?: string(name='FlowName', description='The name of the flow. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow. The name is unique within the region and cannot be modified after the flow is created. Set this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
   waitTimeSeconds?: int32(name='WaitTimeSeconds', description='The maximum period of time for long polling waits. Valid values: 0 to 60. Unit: seconds. Configure this parameter based on the following rules:
 
 *   If the value is 0, the system immediately returns the current execution status.
@@ -356,8 +366,9 @@ model DescribeExecutionResponseBody = {
   output?: string(name='Output', description='The execution result, which is in the JSON format.', example='{"key":"value"}'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
   startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
-  status?: string(name='Status', description='The execution state. Valid values:
+  status?: string(name='Status', description='The execution status. Valid values:
 
+*   **Starting**
 *   **Running**
 *   **Stopped**
 *   **Succeeded**
@@ -367,9 +378,9 @@ model DescribeExecutionResponseBody = {
 }
 
 model DescribeExecutionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DescribeExecutionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeExecutionResponseBody(name='body'),
 }
 
 async function describeExecutionWithOptions(request: DescribeExecutionRequest, runtime: Util.RuntimeOptions): DescribeExecutionResponse {
@@ -399,26 +410,25 @@ async function describeExecution(request: DescribeExecutionRequest): DescribeExe
 
 model DescribeFlowRequest {
   name?: string(name='Name', description='The name of the flow.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model DescribeFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
-  definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the Flow Definition Language (FDL) syntax.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
+  definition?: string(name='Definition', description='The flow definition, which follows the flow definition language (FDL) syntax standard. Considering compatibility, the system supports the two flow definition specifications.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test flow'),
-  executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. The value Standard indicates an empty string.'),
+  executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. A value of Standard indicates an empty string.', example='Standard'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
   name?: string(name='Name', description='The name of the flow.', example='flow'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
-  roleArn?: string(name='RoleArn', description='The Alibaba Cloud Resource Name (ARN) of the RAM role.', example='acs:ram::${accountID}:${role}'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, CloudFlow assumes the role to call API operations of relevant services.', example='acs:ram::${accountID}:${role}'),
   type?: string(name='Type', description='The type of the flow. Valid value: **FDL**.', example='FDL'),
 }
 
 model DescribeFlowResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DescribeFlowResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFlowResponseBody(name='body'),
 }
 
 async function describeFlowWithOptions(request: DescribeFlowRequest, runtime: Util.RuntimeOptions): DescribeFlowResponse {
@@ -447,14 +457,13 @@ async function describeFlow(request: DescribeFlowRequest): DescribeFlowResponse 
 }
 
 model DescribeScheduleRequest {
-  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name is unique within the region and cannot be modified after the time-based schedule is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name must be unique within the region and cannot be modified after the time-based schedule is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='testFlowName'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
-  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. Configure this parameter based on the following rules:
+  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -478,9 +487,9 @@ model DescribeScheduleResponseBody = {
 }
 
 model DescribeScheduleResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DescribeScheduleResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeScheduleResponseBody(name='body'),
 }
 
 async function describeScheduleWithOptions(request: DescribeScheduleRequest, runtime: Util.RuntimeOptions): DescribeScheduleResponse {
@@ -509,13 +518,13 @@ async function describeSchedule(request: DescribeScheduleRequest): DescribeSched
 }
 
 model GetExecutionHistoryRequest {
-  executionName?: string(name='ExecutionName', description='The name of the execution, which is unique within a flow. Configure this parameter based on the following rules:
+  executionName?: string(name='ExecutionName', description='The name of the execution, which is unique within a flow. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='exec'),
-  flowName?: string(name='FlowName', description='The name of the flow. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow. The name must be unique within the region and cannot be modified after the flow is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -523,7 +532,6 @@ model GetExecutionHistoryRequest {
 *   The name must be 1 to 128 characters in length.', example='flow'),
   limit?: int32(name='Limit', description='The maximum number of steps to be queried. Valid values: 1 to 1000.', example='1'),
   nextToken?: string(name='NextToken', description='The name of the event to start the query. You can obtain the value from the response data.', example='flow_xxx'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model GetExecutionHistoryResponseBody = {
@@ -564,9 +572,9 @@ model GetExecutionHistoryResponseBody = {
 }
 
 model GetExecutionHistoryResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetExecutionHistoryResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetExecutionHistoryResponseBody(name='body'),
 }
 
 async function getExecutionHistoryWithOptions(request: GetExecutionHistoryRequest, runtime: Util.RuntimeOptions): GetExecutionHistoryResponse {
@@ -596,7 +604,7 @@ async function getExecutionHistory(request: GetExecutionHistoryRequest): GetExec
 
 model ListExecutionsRequest {
   executionNamePrefix?: string(name='ExecutionNamePrefix', description='The name prefix of the execution.', example='run'),
-  flowName?: string(name='FlowName', description='The name of the flow. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow. The name must be unique within the region and cannot be modified after the flow is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -604,11 +612,11 @@ model ListExecutionsRequest {
 *   The name must be 1 to 128 characters in length.', example='flow'),
   limit?: int32(name='Limit', description='The maximum number of executions to be queried. Valid values: 1 to 100.', example='1'),
   nextToken?: string(name='NextToken', description='The name of the execution to start the query. You can obtain the value from the response data. You do not need to specify this parameter for the first request.', example='flow_xxx'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
   startedTimeBegin?: string(name='StartedTimeBegin', description='The beginning of the time range to query executions. Specify the value in the UTC RFC3339 format.', example='2020-12-02T02:39:20.402Z'),
   startedTimeEnd?: string(name='StartedTimeEnd', description='The end of the time range to query executions. Specify the value in the UTC RFC3339 format.', example='2020-12-02T02:23:54.817Z'),
-  status?: string(name='Status', description='The state of the execution that you want to filter. Valid values:
+  status?: string(name='Status', description='The status of the execution that you want to filter. Valid values:
 
+*   **Starting**
 *   **Running**
 *   **Stopped**
 *   **Succeeded**
@@ -623,20 +631,20 @@ model ListExecutionsResponseBody = {
       flowName?: string(name='FlowName', description='The name of the flow.', example='flow'),
       input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
       name?: string(name='Name', description='The name of the execution.', example='exec'),
-      output?: string(name='Output', description='The execution result, which is in the JSON format.', example='{"key":"value"}'),
+      output?: string(name='Output', description='The output of the execution, which is in the JSON format', example='{"key":"value"}'),
       startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
-      status?: string(name='Status', description='The state of the execution.', example='Succeeded'),
+      status?: string(name='Status', description='The status of the execution.', example='Succeeded'),
       stoppedTime?: string(name='StoppedTime', description='The time when the execution stopped.', example='2019-01-01T01:01:01.001Z'),
     }
-  ](name='Executions', description='The queried executions.'),
+  ](name='Executions', description='The information about executions.'),
   nextToken?: string(name='NextToken', description='The start key for the next query. This parameter is not returned if all results have been returned.', example='exec2'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
 }
 
 model ListExecutionsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListExecutionsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExecutionsResponseBody(name='body'),
 }
 
 /**
@@ -682,7 +690,6 @@ async function listExecutions(request: ListExecutionsRequest): ListExecutionsRes
 model ListFlowsRequest {
   limit?: int32(name='Limit', description='The number of flows to be queried. Valid values: 1 to 1000.', example='1'),
   nextToken?: string(name='NextToken', description='The token to start the query.', example='flow_nextxxx'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model ListFlowsResponseBody = {
@@ -691,11 +698,11 @@ model ListFlowsResponseBody = {
       createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
       definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the Flow Definition Language (FDL) syntax.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
       description?: string(name='Description', description='The description of the flow.', example='test flow'),
-      executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. The value Standard indicates an empty string.'),
+      executionMode?: string(name='ExecutionMode', description='The execution mode or the enumeration type. Valid values: Express and Standard. A value of Standard indicates an empty string.', example='Standard'),
       id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddf5****'),
       lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
       name?: string(name='Name', description='The name of the flow.', example='flow'),
-      roleArn?: string(name='RoleArn', description='The Alibaba Cloud Resource Name (ARN) of the Resource Access Management (RAM) role.', example='acs:ram::${accountID}:${role}'),
+      roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the specified Resource Access Management (RAM) role that Serverless Workflow assumes to invoke resources when the flow is executed.', example='acs:ram::${accountID}:${role}'),
       type?: string(name='Type', description='The type of the flow.', example='FDL'),
     }
   ](name='Flows', description='The details of flows.'),
@@ -704,9 +711,9 @@ model ListFlowsResponseBody = {
 }
 
 model ListFlowsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListFlowsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListFlowsResponseBody(name='body'),
 }
 
 async function listFlowsWithOptions(request: ListFlowsRequest, runtime: Util.RuntimeOptions): ListFlowsResponse {
@@ -735,7 +742,7 @@ async function listFlows(request: ListFlowsRequest): ListFlowsResponse {
 }
 
 model ListSchedulesRequest {
-  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name is unique within the region and cannot be modified after the time-based schedule is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedules. The name is unique within the region and cannot be modified after the flow is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -743,7 +750,6 @@ model ListSchedulesRequest {
 *   The name must be 1 to 128 characters in length.', example='testFlowName'),
   limit?: int32(name='Limit', description='The number of schedules to be queried. Valid values: 1 to 1000.', example='1'),
   nextToken?: string(name='NextToken', description='For the first query, you do not need to specify this parameter. The system uses the value of the **FlowName** parameter as the value of the **NextToken** parameter. When the query ends, no value is returned for this parameter.', example='testNextToken'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model ListSchedulesResponseBody = {
@@ -752,7 +758,7 @@ model ListSchedulesResponseBody = {
   schedules?: [ 
     {
       createdTime?: string(name='CreatedTime', description='The time when the time-based schedule was created.', example='2020-01-01T01:01:01.001Z'),
-      cronExpression?: string(name='CronExpression', description='The CRON expression of the scheduled task.', example='0 * * * * *'),
+      cronExpression?: string(name='CronExpression', description='The cron expression of the scheduled task.', example='0 * * * * *'),
       description?: string(name='Description', description='The description of the time-based schedule.', example='test description'),
       enable?: boolean(name='Enable', description='Indicates whether the time-based schedule is enabled. Valid values:
 
@@ -767,9 +773,9 @@ model ListSchedulesResponseBody = {
 }
 
 model ListSchedulesResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListSchedulesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSchedulesResponseBody(name='body'),
 }
 
 async function listSchedulesWithOptions(request: ListSchedulesRequest, runtime: Util.RuntimeOptions): ListSchedulesResponse {
@@ -800,7 +806,6 @@ async function listSchedules(request: ListSchedulesRequest): ListSchedulesRespon
 model ReportTaskFailedRequest {
   cause?: string(name='Cause', description='The cause of the failure. The value must be 1 to 4,096 characters in length.', example='emptyString'),
   error?: string(name='Error', description='The error code for the failed task. The value must be 1 to 128 characters in length.', example='nill'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
   taskToken?: string(name='TaskToken', description='The token of the specified task that you want to report. If this parameter appears in **waitforCallback** mode, the parameter is passed to the called service, such as Message Service (MNS) or Function Compute. For MNS, the value of this parameter can be obtained from a message. For Function Compute, the value of this parameter can be obtained from an event.', example='emptyString'),
 }
 
@@ -810,14 +815,15 @@ model ReportTaskFailedResponseBody = {
 }
 
 model ReportTaskFailedResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ReportTaskFailedResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReportTaskFailedResponseBody(name='body'),
 }
 
 /**
   * ## [](#)Usage notes
-  * You can use this operation to call back the task step of `pattern: waitForCallback`, which indicates that the current task fails to be executed.
+  * In the old version of CloudFlow, the task step that ReportTaskFailed is used to call back `pattern: waitForCallback` indicates that the current task fails to be executed.
+  * In the new version of CloudFlow, the task step that ReportTaskFailed is used to call back `TaskMode: WaitForCustomCallback` indicates that the current task fails to be executed.
   *
   * @param request ReportTaskFailedRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -826,9 +832,6 @@ model ReportTaskFailedResponse = {
 async function reportTaskFailedWithOptions(request: ReportTaskFailedRequest, runtime: Util.RuntimeOptions): ReportTaskFailedResponse {
   Util.validateModel(request);
   var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   if (!Util.isUnset(request.taskToken)) {
     query['TaskToken'] = request.taskToken;
   }
@@ -859,7 +862,8 @@ async function reportTaskFailedWithOptions(request: ReportTaskFailedRequest, run
 
 /**
   * ## [](#)Usage notes
-  * You can use this operation to call back the task step of `pattern: waitForCallback`, which indicates that the current task fails to be executed.
+  * In the old version of CloudFlow, the task step that ReportTaskFailed is used to call back `pattern: waitForCallback` indicates that the current task fails to be executed.
+  * In the new version of CloudFlow, the task step that ReportTaskFailed is used to call back `TaskMode: WaitForCustomCallback` indicates that the current task fails to be executed.
   *
   * @param request ReportTaskFailedRequest
   * @return ReportTaskFailedResponse
@@ -871,7 +875,6 @@ async function reportTaskFailed(request: ReportTaskFailedRequest): ReportTaskFai
 
 model ReportTaskSucceededRequest {
   output?: string(name='Output', description='The output information of the task whose execution success you want to report.', example='{"key":"value"}'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
   taskToken?: string(name='TaskToken', description='The token of the task whose execution success you want to report. If this parameter appears in **waitforCallback** mode, the parameter is passed to the called service, such as Message Service (MNS) or Function Compute. For MNS, the value of this parameter can be obtained from the message. For Function Compute, the value of this parameter can be obtained from the event.', example='emptyString'),
 }
 
@@ -881,14 +884,15 @@ model ReportTaskSucceededResponseBody = {
 }
 
 model ReportTaskSucceededResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ReportTaskSucceededResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReportTaskSucceededResponseBody(name='body'),
 }
 
 /**
   * ## [](#)Usage notes
-  * You can use this operation to call back the task step of `pattern: waitForCallback`, which indicates that the current task is successfully executed.
+  * In the old version of CloudFlow, the task step that ReportTaskSucceeded is used to call back pattern: waitForCallback indicates that the current task is successfully executed.
+  * In the new version of CloudFlow, the task step that ReportTaskSucceeded is used to call back TaskMode: WaitForCustomCallback indicates that the current task is successfully executed.
   *
   * @param request ReportTaskSucceededRequest
   * @param runtime runtime options for this request RuntimeOptions
@@ -897,9 +901,6 @@ model ReportTaskSucceededResponse = {
 async function reportTaskSucceededWithOptions(request: ReportTaskSucceededRequest, runtime: Util.RuntimeOptions): ReportTaskSucceededResponse {
   Util.validateModel(request);
   var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   if (!Util.isUnset(request.taskToken)) {
     query['TaskToken'] = request.taskToken;
   }
@@ -927,7 +928,8 @@ async function reportTaskSucceededWithOptions(request: ReportTaskSucceededReques
 
 /**
   * ## [](#)Usage notes
-  * You can use this operation to call back the task step of `pattern: waitForCallback`, which indicates that the current task is successfully executed.
+  * In the old version of CloudFlow, the task step that ReportTaskSucceeded is used to call back pattern: waitForCallback indicates that the current task is successfully executed.
+  * In the new version of CloudFlow, the task step that ReportTaskSucceeded is used to call back TaskMode: WaitForCustomCallback indicates that the current task is successfully executed.
   *
   * @param request ReportTaskSucceededRequest
   * @return ReportTaskSucceededResponse
@@ -939,32 +941,32 @@ async function reportTaskSucceeded(request: ReportTaskSucceededRequest): ReportT
 
 model StartExecutionRequest {
   callbackFnFTaskToken?: string(name='CallbackFnFTaskToken', description='Specifies that the **TaskToken**-related tasks are called back after the execution in the flow ends.', example='12'),
-  executionName?: string(name='ExecutionName', description='The name of the execution, which is unique within a flow. Configure this parameter based on the following rules:
+  executionName?: string(name='ExecutionName', description='The name of the execution. The execution name is unique within a workflow. Configure this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='exec'),
-  flowName?: string(name='FlowName', description='The name of the flow you want to start to execute. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the workflow to be executed. The name is unique within a region and cannot be modified after the workflow is created. Configure this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='flow'),
   input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model StartExecutionResponseBody = {
   flowDefinition?: string(name='FlowDefinition', description='The definition of the flow.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n - type: pass\\n name: mypass'),
-  flowName?: string(name='FlowName', description='The name of the flow.', example='flow'),
+  flowName?: string(name='FlowName', description='The name of the workflow.', example='flow'),
   input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
   name?: string(name='Name', description='The name of the execution.', example='exec1'),
   output?: string(name='Output', description='The execution result, which is in the JSON format.', example='{"key":"value"}'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
   startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
-  status?: string(name='Status', description='The execution state. Valid values:
+  status?: string(name='Status', description='The execution status. Valid values:
 
+*   **Starting**
 *   **Running**
 *   **Stopped**
 *   **Succeeded**
@@ -974,17 +976,17 @@ model StartExecutionResponseBody = {
 }
 
 model StartExecutionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: StartExecutionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartExecutionResponseBody(name='body'),
 }
 
 /**
   * ## [](#)Usage notes
-  * *   The flow is created.
+  * *   The flow is created. A flow only in standard mode is supported.
   * *   If you do not specify an execution, the system automatically generates an execution and starts the execution.
   * *   If an ongoing execution has the same name as that of the execution to be started, the system directly returns the ongoing execution.
-  * *   If the ongoing execution with the same name has ended (succeeded or failed), the `ExecutionAlreadyExists` error is returned.
+  * *   If the ongoing execution with the same name has ended (succeeded or failed), `ExecutionAlreadyExists` is returned.
   * *   If no execution with the same name exists, the system starts a new execution.
   *
   * @param request StartExecutionRequest
@@ -993,10 +995,6 @@ model StartExecutionResponse = {
  */
 async function startExecutionWithOptions(request: StartExecutionRequest, runtime: Util.RuntimeOptions): StartExecutionResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.callbackFnFTaskToken)) {
     body['CallbackFnFTaskToken'] = request.callbackFnFTaskToken;
@@ -1011,7 +1009,6 @@ async function startExecutionWithOptions(request: StartExecutionRequest, runtime
     body['Input'] = request.input;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -1030,10 +1027,10 @@ async function startExecutionWithOptions(request: StartExecutionRequest, runtime
 
 /**
   * ## [](#)Usage notes
-  * *   The flow is created.
+  * *   The flow is created. A flow only in standard mode is supported.
   * *   If you do not specify an execution, the system automatically generates an execution and starts the execution.
   * *   If an ongoing execution has the same name as that of the execution to be started, the system directly returns the ongoing execution.
-  * *   If the ongoing execution with the same name has ended (succeeded or failed), the `ExecutionAlreadyExists` error is returned.
+  * *   If the ongoing execution with the same name has ended (succeeded or failed), `ExecutionAlreadyExists` is returned.
   * *   If no execution with the same name exists, the system starts a new execution.
   *
   * @param request StartExecutionRequest
@@ -1045,36 +1042,57 @@ async function startExecution(request: StartExecutionRequest): StartExecutionRes
 }
 
 model StartSyncExecutionRequest {
-  executionName?: string(name='ExecutionName', example='my_exec_name'),
-  flowName?: string(name='FlowName', example='my_flow_name'),
-  input?: string(name='Input', example='{"key":"value"}'),
-  requestId?: string(name='RequestId', example='testRequestId'),
+  executionName?: string(name='ExecutionName', description='The name of the execution that you want to start. The name must meet the following conventions:
+
+*   The name can contain letters, digits, underscores (\\_), and hyphens (-).
+*   The name must start with a letter or an underscore (\\_).
+*   The name is case-sensitive.
+*   The name must be 1 to 128 characters in length.
+
+Different from the StartExecution operation, in the synchronous execution mode, the execution name is no longer required to be unique within a flow. You can choose to provide an execution name to identify the current execution. In this case, the system adds a UUID to the current execution name. The used format is {ExecutionName}:{UUID}. If you do not specify the execution name, the system automatically generates an execution name.', example='my_exec_name'),
+  flowName?: string(name='FlowName', description='The name of the flow in which you want to start the execution. The name is unique within the same region and cannot be modified after the flow is created. Set this parameter based on the following rules:
+
+*   The name can contain letters, digits, underscores (\\_), and hyphens (-).
+*   The name must start with a letter or an underscore (\\_).
+*   The name is case-sensitive.
+*   The name must be 1 to 128 characters in length.', example='my_flow_name'),
+  input?: string(name='Input', description='The input of the execution, which is in the JSON format.', example='{"key":"value"}'),
 }
 
 model StartSyncExecutionResponseBody = {
-  errorCode?: string(name='ErrorCode', example='ActionNotSupported'),
-  errorMessage?: string(name='ErrorMessage', example='Standard execution is not supported'),
-  flowName?: string(name='FlowName', example='my_flow_name'),
-  name?: string(name='Name', example='my_exec_name:{UUID}'),
-  output?: string(name='Output', example='{"key":"value"}'),
-  requestId?: string(name='RequestId', example='testRequestId'),
-  startedTime?: string(name='StartedTime', example='2019-01-01T01:01:01.001Z'),
-  status?: string(name='Status', example='Succeeded'),
-  stoppedTime?: string(name='StoppedTime', example='2019-01-01T01:01:01.001Z'),
+  errorCode?: string(name='ErrorCode', description='The error code that is returned if the execution failed.', example='ActionNotSupported'),
+  errorMessage?: string(name='ErrorMessage', description='The error message that indicates the execution timed out.', example='Standard execution is not supported'),
+  flowName?: string(name='FlowName', description='The name of the flow.', example='my_flow_name'),
+  name?: string(name='Name', description='The name of the execution.', example='my_exec_name:{UUID}'),
+  output?: string(name='Output', description='The output of the execution, which is in the JSON format.', example='{"key":"value"}'),
+  requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
+  startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
+  status?: string(name='Status', description='The status of the execution. Valid values:
+
+*   **Starting**
+*   **Running**
+*   **Stopped**
+*   **Succeeded**
+*   **Failed**
+*   **TimedOut**', example='Succeeded'),
+  stoppedTime?: string(name='StoppedTime', description='The time when the execution stopped.', example='2019-01-01T01:01:01.001Z'),
 }
 
 model StartSyncExecutionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: StartSyncExecutionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartSyncExecutionResponseBody(name='body'),
 }
 
+/**
+  * *   Only flows of the express execution mode are supported.
+  *
+  * @param request StartSyncExecutionRequest
+  * @param runtime runtime options for this request RuntimeOptions
+  * @return StartSyncExecutionResponse
+ */
 async function startSyncExecutionWithOptions(request: StartSyncExecutionRequest, runtime: Util.RuntimeOptions): StartSyncExecutionResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.executionName)) {
     body['ExecutionName'] = request.executionName;
@@ -1086,7 +1104,6 @@ async function startSyncExecutionWithOptions(request: StartSyncExecutionRequest,
     body['Input'] = request.input;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -1103,6 +1120,12 @@ async function startSyncExecutionWithOptions(request: StartSyncExecutionRequest,
   return callApi(params, req, runtime);
 }
 
+/**
+  * *   Only flows of the express execution mode are supported.
+  *
+  * @param request StartSyncExecutionRequest
+  * @return StartSyncExecutionResponse
+ */
 async function startSyncExecution(request: StartSyncExecutionRequest): StartSyncExecutionResponse {
   var runtime = new Util.RuntimeOptions{};
   return startSyncExecutionWithOptions(request, runtime);
@@ -1111,19 +1134,18 @@ async function startSyncExecution(request: StartSyncExecutionRequest): StartSync
 model StopExecutionRequest {
   cause?: string(name='Cause', description='The reason for stopping the execution. The value must be 1 to 4,096 characters in length.', example='for test'),
   error?: string(name='Error', description='The error for stopping the execution. The value must be 1 to 128 characters in length.', example='nill'),
-  executionName?: string(name='ExecutionName', description='The name of the execution that you want to stop. You can call the **ListExecutions** operation to obtain the value of this parameter. The name is unique in a flow. Configure this parameter based on the following rules:
+  executionName?: string(name='ExecutionName', description='The name of the execution that you want to stop. You can call the **ListExecutions** operation to obtain the value of this parameter. The name is unique in a flow. Set this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='exec'),
-  flowName?: string(name='FlowName', description='The name of the flow that you want to stop. You can call the **ListFlows** operation to obtain the value of this parameter. The name is unique within the region and cannot be modified after the flow is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow in which that you want to stop the execution. You can call the **ListFlows** operation to obtain the value of this parameter. The name is unique within the same region and cannot be modified after the flow is created. Set this parameter based on the following rules:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
 }
 
 model StopExecutionResponseBody = {
@@ -1134,8 +1156,9 @@ model StopExecutionResponseBody = {
   output?: string(name='Output', description='The execution result, which is in the JSON format.', example='{"key":"value"}'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestId'),
   startedTime?: string(name='StartedTime', description='The time when the execution started.', example='2019-01-01T01:01:01.001Z'),
-  status?: string(name='Status', description='The execution state. Valid values:
+  status?: string(name='Status', description='The execution status. Valid values:
 
+*   **Starting**
 *   **Running**
 *   **Stopped**
 *   **Succeeded**
@@ -1145,9 +1168,9 @@ model StopExecutionResponseBody = {
 }
 
 model StopExecutionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: StopExecutionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopExecutionResponseBody(name='body'),
 }
 
 /**
@@ -1160,10 +1183,6 @@ model StopExecutionResponse = {
  */
 async function stopExecutionWithOptions(request: StopExecutionRequest, runtime: Util.RuntimeOptions): StopExecutionResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.cause)) {
     body['Cause'] = request.cause;
@@ -1178,7 +1197,6 @@ async function stopExecutionWithOptions(request: StopExecutionRequest, runtime: 
     body['FlowName'] = request.flowName;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -1208,44 +1226,39 @@ async function stopExecution(request: StopExecutionRequest): StopExecutionRespon
 }
 
 model UpdateFlowRequest {
-  definition?: string(name='Definition', description='The definition of the flow. The definition must comply with the Flow Definition Language (FDL) syntax.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n  - type: pass\\n    name: mypass'),
+  definition?: string(name='Definition', description='The flow definition, which follows the flow definition language (FDL) syntax standard. Considering compatibility, the system supports the two flow definition specifications.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n  - type: pass\\n    name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test definition'),
-  name?: string(name='Name', description='The name of the flow. The name is unique within the region and cannot be modified after the time-based schedule is created. Configure this parameter based on the following rules:
+  name?: string(name='Name', description='The name of the flow. The name must be unique within the region and cannot be modified after the flow is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='flow'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
-  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the specified Resource Access Management (RAM) role that Serverless Workflow assumes to invoke resources when the task is executed.', example='acs:ram::${accountID}:${role}'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, the flow execution engine assumes the role to call API operations of relevant services.', example='acs:ram::${accountID}:${role}'),
   type?: string(name='Type', description='The type of the flow. Valid value: **FDL**.', example='FDL'),
 }
 
 model UpdateFlowResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the flow was created.', example='2019-01-01T01:01:01.001Z'),
-  definition?: string(name='Definition', description='The definition of the flow.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n  - type: pass\\n    name: mypass'),
+  definition?: string(name='Definition', description='The flow definition, which follows the FDL syntax standard. Considering compatibility, the system supports the two flow definition specifications.', example='version: v1.0\\ntype: flow\\nname: test\\nsteps:\\n  - type: pass\\n    name: mypass'),
   description?: string(name='Description', description='The description of the flow.', example='test definition'),
   externalStorageLocation?: string(name='ExternalStorageLocation', description='The path of the external storage.', example='/path'),
   id?: string(name='Id', description='The unique ID of the flow.', example='e589e092-e2c0-4dee-b306-3574ddfdddf5****'),
   lastModifiedTime?: string(name='LastModifiedTime', description='The time when the flow was last modified.', example='2019-01-01T01:01:01.001Z'),
   name?: string(name='Name', description='The name of the flow.', example='flow'),
   requestId?: string(name='RequestId', description='The request ID.', example='testRequestID'),
-  roleArn?: string(name='RoleArn', description='The ARN of the RAM role.', example='acs:ram::${accountID}:${role}'),
+  roleArn?: string(name='RoleArn', description='The Alibaba Cloud resource name (ARN) of the authorized role on which the execution of the flow relies. During the execution of the flow, the flow execution engine assumes the role to call API operations of relevant services.', example='acs:ram::${accountID}:${role}'),
   type?: string(name='Type', description='The type of the flow.', example='FDL'),
 }
 
 model UpdateFlowResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UpdateFlowResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateFlowResponseBody(name='body'),
 }
 
 async function updateFlowWithOptions(request: UpdateFlowRequest, runtime: Util.RuntimeOptions): UpdateFlowResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.definition)) {
     body['Definition'] = request.definition;
@@ -1263,7 +1276,6 @@ async function updateFlowWithOptions(request: UpdateFlowRequest, runtime: Util.R
     body['Type'] = request.type;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -1292,15 +1304,14 @@ model UpdateScheduleRequest {
 
 *   **true**
 *   **false**', example='true'),
-  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name is unique within the region and cannot be modified after the time-based schedule is created. Configure this parameter based on the following rules:
+  flowName?: string(name='FlowName', description='The name of the flow that is associated with the time-based schedule. The name must be unique within the region and cannot be modified after the time-based schedule is created. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
 *   The name is case-sensitive.
 *   The name must be 1 to 128 characters in length.', example='testFlowName'),
   payload?: string(name='Payload', description='The trigger message of the time-based schedule. It must be in the JSON format.', example='{"key": "value"}'),
-  requestId?: string(name='RequestId', description='The request ID. If you specify this parameter, the system uses this value as the ID of the request. If you do not specify this parameter, the system generates a value at random.', example='testRequestId'),
-  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. Configure this parameter based on the following rules:
+  scheduleName?: string(name='ScheduleName', description='The name of the time-based schedule. The name must meet the following conventions:
 
 *   The name can contain letters, digits, underscores (\\_), and hyphens (-).
 *   The name must start with a letter or an underscore (\\_).
@@ -1324,17 +1335,13 @@ model UpdateScheduleResponseBody = {
 }
 
 model UpdateScheduleResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UpdateScheduleResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateScheduleResponseBody(name='body'),
 }
 
 async function updateScheduleWithOptions(request: UpdateScheduleRequest, runtime: Util.RuntimeOptions): UpdateScheduleResponse {
   Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.requestId)) {
-    query['RequestId'] = request.requestId;
-  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.cronExpression)) {
     body['CronExpression'] = request.cronExpression;
@@ -1355,7 +1362,6 @@ async function updateScheduleWithOptions(request: UpdateScheduleRequest, runtime
     body['ScheduleName'] = request.scheduleName;
   }
   var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
