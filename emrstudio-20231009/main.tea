@@ -1,0 +1,96 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('emrstudio', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ListProjectsRequest {
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='8bj81uI8nls='),
+  searchVal?: string(name='searchVal', example='test'),
+  workspaceId?: long(name='workspaceId', example='12345'),
+}
+
+model ListProjectsResponseBody = {
+  data?: [ 
+    {
+      code?: long(name='code'),
+      description?: string(name='description'),
+      name?: string(name='name', example='project_name'),
+      projectId?: long(name='projectId', example='318720'),
+    }
+  ](name='data'),
+  nextToken?: string(name='nextToken', example='8bj81uI8nls='),
+  requestId?: string(name='requestId', example='14079B51-C226-5391-BFAF-6E44AC492C1F'),
+}
+
+model ListProjectsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListProjectsResponseBody(name='body'),
+}
+
+async function listProjectsWithOptions(request: ListProjectsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListProjectsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.searchVal)) {
+    query['searchVal'] = request.searchVal;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['workspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListProjects',
+    version = '2023-10-09',
+    protocol = 'HTTPS',
+    pathname = `/dolphinscheduler/v3/projects`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listProjects(request: ListProjectsRequest): ListProjectsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listProjectsWithOptions(request, headers, runtime);
+}
+
