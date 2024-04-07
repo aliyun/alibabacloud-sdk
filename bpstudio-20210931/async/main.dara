@@ -101,7 +101,7 @@ async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeR
 
 model CreateApplicationRequest {
   areaId?: string(name='AreaId', description='The ID of the region.', example='cn-hangzhou', position='Body'),
-  clientToken: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
   configuration?: map[string]string(name='Configuration', description='The parameters that are used to configure the application you want to create. For example, enableMonitor specifies whether to automatically create a CloudMonitor task for the application, and enableReport specifies whether to generate reports.', example='{"enableMonitor":"0", "enableReport":"1"}', shrink='json', position='Body'),
   instances?: [ 
     {
@@ -165,6 +165,7 @@ async function deleteApplication(request: DeleteApplicationRequest): DeleteAppli
 
 model DeployApplicationRequest {
   applicationId: string(name='ApplicationId', description='The ID of the application.', example='VVK605ZH00OA4MRT', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyjt3c5om3hi', position='Body'),
 }
 
@@ -209,6 +210,7 @@ Example of enumerating more than one set of parameters:
     { "ServiceType": "ecs", "Operation": "modifyInstanceType", "Attributes": "{\\\\"change_type\\\\":\\\\"modify_instance_type\\\\",\\\\"instance_type\\\\":\\\\"ecs.hfr7.2xlarge\\\\",\\\\"instanceId\\\\":\\\\"i-xxxxxxxxx\\\\",\\\\"regionId\\\\":\\\\"cn-beijing\\\\",\\\\"appId\\\\":\\\\"xxxxxxxxxxxxx\\\\"}" }
 
     <!-- -->', shrink='json', position='Body'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
   operation: string(name='Operation', description='This operation type is the operation type of modifying the product, some operation types are generic, and some are used alone. The following is an example of ECS deployment:
 - The name of the ECS: rename
 - Specificationof ecs: modifyInstanceType
@@ -240,6 +242,33 @@ async function executeOperationASync(request: ExecuteOperationASyncRequest): Exe
   return @handler.do('RPC', 'ExecuteOperationASync', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ExecuteOperationSyncRequest {
+  applicationId?: string(name='ApplicationId', example='BE68D71ZY5YYIU9R', position='Body'),
+  attributes?: map[string]any(name='Attributes', shrink='json', position='Body'),
+  clientToken?: string(name='ClientToken', example='1600765710019', position='Body'),
+  operation: string(name='Operation', example='rename', position='Body'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmyjt3c5om3hi', position='Body'),
+  serviceType: string(name='ServiceType', example='dds', position='Body'),
+}
+
+model ExecuteOperationSyncResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: string(name='Data', example='op_xxxxxxxxxxxxxxxxxx_dds_modifyInstanceType_BYSOQGWUV6PME412_ERMEZLXNN3K9N3OL'),
+  message?: string(name='Message', example='Access key ID cannot be null.'),
+  requestId?: string(name='RequestId', example='FDC73B05-5331-57AA-BA93-4C9882792FF5'),
+}
+
+model ExecuteOperationSyncResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteOperationSyncResponseBody(name='body'),
+}
+
+async function executeOperationSync(request: ExecuteOperationSyncRequest): ExecuteOperationSyncResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ExecuteOperationSync', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetApplicationRequest {
   applicationId: string(name='ApplicationId', description='The ID of the request.', example='VVK605ZH00OA4MRT', position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='Queries the basic information, verification results, billing results, and deployment results of an application.', example='rg-acfmyjt3c5om3hi', position='Body'),
@@ -248,7 +277,7 @@ model GetApplicationRequest {
 model GetApplicationResponseBody = {
   code?: string(name='Code', description='The response code.', example='200'),
   data?: {
-    applicationId?: string(name='ApplicationId', description='The description of the application.', example='VVK605ZH00OA4MRT'),
+    applicationId?: string(name='ApplicationId', description='App ID', example='VVK605ZH00OA4MRT'),
     checklist?: [ 
       {
         lifecycle?: string(name='Lifecycle', description='The resource tag.', example='Create'),
@@ -260,11 +289,11 @@ model GetApplicationResponseBody = {
         specification?: string(name='Specification', description='The resource specifications.', example='192.168.0.0/16'),
       }
     ](name='Checklist', description='The resource tag.'),
-    createTime?: string(name='CreateTime', description='The URL of the application topology image.', example='2021-08-09 14:37:16'),
-    description?: string(name='Description', description='The message returned for the request.', example='remark'),
+    createTime?: string(name='CreateTime', description='The time when the app was created', example='2021-08-09 14:37:16'),
+    description?: string(name='Description', description='Application description', example='remark'),
     error?: string(name='Error', description='The resource type.', example='Success'),
     imageURL?: string(name='ImageURL', description='The URL of the image in the database.', example='The details of the application.'),
-    name?: string(name='Name', description='The URL of the image in the database.', example='1411182597819805/sr-8DWU4RUS49NIDII0.png'),
+    name?: string(name='Name', description='App name', example='1411182597819805/sr-8DWU4RUS49NIDII0.png'),
     priceList?: [ 
       {
         chargeType?: string(name='ChargeType', description='The billing method.', example='PayAsYouGo'),
@@ -278,14 +307,14 @@ model GetApplicationResponseBody = {
         priceUnit?: string(name='PriceUnit', description='Unit: USD per hour', example='The service duration.'),
         region?: string(name='Region', description='The region in which the instance resides.', example='cn-hangzhou'),
         remark?: string(name='Remark', description='The error message that is returned when a price query fails.', example='ecs.e3.large'),
-        resourceCode?: string(name='ResourceCode', description='The service code.', example='ecs'),
+        resourceCode?: string(name='ResourceCode', description='Product code', example='ecs'),
         specification?: string(name='Specification', description='The instance type. This parameter indicates the information about the instance type. For example, 192.168.0.0/16 may be returned for a Virtual Private Cloud (VPC) instance, ecs.g5.large may be returned for an Elastic Compute Service (ECS) instance, and slb.s1.small may be returned for a Server Load Balancer (SLB) instance. If the resource does not have a specific type, an empty value is returned.', example='The billing method.'),
         type?: string(name='type', description='The creation mode. Valid values:\\
 1: creates a new instance.\\
 2: imports an instance.', example='1'),
       }
     ](name='PriceList', description='The billing results.'),
-    resourceGroupId?: string(name='ResourceGroupId', description='1411182597819805/topo-MCEXDI5EL2OM10NY.json', example='rg-aekzhfgmw4e6fwq'),
+    resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the app belongs', example='rg-aekzhfgmw4e6fwq'),
     resourceList?: [ 
       {
         chargeType?: string(name='ChargeType', description='The billing method.', example='PayAsYouGo'),
@@ -299,35 +328,10 @@ model GetApplicationResponseBody = {
       }
     ](name='ResourceList', description='The resource specification.'),
     status?: string(name='Status', description='Verification passed', example='Deployed_Success'),
-    templateId?: string(name='TemplateId', description='CADT application', example='FYS9VZ535U20V7HT'),
+    templateId?: string(name='TemplateId', description='The ID of the template associated with the application', example='FYS9VZ535U20V7HT'),
   }(name='Data', description='The details of the application.'),
-  message?: string(name='Message', description='Possible application states:
-
-*   Creating: The application is being created.
-*   Modified: The application has been modified.
-*   Verifying: The application is being verified.
-*   Verified_Failure: The application failed to pass the verification.
-*   Verified_Success: The application has passed the verification.
-*   Valuating: Fees are being calculated for the application.
-*   Valuating_Failure: Fees failed to be calculated for the application.
-*   Valuating_Success: Fees are calculated for the application.
-*   Deploying: The application is being deployed.
-*   Deployed_Failure: The application failed to be deployed.
-*   Partially_Deployed_Success: Some resources of the application are deployed.
-*   Deployed_Success: The application is deployed.
-*   Destroying: The application is being released.
-*   Delayed_Destroy: The application release is delayed.
-*   Destroyed_Failure: The application failed to be released.
-*   Partially_Destroyed_Success: Some resources of the application are released.
-*   Destroyed_Success: The application is released.
-*   Revised: The application architecture is adjusted.
-*   Verifying_In_Revision: The application resources are being verified during architecture adjustment.
-*   Verified_Failure_In_Revision: The application resources failed to pass the verification during architecture adjustment.
-*   Verified_Success_In_Revision: The application resources are verified during architecture adjustment.
-*   Valuating_In_Revision: Fees are being calculated for the application during architecture adjustment.
-*   Valuating_Failure_In_Revision: Fees failed to be calculated for the application during architecture adjustment.
-*   Valuating_Success_In_Revision: Fees are calculated for the application during architecture adjustment.', example='Success'),
-  requestId?: string(name='RequestId', description='The ID of the application.', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
+  message?: string(name='Message', description='Reason for the request failure', example='Success'),
+  requestId?: string(name='RequestId', description='Request ID', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
 }
 
 model GetApplicationResponse = {
@@ -512,16 +516,16 @@ async function initAppFailOver(request: InitAppFailOverRequest): InitAppFailOver
 
 model ListApplicationRequest {
   keyword?: string(name='Keyword', description='Keywords in the app name', example='test', position='Body'),
-  maxResults: int32(name='MaxResults', description='The HTTP status code.', example='10', minimum=1, maximum=50, position='Body'),
-  nextToken: int32(name='NextToken', description='The ID of the resource group to which the application belongs.', example='1', minimum=1, maximum=10000, position='Body'),
+  maxResults: int32(name='MaxResults', description='The pagination size of the resulting value cannot be less than the minimum value of 1 and cannot be greater than the maximum value of 50.', example='10', minimum=1, maximum=50, position='Body'),
+  nextToken: int32(name='NextToken', description='The pagination page number of the resulting value cannot be less than the minimum value of 1 and cannot be greater than the maximum value of 10000.', example='1', minimum=1, maximum=10000, position='Body'),
   orderType?: long(name='OrderType', description='1 update time,<br>2 creation time', example='1', minimum=1, maximum=10, position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='default', position='Body'),
-  resourceId?: string(name='ResourceId', position='Body'),
+  resourceId?: string(name='ResourceId', description='Resource Id', example='vsw-xxxxxxxxxxxx', position='Body'),
   status?: string(name='Status', description='The status of the applications to be returned.', example='The following values are "success" and "release".
 If the input value is "success", the returned application list includes all applications in the Deployed_Success state of successful deployment.
 If the input value is release, the returned application list includes all applications in the release success (Destroyed_Success) and release failure (Destroyed_Failure) status.
 If this parameter is left blank, the returned app list includes apps in all states.', position='Body'),
-  templateId?: string(name='TemplateId', position='Body'),
+  templateId?: string(name='TemplateId', description='Template Id', example='0KSXXX6SJU03TXXX', position='Body'),
 }
 
 model ListApplicationResponseBody = {
@@ -634,8 +638,8 @@ model ListTemplateRequest {
 *   4: The templates are sorted by the number of times that they are used.
 *   If you specify an integer other than 1, 2, 3, and 4 or do not specify any value, the templates are sorted by the system.', example='1', minimum=1, maximum=5, position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyjt3c5om3hi', position='Body'),
-  tagList?: int32(name='TagList', description='The tag that you want to use to query templates.', example='Best practice', minimum=0, maximum=9223372036854775807, position='Body'),
-  type: string(name='Type', description='The type of the templates to be returned. Valid values: public and private', example='Valid values: public and private.', position='Body'),
+  tagList?: int32(name='TagList', description='The tag that you want to use to query templates.', example='1', minimum=0, maximum=9223372036854775807, position='Body'),
+  type: string(name='Type', description='The type of the templates to be returned. Valid values: public and private', example='public', position='Body'),
 }
 
 model ListTemplateResponseBody = {
@@ -670,6 +674,7 @@ async function listTemplate(request: ListTemplateRequest): ListTemplateResponse 
 
 model ReleaseApplicationRequest {
   applicationId: string(name='ApplicationId', description='The ID of the application.', example='7QSXFQW46ZNGOUDM', position='Body'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource.', example='default', position='Body'),
 }
 
@@ -693,6 +698,7 @@ async function releaseApplication(request: ReleaseApplicationRequest): ReleaseAp
 
 model ValidateApplicationRequest {
   applicationId: string(name='ApplicationId', description='The ID of the application.', example='02S7UU41WKJL7ERR', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019', position='Body'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyjt3c5om3hi', position='Body'),
 }
 
@@ -715,15 +721,16 @@ async function validateApplication(request: ValidateApplicationRequest): Validat
 }
 
 model ValuateApplicationRequest {
-  applicationId: string(name='ApplicationId', description='The ID of the application.', example='02S7UU41WKJL7ERR', position='Body'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmyjt3c5om3hi', position='Body'),
+  applicationId: string(name='ApplicationId', description='The operation that you want to perform. Set the value to ValuateApplication.', example='02S7UU41WKJL7ERR', position='Body'),
+  clientToken?: string(name='ClientToken', description='The ID of the resource group to which the application you want to query belongs.', example='1600765710019', position='Body'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the application.', example='rg-acfmyjt3c5om3hi', position='Body'),
 }
 
 model ValuateApplicationResponseBody = {
-  code?: int32(name='Code', description='The HTTP status code.', example='200'),
-  data?: long(name='Data', description='The data of the application.', example='123'),
-  message?: string(name='Message', description='The error message.', example='Success'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
+  code?: int32(name='Code', description='The code of the query task.', example='200'),
+  data?: long(name='Data', description='The ID of the request.', example='123'),
+  message?: string(name='Message', description='Idempotent notation', example='Success'),
+  requestId?: string(name='RequestId', description='The returned message.', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
 }
 
 model ValuateApplicationResponse = {
