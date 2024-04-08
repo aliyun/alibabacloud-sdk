@@ -874,6 +874,10 @@ model CreateProjectRequest {
     fullTransferSpeedMode?: string(name='FullTransferSpeedMode', example='NORMAL'),
     fullVerifySpeedMode?: string(name='FullVerifySpeedMode', example='NORMAL'),
     nonePkUkTruncateDstTable?: boolean(name='NonePkUkTruncateDstTable', example='true'),
+    readWorkerNum?: int32(name='ReadWorkerNum'),
+    throttleIOPS?: int32(name='ThrottleIOPS'),
+    throttleRps?: int32(name='ThrottleRps'),
+    writeWorkerNum?: int32(name='WriteWorkerNum'),
   }(name='FullTransferConfig'),
   id?: string(name='Id'),
   incrTransferConfig?: {
@@ -883,10 +887,24 @@ model CreateProjectRequest {
     recordTypeWhiteList?: [ string ](name='RecordTypeWhiteList'),
     startTimestamp?: string(name='StartTimestamp', example='1689201369'),
     storeLogKeptHour?: int32(name='StoreLogKeptHour', example='24'),
+    supportDDLTypes?: [ string ](name='SupportDDLTypes'),
+    throttleIOPS?: int32(name='ThrottleIOPS'),
+    throttleRps?: int32(name='ThrottleRps'),
   }(name='IncrTransferConfig'),
   labelIds?: [ string ](name='LabelIds'),
   name?: string(name='Name', example='test'),
   ossKey?: string(name='OssKey', example='open_api_create_project/oacp_xxx'),
+  reverseIncrTransferConfig?: {
+    enableIncrSyncStatistics?: boolean(name='EnableIncrSyncStatistics'),
+    enableSequencingWithinTxn?: boolean(name='EnableSequencingWithinTxn'),
+    incrSyncConcurrency?: int32(name='IncrSyncConcurrency'),
+    recordTypeWhiteList?: [ string ](name='RecordTypeWhiteList'),
+    startTimestamp?: string(name='StartTimestamp'),
+    storeLogKeptHour?: int32(name='StoreLogKeptHour'),
+    supportDDLTypes?: [ string ](name='SupportDDLTypes'),
+    throttleIOPS?: int32(name='ThrottleIOPS'),
+    throttleRps?: int32(name='ThrottleRps'),
+  }(name='ReverseIncrTransferConfig'),
   sinkEndpointId?: string(name='SinkEndpointId', example='e_4j0cz****'),
   sourceEndpointId?: string(name='SourceEndpointId', example='e_4j0c12z****'),
   structTransferConfig?: {
@@ -1062,6 +1080,7 @@ model CreateProjectShrinkRequest {
   labelIdsShrink?: string(name='LabelIds'),
   name?: string(name='Name', example='test'),
   ossKey?: string(name='OssKey', example='open_api_create_project/oacp_xxx'),
+  reverseIncrTransferConfigShrink?: string(name='ReverseIncrTransferConfig'),
   sinkEndpointId?: string(name='SinkEndpointId', example='e_4j0cz****'),
   sourceEndpointId?: string(name='SourceEndpointId', example='e_4j0c12z****'),
   structTransferConfigShrink?: string(name='StructTransferConfig'),
@@ -1121,6 +1140,9 @@ async function createProjectWithOptions(tmpReq: CreateProjectRequest, runtime: U
   if (!Util.isUnset(tmpReq.labelIds)) {
     request.labelIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labelIds, 'LabelIds', 'json');
   }
+  if (!Util.isUnset(tmpReq.reverseIncrTransferConfig)) {
+    request.reverseIncrTransferConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.reverseIncrTransferConfig, 'ReverseIncrTransferConfig', 'json');
+  }
   if (!Util.isUnset(tmpReq.structTransferConfig)) {
     request.structTransferConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.structTransferConfig, 'StructTransferConfig', 'json');
   }
@@ -1163,6 +1185,9 @@ async function createProjectWithOptions(tmpReq: CreateProjectRequest, runtime: U
   }
   if (!Util.isUnset(request.ossKey)) {
     body['OssKey'] = request.ossKey;
+  }
+  if (!Util.isUnset(request.reverseIncrTransferConfigShrink)) {
+    body['ReverseIncrTransferConfig'] = request.reverseIncrTransferConfigShrink;
   }
   if (!Util.isUnset(request.sinkEndpointId)) {
     body['SinkEndpointId'] = request.sinkEndpointId;
@@ -3673,112 +3698,152 @@ async function describeInstanceTopology(request: DescribeInstanceTopologyRequest
 }
 
 model DescribeInstancesRequest {
-  instanceId?: string(name='InstanceId', description='The number of CPU cores used in the cluster.', example='ob317v4uif****'),
-  instanceName?: string(name='InstanceName', description='The size of used memory in the cluster, in GB.', example='ob4prod'),
-  pageNumber?: int32(name='PageNumber', description='The total memory size of the cluster, in GB.', example='1'),
-  pageSize?: int32(name='PageSize', description='The information about the memory resources of the cluster.', example='10'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The number of CPU cores of each replica node in the cluster.', example='group1'),
-  searchKey?: string(name='SearchKey', description='The memory size of each replica node in the cluster, in GB.', example='pay'),
+  instanceId?: string(name='InstanceId', description='The ID of the OceanBase cluster.', example='ob317v4uif****'),
+  instanceName?: string(name='InstanceName', description='The name of the OceanBase cluster. It must be 1 to 20 characters in length. If this parameter is not specified, the value is the instance ID of the cluster by default.', example='ob4prod'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return.
+- Pages start from page 1.
+- Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of rows to return on each page.
+- Maximum value: 100.
+- Default value: 10.', example='10'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. If you do not specify this parameter, all resources are returned.', example='group1'),
+  searchKey?: string(name='SearchKey', description='The keyword for fuzzy search, which can be an instance ID, instance name, tenant ID, or tenant name.', example='pay'),
 }
 
 model DescribeInstancesResponseBody = {
   instances?: [ 
     {
-      availableZones?: [ string ](name='AvailableZones', description='The time in UTC when the cluster expires.'),
-      commodityCode?: string(name='CommodityCode', description='The storage space of each replica node in the cluster, in GB.', example='oceanbase_oceanbasepost_public_cn'),
-      cpu?: int32(name='Cpu', description='The product code of the OceanBase cluster.   
+      availableZones?: [ string ](name='AvailableZones', description='The information about the zone in which the cluster is deployed.'),
+      commodityCode?: string(name='CommodityCode', description='The product code of the OceanBase cluster.   
 - oceanbase_oceanbasepre_public_cn: indicates an OceanBase cluster that is billed based on the subscription plan and that is deployed in a China site.  
 - oceanbase_oceanbasepost_public_cn: indicates an OceanBase cluster that is billed based on the pay-as-you-go plan and that is deployed in a China site.  
-- oceanbase_obpre_public_intl: indicates an OceanBase cluster that is billed based on the subscription plan and that is deployed in an international site.', example='14'),
-      cpuArchitecture?: string(name='CpuArchitecture', example='X86_64、 AARCH64'),
-      createTime?: string(name='CreateTime', description='The number of OceanBase clusters queried.', example='2021-10-19T07:13:41Z'),
+- oceanbase_obpre_public_intl: indicates an OceanBase cluster that is billed based on the subscription plan and that is deployed in an international site.', example='oceanbase_oceanbasepost_public_cn'),
+      cpu?: int32(name='Cpu', description='The number of CPU cores of the cluster.', example='14'),
+      cpuArchitecture?: string(name='CpuArchitecture', description='The CPU architecture of the cluster.', example='X86_64, AARCH64'),
+      createTime?: string(name='CreateTime', description='The time in UTC when the cluster was created.', example='2021-10-19T07:13:41Z'),
       dataDiskAutoScaleConfig?: {
-        autoScale?: boolean(name='AutoScale'),
-        maxDiskSize?: long(name='MaxDiskSize'),
-        scaleStepInMerge?: long(name='ScaleStepInMerge'),
-        scaleStepInNormal?: long(name='ScaleStepInNormal'),
-        upperMergeThreshold?: long(name='UpperMergeThreshold'),
-        upperScaleStrategy?: string(name='UpperScaleStrategy'),
-        upperThreshold?: long(name='UpperThreshold'),
-        upperbound?: long(name='Upperbound'),
-      }(name='DataDiskAutoScaleConfig'),
-      deployMode?: string(name='DeployMode', description='The request ID.', example='1-1-1'),
-      deployType?: string(name='DeployType', description='Alibaba Cloud provides SDKs in different languages to help you quickly integrate Alibaba Cloud products and services by using APIs. We recommend that you use an SDK to call APIs. In this way, you do not need to sign for verification.', example='multiple'),
-      diskSize?: string(name='DiskSize', description='The information about the memory resources of the cluster.', example='200'),
-      diskType?: string(name='DiskType', description='The number of CPU cores used in the cluster.', example='cloud_essd_pl1'),
-      enableReadOnlyReplicaManagement?: boolean(name='EnableReadOnlyReplicaManagement'),
-      enableUpgradeNodes?: boolean(name='EnableUpgradeNodes', description='The ID of the OceanBase cluster.', example='true'),
-      expireSeconds?: int32(name='ExpireSeconds', description='The whitelist information of the cluster.', example='2606682'),
-      expireTime?: string(name='ExpireTime', description='The information about the storage resources of the cluster.', example='2021-10-17T16:00:00Z'),
-      inTempCapacityStatus?: boolean(name='InTempCapacityStatus'),
-      instanceClass?: string(name='InstanceClass', description='The instance type.', example='14C70G'),
-      instanceId?: string(name='InstanceId', description='The total storage space of the cluster, in GB.', example='ob317v4uif****'),
-      instanceName?: string(name='InstanceName', description='The return result of the request.', example='ob4test'),
-      instanceRole?: string(name='InstanceRole'),
-      instanceType?: string(name='InstanceType', description='You can call this operation to obtain the list of OceanBase clusters.', example='KAFKA_PUBLIC'),
-      maintainTime?: string(name='MaintainTime', description='The return result of the request.', example='2021-10-19T07:13:41Z'),
-      mem?: long(name='Mem', description='The information about the CPU resources of the cluster.', example='70'),
-      payType?: string(name='PayType', description='It is an Alibaba Cloud asset management and configuration tool, with which you can manage multiple Alibaba Cloud products and services by using commands. It is easy to use and a good helper in migration to cloud.', example='PREPAY'),
+        autoScale?: boolean(name='AutoScale', description='Specifies whether to enable the automatic scaling of the data disk.', example='true'),
+        maxDiskSize?: long(name='MaxDiskSize', description='The maximum size of the disk, in GB.', example='80000'),
+        scaleStepInMerge?: long(name='ScaleStepInMerge', description='The size of scaling step during a major compaction.', example='100'),
+        scaleStepInNormal?: long(name='ScaleStepInNormal', description='The size of scaling step during daily use.', example='50'),
+        upperMergeThreshold?: long(name='UpperMergeThreshold', description='The maximum usage of the data disk, in percentage, that triggers the scaling of the data disk for major compactions.', example='90'),
+        upperScaleStrategy?: string(name='UpperScaleStrategy', description='The scale-out strategy. Valid values: RAW and PERCENTAGE.', example='RAW'),
+        upperThreshold?: long(name='UpperThreshold', description='The maximum usage of the data disk, in percentage, that triggers the scaling of the data disk for daily use.', example='80'),
+        upperbound?: long(name='Upperbound', description='The maximum space, in GB, to which the data disk can be scaled.', example='16'),
+      }(name='DataDiskAutoScaleConfig', description='Specifies parameters for the automatic scaling of the data disk.'),
+      deployMode?: string(name='DeployMode', description='The data replica distribution mode of the cluster. The value is in the n-n-n format, where n is the number of OBServer nodes in each IDC.', example='1-1-1'),
+      deployType?: string(name='DeployType', description='The deployment type of the cluster. Valid values:   
+- multiple: multi-IDC deployment  
+- single: single-IDC deployment  
+- dual: dual-IDC deployment', example='multiple'),
+      diskSize?: string(name='DiskSize', description='The size of the storage space, in GB.', example='200'),
+      diskType?: string(name='DiskType', description='The type of the storage disk where the cluster is deployed.   
+The default value is cloud_essd_pl1, which indicates an ESSD cloud disk.', example='cloud_essd_pl1'),
+      enableReadOnlyReplicaManagement?: boolean(name='EnableReadOnlyReplicaManagement', description='Indicates whether the cluster supports read-only replicas.', example='yes'),
+      enableUpgradeNodes?: boolean(name='EnableUpgradeNodes', description='Indicates whether new nodes can be added.', example='true'),
+      expireSeconds?: int32(name='ExpireSeconds', description='The time elapsed since the expiration of the cluster, in seconds. 
+> In subscription mode, if the cluster has not expired, this parameter indicates the remaining validity period of the cluster. If the cluster has expired, this parameter indicates the time elapsed since the expiration.', example='2606682'),
+      expireTime?: string(name='ExpireTime', description='The time in UTC when the cluster expires. 
+> This parameter is valid only for subscription instances.', example='2021-10-17T16:00:00Z'),
+      inTempCapacityStatus?: boolean(name='InTempCapacityStatus', description='Specifies whether to indicate the temporary status of the capacity.', example='false'),
+      instanceClass?: string(name='InstanceClass', description='The specifications of the cluster.  You can specify one of the following four plans:  
+- 8C32G: indicates 8 CPU cores and 32 GB of memory.  
+- 14C70G: indicates 14 CPU cores and 70 GB of memory.  
+- 30C180G: indicates 30 CPU cores and 180 GB of memory.  
+- 62C400G: indicates 62 CPU cores and 400 GB of memory.', example='14C70G'),
+      instanceId?: string(name='InstanceId', description='The ID of the OceanBase cluster.', example='ob317v4uif****'),
+      instanceName?: string(name='InstanceName', description='The name of the OceanBase cluster.', example='ob4test'),
+      instanceRole?: string(name='InstanceRole', description='The role of the instance.', example='NORMAL'),
+      instanceType?: string(name='InstanceType', description='The instance type.
+- cluster: indicates a cluster instance.
+- mtenant: indicates a tenant instance in MySQL mode.
+- mtenant_serverless: indicates a serverless instance in MySQL mode.', example='CLUSTER'),
+      maintainTime?: string(name='MaintainTime', description='The time period in UTC for the daily routine maintenance of the cluster.', example='2021-10-19T07:13:41Z'),
+      mem?: long(name='Mem', description='The memory size of the instance, in GB.', example='70'),
+      payType?: string(name='PayType', description='The billing method for the OceanBase cluster. Valid values:  
+- PREPAY: the subscription billing method.  
+- POSTPAY: the pay-as-you-go billing method.', example='PREPAY'),
       resource?: {
         capacityUnit?: {
-          maxCapacityUnit?: int32(name='MaxCapacityUnit'),
-          minCapacityUnit?: int32(name='MinCapacityUnit'),
-          usedCapacityUnit?: int32(name='UsedCapacityUnit'),
-        }(name='CapacityUnit'),
+          maxCapacityUnit?: int32(name='MaxCapacityUnit', description='The maximum number of capacity units.', example='4'),
+          minCapacityUnit?: int32(name='MinCapacityUnit', description='The minimum number of capacity units.', example='1'),
+          usedCapacityUnit?: int32(name='UsedCapacityUnit', description='The number of used capacity units.', example='2'),
+        }(name='CapacityUnit', description='The information about capacity units.'),
         cpu?: {
-          originalTotalCpu?: long(name='OriginalTotalCpu', example='14'),
-          totalCpu?: long(name='TotalCpu', description='The name of the OceanBase cluster.    
-It must be 1 to 20 characters in length.   
-If this parameter is not specified, the value is the instance ID of the cluster by default.', example='14'),
-          unitCpu?: long(name='UnitCpu', description='The data replica distribution mode of the cluster. Valid values:    
-
-- n: indicates the single-IDC mode.  
-- n-n: indicates the dual-IDC mode.  
-- n-n-n: indicates the multi-IDC mode. The integer n represents the number of OBServer nodes in each IDC.', example='10'),
-          usedCpu?: long(name='UsedCpu', description='The search keyword.', example='10'),
-        }(name='Cpu', description='Indicates whether new nodes can be added.'),
+          originalTotalCpu?: long(name='OriginalTotalCpu', description='The number of original CPU cores in the cluster.', example='14'),
+          totalCpu?: long(name='TotalCpu', description='The total number of CPU cores of the cluster.', example='14'),
+          unitCpu?: long(name='UnitCpu', description='The number of CPU cores of each replica node in the cluster.', example='10'),
+          usedCpu?: long(name='UsedCpu', description='The number of CPU cores used in the cluster.', example='10'),
+        }(name='Cpu', description='The information about the CPU resources of the cluster.'),
         diskSize?: {
-          originalTotalDiskSize?: long(name='OriginalTotalDiskSize', example='200'),
-          totalDiskSize?: long(name='TotalDiskSize', description='The request ID.', example='200'),
-          unitDiskSize?: long(name='UnitDiskSize', description='Example 1', example='200'),
-          usedDiskSize?: long(name='UsedDiskSize', description='$.parameters[7].schema.example', example='100'),
-        }(name='DiskSize', description='The time elapsed since the expiration of the cluster, in seconds.'),
+          originalTotalDiskSize?: long(name='OriginalTotalDiskSize', description='The original size of the disk.', example='200'),
+          totalDiskSize?: long(name='TotalDiskSize', description='The total storage space of the cluster, in GB.', example='200'),
+          unitDiskSize?: long(name='UnitDiskSize', description='The storage space of each replica node in the cluster, in GB.', example='200'),
+          usedDiskSize?: long(name='UsedDiskSize', description='The size of used storage space of the cluster, in GB.', example='100'),
+        }(name='DiskSize', description='The information about the storage resources of the cluster.'),
         memory?: {
-          originalTotalMemory?: long(name='OriginalTotalMemory', example='72'),
-          totalMemory?: long(name='TotalMemory', description='The number of CPU cores of the cluster.', example='70'),
-          unitMemory?: long(name='UnitMemory', description='The size of used storage space of the cluster, in GB.', example='10'),
+          originalTotalMemory?: long(name='OriginalTotalMemory', description='The original memory size of the cluster, in GB.', example='72'),
+          totalMemory?: long(name='TotalMemory', description='The total memory size of the cluster, in GB.', example='70'),
+          unitMemory?: long(name='UnitMemory', description='The memory size of each replica node in the cluster, in GB.', example='10'),
           usedMemory?: long(name='UsedMemory', description='The size of used memory in the cluster, in GB.', example='10'),
-        }(name='Memory', description='The status of the cluster. Valid values:   
-- PENDING_CREATE: The cluster is being created.  
+        }(name='Memory', description='The information about the memory resources of the cluster.'),
+        unitCount?: long(name='UnitCount', description='The number of resource units in the cluster.', example='1'),
+      }(name='Resource', description='The information about cluster resources.'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='group1'),
+      series?: string(name='Series', description='The series of the OceanBase cluster. Valid values:   
+- NORMAL: the high availability edition.   
+- BASIC: the basic edition.', example='NORMAL'),
+      state?: string(name='State', description='The status of the cluster. Valid values:   
 - ONLINE: The cluster is running.  
-- TENANT_CREATING: The tenant is being created.  
-- TENANT_SPEC_MODIFYING: The tenant specifications are being modified.  
-- EXPANDING: Nodes are being added to the cluster to increase its capacity.  
-- REDUCING: Nodes are being removed from the cluster to reduce its capacity.  
-- SPEC_UPGRADING: The service plan is being upgraded.  
-- DISK_UPGRADING: The storage space is being expanded.  
-- WHITE_LIST_MODIFYING: The whitelist is being modified.  
-- PARAMETER_MODIFYING: Parameters are being modified.  
-- SSL_MODIFYING: The SSL certificate is being changed.  
-- PREPAID_EXPIRE_CLOSED: The payment is overdue. This parameter is valid for a cluster whose billing method is set to PREPAY.  
-- ARREARS_CLOSED: The payment is overdue. This parameter is valid for a cluster whose billing method is set to POSTPAY.  
-- PENDING_DELETE: The cluster is being deleted.   
-Generally, the cluster is in the ONLINE state.'),
-        unitCount?: long(name='UnitCount', example='1'),
-      }(name='Resource', description='The type of the storage disk where the cluster is deployed.   
-The default value is cloud_essd_pl1, which indicates an ESSD cloud disk.'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The number of OceanBase clusters queried.', example='group1'),
-      series?: string(name='Series', description='The billing method for the OceanBase cluster. Valid values:  
-- PREPAY: the subscription billing method.  
-- POSTPAY: the pay-as-you-go billing method.', example='NORMAL'),
-      state?: string(name='State', description='The number of resource units in the cluster.', example='ONLINE'),
-      usedDiskSize?: long(name='UsedDiskSize', description='The number of resource units in the cluster.', example='20'),
-      version?: string(name='Version', description='The total number of CPU cores of the cluster.', example='2.2.77'),
+- PENDING_CREATE: The cluster is being created.  
+- ARREARS_CLOSED("arrears_closed"): The cluster is suspended due to insufficient balance.
+- PREPAID_EXPIRE_CLOSED("prepaid_expire_closed"): The cluster is suspended because the subscription has expired.
+- WHITE_LIST_MODIFYING("white_list_modifying"): The allowlist of the cluster is being modified.
+- SSL_MODIFYING("ssl_modifying"): The Secure Sockets Layer (SSL) settings of the cluster are being modified.
+- PARAMETER_MODIFYING("parameter_modifying"): Parameters of the cluster are being modified.
+- TENANT_CREATING("tenant_creating"): A tenant is being created in the cluster.
+- TENANT_SPEC_MODIFYING("tenant_spec_modifying"): The specifications of a tenant in the cluster are being modified.
+- EXPANDING("expanding"): Nodes are being added to the cluster.
+- REDUCING("reducing"): Nodes are being removed from the cluster.
+- ZONE_CHANGING("zone_changing"): Zones of the cluster are being modified.
+- SPEC_UPGRADING: The service plan is being upgraded.
+- SPEC_DOWNGRADING("spec_downgrading"): The plan specification is being downgraded.
+- DISK_UPGRADING: The storage space is being expanded.
+- UPGRADING("upgrading"): The version of the cluster is being upgraded.
+- PENDING_DELETE("pending_delete"): The cluster is being deleted.
+- DELETED("deleted"): The cluster has been deleted.
+- ABNORMAL("abnormal"): The cluster is abnormal.
+- OFFLINE("offline"): The cluster is offline.
+- STANDBY_CREATING("standby_creating"): A standby cluster is being created for the cluster.
+- STANDBY_DELETING("standby_deleting"): A standby cluster of the cluster is being deleted.
+- SWITCHOVER_SWITCHING("switchover_switching"): The cluster is undergoing a primary/standby switchover.
+- STANDBY_DISCONNECTING("standby_disconnecting"): The cluster is being decoupled from its standby cluster.
+- LOG_DISK_UPGRADING("log_disk_upgrading"): The log disk of the cluster is being scaled out.
+- ISOLATION_OPTIMIZATION_MODIFYING("isolation_optimization_modifying"): The isolation optimization settings of the cluster are being modified.
+- DISKTYPE_MODIFYING("disktype_modifying"): The data disk type of the cluster is being modified.
+- PROXY_SERVICE_CREATING("proxy_service_creating"): The proxy service is being enabled for the cluster.
+- PROXY_SERVICE_DELETING("proxy_service_deleting"): The proxy service is being disabled for the cluster.
+- PROXY_SERVICE_SPEC_MODIFYING("proxy_service_spec_modifying"): The proxy service specification is being modified for the cluster.
+- READONLY_ADD_NODE("readonly_add_node"): A read-only node is being added to the cluster.
+- READONLY_REDUCE_NODE("readonly_reduce_node"): A read-only node is being removed from the cluster.
+- READONLY_REDUCE_ZONE("readonly_reduce_zone"): A read-only zone is being removed from the cluster.
+- READONLY_ADD_ZONE("readonly_add_zone"): A read-only zone is being added to the cluster.
+- READONLY_UPGRADE_SPEC("readonly_upgrade_spec"): The specification of read-only replicas is being upgraded.
+- READONLY_UPGRADE_DISK("readonly_upgrade_disk"): The disk space of read-only replicas is being scaled out.
+- READONLY_DOWNGRADE_SPEC("readonly_downgrade_spec"): The specification of read-only replicas is being downgraded.
+- READONLY_DOWNGRADE_DISK("readonly_downgrade_disk"): The disk space of read-only replicas is being scaled in.
+- CREATING_TENANT_READONLY_REPLICA("creating_tenant_readonly_replica"): A read-only replica is being created for a tenant in the cluster.
+- DELETING_TENANT_READONLY_REPLICA("deleting_tenant_readonly_replica"): A read-only replica is being deleted for a tenant in the cluster.
+- DISK_DOWNGRADING("disk_downgrading"): The disk space of the cluster is being scaled in.
+- DEPLOY_MODE_MODIFYING("deploy_mode_modifying"): The deployment mode of the cluster is being modified.
+> Generally, the cluster is in the ONLINE state.', example='ONLINE'),
+      usedDiskSize?: long(name='UsedDiskSize', description='The size of used storage space of the cluster, in GB.', example='20'),
+      version?: string(name='Version', description='The OBServer version.', example='2.2.77'),
       vpcId?: string(name='VpcId', description='vpcId', example='vpc-8vb8qjrixzovjpy******'),
     }
-  ](name='Instances', description='The total storage space of the cluster, in GB.'),
-  requestId?: string(name='RequestId', example='EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  ](name='Instances', description='The information of the OceanBase cluster.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EE205C00-30E4-XXXX-XXXX-87E3A8A2AA0C'),
+  totalCount?: int32(name='TotalCount', description='The number of OceanBase clusters queried.', example='2'),
 }
 
 model DescribeInstancesResponse = {
@@ -5388,6 +5453,10 @@ model DescribeProjectResponseBody = {
       fullTransferSpeedMode?: string(name='FullTransferSpeedMode', example='FAST'),
       fullVerifySpeedMode?: string(name='FullVerifySpeedMode', example='FAST'),
       nonePkUkTruncateDstTable?: boolean(name='NonePkUkTruncateDstTable', example='false'),
+      readWorkerNum?: int32(name='ReadWorkerNum'),
+      throttleIOPS?: int32(name='ThrottleIOPS'),
+      throttleRps?: int32(name='ThrottleRps'),
+      writeWorkerNum?: int32(name='WriteWorkerNum'),
     }(name='FullTransferConfig'),
     gmtCreate?: string(name='GmtCreate', example='2023-07-13T06:26:15'),
     gmtFinish?: string(name='GmtFinish', example='2023-07-13T07:02:27'),
@@ -5402,6 +5471,9 @@ model DescribeProjectResponseBody = {
       recordTypeWhiteList?: [ string ](name='RecordTypeWhiteList'),
       startTimestamp?: long(name='StartTimestamp', example='1667286900'),
       storeLogKeptHour?: int32(name='StoreLogKeptHour', example='24'),
+      supportDDLTypes?: [ string ](name='SupportDDLTypes'),
+      throttleIOPS?: int32(name='ThrottleIOPS'),
+      throttleRps?: int32(name='ThrottleRps'),
     }(name='IncrTransferConfig'),
     isMerging?: boolean(name='IsMerging', example='false'),
     isModifying?: boolean(name='IsModifying', example='false'),
@@ -5414,6 +5486,17 @@ model DescribeProjectResponseBody = {
     ](name='Labels'),
     name?: string(name='Name', example='test'),
     owner?: string(name='Owner', example='omsefry***'),
+    reverseIncrTransferConfig?: {
+      enableIncrSyncStatistics?: boolean(name='EnableIncrSyncStatistics'),
+      enableSequencingWithinTxn?: boolean(name='EnableSequencingWithinTxn'),
+      incrSyncConcurrency?: int32(name='IncrSyncConcurrency'),
+      recordTypeWhiteList?: [ string ](name='RecordTypeWhiteList'),
+      startTimestamp?: long(name='StartTimestamp'),
+      storeLogKeptHour?: int32(name='StoreLogKeptHour'),
+      supportDDLTypes?: [ string ](name='SupportDDLTypes'),
+      throttleIOPS?: int32(name='ThrottleIOPS'),
+      throttleRps?: int32(name='ThrottleRps'),
+    }(name='ReverseIncrTransferConfig'),
     sinkConnectInfo?: {
       charset?: string(name='Charset', example='utf8mb4'),
       connExtraAttributes?: any(name='ConnExtraAttributes', example='null'),
