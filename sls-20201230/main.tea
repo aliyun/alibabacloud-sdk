@@ -15,6 +15,7 @@ init(config: OpenApi.Config){
   super(config);
   @client = new GatewayClient();
   @spi = @client;
+  @signatureAlgorithm = 'v2';
   @endpointRule = 'central';
   }
 
@@ -26,7 +27,7 @@ model Alert {
   lastModifiedTime?: long(name='lastModifiedTime'),
   name?: string(name='name', example='alert-123456'),
   schedule?: Schedule(name='schedule'),
-  status?: string(name='status', example='Enabled/Disabled'),
+  status?: string(name='status', example='ENABLED/DISABLED'),
 }
 
 model AlertConfiguration {
@@ -167,7 +168,7 @@ model EncryptUserCmkConf {
 }
 
 model GroupConfiguration {
-  fileds?: [ string ](name='fileds'),
+  fields?: [ string ](name='fields'),
   type?: string(name='type', example='custom'),
 }
 
@@ -354,7 +355,7 @@ model OSSExportConfiguration {
     bufferInterval?: long(name='bufferInterval', example='300'),
     bufferSize?: long(name='bufferSize', example='256'),
     compressionType?: string(name='compressionType', example='snappy/gizp/zstd/none'),
-    contentDetail?: string(name='contentDetail'),
+    contentDetail?: map[string]any(name='contentDetail'),
     contentType?: string(name='contentType', example='json/parquet/csv/orc'),
     delaySec?: long(name='delaySec', example='123'),
     endpoint?: string(name='endpoint', example='http://xxxxxxxx'),
@@ -479,6 +480,12 @@ model SinkEventStoreConfiguration {
   roleArn?: string(name='roleArn', example='acs:ram::123456789:role/aliyunlogetlrole'),
 }
 
+model StoreViewStore {
+  project?: string(name='project'),
+  query?: string(name='query'),
+  storeName?: string(name='storeName'),
+}
+
 model TemplateConfiguration {
   aonotations?: map[string]any(name='aonotations'),
   id?: string(name='id', example='sls.app.ack.ip.not_enough'),
@@ -496,6 +503,7 @@ model Ticket {
   extra?: string(name='extra', example='{"xx":"yy"}'),
   name?: string(name='name', example='测试'),
   number?: int32(name='number', example='1'),
+  sharingTo?: string(name='sharingTo', example='{"type":"aliyun","ids":[1,2]}'),
   ticket?: string(name='ticket', example='xxxxx'),
   ticketId?: string(name='ticketId', example='xxxxx'),
   usedNumber?: int32(name='usedNumber', example='1'),
@@ -2298,6 +2306,58 @@ async function createScheduledSQL(project: string, request: CreateScheduledSQLRe
   return createScheduledSQLWithOptions(project, request, headers, runtime);
 }
 
+model CreateSqlInstanceRequest {
+  cu?: int32(name='cu', example='2'),
+  useAsDefault?: boolean(name='useAsDefault'),
+}
+
+model CreateSqlInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+async function createSqlInstanceWithOptions(project: string, request: CreateSqlInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSqlInstanceResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.cu)) {
+    body['cu'] = request.cu;
+  }
+  if (!Util.isUnset(request.useAsDefault)) {
+    body['useAsDefault'] = request.useAsDefault;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSqlInstance',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/sqlinstance`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+async function createSqlInstance(project: string, request: CreateSqlInstanceRequest): CreateSqlInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSqlInstanceWithOptions(project, request, headers, runtime);
+}
+
+model CreateTicketRequest {
+  accessTokenExpirationTime?: long(name='accessTokenExpirationTime'),
+  expirationTime?: long(name='expirationTime'),
+}
+
 model CreateTicketResponseBody = {
   ticket?: string(name='ticket', example='eyJ***************.eyJ******************.KUT****************'),
 }
@@ -2308,9 +2368,19 @@ model CreateTicketResponse = {
   body?: CreateTicketResponseBody(name='body'),
 }
 
-async function createTicketWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): CreateTicketResponse {
+async function createTicketWithOptions(request: CreateTicketRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTicketResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.accessTokenExpirationTime)) {
+    query['accessTokenExpirationTime'] = request.accessTokenExpirationTime;
+  }
+  if (!Util.isUnset(request.expirationTime)) {
+    query['expirationTime'] = request.expirationTime;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'CreateTicket',
@@ -2326,10 +2396,10 @@ async function createTicketWithOptions(headers: map[string]string, runtime: Util
   return execute(params, req, runtime);
 }
 
-async function createTicket(): CreateTicketResponse {
+async function createTicket(request: CreateTicketRequest): CreateTicketResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return createTicketWithOptions(headers, runtime);
+  return createTicketWithOptions(request, headers, runtime);
 }
 
 model DeleteAlertResponse = {
@@ -4597,7 +4667,6 @@ Note: If you specify an analytic statement in the query parameter, the line and 
 
 true: Logs are returned in reverse chronological order of log timestamps. false (default): Logs are returned in chronological order of log timestamps. Note: The reverse parameter takes effect only when the query parameter is set to a search statement. The reverse parameter specifies the method used to sort returned logs. If the query parameter is set to a query statement, the reverse parameter does not take effect. The method used to sort returned logs is specified by the ORDER BY clause in the analytic statement. If you use the keyword asc in the ORDER BY clause, the logs are sorted in chronological order. If you use the keyword desc in the ORDER BY clause, the logs are sorted in reverse chronological order. By default, asc is used in the ORDER BY clause.', example='false'),
   session?: string(name='session', description='The parameter that is used to query data.', example='mode=scan'),
-  shard?: int32(name='shard', description='The ID of the shard.', example='0'),
   to?: int32(name='to', description='The end of the time range to query. The value is the log time that is specified when log data is written.
 
 The time range that is specified in this operation is a left-closed, right-open interval. The interval includes the start time specified by the from parameter, but does not include the end time specified by the to parameter. If you specify the same value for the from and to parameters, the interval is invalid, and an error message is returned. The value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1627268185'),
@@ -4689,9 +4758,6 @@ async function getLogsV2WithOptions(project: string, logstore: string, request: 
   }
   if (!Util.isUnset(request.session)) {
     body['session'] = request.session;
-  }
-  if (!Util.isUnset(request.shard)) {
-    body['shard'] = request.shard;
   }
   if (!Util.isUnset(request.to)) {
     body['to'] = request.to;
@@ -5328,6 +5394,77 @@ async function getShipperStatus(project: string, logstore: string, shipperName: 
   return getShipperStatusWithOptions(project, logstore, shipperName, request, headers, runtime);
 }
 
+model GetSlsServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ServiceStatus  
+}
+
+async function getSlsServiceWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetSlsServiceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSlsService',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/slsservice`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function getSlsService(): GetSlsServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSlsServiceWithOptions(headers, runtime);
+}
+
+model GetSqlInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: [ 
+    {
+      name?: string(name='name', example='project_name'),
+      cu?: int32(name='cu', example='2'),
+      createTime?: int32(name='createTime', example='1710230272'),
+      updateTime?: int32(name='updateTime', example='1710230272'),
+      useAsDefault?: boolean(name='useAsDefault', example='true'),
+    }
+  ](name='body'),
+}
+
+async function getSqlInstanceWithOptions(project: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetSqlInstanceResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSqlInstance',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/sqlinstance`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+async function getSqlInstance(project: string): GetSqlInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSqlInstanceWithOptions(project, headers, runtime);
+}
+
 model ListAlertsRequest {
   logstore?: string(name='logstore', example='ali-test-logstore'),
   offset?: int32(name='offset', example='0'),
@@ -5945,6 +6082,7 @@ async function listDomains(project: string, request: ListDomainsRequest): ListDo
 }
 
 model ListETLsRequest {
+  logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
   size?: int32(name='size', example='10'),
 }
@@ -5968,6 +6106,9 @@ async function listETLsWithOptions(project: string, request: ListETLsRequest, he
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -6008,9 +6149,7 @@ model ListExternalStoreRequest {
 
 model ListExternalStoreResponseBody = {
   count?: int32(name='count', description='The number of external stores returned on the current page.', example='3'),
-  externalstores?: [
-    ExternalStore
-  ](name='externalstores', description='The names of the external stores.'),
+  externalstores?: [ string ](name='externalstores', description='The names of the external stores.'),
   total?: int32(name='total', description='The number of external stores that meet the query conditions.', example='3'),
 }
 
@@ -6397,6 +6536,7 @@ async function listMachines(project: string, machineGroup: string, request: List
 }
 
 model ListOSSExportsRequest {
+  logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
   size?: int32(name='size', example='100'),
 }
@@ -6420,6 +6560,9 @@ async function listOSSExportsWithOptions(project: string, request: ListOSSExport
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -6453,6 +6596,7 @@ async function listOSSExports(project: string, request: ListOSSExportsRequest): 
 }
 
 model ListOSSHDFSExportsRequest {
+  logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
   size?: int32(name='size', example='100'),
 }
@@ -6476,6 +6620,9 @@ async function listOSSHDFSExportsWithOptions(project: string, request: ListOSSHD
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -6509,6 +6656,7 @@ async function listOSSHDFSExports(project: string, request: ListOSSHDFSExportsRe
 }
 
 model ListOSSIngestionsRequest {
+  logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
   size?: int32(name='size', example='10'),
 }
@@ -6532,6 +6680,9 @@ async function listOSSIngestionsWithOptions(project: string, request: ListOSSIng
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -6714,6 +6865,7 @@ async function listSavedSearch(project: string, request: ListSavedSearchRequest)
 }
 
 model ListScheduledSQLsRequest {
+  logstore?: string(name='logstore'),
   offset?: long(name='offset', example='0'),
   size?: long(name='size', example='100'),
 }
@@ -6737,6 +6889,9 @@ async function listScheduledSQLsWithOptions(project: string, request: ListSchedu
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
   var query : map[string]any = {};
+  if (!Util.isUnset(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
   if (!Util.isUnset(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -6994,6 +7149,35 @@ async function mergeShard(project: string, logstore: string, shard: string): Mer
   return mergeShardWithOptions(project, logstore, shard, headers, runtime);
 }
 
+model OpenSlsServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+async function openSlsServiceWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): OpenSlsServiceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'OpenSlsService',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/slsservice`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+async function openSlsService(): OpenSlsServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return openSlsServiceWithOptions(headers, runtime);
+}
+
 model PutAnnotationDataRequest {
   annotationdataId?: string(name='annotationdataId', description='The unique identifier of the data.', example='2156d560fc7c01420542df92cd6365ds'),
   mlDataParam?: MLDataParam(name='mlDataParam', description='The data structure of the request.'),
@@ -7208,7 +7392,7 @@ async function putWebtrackingWithOptions(project: string, logstoreName: string, 
     protocol = 'HTTPS',
     pathname = `/logstores/${logstoreName}/track`,
     method = 'POST',
-    authType = 'AK',
+    authType = 'Anonymous',
     style = 'ROA',
     reqBodyType = 'json',
     bodyType = 'none',
@@ -7297,6 +7481,55 @@ async function queryMLServiceResults(serviceName: string, request: QueryMLServic
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return queryMLServiceResultsWithOptions(serviceName, request, headers, runtime);
+}
+
+model RefreshTokenRequest {
+  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', example='600'),
+  ticket?: string(name='ticket', example='eyJ***************.eyJ******************.KUT****************'),
+}
+
+model RefreshTokenResponseBody = {
+  accessToken?: string(name='accessToken', example='eyJ***************.eyJ******************.KUT****************'),
+}
+
+model RefreshTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RefreshTokenResponseBody(name='body'),
+}
+
+async function refreshTokenWithOptions(request: RefreshTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RefreshTokenResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.accessTokenExpirationTime)) {
+    query['accessTokenExpirationTime'] = request.accessTokenExpirationTime;
+  }
+  if (!Util.isUnset(request.ticket)) {
+    query['ticket'] = request.ticket;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RefreshToken',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/token/refresh`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+async function refreshToken(request: RefreshTokenRequest): RefreshTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return refreshTokenWithOptions(request, headers, runtime);
 }
 
 model RemoveConfigFromMachineGroupResponse = {
@@ -9251,6 +9484,53 @@ async function updateScheduledSQL(project: string, scheduledSQLName: string, req
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateScheduledSQLWithOptions(project, scheduledSQLName, request, headers, runtime);
+}
+
+model UpdateSqlInstanceRequest {
+  cu?: int32(name='cu', example='2'),
+  useAsDefault?: boolean(name='useAsDefault'),
+}
+
+model UpdateSqlInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+async function updateSqlInstanceWithOptions(project: string, request: UpdateSqlInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateSqlInstanceResponse {
+  Util.validateModel(request);
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.cu)) {
+    body['cu'] = request.cu;
+  }
+  if (!Util.isUnset(request.useAsDefault)) {
+    body['useAsDefault'] = request.useAsDefault;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateSqlInstance',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/sqlinstance`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+async function updateSqlInstance(project: string, request: UpdateSqlInstanceRequest): UpdateSqlInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateSqlInstanceWithOptions(project, request, headers, runtime);
 }
 
 model UpsertCollectionPolicyRequest {
