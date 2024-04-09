@@ -23,21 +23,21 @@ init(configuration: ClientConfiguration){
   @version = '2021-07-01';
   @endpointRule = 'regional';
   @endpointMap = {
-    cn-beijing = 'pai-eas.cn-beijing.aliyuncs.com',
-    cn-zhangjiakou = 'pai-eas.cn-zhangjiakou.aliyuncs.com',
-    cn-hangzhou = 'pai-eas.cn-hangzhou.aliyuncs.com',
-    cn-shanghai = 'pai-eas.cn-shanghai.aliyuncs.com',
-    cn-shenzhen = 'pai-eas.cn-shenzhen.aliyuncs.com',
-    cn-hongkong = 'pai-eas.cn-hongkong.aliyuncs.com',
-    ap-southeast-1 = 'pai-eas.ap-southeast-1.aliyuncs.com',
-    ap-southeast-5 = 'pai-eas.ap-southeast-5.aliyuncs.com',
-    us-east-1 = 'pai-eas.us-east-1.aliyuncs.com',
-    us-west-1 = 'pai-eas.us-west-1.aliyuncs.com',
-    eu-central-1 = 'pai-eas.eu-central-1.aliyuncs.com',
-    ap-south-1 = 'pai-eas.ap-south-1.aliyuncs.com',
-    cn-shanghai-finance-1 = 'pai-eas.cn-shanghai-finance-1.aliyuncs.com',
-    cn-north-2-gov-1 = 'pai-eas.cn-north-2-gov-1.aliyuncs.com',
-    cn-chengdu = 'pai-eas.cn-chengdu.aliyuncs.com',
+    'cn-beijing' = 'pai-eas.cn-beijing.aliyuncs.com',
+    'cn-zhangjiakou' = 'pai-eas.cn-zhangjiakou.aliyuncs.com',
+    'cn-hangzhou' = 'pai-eas.cn-hangzhou.aliyuncs.com',
+    'cn-shanghai' = 'pai-eas.cn-shanghai.aliyuncs.com',
+    'cn-shenzhen' = 'pai-eas.cn-shenzhen.aliyuncs.com',
+    'cn-hongkong' = 'pai-eas.cn-hongkong.aliyuncs.com',
+    'ap-southeast-1' = 'pai-eas.ap-southeast-1.aliyuncs.com',
+    'ap-southeast-5' = 'pai-eas.ap-southeast-5.aliyuncs.com',
+    'us-east-1' = 'pai-eas.us-east-1.aliyuncs.com',
+    'us-west-1' = 'pai-eas.us-west-1.aliyuncs.com',
+    'eu-central-1' = 'pai-eas.eu-central-1.aliyuncs.com',
+    'ap-south-1' = 'pai-eas.ap-south-1.aliyuncs.com',
+    'cn-shanghai-finance-1' = 'pai-eas.cn-shanghai-finance-1.aliyuncs.com',
+    'cn-north-2-gov-1' = 'pai-eas.cn-north-2-gov-1.aliyuncs.com',
+    'cn-chengdu' = 'pai-eas.cn-chengdu.aliyuncs.com',
   };
 }
 
@@ -203,6 +203,32 @@ model Service {
   workspaceId?: string(name='WorkspaceId'),
 }
 
+model CloneServiceRequest {
+  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
+  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  body?: string(name='body', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
+}
+
+model CloneServiceResponseBody = {
+  internetEndpoint?: string(name='InternetEndpoint', example='http://10123*****.cn-shanghai.aliyuncs.com/api/predict/echo'),
+  intranetEndpoint?: string(name='IntranetEndpoint', example='http://10123*****.vpc.cn-shanghai.aliyuncs.com/api/predict/echo'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', example='eas-m-r9knx7n9guf2p*****'),
+  serviceName?: string(name='ServiceName', example='foo'),
+  status?: string(name='Status', example='Creating'),
+}
+
+model CloneServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CloneServiceResponseBody(name='body'),
+}
+
+async function cloneService(request: CloneServiceRequest): CloneServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CloneService', 'POST', '/api/v2/services/{ClusterId}/{ServiceName}/clone', 'json', false, 'json', request);
+}
+
 model CommitServiceRequest {
   clusterId?: string(name='ClusterId', example='cn-beijing', position='Path'),
   serviceName?: string(name='ServiceName', example='foo', position='Path'),
@@ -239,10 +265,21 @@ Valid values:
 
     <!-- -->', example='LLM', position='Body'),
   appVersion?: string(name='AppVersion', description='The application version.', example='v1', position='Body'),
-  config?: map[string]any(name='Config', description='Additional configurations that are required for the service deployment.', position='Body'),
+  config?: map[string]any(name='Config', description='The additional configurations that are required for service deployment.', position='Body'),
   replicas: int32(name='Replicas', description='The number of instances.', example='1', position='Body'),
   serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Body'),
-  serviceSpec: string(name='ServiceSpec', description='The service specifications.', example='llama_7b_fp16', position='Body'),
+  serviceSpec: string(name='ServiceSpec', description='The service specifications. Valid values:
+
+*   llama\\_7b_fp16
+*   llama\\_7b_int8
+*   llama\\_13b_fp16
+*   llama\\_7b_int8
+*   chatglm\\_6b_fp16
+*   chatglm\\_6b_int8
+*   chatglm2\\_6b_fp16
+*   baichuan\\_7b_int8
+*   baichuan\\_13b_fp16
+*   baichuan\\_7b_fp16', example='llama_7b_fp16', position='Body'),
 }
 
 model CreateAppServiceResponseBody = {
@@ -383,18 +420,18 @@ model CreateResourceRequest {
   ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.', example='ecs.c6.8xlarge', position='Body'),
   resourceType?: string(name='ResourceType', example='Dedicated', position='Body'),
   selfManagedResourceOptions?: {
-    externalClusterId?: string(name='ExternalClusterId', description='自运维集群Id', example='cf0386f250f2545689ca7fdd1cd******'),
-    nodeMatchLabels?: map[string]string(name='NodeMatchLabels', description='节点的标签键值对集合'),
+    externalClusterId?: string(name='ExternalClusterId', example='cf0386f250f2545689ca7fdd1cd******'),
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
     nodeTolerations?: [ 
       {
-        effect?: string(name='effect', description='效果', example='NoSchedule'),
-        key?: string(name='key', description='键名', example='key1'),
-        operator?: string(name='operator', description='键名和键值的关系', example='Equal'),
-        value?: string(name='value', description='键值', example='value1'),
+        effect?: string(name='effect', example='NoSchedule'),
+        key?: string(name='key', example='key1'),
+        operator?: string(name='operator', example='Equal'),
+        value?: string(name='value', example='value1'),
       }
-    ](name='NodeTolerations', description='节点污点的容忍度列表'),
-    roleName?: string(name='RoleName', description='授予云服务PAI-EAS相关权限的RAM角色名称', example='clusterrole'),
-  }(name='SelfManagedResourceOptions', description='自运维资源组配置选项', position='Body'),
+    ](name='NodeTolerations'),
+    roleName?: string(name='RoleName', example='clusterrole'),
+  }(name='SelfManagedResourceOptions', position='Body'),
   systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GiB. Valid values: 200 to 2000. Default value: 200.', example='200', minimum=200, maximum=2000, position='Body'),
   zone?: string(name='Zone', description='The zone to which the instance belongs.', example='cn-shanghai-f', position='Body'),
 }
@@ -414,6 +451,10 @@ model CreateResourceResponse = {
   body?: CreateResourceResponseBody(name='body'),
 }
 
+/**
+  * **Before you call this operation, make sure that you are familiar with the [billing](~~144261~~) of Elastic Algorithm Service (EAS).
+  *
+ */
 async function createResource(request: CreateResourceRequest): CreateResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateResource', 'POST', '/api/v2/resources', 'json', false, 'json', request);
@@ -1878,14 +1919,29 @@ model ListServiceVersionsResponseBody = {
   totalCount?: long(name='TotalCount', example='166'),
   versions?: [ 
     {
-      buildTime?: string(name='BuildTime', example='2022-08-29T22:02:14Z'),
-      imageAvailable?: string(name='ImageAvailable', example='true'),
-      imageId?: int32(name='ImageId', example='4'),
-      message?: string(name='Message', example='Service is Running'),
-      serviceConfig?: string(name='ServiceConfig'),
-      serviceRunnable?: string(name='ServiceRunnable', example='true'),
+      buildTime?: string(name='BuildTime', description='The time when the service version was created. The time is displayed in UTC.', example='2022-08-29T22:02:14Z'),
+      imageAvailable?: string(name='ImageAvailable', description='Indicates whether the image is available. Valid values:
+
+*   true: The image is available.
+*   false: The image is unavailable.
+*   unknown: The availability of the image is unknown.', example='true'),
+      imageId?: int32(name='ImageId', description='The ID of the image.', example='4'),
+      message?: string(name='Message', description='The returned message.', example='Service is Running'),
+      serviceConfig?: string(name='ServiceConfig', description='The service deployment configurations. This parameter is returned only if the service is deployed by using a custom image.', example='{
+    "metadata": {
+        "cpu": 1,
+        "instance": 1,
+        "memory": 1024
+    },
+    "name": "echo"
+}'),
+      serviceRunnable?: string(name='ServiceRunnable', description='Indicates whether EAS is enabled. Valid values:
+
+*   true: EAS is enabled.
+*   false: EAS is not enabled.
+*   unknown: The enabling status of EAS is unknown.', example='true'),
     }
-  ](name='Versions'),
+  ](name='Versions', description='The versions of the service.'),
 }
 
 model ListServiceVersionsResponse = {
@@ -1957,28 +2013,28 @@ model ListServicesRequest {
 }', example='foo', position='Query'),
   groupName?: string(name='GroupName', example='foo', position='Query'),
   label?: map[string]string(name='Label', shrink='json', position='Query'),
-  order?: string(name='Order', description='所属的group。', example='asc', position='Query'),
+  order?: string(name='Order', example='asc', position='Query'),
   pageNumber?: int32(name='PageNumber', description='376577', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='100', position='Query'),
-  parentServiceUid?: string(name='ParentServiceUid', position='Query'),
-  quotaId?: string(name='QuotaId', position='Query'),
-  resourceName?: string(name='ResourceName', description='服务所属的资源组名称或ID。', example='eas-r-hd0qwy8cxxxx', position='Query'),
-  serviceName?: string(name='ServiceName', description='服务名。', example='echo_test', position='Query'),
-  serviceStatus?: string(name='ServiceStatus', description='服务运行的状态。', example='Running', position='Query'),
-  serviceType?: string(name='ServiceType', position='Query'),
+  parentServiceUid?: string(name='ParentServiceUid', example='eas-m-ijafy3c8cxxxx', position='Query'),
+  quotaId?: string(name='QuotaId', example='quota12345', position='Query'),
+  resourceName?: string(name='ResourceName', example='eas-r-hd0qwy8cxxxx', position='Query'),
+  serviceName?: string(name='ServiceName', example='echo_test', position='Query'),
+  serviceStatus?: string(name='ServiceStatus', example='Running', position='Query'),
+  serviceType?: string(name='ServiceType', example='Standard', position='Query'),
   serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx', position='Query'),
-  sort?: string(name='Sort', description='服务的类型定义。', example='CreateTime', position='Query'),
-  workspaceId?: string(name='WorkspaceId', position='Query'),
+  sort?: string(name='Sort', example='CreateTime', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='123456', position='Query'),
 }
 
 model ListServicesResponseBody = {
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='100'),
-  requestId?: string(name='RequestId', description='请求ID。', example='40325405-579C-4D82****'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
   services?: [
     Service
-  ](name='Services', description='服务列表。'),
-  totalCount?: int32(name='TotalCount', description='服务总数。', example='2'),
+  ](name='Services'),
+  totalCount?: int32(name='TotalCount', example='2'),
 }
 
 model ListServicesResponse = {
@@ -2129,21 +2185,28 @@ model UpdateAppServiceRequest {
 
 Valid values:
 
-*   LLM
+*   LLM: the large language model (LLM) application
 
     <!-- -->
 
-    :
-
     <!-- -->
-
-    the large language model (LLM) application
 
     <!-- -->', example='LLM', position='Body'),
   appVersion?: string(name='AppVersion', description='The application version.', example='v1', position='Body'),
-  config?: map[string]any(name='Config', description='Additional configurations that are required for the service deployment.', position='Body'),
-  replicas?: int32(name='Replicas', description='The number of instances.', example='1', position='Body'),
-  serviceSpec?: string(name='ServiceSpec', description='The service specifications.', example='llama_7b_fp16', position='Body'),
+  config?: map[string]any(name='Config', description='The additional configurations that are required for service deployment.', position='Body'),
+  replicas?: int32(name='Replicas', description='The number of instances. This value must be greater than 0.', example='1', position='Body'),
+  serviceSpec?: string(name='ServiceSpec', description='The service specifications. Valid values:
+
+*   llama\\_7b_fp16
+*   llama\\_7b_int8
+*   llama\\_13b_fp16
+*   llama\\_7b_int8
+*   chatglm\\_6b_fp16
+*   chatglm\\_6b_int8
+*   chatglm2\\_6b_fp16
+*   baichuan\\_7b_int8
+*   baichuan\\_13b_fp16
+*   baichuan\\_7b_fp16', example='llama_7b_fp16', position='Body'),
 }
 
 model UpdateAppServiceResponseBody = {
@@ -2424,7 +2487,10 @@ model UpdateServiceInstanceRequest {
   clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
   serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
   instanceName: string(name='InstanceName', description='The name of the service instance.', example='foo-69xxxx4f4-5w9r9', position='Path'),
-  isolate?: boolean(name='Isolate', description='Specifies whether to isolate the service instance.', example='true', position='Body'),
+  isolate?: boolean(name='Isolate', description='Specifies whether to isolate the service instance. Valid values:
+
+*   true
+*   false', example='true', position='Body'),
 }
 
 model UpdateServiceInstanceResponseBody = {
@@ -2495,7 +2561,33 @@ model UpdateServiceSafetyLockRequest {
 
 *   all: locks all operations.
 *   dangerous: locks high-risk operations such as delete and stop operations.
-*   none: locks no operations.', example='dangerous', position='Body'),
+*   none: locks no operations.
+
+Enumerated values:
+
+*   all
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   dangerous
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   none
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='dangerous', position='Body'),
 }
 
 model UpdateServiceSafetyLockResponseBody = {
