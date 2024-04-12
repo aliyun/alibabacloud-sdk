@@ -7964,6 +7964,8 @@ model DescribeDedicatedHostsRequest {
 
 *   financial: The dedicated host is locked due to overdue payments.
 *   security: The dedicated host is locked due to security reasons.', example='financial', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='NextToken', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The number of entries per page.
@@ -8113,6 +8115,7 @@ For more information about automatic deployment, see the "Automatic deployment" 
     }
   ](name='DedicatedHost')
   }(name='DedicatedHosts', description='The queried dedicated hosts.'),
+  nextToken?: string(name='NextToken'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='5'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='7654525A-9964-4ABB-8BCD-98F8835E809A'),
@@ -11222,9 +11225,12 @@ model DescribeInstanceTypesRequest {
 
 *   X86: x86
 *   ARM: ARM', example='X86', position='Query'),
+  cpuArchitectures?: [ string ](name='CpuArchitectures', position='Query'),
   GPUSpec?: string(name='GPUSpec', description='The GPU model.
 
 >  Fuzzy match is supported. For example, if an instance type provides NVIDIA V100 GPUs and you set this parameter to NVIDIA, information about the instance type is queried.', example='NVIDIA V100', position='Query'),
+  gpuSpecs?: [ string ](name='GpuSpecs', position='Query'),
+  instanceCategories?: [ string ](name='InstanceCategories', position='Query'),
   instanceCategory?: string(name='InstanceCategory', description='The category of the instance type. Valid values:
 
 *   General-purpose: general-purpose instance type
@@ -11249,10 +11255,12 @@ model DescribeInstanceTypesRequest {
 *   EntryLevel: entry level (shared)
 *   EnterpriseLevel: enterprise level
 *   CreditEntryLevel: credit-based entry level', example='EntryLevel', position='Query'),
+  instanceTypeFamilies?: [ string ](name='InstanceTypeFamilies', position='Query'),
   instanceTypeFamily?: string(name='InstanceTypeFamily', description='The instance family to which the instance type belongs. For information about the valid values of this parameter, see [DescribeInstanceTypeFamilies](~~25621~~).
 
 For more information about instance families, see [Instance families](~~25378~~).', example='ecs.g6', position='Query'),
   instanceTypes?: [ string ](name='InstanceTypes', description='Instance type N. Valid values of N: 1 to 10. If this parameter is left empty, information about all instance types is queried.', example='ecs.g6.large', position='Query'),
+  localStorageCategories?: [ string ](name='LocalStorageCategories', position='Query'),
   localStorageCategory?: string(name='LocalStorageCategory', description='The category of local disks. For more information, see [Local disks](~~63138#section_n2w\\_8yc\\_5u1~~). Valid values:
 
 *   local_hdd_pro: local Serial Advanced Technology Attachment (SATA) HDDs, which are used by d1ne or d1 instances
@@ -11346,6 +11354,7 @@ Default value: 1600.', example='10', minimum=1, maximum=1600, position='Query'),
   physicalProcessorModel?: string(name='PhysicalProcessorModel', description='The CPU model.
 
 >  Fuzzy match is supported. For example, if an instance type uses Intel Xeon (Ice Lake) Platinum 8369B processors and you set this parameter to Intel, information about the instance type is queried.', example='Intel Xeon(Ice Lake) Platinum 8369B', position='Query'),
+  physicalProcessorModels?: [ string ](name='PhysicalProcessorModels', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -12221,8 +12230,12 @@ async function describeInvocationResults(request: DescribeInvocationResultsReque
 model DescribeInvocationsRequest {
   sourceRegionId?: string(name='SourceRegionId', position='Host'),
   commandId?: string(name='CommandId', description='The command ID. You can call the [DescribeCommands](~~64843~~) operation to query all available command IDs.', example='c-hz0jdfwcsr****', position='Query'),
-  commandName?: string(name='CommandName', description='The command name.', example='CommandTestName', position='Query'),
-  commandType?: string(name='CommandType', description='The command type. If this parameter and `InstanceId` are both specified, this parameter does not take effect.', example='RunShellScript', position='Query'),
+  commandName?: string(name='CommandName', description='The command name. If you specify both this parameter and `InstanceId`, this parameter does not take effect.', example='CommandTestName', position='Query'),
+  commandType?: string(name='CommandType', description='The command type. Valid values:
+
+*   RunBatScript: batch command, applicable to Windows instances.
+*   RunPowerShellScript: PowerShell command, applicable to Windows instances.
+*   RunShellScript: shell command, applicable to Linux instances.', example='RunShellScript', position='Query'),
   contentEncoding?: string(name='ContentEncoding', description='The encoding mode of the `CommandContent` and `Output` response parameters. Valid values:
 
 *   PlainText: returns the original command content and command outputs.
@@ -12237,32 +12250,36 @@ Default value: Base64.', example='PlainText', position='Query'),
 Default value: false', example='false', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of instance N. When you specify this parameter, the system queries all the execution records of all the commands that run on the instance.', example='i-bp1i7gg30r52z2em****', position='Query'),
   invokeId?: string(name='InvokeId', description='The command task ID.', example='t-hz0jdfwd9f****', position='Query'),
-  invokeStatus?: string(name='InvokeStatus', description='The overall execution state of the command. The value of this parameter depends on the execution states on all involved instances. Valid values:
+  invokeStatus?: string(name='InvokeStatus', description='The overall execution status of the command task. The value of this parameter depends on the execution states of the command task on all involved instances. Valid values:
 
 *   Running:
 
-    *   Scheduled execution: Before you manually stop the execution of the command, the overall execution state is always Running.
-    *   One-time execution: If the execution is in progress on one or more instances, the overall execution state is Running.
+    *   Scheduled task: Before you stop the scheduled execution of the command, the overall execution state is always Running.
+    *   One-time task: If the command is being run on instances, the overall execution state is Running.
 
 *   Finished:
 
-    *   Scheduled execution: The overall execution state can never be Finished.
-    *   One-time execution: The execution is complete on all instances, or the execution is manually stopped on some instances and is complete on other instances.
+    *   Scheduled task: The overall execution state can never be Finished.
+    *   One-time task: The execution is complete on all instances, or the execution is stopped on some instances and is complete on the other instances.
+
+*   Success: If the execution state on at least one instance is Success and the execution state on the other instances is Stopped or Success, the overall execution state is Success.
+
+    *   One-time task: The execution is complete, and the exit code is 0.
+    *   Scheduled task: The last execution is complete, the exit code is 0, and the specified period ends.
 
 *   Failed:
 
-    *   Scheduled execution: The overall execution state can never be Failed.
-    *   One-time execution: The execution fails on all instances.
+    *   Scheduled task: The overall execution state can never be Failed.
+    *   One-time task: The execution fails on all instances.
 
-*   PartialFailed:
+*   Stopped: The task is stopped.
 
-    *   Scheduled execution: The overall execution state can never be PartialFailed.
-    *   One-time execution: The execution fails on some instances.
+*   Stopping: The task is being stopped.
 
-*   Stopped: The execution is stopped.', example='Finished', position='Query'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page. 
+*   PartialFailed: The task fails on some instances. If you specify both this parameter and `InstanceId`, this parameter does not take effect.', example='Finished', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
 
-Valid values: 1 to 50. 
+Valid values: 1 to 50.
 
 Default value: 10.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You must specify the token that is obtained from the previous query as the value of NextToken.', example='AAAAAdDWBF2', position='Query'),
@@ -12279,12 +12296,12 @@ Maximum value: 50.
 
 Default value: 10.', example='10', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~25609~~) operation to query the most recent list of regions.', example='cn-hangzhou', position='Query'),
-  repeatMode?: string(name='RepeatMode', description='The execution mode of the command. Valid values:
+  repeatMode?: string(name='RepeatMode', description='The execution mode of the command. If you specify both this parameter and `InstanceId`, this parameter does not take effect. Valid values:
 
-*   Once: immediately runs the command.
+*   Once: The command is immediately run.
 *   Period: The command is run on a schedule.
-*   NextRebootOnly: The command is automatically run the next time the instance starts.
-*   EveryReboot: The command is automatically run every time the instance starts.
+*   NextRebootOnly: The command is run the next time the instances start.
+*   EveryReboot: The command is run every time the instances start.
 
 This parameter is empty by default, which indicates that commands run in all modes are queried.', example='Once', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. After you set this parameter, command execution results in the specified resource group are queried.', example='rg-bp67acfmxazb4p****', position='Query'),
@@ -12300,14 +12317,14 @@ The tag key can be up to 64 characters in length and cannot contain `http://` or
       value?: string(name='Value', description='The value of tag N of the command. You can specify up to 20 tag values for the command. The tag value can be an empty string. It can be up to 128 characters in length and cannot contain `http://` or `https://`.', example='TestValue'),
     }
   ](name='Tag', description='The tags that are added to the command.', position='Query'),
-  timed?: boolean(name='Timed', description='Specifies whether to query commands that are to be automatically run. Valid values:
+  timed?: boolean(name='Timed', description='Specifies whether the command is to be automatically run. Valid values:
 
-*   true: queries commands that meet the following requirements: The commands are run by calling the `RunCommand` or `InvokeCommand` operation with `RepeatMode` set to `Period`, `NextRebootOnly`, or `EveryReboot`. The executions of the commands are not canceled and not complete or are not stopped and not complete.
+*   true: The command is run by calling the `RunCommand` or `InvokeCommand` operation with `RepeatMode` set to `Period`, `NextRebootOnly`, or `EveryReboot`.
 
-*   false: queries commands that meet the following requirements:
+*   false: The command meets one of the following requirements:
 
-    *   The commands are run by calling the `RunCommand` or `InvokeCommand` operation with `RepeatMode` set to `Once`.
-    *   The executions of the commands are canceled, stopped, or complete.
+    *   The command is run by calling the `RunCommand` or `InvokeCommand` operation with `RepeatMode` set to `Once`.
+    *   The command task is canceled, stopped, or completed.
 
 Default value: false.', example='true', position='Query'),
 }
@@ -12316,7 +12333,10 @@ model DescribeInvocationsResponseBody = {
   invocations?: {
     invocation?: [ 
     {
-      commandContent?: string(name='CommandContent', description='The Base64-encoded command content.', example='cnBtIC1xYSB8IGdyZXAgdnNm****'),
+      commandContent?: string(name='CommandContent', description='The command content.
+
+*   If ContentEncoding is set to PlainText in the request, the original command content is returned.
+*   If ContentEncoding is set to Base64 in the request, the Base64-encoded command content is returned.', example='cnBtIC1xYSB8IGdyZXAgdnNm****'),
       commandDescription?: string(name='CommandDescription', description='The command description.', example='testDescription'),
       commandId?: string(name='CommandId', description='The command ID.', example='c-hz0jdfwcsr****'),
       commandName?: string(name='CommandName', description='The command name.', example='CommandTestName'),
@@ -12324,66 +12344,66 @@ model DescribeInvocationsResponseBody = {
       containerId?: string(name='ContainerId', description='The container ID.', example='ab141ddfbacfe02d9dbc25966ed971536124527097398d419a6746873fea****'),
       containerName?: string(name='ContainerName', description='The container name.', example='test-container'),
       creationTime?: string(name='CreationTime', description='The time when the command task was created.', example='2020-01-19T09:15:46Z'),
-      frequency?: string(name='Frequency', description='The schedule on which to run the command. For information about the value specifications, see [Cron expression](~~64769~~).', example='0 */20 * * * *'),
-      invocationStatus?: string(name='InvocationStatus', description='The overall execution state of the command. The value of this parameter depends on the execution states on all the involved instances. Valid values:
+      frequency?: string(name='Frequency', description='The schedule on which the command was run.', example='0 */20 * * * *'),
+      invocationStatus?: string(name='InvocationStatus', description='The overall execution state of the command task. The value of this parameter depends on the execution states of the command task on all the involved instances. Valid values:
 
-*   Pending: The command is being verified or sent. When the execution state on at least one instance is Pending, the overall execution state is Pending.
+*   Pending: The command was being verified or sent. When the execution state on at least one instance is Pending, the overall execution state is Pending.
 
-*   Scheduled: The command scheduled to run is sent and pending execution. When the execution state on at least one instance is Scheduled, the overall execution state is Scheduled.
+*   Scheduled: The command that is set to run on a schedule was sent and waiting to be run. When the execution state on at least one instance is Scheduled, the overall execution state is Scheduled.
 
-*   Running: The command is being run on the instances. When the execution state on at least one instance is Running, the overall execution state is Running.
+*   Running: The command was being run on the instances. When the execution state on at least one instance is Running, the overall execution state is Running.
 
-*   Success: When the execution state on at least one instance is Success and the execution state on other instances is Stopped or Success, the overall execution state is Success.
+*   Success: When the execution state on at least one instance is Success and the execution state on the other instances is Stopped or Success, the overall execution state is Success.
 
-    *   Command that is set to run only once: The execution is complete, and the exit code is 0.
-    *   Command that is set to run on a schedule: The last execution is complete, the exit code is 0, and the specified cycle ends.
+    *   One-time task: The execution was complete, and the exit code was 0.
+    *   Scheduled task: The last execution was complete, the exit code was 0, and the specified period ended.
 
 *   Failed: When the execution state on all instances is Stopped or Failed, the overall execution state is Failed. When the execution state on an instance is one of the following values, Failed is returned as the overall execution state:
 
-    *   Invalid: The command is invalid.
+    *   Invalid: The command was invalid.
     *   Aborted: The command failed to be sent.
-    *   Failed: The command execution is complete, but the exit code is not 0.
+    *   Failed: The execution was complete, but the exit code was not 0.
     *   Timeout: The execution timed out.
-    *   Error: An error occurred while the command was being run on the instance.
+    *   Error: An error occurred while the command was being run.
 
-*   Stopping: The command task is being stopped. When the execution state on at least one instance is Stopping, the overall execution state is Stopping.
+*   Stopping: The command task was being stopped. When the execution state on at least one instance is Stopping, the overall execution state is Stopping.
 
-*   Stopped: The command task is stopped. When the execution state on all instances is Stopped, the overall execution state is Stopped. When the execution state on an instance is one of the following values, Stopped is returned as the overall execution state:
+*   Stopped: The task was stopped. When the execution state on all instances is Stopped, the overall execution state is Stopped. When the execution state on an instance is one of the following values, Stopped is returned as the overall execution state:
 
-    *   Cancelled: The command task is canceled.
-    *   Terminated: The command task is terminated.
+    *   Cancelled: The task was canceled.
+    *   Terminated: The task was terminated.
 
-*   PartialFailed: The execution is complete on some instances and fails on other instances. When the execution state is Success on some instances and is Failed or Stopped on other instances, the overall execution state is PartialFailed.
+*   PartialFailed: The execution was complete on some instances and failed on other instances. When the execution state is Success on some instances and is Failed or Stopped on the other instances, the overall execution state is PartialFailed.
 
-> The `InvokeStatus` response parameter functions similarly to this parameter. We recommend that you ignore InvokeStatus and check the value of InvocationStatus.', example='Running'),
-      invokeId?: string(name='InvokeId', description='The command task ID.', example='t-hz0jdfwd9f****'),
+>  `InvokeStatus` in the response functions similarly to this parameter. We recommend that you check the value of this parameter.', example='Running'),
+      invokeId?: string(name='InvokeId', description='The ID of the command task.', example='t-hz0jdfwd9f****'),
       invokeInstances?: {
         invokeInstance?: [ 
         {
-          creationTime?: string(name='CreationTime', description='The start time of the execution.', example='2019-12-20T06:15:54Z'),
-          dropped?: int32(name='Dropped', description='The size of the text that is truncated and discarded when the Output value exceeds 24 KB in size.', example='0'),
-          errorCode?: string(name='ErrorCode', description='The code that indicates why the command failed to be sent or run. Valid values:
+          creationTime?: string(name='CreationTime', description='The time when the command task was created.', example='2019-12-20T06:15:54Z'),
+          dropped?: int32(name='Dropped', description='The size of the Output text that was truncated and discarded because the Output value exceeded 24 KB in size.', example='0'),
+          errorCode?: string(name='ErrorCode', description='The error code for the failure to send or run the command. Valid values:
 
-*   If this parameter is empty, the command is run normally.
-*   InstanceNotExists: The instance does not exist or was released.
+*   If this parameter is empty, the command was run as expected.
+*   InstanceNotExists: The specified instance did not exist or was released.
 *   InstanceReleased: The instance was released while the command was being run.
-*   InstanceNotRunning: The instance was not in the Running state while the command started to be run.
-*   CommandNotApplicable: The command is not applicable to the specified instance.
-*   AccountNotExists: The specified account does not exist.
-*   DirectoryNotExists: The specified directory does not exist.
-*   BadCronExpression: The cron expression used to specify a schedule is invalid.
-*   ClientNotRunning: The Cloud Assistant client is not running.
-*   ClientNotResponse: The Cloud Assistant client does not respond.
-*   ClientIsUpgrading: The Cloud Assistant client is being upgraded.
-*   ClientNeedUpgrade: The Cloud Assistant client needs to be upgraded.
+*   InstanceNotRunning: The instance was not running when the command started to be run.
+*   CommandNotApplicable: The command was not applicable to the specified instance.
+*   AccountNotExists: The specified account did not exist.
+*   DirectoryNotExists: The specified directory did not exist.
+*   BadCronExpression: The specified cron expression for the execution schedule was invalid.
+*   ClientNotRunning: Cloud Assistant Agent was not running.
+*   ClientNotResponse: Cloud Assistant Agent did not respond.
+*   ClientIsUpgrading: Cloud Assistant Agent was being upgraded.
+*   ClientNeedUpgrade: Cloud Assistant Agent needed to be upgraded.
 *   DeliveryTimeout: The request to send the command timed out.
 *   ExecutionTimeout: The execution timed out.
-*   ExecutionException: An exception occurs while the command is being run.
-*   ExecutionInterrupted: The execution was interrupted.
-*   ExitCodeNonzero: The execution is complete, but the exit code is not 0.', example='InstanceNotExists'),
-          errorInfo?: string(name='ErrorInfo', description='Details about the reason why the command failed to be sent or run. Valid values:
+*   ExecutionException: An exception occurred while the command was being run.
+*   ExecutionInterrupted: The command task was interrupted.
+*   ExitCodeNonzero: The execution was complete, but the exit code was not 0.', example='InstanceNotExists'),
+          errorInfo?: string(name='ErrorInfo', description='The error message returned when the command failed to be sent or run. Valid values:
 
-*   If this parameter is empty, the execution is normal.
+*   If this parameter is empty, the command was run as expected.
 *   the specified instance does not exists
 *   the instance has released when create task
 *   the instance is not running when create task
@@ -12394,77 +12414,81 @@ model DescribeInvocationsResponseBody = {
 *   the aliyun service is not running on the instance
 *   the aliyun service in the instance does not response
 *   the aliyun service in the instance is upgrading now
-*   the aliyun service in the instance is upgrading now
+*   the aliyun service in the instance need upgrade
 *   the command delivery has been timeout
 *   the command execution has been timeout
 *   the command execution got an exception
 *   the command execution has been interrupted
-*   the command execution exit code is not zero', example='the specified instance does not exists'),
+*   the command execution exit code is not zero
+*   the specified instance has been released', example='the specified instance does not exists'),
           exitCode?: long(name='ExitCode', description='The exit code of the execution. Valid values:
 
-*   For Linux instances, the exit code is the exit code of the shell process.
-*   For Windows instances, the exit code is the exit code of the batch or PowerShell process.', example='0'),
-          finishTime?: string(name='FinishTime', description='The end time of the execution.', example='2019-12-20T06:15:56Z'),
-          instanceId?: string(name='InstanceId', description='The instance ID', example='i-bp1i7gg30r52z2em****'),
+*   For Linux instances, the value is the exit code of the shell process.
+*   For Windows instances, the value is the exit code of the batch or PowerShell process.', example='0'),
+          finishTime?: string(name='FinishTime', description='The time when the execution ended.', example='2019-12-20T06:15:56Z'),
+          instanceId?: string(name='InstanceId', description='The instance ID.', example='i-bp1i7gg30r52z2em****'),
           instanceInvokeStatus?: string(name='InstanceInvokeStatus', description='The execution state on a single instance.
 
-> We recommend that you ignore this parameter and check the value of the `InvocationStatus` response parameter for the overall execution state.', example='Finished'),
+>  We recommend that you ignore this parameter and check the value of `InvocationStatus` in the response to obtain the execution state.', example='Finished'),
           invocationStatus?: string(name='InvocationStatus', description='The execution state on a single instance. Valid values:
 
-*   Pending: The command is being verified or sent.
+*   Pending: The command was being verified or sent.
 
-*   Invalid: The specified command type or parameter is invalid.
+*   Invalid: The specified command type or parameter was invalid.
 
-*   Aborted: The command failed to be sent. To send a command to an instance, make sure that the instance is in the Running state and that the command is sent within 1 minute.
+*   Aborted: The command failed to be sent to the instance. To send a command to an instance, make sure that the instance is in the Running state and the command can be sent to the instance within 1 minute.
 
-*   Running: The command is being run on the instance.
+*   Running: The command was being run on the instance.
 
 *   Success:
 
-    *   Command that is set to run only once: The execution is complete, and the exit code is 0.
-    *   Command that is set to run on a schedule: The previous execution is complete, the exit code is 0, and the specified cycle ends.
+    *   One-time task: The execution was complete, and the exit code was 0.
+    *   Scheduled task: The last execution was complete, the exit code was 0, and the specified period ended.
 
 *   Failed:
 
-    *   Command that is set to run only once: The execution is complete, but the exit code is not 0.
-    *   Command that is set to run on a schedule: The previous execution is complete, the exit code is not 0, and the specified cycle is about to end.
+    *   One-time task: The execution was complete, but the exit code was not 0.
+    *   Scheduled task: The last execution was complete, but the exit code was not 0. The specified period is about to end.
 
 *   Error: The execution cannot proceed due to an exception.
 
-*   Timeout: The execution times out.
+*   Timeout: The execution timed out.
 
-*   Cancelled: The execution is canceled, and the command is not started.
+*   Cancelled: The execution was canceled, and the command was not run.
 
-*   Stopping: The command task is being stopped.
+*   Stopping: The command task was being stopped.
 
-*   Terminated: The command task is terminated while it is being run.
+*   Terminated: The execution was terminated before completion.
 
 *   Scheduled:
 
-    *   Command that is set to run only once: The overall execution state can never be Scheduled.
-    *   Command that is set to run on a schedule: The command is pending execution.', example='Success'),
-          output?: string(name='Output', description='The command output.', example='OutPutTestmsg'),
-          repeats?: int32(name='Repeats', description='The number of times that the command is run on the instance.
+    *   One-time task: The execution state can never be Scheduled.
+    *   Scheduled task: The command was waiting to be run.', example='Success'),
+          output?: string(name='Output', description='The command output.
 
-*   If the execution is a one-time execution, the value is 0 or 1.
-*   If the execution is a scheduled execution, the value is the number of times that the command is run.', example='0'),
+*   If ContentEncoding is set to PlainText in the request, the original command output is returned.
+*   If ContentEncoding is set to Base64 in the request, the Base64-encoded command output is returned.', example='OutPutTestmsg'),
+          repeats?: int32(name='Repeats', description='The number of times that the command was run on the instance.
+
+*   If the command is set to run only once, the value is 0 or 1.
+*   If the command is set to run on a schedule, the value is the number of times that the command has been run on the instance.', example='0'),
           startTime?: string(name='StartTime', description='The time when the command started to be run on the instance.', example='2019-12-20T06:15:55Z'),
-          stopTime?: string(name='StopTime', description='The time when the command stopped being run on the instance. If you call the `StopInvocation` operation to manually stop the execution, the value is the time when you called the operation.', example='2020-01-19T09:15:47Z'),
+          stopTime?: string(name='StopTime', description='The time when the command task was stopped. If you call the `StopInvocation` operation to stop the command task, the value of this parameter is the time when the operation is called.', example='2020-01-19T09:15:47Z'),
           timed?: boolean(name='Timed', description='Indicates whether the command is to be automatically run.', example='false'),
-          updateTime?: string(name='UpdateTime', description='The time when the execution state was updated.', example='2020-01-19T09:15:47Z'),
+          updateTime?: string(name='UpdateTime', description='The time when the execution status was updated.', example='2020-01-19T09:15:47Z'),
         }
       ](name='InvokeInstance')
-      }(name='InvokeInstances', description='Details about the instances on which the command is run.'),
-      invokeStatus?: string(name='InvokeStatus', description='The overall execution state of the command.
+      }(name='InvokeInstances', description='The instances on which the command was run.'),
+      invokeStatus?: string(name='InvokeStatus', description='The overall execution state of the command task.
 
-> We recommend that you ignore this parameter and check the value of the `InvocationStatus` response parameter for the overall execution state.', example='Finished'),
+>  We recommend that you ignore this parameter and check the value of `InvocationStatus` in the response to obtain the overall execution state.', example='Finished'),
       parameters?: string(name='Parameters', description='The custom parameters in the command.', example='{}'),
-      repeatMode?: string(name='RepeatMode', description='Indicates the execution mode of the command. Valid values:
+      repeatMode?: string(name='RepeatMode', description='The execution mode of the command. Valid values:
 
-*   Once: immediately runs the command.
+*   Once: The command is immediately run.
 *   Period: The command is run on a schedule.
-*   NextRebootOnly: The command is automatically run the next time the instance starts.
-*   EveryReboot: automatically runs the command every time the instance starts.', example='Once'),
+*   NextRebootOnly: The command is run the next time the instances start.
+*   EveryReboot: The command is run every time the instances start.', example='Once'),
       tags?: {
         tag?: [ 
         {
@@ -12474,10 +12498,10 @@ model DescribeInvocationsResponseBody = {
       ](name='Tag')
       }(name='Tags', description='The tags of the command task.'),
       timed?: boolean(name='Timed', description='Indicates whether the command is to be automatically run.', example='false'),
-      timeout?: long(name='Timeout', description='The maximum timeout period for the command execution on the instance. Unit: seconds.
+      timeout?: long(name='Timeout', description='The maximum timeout period for the command execution. Unit: seconds.
 
-When a command cannot be run, the command execution times out. When a command execution times out, the Cloud Assistant client forcefully terminates the command process by canceling the PID of the command.', example='60'),
-      username?: string(name='Username', description='The username that was used to run the command on the instance.', example='root'),
+When a command cannot be run, the command execution times out. When a command execution times out, Cloud Assistant Agent forcefully terminates the command process by canceling the process ID (PID) of the command.', example='60'),
+      username?: string(name='Username', description='The username used to run the command on the instances.', example='root'),
       workingDir?: string(name='WorkingDir', description='The execution path of the command.', example='/home/'),
     }
   ](name='Invocation')
@@ -12496,10 +12520,12 @@ model DescribeInvocationsResponse = {
 }
 
 /**
-  * - After you run a command, the command may not succeed or return the expected result. You can call this operation to query the execution result.
-  * - You can query information about command executions within the last four weeks. A maximum of 100,000 entries of execution information can be retained.
-  *   - Method 1: During a paged query, when you call the DescribeInvocations operation to retrieve the first page of results, set MaxResults to specify the maximum number of entries to return in the call. The return value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results. When you call the DescribeInvocations operation to retrieve a new page of results, set NextToken to the NextToken value returned in the previous call and set MaxResults to specify the maximum number of entries to return in this call. 
-  *   - Method 2: Use PageSize to specify the number of entries to return on each page, and then use PageNumber to specify the number of the page to return. You can use only one of the preceding methods. If you specify MaxResults or NextToken, the PageSize and PageNumber request parameters do not take effect and the TotalCount response parameter is invalid.
+  * ## [](#)Usage notes
+  * *   After you run a command, the command may not succeed or return the expected results. You can call this operation to query the execution results.
+  * *   You can query information about command executions within the last four weeks. Up to 100,000 pieces of execution information can be retained.
+  * *   You can use one of the following methods to check the responses:
+  *     *   Method 1: During a paged query, when you call the DescribeInvocations operation to retrieve the first page of results, use `MaxResults` to specify the maximum number of entries to return in the call. The return value of `NextToken` is a pagination token, which you can use in the next request to retrieve a new page of results. When you call the DescribeInvocations operation to retrieve a new page of results, set `NextToken` to the `NextToken` value returned in the previous call and set `MaxResults` to specify the maximum number of entries to return in this call.
+  *     *   Method 2: Use `PageSize` to specify the number of entries to return on each page, and then use `PageNumber` to specify the number of the page to return. You can use only one of the preceding methods. If you specify `MaxResults` or `NextToken`, the `PageSize` and `PageNumber` request parameters do not take effect and the `TotalCount` response parameter is invalid.
   *
  */
 async function describeInvocations(request: DescribeInvocationsRequest): DescribeInvocationsResponse {
@@ -21138,24 +21164,24 @@ model ModifySecurityGroupRuleRequest {
   sourceRegionId?: string(name='SourceRegionId', position='Host'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The **token** can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](~~25693~~).', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
   description?: string(name='Description', description='The description of the security group rule. The description must be 1 to 512 characters in length.', example='This is a new security group rule.', position='Query'),
-  destCidrIp?: string(name='DestCidrIp', description='The destination IPv4 CIDR block. IPv4 CIDR blocks and addresses are supported.
+  destCidrIp?: string(name='DestCidrIp', description='The destination IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.
 
 By default, this parameter is left empty.', example='10.0.0.0/8', position='Query'),
-  ipProtocol?: string(name='IpProtocol', description='The transport layer protocol of the security group rule. The values of this parameter are not case-sensitive. Valid values:
+  ipProtocol?: string(name='IpProtocol', description='The transport layer protocol of the security group rule. The value of this parameter is case-insensitive. Valid values:
 
 *   ICMP
 *   GRE
 *   TCP
 *   UDP
 *   ALL: All protocols are supported.', example='all', position='Query'),
-  ipv6DestCidrIp?: string(name='Ipv6DestCidrIp', description='The destination IPv6 CIDR block. IPv6 CIDR blocks and addresses are supported.
+  ipv6DestCidrIp?: string(name='Ipv6DestCidrIp', description='The destination IPv6 CIDR block. IPv6 CIDR blocks and IPv6 addresses are supported.
 
-> Only the IP addresses of instances in VPCs are supported. You cannot specify both Ipv6DestCidrIp and `DestCidrIp`.
+>  Only the IP addresses of instances in VPCs are supported. You cannot specify both Ipv6DestCidrIp and `DestCidrIp`.
 
 By default, this parameter is left empty.', example='2001:db8:1234:1a00::***', position='Query'),
-  ipv6SourceCidrIp?: string(name='Ipv6SourceCidrIp', description='The source IPv6 CIDR block to which you want to control access. IPv6 CIDR blocks and addresses are supported.
+  ipv6SourceCidrIp?: string(name='Ipv6SourceCidrIp', description='The source IPv6 CIDR block. IPv6 CIDR blocks and IPv6 addresses are supported.
 
-> Only the IP addresses of instances in virtual private clouds (VPCs) are supported. You cannot specify both Ipv6SourceCidrIp and `SourceCidrIp`.
+>  Only the IP addresses of instances in virtual private clouds (VPCs) are supported. You cannot specify both Ipv6SourceCidrIp and `SourceCidrIp`.
 
 By default, this parameter is left empty.', example='2001:db8:1233:1a00::***', position='Query'),
   nicType?: string(name='NicType', description='You cannot modify this parameter when you modify a security group rule by specifying its ID.\\
@@ -21183,7 +21209,7 @@ Default value: 1.', example='1', position='Query'),
   securityGroupId: string(name='SecurityGroupId', description='The security group ID.', example='sg-bp67acfmxazb4p****', position='Query'),
   securityGroupRuleId?: string(name='SecurityGroupRuleId', description='The security group rule ID.\\
 This parameter is required when you modify a security group rule based on the security group rule ID.', example='sgr-bp67acfmxa123b***', position='Query'),
-  sourceCidrIp?: string(name='SourceCidrIp', description='The source IPv4 CIDR block to which you want to control access. IPv4 CIDR blocks and addresses are supported.
+  sourceCidrIp?: string(name='SourceCidrIp', description='The source IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.
 
 By default, this parameter is left empty.', example='10.0.0.0/8', position='Query'),
   sourceGroupId?: string(name='SourceGroupId', description='The source security group ID. You must specify either `SourceGroupId` or `SourceCidrIp` or specify both of them.
@@ -21220,12 +21246,13 @@ model ModifySecurityGroupRuleResponse = {
 }
 
 /**
-  * In the security group-related API documents, inbound traffic refers to the traffic that is sent by the source device and received at the destination device.
-  * When you modify the rules of a security group by specifying the rule IDs, take note of the following limits:
-  * *   A security group authorization object can be one of the following types: IP address or CIDR block, security group, or prefix list. The type of an existing security group authorization object cannot be changed. If the original authorization object is an IP address, you can change it to another IP address or a CIDR block, but not to a security group or prefix list.
-  * *   The IP address family of the authorization object cannot be changed. For example, if the original authorization object is an IPv4 CIDR block, you cannot change it to an IPv6 CIDR block. If the original authorization object is a prefix list of an IPv4 address family, you cannot change it to a prefix list of an IPv6 address family.
-  * *   The modified security group rule cannot be the same as other existing rules.
-  * *   You cannot delete the value of a non-empty parameter. We recommend that you create a new rule and delete the original rule.
+  * ## [](#)Usage notes
+  * In security group-related API documents, inbound traffic refers to the traffic that is sent by the source device and received at the destination device.
+  * Take note of the following items:
+  * *   An authorization object in a security group rule can be one of the following types: IP address or CIDR block, security group, or prefix list. You cannot call this operation to change the type of an existing authorization object. For example, if an authorization object is an IP address, you can change the authorization object to another IP address or a CIDR block, but you cannot change the authorization object to a security group or prefix list.
+  * *   You cannot change the IP address family of an existing authorization object. For example, if an authorization object is an IPv4 CIDR block, you cannot change the authorization object to an IPv6 CIDR block. If an authorization object is a prefix list of the IPv4 address family, you cannot change the authorization object to a prefix list of the IPv6 address family.
+  * *   The new security group rule after modification cannot be the same as other existing rules.
+  * *   You cannot delete the value of a non-empty parameter. If you want to delete the values of non-empty parameters, we recommend that you create another rule and delete the original rule.
   *
  */
 async function modifySecurityGroupRule(request: ModifySecurityGroupRuleRequest): ModifySecurityGroupRuleResponse {
