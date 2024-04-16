@@ -185,6 +185,17 @@ model CreateJobRequest {
         }(name='Resource'),
         taskExecutor: [ 
           {
+            container?: {
+              command?: [ string ](name='Command'),
+              environmentVars?: [ 
+                {
+                  name?: string(name='Name'),
+                  value?: string(name='Value'),
+                }
+              ](name='EnvironmentVars'),
+              image: string(name='Image'),
+              workingDir?: string(name='WorkingDir'),
+            }(name='Container'),
             vm?: {
               image: string(name='Image', example='m-xxxx'),
               prologScript?: string(name='PrologScript'),
@@ -192,6 +203,13 @@ model CreateJobRequest {
             }(name='VM'),
           }
         ](name='TaskExecutor'),
+        volumeMount?: [ 
+          {
+            mountOptions?: string(name='MountOptions'),
+            mountPath?: string(name='MountPath'),
+            volumeDriver?: string(name='VolumeDriver'),
+          }
+        ](name='VolumeMount'),
       }(name='TaskSpec'),
       taskSustainable?: boolean(name='TaskSustainable'),
     }
@@ -242,6 +260,57 @@ model DeleteJobsResponse = {
 async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeJobMetricDataRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex', shrink='json', position='Query'),
+  jobId?: string(name='JobId', example='job-xxxxx', position='Query'),
+  metricName?: string(name='MetricName', example='cpu_utilization', position='Query'),
+  taskName?: string(name='TaskName', example='Task0', position='Query'),
+}
+
+model DescribeJobMetricDataResponseBody = {
+  dataPoints?: string(name='DataPoints', example='[{"timestamp":1709540685000,"Minimum":28.45,"Maximum":28.45,"Average":28.45}]'),
+  period?: int32(name='Period', example='15'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricDataResponseBody(name='body'),
+}
+
+async function describeJobMetricData(request: DescribeJobMetricDataRequest): DescribeJobMetricDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeJobMetricData', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeJobMetricLastRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex', shrink='json', position='Query'),
+  jobId?: string(name='JobId', example='job-xxxxx', position='Query'),
+  taskName?: string(name='TaskName', example='Task0', position='Query'),
+}
+
+model DescribeJobMetricLastResponseBody = {
+  metrics?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='1'),
+      metric?: string(name='Metric', example='{"memory_utilization": 37.42,"cpu_utilization": 1.008, "disk_utilization": 3.562}'),
+    }
+  ](name='Metrics'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricLastResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricLastResponseBody(name='body'),
+}
+
+async function describeJobMetricLast(request: DescribeJobMetricLastRequest): DescribeJobMetricLastResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeJobMetricLast', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetImageRequest {
@@ -397,11 +466,9 @@ model ListExecutorsResponseBody = {
       taskName?: string(name='TaskName', example='task0'),
     }
   ](name='Executors'),
-  jobId?: string(name='JobId', example='job-hy1nggvyukuvkrtfpe70'),
   pageNumber?: string(name='PageNumber', example='1'),
   pageSize?: string(name='PageSize', example='50'),
   requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
-  taskName?: string(name='TaskName', example='task0'),
   totalCount?: string(name='TotalCount', example='40'),
 }
 
