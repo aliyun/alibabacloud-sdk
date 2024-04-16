@@ -780,7 +780,7 @@ model CreateAuthorityTemplateResponseBody = {
 
 *   **true**: The request was successful.
 *   **false**: The request failed.', example='true'),
-  tid?: long(name='Tid'),
+  tid?: long(name='Tid', description='The ID of the tenant. You can call the [GetUserActiveTenant](~~198073~~) or [ListUserTenants](~~198074~~) operation to query the tenant ID.', example='3***'),
 }
 
 model CreateAuthorityTemplateResponse = {
@@ -802,58 +802,63 @@ model CreateDataArchiveOrderRequest {
   regionId?: string(name='RegionId', position='Host'),
   comment: string(name='Comment', description='The description of the task.', example='test', position='Query'),
   param: {
-    archiveMethod: string(name='ArchiveMethod', description='The database for archiving data. Valid values:
+    archiveMethod: string(name='ArchiveMethod', description='The type of the destination database for archiving data. Valid values:
 
-*   inner_oss: Built-in Object Storage Service (OSS) of Database Backup (DBS).
-*   oss_userself: OSS of user.
-*   mysql: ApsaraDB RDS for MySQL.
-*   polardb: PolarDB for MySQL.
-*   lindorm: Lindorm.', example='mysql'),
-    cronStr?: string(name='CronStr', description='填写Crontab表达式，以便定期执行任务，更多信息，请参见[Crontab表达式](~~206581~~)。
-当运行方式为周期归档时需要填写该参数。', example='00 05 11 * * ?'),
+>  If you set ArchiveMethod to a value other than inner_oss, you must connect the destination database for archiving data to Data Management (DMS) before you create the data archiving ticket. After the database is connected to DMS, the database is displayed in the Instances Connected section of the DMS console.
+
+*   **inner_oss**: dedicated storage, which is a built-in Object Storage Service (OSS) bucket.
+*   **oss_userself**: OSS bucket of the user.
+*   **mysql**: ApsaraDB RDS for MySQL instance.
+*   **polardb**: PolarDB for MySQL cluster.
+*   **adb_mysql**: AnalyticDB for MySQL V3.0 cluster.
+*   **lindorm**: ApsaraDB for Lindorm instance.', example='mysql'),
+    cronStr?: string(name='CronStr', description='A crontab expression that specifies the scheduling cycle to run the task. For more information, see the [Crontab expressions](~~206581~~) section of the "Create shadow tables for synchronization" topic. This parameter is required if RunMethod is set to schedule.', example='00 05 11 * * ?'),
     logic?: boolean(name='Logic', description='Specifies whether the database is a logical database.', example='false'),
     orderAfter?: [ string ](name='OrderAfter', description='The post behaviors.'),
-    runMethod: string(name='RunMethod', description='The running mode. Only now is supported, which indicates that data archiving is immediately executed.', example='now'),
-    sourceCatalogName: string(name='SourceCatalogName', description='源库目录（catalog）。
-- **def**：对于两层逻辑结构的数据库，如MySQL，PolarDB MySQL，AnalyticDB MySQL，固定为def。
-- **空字符串**： 对于lindorm与MongoDB，填入空字符串。
-- **catalog名**：对于三层逻辑结构的数据库，如PostgreSQL，填入catalog名。', example='def'),
-    sourceInstanceName: string(name='SourceInstanceName', description='源实例名称。', example='pc-bp1*******'),
-    sourceSchemaName: string(name='SourceSchemaName', description='源库Schema，源库与目标库同名。
-如MySQL为库名，PostgreSQL为Schema名。', example='schema_test'),
+    runMethod: string(name='RunMethod', description='The method that is used to run the data archiving task. Valid values:
+
+*   **schedule**: The data archiving task is periodically scheduled.
+*   **now**: The data archiving task is immediately run.', example='now'),
+    sourceCatalogName: string(name='SourceCatalogName', description='The catalog of the source database. Valid values:
+
+*   **def**: Set this parameter to def if the source database is of the two-layer logical schema, such as a MySQL database, a PolarDB for MySQL cluster, or an AnalyticDB for MySQL instance.
+*   **An empty string**: Set this parameter to an empty string if the source database is an ApsaraDB for Lindorm or ApsaraDB for MongoDB instance.
+*   **Catalog name**: Set this parameter to the catalog name of the source database if the source database is of the three-layer logical schema, such as a PostgreSQL database.', example='def'),
+    sourceInstanceName: string(name='SourceInstanceName', description='The name of the source instance.', example='pc-bp1*******'),
+    sourceSchemaName: string(name='SourceSchemaName', description='The schema name of the source database. The schema name of the source database is the same as that of the destination database. If the source database is a MySQL database, this parameter specifies the name of the source database. If the source database is a PostgreSQL database, this parameter specifies the schema name of the source database.', example='schema_test'),
     tableIncludes: [ 
       {
         tableName: string(name='TableName', description='The name of the table.', example='table1'),
-        tableWhere?: string(name='TableWhere', description='The filter condition specified by the WHERE clause of the archiving configuration.', example='gmt_modified<\\"${time}\\"'),
+        tableWhere?: string(name='TableWhere', description='The filter condition specified by the WHERE clause of the archiving configuration. If a time variable is used in the filter condition, the filter condition is specified in the following format: field name <=\\"${variable name}\\". The variable name in the filter condition must be the same as the Name value of Variables.', example='gmt_modified<\\"${time}\\"'),
       }
     ](name='TableIncludes', description='The collection of tables to be archived.'),
-    tableMapping?: [ string ](name='TableMapping', description='The table names mapped in the destination database.'),
-    targetInstanceHost: string(name='TargetInstanceHost', description='目标库Host，若目标实例同时开放了内网与公网，优先写入内网Host。
+    tableMapping?: [ string ](name='TableMapping', description='The table names mapped to the destination database. If you call an API operation to create the data archiving ticket, you do not need to specify this parameter. The default value is used.'),
+    targetInstanceHost: string(name='TargetInstanceHost', description='The host of the destination instance. If the destination instance can be accessed over an internal network or the Internet, preferentially set the value to the internal endpoint of the destination instance.
 
-- 若归档目标为OSS，则为Bucket名。
-- 若归档目标为专属存储，则为inner_oss。', example='am-bp1*********.ads.aliyuncs.com'),
+*   If the data is archived in an OSS bucket, set the value to the name of the bucket.
+*   If the data is archived in the dedicated storage space, set the value to inner_oss.', example='am-bp1*********.ads.aliyuncs.com'),
     variables?: [ 
       {
         name?: string(name='Name'),
         pattern?: string(name='Pattern'),
       }
-    ](name='Variables', description='The configuration of archiving variables.'),
+    ](name='Variables', description='The configuration of archiving variables. You can use a time variable as a filter condition for archiving data. Each variable has two attributes: name and pattern.'),
   }(name='Param', description='The parameters for archiving data.', shrink='json', position='Query'),
-  parentId?: long(name='ParentId', description='The ID of the parent ticket. A parent ticket is generated only when a sub ticket is created.', example='123****', position='Query'),
-  pluginType?: string(name='PluginType', description='The plugin type. Default value: DATA_ARCHIVE.', example='DATA_ARCHIVE', position='Query'),
+  parentId?: long(name='ParentId', description='The ID of the parent ticket. A parent ticket is generated only when a child ticket is created.', example='123****', position='Query'),
+  pluginType?: string(name='PluginType', description='The type of the plug-in. Default value: DATA_ARCHIVE.', example='DATA_ARCHIVE', position='Query'),
   relatedUserList?: [ string ](name='RelatedUserList', description='The list of the related users.', shrink='json', position='Query'),
   tid?: long(name='Tid', description='The tenant ID. You can call the [GetUserActiveTenant](~~198073~~) or [ListUserTenants](~~198074~~) operation to obtain the tenant ID.', example='3***', minimum=1, maximum=9223372036854775807, position='Query'),
 }
 
 model CreateDataArchiveOrderResponseBody = {
-  createOrderResult?: [ long ](name='CreateOrderResult', description='The data archiving ticket IDs.'),
-  errorCode?: string(name='ErrorCode', description='Error code', example='UnknownError'),
+  createOrderResult?: [ long ](name='CreateOrderResult', description='The ID of the data archiving ticket.'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='UnknownError'),
   errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to query logs and troubleshoot issues.', example='283C461F-11D8-48AA-B695-DF092DA32AF3'),
-  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
-*   true
-*   false', example='true'),
+*   **true**
+*   **false**', example='true'),
 }
 
 model CreateDataArchiveOrderResponse = {
@@ -1693,7 +1698,7 @@ model CreateStandardGroupResponseBody = {
   standardGroup?: {
     dbType?: string(name='DbType', description='The type of the database engine. For more information about the valid values of this parameter, see [DbType parameter](~~198106~~).', example='mysql'),
     description?: string(name='Description', description='The description of the security rule set.', example='test_rule'),
-    groupId?: long(name='GroupId'),
+    groupId?: long(name='GroupId', description='The security rule set ID.', example='41****'),
     groupMode?: string(name='GroupMode', description='The control mode. Valid values:
 
 *   **NONE_CONTROL**: Flexible Management
@@ -1701,7 +1706,7 @@ model CreateStandardGroupResponseBody = {
 *   **COMMON**: Security Collaboration', example='COMMON'),
     groupName?: string(name='GroupName', description='The name of the security rule set.', example='test_group'),
     lastMenderId?: long(name='LastMenderId', description='The ID of the user who creates the security rule set.', example='51****'),
-  }(name='StandardGroup', description='The created security rule set.'),
+  }(name='StandardGroup', description='The information about the created security rule set.'),
   success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
 
 *   **true**: The request was successful.
@@ -6390,7 +6395,7 @@ model ListDDLPublishRecordsResponseBody = {
 *   **CANCEL**: The ticket is canceled.
 *   **SUCCESS**: The ticket is approved.
 *   **FAIL**: The ticket fails to pass the approval.', example='CANCEL'),
-      comment?: string(name='Comment'),
+      comment?: string(name='Comment', description='Release remarks.', example='Release remarks'),
       creatorId?: long(name='CreatorId', description='The ID of the user who creates the ticket. You can obtain the user ID by calling the [GetUser](~~147098~~) operation and querying the value of the UserId parameter. The value is not the unique ID (UID) of the Alibaba Cloud account.', example='1423'),
       finality?: boolean(name='Finality', description='Indicates whether the approval is terminated. Valid values:
 
@@ -7967,6 +7972,63 @@ async function listScenarios(request: ListScenariosRequest): ListScenariosRespon
   return @handler.do('RPC', 'ListScenarios', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListSensitiveColumnInfoRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  columnName?: string(name='ColumnName', example='test_column', position='Query'),
+  instanceId: int32(name='InstanceId', example='183****', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='100', position='Query'),
+  schemaName?: string(name='SchemaName', example='test_schema', position='Query'),
+  tableName?: string(name='TableName', example='test_table', position='Query'),
+  tid?: long(name='Tid', example='3***', position='Query'),
+}
+
+model ListSensitiveColumnInfoResponseBody = {
+  errorCode?: string(name='ErrorCode', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
+  requestId?: string(name='RequestId', example='0C1CB646-1DE4-4AD0-B4A4-7D47DD52E931'),
+  sensitiveColumnList?: {
+    sensitiveColumn?: [ 
+    {
+      categoryName?: string(name='CategoryName'),
+      columnName?: string(name='ColumnName', example='test_column'),
+      defaultDesensitizationRule?: {
+        ruleId?: long(name='RuleId', example='101**'),
+        ruleName?: string(name='RuleName', example='test'),
+      }(name='DefaultDesensitizationRule'),
+      instanceId?: int32(name='InstanceId', example='183****'),
+      isPlain?: boolean(name='IsPlain', example='False'),
+      sampleData?: string(name='SampleData'),
+      schemaName?: string(name='SchemaName', example='test_schema'),
+      securityLevel?: string(name='SecurityLevel'),
+      semiDesensitizationRuleList?: {
+        semiDesensitizationRule?: [ 
+        {
+          ruleId?: long(name='RuleId', example='10***'),
+          ruleName?: string(name='RuleName', example='test01'),
+        }
+      ](name='SemiDesensitizationRule')
+      }(name='SemiDesensitizationRuleList'),
+      tableName?: string(name='TableName', example='test_table'),
+      userSensitivityLevel?: string(name='UserSensitivityLevel', example='S1'),
+    }
+  ](name='SensitiveColumn')
+  }(name='SensitiveColumnList'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: long(name='TotalCount', example='1'),
+}
+
+model ListSensitiveColumnInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSensitiveColumnInfoResponseBody(name='body'),
+}
+
+async function listSensitiveColumnInfo(request: ListSensitiveColumnInfoRequest): ListSensitiveColumnInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListSensitiveColumnInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListSensitiveColumnsRequest {
   regionId?: string(name='RegionId', position='Host'),
   columnName?: string(name='ColumnName', description='The name of the field. You can call the [ListColumns](~~141870~~) operation to query the name of the field.', example='test_column', position='Query'),
@@ -8173,24 +8235,37 @@ async function listSensitiveDataAuditLog(request: ListSensitiveDataAuditLogReque
 
 model ListSensitivityLevelRequest {
   regionId?: string(name='RegionId', position='Host'),
-  templateId?: long(name='TemplateId', example='15**', position='Query'),
-  templateType?: string(name='TemplateType', example='INNER', position='Query'),
-  tid?: long(name='Tid', example='20***', position='Query'),
+  templateId?: long(name='TemplateId', description='The ID of the classification template. You can call the [ListClassificationTemplates](~~460613~~) operation to query the ID of the classification template.', example='15**', position='Query'),
+  templateType?: string(name='TemplateType', description='The type of the classification template. You can call the [ListClassificationTemplates](~~460613~~) operation to query the type of the classification template.
+
+Valid values:
+
+*   USER_DEFINE: a custom template.
+*   INNER: a built-in template.', example='INNER', position='Query'),
+  tid?: long(name='Tid', description='The ID of the tenant.
+
+>  To view the ID of the tenant, go to the Data Management (DMS) console and move the pointer over the profile picture in the upper-right corner. For more information, see [View information about the current tenant](~~181330~~) in the topic "Manage DMS tenants."', example='20***', position='Query'),
 }
 
 model ListSensitivityLevelResponseBody = {
-  errorCode?: string(name='ErrorCode', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
-  requestId?: string(name='RequestId', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
+  errorCode?: string(name='ErrorCode', description='The status code.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message returned.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
   sensitivityLevelList?: [ 
     {
-      isPlain?: boolean(name='IsPlain', example='true'),
-      name?: string(name='Name', example='S2'),
-      templateId?: string(name='TemplateId', example='1070'),
-      templateType?: string(name='TemplateType', example='INNER'),
+      isPlain?: boolean(name='IsPlain', description='Indicates whether the fields of the sensitive level are displayed in plaintext.', example='true'),
+      name?: string(name='Name', description='The name of the sensitive level.', example='S2'),
+      templateId?: string(name='TemplateId', description='The ID of the classification template.', example='1070'),
+      templateType?: string(name='TemplateType', description='The type of the classification template. Valid values:
+
+*   **INNER**: a built-in template.
+*   **USER_DEFINE**: a custom template.', example='INNER'),
     }
-  ](name='SensitivityLevelList'),
-  success?: boolean(name='Success', example='true'),
+  ](name='SensitivityLevelList', description='The sensitivity levels.'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**: The request was successful.
+*   **false**: The request failed.', example='true'),
 }
 
 model ListSensitivityLevelResponse = {
@@ -9523,7 +9598,7 @@ async function reRunTaskFlowInstance(request: ReRunTaskFlowInstanceRequest): ReR
 
 model RefundPayAsYouGoOrderRequest {
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The ID of the sales order instance.', example='dms_pre_public_intl-sg-vf****', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID in the sales order.', example='dms_pre_public_intl-sg-vf****', position='Query'),
   orderId: string(name='OrderId', description='The order ID of the order for the pay-as-you-go resource. You can call the ListEffectiveOrders operation to query the order ID.', example='2190037****', position='Query'),
   tid?: long(name='Tid', description='The ID of the tenant.
 
@@ -10598,25 +10673,34 @@ async function updateScenario(request: UpdateScenarioRequest): UpdateScenarioRes
 
 model UpdateStandardGroupRequest {
   regionId?: string(name='RegionId', position='Host'),
-  description: string(name='Description', position='Query'),
-  groupId: long(name='GroupId', example='242***', position='Query'),
-  groupName: string(name='GroupName', example='poc_test', position='Query'),
-  tid?: long(name='Tid', example='23****', minimum=1, maximum=9223372036854775807, position='Query'),
+  description: string(name='Description', description='The description of the security rule set.', example='Production Environment test rules', position='Query'),
+  groupId: long(name='GroupId', description='The security rule set ID. You can call the [ListStandardGroups](~~465940~~) operation to obtain the ID of the security rule set.', example='242***', position='Query'),
+  groupName: string(name='GroupName', description='The name of the security rule set.', example='poc_test', position='Query'),
+  tid?: long(name='Tid', description='The tenant ID.
+
+>  To view the tenant ID, go to the Data Management (DMS) console and move the pointer over the profile picture in the upper-right corner. For more information, see the [View information about the current tenant](~~181330~~) section of the "Manage DMS tenants" topic.', example='23****', minimum=1, maximum=9223372036854775807, position='Query'),
 }
 
 model UpdateStandardGroupResponseBody = {
-  errorCode?: string(name='ErrorCode', example='UnknownError'),
-  errorMessage?: string(name='ErrorMessage', example='UnknownError'),
-  requestId?: string(name='RequestId', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
+  errorCode?: string(name='ErrorCode', description='The error code returned if the request failed.', example='UnknownError'),
+  errorMessage?: string(name='ErrorMessage', description='The error message returned if the request failed.', example='UnknownError'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the request ID to locate logs and troubleshoot issues.', example='4E1D2B4D-3E53-4ABC-999D-1D2520B3471A'),
   standardGroup?: {
-    dbType?: string(name='DbType', example='mysql'),
-    description?: string(name='Description'),
-    groupId?: long(name='GroupId', example='41****'),
-    groupMode?: string(name='GroupMode', example='COMMON'),
-    groupName?: string(name='GroupName', example='poc_test'),
-    lastMenderId?: long(name='LastMenderId', example='51****'),
-  }(name='StandardGroup'),
-  success?: boolean(name='Success', example='true'),
+    dbType?: string(name='DbType', description='The type of the database for which the security rules are used.', example='mysql'),
+    description?: string(name='Description', description='The description of the security rule set.', example='Production Environment test rules'),
+    groupId?: long(name='GroupId', description='The security rule set ID.', example='41****'),
+    groupMode?: string(name='GroupMode', description='The control mode. Valid values:
+
+*   **NONE_CONTROL**: Flexible Management
+*   **STABLE**: Stable Change
+*   **COMMON**: Security Collaboration', example='COMMON'),
+    groupName?: string(name='GroupName', description='The name of the security rule set.', example='poc_test'),
+    lastMenderId?: long(name='LastMenderId', description='The ID of the user who last modified the security rules.', example='51****'),
+  }(name='StandardGroup', description='The information about the security rule set.'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model UpdateStandardGroupResponse = {
