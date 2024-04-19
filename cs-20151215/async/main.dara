@@ -424,11 +424,11 @@ async function cancelComponentUpgrade(request: CancelComponentUpgradeRequest): C
 }
 
 model CancelOperationPlanRequest {
-  planId?: string(name='plan_id', example='P-655c9c127e0e6603ef00****', position='Path'),
+  planId?: string(name='plan_id', description='The operation plan ID.', example='P-655c9c127e0e6603ef00****', position='Path'),
 }
 
 model CancelOperationPlanResponseBody = {
-  requestId?: string(name='requestId', example='873DC52C-28AA-5A5C-938C-684D3D4B****'),
+  requestId?: string(name='requestId', description='The request ID.', example='873DC52C-28AA-5A5C-938C-684D3D4B****'),
 }
 
 model CancelOperationPlanResponse = {
@@ -550,7 +550,7 @@ model CreateClusterRequest {
 **Network plug-in**: required. The Flannel and Terway plug-ins are supported. Select one of the plug-ins for the cluster.
 
 *   Specify the Flannel plug-in in the following format: \\[{"name":"flannel","config":""}].
-*   Specify the Terway plug-in in the following format: \\[{"name": "terway-eniip","config": ""}].
+*   If you want to use the Terway component, specify the value in the \\[{"Name": "terway-eniip","Config": ""}] format.
 
 **Volume plug-in**: required. The `CSI` and `FlexVolume` volume plug-ins are supported.
 
@@ -562,20 +562,32 @@ model CreateClusterRequest {
 *   Use an existing `Simple Log Service project`: \\[{"name": "logtail-ds","config": "{"IngressDashboardEnabled":"true","sls_project_name":"your_sls_project_name"}"}].
 *   To create a `Simple Log Service project`, specify the component in the following format: \\[{"name": "logtail-ds","config": "{"IngressDashboardEnabled":"true"}"}].
 
-**Ingress controller**: optional. By default, the `nginx-ingress-controller` component is installed in ACK dedicated clusters.
+**Ingress controller**`: optional. By default, the nginx-ingress-controller component is installed in ACK dedicated clusters.`
 
 *   To install nginx-ingress-controller and enable Internet access, specify the Ingress controller in the following format: \\[{"name":"nginx-ingress-controller","config":"{"IngressSlbNetworkType":"internet"}"}].
-*   If you do not want to install nginx-ingress-controller, specify the component in the following format: \\[{"name": "nginx-ingress-controller","config": "","disabled": true}].
+*   To disable the system to automatically install nginx-ingress-controller, specify the component in the following format: \\[{"name": "nginx-ingress-controller","config": "","disabled": true}].
 
 **Event center**: optional. By default, the event center feature is enabled.
 
-You can use Kubernetes event centers to store and query events, and configure alert rules. You can use the Logstores that are associated with Kubernetes event centers for free within 90 days. For more information, see [Create and use an event center](~~150476~~).
+You can use Kubernetes event centers to store and query events and configure alerts. You can use the Logstores that are associated with Kubernetes event centers free of charge within 90 days. For more information, see [Create and use a Kubernetes event center](~~150476~~).
 
 Enable the ack-node-problem-detector component in the following format: \\[{"name":"ack-node-problem-detector","config":"{"sls_project_name":"your_sls_project_name"}"}].', position='Body'),
   apiAudiences?: string(name='api_audiences', description='Service accounts provide identities for pods when pods communicate with the `API server` of the cluster. `api-audiences` are used by the `API server` to check whether the `tokens` of requests are legitimate.`` Separate multiple `audiences` with commas (,).
 
 For more information about `ServiceAccount`, see [Enable service account token volume projection](~~160384~~).', example='kubernetes.default.svc', position='Body'),
-  chargeType?: string(name='charge_type', description='The billing method of the cluster.', example='1', position='Body'),
+  chargeType?: string(name='charge_type', description='The billing method of the cluster. The following resources are billed on a subscription basis:
+
+Elastic Compute Service (ECS) instances in node pools.
+
+The internal-facing SLB instance used by the API server.
+
+Valid values:
+
+PrePaid: subscription.
+
+PostPaid: pay-as-you-go.
+
+Default value: PostPaid.', example='1', position='Body'),
   cisEnabled?: boolean(name='cis_enabled', description='Specifies whether to enable Center for Internet Security (CIS) reinforcement. For more information, see [CIS reinforcement](~~223744~~).
 
 Valid values:
@@ -593,37 +605,34 @@ Default value: `false`.', example='true', position='Body'),
   clusterDomain?: string(name='cluster_domain', description='The domain name of the cluster.
 
 The domain name can contain one or more parts that are separated by periods (.). Each part cannot exceed 63 characters in length, and can contain lowercase letters, digits, and hyphens (-). Each part must start and end with a lowercase letter or digit.', example='cluster.local', position='Body'),
-  clusterSpec?: string(name='cluster_spec', description='The type of ACK managed cluster. Valid values:
+  clusterSpec?: string(name='cluster_spec', description='After you set `cluster_type` to `ManagedKubernetes` and configure the `profile` parameter, you can further specify the edition of the cluster. Valid values:
 
-*   `ack.pro.small`: ACK Pro cluster.
-*   `ack.standard`: ACK Basic cluster.
-
-Default value: `ack.standard`. If you leave this property empty, an ACK Basic cluster.is created.
-
-For more information, see [Overview of ACK Pro clusters](~~173290~~).', example='ack.pro.small', position='Body'),
-  clusterType: string(name='cluster_type', description='The cluster type. Valid value: ManagedKubernetes. 
-You can create ACK managed clusters, ACK Serverless clusters, and ACK Edge clusters.', example='Kubernetes', position='Body'),
-  containerCidr?: string(name='container_cidr', description='The CIDR block of pods. You can specify 10.0.0.0/8, 172.16-31.0.0/12-16, 192.168.0.0/16, or their subnets as the CIDR block of pods. The CIDR block of pods cannot overlap with the CIDR block of the VPC in which the cluster is deployed and the CIDR blocks of existing clusters in the VPC. You cannot modify the pod CIDR block after the cluster is created.
+*   `ack.pro.small`: Pro.
+*   `ack.standard`: Basic. If you leave the parameter empty, the Basic edition is selected.', example='ack.pro.small', position='Body'),
+  clusterType: string(name='cluster_type', description='*   `Kubernetes`: ACK dedicated cluster.
+*   `ManagedKubernetes`: ACK managed cluster. ACK managed clusters include ACK Basic clusters, ACK Pro clusters, ACK Serverless clusters (Basic and Pro), ACK Edge clusters (Basic and Pro), and ACK Lingjun clusters (Pro).
+*   `ExternalKubernetes`: registered cluster.', example='Kubernetes', position='Body'),
+  containerCidr?: string(name='container_cidr', description='The CIDR block of pods. You can specify 10.0.0.0/8, 172.16-31.0.0/12-16, 192.168.0.0/16, or their subnets as the CIDR block of pods. The pod CIDR block cannot overlap with the CIDR block of the VPC in which the cluster is deployed and the CIDR blocks of existing clusters in the VPC. You cannot modify the pod CIDR block after you create the cluster.
 
 For more information about subnetting for ACK clusters, see [Plan CIDR blocks for an ACK cluster that is deployed in a VPC](~~86500~~).
 
 >  This parameter is required if the cluster uses the Flannel plug-in.', example='172.20.0.0/16', position='Body'),
   controlplaneLogComponents?: [ string ](name='controlplane_log_components', description='The list of control plane components for which you want to enable log collection.
 
-By default, the logs of kube-apiserver, kube-controller-manager, and kube-scheduler are collected.', position='Body'),
+By default, the log of kube-apiserver, kube-controller-manager, and kube-scheduler is collected.', position='Body'),
   controlplaneLogProject?: string(name='controlplane_log_project', description='The Simple Log Service project that is used to store the logs of control plane components. You can use an existing project or create one. If you choose to create a Simple Log Service project, the created project is named in the `k8s-log-{ClusterID}` format.', example='k8s-log-xxx', position='Body'),
   controlplaneLogTtl?: string(name='controlplane_log_ttl', description='The retention period of control plane logs in days.', example='30', position='Body'),
-  cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in a node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
+  cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later:
 
-*   `static`: allows pods with specific resource characteristics on the node to be granted enhanced CPU affinity and exclusivity.
+*   `static`: allows pods with specific resource characteristics on the node to be granted with enhanced CPU affinity and exclusivity.
 *   `none`: specifies that the default CPU affinity is used.
 
 Default value: `none`.', example='none', position='Body'),
   customSan?: string(name='custom_san', description='Specifies custom subject alternative names (SANs) for the API server certificate to accept requests from specified IP addresses or domain names. Multiple IP addresses and domain names are separated by commas (,).', example='cs.aliyun.com', position='Body'),
-  deletionProtection?: boolean(name='deletion_protection', description='Specifies whether to enable deletion protection for the cluster. If deletion protection is enabled, the cluster cannot be deleted in the ACK console or by calling API operations. Valid values:
+  deletionProtection?: boolean(name='deletion_protection', description='Specifies whether to enable cluster deletion protection. If this option is enabled, the cluster cannot be deleted in the console or by calling API operations. Valid values:
 
-*   `true`: enables deletion protection for the cluster. This way, the cluster cannot be deleted in the ACK console or by calling API operations.
-*   `false`: disables deletion protection for the cluster. This way, the cluster can be deleted in the ACK console or by calling API operations.
+*   `true`: enables deletion protection for the cluster. This way, the cluster cannot be deleted in the Container Service console or by calling API operations.
+*   `false`: disables deletion protection for the cluster. This way, the cluster can be deleted in the Container Service console or by calling API operations.
 
 Default value: `false`.', example='true', position='Body'),
   disableRollback?: boolean(name='disable_rollback', description='Specifies whether to perform a rollback if the cluster fails to be created. Valid values:
@@ -631,12 +640,12 @@ Default value: `false`.', example='true', position='Body'),
 *   `true`: performs a rollback if the system fails to create the cluster.
 *   `false`: does not perform a rollback if the system fails to create the cluster.
 
-Default value: `true`.', example='true', position='Body'),
+Default value: `true`.', example='true', deprecated='true', position='Body'),
   enableRrsa?: boolean(name='enable_rrsa', description='Specifies whether to enable the RAM Roles for Service Accounts (RRSA) feature.', example='true', position='Body'),
   encryptionProviderKey?: string(name='encryption_provider_key', description='The ID of a key that is managed by Key Management Service (KMS). The key is used to encrypt data disks. For more information, see [KMS](~~28935~~).
 
->  This feature supports only ACK Pro clusters.', example='0fe64791-55eb-4fc7-84c5-c6c7cdca****', position='Body'),
-  endpointPublicAccess?: boolean(name='endpoint_public_access', description='Specifies whether to enable Internet access for the cluster. You can use an elastic IP address (EIP) to expose the API server. This way, you can access the cluster over the Internet.
+>  The key can be used only in ACK Pro clusters.', example='0fe64791-55eb-4fc7-84c5-c6c7cdca****', position='Body'),
+  endpointPublicAccess?: boolean(name='endpoint_public_access', description='Specifies whether to enable Internet access for the cluster. You can use an elastic IP address (EIP) to expose the API server. This way, you can access the cluster over the Internet. Valid values:
 
 *   `true`: enables Internet access.
 *   `false`: disables Internet access. If you set this parameter to false, the API server cannot be accessed over the Internet.
@@ -652,7 +661,7 @@ Default value: `false`.
 How to mount a data disk:
 
 *   If an ECS instance has data disks mounted and the file system of the last data disk is not initialized, the system automatically formats the data disk to ext4. Then, the system mounts the data disk to /var/lib/docker and /var/lib/kubelet.
-*   If no data disk is attached to the ECS instances, the system does not purchase a new data disk.', example='false', position='Body'),
+*   If no data disk is mounted to the ECS instance, the system does not purchase a new data disk.', example='false', position='Body'),
   imageId?: string(name='image_id', description='Specifies a custom image for nodes. By default, the image provided by ACK is used. You can select a custom image to replace the default image. For more information, see [Custom images](~~146647~~).', example='m-bp16z7xko3vvv8gt****', position='Body'),
   imageType?: string(name='image_type', description='The type of OS distribution that you want to use. To specify the node OS, we recommend that you use this parameter. Valid values:
 
@@ -674,7 +683,7 @@ Default value: `CentOS`.', example='AliyunLinux', position='Body'),
 Default value: IPV4', position='Body'),
   isEnterpriseSecurityGroup?: boolean(name='is_enterprise_security_group', description='Specifies whether to create an advanced security group. This parameter takes effect only if `security_group_id` is left empty.
 
->  To use a basic security group, make sure that the sum of the number of nodes in the cluster and the number of pods that use Terway does not exceed 2,000. Therefore, if the cluster uses Terway, we recommend that you use an advanced security group.
+>  To use a basic security group, make sure that the sum of the number of nodes in the cluster and the number of pods that use Terway does not exceed 2,000. Therefore, we recommend that you specify an advanced security group for a cluster that has Terway installed.
 
 *   `true`: creates an advanced security group.
 *   `false`: does not create an advanced security group.
@@ -687,9 +696,9 @@ Default value: `true`.', example='true', position='Body'),
 
 Default value: `true`.', example='true', position='Body'),
   keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter.', example='secrity-key', position='Body'),
-  kubernetesVersion?: string(name='kubernetes_version', description='The Kubernetes version of the cluster. The Kubernetes versions supported by ACK are the same as the Kubernetes versions supported by open source Kubernetes. We recommend that you specify the latest Kubernetes version. If you do not set this parameter, the latest Kubernetes version is used.
+  kubernetesVersion?: string(name='kubernetes_version', description='The Kubernetes version of the cluster. The Kubernetes versions supported by ACK are the same as the Kubernetes versions supported by open source Kubernetes. We recommend that you specify the latest Kubernetes version. If you do not specify this parameter, the latest Kubernetes version is used.
 
-You can create clusters of the latest two Kubernetes versions in the ACK console. You can create clusters of earlier Kubernetes versions by calling API operations. For more information about the Kubernetes versions supported by ACK, see [Release notes on Kubernetes versions](~~185269~~).', example='1.16.9-aliyun.1', position='Body'),
+You can create clusters of the latest two Kubernetes versions in the ACK console. If you want to create clusters that run earlier Kubernetes versions, use the API. For more information about the Kubernetes versions supported by ACK, see [Release notes on Kubernetes versions](~~185269~~).', example='1.16.9-aliyun.1', position='Body'),
   loadBalancerSpec?: string(name='load_balancer_spec', description='The specification of the Server Load Balancer (SLB) instance. Valid values:
 
 *   slb.s1.small
@@ -700,15 +709,15 @@ You can create clusters of the latest two Kubernetes versions in the ACK console
 *   slb.s3.large
 
 Default value: `slb.s2.small`.', example='slb.s2.small', position='Body'),
-  loggingType?: string(name='logging_type', description='Specifies whether to enable Simple Log Service for the cluster. Set the value to `SLS`. This parameter takes effect only for ACK Serverless clusters.', example='SLS', position='Body'),
-  loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello@1234', position='Body'),
+  loggingType?: string(name='logging_type', description='Enables Simple Log Service for the cluster. This parameter takes effect only on ACK Serverless clusters. Set the value to `SLS`.', example='SLS', position='Body'),
+  loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or `key_pair`. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello@1234', position='Body'),
   masterAutoRenew?: boolean(name='master_auto_renew', description='Specifies whether to enable auto-renewal for master nodes. This parameter takes effect only if `master_instance_charge_type` is set to `PrePaid`. Valid values:
 
 *   `true`: enables auto-renewal.
 *   `false`: disables auto-renewal.
 
 Default value: `true`.', example='true', position='Body'),
-  masterAutoRenewPeriod?: long(name='master_auto_renew_period', description='The auto-renewal period for master nodes after the subscriptions of master nodes expire. This parameter takes effect and is required only if the subscription billing method is selected for master nodes.
+  masterAutoRenewPeriod?: long(name='master_auto_renew_period', description='The cycle of auto-renewal. This parameter takes effect and is required only if the subscription billing method is selected for master nodes.
 
 Valid values: 1, 2, 3, 6, and 12.
 
@@ -722,7 +731,7 @@ Default value: `3`.', example='3', position='Body'),
 *   `PostPaid`: pay-as-you-go.
 
 Default value: `PostPaid`.', example='PrePaid', position='Body'),
-  masterInstanceTypes?: [ string ](name='master_instance_types', description='The Elastic Compute Service (ECS) instance types of master nodes. For more information, see [Overview of instance families](~~25378~~).', position='Body'),
+  masterInstanceTypes?: [ string ](name='master_instance_types', description='The instance types of master nodes. For more information, see [Overview of instance families](~~25378~~).', position='Body'),
   masterPeriod?: long(name='master_period', description='The subscription duration of master nodes. This parameter takes effect and is required only if `master_instance_charge_type` is set to `PrePaid`.
 
 Valid values: 1, 2, 3, 6, 12, 24, 36, 48, and 60.
@@ -731,25 +740,25 @@ Default value: 1.', example='1', position='Body'),
   masterPeriodUnit?: string(name='master_period_unit', description='The billing cycle of master nodes. This parameter is required if master_instance_charge_type is set to `PrePaid`.
 
 Set the value to `Month`. Master nodes are billed only on a monthly basis.', example='Month', position='Body'),
-  masterSystemDiskCategory?: string(name='master_system_disk_category', description='The type of system disk that you want to use for master nodes. Valid values:
+  masterSystemDiskCategory?: string(name='master_system_disk_category', description='The type of system disk that you want to use for the master nodes. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
 *   `cloud_ssd`: standard SSD.
-*   `cloud_essd`: ESSD.
+*   `cloud_essd`: enhanced SSD (ESSD).
 
 Default value: `cloud_ssd`. The default value may vary in different zones.', example='cloud_ssd', position='Body'),
-  masterSystemDiskPerformanceLevel?: string(name='master_system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for master nodes. This parameter takes effect only for enhanced SSDs. For more information about the relationship between disk PLs and disk sizes, see [ESSDs](~~122389~~).', example='PL1', position='Body'),
-  masterSystemDiskSize?: long(name='master_system_disk_size', description='The size of the system disk that you want to use for master nodes. Valid values: 40 to 500. Unit: GiB.
+  masterSystemDiskPerformanceLevel?: string(name='master_system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for master nodes. This parameter takes effect only for ESSDs. For more information about the relationship between disk PLs and disk sizes, see [ESSDs](~~122389~~).', example='PL1', position='Body'),
+  masterSystemDiskSize?: long(name='master_system_disk_size', description='The size of the system disk that is specified for master nodes. Valid values: 40 to 500. Unit: GiB.
 
 Default value: `120`.', example='120', position='Body'),
-  masterSystemDiskSnapshotPolicyId?: string(name='master_system_disk_snapshot_policy_id', description='The ID of the automatic snapshot policy that you want to use for the system disks of master nodes.', example='sp-2zej1nogjvovnz4z****', position='Body'),
+  masterSystemDiskSnapshotPolicyId?: string(name='master_system_disk_snapshot_policy_id', description='The ID of the automatic snapshot policy that is used by the system disk specified for master nodes.', example='sp-2zej1nogjvovnz4z****', position='Body'),
   masterVswitchIds?: [ string ](name='master_vswitch_ids', description='The IDs of the vSwitches that are specified for master nodes. You can specify up to three vSwitches. We recommend that you specify three vSwitches in different zones to ensure high availability.
 
 The number of vSwitches must be the same as that specified in `master_count` and the same as those specified in `master_vswitch_ids`.', position='Body'),
   name: string(name='name', description='The cluster name.
 
-The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). The name cannot start with a hyphen (-).', example='cluster-demo', position='Body'),
-  natGateway?: boolean(name='nat_gateway', description='Specifies whether to create a NAT gateway and configure Source Network Address Translation (SNAT) rules when the system creates the ACK Serverless cluster. Valid values:
+The cluster name must be 1 to 63 characters in length, and can contain digits, letters, and underscores (\\_). The cluster name must not start with a hyphen (-).', example='cluster-demo', position='Body'),
+  natGateway?: boolean(name='nat_gateway', description='Specifies whether to create a NAT gateway and configure SNAT rules when the system creates the ACK Serverless cluster. Valid values:
 
 *   `true`: automatically creates a NAT gateway and configures SNAT rules. This enables Internet access for the VPC in which the cluster is deployed.
 *   `false`: does not create a NAT gateway or configure SNAT rules. In this case, the cluster in the VPC cannot access the Internet.
@@ -760,12 +769,12 @@ Default value: `false`.', example='true', position='Body'),
 Default value: `26`.', example='25', position='Body'),
   nodeNameMode?: string(name='node_name_mode', description='The name of the custom node.
 
-A custom node name consists of a prefix, an IP substring, and a suffix.
+A node name consists of a prefix, an IP substring, and a suffix.
 
 *   The prefix and suffix can contain multiple parts that are separated by periods (.). Each part can contain lowercase letters, digits, and hyphens (-), and must start and end with a lowercase letter or digit.
 *   The IP substring length specifies the number of digits to be truncated from the end of the node IP address. The IP substring length ranges from 5 to 12.
 
-For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, the length of the IP address substring is 5, and the suffix is test, the node name will be aliyun.com00055test.', example='aliyun.com00055test', position='Body'),
+For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, the IP substring length is 5, and the suffix is test, the node name will be aliyun.com00055test.', example='aliyun.com00055test', position='Body'),
   nodePortRange?: string(name='node_port_range', description='The node port range. Valid values: 30000 to 65535.
 
 Default value: `30000-32767`.', example='30000~32767', position='Body'),
@@ -779,9 +788,15 @@ Default value: `30000-32767`.', example='30000~32767', position='Body'),
 *   Linux
 
 Default value: `Linux`.', example='Linux', position='Body'),
-  period?: long(name='period', description='The subscription duration.', example='FY2023', position='Body'),
-  periodUnit?: string(name='period_unit', description='The unit of the subscription duration.', example='Month', position='Body'),
-  platform?: string(name='platform', description='The release version of the operating system. Valid values:
+  period?: long(name='period', description='The subscription duration. This parameter takes effect and is required only when you set charge_type to PrePaid.
+
+Valid values: 1, 2, 3, 6, 12, 24, 36, 48, and 60.
+
+Default value: 1.', example='FY2023', position='Body'),
+  periodUnit?: string(name='period_unit', description='The billing cycle. This parameter is required if charge_type is set to PrePaid.
+
+Set the value to Month. Master nodes are billed only on a monthly basis.', example='Month', position='Body'),
+  platform?: string(name='platform', description='The OS distribution that is used. Valid values:
 
 *   CentOS
 *   AliyunLinux
@@ -791,25 +806,27 @@ Default value: `Linux`.', example='Linux', position='Body'),
 *   WindowsCore
 
 Default value: `CentOS`.', example='CentOS', position='Body'),
-  podVswitchIds?: [ string ](name='pod_vswitch_ids', description='The list of pod vSwitches. You need to specify at least one pod vSwitch for each node vSwitch and the pod vSwitches must not be the same as the node vSwitches (`vswitch`). We recommend that you specify pod vSwitches whose mask lengths are no greater than 19.
+  podVswitchIds?: [ string ](name='pod_vswitch_ids', description='The list of pod vSwitches. You need to specify at least one pod vSwitch for each node vSwitch and the pod vSwitches must not be the same as the node vSwitches (`vswitch`). We recommend that you specify pod vSwitches whose mask lengths are no longer than 19.
 
 >  The `pod_vswitch_ids` parameter is required if the cluster uses Terway as the network plug-in.', position='Body'),
-  profile?: string(name='profile', description='The identifier that indicates whether the cluster is an ACK Edge cluster. To create an ACK Edge cluster, you must set this parameter to `Edge`.
+  profile?: string(name='profile', description='If you set `cluster_type` to `ManagedKubernetes`, an ACK managed cluster is created. In this case, you can further specify the cluster edition. Valid values:
 
-*   `Default`: The cluster is not an ACK Edge cluster.
-*   `Edge`: The cluster is an ACK Edge cluster.', example='Default', position='Body'),
+*   `Default`. ACK managed cluster. ACK managed clusters include ACK Basic clusters and ACK Pro clusters.
+*   `Edge`: ACK Edge cluster. ACK Edge clusters include ACK Edge Basic clusters and ACK Edge Pro clusters.
+*   `Serverless`: ACK Serverless cluster. ACK Serverless clusters include ACK Serverless Basic clusters and ACK Serverless Pro clusters.
+*   `Lingjun`: ACK Lingjun Pro cluster.', example='Default', position='Body'),
   proxyMode?: string(name='proxy_mode', description='The kube-proxy mode. Valid values:
 
-*   `iptables`: iptables is a mature and stable kube-proxy mode. It uses iptables rules to conduct service discovery and load balancing. The performance of this mode is restricted by the size of the Kubernetes cluster. This mode is suitable for Kubernetes clusters that manage a small number of Services.
-*   `ipvs`: IPVS is a high-performance kube-proxy mode. It uses Linux Virtual Server (LVS) to conduct service discovery and load balancing. This mode is suitable for clusters that manage a large number of Services. We recommend that you use this mode in scenarios where high-performance load balancing is required.
+*   `iptables`: iptables is a kube-proxy mode. It uses iptables rules to conduct Service discovery and load balancing. The performance of this mode is limited by the size of the cluster. This mode is suitable for clusters that run a small number of Services.
+*   `ipvs`: provides high performance and uses IP Virtual Server (IPVS). This allows you to configure service discovery and load balancing. This mode is suitable for clusters that are required to run a large number of services. We recommend that you use this mode in scenarios when high load balancing performance is required.
 
 Default value: `ipvs`.', example='ipvs', position='Body'),
   rdsInstances?: [ string ](name='rds_instances', description='The list of ApsaraDB RDS instances. Select the ApsaraDB RDS instances that you want to add to the whitelist. We recommend that you add the CIDR block of pods and CIDR block of nodes to the ApsaraDB RDS instances in the ApsaraDB RDS console. When you set the ApsaraDB RDS instances, you cannot scale out the number of nodes because the instances are not in the Running state.', position='Body'),
-  regionId: string(name='region_id', description='The ID of the region in which you want to deploy the cluster.', example='cn-beijing', position='Body'),
+  regionId: string(name='region_id', description='The ID of the region in which the cluster is deployed.', example='cn-beijing', position='Body'),
   resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group to which the cluster belongs. You can use resource groups to isolate clusters.', example='rg-acfm3mkrure****', position='Body'),
   runtime?: Runtime(name='runtime', description='The container runtime. The default container runtime is Docker. containerd and Sandboxed-Container are also supported.
 
-For more information about how to select a proper container runtime, see [Comparison of Docker, containerd, and Sandboxed-Container](~~160313~~).', position='Body'),
+For more information about how to select a proper container runtime, see [How to select between Docker and Sandboxed-Container](~~160313~~).', position='Body'),
   securityGroupId?: string(name='security_group_id', description='The ID of an existing security group. You need to choose between this parameter and the `is_enterprise_security_group` parameter. Cluster nodes are automatically added to the security group.', example='sg-bp1bdue0qc1g7k****', position='Body'),
   serviceAccountIssuer?: string(name='service_account_issuer', description='Service accounts provide identities for pods when pods communicate with the `API server` of the cluster. `service-account-issuer` is the issuer of the `serviceaccount token`, which corresponds to the `iss` field in the `token payload`.
 
@@ -819,11 +836,11 @@ For more information about `ServiceAccount`, see [Enable service account token v
 By default, the CIDR block of Services is set to 172.19.0.0/20.', example='172.21.0.0/20', position='Body'),
   serviceDiscoveryTypes?: [ string ](name='service_discovery_types', description='The type of service discovery that is implemented in the `ACK Serverless` cluster.
 
-*   `CoreDNS`: a standard service discovery plug-in provided by open source Kubernetes. To use the Domain Name System (DNS) resolution, you must provision pods. By default, two elastic container instances are used. The specification of each instance is 0.25 CPU cores and 512 MiB of memory.
+*   `CoreDNS`: CoreDNS is a standard service discovery plug-in that is provided by open source Kubernetes. To use DNS resolution, you must provision pods. By default, two elastic container instances are used. The specification of each instance is 0.25 vCores and 512 MiB of memory.
 *   `PrivateZone`: a DNS resolution service provided by Alibaba Cloud. You must activate Alibaba Cloud DNS PrivateZone before you can use it for service discovery.
 
 By default, this parameter is not specified.', position='Body'),
-  snatEntry?: boolean(name='snat_entry', description='Specifies whether to configure SNAT rules for the VPC where your cluster is deployed. Valid values:
+  snatEntry?: boolean(name='snat_entry', description='Specifies whether to configure Source Network Address Translation (SNAT) rules for the VPC where your cluster is deployed. Valid values:
 
 *   `true`: automatically creates a NAT gateway and configures SNAT rules. Set this parameter to `true` if nodes and applications in the cluster need to access the Internet.
 *   `false`: does not create a NAT gateway or configure SNAT rules. In this case, nodes and applications in the cluster cannot access the Internet.
@@ -831,44 +848,44 @@ By default, this parameter is not specified.', position='Body'),
 >  If this feature is disabled when you create the cluster, you can also manually enable this feature after you create the cluster. For more information, see [Manually create a NAT gateway and configure SNAT rules](~~178480~~).
 
 Default value: `true`.', example='true', position='Body'),
-  socEnabled?: boolean(name='soc_enabled', description='Reinforcement based on classified protection. For more information, see [ACK reinforcement based on classified protection](~~196148~~).
+  socEnabled?: boolean(name='soc_enabled', description='Specifies whether to enable reinforcement based on Multi-Level Protection Scheme (MLPS). For more information, see [ACK reinforcement based on classified protection](~~196148~~).
 
 Valid values:
 
-*   `true`: enables reinforcement based on classified protection.
-*   `false`: disables reinforcement based on classified protection.
+*   `true`: enables reinforcement based on MLPS.
+*   `false`: disables reinforcement based on MLPS.
 
 Default value: `false`.', example='false', position='Body'),
-  sshFlags?: boolean(name='ssh_flags', description='Specifies whether to enable SSH logon over the Internet. If this parameter is set to true, you can log on to master nodes in an ACK dedicated cluster over the Internet. This parameter does not take effect in ACK managed clusters.
+  sshFlags?: boolean(name='ssh_flags', description='Specifies whether to enable SSH logon. If this parameter is set to true, you can log on to master nodes in an ACK dedicated cluster over the Internet. This parameter does not take effect in ACK managed clusters. Valid values:
 
-*   `true`: enables SSH logon over the Internet.
-*   `false`: disables SSH logon over the Internet.
+*   `true`: enables SSH logon.
+*   `false`: disables SSH logon.
 
 Default value: `false`.', example='true', position='Body'),
   tags?: [
     Tag
-  ](name='tags', description='The labels that you want to add to nodes. You must add tags based on the following rules:
+  ](name='tags', description='The tags to be added to nodes. You must add tags based on the following rules:
 
-*   Each label is a case-sensitive key-value pair. You can add up to 20 labels.
-*   A key must be unique and cannot exceed 64 characters in length. A value can be empty and cannot exceed 128 characters in length. Keys and values cannot start with aliyun, acs:, https://, or http://. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).', position='Body'),
+*   A tag is a case-sensitive key-value pair. You can add up to 20 tags.
+*   When you add a tag, you must specify a unique key but you can leave the value empty. A key cannot exceed 64 characters in length and a value cannot exceed 128 characters in length. Keys and values cannot start with aliyun, acs:, https://, or http://. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).', position='Body'),
   taints?: [
     Taint
-  ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [Taints and Tolerations](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).', position='Body'),
+  ](name='taints', description='The taints of the nodes in the node pool. Taints can be used together with tolerations to avoid scheduling pods to specified nodes. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).', position='Body'),
   timeoutMins?: long(name='timeout_mins', description='Specifies the timeout period of cluster creation. Unit: minutes.
 
 Default value: `60`.', example='60', position='Body'),
   timezone?: string(name='timezone', description='The time zone of the cluster.', example='Asia/Shanghai', position='Body'),
-  userCa?: string(name='user_ca', description='The custom certificate authority (CA) certificate used by the cluster.', example='-----BEGIN CERTIFICATE-----****', position='Body'),
+  userCa?: string(name='user_ca', description='The custom Certificate Authority (CA) certificate used by the cluster.', example='-----BEGIN CERTIFICATE-----****', position='Body'),
   userData?: string(name='user_data', description='The user data of nodes.', example='IyEvdXNyL2Jpbi9iYXNoCmVjaG8gIkhlbGxvIEFD****', position='Body'),
   vpcid: string(name='vpcid', description='The virtual private cloud (VPC) in which you want to deploy the cluster. This parameter is required.', example='vpc-2zeik9h3ahvv2zz95****', position='Body'),
-  vswitchIds: [ string ](name='vswitch_ids', description='The vSwitches that are specified for nodes in the cluster. This parameter is required when you create a managed Kubernetes cluster that does not contain nodes.', position='Body'),
-  workerAutoRenew?: boolean(name='worker_auto_renew', description='Specifies whether to enable auto-renewal for worker nodes. This parameter takes effect only if `worker_instance_charge_type` is set to `PrePaid`. Valid values:
+  vswitchIds: [ string ](name='vswitch_ids', description='The vSwitches that are specified for nodes in the cluster. This parameter is required when you create an ACK managed cluster that does not contain nodes.', position='Body'),
+  workerAutoRenew?: boolean(name='worker_auto_renew', description='Specifies whether to enable auto renewal for worker nodes. This parameter takes effect and is required only if `worker_instance_charge_type` is set to `PrePaid`. Valid values:
 
 *   `true`: enables auto-renewal.
 *   `false`: disables auto-renewal.
 
 Default value: `true`.', example='true', deprecated='true', position='Body'),
-  workerAutoRenewPeriod?: long(name='worker_auto_renew_period', description='The auto-renewal period for worker nodes after the subscriptions of worker nodes expire. This parameter takes effect and is required only if the subscription billing method is selected for worker nodes.
+  workerAutoRenewPeriod?: long(name='worker_auto_renew_period', description='The cycle of auto-renewal. This parameter takes effect and is required only if the subscription billing method is selected for worker nodes.
 
 Valid values: 1, 2, 3, 6, and 12.', example='1', deprecated='true', position='Body'),
   workerDataDisks?: [ 
@@ -880,10 +897,10 @@ Valid values: 1, 2, 3, 6, and 12.', example='1', deprecated='true', position='Bo
 *   `false`: does not encrypt a data disk.
 
 Default value: `false`.', example='true'),
-      performanceLevel?: string(name='performance_level', description='The performance level (PL) of a data disk. This parameter takes effect only on ESSDs. You can specify a higher PL if you increase the size of a data disk. For more information, see [ESSDs](~~122389~~).', example='PL1'),
+      performanceLevel?: string(name='performance_level', description='The PL of a data disk. This parameter takes effect only for ESSDs. You can specify a higher PL if you increase the size of the system disk. For more information, see [Enhanced SSDs](~~122389~~).', example='PL1'),
       size: string(name='size', description='The size of the data disk. Valid values: 40 to 32767.', example='120'),
     }
-  ](name='worker_data_disks', description='The configuration of the data disk that is mounted to worker nodes. The configuration includes disk type and disk size.', deprecated='true', position='Body'),
+  ](name='worker_data_disks', description='The configurations of the data disks that you want to mount to worker nodes. The configurations include the disk type and disk size.', deprecated='true', position='Body'),
   workerInstanceChargeType?: string(name='worker_instance_charge_type', description='The billing method of worker nodes. Valid values:
 
 *   `PrePaid`: subscription.
@@ -899,7 +916,7 @@ Default value: 1.', example='1', deprecated='true', position='Body'),
   workerPeriodUnit?: string(name='worker_period_unit', description='The billing cycle of worker nodes. This parameter is required if worker_instance_charge_type is set to `PrePaid`.
 
 Set the value to `Month`. Worker nodes are billed only on a monthly basis.', example='Month', deprecated='true', position='Body'),
-  workerSystemDiskCategory?: string(name='worker_system_disk_category', description='The category of the system disk that you attach to the worker node. For more information, see [Elastic Block Storage devices](~~63136~~).
+  workerSystemDiskCategory?: string(name='worker_system_disk_category', description='The category of the system disks for worker nodes. For more information, see [Elastic Block Storage devices](~~63136~~).
 
 Valid values:
 
@@ -907,7 +924,7 @@ Valid values:
 *   `cloud_ssd`: standard SSD.
 
 Default value: `cloud_ssd`.', example='cloud_efficiency', deprecated='true', position='Body'),
-  workerSystemDiskPerformanceLevel?: string(name='worker_system_disk_performance_level', description='If the system disk is an ESSD, you can set the PL of the ESSD. For more information, see [ESSDs](~~122389~~).
+  workerSystemDiskPerformanceLevel?: string(name='worker_system_disk_performance_level', description='If the system disk is an ESSD, you can set the PL of the ESSD. For more information, see [Enhanced SSDs](~~122389~~).
 
 Valid values:
 
@@ -915,18 +932,18 @@ Valid values:
 *   PL1
 *   PL2
 *   PL3', example='PL1', deprecated='true', position='Body'),
-  workerSystemDiskSize?: long(name='worker_system_disk_size', description='The size of the system disk that you want to use for worker nodes. Unit: GiB.
+  workerSystemDiskSize?: long(name='worker_system_disk_size', description='The system disk size of worker nodes. Unit: GiB.
 
 Valid values: 40 to 500.
 
 The value of this parameter must be at least 40 and no less than the image size.
 
 Default value: `120`.', example='120', deprecated='true', position='Body'),
-  workerSystemDiskSnapshotPolicyId?: string(name='worker_system_disk_snapshot_policy_id', description='The ID of the automatic snapshot policy that you want to use for the system disks of worker nodes.', example='sp-2zej1nogjvovnz4z****', deprecated='true', position='Body'),
+  workerSystemDiskSnapshotPolicyId?: string(name='worker_system_disk_snapshot_policy_id', description='The ID of the automatic snapshot policy that is used by the system disk specified for worker nodes.', example='sp-2zej1nogjvovnz4z****', deprecated='true', position='Body'),
   workerVswitchIds?: [ string ](name='worker_vswitch_ids', description='The list of vSwitches that are specified for nodes. Each node is allocated a vSwitch.
 
 The `worker_vswitch_ids` parameter is optional but the `vswitch_ids` parameter is required when you create an ACK managed cluster that does not contain nodes.', deprecated='true', position='Body'),
-  zoneId?: string(name='zone_id', description='The ID of the zone in which the cluster is deployed. This parameter takes effect in only ACK Serverless clusters.
+  zoneId?: string(name='zone_id', description='The ID of the zone to which the cluster belongs. This parameter takes effect in only ACK Serverless clusters.
 
 When you create an ACK Serverless cluster, you must configure `zone_id` if `vpc_id` and `vswitch_ids` are not configured. This way, the system automatically creates a VPC in the specified zone.', example='cn-beiji****', position='Body'),
 }
@@ -1065,6 +1082,8 @@ Set the value in the customized,aliyun,ip,com format. The value consists of four
     autoUpgrade?: boolean(name='auto_upgrade', example='true'),
     autoUpgradePolicy?: {
       autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+      autoUpgradeOs?: boolean(name='auto_upgrade_os'),
+      autoUpgradeRuntime?: boolean(name='auto_upgrade_runtime'),
     }(name='auto_upgrade_policy'),
     autoVulFix?: boolean(name='auto_vul_fix', example='true'),
     autoVulFixPolicy?: {
@@ -1470,9 +1489,9 @@ Default value: `false`.', example='false', position='Query'),
 }
 
 model DeleteClusterResponseBody = {
-  clusterId?: string(name='cluster_id', example='cb95aa626a47740afbf6aa099b650****'),
-  requestId?: string(name='request_id', example='687C5BAA-D103-4993-884B-C35E4314****'),
-  taskId?: string(name='task_id', description='The task ID.', example='T-5a54309c80282e39ea****'),
+  clusterId?: string(name='cluster_id', description='The ID of the cluster.', example='cb95aa626a47740afbf6aa099b650****'),
+  requestId?: string(name='request_id', description='The request ID.', example='687C5BAA-D103-4993-884B-C35E4314****'),
+  taskId?: string(name='task_id', description='The ID of the task.', example='T-5a54309c80282e39ea****'),
 }
 
 model DeleteClusterResponse = {
@@ -1689,32 +1708,40 @@ async function descirbeWorkflow(request: DescirbeWorkflowRequest): DescirbeWorkf
 }
 
 model DescribeAddonRequest {
-  addonName?: string(name='addon_name', example='coredns', position='Path'),
-  clusterId?: string(name='cluster_id', example='c02b3e03be10643e8a644a843ffcb****', position='Query'),
-  clusterSpec?: string(name='cluster_spec', example='ack.pro.small', position='Query'),
-  clusterType?: string(name='cluster_type', example='ManagedKubernetes', position='Query'),
-  clusterVersion?: string(name='cluster_version', example='1.26.3-aliyun.1', position='Query'),
-  profile?: string(name='profile', example='Default', position='Query'),
-  regionId?: string(name='region_id', example='cn-hangzhou', position='Query'),
-  version?: string(name='version', example='v1.9.3.10-7dfca203-aliyun', position='Query'),
+  addonName?: string(name='addon_name', description='The name of the component.', example='coredns', position='Path'),
+  clusterId?: string(name='cluster_id', description='The ID of the cluster. If you specify a cluster ID, only components used in the cluster are queried. Other parameters are ignored.', example='c02b3e03be10643e8a644a843ffcb****', position='Query'),
+  clusterSpec?: string(name='cluster_spec', description='The specifications of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='ack.pro.small', position='Query'),
+  clusterType?: string(name='cluster_type', description='The type of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='ManagedKubernetes', position='Query'),
+  clusterVersion?: string(name='cluster_version', description='The version of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='1.26.3-aliyun.1', position='Query'),
+  profile?: string(name='profile', description='The subtype of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='Default', position='Query'),
+  regionId?: string(name='region_id', description='The region ID. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='cn-hangzhou', position='Query'),
+  version?: string(name='version', description='The version of the component. If you do not specify this parameter, the latest version of the component is queried.', example='v1.9.3.10-7dfca203-aliyun', position='Query'),
 }
 
 model DescribeAddonResponseBody = {
-  architecture?: [ string ](name='architecture'),
-  category?: string(name='category', example='network'),
-  configSchema?: string(name='config_schema', example='{}'),
-  installByDefault?: boolean(name='install_by_default', example='true'),
-  managed?: boolean(name='managed', example='false'),
-  name?: string(name='name', example='coredns'),
+  architecture?: [ string ](name='architecture', description='Architectures supported by the component. Valid values:
+
+*   amd64
+*   arm64'),
+  category?: string(name='category', description='The category of the component.', example='network'),
+  configSchema?: string(name='config_schema', description='The custom parameter schema of the component.', example='{}'),
+  installByDefault?: boolean(name='install_by_default', description='Indicates whether the component is automatically installed by default.', example='true'),
+  managed?: boolean(name='managed', description='Indicates whether the component is fully managed.', example='false'),
+  name?: string(name='name', description='The name of the component.', example='coredns'),
   newerVersions?: [ 
     {
-      minimumClusterVersion?: string(name='minimum_cluster_version', example='1.20.4'),
-      upgradable?: boolean(name='upgradable', example='true'),
-      version?: string(name='version', example='v1.9.3.10-7dfca203-aliyun'),
+      minimumClusterVersion?: string(name='minimum_cluster_version', description='The minimum cluster version required by the component version.', example='1.20.4'),
+      upgradable?: boolean(name='upgradable', description='Indicates whether the component can be updated to the version.', example='true'),
+      version?: string(name='version', description='The version number.', example='v1.9.3.10-7dfca203-aliyun'),
     }
-  ](name='newer_versions'),
-  supportedActions?: [ string ](name='supported_actions'),
-  version?: string(name='version', example='v1.9.3.6-32932850-aliyun'),
+  ](name='newer_versions', description='The latest version of the component.'),
+  supportedActions?: [ string ](name='supported_actions', description='Operations supported by the component. Valid values:
+
+*   Install
+*   Upgrade
+*   Modify
+*   Uninstall'),
+  version?: string(name='version', description='The version of the component.', example='v1.9.3.6-32932850-aliyun'),
 }
 
 model DescribeAddonResponse = {
@@ -2841,8 +2868,8 @@ async function describeClusterResources(request: DescribeClusterResourcesRequest
 
 model DescribeClusterTasksRequest {
   clusterId?: string(name='cluster_id', description='The ID of the cluster.', example='c23421cfa74454bc8b37163fd19af****', position='Path'),
-  pageNumber?: int32(name='page_number', example='1', position='Query'),
-  pageSize?: int32(name='page_size', example='20', position='Query'),
+  pageNumber?: int32(name='page_number', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='page_size', description='The number of entries per page.', example='20', position='Query'),
 }
 
 model DescribeClusterTasksResponseBody = {
@@ -2949,41 +2976,9 @@ model DescribeClusterVulsResponseBody = {
 
 Valid values:
 
-*   nntf
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    low
-
-    <!-- -->
-
-*   later
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    medium
-
-    <!-- -->
-
-*   asap
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    high
-
-    <!-- -->', example='asap'),
+*   nntf: low
+*   later: medium     
+*   asap: high', example='asap'),
       nodeCount?: int32(name='node_count', description='The number of nodes that have the vulnerability.', example='1'),
       nodepoolId?: string(name='nodepool_id', description='The node pool ID.', example='np0156da1082b54fa987e32618dd45f5d3'),
       nodepoolName?: string(name='nodepool_name', description='The name of the node pool.', example='test'),
@@ -2993,77 +2988,12 @@ Valid values:
 
 Valid values:
 
-*   app
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    application vulnerabilities
-
-    <!-- -->
-
-*   sca
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    application vulnerabilities (software component analysis)
-
-    <!-- -->
-
-*   cve
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    Linux vulnerabilities
-
-    <!-- -->
-
-*   cms
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    Web-CMS vulnerabilities
-
-    <!-- -->
-
-*   sys
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    Windows vulnerabilities
-
-    <!-- -->
-
-*   emg
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    emergency vulnerabilities
-
-    <!-- -->', example='cve'),
+*   app: application vulnerabilities
+*   sca: application vulnerabilities (software component analysis)
+*   cve: Linux vulnerabilities
+*   cms: Web-CMS vulnerabilities
+*   sys: Windows vulnerabilities
+*   emg:  emergency vulnerabilities', example='cve'),
     }
   ](name='vul_records', description='An array of vulnerabilities.'),
 }
@@ -3138,7 +3068,7 @@ async function describeClusters(request: DescribeClustersRequest): DescribeClust
 }
 
 model DescribeClustersV1Request {
-  clusterId?: string(name='cluster_id', description='集群ID。', example='ca418e5e6fa2849d78301341700axxxxx', position='Query'),
+  clusterId?: string(name='cluster_id', description='The cluster ID.', example='ca418e5e6fa2849d78301341700axxxxx', position='Query'),
   clusterSpec?: string(name='cluster_spec', description='The cluster type, which is available only when the cluster type is set to `ManagedKubernetes`. Valid values:
 
 *   `ack.pro.small`: ACK Pro cluster
@@ -3506,9 +3436,9 @@ async function describeExternalAgent(request: DescribeExternalAgentRequest): Des
 model DescribeKubernetesVersionMetadataRequest {
   clusterType: string(name='ClusterType', description='The cluster type that you want to use. Valid values:
 
-*   `Kubernetes`: ACK dedicated cluster
-*   `ManagedKubernetes`: ACK managed cluster
-*   `ExternalKubernetes`: registered cluster', example='Kubernetes', position='Query'),
+*   `Kubernetes`: ACK dedicated cluster.
+*   `ManagedKubernetes`: ACK managed cluster. ACK managed clusters include ACK Pro clusters, ACK Basic clusters, ACK Serverless Pro clusters, ACK Serverless Basic clusters, ACK Edge Pro clusters, and ACK Edge Basic clusters.
+*   `ExternalKubernetes`: registered cluster.', example='Kubernetes', position='Query'),
   kubernetesVersion?: string(name='KubernetesVersion', description='The Kubernetes version of the cluster. The Kubernetes versions supported by ACK are the same as the Kubernetes versions supported by open source Kubernetes. We recommend that you specify the latest Kubernetes version. If you do not set this parameter, the latest Kubernetes version is used.
 
 You can create ACK clusters of the latest two Kubernetes versions in the ACK console. You can call the specific ACK API operation to create clusters of other Kubernetes versions. For more information about the Kubernetes versions supported by ACK, see [Release notes for Kubernetes versions](~~185269~~).', example='1.16.9-aliyun.1', position='Query'),
@@ -3621,47 +3551,9 @@ model DescribeNodePoolVulsResponseBody = {
 
 Valid values:
 
-*   nntf
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    You can ignore the vulnerability
-
-    <!-- -->
-
-    .
-
-*   later
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    You can fix the vulnerability later
-
-    <!-- -->
-
-    .
-
-*   asap
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    You need to fix the vulnerability at the earliest opportunity
-
-    <!-- -->
-
-    .', example='asap'),
+*   nntf: You can ignore the vulnerability
+*   later: You can fix the vulnerability later
+*   asap: You need to fix the vulnerability at the earliest opportunity', example='asap'),
         }
       ](name='vul_list', description='A list of vulnerabilities.'),
     }
@@ -3714,7 +3606,11 @@ model DescribePolicyDetailsResponseBody = {
 
 *   0: Parameters are required.
 *   1: Parameters are optional.', example='0'),
-  severity?: string(name='severity', description='The severity level of the policy.', example='high'),
+  severity?: string(name='severity', description='The severity level of the policy. Valid values:
+
+*   `high`
+*   `medium`
+*   `low`', example='high'),
   template?: string(name='template', description='The content of the policy.', example='For more information, see sample requests.'),
 }
 
@@ -3838,7 +3734,7 @@ model DescribePolicyInstancesStatusResponseBody = {
   instancesSeverityCount?: map[string]any(name='instances_severity_count', description='Information about the number of policy instances of each severity level.', example='{ "high": 11,     "medium": 1  }'),
   policyInstances?: [ 
     {
-      policyCategory?: string(name='policy_category', description='The policy type.', example='cis-k8s'),
+      policyCategory?: string(name='policy_category', description='The policy type. For more information about different types of policies and their descriptions, see [Predefined security policies of ACK](https://www.alibabacloud.com/help/doc-detail/359819.html).', example='cis-k8s'),
       policyDescription?: string(name='policy_description', description='The description of the policy.', example='Restricts use of the cluster-admin role.'),
       policyInstancesCount?: long(name='policy_instances_count', description='The number of policy instances that are deployed. If this parameter is empty, no policy instance is deployed.', example='1'),
       policyName?: string(name='policy_name', description='The name of the policy.', example='ACKRestrictRoleBindings'),
@@ -4253,10 +4149,10 @@ async function edgeClusterAddEdgeMachine(request: EdgeClusterAddEdgeMachineReque
 model FixNodePoolVulsRequest {
   clusterId: string(name='cluster_id', description='The cluster ID.', example='cf62854ac2130470897be7a27ed1f****', position='Path'),
   nodepoolId: string(name='nodepool_id', description='The node pool ID.', example='np31da1b38983f4511b490fc62108a****', position='Path'),
-  autoRestart?: boolean(name='auto_restart', example='true', position='Body'),
+  autoRestart?: boolean(name='auto_restart', description='Specifies whether to allow the nodes to restart.', example='true', position='Body'),
   nodes?: [ string ](name='nodes', description='The names of the nodes to be patched.', position='Body'),
   rolloutPolicy?: {
-    maxParallelism?: long(name='max_parallelism', description='The maximum number of nodes that can be patched in parallel. The minimum value is 1. The maximum value equals the number of nodes in the node pool.', example='1'),
+    maxParallelism?: long(name='max_parallelism', description='The maximum concurrency for batch patching. Minimum value: 1. The maximum value equals the number of nodes in the node pool.', example='1'),
   }(name='rollout_policy', description='The batch patching policy.', position='Body'),
   vuls?: [ string ](name='vuls', description='The list of vulnerabilities.', position='Body'),
 }
@@ -4284,21 +4180,26 @@ async function fixNodePoolVuls(request: FixNodePoolVulsRequest): FixNodePoolVuls
 }
 
 model GetClusterAddonInstanceRequest {
-  clusterId?: string(name='cluster_id', example='c02b3e03be10643e8a644a843ffcb****', position='Path'),
-  instanceName?: string(name='instance_name', example='ack-node-problem-detector', position='Path'),
+  clusterId?: string(name='cluster_id', description='The ID of the cluster.', example='c02b3e03be10643e8a644a843ffcb****', position='Path'),
+  instanceName?: string(name='instance_name', description='The name of the component instance.', example='ack-node-problem-detector', position='Path'),
 }
 
 model GetClusterAddonInstanceResponseBody = {
-  config?: string(name='config', example='{"sls_project_name":""}'),
+  config?: string(name='config', description='The custom configurations of the component.', example='{"sls_project_name":""}'),
   logging?: {
-    capable?: boolean(name='capable', example='false'),
-    enabled?: boolean(name='enabled', example='false'),
-    logProject?: string(name='log_project', example='my-log-project'),
-    logstore?: string(name='logstore', example='my-logstore'),
-  }(name='logging'),
-  name?: string(name='name', example='ack-node-problem-detector'),
-  state?: string(name='state', example='active'),
-  version?: string(name='version', example='1.2.16'),
+    capable?: boolean(name='capable', description='Indicates whether Simple Log Service is supported by the component.', example='false'),
+    enabled?: boolean(name='enabled', description='Indicates whether Simple Log Service is enabled for the component.', example='false'),
+    logProject?: string(name='log_project', description='The Simple Log Service project that is used to collect logs for the component.', example='my-log-project'),
+    logstore?: string(name='logstore', description='The Simple Log Service Logstore that is used to collect logs for the component.', example='my-logstore'),
+  }(name='logging', description='The status of Simple Log Service.'),
+  name?: string(name='name', description='The name of the component instance.', example='ack-node-problem-detector'),
+  state?: string(name='state', description='The status of the component. Valid values:
+
+*   active: The component is installed.
+*   updating: The component is being modified.
+*   upgrading: The component is being updated.
+*   deleting: The component is being uninstalled.', example='active'),
+  version?: string(name='version', description='The version of the component instance.', example='1.2.16'),
 }
 
 model GetClusterAddonInstanceResponse = {
@@ -4497,27 +4398,35 @@ async function installClusterAddons(request: InstallClusterAddonsRequest): Insta
 }
 
 model ListAddonsRequest {
-  clusterId?: string(name='cluster_id', example='c02b3e03be10643e8a644a843ffcb****', position='Query'),
-  clusterSpec?: string(name='cluster_spec', example='ack.pro.small', position='Query'),
-  clusterType?: string(name='cluster_type', example='ManagedKubernetes', position='Query'),
-  clusterVersion?: string(name='cluster_version', example='1.26.3-aliyun.1', position='Query'),
-  profile?: string(name='profile', example='Default', position='Query'),
-  regionId?: string(name='region_id', example='cn-hangzhou', position='Query'),
+  clusterId?: string(name='cluster_id', description='The cluster ID. If you specify a cluster ID, only components used in the specified cluster are queried. Other parameters are ignored.', example='c02b3e03be10643e8a644a843ffcb****', position='Query'),
+  clusterSpec?: string(name='cluster_spec', description='The specifications of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='ack.pro.small', position='Query'),
+  clusterType?: string(name='cluster_type', description='The type of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='ManagedKubernetes', position='Query'),
+  clusterVersion?: string(name='cluster_version', description='The version of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='1.26.3-aliyun.1', position='Query'),
+  profile?: string(name='profile', description='The subtype of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='Default', position='Query'),
+  regionId?: string(name='region_id', description='The region of the cluster. If cluster_id is specified, this parameter is ignored. You must specify the region_id, cluster_type, profile, cluster_spec, and cluster_version parameters at the same time.', example='cn-hangzhou', position='Query'),
 }
 
 model ListAddonsResponseBody = {
   addons?: [ 
     {
-      architecture?: [ string ](name='architecture'),
-      category?: string(name='category', example='monitor'),
-      configSchema?: string(name='config_schema', example='{}'),
-      installByDefault?: boolean(name='install_by_default', example='false'),
-      managed?: boolean(name='managed', example='false'),
-      name?: string(name='name', example='arms-prometheus'),
-      supportedActions?: [ string ](name='supported_actions'),
-      version?: string(name='version', example='1.1.9'),
+      architecture?: [ string ](name='architecture', description='Architectures supported by the component. Valid values:
+
+*   amd64
+*   arm64'),
+      category?: string(name='category', description='The category of the component.', example='monitor'),
+      configSchema?: string(name='config_schema', description='The schema of the custom parameters of the component.', example='{}'),
+      installByDefault?: boolean(name='install_by_default', description='Indicates whether the component is automatically installed by default.', example='false'),
+      managed?: boolean(name='managed', description='Indicates whether the component is fully managed.', example='false'),
+      name?: string(name='name', description='The component name.', example='arms-prometheus'),
+      supportedActions?: [ string ](name='supported_actions', description='Operations supported by the component. Valid values:
+
+*   Install
+*   Upgrade
+*   Modify
+*   Uninstall'),
+      version?: string(name='version', description='The version number.', example='1.1.9'),
     }
-  ](name='addons'),
+  ](name='addons', description='The list of available components.'),
 }
 
 model ListAddonsResponse = {
@@ -4532,17 +4441,22 @@ async function listAddons(request: ListAddonsRequest): ListAddonsResponse {
 }
 
 model ListClusterAddonInstancesRequest {
-  clusterId?: string(name='cluster_id', example='c02b3e03be10643e8a644a843ffcb****', position='Path'),
+  clusterId?: string(name='cluster_id', description='The cluster ID.', example='c02b3e03be10643e8a644a843ffcb****', position='Path'),
 }
 
 model ListClusterAddonInstancesResponseBody = {
   addons?: [ 
     {
-      name?: string(name='name', example='coredns'),
-      state?: string(name='state', example='active'),
-      version?: string(name='version', example='v1.9.3.10-7dfca203-aliyun'),
+      name?: string(name='name', description='The component name.', example='coredns'),
+      state?: string(name='state', description='The status of the component. Valid values:
+
+*   active: The component is installed.
+*   updating: The component is being modified.
+*   upgrading: The component is being updated.
+*   deleting: The component is being uninstalled.', example='active'),
+      version?: string(name='version', description='The version of the component.', example='v1.9.3.10-7dfca203-aliyun'),
     }
-  ](name='addons'),
+  ](name='addons', description='A list of components that are installed in the cluster.'),
 }
 
 model ListClusterAddonInstancesResponse = {
@@ -4558,7 +4472,7 @@ async function listClusterAddonInstances(request: ListClusterAddonInstancesReque
 
 model ListClusterChecksRequest {
   clusterId?: string(name='cluster_id', description='The cluster ID.', example='ce0da5a1d627e4e9e9f96cae8ad07****', position='Path'),
-  target?: string(name='target', position='Query'),
+  target?: string(name='target', description='The targets to check.', position='Query'),
   type?: string(name='type', description='The check method.', example='ClusterUpgrade', position='Query'),
 }
 
@@ -4587,24 +4501,29 @@ async function listClusterChecks(request: ListClusterChecksRequest): ListCluster
 }
 
 model ListOperationPlansRequest {
-  clusterId?: string(name='cluster_id', example='c29ced64b3dfe4f33b57ca0aa9f68****', position='Query'),
-  type?: string(name='type', example='cluster_upgrade', position='Query'),
+  clusterId?: string(name='cluster_id', description='The cluster ID.', example='c29ced64b3dfe4f33b57ca0aa9f68****', position='Query'),
+  type?: string(name='type', description='The operation plan type.', example='cluster_upgrade', position='Query'),
 }
 
 model ListOperationPlansResponseBody = {
   plans?: [ 
     {
-      clusterId?: string(name='cluster_id', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
-      created?: string(name='created', example='2023-11-21T20:01:22+08:00'),
-      endTime?: string(name='end_time', example='2023-11-22T18:00:00+08:00'),
-      planId?: string(name='plan_id', example='P-655c9c127e0e6603ef00****'),
-      startTime?: string(name='start_time', example='2023-11-22T15:18:00+08:00'),
-      state?: string(name='state', example='scheduled'),
-      targetId?: string(name='target_id', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
-      targetType?: string(name='target_type', example='cluster'),
-      type?: string(name='type', example='cluster_upgrade'),
+      clusterId?: string(name='cluster_id', description='The cluster ID.', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
+      created?: string(name='created', description='The time when the operation plan was created.', example='2023-11-21T20:01:22+08:00'),
+      endTime?: string(name='end_time', description='The expected end time of the plan.', example='2023-11-22T18:00:00+08:00'),
+      planId?: string(name='plan_id', description='The operation plan ID.', example='P-655c9c127e0e6603ef00****'),
+      startTime?: string(name='start_time', description='The expected start time of the plan.', example='2023-11-22T15:18:00+08:00'),
+      state?: string(name='state', description='The plan status. Valid values:
+
+*   scheduled
+*   Canceled', example='scheduled'),
+      targetId?: string(name='target_id', description='The target ID.', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
+      targetType?: string(name='target_type', description='The target type.', example='cluster'),
+      type?: string(name='type', description='The plan type. Valid values:
+
+*   cluster_upgrade', example='cluster_upgrade'),
     }
-  ](name='plans'),
+  ](name='plans', description='The operation plans.'),
 }
 
 model ListOperationPlansResponse = {
@@ -4819,12 +4738,12 @@ Default value: `false`.', example='true', deprecated='true'),
 
 *   `cpu`: regular instance.
 *   `gpu`: GPU-accelerated instance.
-*   `gpushare`: shared GPU-accelerated instance.
+*   `gpushare`: shared GPU-accelerated instance
 *   `spot`: preemptible instance
 
 Default value: `cpu`.', example='cpu', deprecated='true'),
   }(name='auto_scaling', description='The configuration of auto scaling.', position='Body'),
-  concurrency?: boolean(name='concurrency', example='true', position='Body'),
+  concurrency?: boolean(name='concurrency', description='Specifies whether concurrency is supported.', example='true', position='Body'),
   kubernetesConfig?: {
     cmsEnabled?: boolean(name='cms_enabled', description='Specifies whether to install the CloudMonitor agent on ECS nodes. After the CloudMonitor agent is installed on ECS nodes, you can view monitoring information about the instances in the CloudMonitor console. We recommend that you install the CloudMonitor agent. Valid values:
 
@@ -4832,7 +4751,7 @@ Default value: `cpu`.', example='cpu', deprecated='true'),
 *   `false`: does not install the CloudMonitor agent on ECS nodes.
 
 Default value: `false`.', example='true'),
-    cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
+    cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later:
 
 *   `static`: allows pods with specific resource characteristics on the node to be granted enhanced CPU affinity and exclusivity.
 *   `none`: specifies that the default CPU affinity is used.
@@ -4842,7 +4761,7 @@ Default value: `none`.', example='none'),
       Tag
     ](name='labels', description='The labels of the nodes in the node pool. You can add labels to the nodes in the cluster. You must add labels based on the following rules:
 
-*   Each label is a case-sensitive key-value pair. You can add at most 20 labels.
+*   A tag is a case-sensitive key-value pair. You can add up to 20 tags.
 *   The key must be unique and cannot exceed 64 characters in length. The value can be empty and cannot exceed 128 characters in length. Keys and values cannot start with `aliyun`, `acs:`, `https://`, or `http://`. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).'),
     runtime?: string(name='runtime', description='The name of the container runtime.', example='docker'),
     runtimeVersion?: string(name='runtime_version', description='The version of the container runtime.', example='19.03.5'),
@@ -4874,11 +4793,13 @@ Default value: `true`.', example='true'),
 
 *   `true`: yes
 *   `false`: no', example='true'),
+      autoUpgradeOs?: boolean(name='auto_upgrade_os'),
+      autoUpgradeRuntime?: boolean(name='auto_upgrade_runtime'),
     }(name='auto_upgrade_policy', description='The auto update policy.'),
     autoVulFix?: boolean(name='auto_vul_fix', description='Specifies whether ACK is allowed to automatically patch CVE vulnerabilities. Valid values:
 
 *   `true`: yes
-*   `false`: no', example='true'),
+*   `true`: no', example='true'),
     autoVulFixPolicy?: {
       restartNode?: boolean(name='restart_node', description='Specifies whether ACK is allowed to automatically restart nodes after patching CVE vulnerabilities. Valid values:
 
@@ -4914,7 +4835,7 @@ Default value: 1.', example='1'),
     name?: string(name='name', description='The name of the node pool.
 
 The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). It cannot start with a hyphen (-).', example='default-nodepool'),
-    resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group to which the node pool belongs.', example='rg-acfmyvw3wjm****'),
+    resourceGroupId?: string(name='resource_group_id', description='The ID of the resource group.', example='rg-acfmyvw3wjm****'),
   }(name='nodepool_info', description='The configurations of the node pool.', position='Body'),
   scalingGroup?: {
     autoRenew?: boolean(name='auto_renew', description='Specifies whether to enable auto-renewal for the nodes in the node pool. This parameter takes effect only when you set `instance_charge_type` to `PrePaid`. Valid values:
@@ -4928,14 +4849,14 @@ Default value: `true`.', example='true'),
 If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='1'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Specifies whether to automatically create pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as the cost or insufficient inventory. This parameter takes effect when you set `multi_az_policy` to `COST_OPTIMIZED`. Valid values:
 
-*   `true`: automatically creates pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created.
+*   `true`: automatically creates pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created
 *   `false`: does not create pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created.', example='true'),
     dataDisks?: [
       DataDisk
     ](name='data_disks', description='The configurations of the data disks that are mounted to the nodes in the node pool. You can mount 0 to 10 data disks. You can mount at most 10 data disks to the nodes in the node pool.'),
     desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
     imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the supported images. By default, the latest image is used.', example='aliyun_2_1903_x64_20G_alibase_20200904.vhd'),
-    imageType?: string(name='image_type', example='AliyunLinux'),
+    imageType?: string(name='image_type', description='The type of OS distribution that you want to use. To specify the node OS, we recommend that you use this parameter. Valid values: CentOS, AliyunLinux, AliyunLinux Qboot, AliyunLinuxUEFI, AliyunLinux3, Windows, WindowsCore, AliyunLinux3Arm64, and ContainerOS.', example='AliyunLinux'),
     instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
 *   `PrePaid`: subscription.
@@ -4950,7 +4871,7 @@ Default value: `PostPaid`.', example='PostPaid'),
     internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', description='The maximum outbound bandwidth of the public IP address of the node. Unit: Mbit/s. Valid values: 1 to 100.', example='5'),
     keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter. You must set `key_pair` if the node pool is a managed node pool.', example='pro-nodepool'),
     loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello1234'),
-    multiAzPolicy?: string(name='multi_az_policy', description='The ECS instance scaling policy for a multi-zone scaling group. Valid values:
+    multiAzPolicy?: string(name='multi_az_policy', description='The ECS instance scaling policy for the multi-zone scaling group. Valid values:
 
 *   `PRIORITY`: The scaling group is scaled based on the VSwitchIds.N parameter. If an ECS instance cannot be created in the zone where the vSwitch that has the highest priority resides, Auto Scaling creates the ECS instance in the zone where the vSwitch that has the next highest priority resides.
 
@@ -4960,7 +4881,7 @@ Default value: `PostPaid`.', example='PostPaid'),
 
     **Note** `COST_OPTIMIZED` is valid only when multiple instance types are specified or at least one preemptible instance type is specified.
 
-*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to insufficient inventory, you can call the `RebalanceInstances` operation of Auto Scaling to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~).
+*   `BALANCE`: ECS instances are evenly distributed across multiple zones specified by the scaling group. If ECS instances become imbalanced among multiple zones due to the insufficient inventory, you can call the `RebalanceInstances` operation of Auto Scaling to balance the instance distribution among zones. For more information, see [RebalanceInstances](~~71516~~).
 
 Default value: `PRIORITY`.', example='BALANCE'),
     onDemandBaseCapacity?: long(name='on_demand_base_capacity', description='The minimum number of pay-as-you-go instances that must be kept in the scaling group. Valid values: 0 to 1000. If the number of pay-as-you-go instances is less than the value of this parameter, Auto Scaling preferably creates pay-as-you-go instances.', example='0'),
@@ -4990,7 +4911,7 @@ Default value: `Month`.', example='Month'),
     rdsInstances?: [ string ](name='rds_instances', description='A list of ApsaraDB RDS instances.'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
 
-*   `release`: the standard mode. ECS instances are created and released based on resource usage.
+*   `release`: the standard mode. ECS instances are created and released based on the resource usage.
 *   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Specifies whether to supplement preemptible instances. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values:
@@ -5012,32 +4933,32 @@ Unit: USD/hour.', example='0.39'),
 *   `SpotAsPriceGo`: automatically submits bids based on the up-to-date market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='SpotWithPriceLimit'),
-    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
-    systemDiskCategories?: [ string ](name='system_disk_categories'),
+    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', description='Indicates whether Burst is enabled for the system disk when the disk type is cloud_auto.', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories', description='The types of system disks. The system attempts to create system disks from a disk type with a lower priority when the disk type with a higher priority is unavailable. Valid values: cloud: disk cloud_efficiency: ultra disk cloud_ssd: standard SSD cloud_essd: indicates an enhanced SSD (ESSD).'),
     systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
 
 *   `cloud_efficiency`: ultra disk.
-*   `cloud_ssd`: standard SSD.
+*   `cloud_ssd`: standard SSD
 
 Default value: `cloud_ssd`.', example='cloud_efficiency'),
-    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
-    systemDiskEncrypted?: boolean(name='system_disk_encrypted', example='false'),
-    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', description='The algorithm that you want to use to encrypt the system disk. The value is aes-256.', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='Indicates whether the system disk is encrypted. Valid values: true: encrypts the system disk. false: does not encrypt the system disk.', example='false'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', description='The ID of the Key Management Service (KMS) key that is used to encrypt the system disk.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs. You can specify a higher PL if you increase the size of the system disk. For more information, see [ESSDs](~~122389~~).', example='PL1'),
-    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
-    systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
+    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', description='The predefined read and write IOPS of the system disk when the disk type is cloud_auto.', example='1000'),
+    systemDiskSize?: long(name='system_disk_size', description='The size of the system disk in GiB.
 
 Valid values: 20 to 500.
 
-The value of this parameter must be at least 20 and greater than or equal to the size of the specified image.
+The value of this parameter must be at least 20 and greater than or equal to the size of the image.
 
-The default value is the greater one between 40 and the image size.', example='120'),
+Default value: the greater value between 40 and the image size.', example='120'),
     tags?: [
       Tag
-    ](name='tags', description='The labels that you want to add to the ECS instances.
+    ](name='tags', description='The labels that you want to add only to ECS instances.
 
-The key must be unique and cannot exceed 128 characters in length. Neither keys nor values can start with aliyun or acs:. Neither keys nor values can contain https:// or http://.'),
-    vswitchIds?: [ string ](name='vswitch_ids', description='The vSwitch IDs. You can specify 1 to 20 vSwitches.
+The tag key must be unique and cannot exceed 128 characters in length. The tag key and value must not start with aliyun or acs: or contain https:// or http://.'),
+    vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches. You can specify 1 to 20 vSwitches.
 
 >  To ensure high availability, we recommend that you select vSwitches in different zones.'),
   }(name='scaling_group', description='The configurations of the scaling group.', position='Body'),
@@ -5090,6 +5011,9 @@ model ModifyNodePoolNodeConfigRequest {
   clusterId: string(name='ClusterId', description='The ID of the cluster.', example='c23421cfa74454bc8b37163fd19af****', position='Path'),
   nodepoolId: string(name='NodepoolId', description='The node pool ID.', example='np8d8c9c2cd0f64e89884f82a5fbcd****', position='Path'),
   kubeletConfig?: KubeletConfig(name='kubelet_config', description='The kubelet configuration.', position='Body'),
+  osConfig?: {
+    sysctl?: map[string]any(name='sysctl'),
+  }(name='os_config', position='Body'),
   rollingPolicy?: {
     maxParallelism?: long(name='max_parallelism', description='The maximum number of nodes in the Unschedulable state.', example='3'),
   }(name='rolling_policy', description='The rotation configuration.', position='Body'),
@@ -5483,16 +5407,16 @@ model ScaleOutClusterRequest {
 
 Default value: `false`.', example='true', position='Body'),
   count: long(name='count', description='The number of worker nodes that you want to add.', example='3', position='Body'),
-  cpuPolicy?: string(name='cpu_policy', description='The CPU management policy. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
+  cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of the nodes in a node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later.
 
 *   `static`: This policy allows pods with specific resource characteristics on the node to be granted with enhanced CPU affinity and exclusivity.
-*   `none`: specifies that the default CPU affinity is used.
+*   `none`: The default CPU affinity is used.
 
 Default value: `none`.', example='none', position='Body'),
-  imageId?: string(name='image_id', description='Specifies a custom image for nodes. By default, the image provided by ACK is used. You can select a custom image to replace the default image. For more information, see [Custom images](~~146647~~).', example='m-bp16z7xko3vvv8gt****', position='Body'),
+  imageId?: string(name='image_id', description='Specifies a custom image for nodes. By default, the image provided by Container Service for Kubernetes (ACK) is used. You can select a custom image to replace the default image. For more information, see [Custom images](~~146647~~).', example='m-bp16z7xko3vvv8gt****', position='Body'),
   keyPair: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter.', example='secrity-key', position='Body'),
   loginPassword: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello@1234', position='Body'),
-  rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the RDS instances.', position='Body'),
+  rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of ApsaraDB RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the ApsaraDB RDS instances.', position='Body'),
   runtime?: Runtime(name='runtime', description='The container runtime.', position='Body'),
   tags?: [
     Tag
@@ -5502,7 +5426,7 @@ Default value: `none`.', example='none', position='Body'),
 *   A key must be unique and cannot exceed 64 characters in length. A value can be empty and cannot exceed 128 characters in length. Keys and values cannot start with aliyun, acs:, https://, or http://. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).', position='Body'),
   taints?: [
     Taint
-  ](name='taints', description='The taints that you want to add to nodes. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).', position='Body'),
+  ](name='taints', description='The taints that you want to add to nodes. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [Taints and Tolerations](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).', position='Body'),
   userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user-defined data](~~49121~~).', example='IyEvdXNyL2Jpbi9iYXNoCmVjaG8gIkhlbGxvIEFD****', position='Body'),
   vswitchIds: [ string ](name='vswitch_ids', description='The IDs of the vSwitches. You can select one to three vSwitches when you create a cluster. We recommend that you select vSwitches in different zones to ensure high availability.', position='Body'),
   workerAutoRenew?: boolean(name='worker_auto_renew', description='Specifies whether to enable auto-renewal for worker nodes. This parameter takes effect only if `worker_instance_charge_type` is set to `PrePaid`. Valid values:
@@ -5520,7 +5444,7 @@ Default value: `1`.', example='6', position='Body'),
     {
       autoSnapshotPolicyId?: string(name='auto_snapshot_policy_id', description='The ID of an automatic snapshot policy. Automatic backup is performed for a disk based on the specified automatic snapshot policy.
 
-By default, this parameter is empty. This indicates that automatic backup is disabled.', example='sp-bp14yziiuvu3s6jn****'),
+By default, this parameter is empty, which indicates that automatic backup is disabled.', example='sp-bp14yziiuvu3s6jn****'),
       category?: string(name='category', description='The data disk type.', example='cloud_essd'),
       encrypted?: string(name='encrypted', description='Specifies whether to encrypt the data disks. Valid values:
 
@@ -5534,9 +5458,9 @@ Default value: `false`.', example='true'),
   workerInstanceChargeType?: string(name='worker_instance_charge_type', description='The billing method of worker nodes. Valid values:
 
 *   `PrePaid`: subscription.
-*   `PostPaid`: pay-as-you-go
+*   `PostPaid`: pay-as-you-go.
 
-Default value: `PostPaid`', example='PrePaid', position='Body'),
+Default value: `PostPaid`.', example='PrePaid', position='Body'),
   workerInstanceTypes: [ string ](name='worker_instance_types', description='The instance configurations of worker nodes.', position='Body'),
   workerPeriod?: long(name='worker_period', description='The subscription duration of worker nodes. This parameter takes effect and is required only if `worker_instance_charge_type` is set to `PrePaid`.
 
@@ -5583,12 +5507,12 @@ async function scaleOutCluster(request: ScaleOutClusterRequest): ScaleOutCluster
 }
 
 model ScanClusterVulsRequest {
-  clusterId?: string(name='cluster_id', description='The cluster ID.', example='c259f563386444ebb8d7****', position='Path'),
+  clusterId?: string(name='cluster_id', example='c259f563386444ebb8d7****', position='Path'),
 }
 
 model ScanClusterVulsResponseBody = {
-  requestId?: string(name='request_id', description='The request ID.', example='687C5BAA-D103-4993-884B-C35E4314A1E1'),
-  taskId?: string(name='task_id', description='The task ID.', example='T-xascadasd*****'),
+  requestId?: string(name='request_id', example='687C5BAA-D103-4993-884B-C35E4314A1E1'),
+  taskId?: string(name='task_id', example='T-xascadasd*****'),
 }
 
 model ScanClusterVulsResponse = {
@@ -5604,8 +5528,8 @@ async function scanClusterVuls(request: ScanClusterVulsRequest): ScanClusterVuls
 
 model StartAlertRequest {
   clusterId: string(name='ClusterId', description='The cluster ID. You can call the ListClusters operation to query the cluster ID.', example='c245ff43c717f494489f42f5f1575e98d', position='Path'),
-  alertRuleGroupName?: string(name='alert_rule_group_name', position='Body'),
-  alertRuleName?: string(name='alert_rule_name', position='Body'),
+  alertRuleGroupName?: string(name='alert_rule_group_name', description='The name of the alert rule set to be enabled.', position='Body'),
+  alertRuleName?: string(name='alert_rule_name', description='The name of the alert rule to be enabled. If you do not specify an alert rule name, the alert rule set is enabled.', position='Body'),
 }
 
 model StartAlertResponseBody = {
@@ -5669,8 +5593,8 @@ model StopAlertRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
 You can call the [ListClusters](~~87116~~) operation to obtain cluster IDs.', example='c7f9c85baee73452883b3299a0107****', position='Path'),
-  alertRuleGroupName?: string(name='alert_rule_group_name', position='Body'),
-  alertRuleName?: string(name='alert_rule_name', position='Body'),
+  alertRuleGroupName?: string(name='alert_rule_group_name', description='The name of the alert rule set to be disabled.', position='Body'),
+  alertRuleName?: string(name='alert_rule_name', description='The name of the alert rule to be disabled. If you do not specify an alert rule name, the alert rule set is disabled.', position='Body'),
 }
 
 model StopAlertResponseBody = {
@@ -5713,15 +5637,15 @@ async function syncClusterNodePool(request: SyncClusterNodePoolRequest): SyncClu
 
 model TagResourcesRequest {
   regionId: string(name='region_id', description='The region ID of the resource.', example='cn-hangzhou', position='Body'),
-  resourceIds: [ string ](name='resource_ids', description='The IDs of the resources that you want to label.', position='Body'),
+  resourceIds: [ string ](name='resource_ids', description='The list of resource IDs.', position='Body'),
   resourceType: string(name='resource_type', description='The type of resource that you want to label. Set the value to `CLUSTER`.', example='CLUSTER', position='Body'),
   tags: [
     Tag
-  ](name='tags', description='The labels that you want to add to the resources in key-value pairs. You can add up to 20 labels. Note:
+  ](name='tags', description='The labels that you want to add to the resources in key-value pairs. You can add up to 20 labels. Usage notes:
 
-*   A value cannot be empty and can contain up to 128 characters.
-*   A key or value must not start with `aliyun` or `acs:`.
-*   A key or value must not contain `http://` or `https://`.', position='Body'),
+*   Label values must not be empty strings. A label value must be 1 to 128 characters in length.
+*   The label value must not start with `aliyun` or `acs:`.
+*   The label value must not contain `http://` or `https://`.', position='Body'),
 }
 
 model TagResourcesResponseBody = {
@@ -5812,9 +5736,9 @@ Default value: 30.', example='30', position='Body'),
 }
 
 model UpdateControlPlaneLogResponseBody = {
-  clusterId?: string(name='cluster_id', example='cb95aa626a47740afbf6aa099b650****'),
-  requestId?: string(name='request_id', example='687C5BAA-D103-4993-884B-C35E4314****'),
-  taskId?: string(name='task_id', example='T-5a54309c80282e39ea00****'),
+  clusterId?: string(name='cluster_id', description='The cluster ID.', example='cb95aa626a47740afbf6aa099b650****'),
+  requestId?: string(name='request_id', description='The request ID.', example='687C5BAA-D103-4993-884B-C35E4314****'),
+  taskId?: string(name='task_id', description='The task ID.', example='T-5a54309c80282e39ea00****'),
 }
 
 model UpdateControlPlaneLogResponse = {
