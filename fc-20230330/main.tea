@@ -1474,6 +1474,47 @@ async function getAsyncInvokeConfig(functionName: string, request: GetAsyncInvok
   return getAsyncInvokeConfigWithOptions(functionName, request, headers, runtime);
 }
 
+model GetAsyncTaskRequest {
+  qualifier?: string(name='qualifier', example='LATEST'),
+}
+
+model GetAsyncTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AsyncTask  
+}
+
+async function getAsyncTaskWithOptions(functionName: string, taskId: string, request: GetAsyncTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAsyncTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAsyncTask',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/async-tasks/${OpenApiUtil.getEncodeParam(taskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getAsyncTask(functionName: string, taskId: string, request: GetAsyncTaskRequest): GetAsyncTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAsyncTaskWithOptions(functionName, taskId, request, headers, runtime);
+}
+
 model GetConcurrencyConfigResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -1923,6 +1964,79 @@ async function listAsyncInvokeConfigs(request: ListAsyncInvokeConfigsRequest): L
   return listAsyncInvokeConfigsWithOptions(request, headers, runtime);
 }
 
+model ListAsyncTasksRequest {
+  includePayload?: boolean(name='includePayload', example='true'),
+  limit?: int32(name='limit', example='10'),
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+  prefix?: string(name='prefix', example='job-'),
+  qualifier?: string(name='qualifier', example='LATEST'),
+  sortOrderByTime?: string(name='sortOrderByTime', example='asc'),
+  startedTimeBegin?: long(name='startedTimeBegin', example='1640966400000'),
+  startedTimeEnd?: long(name='startedTimeEnd', example='1640966400000'),
+  status?: string(name='status', example='Running'),
+}
+
+model ListAsyncTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAsyncTaskOutput  
+}
+
+async function listAsyncTasksWithOptions(functionName: string, request: ListAsyncTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAsyncTasksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.includePayload)) {
+    query['includePayload'] = request.includePayload;
+  }
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.prefix)) {
+    query['prefix'] = request.prefix;
+  }
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+  if (!Util.isUnset(request.sortOrderByTime)) {
+    query['sortOrderByTime'] = request.sortOrderByTime;
+  }
+  if (!Util.isUnset(request.startedTimeBegin)) {
+    query['startedTimeBegin'] = request.startedTimeBegin;
+  }
+  if (!Util.isUnset(request.startedTimeEnd)) {
+    query['startedTimeEnd'] = request.startedTimeEnd;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['status'] = request.status;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAsyncTasks',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/async-tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listAsyncTasks(functionName: string, request: ListAsyncTasksRequest): ListAsyncTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAsyncTasksWithOptions(functionName, request, headers, runtime);
+}
+
 model ListConcurrencyConfigsRequest {
   functionName?: string(name='functionName', description='The function name. If you leave this parameter empty, the concurrency configurations of all functions are returned.', example='my-func'),
   limit?: int32(name='limit', description='The maximum number of entries returned.', example='10'),
@@ -2316,24 +2430,32 @@ async function listProvisionConfigs(request: ListProvisionConfigsRequest): ListP
 }
 
 model ListTagResourcesRequest {
-  limit?: int32(name='Limit', example='10'),
-  nextToken?: string(name='NextToken', example='MTIzNCNhYmM='),
-  resourceId?: [ string ](name='ResourceId'),
-  resourceType?: string(name='ResourceType', example='ALIYUN::FC:FUNCTION'),
+  limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
+  resourceId?: [ string ](name='ResourceId', description='The resource IDs.'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='ALIYUN::FC:FUNCTION'),
   tag?: [ 
     {
-      key?: string(name='Key', description='标签名', example='k1'),
-      value?: string(name='Value', description='标签值', example='v1'),
+      key?: string(name='Key', description='The tag key.
+
+The tag key can be up to 64 characters in length, and cannot contain `http://` or `https://`. The tag key cannot start with `aliyun` or `acs:`.', example='k1'),
+      value?: string(name='Value', description='The tag value.
+
+The tag value can be up to 128 characters in length and can be an empty string.', example='v1'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The tags.
+
+You can query up to 20 tags at a time.'),
 }
 
 model ListTagResourcesShrinkRequest {
-  limit?: int32(name='Limit', example='10'),
-  nextToken?: string(name='NextToken', example='MTIzNCNhYmM='),
-  resourceIdShrink?: string(name='ResourceId'),
-  resourceType?: string(name='ResourceType', example='ALIYUN::FC:FUNCTION'),
-  tagShrink?: string(name='Tag'),
+  limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
+  resourceIdShrink?: string(name='ResourceId', description='The resource IDs.'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='ALIYUN::FC:FUNCTION'),
+  tagShrink?: string(name='Tag', description='The tags.
+
+You can query up to 20 tags at a time.'),
 }
 
 model ListTagResourcesResponse = {
@@ -2670,8 +2792,48 @@ async function putProvisionConfig(functionName: string, request: PutProvisionCon
   return putProvisionConfigWithOptions(functionName, request, headers, runtime);
 }
 
+model StopAsyncTaskRequest {
+  qualifier?: string(name='qualifier', example='LATEST'),
+}
+
+model StopAsyncTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+async function stopAsyncTaskWithOptions(functionName: string, taskId: string, request: StopAsyncTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): StopAsyncTaskResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopAsyncTask',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/async-tasks/${OpenApiUtil.getEncodeParam(taskId)}/stop`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function stopAsyncTask(functionName: string, taskId: string, request: StopAsyncTaskRequest): StopAsyncTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopAsyncTaskWithOptions(functionName, taskId, request, headers, runtime);
+}
+
 model TagResourcesRequest {
-  body?: TagResourcesInput(name='body'),
+  body?: TagResourcesInput(name='body', description='The configuration of the resource tag.'),
 }
 
 model TagResourcesResponse = {
@@ -2706,17 +2868,17 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UntagResourcesRequest {
-  all?: boolean(name='All', example='true'),
-  resourceId?: [ string ](name='ResourceId'),
-  resourceType?: string(name='ResourceType', example='function'),
-  tagKey?: [ string ](name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to delete all tags.', example='true'),
+  resourceId?: [ string ](name='ResourceId', description='The resource identifiers.'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='function'),
+  tagKey?: [ string ](name='TagKey', description='The tag to remove. You can specify a maximum of 50 tags.'),
 }
 
 model UntagResourcesShrinkRequest {
-  all?: boolean(name='All', example='true'),
-  resourceIdShrink?: string(name='ResourceId'),
-  resourceType?: string(name='ResourceType', example='function'),
-  tagKeyShrink?: string(name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to delete all tags.', example='true'),
+  resourceIdShrink?: string(name='ResourceId', description='The resource identifiers.'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='function'),
+  tagKeyShrink?: string(name='TagKey', description='The tag to remove. You can specify a maximum of 50 tags.'),
 }
 
 model UntagResourcesResponse = {
