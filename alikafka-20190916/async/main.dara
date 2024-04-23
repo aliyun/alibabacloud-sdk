@@ -270,24 +270,24 @@ async function createPostPayOrder(request: CreatePostPayOrderRequest): CreatePos
 
 model CreatePrePayOrderRequest {
   confluentConfig?: {
-    connectCU?: int32(name='ConnectCU'),
-    connectReplica?: int32(name='ConnectReplica'),
-    controlCenterCU?: int32(name='ControlCenterCU'),
-    controlCenterReplica?: int32(name='ControlCenterReplica'),
-    controlCenterStorage?: int32(name='ControlCenterStorage'),
-    kafkaCU?: int32(name='KafkaCU'),
-    kafkaReplica?: int32(name='KafkaReplica'),
-    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU'),
-    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica'),
-    kafkaStorage?: int32(name='KafkaStorage'),
-    ksqlCU?: int32(name='KsqlCU'),
-    ksqlReplica?: int32(name='KsqlReplica'),
-    ksqlStorage?: int32(name='KsqlStorage'),
-    schemaRegistryCU?: int32(name='SchemaRegistryCU'),
-    schemaRegistryReplica?: int32(name='SchemaRegistryReplica'),
-    zooKeeperCU?: int32(name='ZooKeeperCU'),
-    zooKeeperReplica?: int32(name='ZooKeeperReplica'),
-    zooKeeperStorage?: int32(name='ZooKeeperStorage'),
+    connectCU?: int32(name='ConnectCU', minimum=4, maximum=20),
+    connectReplica?: int32(name='ConnectReplica', minimum=1, maximum=20),
+    controlCenterCU?: int32(name='ControlCenterCU', minimum=4, maximum=20),
+    controlCenterReplica?: int32(name='ControlCenterReplica', minimum=1, maximum=1),
+    controlCenterStorage?: int32(name='ControlCenterStorage', minimum=300, maximum=30000),
+    kafkaCU?: int32(name='KafkaCU', minimum=4, maximum=20),
+    kafkaReplica?: int32(name='KafkaReplica', minimum=3, maximum=20),
+    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', minimum=4, maximum=20),
+    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', minimum=2, maximum=20),
+    kafkaStorage?: int32(name='KafkaStorage', minimum=800, maximum=30000),
+    ksqlCU?: int32(name='KsqlCU', minimum=1, maximum=20),
+    ksqlReplica?: int32(name='KsqlReplica', minimum=1, maximum=20),
+    ksqlStorage?: int32(name='KsqlStorage', minimum=100, maximum=30000),
+    schemaRegistryCU?: int32(name='SchemaRegistryCU', minimum=1, maximum=20),
+    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', minimum=2, maximum=3),
+    zooKeeperCU?: int32(name='ZooKeeperCU', minimum=2, maximum=20),
+    zooKeeperReplica?: int32(name='ZooKeeperReplica', minimum=3, maximum=3),
+    zooKeeperStorage?: int32(name='ZooKeeperStorage', minimum=100, maximum=30000),
   }(name='ConfluentConfig', shrink='json', position='Query'),
   deployType?: int32(name='DeployType', description='The deployment mode of the instance. Valid values:
 
@@ -378,7 +378,14 @@ async function createPrePayOrder(request: CreatePrePayOrderRequest): CreatePrePa
 
 model CreateSaslUserRequest {
   instanceId: string(name='InstanceId', description='The instance ID.', example='alikafka_pre-cn-v0h1cng0****', position='Query'),
-  mechanism?: string(name='Mechanism', position='Query'),
+  mechanism?: string(name='Mechanism', description='The encryption method. Valid values:
+
+*   SCRAM-SHA-512 (default)
+*   SCRAM-SHA-256
+
+> 
+
+*   This parameter is available only for ApsaraMQ for Kafka V3 serverless instances.', example='SCRAM-SHA-256', position='Query'),
   password: string(name='Password', description='The password of the SASL user.', example='12***', position='Query'),
   regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   type?: string(name='Type', description='The SASL mechanism. Valid values:
@@ -488,12 +495,28 @@ async function createTopic(request: CreateTopicRequest): CreateTopicResponse {
 }
 
 model DeleteAclRequest {
-  aclOperationType: string(name='AclOperationType', description='The operation type. Valid values:
+  aclOperationType: string(name='AclOperationType', description='The operation allowed by the access control list (ACL). Valid values:
 
-*   **Write**
-*   **Read**', example='Write', position='Query'),
-  aclOperationTypes?: string(name='AclOperationTypes', position='Query'),
-  aclPermissionType?: string(name='AclPermissionType', position='Query'),
+*   **Write**: data writes
+*   **Read**: data reads
+*   **Describe**: reads of transactional IDs
+*   **IdempotentWrite**: idempotent data writes to clusters', example='Write', position='Query'),
+  aclOperationTypes?: string(name='AclOperationTypes', description='The operations allowed by the ACL. Separate multiple operations with commas (,).
+
+Valid values:
+
+*   **Write**: data writes
+*   **Read**: data reads
+*   **Describe**: reads of **transactional IDs**
+*   **IdempotentWrite**: idempotent data writes to **clusters**
+
+>  This parameter is available only for ApsaraMQ for Kafka V3 serverless instances.', example='Write,Read', position='Query'),
+  aclPermissionType?: string(name='AclPermissionType', description='The authorization method. Valid values:
+
+*   Deny
+*   ALLOW
+
+>  This parameter is available only for ApsaraMQ for Kafka V3 serverless instances.', example='DENY', position='Query'),
   aclResourceName: string(name='AclResourceName', description='The name of the resource.
 
 *   The value can be the name of a topic or consumer group.
@@ -502,11 +525,13 @@ model DeleteAclRequest {
 
 *   **LITERAL:** full match
 *   **PREFIXED**: prefix match', example='LITERAL', position='Query'),
-  aclResourceType: string(name='AclResourceType', description='The type of the resource.
+  aclResourceType: string(name='AclResourceType', description='The resource type. Valid values:
 
-*   **Topic**
-*   **Group**', example='Topic', position='Query'),
-  host?: string(name='Host', position='Query'),
+*   **Topic**: topic
+*   **Group**: consumer group
+*   **Cluster**: cluster
+*   **TransactionalId**: transactional ID', example='Topic', position='Query'),
+  host?: string(name='Host', description='The IP address of the source.', example='*', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.', example='alikafka_pre-cn-v0h1cng0****', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou', position='Query'),
   username: string(name='Username', description='The name of the user.', example='test12****', position='Query'),
@@ -870,9 +895,9 @@ async function getAllowedIpList(request: GetAllowedIpListRequest): GetAllowedIpL
 
 model GetConsumerListRequest {
   consumerId?: string(name='ConsumerId', description='The name of the consumer group. If you do not configure this parameter, all consumer groups are queried.', example='kafka-test', position='Query'),
-  currentPage?: int32(name='CurrentPage', position='Query'),
+  currentPage?: int32(name='CurrentPage', description='The page number.', example='1', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance to which the consumer group belongs.', example='alikafka_post-cn-v0h18sav****', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to be returned per page.', example='10', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance to which the consumer group belongs.', example='cn-hangzhou', position='Query'),
 }
 
@@ -881,11 +906,11 @@ model GetConsumerListResponseBody = {
   consumerList?: {
     consumerVO?: [ 
     {
-      automaticallyCreatedGroup?: boolean(name='AutomaticallyCreatedGroup', description='The consumer group that is automatically created by the system.'),
-      consumerId?: string(name='ConsumerId', description='The ID of the consumer group.', example='kafka-test'),
+      automaticallyCreatedGroup?: boolean(name='AutomaticallyCreatedGroup', description='Indicates that the consumer group was automatically created by the system.'),
+      consumerId?: string(name='ConsumerId', description='The consumer group ID.', example='kafka-test'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='alikafka_post-cn-v0h18sav****'),
-      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-      remark?: string(name='Remark', description='The description of the consumer group.', example='test'),
+      regionId?: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou'),
+      remark?: string(name='Remark', description='The instance description.', example='test'),
       tags?: {
         tagVO?: [ 
         {
@@ -897,12 +922,12 @@ model GetConsumerListResponseBody = {
     }
   ](name='ConsumerVO')
   }(name='ConsumerList', description='The consumer groups.'),
-  currentPage?: int32(name='CurrentPage'),
+  currentPage?: int32(name='CurrentPage', description='The number of the page to return. Pages start from page 1.', example='1'),
   message?: string(name='Message', description='The returned message.', example='operation success.'),
-  pageSize?: int32(name='PageSize'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='808F042B-CB9A-4FBC-9009-00E7DDB6****'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
-  total?: long(name='Total'),
+  total?: long(name='Total', description='The total number of entries returned.', example='12'),
 }
 
 model GetConsumerListResponse = {
@@ -923,21 +948,21 @@ model GetConsumerProgressRequest {
 }
 
 model GetConsumerProgressResponseBody = {
-  code?: int32(name='Code', description='The HTTP status code returned. The HTTP status code 200 indicates that the request is successful.', example='200'),
+  code?: int32(name='Code', description='The returned HTTP status code. If the request is successful, 200 is returned.', example='200'),
   consumerProgress?: {
     lastTimestamp?: long(name='LastTimestamp', description='The time when the last message consumed by the consumer group was generated.', example='1566874931671'),
     rebalanceInfoList?: {
       rebalanceInfoList?: [ 
       {
-        generation?: long(name='Generation'),
-        groupId?: string(name='GroupId'),
-        lastRebalanceTimestamp?: long(name='LastRebalanceTimestamp'),
-        reason?: string(name='Reason'),
-        rebalanceSuccess?: boolean(name='RebalanceSuccess'),
-        rebalanceTimeConsuming?: long(name='RebalanceTimeConsuming'),
+        generation?: long(name='Generation', description='The number of rebalances.', example='100'),
+        groupId?: string(name='GroupId', description='The group ID of the subscriber.', example='falcon-uat'),
+        lastRebalanceTimestamp?: long(name='LastRebalanceTimestamp', description='The time when the last rebalance occurred. Unit: milliseconds.', example='1709199270'),
+        reason?: string(name='Reason', description='The cause of the rebalance.', example='removing member consumer-1-cd14eb9c-379b-4b8e-9bbd-76f147f8536f on LeaveGroup'),
+        rebalanceSuccess?: boolean(name='RebalanceSuccess', description='Indicates whether new members are added to the consumer group in the rebalance.', example='true'),
+        rebalanceTimeConsuming?: long(name='RebalanceTimeConsuming', description='The duration of the rebalance. Unit: milliseconds.', example='1'),
       }
     ](name='RebalanceInfoList')
-    }(name='RebalanceInfoList'),
+    }(name='RebalanceInfoList', description='The details of rebalances in the consumer group.'),
     topicList?: {
       topicList?: [ 
       {
@@ -948,19 +973,19 @@ model GetConsumerProgressResponseBody = {
             brokerOffset?: long(name='BrokerOffset', description='The latest offset in the partition of the topic.', example='9'),
             consumerOffset?: long(name='ConsumerOffset', description='The consumer offset in the partition of the topic.', example='9'),
             lastTimestamp?: long(name='LastTimestamp', description='The time when the last consumed message in the partition was generated.', example='1566874931649'),
-            partition?: int32(name='Partition', description='The ID of the partition.', example='0'),
+            partition?: int32(name='Partition', description='The partition ID.', example='0'),
           }
         ](name='OffsetList')
-        }(name='OffsetList', description='The information about offsets in the topic.'),
-        topic?: string(name='Topic', description='The name of the topic.', example='kafka-test'),
-        totalDiff?: long(name='TotalDiff', description='The number of messages that were not consumed in the topic. This is also known as the number of accumulated messages in the topic.', example='0'),
+        }(name='OffsetList', description='The consumer offsets.'),
+        topic?: string(name='Topic', description='The topic name.', example='kafka-test'),
+        totalDiff?: long(name='TotalDiff', description='The number of unconsumed messages in the topic to which the consumer group subscribes.', example='0'),
       }
     ](name='TopicList')
-    }(name='TopicList', description='The consumption progress of each topic to which the consumer group is subscribed.'),
-    totalDiff?: long(name='TotalDiff', description='The number of messages that were not consumed in all topics. This is also known as the number of accumulated messages in all topics.', example='0'),
-  }(name='ConsumerProgress', description='The consumption status of the consumer group.'),
+    }(name='TopicList', description='The consumer progress of each topic to which the consumer group subscribes.'),
+    totalDiff?: long(name='TotalDiff', description='The total number of unconsumed messages in all topics to which the consumer group subscribes.', example='0'),
+  }(name='ConsumerProgress', description='The consumer progress of the consumer group.'),
   message?: string(name='Message', description='The returned message.', example='operation success.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='252820E1-A2E6-45F2-B4C9-1056B8CE****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='252820E1-A2E6-45F2-B4C9-1056B8CE****'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
@@ -980,6 +1005,7 @@ model GetInstanceListRequest {
   orderId?: string(name='OrderId', description='The ID of the order. You can obtain the order ID on the [Orders](https://usercenter2-intl.aliyun.com/order/list?pageIndex=1\\&pageSize=20\\&spm=5176.12818093.top-nav.ditem-ord.36f016d0OQFmJa) page in Alibaba Cloud User Center.', example='6072673****', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. You can obtain this ID on the Resource Group page in the Resource Management console.', example='rg-ac***********7q', position='Query'),
+  series?: string(name='Series', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key.
@@ -1064,6 +1090,7 @@ model GetInstanceListResponseBody = {
 
 *   If the instance is deployed by using the ApsaraMQ for Kafka console or calling the [StartInstance](~~157786~~) operation without a security group configured, no value is returned.
 *   If the instance is deployed by calling the [StartInstance](~~157786~~) operation with a security group configured, the returned value is the configured security group.', example='sg-bp13wfx7kz9pkow****'),
+      series?: string(name='Series'),
       serviceStatus?: int32(name='ServiceStatus', description='The instance status. Valid values:
 
 *   **0**: pending
@@ -1550,15 +1577,15 @@ async function releaseInstance(request: ReleaseInstanceRequest): ReleaseInstance
 }
 
 model ReopenInstanceRequest {
-  instanceId: string(name='InstanceId', example='alikafka_post-cn-mp91inkw****', position='Query'),
-  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='alikafka_post-cn-mp91inkw****', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou', position='Query'),
 }
 
 model ReopenInstanceResponseBody = {
-  code?: int32(name='Code', example='200'),
-  message?: string(name='Message', example='operation success.'),
-  requestId?: string(name='RequestId', example='252820E1-A2E6-45F2-B4C9-1056B8CE****'),
-  success?: boolean(name='Success', example='true'),
+  code?: int32(name='Code', description='The returned HTTP status code. If the request is successful, 200 is returned.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='252820E1-A2E6-45F2-B4C9-1056B8CE****'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model ReopenInstanceResponse = {
@@ -1567,6 +1594,10 @@ model ReopenInstanceResponse = {
   body?: ReopenInstanceResponseBody(name='body'),
 }
 
+/**
+  * You can call this operation only if your instance is in the Stopped state.
+  *
+ */
 async function reopenInstance(request: ReopenInstanceRequest): ReopenInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ReopenInstance', 'POST', '/', 'json', false, 'json', request);
@@ -1678,15 +1709,15 @@ async function startInstance(request: StartInstanceRequest): StartInstanceRespon
 }
 
 model StopInstanceRequest {
-  instanceId: string(name='InstanceId', example='alikafka_post-cn-v0h1fgs2****', position='Query'),
-  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='alikafka_post-cn-v0h1fgs2****', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou', position='Query'),
 }
 
 model StopInstanceResponseBody = {
-  code?: int32(name='Code', example='200'),
-  message?: string(name='Message', example='operation success.'),
-  requestId?: string(name='RequestId', example='17D425C2-4EA3-4AB8-928D-E10511ECF***'),
-  success?: boolean(name='Success', example='true'),
+  code?: int32(name='Code', description='The returned status code. If the request is successful, 200 is returned.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='operation success.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='17D425C2-4EA3-4AB8-928D-E10511ECF***'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model StopInstanceResponse = {
@@ -1695,6 +1726,10 @@ model StopInstanceResponse = {
   body?: StopInstanceResponseBody(name='body'),
 }
 
+/**
+  * You cannot stop a subscription ApsaraMQ for Kafka instance. If you want to stop a subscription ApsaraMQ for Kafka instance, submit a ticket.
+  *
+ */
 async function stopInstance(request: StopInstanceRequest): StopInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'StopInstance', 'POST', '/', 'json', false, 'json', request);
@@ -1905,18 +1940,17 @@ async function updateInstanceConfig(request: UpdateInstanceConfigRequest): Updat
 model UpdateTopicConfigRequest {
   config: string(name='Config', description='The key of the topic configuration.
 
-*   Valid values: retention.hours, max.message.bytes, and replications.
-*   retention.hours specifies the message retention period.
-*   max.message.bytes specifies the maximum size of a sent message.
-*   replications specifies the number of topic replicas.', example='replications', position='Query'),
+*   ApsaraMQ for Kafka V2 instances allow you to modify configurations only for topics that use local storage.
+*   ApsaraMQ for Kafka V3 instances allow you to modify configurations for all topics.
+*   The following keys are supported by `local topic` of ApsaraMQ for Kafka V2 instances: retention.ms, retention.bytes, and replications.
+*   The following keys are supported by ApsaraMQ for Kafka V3 instances: retention.hours and max.message.bytes.', example='replications', position='Query'),
   instanceId: string(name='InstanceId', description='The instance ID.', example='alikafka_post-cn-v0h1fgs2****', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the instance resides.', example='cn-hangzhou', position='Query'),
   topic: string(name='Topic', description='The topic name.', example='dqc_test2', position='Query'),
   value: string(name='Value', description='The value of the topic configuration.
 
-*   retention.hours specifies the message retention period. The value is a string. Valid values: 24 to 8760.
-*   max.message.bytes specifies the maximum size of a sent message. The value is a string. Valid values: 1048576 to 10485760.
-*   replications specifies the number of topic replicas. The value is a string. Valid values: 1 to 3.', example='3', position='Query'),
+*   `retention.hours` specifies the message retention period. Value type: string. Valid values: 24 to 8760.
+*   `max.message.bytes` specifies the maximum size of a sent message. Value type: string. Valid values: 1048576 to 10485760.', example='3', position='Query'),
 }
 
 model UpdateTopicConfigResponseBody = {
@@ -1981,13 +2015,21 @@ model UpgradePostPayOrderRequest {
   diskSize?: int32(name='DiskSize', description='The disk size. Unit: GB.
 
 *   The disk size that you specify must be greater than or equal to the current disk size of the instance.
-*   For more information about the valid values, see [Billing](~~84737~~).', example='500', position='Query'),
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+>  When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='500', position='Query'),
   eipMax?: int32(name='EipMax', description='The Internet traffic for the instance.
 
-*   The Internet traffic volume that you specify must be greater than or equal to the current Internet traffic volume of the instance.
-*   For more information about the valid values, see [Billing](~~84737~~).
-> - If the **EipModel** parameter is set to **true**, set the **EipMax** parameter to a value that is greater than 0.
-> - If the **EipModel** parameter is set to **false**, set the **EipMax** parameter to **0**.', example='0', position='Query'),
+*   The Internet traffic that you specify must be greater than or equal to the current Internet traffic of the instance.
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+> 
+
+*   If you set **EipModel** to **true**, set **EipMax** to a value that is greater than 0.
+
+*   If you set **EipModel** to **false**, set **EipMax** to **0**.
+
+*   When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='0', position='Query'),
   eipModel?: boolean(name='EipModel', description='Specifies whether to enable Internet access for the instance. Valid values:
 
 *   true: enables Internet access.
@@ -1996,36 +2038,51 @@ model UpgradePostPayOrderRequest {
   ioMax?: int32(name='IoMax', description='The maximum traffic for the instance. We recommend that you do not configure this parameter.
 
 *   The maximum traffic that you specify must be greater than or equal to the current maximum traffic of the instance.
-*   You must configure at least one of the IoMax and IoMaxSpec parameters. If you configure both parameters, the value of the IoMaxSpec parameter takes effect. We recommend that you specify only the IoMaxSpec parameter.
-*   For more information about the valid values, see [Billing](~~84737~~).', example='60', position='Query'),
+*   You must configure at least one of IoMax and IoMaxSpec. If you configure both parameters, the value of IoMaxSpec takes effect. We recommend that you configure only IoMaxSpec.
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+>  When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='60', position='Query'),
   ioMaxSpec?: string(name='IoMaxSpec', description='The traffic specification of the instance. We recommend that you configure this parameter.
 
 *   The traffic specification that you specify must be greater than or equal to the current traffic specification of the instance.
-*   You must configure at least one of the IoMax and IoMaxSpec parameters. If you configure both parameters, the value of the IoMaxSpec parameter takes effect. We recommend that you specify only the IoMaxSpec parameter.
-*   For more information about the valid values, see [Billing](~~84737~~).', example='alikafka.hw.6xlarge', position='Query'),
+*   You must configure at least one of IoMax and IoMaxSpec. If you configure both parameters, the value of IoMaxSpec takes effect. We recommend that you configure only IoMaxSpec.
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+>  When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='alikafka.hw.6xlarge', position='Query'),
   partitionNum?: int32(name='PartitionNum', description='The number of partitions. We recommend that you configure this parameter.
 
-*   You must specify at least one of the PartitionNum and TopicQuota parameters. We recommend that you configure only the PartitionNum parameter.
-*   If you specify both parameters, the topic-based sales model is used to check whether the PartitionNum value and the TopicQuota value are the same. If they are not the same, a failure response is returned. If they are the same, the order is placed based on the PartitionNum value.
-*   For more information about the valid values, see [Billing](~~84737~~).', example='80', position='Query'),
+*   You must configure one of PartitionNum and TopicQuota. We recommend that you configure only ParittionNum.
+*   If you configure PartitionNum and TopicQuota at the same time, the system verifies whether the price of the partitions equals the price of the topics based on the previous topic-based selling mode. If the price of the partitions does not equal the price of the topics, an error is returned. If the price of the partitions equals the price of the topics, the instance is purchased based on the partition number.
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+>  When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='80', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou', position='Query'),
   serverlessConfig?: {
-    reservedPublishCapacity?: long(name='ReservedPublishCapacity', example='50'),
-    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', example='50'),
-  }(name='ServerlessConfig', shrink='json', position='Query'),
-  specType?: string(name='SpecType', description='The edition of the instance. Valid values:
+    reservedPublishCapacity?: long(name='ReservedPublishCapacity', description='The traffic reserved for message publishing. Unit: MB/s. Valid values: 1 to 31457280. You can specify only integers for this parameter.', example='50'),
+    reservedSubscribeCapacity?: long(name='ReservedSubscribeCapacity', description='The traffic reserved for message subscription. Unit: MB/s. Valid values: 1 to 31457280. You can specify only integers for this parameter.', example='50'),
+  }(name='ServerlessConfig', description='The parameters configured for the Serverless instance. When you create an ApsaraMQ for Kafka V3 serverless instance, you must configure these parameters.', shrink='json', position='Query'),
+  specType?: string(name='SpecType', description='The instance edition.
 
-*   **normal**: Standard Edition (High Write)
-*   **professional**: Professional Edition (High Write)
-*   **professionalForHighRead**: Professional Edition (High Read)
+Valid values for this parameter if you set PaidType to 1:
 
-You cannot downgrade an instance from the Professional Edition to the Standard Edition. For more information about these instance editions, see [Billing](~~84737~~).', example='professional', position='Query'),
+*   normal: Standard Edition (High Write)
+*   professional: Professional Edition (High Write)
+*   professionalForHighRead: Professional Edition (High Read)
+
+Valid values for this parameter if you set PaidType to 3:
+
+*   normal: Serverless Standard Edition
+*   professional: Serverless Professional Edition
+
+For more information, see [Billing](~~84737~~).', example='professional', position='Query'),
   topicQuota?: int32(name='TopicQuota', description='The number of topics. We recommend that you do not configure this parameter.
 
-*   You must specify at least one of the PartitionNum and TopicQuota parameters. We recommend that you configure only the PartitionNum parameter.
-*   If you specify both parameters, the topic-based sales model is used to check whether the PartitionNum value and the TopicQuota value are the same. If they are not the same, a failure response is returned. If they are the same, the order is placed based on the PartitionNum value.
-*   The default value of the TopicQuota parameter varies based on the value of the IoMaxSpec parameter. If the number of topics that you consume exceeds the default value, you are charged additional fees.
-*   For more information about the valid values, see [Billing](~~84737~~).', example='80', position='Query'),
+*   You must configure one of PartitionNum and TopicQuota. We recommend that you configure only ParittionNum.
+*   If you configure PartitionNum and TopicQuota at the same time, the system verifies whether the price of the partitions equals the price of the topics based on the previous topic-based selling mode. If the price of the partitions does not equal the price of the topics, an error is returned. If the price of the partitions equals the price of the topics, the instance is purchased based on the partition number.
+*   The default value of TopicQuota varies based on the value of IoMaxSpec. If the number of topics that you consume exceeds the default value, you are charged additional fees.
+*   For information about the valid values of this parameter, see [Billing](~~84737~~).
+
+>  When you create an ApsaraMQ for Kafka V3 serverless instance, you do not need to configure this parameter.', example='80', position='Query'),
 }
 
 model UpgradePostPayOrderResponseBody = {
@@ -2052,24 +2109,24 @@ async function upgradePostPayOrder(request: UpgradePostPayOrderRequest): Upgrade
 
 model UpgradePrePayOrderRequest {
   confluentConfig?: {
-    connectCU?: int32(name='ConnectCU'),
-    connectReplica?: int32(name='ConnectReplica'),
-    controlCenterCU?: int32(name='ControlCenterCU'),
-    controlCenterReplica?: int32(name='ControlCenterReplica'),
-    controlCenterStorage?: int32(name='ControlCenterStorage'),
-    kafkaCU?: int32(name='KafkaCU'),
-    kafkaReplica?: int32(name='KafkaReplica'),
-    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU'),
-    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica'),
-    kafkaStorage?: int32(name='KafkaStorage'),
-    ksqlCU?: int32(name='KsqlCU'),
-    ksqlReplica?: int32(name='KsqlReplica'),
-    ksqlStorage?: int32(name='KsqlStorage'),
-    schemaRegistryCU?: int32(name='SchemaRegistryCU'),
-    schemaRegistryReplica?: int32(name='SchemaRegistryReplica'),
-    zooKeeperCU?: int32(name='ZooKeeperCU'),
-    zooKeeperReplica?: int32(name='ZooKeeperReplica'),
-    zooKeeperStorage?: int32(name='ZooKeeperStorage'),
+    connectCU?: int32(name='ConnectCU', minimum=1, maximum=20),
+    connectReplica?: int32(name='ConnectReplica', minimum=1, maximum=20),
+    controlCenterCU?: int32(name='ControlCenterCU', minimum=4, maximum=20),
+    controlCenterReplica?: int32(name='ControlCenterReplica', minimum=1, maximum=1),
+    controlCenterStorage?: int32(name='ControlCenterStorage', minimum=300, maximum=30000),
+    kafkaCU?: int32(name='KafkaCU', minimum=4, maximum=20),
+    kafkaReplica?: int32(name='KafkaReplica', minimum=3, maximum=20),
+    kafkaRestProxyCU?: int32(name='KafkaRestProxyCU', minimum=4, maximum=20),
+    kafkaRestProxyReplica?: int32(name='KafkaRestProxyReplica', minimum=2, maximum=20),
+    kafkaStorage?: int32(name='KafkaStorage', minimum=800, maximum=30000),
+    ksqlCU?: int32(name='KsqlCU', minimum=1, maximum=20),
+    ksqlReplica?: int32(name='KsqlReplica', minimum=1, maximum=20),
+    ksqlStorage?: int32(name='KsqlStorage', minimum=100, maximum=30000),
+    schemaRegistryCU?: int32(name='SchemaRegistryCU', minimum=1, maximum=20),
+    schemaRegistryReplica?: int32(name='SchemaRegistryReplica', minimum=2, maximum=3),
+    zooKeeperCU?: int32(name='ZooKeeperCU', minimum=2, maximum=20),
+    zooKeeperReplica?: int32(name='ZooKeeperReplica', minimum=3, maximum=3),
+    zooKeeperStorage?: int32(name='ZooKeeperStorage', minimum=100, maximum=30000),
   }(name='ConfluentConfig', shrink='json', position='Query'),
   diskSize?: int32(name='DiskSize', description='The size of the disk.
 
