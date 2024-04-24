@@ -28,6 +28,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DentriesAppPropertiesValue = {
+  name?: string(name='Name'),
+  value?: string(name='Value'),
+  visibility?: string(name='Visibility', example='PRIVATE'),
+}
+
 model AddAttendeeHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -1296,6 +1302,78 @@ async function cancelScheduleConference(request: CancelScheduleConferenceRequest
   return cancelScheduleConferenceWithOptions(request, headers, runtime);
 }
 
+model CheckUserIsGroupMemberHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model CheckUserIsGroupMemberShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model CheckUserIsGroupMemberRequest {
+  openConversationId?: string(name='OpenConversationId', example='cidB8Pz*******FIWPv2PMA=='),
+}
+
+model CheckUserIsGroupMemberResponseBody = {
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  result?: boolean(name='result', example='true'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model CheckUserIsGroupMemberResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckUserIsGroupMemberResponseBody(name='body'),
+}
+
+async function checkUserIsGroupMemberWithOptions(request: CheckUserIsGroupMemberRequest, tmpHeader: CheckUserIsGroupMemberHeaders, runtime: Util.RuntimeOptions): CheckUserIsGroupMemberResponse {
+  Util.validateModel(request);
+  var headers = new CheckUserIsGroupMemberShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.openConversationId)) {
+    body['OpenConversationId'] = request.openConversationId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CheckUserIsGroupMember',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/im/checkUserIsGroupMember`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function checkUserIsGroupMember(request: CheckUserIsGroupMemberRequest): CheckUserIsGroupMemberResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new CheckUserIsGroupMemberHeaders{};
+  return checkUserIsGroupMemberWithOptions(request, headers, runtime);
+}
+
 model ClearHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -1760,6 +1838,9 @@ model CreateEventRequest {
       minutes?: int32(name='minutes', example='15'),
     }
   ](name='Reminders'),
+  richTextDescription?: {
+    text?: string(name='text'),
+  }(name='RichTextDescription'),
   summary?: string(name='Summary'),
   uiConfigs?: [ 
     {
@@ -1785,6 +1866,7 @@ model CreateEventShrinkRequest {
   onlineMeetingInfoShrink?: string(name='OnlineMeetingInfo'),
   recurrenceShrink?: string(name='Recurrence'),
   remindersShrink?: string(name='Reminders'),
+  richTextDescriptionShrink?: string(name='RichTextDescription'),
   summary?: string(name='Summary'),
   uiConfigsShrink?: string(name='UiConfigs'),
   calendarId?: string(name='calendarId', example='primary'),
@@ -1845,6 +1927,9 @@ model CreateEventResponseBody = {
     }
   ](name='reminders'),
   requestId?: string(name='requestId', description='requestId', example='4248DCC9-785F-5A14-8BE0-830FD52E1261'),
+  richTextDescription?: {
+    text?: string(name='text'),
+  }(name='richTextDescription'),
   start?: {
     date?: string(name='Date', example='2020-01-01'),
     dateTime?: string(name='DateTime', example='2020-01-01T10:15:30+08:00'),
@@ -1896,6 +1981,9 @@ async function createEventWithOptions(tmpReq: CreateEventRequest, tmpHeader: Cre
   if (!Util.isUnset(tmpReq.reminders)) {
     request.remindersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.reminders, 'Reminders', 'json');
   }
+  if (!Util.isUnset(tmpReq.richTextDescription)) {
+    request.richTextDescriptionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.richTextDescription, 'RichTextDescription', 'json');
+  }
   if (!Util.isUnset(tmpReq.uiConfigs)) {
     request.uiConfigsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.uiConfigs, 'UiConfigs', 'json');
   }
@@ -1929,6 +2017,9 @@ async function createEventWithOptions(tmpReq: CreateEventRequest, tmpHeader: Cre
   }
   if (!Util.isUnset(request.remindersShrink)) {
     body['Reminders'] = request.remindersShrink;
+  }
+  if (!Util.isUnset(request.richTextDescriptionShrink)) {
+    body['RichTextDescription'] = request.richTextDescriptionShrink;
   }
   if (!Util.isUnset(request.summary)) {
     body['Summary'] = request.summary;
@@ -2544,7 +2635,7 @@ async function createOrgHonorTemplate(request: CreateOrgHonorTemplateRequest): C
 model CreatePersonalTodoTaskHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
-    userToken?: string(name='userToken', example='ba3a9b612345678d8fedf544ef69d19e'),
+    accountId?: string(name='accountId', example='ba3a9b612345678d8fedf544ef69d19e'),
   }(name='AccountContext'),
 }
 
@@ -5495,6 +5586,94 @@ async function executeTask(request: ExecuteTaskRequest): ExecuteTaskResponse {
   return executeTaskWithOptions(request, headers, runtime);
 }
 
+model ExpandGroupCapacityHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model ExpandGroupCapacityShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model ExpandGroupCapacityRequest {
+  openConversationId?: string(name='OpenConversationId', example='cidt*****Xa4K10w=='),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+}
+
+model ExpandGroupCapacityShrinkRequest {
+  openConversationId?: string(name='OpenConversationId', example='cidt*****Xa4K10w=='),
+  tenantContextShrink?: string(name='TenantContext'),
+}
+
+model ExpandGroupCapacityResponseBody = {
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  success?: boolean(name='success', example='true'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model ExpandGroupCapacityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExpandGroupCapacityResponseBody(name='body'),
+}
+
+async function expandGroupCapacityWithOptions(tmpReq: ExpandGroupCapacityRequest, tmpHeader: ExpandGroupCapacityHeaders, runtime: Util.RuntimeOptions): ExpandGroupCapacityResponse {
+  Util.validateModel(tmpReq);
+  var request = new ExpandGroupCapacityShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new ExpandGroupCapacityShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.openConversationId)) {
+    body['OpenConversationId'] = request.openConversationId;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ExpandGroupCapacity',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/aliding/v1/im/expandGroupCapacity`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function expandGroupCapacity(request: ExpandGroupCapacityRequest): ExpandGroupCapacityResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ExpandGroupCapacityHeaders{};
+  return expandGroupCapacityWithOptions(request, headers, runtime);
+}
+
 model GetActivityListHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -5674,6 +5853,99 @@ async function getAllSheets(request: GetAllSheetsRequest): GetAllSheetsResponse 
   var runtime = new Util.RuntimeOptions{};
   var headers = new GetAllSheetsHeaders{};
   return getAllSheetsWithOptions(request, headers, runtime);
+}
+
+model GetConversaionSpaceHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model GetConversaionSpaceShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model GetConversaionSpaceRequest {
+  openConversationId?: string(name='OpenConversationId', example='cidB8Pzg****FIWPv2PMA=='),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+}
+
+model GetConversaionSpaceShrinkRequest {
+  openConversationId?: string(name='OpenConversationId', example='cidB8Pzg****FIWPv2PMA=='),
+  tenantContextShrink?: string(name='TenantContext'),
+}
+
+model GetConversaionSpaceResponseBody = {
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  space?: {
+    corpId?: string(name='CorpId', example='ding1234xxxxx'),
+    createTime?: string(name='CreateTime', example='2022-01-01T10:00:00Z'),
+    modifiedTime?: string(name='ModifiedTime', example='2022-01-01T10:00:00Z'),
+    spaceId?: string(name='SpaceId', example='798xxxxx'),
+  }(name='space'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model GetConversaionSpaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConversaionSpaceResponseBody(name='body'),
+}
+
+async function getConversaionSpaceWithOptions(tmpReq: GetConversaionSpaceRequest, tmpHeader: GetConversaionSpaceHeaders, runtime: Util.RuntimeOptions): GetConversaionSpaceResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetConversaionSpaceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new GetConversaionSpaceShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.openConversationId)) {
+    body['OpenConversationId'] = request.openConversationId;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetConversaionSpace',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/documents/getConversaionSpace`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getConversaionSpace(request: GetConversaionSpaceRequest): GetConversaionSpaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetConversaionSpaceHeaders{};
+  return getConversaionSpaceWithOptions(request, headers, runtime);
 }
 
 model GetCorpAccomplishmentTasksHeaders {
@@ -5942,7 +6214,7 @@ async function getCorpTasks(request: GetCorpTasksRequest): GetCorpTasksResponse 
 model GetDocContentHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
-    userToken?: string(name='userToken', example='ba3a9b612345678d8fedf544ef69d19e'),
+    accountId?: string(name='accountId', example='ba3a9b612345678d8fedf544ef69d19e'),
   }(name='AccountContext'),
 }
 
@@ -5957,12 +6229,14 @@ model GetDocContentRequest {
   tenantContext?: {
     tenantId?: string(name='tenantId', example='xxxxxx'),
   }(name='TenantContext'),
+  userToken?: string(name='userToken'),
 }
 
 model GetDocContentShrinkRequest {
   dentryUuid?: string(name='DentryUuid', example='dentry_uuid'),
   targetFormat?: string(name='TargetFormat', example='markdown'),
   tenantContextShrink?: string(name='TenantContext'),
+  userToken?: string(name='userToken'),
 }
 
 model GetDocContentResponseBody = {
@@ -5999,6 +6273,9 @@ async function getDocContentWithOptions(tmpReq: GetDocContentRequest, tmpHeader:
   }
   if (!Util.isUnset(request.tenantContextShrink)) {
     body['TenantContext'] = request.tenantContextShrink;
+  }
+  if (!Util.isUnset(request.userToken)) {
+    body['userToken'] = request.userToken;
   }
 
   var realHeaders : map[string]string = {};
@@ -6290,6 +6567,117 @@ async function getFieldDefByUuid(request: GetFieldDefByUuidRequest): GetFieldDef
   return getFieldDefByUuidWithOptions(request, headers, runtime);
 }
 
+model GetFileDownloadInfoHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model GetFileDownloadInfoShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model GetFileDownloadInfoRequest {
+  dentryId?: string(name='DentryId', example='798xxxxx'),
+  option?: {
+    preferIntranet?: boolean(name='PreferIntranet', example='true'),
+    version?: long(name='Version', example='1'),
+  }(name='Option'),
+  spaceId?: string(name='SpaceId', example='854xxxx'),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+}
+
+model GetFileDownloadInfoShrinkRequest {
+  dentryId?: string(name='DentryId', example='798xxxxx'),
+  optionShrink?: string(name='Option'),
+  spaceId?: string(name='SpaceId', example='854xxxx'),
+  tenantContextShrink?: string(name='TenantContext'),
+}
+
+model GetFileDownloadInfoResponseBody = {
+  headerSignatureInfo?: {
+    expirationSeconds?: int32(name='ExpirationSeconds', example='900'),
+    headers?: map[string]string(name='Headers'),
+    internalResourceUrls?: [ string ](name='InternalResourceUrls'),
+    region?: string(name='Region', example='ZHANGJIAKOU'),
+    resourceUrls?: [ string ](name='ResourceUrls'),
+  }(name='headerSignatureInfo'),
+  protocol?: string(name='protocol', example='HEADER_SIGNATURE'),
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model GetFileDownloadInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetFileDownloadInfoResponseBody(name='body'),
+}
+
+async function getFileDownloadInfoWithOptions(tmpReq: GetFileDownloadInfoRequest, tmpHeader: GetFileDownloadInfoHeaders, runtime: Util.RuntimeOptions): GetFileDownloadInfoResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetFileDownloadInfoShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new GetFileDownloadInfoShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.option)) {
+    request.optionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.option, 'Option', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.dentryId)) {
+    body['DentryId'] = request.dentryId;
+  }
+  if (!Util.isUnset(request.optionShrink)) {
+    body['Option'] = request.optionShrink;
+  }
+  if (!Util.isUnset(request.spaceId)) {
+    body['SpaceId'] = request.spaceId;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetFileDownloadInfo',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/documents/getFileDownloadInfo`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getFileDownloadInfo(request: GetFileDownloadInfoRequest): GetFileDownloadInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetFileDownloadInfoHeaders{};
+  return getFileDownloadInfoWithOptions(request, headers, runtime);
+}
+
 model GetFormComponentDefinitionListHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -6577,6 +6965,88 @@ async function getFormListInApp(request: GetFormListInAppRequest): GetFormListIn
   var runtime = new Util.RuntimeOptions{};
   var headers = new GetFormListInAppHeaders{};
   return getFormListInAppWithOptions(request, headers, runtime);
+}
+
+model GetInnerGroupMembersHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model GetInnerGroupMembersShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model GetInnerGroupMembersRequest {
+  maxResults?: int32(name='MaxResults', example='100'),
+  nextToken?: string(name='NextToken', example='UZr*****'),
+  openConversationId?: string(name='OpenConversationId', example='cidB8Pzg****FIWPv2PMA=='),
+}
+
+model GetInnerGroupMembersResponseBody = {
+  hasMore?: boolean(name='hasMore', example='true'),
+  nextToken?: string(name='nextToken', example='cdf***'),
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  userIds?: [ string ](name='userIds', example='["012345"]'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model GetInnerGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetInnerGroupMembersResponseBody(name='body'),
+}
+
+async function getInnerGroupMembersWithOptions(request: GetInnerGroupMembersRequest, tmpHeader: GetInnerGroupMembersHeaders, runtime: Util.RuntimeOptions): GetInnerGroupMembersResponse {
+  Util.validateModel(request);
+  var headers = new GetInnerGroupMembersShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.openConversationId)) {
+    body['OpenConversationId'] = request.openConversationId;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetInnerGroupMembers',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/im/getInnerGroupMembers`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getInnerGroupMembers(request: GetInnerGroupMembersRequest): GetInnerGroupMembersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetInnerGroupMembersHeaders{};
+  return getInnerGroupMembersWithOptions(request, headers, runtime);
 }
 
 model GetInstanceByIdHeaders {
@@ -7584,6 +8054,94 @@ async function getMineWorkspace(request: GetMineWorkspaceRequest): GetMineWorksp
   return getMineWorkspaceWithOptions(request, headers, runtime);
 }
 
+model GetNewestInnerGroupsHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model GetNewestInnerGroupsShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model GetNewestInnerGroupsRequest {
+  request?: map[string]any(name='Request', example='{}'),
+}
+
+model GetNewestInnerGroupsShrinkRequest {
+  requestShrink?: string(name='Request', example='{}'),
+}
+
+model GetNewestInnerGroupsResponseBody = {
+  groupInfos?: [ 
+    {
+      icon?: string(name='Icon', example='@lADOADma*****QKA'),
+      memberAmount?: string(name='MemberAmount', example='10'),
+      openConversationId?: string(name='OpenConversationId', example='cid1e******=='),
+      title?: string(name='Title'),
+    }
+  ](name='groupInfos'),
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model GetNewestInnerGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetNewestInnerGroupsResponseBody(name='body'),
+}
+
+async function getNewestInnerGroupsWithOptions(tmpReq: GetNewestInnerGroupsRequest, tmpHeader: GetNewestInnerGroupsHeaders, runtime: Util.RuntimeOptions): GetNewestInnerGroupsResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetNewestInnerGroupsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new GetNewestInnerGroupsShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.request)) {
+    request.requestShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.request, 'Request', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.requestShrink)) {
+    body['Request'] = request.requestShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetNewestInnerGroups',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/im/getNewestInnerGroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getNewestInnerGroups(request: GetNewestInnerGroupsRequest): GetNewestInnerGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetNewestInnerGroupsHeaders{};
+  return getNewestInnerGroupsWithOptions(request, headers, runtime);
+}
+
 model GetNodeHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -8541,6 +9099,112 @@ async function getRange(request: GetRangeRequest): GetRangeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers = new GetRangeHeaders{};
   return getRangeWithOptions(request, headers, runtime);
+}
+
+model GetRelatedWorkspacesHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model GetRelatedWorkspacesShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model GetRelatedWorkspacesRequest {
+  includeRecent?: boolean(name='IncludeRecent', example='true'),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+}
+
+model GetRelatedWorkspacesShrinkRequest {
+  includeRecent?: boolean(name='IncludeRecent', example='true'),
+  tenantContextShrink?: string(name='TenantContext'),
+}
+
+model GetRelatedWorkspacesResponseBody = {
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+  workspaces?: [ 
+    {
+      createTime?: long(name='CreateTime', example='1638256965936'),
+      deleted?: boolean(name='Deleted', example='false'),
+      name?: string(name='Name', example='知识库'),
+      owner?: string(name='Owner', example='Q2xwPOKiSLxxxx'),
+      recentList?: [ 
+        {
+          lastEditTime?: long(name='LastEditTime', example='1638256965936'),
+          name?: string(name='Name', example='知识库'),
+          nodeId?: string(name='NodeId', example='nb9XxxxxxxmyAp'),
+          url?: string(name='Url', example='https://alidocs.xxxx/nb9XJKdxxxxmyAp'),
+        }
+      ](name='RecentList'),
+      role?: string(name='Role', example='OWNER'),
+      url?: string(name='Url', example='https://alidocs.xxxx/nb9XJKdxxxxmyAp/docs/nb9XxxxxxxmyAp'),
+      workspaceId?: string(name='WorkspaceId', example='nb9XJKdxxxxmyAp'),
+    }
+  ](name='workspaces'),
+}
+
+model GetRelatedWorkspacesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRelatedWorkspacesResponseBody(name='body'),
+}
+
+async function getRelatedWorkspacesWithOptions(tmpReq: GetRelatedWorkspacesRequest, tmpHeader: GetRelatedWorkspacesHeaders, runtime: Util.RuntimeOptions): GetRelatedWorkspacesResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetRelatedWorkspacesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new GetRelatedWorkspacesShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.includeRecent)) {
+    body['IncludeRecent'] = request.includeRecent;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRelatedWorkspaces',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/documents/getRelatedWorkspaces`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getRelatedWorkspaces(request: GetRelatedWorkspacesRequest): GetRelatedWorkspacesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetRelatedWorkspacesHeaders{};
+  return getRelatedWorkspacesWithOptions(request, headers, runtime);
 }
 
 model GetReportTemplateByNameHeaders {
@@ -10168,12 +10832,19 @@ model InviteUsersRequest {
     tenantId?: string(name='tenantId', example='xxxxxx'),
   }(name='TenantContext'),
   conferenceId?: string(name='conferenceId', example='61289fxxx'),
+  phoneInviteeList?: [ 
+    {
+      nick?: string(name='Nick'),
+      phoneNumber?: string(name='PhoneNumber'),
+    }
+  ](name='phoneInviteeList'),
 }
 
 model InviteUsersShrinkRequest {
   inviteeListShrink?: string(name='InviteeList'),
   tenantContextShrink?: string(name='TenantContext'),
   conferenceId?: string(name='conferenceId', example='61289fxxx'),
+  phoneInviteeListShrink?: string(name='phoneInviteeList'),
 }
 
 model InviteUsersResponseBody = {
@@ -10202,6 +10873,9 @@ async function inviteUsersWithOptions(tmpReq: InviteUsersRequest, tmpHeader: Inv
   if (!Util.isUnset(tmpReq.tenantContext)) {
     request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
   }
+  if (!Util.isUnset(tmpReq.phoneInviteeList)) {
+    request.phoneInviteeListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.phoneInviteeList, 'phoneInviteeList', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.inviteeListShrink)) {
     body['InviteeList'] = request.inviteeListShrink;
@@ -10211,6 +10885,9 @@ async function inviteUsersWithOptions(tmpReq: InviteUsersRequest, tmpHeader: Inv
   }
   if (!Util.isUnset(request.conferenceId)) {
     body['conferenceId'] = request.conferenceId;
+  }
+  if (!Util.isUnset(request.phoneInviteeListShrink)) {
+    body['phoneInviteeList'] = request.phoneInviteeListShrink;
   }
 
   var realHeaders : map[string]string = {};
@@ -10440,6 +11117,154 @@ async function listCalendars(request: ListCalendarsRequest): ListCalendarsRespon
   var runtime = new Util.RuntimeOptions{};
   var headers = new ListCalendarsHeaders{};
   return listCalendarsWithOptions(request, headers, runtime);
+}
+
+model ListDentriesHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model ListDentriesShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model ListDentriesRequest {
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='next_token'),
+  order?: string(name='Order', example='ASC'),
+  orderBy?: string(name='OrderBy', example='MODIFIED_TIME'),
+  parentId?: string(name='ParentId', example='0'),
+  spaceId?: string(name='SpaceId', example='854xxxxx'),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+  withThumbnail?: boolean(name='WithThumbnail', example='true'),
+}
+
+model ListDentriesShrinkRequest {
+  maxResults?: int32(name='MaxResults', example='50'),
+  nextToken?: string(name='NextToken', example='next_token'),
+  order?: string(name='Order', example='ASC'),
+  orderBy?: string(name='OrderBy', example='MODIFIED_TIME'),
+  parentId?: string(name='ParentId', example='0'),
+  spaceId?: string(name='SpaceId', example='854xxxxx'),
+  tenantContextShrink?: string(name='TenantContext'),
+  withThumbnail?: boolean(name='WithThumbnail', example='true'),
+}
+
+model ListDentriesResponseBody = {
+  dentries?: [ 
+    {
+      appProperties?: map[string][ DentriesAppPropertiesValue       ](name='AppProperties'),
+      createTime?: string(name='CreateTime', example='2022-01-01T10:00:00Z'),
+      creatorId?: string(name='CreatorId', example='cHtUxxxxx'),
+      extension?: string(name='Extension', example='txt'),
+      id?: string(name='Id', example='657xxxxx'),
+      modifiedTime?: string(name='ModifiedTime', example='2022-01-01T10:00:00Z'),
+      modifierId?: string(name='ModifierId', example='cHtUxxxxx'),
+      name?: string(name='Name', example='测试文件夹'),
+      parentId?: string(name='ParentId', example='0'),
+      partitionType?: string(name='PartitionType', example='PUBLIC_OSS_PARTITION'),
+      path?: string(name='Path', example='./test.txt'),
+      properties?: {
+        readOnly?: boolean(name='ReadOnly', example='true'),
+      }(name='Properties'),
+      size?: long(name='Size', example='512'),
+      spaceId?: string(name='SpaceId', example='854xxxxx'),
+      status?: string(name='Status', example='NORMAL'),
+      storageDriver?: string(name='StorageDriver', example='DINGTALK'),
+      thumbnail?: {
+        height?: int32(name='Height', example='64'),
+        url?: string(name='Url', example='url'),
+        width?: int32(name='Width', example='64'),
+      }(name='Thumbnail'),
+      type?: string(name='Type', example='FILE'),
+      uuid?: string(name='Uuid', example='123xxxxx'),
+      version?: long(name='Version', example='1'),
+    }
+  ](name='dentries'),
+  nextToken?: string(name='nextToken', example='next_token'),
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model ListDentriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDentriesResponseBody(name='body'),
+}
+
+async function listDentriesWithOptions(tmpReq: ListDentriesRequest, tmpHeader: ListDentriesHeaders, runtime: Util.RuntimeOptions): ListDentriesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDentriesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new ListDentriesShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.order)) {
+    body['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    body['OrderBy'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.parentId)) {
+    body['ParentId'] = request.parentId;
+  }
+  if (!Util.isUnset(request.spaceId)) {
+    body['SpaceId'] = request.spaceId;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+  if (!Util.isUnset(request.withThumbnail)) {
+    body['WithThumbnail'] = request.withThumbnail;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDentries',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/documents/listDentries`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listDentries(request: ListDentriesRequest): ListDentriesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ListDentriesHeaders{};
+  return listDentriesWithOptions(request, headers, runtime);
 }
 
 model ListEventsHeaders {
@@ -13522,15 +14347,15 @@ model QueryScheduleConferenceShrinkHeaders {
 }
 
 model QueryScheduleConferenceRequest {
-  requestUnionId?: string(name='RequestUnionId', example='2a489c68-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
   tenantContext?: {
     tenantId?: string(name='tenantId', example='xxxxxx'),
   }(name='TenantContext'),
+  scheduleConferenceId?: string(name='scheduleConferenceId', example='2a489c68-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
 }
 
 model QueryScheduleConferenceShrinkRequest {
-  requestUnionId?: string(name='RequestUnionId', example='2a489c68-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
   tenantContextShrink?: string(name='TenantContext'),
+  scheduleConferenceId?: string(name='scheduleConferenceId', example='2a489c68-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
 }
 
 model QueryScheduleConferenceResponseBody = {
@@ -13563,11 +14388,11 @@ async function queryScheduleConferenceWithOptions(tmpReq: QueryScheduleConferenc
     request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
   }
   var body : map[string]any = {};
-  if (!Util.isUnset(request.requestUnionId)) {
-    body['RequestUnionId'] = request.requestUnionId;
-  }
   if (!Util.isUnset(request.tenantContextShrink)) {
     body['TenantContext'] = request.tenantContextShrink;
+  }
+  if (!Util.isUnset(request.scheduleConferenceId)) {
+    body['scheduleConferenceId'] = request.scheduleConferenceId;
   }
 
   var realHeaders : map[string]string = {};
@@ -15177,6 +16002,89 @@ async function searchFormDatas(request: SearchFormDatasRequest): SearchFormDatas
   return searchFormDatasWithOptions(request, headers, runtime);
 }
 
+model SearchInnerGroupsHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model SearchInnerGroupsShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model SearchInnerGroupsRequest {
+  maxResults?: int32(name='MaxResults', example='100'),
+  searchKey?: string(name='SearchKey'),
+}
+
+model SearchInnerGroupsResponseBody = {
+  groupInfos?: [ 
+    {
+      icon?: string(name='Icon', example='@lAD*****'),
+      memberAmount?: string(name='MemberAmount', example='10'),
+      openConversationId?: string(name='OpenConversationId', example='cid13*****=='),
+      title?: string(name='Title'),
+    }
+  ](name='groupInfos'),
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model SearchInnerGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchInnerGroupsResponseBody(name='body'),
+}
+
+async function searchInnerGroupsWithOptions(request: SearchInnerGroupsRequest, tmpHeader: SearchInnerGroupsHeaders, runtime: Util.RuntimeOptions): SearchInnerGroupsResponse {
+  Util.validateModel(request);
+  var headers = new SearchInnerGroupsShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.searchKey)) {
+    body['SearchKey'] = request.searchKey;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SearchInnerGroups',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/im/searchInnerGroups`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function searchInnerGroups(request: SearchInnerGroupsRequest): SearchInnerGroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new SearchInnerGroupsHeaders{};
+  return searchInnerGroupsWithOptions(request, headers, runtime);
+}
+
 model SendBannerHeaders {
   commonHeaders?: map[string]string,
   accountContext?: {
@@ -15929,6 +16837,7 @@ model StartInstanceRequest {
   formUuid?: string(name='FormUuid', example='FORM-EF6Yxxx'),
   language?: string(name='Language', example='zh_CN'),
   processCode?: string(name='ProcessCode', example='TPROC--EF6Y4xxx'),
+  processData?: string(name='ProcessData'),
   systemToken?: string(name='SystemToken', example='hexxyy'),
 }
 
@@ -15970,6 +16879,9 @@ async function startInstanceWithOptions(request: StartInstanceRequest, tmpHeader
   }
   if (!Util.isUnset(request.processCode)) {
     body['ProcessCode'] = request.processCode;
+  }
+  if (!Util.isUnset(request.processData)) {
+    body['ProcessData'] = request.processData;
   }
   if (!Util.isUnset(request.systemToken)) {
     body['SystemToken'] = request.systemToken;
@@ -17173,6 +18085,117 @@ async function updateRange(request: UpdateRangeRequest): UpdateRangeResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers = new UpdateRangeHeaders{};
   return updateRangeWithOptions(request, headers, runtime);
+}
+
+model UpdateScheduleConfSettingsHeaders {
+  commonHeaders?: map[string]string,
+  accountContext?: {
+    accountId?: string(name='accountId', example='012345'),
+  }(name='AccountContext'),
+}
+
+model UpdateScheduleConfSettingsShrinkHeaders {
+  commonHeaders?: map[string]string,
+  accountContextShrink?: string(name='AccountContext'),
+}
+
+model UpdateScheduleConfSettingsRequest {
+  scheduleConfSettingModel?: {
+    cohostUserIds?: [ string ](name='CohostUserIds'),
+    confAllowedCorpId?: string(name='ConfAllowedCorpId', example='ding********'),
+    hostUserId?: string(name='HostUserId', example='012345'),
+    lockRoom?: int32(name='LockRoom', example='1'),
+    moziConfVirtualExtraSetting?: {
+      enableChat?: int32(name='EnableChat', example='1'),
+      enableWebAnonymousJoin?: boolean(name='EnableWebAnonymousJoin'),
+      joinBeforeHost?: int32(name='JoinBeforeHost', example='1'),
+      lockMediaStatusMicMute?: int32(name='LockMediaStatusMicMute', example='1'),
+      lockNick?: int32(name='LockNick', example='1'),
+      waitingRoom?: int32(name='WaitingRoom', example='1'),
+    }(name='MoziConfVirtualExtraSetting'),
+    muteOnJoin?: int32(name='MuteOnJoin', example='1'),
+    screenShareForbidden?: int32(name='ScreenShareForbidden', example='1'),
+  }(name='ScheduleConfSettingModel'),
+  scheduleConferenceId?: string(name='ScheduleConferenceId', example='f6fb627e-a7e8-403e-b1f8-26e85450f4a9'),
+  tenantContext?: {
+    tenantId?: string(name='tenantId', example='xxxxxx'),
+  }(name='TenantContext'),
+}
+
+model UpdateScheduleConfSettingsShrinkRequest {
+  scheduleConfSettingModelShrink?: string(name='ScheduleConfSettingModel'),
+  scheduleConferenceId?: string(name='ScheduleConferenceId', example='f6fb627e-a7e8-403e-b1f8-26e85450f4a9'),
+  tenantContextShrink?: string(name='TenantContext'),
+}
+
+model UpdateScheduleConfSettingsResponseBody = {
+  requestId?: string(name='requestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  success?: boolean(name='success', example='true'),
+  vendorRequestId?: string(name='vendorRequestId', example='0FAAEC9C-C6C8-5C87-AF8E-1195889BBXXX'),
+  vendorType?: string(name='vendorType', example='dingtalk'),
+}
+
+model UpdateScheduleConfSettingsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateScheduleConfSettingsResponseBody(name='body'),
+}
+
+async function updateScheduleConfSettingsWithOptions(tmpReq: UpdateScheduleConfSettingsRequest, tmpHeader: UpdateScheduleConfSettingsHeaders, runtime: Util.RuntimeOptions): UpdateScheduleConfSettingsResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateScheduleConfSettingsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  var headers = new UpdateScheduleConfSettingsShrinkHeaders{};
+  OpenApiUtil.convert(tmpHeader, headers);
+  if (!Util.isUnset(tmpHeader.accountContext)) {
+    headers.accountContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpHeader.accountContext, 'AccountContext', 'json');
+  }
+  if (!Util.isUnset(tmpReq.scheduleConfSettingModel)) {
+    request.scheduleConfSettingModelShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.scheduleConfSettingModel, 'ScheduleConfSettingModel', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tenantContext)) {
+    request.tenantContextShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tenantContext, 'TenantContext', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.scheduleConfSettingModelShrink)) {
+    body['ScheduleConfSettingModel'] = request.scheduleConfSettingModelShrink;
+  }
+  if (!Util.isUnset(request.scheduleConferenceId)) {
+    body['ScheduleConferenceId'] = request.scheduleConferenceId;
+  }
+  if (!Util.isUnset(request.tenantContextShrink)) {
+    body['TenantContext'] = request.tenantContextShrink;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accountContextShrink)) {
+    realHeaders['AccountContext'] = Util.toJSONString(headers.accountContextShrink);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateScheduleConfSettings',
+    version = '2023-04-26',
+    protocol = 'HTTPS',
+    pathname = `/dingtalk/v1/ysp/updateScheduleConfSettings`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function updateScheduleConfSettings(request: UpdateScheduleConfSettingsRequest): UpdateScheduleConfSettingsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new UpdateScheduleConfSettingsHeaders{};
+  return updateScheduleConfSettingsWithOptions(request, headers, runtime);
 }
 
 model UpdateScheduleConferenceHeaders {
