@@ -1,0 +1,543 @@
+/**
+ *
+ */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'EhpcInstant';
+  @version = '2023-07-01';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model AddImageRequest {
+  containerImageSpec?: {
+    isACREnterprise?: boolean(name='IsACREnterprise', example='True'),
+    isACRRegistry?: boolean(name='IsACRRegistry', example='True'),
+    registryCredential?: {
+      password?: string(name='Password', example='userpassword'),
+      server?: string(name='Server', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
+      userName?: string(name='UserName', example='username'),
+    }(name='RegistryCredential'),
+    registryCriId?: string(name='RegistryCriId', example='cri-xyz795ygf8k9****'),
+    registryUrl?: string(name='RegistryUrl', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
+  }(name='ContainerImageSpec', shrink='json', position='Query'),
+  description?: string(name='Description', position='Query'),
+  imageVersion?: string(name='ImageVersion', example='V1.0', position='Query'),
+  name: string(name='Name', example='app-image', position='Query'),
+  VMImageSpec?: {
+    imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
+  }(name='VMImageSpec', shrink='json', position='Query'),
+}
+
+model AddImageResponseBody = {
+  imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model AddImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddImageResponseBody(name='body'),
+}
+
+async function addImage(request: AddImageRequest): AddImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AddImage', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateJobRequest {
+  deploymentPolicy?: {
+    allocationSpec?: string(name='AllocationSpec', example='Dedicated'),
+    network?: {
+      vswitch?: [ string ](name='Vswitch'),
+    }(name='Network'),
+  }(name='DeploymentPolicy', shrink='json', position='Query'),
+  jobDescription?: string(name='JobDescription', example='Demo', position='Query'),
+  jobName: string(name='JobName', example='testjob', position='Query'),
+  tasks: [ 
+    {
+      executorPolicy?: {
+        arraySpec?: {
+          indexEnd?: int32(name='IndexEnd', example='9'),
+          indexStart?: int32(name='IndexStart', example='0'),
+          indexStep?: int32(name='IndexStep', example='1'),
+        }(name='ArraySpec'),
+        maxCount?: int32(name='MaxCount', example='1'),
+      }(name='ExecutorPolicy'),
+      taskName?: string(name='TaskName', example='task0'),
+      taskSpec?: {
+        resource?: {
+          cores?: float(name='Cores', example='2'),
+          disks?: [ 
+            {
+              size?: int32(name='Size', example='40'),
+              type?: string(name='Type', example='System'),
+            }
+          ](name='Disks'),
+          memory?: float(name='Memory', example='4'),
+        }(name='Resource'),
+        taskExecutor: [ 
+          {
+            container?: {
+              command?: [ string ](name='Command'),
+              environmentVars?: [ 
+                {
+                  name?: string(name='Name', example='PATH'),
+                  value?: string(name='Value', example='/usr/local/bin'),
+                }
+              ](name='EnvironmentVars'),
+              image: string(name='Image', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc/hpl:latest'),
+              workingDir?: string(name='WorkingDir', example='/usr/local/'),
+            }(name='Container'),
+            vm?: {
+              image: string(name='Image', example='m-xxxx'),
+              prologScript?: string(name='PrologScript', example='ZWNobyBoZWxsbyBlY3Mh'),
+              script?: string(name='Script', example='ZWNobyBoZWxsbyBlY3Mh'),
+            }(name='VM'),
+          }
+        ](name='TaskExecutor'),
+        volumeMount?: [ 
+          {
+            mountOptions?: string(name='MountOptions', example='{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}'),
+            mountPath?: string(name='MountPath', example='/mnt'),
+            volumeDriver?: string(name='VolumeDriver', example='alicloud/nas'),
+          }
+        ](name='VolumeMount'),
+      }(name='TaskSpec'),
+      taskSustainable?: boolean(name='TaskSustainable', example='true'),
+    }
+  ](name='Tasks', shrink='json', position='Query'),
+}
+
+model CreateJobResponseBody = {
+  jobId?: string(name='JobId', example='job-xxxx'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model CreateJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateJobResponseBody(name='body'),
+}
+
+async function createJob(request: CreateJobRequest): CreateJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateJob', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteJobsRequest {
+  executorIds?: [ string ](name='ExecutorIds', shrink='json', position='Query'),
+  jobSpec?: [ 
+    {
+      jobId?: string(name='JobId', example='job-xxxx'),
+      taskSpec?: [ 
+        {
+          arrayIndex?: [ int32 ](name='ArrayIndex'),
+          taskName?: string(name='TaskName', example='task0'),
+        }
+      ](name='TaskSpec'),
+    }
+  ](name='JobSpec', shrink='json', position='Query'),
+}
+
+model DeleteJobsResponseBody = {
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DeleteJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteJobsResponseBody(name='body'),
+}
+
+async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeJobMetricDataRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex', shrink='json', position='Query'),
+  jobId?: string(name='JobId', example='job-xxxxx', position='Query'),
+  metricName?: string(name='MetricName', example='cpu_utilization', position='Query'),
+  taskName?: string(name='TaskName', example='Task0', position='Query'),
+}
+
+model DescribeJobMetricDataResponseBody = {
+  dataPoints?: string(name='DataPoints', example='[{"timestamp":1709540685000,"Minimum":28.45,"Maximum":28.45,"Average":28.45}]'),
+  period?: int32(name='Period', example='15'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricDataResponseBody(name='body'),
+}
+
+async function describeJobMetricData(request: DescribeJobMetricDataRequest): DescribeJobMetricDataResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeJobMetricData', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeJobMetricLastRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex', shrink='json', position='Query'),
+  jobId?: string(name='JobId', example='job-xxxxx', position='Query'),
+  taskName?: string(name='TaskName', example='Task0', position='Query'),
+}
+
+model DescribeJobMetricLastResponseBody = {
+  metrics?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='1'),
+      metric?: string(name='Metric', example='{"memory_utilization": 37.42,"cpu_utilization": 1.008, "disk_utilization": 3.562}'),
+    }
+  ](name='Metrics'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricLastResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricLastResponseBody(name='body'),
+}
+
+async function describeJobMetricLast(request: DescribeJobMetricLastRequest): DescribeJobMetricLastResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeJobMetricLast', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetImageRequest {
+  imageId: string(name='ImageId', example='m-2ze74g5mvy4pjg*****', position='Query'),
+}
+
+model GetImageResponseBody = {
+  image?: {
+    containerImageSpec?: {
+      isACREnterprise?: boolean(name='IsACREnterprise', example='True'),
+      isACRRegistry?: boolean(name='IsACRRegistry', example='True'),
+      registryCredential?: {
+        password?: string(name='Password', example='userpassword'),
+        server?: string(name='Server', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
+        userName?: string(name='UserName', example='username'),
+      }(name='RegistryCredential'),
+      registryCriId?: string(name='RegistryCriId', example='cri-xyz795ygf8k9****'),
+      registryUrl?: string(name='RegistryUrl', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
+    }(name='ContainerImageSpec'),
+    createTime?: string(name='CreateTime', example='2022-12-23T09:51:39Z'),
+    description?: string(name='Description'),
+    imageType: string(name='ImageType', example='VM'),
+    name?: string(name='Name', example='app-image'),
+    size?: string(name='Size', example='40 GiB'),
+    VMImageSpec?: {
+      architecture?: string(name='Architecture', example='x86_64'),
+      imageId?: string(name='ImageId', example='m-uf60twafjtaart******'),
+      osTag?: string(name='OsTag', example='CentOS  7.6 64 bit'),
+      platform?: string(name='Platform', example='CentOS'),
+    }(name='VMImageSpec'),
+    version?: string(name='Version', example='v1.0'),
+  }(name='Image'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='10'),
+}
+
+model GetImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetImageResponseBody(name='body'),
+}
+
+async function getImage(request: GetImageRequest): GetImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetImage', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetJobRequest {
+  jobId?: string(name='JobId', example='job-xxxx', position='Query'),
+}
+
+model GetJobResponseBody = {
+  jobInfo?: {
+    createTime?: string(name='CreateTime', example='2024-03-05 20:00:46'),
+    deploymentPolicy?: {
+      allocationSpec?: string(name='AllocationSpec', example='Dedicated'),
+      network?: {
+        vswitch?: [ string ](name='Vswitch'),
+      }(name='Network'),
+    }(name='DeploymentPolicy'),
+    endTime?: string(name='EndTime', example='2024-03-05 20:01:48'),
+    jobDescription?: string(name='JobDescription', example='Demo'),
+    jobId?: string(name='JobId', example='job-xxxx'),
+    jobName?: string(name='JobName', example='testJob'),
+    startTime?: string(name='StartTime', example='2024-03-05 20:00:48'),
+    status?: string(name='Status', example='Succeed'),
+    tasks?: [ 
+      {
+        executorPolicy?: {
+          arraySpec?: {
+            indexEnd?: int32(name='IndexEnd', example='9'),
+            indexStart?: int32(name='IndexStart', example='0'),
+            indexStep?: int32(name='IndexStep', example='1'),
+          }(name='ArraySpec'),
+          maxCount?: int32(name='MaxCount', example='10'),
+        }(name='ExecutorPolicy'),
+        executorStatus?: [ 
+          {
+            arrayId?: int32(name='ArrayId', example='0'),
+            createTime?: string(name='CreateTime', example='2024-02-04 13:54:10'),
+            endTime?: string(name='EndTime', example='2024-02-04 13:54:10'),
+            startTime?: string(name='StartTime', example='2024-02-04 13:54:10'),
+            status?: string(name='Status', example='Running'),
+            statusReason?: string(name='StatusReason', example='Creating executor'),
+          }
+        ](name='ExecutorStatus'),
+        taskName?: string(name='TaskName', example='task0'),
+        taskSpec?: {
+          resource?: {
+            cores?: float(name='Cores', example='1'),
+            disks?: [ 
+              {
+                size?: int32(name='Size', example='100'),
+                type?: string(name='Type', example='System'),
+              }
+            ](name='Disks'),
+            memory?: int32(name='Memory', example='4'),
+          }(name='Resource'),
+          taskExecutor?: [ 
+            {
+              vm?: {
+                image?: string(name='Image', example='m-xxxx'),
+                prologScript?: string(name='PrologScript', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+                script?: string(name='Script', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+              }(name='VM'),
+            }
+          ](name='TaskExecutor'),
+        }(name='TaskSpec'),
+        taskSustainable?: boolean(name='TaskSustainable', example='true'),
+      }
+    ](name='Tasks'),
+  }(name='JobInfo'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model GetJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobResponseBody(name='body'),
+}
+
+async function getJob(request: GetJobRequest): GetJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetJob', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListExecutorsRequest {
+  filter?: {
+    executorIds?: [ string ](name='ExecutorIds'),
+    ipAddresses?: [ string ](name='IpAddresses'),
+    jobName?: string(name='JobName', example='testJob'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', example='1703820113'),
+  }(name='Filter', shrink='json', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='50', position='Query'),
+}
+
+model ListExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      executorId?: string(name='ExecutorId', example='job-xxxx-task0-1'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      jobId?: string(name='JobId', example='job-hy1nggvyukuvkr******'),
+      jobName?: string(name='JobName', example='testJob'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason', example='Succeeded to release executor resource'),
+      taskName?: string(name='TaskName', example='task0'),
+    }
+  ](name='Executors'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: string(name='TotalCount', example='40'),
+}
+
+model ListExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExecutorsResponseBody(name='body'),
+}
+
+async function listExecutors(request: ListExecutorsRequest): ListExecutorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListExecutors', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListImagesRequest {
+  imageIds?: [ string ](name='ImageIds', shrink='json', position='Query'),
+  imageNames?: [ string ](name='ImageNames', shrink='json', position='Query'),
+  pageNumber?: long(name='PageNumber', example='1', position='Query'),
+  pageSize?: long(name='PageSize', example='10', position='Query'),
+}
+
+model ListImagesResponseBody = {
+  images?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2022-12-09T07:06:34Z'),
+      description?: string(name='Description'),
+      imageId: string(name='ImageId', example='m-bp181x855551ww5yq****'),
+      imageType: string(name='ImageType', example='VM'),
+      name?: string(name='Name', example='app-image'),
+      version?: string(name='Version', example='v1.0'),
+    }
+  ](name='Images'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListImagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListImagesResponseBody(name='body'),
+}
+
+async function listImages(request: ListImagesRequest): ListImagesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListImages', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListJobExecutorsRequest {
+  jobId?: string(name='JobId', example='job-xxx', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='10', position='Query'),
+  taskName?: string(name='TaskName', example='task0', position='Query'),
+}
+
+model ListJobExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason', example='Creating executor'),
+    }
+  ](name='Executors'),
+  jobId?: string(name='JobId', example='job-xxxx'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  taskName?: string(name='TaskName', example='task0'),
+  totalCount?: string(name='TotalCount', example='50'),
+}
+
+model ListJobExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobExecutorsResponseBody(name='body'),
+}
+
+async function listJobExecutors(request: ListJobExecutorsRequest): ListJobExecutorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListJobExecutors', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListJobsRequest {
+  filter?: {
+    jobId?: string(name='JobId', example='job-xxxx'),
+    jobName?: string(name='JobName', example='testJob'),
+    status?: string(name='Status', example='Running'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', example='1703820113'),
+  }(name='Filter', shrink='json', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='50', position='Query'),
+  sortBy?: {
+    label?: string(name='Label', example='time_start'),
+    order?: string(name='Order', example='ASC'),
+  }(name='SortBy', shrink='json', position='Query'),
+}
+
+model ListJobsResponseBody = {
+  jobList?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2024-01-25 12:29:21'),
+      endTime?: string(name='EndTime', example='2024-01-25 12:35:23'),
+      executorCount?: int32(name='ExecutorCount', example='1'),
+      jobDescription?: string(name='JobDescription', example='Demo'),
+      jobId?: string(name='JobId', example='job-xxx'),
+      jobName?: string(name='JobName', example='testJob'),
+      ownerUid?: string(name='OwnerUid', example='129**********'),
+      startTime?: string(name='StartTime', example='2024-01-25 12:29:23'),
+      status?: string(name='Status', example='Running'),
+      taskCount?: int32(name='TaskCount', example='1'),
+      taskSustainable?: boolean(name='TaskSustainable', example='true'),
+    }
+  ](name='JobList'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobsResponseBody(name='body'),
+}
+
+async function listJobs(request: ListJobsRequest): ListJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListJobs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model RemoveImageRequest {
+  imageId: string(name='ImageId', example='m-bp14wakr1rkxtb******', position='Query'),
+}
+
+model RemoveImageResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RemoveImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveImageResponseBody(name='body'),
+}
+
+async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RemoveImage', 'POST', '/', 'json', false, 'json', request);
+}
+

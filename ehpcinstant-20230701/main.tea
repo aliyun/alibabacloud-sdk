@@ -1,0 +1,997 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('ehpcinstant', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AddImageRequest {
+  containerImageSpec?: {
+    isACREnterprise?: boolean(name='IsACREnterprise', example='True'),
+    isACRRegistry?: boolean(name='IsACRRegistry', example='True'),
+    registryCredential?: {
+      password?: string(name='Password', example='userpassword'),
+      server?: string(name='Server', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
+      userName?: string(name='UserName', example='username'),
+    }(name='RegistryCredential'),
+    registryCriId?: string(name='RegistryCriId', example='cri-xyz795ygf8k9****'),
+    registryUrl?: string(name='RegistryUrl', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
+  }(name='ContainerImageSpec'),
+  description?: string(name='Description'),
+  imageVersion?: string(name='ImageVersion', example='V1.0'),
+  name?: string(name='Name', example='app-image'),
+  VMImageSpec?: {
+    imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
+  }(name='VMImageSpec'),
+}
+
+model AddImageShrinkRequest {
+  containerImageSpecShrink?: string(name='ContainerImageSpec'),
+  description?: string(name='Description'),
+  imageVersion?: string(name='ImageVersion', example='V1.0'),
+  name?: string(name='Name', example='app-image'),
+  VMImageSpecShrink?: string(name='VMImageSpec'),
+}
+
+model AddImageResponseBody = {
+  imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model AddImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddImageResponseBody(name='body'),
+}
+
+async function addImageWithOptions(tmpReq: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.containerImageSpec)) {
+    request.containerImageSpecShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.containerImageSpec, 'ContainerImageSpec', 'json');
+  }
+  if (!Util.isUnset(tmpReq.VMImageSpec)) {
+    request.VMImageSpecShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.VMImageSpec, 'VMImageSpec', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.containerImageSpecShrink)) {
+    query['ContainerImageSpec'] = request.containerImageSpecShrink;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.imageVersion)) {
+    query['ImageVersion'] = request.imageVersion;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.VMImageSpecShrink)) {
+    query['VMImageSpec'] = request.VMImageSpecShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddImage',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function addImage(request: AddImageRequest): AddImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addImageWithOptions(request, runtime);
+}
+
+model CreateJobRequest {
+  deploymentPolicy?: {
+    allocationSpec?: string(name='AllocationSpec', example='Dedicated'),
+    network?: {
+      vswitch?: [ string ](name='Vswitch'),
+    }(name='Network'),
+  }(name='DeploymentPolicy'),
+  jobDescription?: string(name='JobDescription', example='Demo'),
+  jobName?: string(name='JobName', example='testjob'),
+  tasks?: [ 
+    {
+      executorPolicy?: {
+        arraySpec?: {
+          indexEnd?: int32(name='IndexEnd', example='9'),
+          indexStart?: int32(name='IndexStart', example='0'),
+          indexStep?: int32(name='IndexStep', example='1'),
+        }(name='ArraySpec'),
+        maxCount?: int32(name='MaxCount', example='1'),
+      }(name='ExecutorPolicy'),
+      taskName?: string(name='TaskName', example='task0'),
+      taskSpec?: {
+        resource?: {
+          cores?: float(name='Cores', example='2'),
+          disks?: [ 
+            {
+              size?: int32(name='Size', example='40'),
+              type?: string(name='Type', example='System'),
+            }
+          ](name='Disks'),
+          memory?: float(name='Memory', example='4'),
+        }(name='Resource'),
+        taskExecutor?: [ 
+          {
+            container?: {
+              command?: [ string ](name='Command'),
+              environmentVars?: [ 
+                {
+                  name?: string(name='Name', example='PATH'),
+                  value?: string(name='Value', example='/usr/local/bin'),
+                }
+              ](name='EnvironmentVars'),
+              image?: string(name='Image', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc/hpl:latest'),
+              workingDir?: string(name='WorkingDir', example='/usr/local/'),
+            }(name='Container'),
+            VM?: {
+              image?: string(name='Image', example='m-xxxx'),
+              prologScript?: string(name='PrologScript', example='ZWNobyBoZWxsbyBlY3Mh'),
+              script?: string(name='Script', example='ZWNobyBoZWxsbyBlY3Mh'),
+            }(name='VM'),
+          }
+        ](name='TaskExecutor'),
+        volumeMount?: [ 
+          {
+            mountOptions?: string(name='MountOptions', example='{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}'),
+            mountPath?: string(name='MountPath', example='/mnt'),
+            volumeDriver?: string(name='VolumeDriver', example='alicloud/nas'),
+          }
+        ](name='VolumeMount'),
+      }(name='TaskSpec'),
+      taskSustainable?: boolean(name='TaskSustainable', example='true'),
+    }
+  ](name='Tasks'),
+}
+
+model CreateJobShrinkRequest {
+  deploymentPolicyShrink?: string(name='DeploymentPolicy'),
+  jobDescription?: string(name='JobDescription', example='Demo'),
+  jobName?: string(name='JobName', example='testjob'),
+  tasksShrink?: string(name='Tasks'),
+}
+
+model CreateJobResponseBody = {
+  jobId?: string(name='JobId', example='job-xxxx'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model CreateJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateJobResponseBody(name='body'),
+}
+
+async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.RuntimeOptions): CreateJobResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateJobShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.deploymentPolicy)) {
+    request.deploymentPolicyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.deploymentPolicy, 'DeploymentPolicy', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tasks)) {
+    request.tasksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tasks, 'Tasks', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.deploymentPolicyShrink)) {
+    query['DeploymentPolicy'] = request.deploymentPolicyShrink;
+  }
+  if (!Util.isUnset(request.jobDescription)) {
+    query['JobDescription'] = request.jobDescription;
+  }
+  if (!Util.isUnset(request.jobName)) {
+    query['JobName'] = request.jobName;
+  }
+  if (!Util.isUnset(request.tasksShrink)) {
+    query['Tasks'] = request.tasksShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateJob',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function createJob(request: CreateJobRequest): CreateJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createJobWithOptions(request, runtime);
+}
+
+model DeleteJobsRequest {
+  executorIds?: [ string ](name='ExecutorIds'),
+  jobSpec?: [ 
+    {
+      jobId?: string(name='JobId', example='job-xxxx'),
+      taskSpec?: [ 
+        {
+          arrayIndex?: [ int32 ](name='ArrayIndex'),
+          taskName?: string(name='TaskName', example='task0'),
+        }
+      ](name='TaskSpec'),
+    }
+  ](name='JobSpec'),
+}
+
+model DeleteJobsShrinkRequest {
+  executorIdsShrink?: string(name='ExecutorIds'),
+  jobSpecShrink?: string(name='JobSpec'),
+}
+
+model DeleteJobsResponseBody = {
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DeleteJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteJobsResponseBody(name='body'),
+}
+
+async function deleteJobsWithOptions(tmpReq: DeleteJobsRequest, runtime: Util.RuntimeOptions): DeleteJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.executorIds)) {
+    request.executorIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.executorIds, 'ExecutorIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.jobSpec)) {
+    request.jobSpecShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobSpec, 'JobSpec', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.executorIdsShrink)) {
+    query['ExecutorIds'] = request.executorIdsShrink;
+  }
+  if (!Util.isUnset(request.jobSpecShrink)) {
+    query['JobSpec'] = request.jobSpecShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteJobs',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteJobsWithOptions(request, runtime);
+}
+
+model DescribeJobMetricDataRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex'),
+  jobId?: string(name='JobId', example='job-xxxxx'),
+  metricName?: string(name='MetricName', example='cpu_utilization'),
+  taskName?: string(name='TaskName', example='Task0'),
+}
+
+model DescribeJobMetricDataShrinkRequest {
+  arrayIndexShrink?: string(name='ArrayIndex'),
+  jobId?: string(name='JobId', example='job-xxxxx'),
+  metricName?: string(name='MetricName', example='cpu_utilization'),
+  taskName?: string(name='TaskName', example='Task0'),
+}
+
+model DescribeJobMetricDataResponseBody = {
+  dataPoints?: string(name='DataPoints', example='[{"timestamp":1709540685000,"Minimum":28.45,"Maximum":28.45,"Average":28.45}]'),
+  period?: int32(name='Period', example='15'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricDataResponseBody(name='body'),
+}
+
+async function describeJobMetricDataWithOptions(tmpReq: DescribeJobMetricDataRequest, runtime: Util.RuntimeOptions): DescribeJobMetricDataResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeJobMetricDataShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.arrayIndex)) {
+    request.arrayIndexShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.arrayIndex, 'ArrayIndex', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.arrayIndexShrink)) {
+    query['ArrayIndex'] = request.arrayIndexShrink;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.metricName)) {
+    query['MetricName'] = request.metricName;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['TaskName'] = request.taskName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeJobMetricData',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeJobMetricData(request: DescribeJobMetricDataRequest): DescribeJobMetricDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeJobMetricDataWithOptions(request, runtime);
+}
+
+model DescribeJobMetricLastRequest {
+  arrayIndex?: [ int32 ](name='ArrayIndex'),
+  jobId?: string(name='JobId', example='job-xxxxx'),
+  taskName?: string(name='TaskName', example='Task0'),
+}
+
+model DescribeJobMetricLastShrinkRequest {
+  arrayIndexShrink?: string(name='ArrayIndex'),
+  jobId?: string(name='JobId', example='job-xxxxx'),
+  taskName?: string(name='TaskName', example='Task0'),
+}
+
+model DescribeJobMetricLastResponseBody = {
+  metrics?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='1'),
+      metric?: string(name='Metric', example='{"memory_utilization": 37.42,"cpu_utilization": 1.008, "disk_utilization": 3.562}'),
+    }
+  ](name='Metrics'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+}
+
+model DescribeJobMetricLastResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeJobMetricLastResponseBody(name='body'),
+}
+
+async function describeJobMetricLastWithOptions(tmpReq: DescribeJobMetricLastRequest, runtime: Util.RuntimeOptions): DescribeJobMetricLastResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeJobMetricLastShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.arrayIndex)) {
+    request.arrayIndexShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.arrayIndex, 'ArrayIndex', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.arrayIndexShrink)) {
+    query['ArrayIndex'] = request.arrayIndexShrink;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['TaskName'] = request.taskName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeJobMetricLast',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function describeJobMetricLast(request: DescribeJobMetricLastRequest): DescribeJobMetricLastResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeJobMetricLastWithOptions(request, runtime);
+}
+
+model GetImageRequest {
+  imageId?: string(name='ImageId', example='m-2ze74g5mvy4pjg*****'),
+}
+
+model GetImageResponseBody = {
+  image?: {
+    containerImageSpec?: {
+      isACREnterprise?: boolean(name='IsACREnterprise', example='True'),
+      isACRRegistry?: boolean(name='IsACRRegistry', example='True'),
+      registryCredential?: {
+        password?: string(name='Password', example='userpassword'),
+        server?: string(name='Server', example='registry-vpc.cn-hangzhou.aliyuncs.com'),
+        userName?: string(name='UserName', example='username'),
+      }(name='RegistryCredential'),
+      registryCriId?: string(name='RegistryCriId', example='cri-xyz795ygf8k9****'),
+      registryUrl?: string(name='RegistryUrl', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc_open/nginx:latest'),
+    }(name='ContainerImageSpec'),
+    createTime?: string(name='CreateTime', example='2022-12-23T09:51:39Z'),
+    description?: string(name='Description'),
+    imageType?: string(name='ImageType', example='VM'),
+    name?: string(name='Name', example='app-image'),
+    size?: string(name='Size', example='40 GiB'),
+    VMImageSpec?: {
+      architecture?: string(name='Architecture', example='x86_64'),
+      imageId?: string(name='ImageId', example='m-uf60twafjtaart******'),
+      osTag?: string(name='OsTag', example='CentOS  7.6 64 bit'),
+      platform?: string(name='Platform', example='CentOS'),
+    }(name='VMImageSpec'),
+    version?: string(name='Version', example='v1.0'),
+  }(name='Image'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='10'),
+}
+
+model GetImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetImageResponseBody(name='body'),
+}
+
+async function getImageWithOptions(request: GetImageRequest, runtime: Util.RuntimeOptions): GetImageResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.imageId)) {
+    query['ImageId'] = request.imageId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetImage',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getImage(request: GetImageRequest): GetImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getImageWithOptions(request, runtime);
+}
+
+model GetJobRequest {
+  jobId?: string(name='JobId', example='job-xxxx'),
+}
+
+model GetJobResponseBody = {
+  jobInfo?: {
+    createTime?: string(name='CreateTime', example='2024-03-05 20:00:46'),
+    deploymentPolicy?: {
+      allocationSpec?: string(name='AllocationSpec', example='Dedicated'),
+      network?: {
+        vswitch?: [ string ](name='Vswitch'),
+      }(name='Network'),
+    }(name='DeploymentPolicy'),
+    endTime?: string(name='EndTime', example='2024-03-05 20:01:48'),
+    jobDescription?: string(name='JobDescription', example='Demo'),
+    jobId?: string(name='JobId', example='job-xxxx'),
+    jobName?: string(name='JobName', example='testJob'),
+    startTime?: string(name='StartTime', example='2024-03-05 20:00:48'),
+    status?: string(name='Status', example='Succeed'),
+    tasks?: [ 
+      {
+        executorPolicy?: {
+          arraySpec?: {
+            indexEnd?: int32(name='IndexEnd', example='9'),
+            indexStart?: int32(name='IndexStart', example='0'),
+            indexStep?: int32(name='IndexStep', example='1'),
+          }(name='ArraySpec'),
+          maxCount?: int32(name='MaxCount', example='10'),
+        }(name='ExecutorPolicy'),
+        executorStatus?: [ 
+          {
+            arrayId?: int32(name='ArrayId', example='0'),
+            createTime?: string(name='CreateTime', example='2024-02-04 13:54:10'),
+            endTime?: string(name='EndTime', example='2024-02-04 13:54:10'),
+            startTime?: string(name='StartTime', example='2024-02-04 13:54:10'),
+            status?: string(name='Status', example='Running'),
+            statusReason?: string(name='StatusReason', example='Creating executor'),
+          }
+        ](name='ExecutorStatus'),
+        taskName?: string(name='TaskName', example='task0'),
+        taskSpec?: {
+          resource?: {
+            cores?: float(name='Cores', example='1'),
+            disks?: [ 
+              {
+                size?: int32(name='Size', example='100'),
+                type?: string(name='Type', example='System'),
+              }
+            ](name='Disks'),
+            memory?: int32(name='Memory', example='4'),
+          }(name='Resource'),
+          taskExecutor?: [ 
+            {
+              VM?: {
+                image?: string(name='Image', example='m-xxxx'),
+                prologScript?: string(name='PrologScript', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+                script?: string(name='Script', example='ZWNobyAiMTIzNCIgPiBgZGF0ZSArJXNg'),
+              }(name='VM'),
+            }
+          ](name='TaskExecutor'),
+        }(name='TaskSpec'),
+        taskSustainable?: boolean(name='TaskSustainable', example='true'),
+      }
+    ](name='Tasks'),
+  }(name='JobInfo'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model GetJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobResponseBody(name='body'),
+}
+
+async function getJobWithOptions(request: GetJobRequest, runtime: Util.RuntimeOptions): GetJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetJob',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function getJob(request: GetJobRequest): GetJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobWithOptions(request, runtime);
+}
+
+model ListExecutorsRequest {
+  filter?: {
+    executorIds?: [ string ](name='ExecutorIds'),
+    ipAddresses?: [ string ](name='IpAddresses'),
+    jobName?: string(name='JobName', example='testJob'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', example='1703820113'),
+  }(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+}
+
+model ListExecutorsShrinkRequest {
+  filterShrink?: string(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+}
+
+model ListExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      executorId?: string(name='ExecutorId', example='job-xxxx-task0-1'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      jobId?: string(name='JobId', example='job-hy1nggvyukuvkr******'),
+      jobName?: string(name='JobName', example='testJob'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason', example='Succeeded to release executor resource'),
+      taskName?: string(name='TaskName', example='task0'),
+    }
+  ](name='Executors'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: string(name='TotalCount', example='40'),
+}
+
+model ListExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExecutorsResponseBody(name='body'),
+}
+
+async function listExecutorsWithOptions(tmpReq: ListExecutorsRequest, runtime: Util.RuntimeOptions): ListExecutorsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListExecutorsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'Filter', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.filterShrink)) {
+    query['Filter'] = request.filterShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListExecutors',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listExecutors(request: ListExecutorsRequest): ListExecutorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listExecutorsWithOptions(request, runtime);
+}
+
+model ListImagesRequest {
+  imageIds?: [ string ](name='ImageIds'),
+  imageNames?: [ string ](name='ImageNames'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+}
+
+model ListImagesShrinkRequest {
+  imageIdsShrink?: string(name='ImageIds'),
+  imageNamesShrink?: string(name='ImageNames'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+}
+
+model ListImagesResponseBody = {
+  images?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2022-12-09T07:06:34Z'),
+      description?: string(name='Description'),
+      imageId?: string(name='ImageId', example='m-bp181x855551ww5yq****'),
+      imageType?: string(name='ImageType', example='VM'),
+      name?: string(name='Name', example='app-image'),
+      version?: string(name='Version', example='v1.0'),
+    }
+  ](name='Images'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListImagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListImagesResponseBody(name='body'),
+}
+
+async function listImagesWithOptions(tmpReq: ListImagesRequest, runtime: Util.RuntimeOptions): ListImagesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListImagesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.imageIds)) {
+    request.imageIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.imageIds, 'ImageIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.imageNames)) {
+    request.imageNamesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.imageNames, 'ImageNames', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.imageIdsShrink)) {
+    query['ImageIds'] = request.imageIdsShrink;
+  }
+  if (!Util.isUnset(request.imageNamesShrink)) {
+    query['ImageNames'] = request.imageNamesShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListImages',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listImages(request: ListImagesRequest): ListImagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listImagesWithOptions(request, runtime);
+}
+
+model ListJobExecutorsRequest {
+  jobId?: string(name='JobId', example='job-xxx'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  taskName?: string(name='TaskName', example='task0'),
+}
+
+model ListJobExecutorsResponseBody = {
+  executors?: [ 
+    {
+      arrayIndex?: int32(name='ArrayIndex', example='0'),
+      createTime?: string(name='CreateTime', example='2024-02-20 10:04:10'),
+      endTime?: string(name='EndTime', example='2024-02-20 10:04:18'),
+      hostName?: [ string ](name='HostName'),
+      ipAddress?: [ string ](name='IpAddress'),
+      status?: string(name='Status', example='Running'),
+      statusReason?: string(name='StatusReason', example='Creating executor'),
+    }
+  ](name='Executors'),
+  jobId?: string(name='JobId', example='job-xxxx'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  taskName?: string(name='TaskName', example='task0'),
+  totalCount?: string(name='TotalCount', example='50'),
+}
+
+model ListJobExecutorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobExecutorsResponseBody(name='body'),
+}
+
+async function listJobExecutorsWithOptions(request: ListJobExecutorsRequest, runtime: Util.RuntimeOptions): ListJobExecutorsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    query['TaskName'] = request.taskName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListJobExecutors',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listJobExecutors(request: ListJobExecutorsRequest): ListJobExecutorsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listJobExecutorsWithOptions(request, runtime);
+}
+
+model ListJobsRequest {
+  filter?: {
+    jobId?: string(name='JobId', example='job-xxxx'),
+    jobName?: string(name='JobName', example='testJob'),
+    status?: string(name='Status', example='Running'),
+    timeCreatedAfter?: int32(name='TimeCreatedAfter', example='1703819914'),
+    timeCreatedBefore?: int32(name='TimeCreatedBefore', example='1703820113'),
+  }(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+  sortBy?: {
+    label?: string(name='Label', example='time_start'),
+    order?: string(name='Order', example='ASC'),
+  }(name='SortBy'),
+}
+
+model ListJobsShrinkRequest {
+  filterShrink?: string(name='Filter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='50'),
+  sortByShrink?: string(name='SortBy'),
+}
+
+model ListJobsResponseBody = {
+  jobList?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2024-01-25 12:29:21'),
+      endTime?: string(name='EndTime', example='2024-01-25 12:35:23'),
+      executorCount?: int32(name='ExecutorCount', example='1'),
+      jobDescription?: string(name='JobDescription', example='Demo'),
+      jobId?: string(name='JobId', example='job-xxx'),
+      jobName?: string(name='JobName', example='testJob'),
+      ownerUid?: string(name='OwnerUid', example='129**********'),
+      startTime?: string(name='StartTime', example='2024-01-25 12:29:23'),
+      status?: string(name='Status', example='Running'),
+      taskCount?: int32(name='TaskCount', example='1'),
+      taskSustainable?: boolean(name='TaskSustainable', example='true'),
+    }
+  ](name='JobList'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobsResponseBody(name='body'),
+}
+
+async function listJobsWithOptions(tmpReq: ListJobsRequest, runtime: Util.RuntimeOptions): ListJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'Filter', 'json');
+  }
+  if (!Util.isUnset(tmpReq.sortBy)) {
+    request.sortByShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.sortBy, 'SortBy', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.filterShrink)) {
+    query['Filter'] = request.filterShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortByShrink)) {
+    query['SortBy'] = request.sortByShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListJobs',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listJobs(request: ListJobsRequest): ListJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listJobsWithOptions(request, runtime);
+}
+
+model RemoveImageRequest {
+  imageId?: string(name='ImageId', example='m-bp14wakr1rkxtb******'),
+}
+
+model RemoveImageResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RemoveImageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveImageResponseBody(name='body'),
+}
+
+async function removeImageWithOptions(request: RemoveImageRequest, runtime: Util.RuntimeOptions): RemoveImageResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.imageId)) {
+    query['ImageId'] = request.imageId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveImage',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeImageWithOptions(request, runtime);
+}
+
