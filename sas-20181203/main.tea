@@ -1060,6 +1060,7 @@ model AddSasModuleTrialResponseBody = {
     trialRecordList?: [ 
       {
         authLimit?: long(name='AuthLimit', description='The authorized quota.', example='100'),
+        authLimitList?: string(name='AuthLimitList'),
         gmtEnd?: long(name='GmtEnd', description='The end time of the trial use.', example='1638201599999'),
         gmtStart?: long(name='GmtStart', description='The start time of the trial use.', example='1667232000000'),
         moduleCode?: string(name='ModuleCode', description='The module code. Valid values:
@@ -2136,6 +2137,14 @@ model ChangeCheckCustomConfigRequest {
 
 *   **cn-hangzhou**: International
 *   **ap-southeast-1**: Singapore', example='cn-hangzhou'),
+  repairConfigs?: [ 
+    {
+      flowId?: string(name='FlowId'),
+      name?: string(name='Name'),
+      operation?: string(name='Operation', example='DELETE'),
+      value?: string(name='Value'),
+    }
+  ](name='RepairConfigs'),
 }
 
 model ChangeCheckCustomConfigResponseBody = {
@@ -2144,6 +2153,11 @@ model ChangeCheckCustomConfigResponseBody = {
       name?: string(name='Name', description='The name of the custom configuration item. The name of a custom configuration item is unique in a check item.', example='SessionTimeMax'),
     }
   ](name='IllegalCustomConfigs', description='An array that consists of the invalid custom configuration items of the check item.'),
+  illegalRepairConfigs?: [ 
+    {
+      name?: string(name='Name'),
+    }
+  ](name='IllegalRepairConfigs'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='DA8133CC-CCA0-5CF2-BF64-FE7D52C44***'),
 }
 
@@ -2164,6 +2178,9 @@ async function changeCheckCustomConfigWithOptions(request: ChangeCheckCustomConf
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.repairConfigs)) {
+    query['RepairConfigs'] = request.repairConfigs;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -3251,6 +3268,9 @@ async function createCycleTask(request: CreateCycleTaskRequest): CreateCycleTask
 }
 
 model CreateFileDetectRequest {
+  decompress?: boolean(name='Decompress'),
+  decompressMaxFileCount?: int32(name='DecompressMaxFileCount'),
+  decompressMaxLayer?: int32(name='DecompressMaxLayer'),
   downloadUrl?: string(name='DownloadUrl', description='The URL that is used to download the file. You can specify this parameter to trigger file detection without the need to upload the file in advance.', example='https://xxxxxxxx.oss-cn-hangzhou-1.aliyuncs.com/xxxxx/xxxxxxxxxxxxxx?Expires=1671448125&OSSAccessKeyId=xxx'),
   hashKey?: string(name='HashKey', description='The identifier of the file. Only MD5 hash values are supported.', example='0a212417e65c26ff133cfff28f6c****'),
   ossKey?: string(name='OssKey', description='The key of the file that is stored in the Object Storage Service (OSS) bucket. If you specify the DownloadUrl parameter, you can leave this parameter empty. You can call the [CreateFileDetectUploadUrl](~~CreateFileDetectUploadUrl~~) operation to query the keys of files.', example='1/2022/06/23/15/41/16559701077444693a0c6-33b2-4cc2-a99f-9f38b8b8****'),
@@ -3290,6 +3310,15 @@ model CreateFileDetectResponse = {
 async function createFileDetectWithOptions(request: CreateFileDetectRequest, runtime: Util.RuntimeOptions): CreateFileDetectResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.decompress)) {
+    query['Decompress'] = request.decompress;
+  }
+  if (!Util.isUnset(request.decompressMaxFileCount)) {
+    query['DecompressMaxFileCount'] = request.decompressMaxFileCount;
+  }
+  if (!Util.isUnset(request.decompressMaxLayer)) {
+    query['DecompressMaxLayer'] = request.decompressMaxLayer;
+  }
   if (!Util.isUnset(request.downloadUrl)) {
     query['DownloadUrl'] = request.downloadUrl;
   }
@@ -7823,6 +7852,7 @@ async function deleteVulWhitelist(request: DeleteVulWhitelistRequest): DeleteVul
 
 model DescribeAccessKeyLeakDetailRequest {
   id?: long(name='Id', description='The ID of the AccessKey pair leak.', example='389357'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId'),
 }
 
 model DescribeAccessKeyLeakDetailResponseBody = {
@@ -7882,6 +7912,9 @@ async function describeAccessKeyLeakDetailWithOptions(request: DescribeAccessKey
   if (!Util.isUnset(request.id)) {
     query['Id'] = request.id;
   }
+  if (!Util.isUnset(request.resourceDirectoryAccountId)) {
+    query['ResourceDirectoryAccountId'] = request.resourceDirectoryAccountId;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -7911,6 +7944,7 @@ Maximum value: 100. Default value: 20. If you leave this parameter empty, 20 ent
 
 > We recommend that you do not leave this parameter empty.', example='20'),
   query?: string(name='Query', description='The AccessKey ID that you want to query. Only exact match is supported.', example='LTAI4Fytv7ALKzkNVBV6****'),
+  resourceDirectoryAccountId?: long(name='ResourceDirectoryAccountId'),
   startTs?: long(name='StartTs', description='The beginning of the time range to query. You can query all AccessKey pair leaks that are detected later than this time point. The value of this parameter is a UNIX timestamp. Unit: milliseconds.', example='1614155361489'),
   status?: string(name='Status', description='Specifies whether an AccessKey pair leak is handled. Valid values:
 
@@ -7970,6 +8004,9 @@ async function describeAccesskeyLeakListWithOptions(request: DescribeAccesskeyLe
   }
   if (!Util.isUnset(request.query)) {
     query['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.resourceDirectoryAccountId)) {
+    query['ResourceDirectoryAccountId'] = request.resourceDirectoryAccountId;
   }
   if (!Util.isUnset(request.startTs)) {
     query['StartTs'] = request.startTs;
@@ -10182,7 +10219,9 @@ async function describeBackupRestoreCount(): DescribeBackupRestoreCountResponse 
 model DescribeBruteForceRecordsRequest {
   blockIp?: string(name='BlockIp', description='The IP address that is blocked.', example='175.106.XX.XX'),
   currentPage?: int32(name='CurrentPage', description='The number of the page to return.', example='1'),
+  instanceId?: string(name='InstanceId'),
   pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: 20. If you leave this parameter empty, 20 entries are returned on each page. We recommend that you do not leave this parameter empty.', example='20'),
+  remark?: string(name='Remark'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   status?: int32(name='Status', description='The status of the defense rule. Valid values:
 
@@ -10247,8 +10286,14 @@ async function describeBruteForceRecordsWithOptions(request: DescribeBruteForceR
   if (!Util.isUnset(request.currentPage)) {
     query['CurrentPage'] = request.currentPage;
   }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.remark)) {
+    query['Remark'] = request.remark;
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
@@ -27319,6 +27364,7 @@ model DescribeVersionConfigResponseBody = {
   lastTrailEndTime?: long(name='LastTrailEndTime', description='The timestamp when the last trial of Security Center ends. Unit: milliseconds.', example='1603934844000'),
   MVAuthCount?: int32(name='MVAuthCount', description='The total quota in the Multi-version edition of purchased Security Center.', example='5000'),
   MVUnusedAuthCount?: int32(name='MVUnusedAuthCount', description='The total remaining quota in the Multi-version edition of purchased Security Center.', example='40'),
+  newThreatAnalysis?: int32(name='NewThreatAnalysis'),
   openTime?: long(name='OpenTime', description='The timestamp when Security Center is purchased. Unit: milliseconds.', example='1657244824669'),
   postPayInstanceId?: string(name='PostPayInstanceId', description='The instance ID of Security Center that uses the pay-as-you-go billing method.', example='postpay-sas-**'),
   postPayModuleSwitch?: string(name='PostPayModuleSwitch', description='The configuration of the pay-as-you-go module. Valid values:
@@ -27345,6 +27391,7 @@ model DescribeVersionConfigResponseBody = {
   sdkCapacity?: long(name='SdkCapacity', description='The purchased quota for malicious file detection SDK. Unit: process/month.', example='100'),
   slsCapacity?: long(name='SlsCapacity', description='The log storage capacity that you purchase. Unit: GB. Valid values: 0 to 200000.', example='10240'),
   threatAnalysisCapacity?: long(name='ThreatAnalysisCapacity', description='The purchased log storage capacity for threat analysis. Unit: GB.', example='25'),
+  threatAnalysisFlow?: int32(name='ThreatAnalysisFlow'),
   userDefinedAlarms?: int32(name='UserDefinedAlarms', description='Indicates whether the custom alert feature is enabled. Valid values:
 
 *   **0**: no
@@ -31958,6 +32005,31 @@ model GetCheckDetailResponseBody = {
     type?: string(name='Type', description='The type of the description of the check item. The value is fixed as text.', example='text'),
     value?: string(name='Value', description='The content in the description of the check item.', example='The MSE instance does not enable authentication by default. If public network access is enabled at the same time, the data in the configuration center may be dragged and there is a security risk.'),
   }(name='Description', description='The description of the check item.'),
+  repairReset?: string(name='RepairReset'),
+  repairSetting?: {
+    flowStep?: [ 
+      {
+        showText?: string(name='ShowText'),
+        step?: string(name='Step'),
+      }
+    ](name='FlowStep'),
+    repairConfigs?: [ 
+      {
+        customFlag?: boolean(name='CustomFlag'),
+        defaultValue?: string(name='DefaultValue'),
+        exclusiveName?: [ string ](name='ExclusiveName'),
+        flowId?: string(name='FlowId'),
+        name?: string(name='Name'),
+        showName?: string(name='ShowName'),
+        typeDefine?: string(name='TypeDefine'),
+        value?: string(name='Value'),
+      }
+    ](name='RepairConfigs'),
+    repairReset?: boolean(name='RepairReset'),
+    repairSupport?: boolean(name='RepairSupport'),
+    repairSupportType?: int32(name='RepairSupportType'),
+  }(name='RepairSetting'),
+  repairSupportType?: int32(name='RepairSupportType'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='15A6ED6A-DBFE-5255-A248-289907809BEC'),
   solution?: {
     link?: string(name='Link', description='The link to the solution to handle the risk item when the Type parameter is set to link.', example='https://www.alibabacloud.com/help/en/object-storage-service/latest/tutorial-implement-data-sharing-across-departments-based-on-bucket-policies'),
@@ -32204,7 +32276,7 @@ model GetCheckSummaryResponseBody = {
   overallItemStatistic?: {
     releaseCount?: int32(name='ReleaseCount', description='The number of check items supported by the system.', example='620'),
     resultCount?: int32(name='ResultCount', description='The number of check items available to you.', example='25'),
-  }(name='OverallItemStatistic', description='The statistics of the check items.'),
+  }(name='OverallItemStatistic', description='The statistics about the number of check items.'),
   overallStatistic?: {
     notCheckCount?: int32(name='NotCheckCount', description='The number of unchecked check items.', example='3'),
     notCheckHighCount?: int32(name='NotCheckHighCount', description='The number of unchecked high-risk check items.', example='1'),
@@ -32251,9 +32323,9 @@ model GetCheckSummaryResponseBody = {
       ](name='Standards', description='The information about the check items.'),
       type?: string(name='Type', description='The type of the check item. Valid values:
 
-*   **COMPLIANCE**: compliance
-*   **RISK**: security risk
-*   **IDENTITY_PERMISSION**: identity and permission', example='IDENTITY_PERMISSION'),
+*   **COMPLIANCE**
+*   **RISK**
+*   **IDENTITY_PERMISSION**', example='IDENTITY_PERMISSION'),
       typeStatistic?: {
         notCheckCount?: int32(name='NotCheckCount', description='The number of unchecked check items.', example='3'),
         notCheckHighCount?: int32(name='NotCheckHighCount', description='The number of unchecked high-risk check items.', example='1'),
@@ -32263,7 +32335,7 @@ model GetCheckSummaryResponseBody = {
         notPassHighCount?: int32(name='NotPassHighCount', description='The number of high-risk check items that failed to pass the check.', example='1'),
         notPassLowCount?: int32(name='NotPassLowCount', description='The number of low-risk check items that failed to pass the check.', example='1'),
         notPassMediumCount?: int32(name='NotPassMediumCount', description='The number of medium-risk check items that failed to pass the check.', example='1'),
-        passCount?: int32(name='PassCount', description='The number of check items that passed the check.', example='3'),
+        passCount?: int32(name='PassCount', description='The number of check items that pass the check.', example='3'),
         passHighCount?: int32(name='PassHighCount', description='The number of high-risk check items that pass the check.', example='1'),
         passLowCount?: int32(name='PassLowCount', description='The number of low-risk check items that pass the check.', example='1'),
         passMediumCount?: int32(name='PassMediumCount', description='The number of medium-risk check items that pass the check.', example='1'),
@@ -33610,6 +33682,7 @@ model GetFileDetectResultResponseBody = {
   resultList?: [ 
     {
       code?: string(name='Code', description='The status code returned. The status code **200** indicates that the request was successful. Other status codes indicate that the request failed. You can identify the cause of the failure based on the status code.', example='200'),
+      compress?: boolean(name='Compress'),
       ext?: string(name='Ext', description='The extended information about the file detection result.', example='{"HighLight":[[23245,23212]]}'),
       hashKey?: string(name='HashKey', description='The identifier of the file. Only MD5 hash values are supported.', example='0a212417e65c26ff133cfff28f6c****'),
       message?: string(name='Message', description='The error message returned.', example='successful'),
@@ -35268,6 +35341,7 @@ model GetModuleTrialAuthInfoResponseBody = {
     trialRecordList?: [ 
       {
         authLimit?: long(name='AuthLimit', description='The authorized quota.', example='100'),
+        authLimitList?: string(name='AuthLimitList'),
         gmtEnd?: long(name='GmtEnd', description='The end time of the trial use.', example='1679760000000'),
         gmtStart?: long(name='GmtStart', description='The start time of the trial use.', example='1669824000000'),
         moduleCode?: string(name='ModuleCode', description='The module code. Valid values:
@@ -38825,6 +38899,17 @@ model ListCheckInstanceResultResponseBody = {
     {
       id?: long(name='Id', description='The check result ID of the instance.', example='300054'),
       instanceId?: string(name='InstanceId', description='The instance ID of the server.', example='rm-m5es7ch1s62i4****'),
+      instanceInfo?: {
+        config?: [ 
+          {
+            name?: string(name='Name'),
+            showName?: string(name='ShowName'),
+            value?: string(name='Value'),
+          }
+        ](name='Config'),
+        firstUpdateTime?: long(name='FirstUpdateTime'),
+        lastUpdateTime?: long(name='LastUpdateTime'),
+      }(name='InstanceInfo'),
       instanceName?: string(name='InstanceName', description='The instance name.', example='sg-t4nbk2aodzio52xv****'),
       regionId?: string(name='RegionId', description='The ID of the region in which the instance resides.', example='ap-southeast-1'),
       status?: string(name='Status', description='The states of check items. Multiple states are separated with commas (,). Valid values:
@@ -40592,6 +40677,90 @@ async function listClusterPluginInfo(request: ListClusterPluginInfoRequest): Lis
   return listClusterPluginInfoWithOptions(request, runtime);
 }
 
+model ListCompressFileDetectResultRequest {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  hashKey?: string(name='HashKey', example='0a212417e65c26ff133cfff28f6c****'),
+  pageSize?: int32(name='PageSize', example='20'),
+  sourceIp?: string(name='SourceIp', example='27.9.XX.XX'),
+}
+
+model ListCompressFileDetectResultResponseBody = {
+  pageInfo?: {
+    currentPage?: int32(name='CurrentPage', example='1'),
+    pageSize?: int32(name='PageSize', example='20'),
+    totalCount?: int32(name='TotalCount', example='55'),
+  }(name='PageInfo'),
+  requestId?: string(name='RequestId', example='E10BAF1C-A6C5-51E2-866C-76D5922E****'),
+  resultList?: [ 
+    {
+      ext?: string(name='Ext', example='{
+    "HighLight":
+    [
+        [
+            23245,
+            23212
+        ]
+    ],
+    "FileLabel":
+    [
+        "PE32",
+        "Zip",
+        "SFX",
+        "encrypted"
+    ]
+}'),
+      hashKey?: string(name='HashKey', example='0a212417e65c26ff133cfff28f6c****'),
+      path?: string(name='Path', example='/root/1.zip/test****'),
+      result?: int32(name='Result', example='0'),
+      score?: int32(name='Score', example='100'),
+      virusType?: string(name='VirusType', example='WebShell'),
+    }
+  ](name='ResultList'),
+}
+
+model ListCompressFileDetectResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCompressFileDetectResultResponseBody(name='body'),
+}
+
+async function listCompressFileDetectResultWithOptions(request: ListCompressFileDetectResultRequest, runtime: Util.RuntimeOptions): ListCompressFileDetectResultResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.currentPage)) {
+    query['CurrentPage'] = request.currentPage;
+  }
+  if (!Util.isUnset(request.hashKey)) {
+    query['HashKey'] = request.hashKey;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sourceIp)) {
+    query['SourceIp'] = request.sourceIp;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCompressFileDetectResult',
+    version = '2018-12-03',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+async function listCompressFileDetectResult(request: ListCompressFileDetectResultRequest): ListCompressFileDetectResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listCompressFileDetectResultWithOptions(request, runtime);
+}
+
 model ListContainerDefenseRuleRequest {
   conditions?: [ 
     {
@@ -40840,13 +41009,22 @@ async function listCriteriaStrategy(request: ListCriteriaStrategyRequest): ListC
 model ListFileProtectEventRequest {
   alertLevels?: [ int32 ](name='AlertLevels', description='The severities of alerts.'),
   currentPage?: int32(name='CurrentPage', description='The page number.', example='1'),
+  endTime?: long(name='EndTime', description='The end of the time range to query.', example='1683195595204'),
+  instanceId?: string(name='InstanceId', description='The instance ID of the asset.', example='i-bp1fu4aqltf1huhc****'),
+  instanceName?: string(name='InstanceName', description='The name of the server.', example='ca_cpm_****'),
+  internetIp?: string(name='InternetIp', description='The public IP address of the asset that you want to query.', example='120.27.XX.XX'),
+  intranetIp?: string(name='IntranetIp', description='The private IP address of the asset that you want to query.', example='172.26.XX.XX'),
   pageSize?: string(name='PageSize', description='The number of entries per page.', example='20'),
   ruleName?: string(name='RuleName', description='The name of the rule.', example='test-rule-1'),
+  startTime?: long(name='StartTime', description='The start of the time range to query.', example='1683080489594'),
   status?: string(name='Status', description='The status of the event. Valid values:
 
 *   0: unhandled
 *   1: handled
 *   2: added to the whitelist', example='2'),
+  uuid?: string(name='Uuid', description='The server UUID.
+
+>  You can call the [DescribeCloudCenterInstances](~~DescribeCloudCenterInstances~~) operation to query the server UUID.', example='inet-ecs-4e876cb0-09f7-43b8-82ef-4bc7a937***'),
 }
 
 model ListFileProtectEventResponseBody = {
@@ -40903,14 +41081,35 @@ async function listFileProtectEventWithOptions(request: ListFileProtectEventRequ
   if (!Util.isUnset(request.currentPage)) {
     query['CurrentPage'] = request.currentPage;
   }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.internetIp)) {
+    query['InternetIp'] = request.internetIp;
+  }
+  if (!Util.isUnset(request.intranetIp)) {
+    query['IntranetIp'] = request.intranetIp;
+  }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
   }
   if (!Util.isUnset(request.ruleName)) {
     query['RuleName'] = request.ruleName;
   }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
   if (!Util.isUnset(request.status)) {
     query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.uuid)) {
+    query['Uuid'] = request.uuid;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
