@@ -744,6 +744,7 @@ async function createCacheAnalysisTask(request: CreateCacheAnalysisTaskRequest):
 }
 
 model CreateGlobalDistributeCacheRequest {
+  effectiveTime?: string(name='EffectiveTime'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
@@ -778,6 +779,9 @@ model CreateGlobalDistributeCacheResponse = {
 async function createGlobalDistributeCacheWithOptions(request: CreateGlobalDistributeCacheRequest, runtime: Util.RuntimeOptions): CreateGlobalDistributeCacheResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.effectiveTime)) {
+    query['EffectiveTime'] = request.effectiveTime;
+  }
   if (!Util.isUnset(request.ownerAccount)) {
     query['OwnerAccount'] = request.ownerAccount;
   }
@@ -1406,16 +1410,22 @@ model CreateTairInstanceRequest {
 
 *   **true**: uses a coupon.
 *   **false**: does not use a coupon.', example='true'),
-  backupId?: string(name='BackupId', description='The ID of the backup set of the source instance. You can call the [DescribeBackups](~~61081~~) operation to query the ID of the backup set.
+  backupId?: string(name='BackupId', description='The ID of the backup set of the source instance. If you want to create an instance based on a backup set of a specified instance, you can specify this parameter after you specify the **SrcDBInstanceId** parameter. Then, the system creates an instance based on the backup set that is specified by this parameter. You can call the [DescribeBackups](~~61081~~) operation to query the IDs of backup sets.
 
-> If you want to create an instance based on the backup set of an existing instance, you must specify this parameter after you specify the **SrcDBInstanceId** parameter. The system creates an instance based on the backup set that is specified by this parameter.', example='11111111'),
+>  If you want to create an instance based on a backup set of a specified instance, you must specify this parameter after you use the **SrcDBInstanceId** parameter to specify the ID of the source instance. Then, the system creates an instance based on the backup set that is specified by this parameter.', example='11111111'),
   businessInfo?: string(name='BusinessInfo', description='The ID of the promotion event or the business information.', example='000000000'),
   chargeType?: string(name='ChargeType', description='The billing method of the instance. Default value: PrePaid. Valid values:
 
 *   **PrePaid**: subscription
 *   **PostPaid**: pay-as-you-go', example='PrePaid'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that the token is unique among different requests. The token is case-sensitive. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCz****'),
-  clusterBackupId?: string(name='ClusterBackupId', description='The backup set ID.', example='cb-hyxdof5x9kqb****'),
+  clusterBackupId?: string(name='ClusterBackupId', description='This parameter is supported for specific new cluster instances. You can query the backup set ID by using the [DescribeClusterBackupList](~~2679158~~) operation.
+
+*   If this parameter is supported, you can specify the backup set ID. In this case, you do not need to specify the **BackupId** parameter.
+
+<!---->
+
+*   If this parameter is not supported, set the BackupId parameter to the IDs of backup sets in all shards of the source instance, separated by commas (,). Example: "11101,11102".', example='cb-hyxdof5x9kqb****'),
   couponNo?: string(name='CouponNo', description='The coupon code.', example='youhuiquan_promotion_option_id_for_blank'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Default value: false. Valid values:
 
@@ -1467,6 +1477,7 @@ model CreateTairInstanceRequest {
 *   Before you modify the resource group to which an instance belongs, you can call the [ListResources](~~158866~~) operation to view the current resource group of the instance.', example='rg-acfmyiu4ekp****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  restoreTime?: string(name='RestoreTime'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone. You can call the [DescribeRegions](~~61012~~) operation to query the ID of the secondary zone.
 
 > You cannot specify multiple zone IDs or set this parameter to a value that is the same as that of the ZoneId parameter.', example='cn-hangzhou-h'),
@@ -1481,7 +1492,9 @@ model CreateTairInstanceRequest {
 
 *   **MASTER_SLAVE**: runs in a master-replica architecture that provides high availability.
 *   **STAND_ALONE**: runs in a standalone architecture. If the only node fails, the system creates a new instance and switches the workloads to the new instance. This may cause data loss. You can set this parameter to this value only if the instance uses the **single-zone** deployment type. If you set this parameter to this value, you cannot create cluster or read/write splitting instances.', example='MASTER_SLAVE'),
-  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', example='1'),
+  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', description='The number of read replicas in the secondary zone. This parameter is used to create a read/write splitting instance that is deployed across multiple zones.
+
+> To create a read/write splitting instance that is deployed across multiple zones, you must specify both SlaveReadOnlyCount and SecondaryZoneId.', example='1'),
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The ID of the source instance.
 
 > If you want to create an instance based on the backup set of an existing instance, set this parameter to the ID of the source instance and the **BackupId** parameter to the backup set that you want to use.', example='r-bp1zxszhcgatnx****'),
@@ -1638,6 +1651,9 @@ async function createTairInstanceWithOptions(request: CreateTairInstanceRequest,
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.restoreTime)) {
+    query['RestoreTime'] = request.restoreTime;
   }
   if (!Util.isUnset(request.secondaryZoneId)) {
     query['SecondaryZoneId'] = request.secondaryZoneId;
@@ -2988,25 +3004,25 @@ model DescribeBackupsRequest {
 
 model DescribeBackupsResponseBody = {
   accessDeniedDetail?: {
-    authAction?: string(name='AuthAction'),
-    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName'),
-    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId'),
-    authPrincipalType?: string(name='AuthPrincipalType'),
-    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage'),
-    noPermissionType?: string(name='NoPermissionType'),
-    policyType?: string(name='PolicyType'),
-  }(name='AccessDeniedDetail'),
+    authAction?: string(name='AuthAction', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    authPrincipalType?: string(name='AuthPrincipalType', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    noPermissionType?: string(name='NoPermissionType', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+    policyType?: string(name='PolicyType', description='This parameter is no longer used. Ignore this parameter.', example='_'),
+  }(name='AccessDeniedDetail', description='The following parameters are no longer used. Ignore the parameters.'),
   backups?: {
     backup?: [ 
     {
-      backupDBNames?: string(name='BackupDBNames', description='The databases that are backed up. Default value: **all**, which indicates that all databases are backed up.', example='all'),
+      backupDBNames?: string(name='BackupDBNames', description='The names of the databases that are backed up. The default value is **all**, which indicates that all databases are backed up.', example='all'),
       backupDownloadURL?: string(name='BackupDownloadURL', description='The public download URL of the backup file.', example='https://rdsbak-hk45-v2.oss-cn-hongkong.aliyuncs.com/********'),
       backupEndTime?: string(name='BackupEndTime', description='The end time of the backup.', example='2019-03-14T05:31:13Z'),
-      backupId?: int32(name='BackupId', description='The ID of the backup file.', example='165*****50'),
+      backupId?: long(name='BackupId', description='The ID of the backup file.', example='165*****50'),
       backupIntranetDownloadURL?: string(name='BackupIntranetDownloadURL', description='The internal download URL of the backup file.
 
->  You can download the backup file by using this URL from the Elastic Compute Service (ECS) instance that is connected to the ApsaraDB for Redis instance. The ECS instance and ApsaraDB for Redis instance must reside in the classic network or the same virtual private cloud (VPC) within the same region.', example='https://rdsbak-hk45-v2.oss-cn-hongkong.aliyuncs.com/********'),
-      backupJobID?: int32(name='BackupJobID', description='The ID of the backup task.', example='24340'),
+>  You can use this URL to download the backup file from an Elastic Compute Service (ECS) instance that is connected to the ApsaraDB for Redis instance. The ECS instance must belong to the same classic network or reside in the same virtual private cloud (VPC) as the ApsaraDB for Redis instance.', example='https://rdsbak-hk45-v2.oss-cn-hongkong.aliyuncs.com/********'),
+      backupJobID?: long(name='BackupJobID', description='The ID of the backup task.', example='24340'),
       backupMethod?: string(name='BackupMethod', description='The backup method. Valid values:
 
 *   **Logical**
@@ -3017,24 +3033,28 @@ model DescribeBackupsResponseBody = {
 *   **Manual**', example='Automated'),
       backupSize?: long(name='BackupSize', description='The size of the backup file.', example='1024'),
       backupStartTime?: string(name='BackupStartTime', description='The start time of the backup.', example='2019-03-14T05:28:50Z'),
-      backupStatus?: string(name='BackupStatus', description='The state of the backup task. Valid values:
+      backupStatus?: string(name='BackupStatus', description='The status of the backup. Valid values:
 
-*   **Success**: The task is successful.
-*   **Failed**: The task failed.', example='Success'),
-      backupType?: string(name='BackupType', description='The backup type of the backup file. Valid values:
+*   **Success**
+*   **Failed**', example='Success'),
+      backupType?: string(name='BackupType', description='The backup type. Valid values:
 
 *   **FullBackup**
 *   **IncrementalBackup**', example='FullBackup'),
-      engineVersion?: string(name='EngineVersion', description='The major engine version of the instance.', example='4.0'),
+      engineVersion?: string(name='EngineVersion', description='The engine version (major version) of the instance.', example='4.0'),
       nodeInstanceId?: string(name='NodeInstanceId', description='The node ID.
 
->  If a standard instance is used, the instance ID is returned.', example='r-bp10noxlhcoim2****-db-1'),
+>  If the instance uses the standard architecture, this parameter returns the instance ID.', example='r-bp10noxlhcoim2****-db-1'),
     }
   ](name='Backup')
   }(name='Backups', description='Details of the backup files.'),
-  freeSize?: long(name='FreeSize'),
-  fullStorageSize?: long(name='FullStorageSize'),
-  logStorageSize?: long(name='LogStorageSize'),
+  freeSize?: long(name='FreeSize', description='This parameter does not take effect. Ignore this parameter.', example='100000'),
+  fullStorageSize?: long(name='FullStorageSize', description='The size of the full backup file of the instance. Unit: bytes. Full backups originate from scheduled backups, manual backups, and backups generated during cache analysis.
+
+>  The value of this parameter is independent of the number and size of the returned backup sets. Instead, it reflects the total size of all valid full backups of the instance.', example='1000'),
+  logStorageSize?: long(name='LogStorageSize', description='The size of the log backup file of the instance. Unit: bytes. This value is valid only when flashback is enabled.
+
+>  The value of this parameter is independent of the number and size of the returned backup sets. Instead, it reflects the total size of all valid log backups of the instance.', example='5000'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='30'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='963C20F0-7CE1-4591-AAF3-6F3CD1CE****'),
@@ -3351,18 +3371,18 @@ async function describeCacheAnalysisReportList(request: DescribeCacheAnalysisRep
 }
 
 model DescribeClusterBackupListRequest {
-  clusterBackupId?: string(name='ClusterBackupId', example='cb-hyxdof5x9kqbtust'),
-  endTime?: string(name='EndTime', example='2021-05-13T00:00:00Z'),
-  instanceId?: string(name='InstanceId', example='r-t4nj72oug5r5646qog'),
+  clusterBackupId?: string(name='ClusterBackupId', description='The backup set ID.', example='cb-hyxdof5x9kqbtust'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC. The end time must be later than the start time.', example='2021-05-13T00:00:00Z'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-t4nj72oug5r5646qog'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
-  regionId?: string(name='RegionId', example='cn-zhangjiakou'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The maximum number of entries returned per page.', example='30'),
+  regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](~~61012~~) operation to query the most recent region list.', example='cn-zhangjiakou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
-  startTime?: string(name='StartTime', example='2018-12-03T07:01Z'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.', example='2018-12-03T07:01Z'),
 }
 
 model DescribeClusterBackupListResponseBody = {
@@ -3416,10 +3436,12 @@ model DescribeClusterBackupListResponseBody = {
   logStorageSize?: long(name='LogStorageSize', description='The size of the log backup file of the instance. Unit: bytes. This parameter is valid only when flashback is enabled.
 
 >  The value of this parameter is independent of the number and size of returned backup sets. Instead, it represents the size of all valid log backups of the instance.', example='5000'),
-  maxResults?: int32(name='MaxResults', example='4'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
-  requestId?: string(name='RequestId', example='C009DA42-3B19-5B81-963D-1509DE2408DD'),
+  maxResults?: int32(name='MaxResults', description='The number of entries to return per page. Valid values: 1 to 100.
+Default value: 30.
+>If you specify this parameter, PageSize and PageNumber are unavailable.', example='4'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The maximum number of entries returned per page.', example='30'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C009DA42-3B19-5B81-963D-1509DE2408DD'),
 }
 
 model DescribeClusterBackupListResponse = {
@@ -3683,7 +3705,7 @@ model DescribeDBNodeDirectVipInfoResponseBody = {
       vip?: string(name='Vip', description='The VIP of the shard.', example='100.115.61.8'),
     }
   ](name='VipInfo')
-  }(name='DirectVipInfo', description='The VIPs of shards in the cluster instance.'),
+  }(name='DirectVipInfo', description='The virtual IP addresses (VIPs) of shards in an ApsaraDB for Redis cluster instance.'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='r-bp1zxszhcgatnx****'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABAF95F6-35C1-4177-AF3A-70969EBD****'),
 }
@@ -3793,22 +3815,22 @@ model DescribeDedicatedClusterInstanceListResponseBody = {
 
 *   **logic**: cluster
 *   **normal**: standard', example='logic'),
-      clusterId?: string(name='ClusterId', description='The ID of the dedicated cluster.', example='dhg-rx71fc5ndh9o****'),
+      clusterId?: string(name='ClusterId', description='The ID of the dedicated cluster to which the instance belongs.', example='dhg-rx71fc5ndh9o****'),
       clusterName?: string(name='ClusterName', description='The name of the dedicated cluster to which the instance belongs.', example='testname'),
       connectionDomain?: string(name='ConnectionDomain', description='The private endpoint of the instance.', example='r-t4ncdi1dgi0ja8****.redis.hangzhou.rds.aliyuncs.com'),
       createTime?: string(name='CreateTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2021-05-06T07:09:40Z'),
-      currentBandWidth?: long(name='CurrentBandWidth', description='The current bandwidth of the instance, which consists of the default bandwidth and the additional bandwidth. Unit: Mbit/s.', example='50'),
-      customId?: string(name='CustomId', description='The custom ID that is used for instance internal maintenance.', example='4652****'),
-      engine?: string(name='Engine', description='The database engine of the instance. The return value is **Redis**.', example='redis'),
+      currentBandWidth?: long(name='CurrentBandWidth', description='The current bandwidth of the instance, which is the sum of the default bandwidth and any extra bandwidth that is purchased. Unit: Mbit/s.', example='50'),
+      customId?: string(name='CustomId', description='An internal parameter used for the maintenance and management of instances.', example='4652****'),
+      engine?: string(name='Engine', description='The database engine. The return value is **redis**.', example='redis'),
       engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. The return value is **5.0**.', example='5.0'),
-      instanceClass?: string(name='InstanceClass', description='The instance type of the instance.', example='redis.cluster.sharding.common.ce'),
+      instanceClass?: string(name='InstanceClass', description='The instance type.', example='redis.cluster.sharding.common.ce'),
       instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1e7vl6ygf1yq****'),
-      instanceName?: string(name='InstanceName', description='The name of the instance.', example='testdb'),
+      instanceName?: string(name='InstanceName', description='The instance name.', example='testdb'),
       instanceNodeList?: [ 
         {
           dedicatedHostName?: string(name='DedicatedHostName', description='The ID of the host in the dedicated cluster.', example='ch-bp13vf0y9gx3c****'),
           instanceId?: string(name='InstanceId', description='The ID of the instance.', example='r-bp1e7vl6ygf1yq****'),
-          nodeId?: int32(name='NodeId', description='The ID of the node.', example='17921111'),
+          nodeId?: int32(name='NodeId', description='The node ID.', example='17921111'),
           nodeIp?: string(name='NodeIp', description='The IP address of the node.', example='10.0.33.***'),
           nodeType?: string(name='NodeType', description='The node type. Valid values:
 
@@ -3822,7 +3844,7 @@ model DescribeDedicatedClusterInstanceListResponseBody = {
 *   **slave**: replica node', example='master'),
           zoneId?: string(name='ZoneId', description='The zone ID of the node.', example='cn-hangzhou-h'),
         }
-      ](name='InstanceNodeList', description='Details about the nodes.'),
+      ](name='InstanceNodeList', description='The nodes.'),
       instanceStatus?: string(name='InstanceStatus', description='The state of the instance. Valid values:
 
 *   **Normal**: The instance is normal.
@@ -3832,34 +3854,37 @@ model DescribeDedicatedClusterInstanceListResponseBody = {
 *   **Flushing**: The instance is being released.
 *   **Released**: The instance is released.
 *   **Transforming**: The billing method of the instance is being changed.
-*   **Unavailable**: The instance is suspended.
+*   **Unavailable**: The instance is unavailable.
 *   **Error**: The instance failed to be created.
 *   **Migrating**: The instance is being migrated.
 *   **BackupRecovering**: The instance is being restored from a backup.
 *   **MinorVersionUpgrading**: The minor version of the instance is being updated.
 *   **NetworkModifying**: The network type of the instance is being changed.
-*   **SSLModifying**: The SSL certificate of the instance is being changed.
+*   **SSLModifying**: The SSL configurations of the instance are being changed.
 *   **MajorVersionUpgrading**: The major version of the instance is being upgraded. The instance remains accessible during the upgrade.', example='Normal'),
       maintainEndTime?: string(name='MaintainEndTime', description='The end time of the maintenance window. The time is in the *HH:mm*Z format. The time is displayed in UTC.', example='17:00Z'),
       maintainStartTime?: string(name='MaintainStartTime', description='The start time of the maintenance window. The time is in the *HH:mm*Z format. The time is displayed in UTC.', example='16:00Z'),
       proxyCount?: int32(name='ProxyCount', description='The number of proxy nodes.
 
-> *   If the return value is **0**, the proxy mode is disabled. If the return value is an integer that is greater than **0**, the proxy mode is enabled. This integer indicates the number of proxy nodes in the instance. For example, a value of **1** indicates that the instance has one proxy node.
-> *   This parameter is returned only when the instance is a [cluster instance](~~52228~~).', example='1'),
-      regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
+> 
+
+*   If the return value is **0**, the proxy mode is disabled for the instance. If the return value is an integer greater than **0**, such as **1**, the proxy mode is enabled for the instance.
+
+*   This parameter is returned only when the instance is a cluster instance. For more information about cluster instances, see [Cluster master-replica instances](~~52228~~).', example='1'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
       shardCount?: int32(name='ShardCount', description='The number of shards.
 
-> This parameter is returned only when the ApsaraDB for Redis instance is a [cluster instance](~~52228~~).', example='3'),
+>  This parameter is returned only when the instance is a cluster instance. For more information about cluster instances, see [Cluster master-replica instances](~~52228~~).', example='3'),
       storageType?: string(name='StorageType', description='The storage type of the instance. The return value is LOCAL_SSD, which indicates [enhanced SSDs (ESSDs)](~~122389~~).', example='LOCAL_SSD'),
-      vpcId?: string(name='VpcId', description='The ID of the VPC.', example='vpc-t4n2clc70t3hqwsrr****'),
-      vswitchId?: string(name='VswitchId', description='The ID of the vSwitch.', example='vsw-t4nvrca24dczppq44****'),
-      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hangzhou-e'),
+      vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-t4n2clc70t3hqwsrr****'),
+      vswitchId?: string(name='VswitchId', description='The vSwitch ID.', example='vsw-t4nvrca24dczppq44****'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-e'),
     }
   ](name='Instances', description='Details of the instances.'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='30'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='712CCF2A-16BD-411B-93F7-E978BEF2****'),
-  totalCount?: int32(name='TotalCount', description='The total number of returned entries.', example='1'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model DescribeDedicatedClusterInstanceListResponse = {
@@ -4186,6 +4211,7 @@ model DescribeEngineVersionResponseBody = {
 *   **true**: The instance minor version is the latest version.
 *   **false**: The instance minor version is not the latest version.', example='false'),
   isNewSSLMode?: string(name='IsNewSSLMode', description='是否支持新版 ssl。', example='1'),
+  isOpenNGLB?: string(name='IsOpenNGLB'),
   isRedisCompatibleVersion?: string(name='IsRedisCompatibleVersion', description='Indicates whether the instance supports the new SSL encryption feature.', example='1'),
   isSSLEnable?: string(name='IsSSLEnable', description='是否打开了小版本升级。', example='1'),
   majorVersion?: string(name='MajorVersion', description='The major version of the instance.', example='5.0'),
@@ -5719,7 +5745,7 @@ model DescribeInstancesOverviewRequest {
 
 *   **Community**: Community Edition
 *   **Enterprise**: Enhanced Edition (Tair)', example='Enterprise'),
-  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values: **2.8**, **4.0**, and **5.0**.', example='4.0'),
+  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance.', example='4.0'),
   instanceClass?: string(name='InstanceClass', description='The instance type of the instance. For more information, see [Instance types](~~107984~~).', example='redis.master.small.default'),
   instanceIds?: string(name='InstanceIds', description='The IDs of instances.
 
@@ -6715,6 +6741,18 @@ model DescribePriceResponseBody = {
         moduleInstance?: [ 
         {
           contractActivity?: boolean(name='ContractActivity'),
+          depreciateInfo?: {
+            cheapRate?: double(name='CheapRate'),
+            cheapStandAmount?: double(name='CheapStandAmount'),
+            differential?: double(name='Differential'),
+            differentialName?: string(name='DifferentialName'),
+            isContractActivity?: boolean(name='IsContractActivity'),
+            isShow?: boolean(name='IsShow'),
+            listPrice?: double(name='ListPrice'),
+            monthPrice?: double(name='MonthPrice'),
+            originalStandAmount?: double(name='OriginalStandAmount'),
+            startTime?: string(name='StartTime'),
+          }(name='DepreciateInfo'),
           discountFee?: double(name='DiscountFee'),
           moduleAttrs?: {
             moduleAttr?: [ 
@@ -6890,14 +6928,14 @@ model DescribeRegionsResponseBody = {
     {
       localName?: string(name='LocalName', description='The name of the region.', example='China (Hangzhou)'),
       regionEndpoint?: string(name='RegionEndpoint', description='The endpoint of the region.', example='r-kvstore.aliyuncs.com'),
-      regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
       zoneIdList?: {
         zoneId?: [ string ](name='ZoneId')
-      }(name='ZoneIdList', description='The list of zone IDs.'),
-      zoneIds?: string(name='ZoneIds', description='The zone ID of the instance.', example='cn-hangzhou-h'),
+      }(name='ZoneIdList', description='The zone IDs.'),
+      zoneIds?: string(name='ZoneIds', description='The IDs of the zones in the region.', example='cn-hangzhou-h'),
     }
   ](name='KVStoreRegion')
-  }(name='RegionIds', description='The value of the **RegionIds** parameter is in the array format. Each element in the array contains the **RegionId** and **ZoneIds** parameters.'),
+  }(name='RegionIds', description='The **region IDs**.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='AD425AD3-CC7B-4EE2-A5CB-2F61BA73****'),
 }
 
@@ -8894,7 +8932,7 @@ async function modifyAuditLogConfig(request: ModifyAuditLogConfigRequest): Modif
 }
 
 model ModifyBackupPolicyRequest {
-  backupRetentionPeriod?: int32(name='BackupRetentionPeriod'),
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The number of days for which data backup files are retained. Valid values: 7 to 730. Default value: 7.', example='7'),
   enableBackupLog?: int32(name='EnableBackupLog', description='Specifies whether to enable incremental data backup. Default value: 0. Valid values:
 
 *   **1**: enables incremental data backup.
@@ -10123,7 +10161,7 @@ model ModifyInstanceSpecRequest {
 >  For more information about the instance types, see [Overview](~~26350~~).', example='redis.master.small.default'),
   instanceId?: string(name='InstanceId', description='The ID of the instance. You can call the [DescribeInstances](~~60933~~) operation to query the ID of the instance.', example='r-bp1zxszhcgatnx****'),
   majorVersion?: string(name='MajorVersion', description='The major version to which you want to upgrade. When you change the configurations of an instance, you can upgrade the major version of the instance by setting this parameter. Valid values: **4.0** and **5.0**.', example='5.0'),
-  nodeType?: string(name='NodeType'),
+  nodeType?: string(name='NodeType', example='MASTER_SLAVE'),
   orderType?: string(name='OrderType', description='The change type. This parameter is required when you change the configurations of a subscription instance. Default value: UPGRADE. Valid values:
 
 *   **UPGRADE**: upgrades the configurations of a subscription instance.
@@ -10133,7 +10171,7 @@ model ModifyInstanceSpecRequest {
 > *   If the price of an instance increases after its configurations are changed, the instance is upgraded. If the price decreases, the instance is downgraded. For example, the price of an 8 GB read/write splitting instance with five read replicas is higher than that of a 16 GB cluster instance. If you want to change a 16 GB cluster instance to an 8 GB read/write splitting instance with five read replicas, you must upgrade the instance.', example='DOWNGRADE'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read replicas. Valid values: 0 to 5. This parameter applies only to the following scenarios:
+  readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read replicas in the primary zone. Valid values: 0 to 5. This parameter applies only to the following scenarios:
 
 *   If the instance is a standard instance that uses cloud disks, you can set this parameter to a value greater than 0 to enable the read/write splitting architecture.
 *   If the instance is a read/write splitting instance that uses cloud disks, you can use this parameter to customize the number of read replicas. You can also set this parameter to 0 to disable the read/write splitting architecture and switch the instance to the standard architecture.', example='5'),
@@ -10142,7 +10180,7 @@ model ModifyInstanceSpecRequest {
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
   shardCount?: int32(name='ShardCount', description='The number of shards. This parameter is available only for cluster instances that use cloud disks.', example='8'),
-  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', example='2'),
+  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', description='The number of read replicas in the secondary zone. This parameter is used to create a read/write splitting instance that is deployed in multiple zones. Valid values: 1 to 9. The sum of the SlaveReadOnlyCount and ReadOnlyCount values cannot be greater than 9.', example='2'),
   sourceBiz?: string(name='SourceBiz', description='The source of the operation. This parameter is used only for internal maintenance. You do not need to specify this parameter.', example='SDK'),
 }
 
@@ -10730,7 +10768,8 @@ model ModifySecurityIpsRequest {
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityIpGroupAttribute?: string(name='SecurityIpGroupAttribute', description='By default, this parameter is left empty. The attribute of the whitelist. The console does not display the whitelist whose value of this parameter is **hidden**.', example='hidden'),
-  securityIpGroupName?: string(name='SecurityIpGroupName', description='The name of the whitelist.', example='default'),
+  securityIpGroupName?: string(name='SecurityIpGroupName', description='The name of the IP address whitelist.
+><warning>You cannot modify the whitelist that is generated by the system. If you do not specify this parameter, the default whitelist is modified by default.></warning>', example='default'),
   securityIps?: string(name='SecurityIps', description='The IP addresses in the whitelist. Up to 1,000 IP addresses can be specified in a whitelist. Separate multiple IP addresses with a comma (,). Specify an IP address in the 0.0.0.0/0, 10.23.12.24, or 10.23.12.24/24 format. In CIDR block 10.23.12.24/24, /24 specifies the length of the prefix of an IP address. The prefix length ranges from 1 to 32.', example='100.64.***.0/24,10.101.11.***'),
   securityToken?: string(name='SecurityToken'),
 }
@@ -11148,7 +11187,10 @@ model RenewInstanceRequest {
 *   **false**: disables automatic payment.
 
 If you select false, you must choose **Expenses** > **Renewal Management** in the top navigation bar. In the left-side navigation pane, click **Orders**. Find the specified order and pay for it.', example='true'),
-  autoRenew?: boolean(name='AutoRenew', example='false'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the instance. Valid values:
+
+*   **true**: enables auto-renewal. The instance is renewed based on the specified renewal duration. For example, if you set the renewal duration to three months, you are charged for three months of service each time the instance is automatically renewed.
+*   **false** (default): disables auto-renewal.', example='false'),
   businessInfo?: string(name='BusinessInfo', description='The ID of the promotional event or business information.', example='000000000'),
   capacity?: string(name='Capacity', description='The storage capacity of the instance. Unit: MB. When you renew the instance, you can specify this parameter to change specifications of the instance.
 
