@@ -1,0 +1,82 @@
+/**
+ *
+ */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'LinkedmallRetrieval';
+  @version = '2024-05-01';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model AISearchQuery {
+  card?: string(name='card', example='active'),
+  query?: string(name='query', example='今年五一假期放假时间表'),
+}
+
+model AISearchResult {
+  header?: EventHeader(name='header'),
+  payload?: string(name='payload'),
+  requestId?: string(name='requestId', example='3239281273464326823'),
+}
+
+model EventHeader {
+  event?: string(name='event', example='on_common_search_stream'),
+  eventId?: string(name='eventId', example='ff3de49-cedc-47ea-ba3c-8456acd345d8'),
+  requestId?: string(name='requestId', example='55c2349-cedc-47ea-ba3c-8456acd6c7d8'),
+  responseTime?: long(name='responseTime', example='1403'),
+}
+
+model AISearchRequest {
+  card?: string(name='card', example='active', position='Query'),
+  query: string(name='query', example='今年五一假期放假时间表', position='Query'),
+}
+
+model AISearchResponseBody = {
+  header?: {
+    event?: string(name='event', example='on_common_search_stream'),
+    eventId?: string(name='eventId', example='ff3de49-cedc-47ea-ba3c-8456acd345d8'),
+    requestId?: string(name='requestId', example='D4F6D088-EDE9-5823-9E66-22603937A40B'),
+    responseTime?: string(name='responseTime', example='1403'),
+  }(name='header'),
+  payload?: string(name='payload'),
+  requestId?: string(name='requestId', example='D016A23D-738A-5209-A91A-6145845C5A23'),
+}
+
+model AISearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AISearchResponseBody(name='body'),
+}
+
+async function aISearch(request: AISearchRequest): AISearchResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AISearch', 'GET', '/linked-retrieval/linked-retrieval-entry/v1/linkedRetrieval/commands/aiSearch', 'json', false, 'json', request);
+}
+
+function aISearchWithResponseIterable(request: AISearchRequest): iterator[AISearchResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'AISearch', 'GET', '/linked-retrieval/linked-retrieval-entry/v1/linkedRetrieval/commands/aiSearch', 'json', false, 'json', request);
+}
+
