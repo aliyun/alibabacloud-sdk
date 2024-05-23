@@ -29,26 +29,28 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model CreateAppRequest {
-  appName?: string(name='appName', description='应用名', example='es-severless-test-app'),
+  appName?: string(name='appName', description='应用名
+
+This parameter is required.'),
   authentication?: {
     basicAuth?: [ 
       {
-        password?: string(name='password', example='Admin@123'),
-        username?: string(name='username', example='test-abc'),
+        password?: string(name='password'),
+        username?: string(name='username'),
       }
     ](name='basicAuth'),
-  }(name='authentication'),
-  chargeType?: string(name='chargeType', example='POSTPAY'),
-  description?: string(name='description', description='应用备注', example='test'),
+  }(name='authentication', description='This parameter is required.'),
+  chargeType?: string(name='chargeType', description='This parameter is required.'),
+  description?: string(name='description', description='应用备注'),
   network?: [ 
     {
-      domain?: string(name='domain', example='test-75b.public.cn-hangzhou.es-serverless.aliyuncs.com'),
-      enabled?: boolean(name='enabled', example='true'),
-      port?: int32(name='port', example='80'),
-      type?: string(name='type', example='PUBLIC_ES'),
+      domain?: string(name='domain'),
+      enabled?: boolean(name='enabled'),
+      port?: int32(name='port'),
+      type?: string(name='type'),
       whiteIpGroup?: [ 
         {
-          groupName?: string(name='groupName', example='local'),
+          groupName?: string(name='groupName'),
           ips?: [ string ](name='ips'),
         }
       ](name='whiteIpGroup'),
@@ -73,8 +75,9 @@ model CreateAppRequest {
     cu?: int32(name='cu'),
     storage?: int32(name='storage'),
   }(name='quotaInfo'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  version?: string(name='version', example='7.10'),
+  regionId?: string(name='regionId'),
+  scenario?: string(name='scenario'),
+  version?: string(name='version'),
   dryRun?: boolean(name='dryRun'),
 }
 
@@ -86,11 +89,19 @@ model CreateAppResponseBody = {
 }
 
 model CreateAppResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: CreateAppResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAppResponseBody(name='body'),
 }
 
+/**
+ * @summary 创建Serverless应用
+ *
+ * @param request CreateAppRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAppResponse
+ */
 async function createAppWithOptions(request: CreateAppRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAppResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -123,6 +134,9 @@ async function createAppWithOptions(request: CreateAppRequest, headers: map[stri
   if (!Util.isUnset(request.regionId)) {
     body['regionId'] = request.regionId;
   }
+  if (!Util.isUnset(request.scenario)) {
+    body['scenario'] = request.scenario;
+  }
   if (!Util.isUnset(request.version)) {
     body['version'] = request.version;
   }
@@ -146,10 +160,98 @@ async function createAppWithOptions(request: CreateAppRequest, headers: map[stri
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 创建Serverless应用
+ *
+ * @param request CreateAppRequest
+ * @return CreateAppResponse
+ */
 async function createApp(request: CreateAppRequest): CreateAppResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createAppWithOptions(request, headers, runtime);
+}
+
+model CreateEndpointRequest {
+  endpointZones?: [ 
+    {
+      vswitchId?: string(name='vswitchId', example='vsw-uf6qmfkqdcw*****'),
+      zoneId?: string(name='zoneId', example='cn-hangzhou-h'),
+    }
+  ](name='endpointZones', description='This parameter is required.'),
+  name?: string(name='name', example='testendpoint'),
+  vpcId?: string(name='vpcId', description='This parameter is required.', example='vpc-uf664nyle5khp5***'),
+  type?: string(name='type', example='VPC'),
+}
+
+model CreateEndpointResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='2C5DAA30-****-5181-9B87-9D6181016197'),
+  result?: {
+    endpointId?: string(name='endpointId', example='essep-abd***dks'),
+  }(name='result'),
+}
+
+model CreateEndpointResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEndpointResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建端点
+ *
+ * @param request CreateEndpointRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEndpointResponse
+ */
+async function createEndpointWithOptions(request: CreateEndpointRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateEndpointResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.endpointZones)) {
+    body['endpointZones'] = request.endpointZones;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    body['vpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEndpoint',
+    version = '2023-06-27',
+    protocol = 'HTTPS',
+    pathname = `/openapi/es-serverless/endpoints`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建端点
+ *
+ * @param request CreateEndpointRequest
+ * @return CreateEndpointResponse
+ */
+async function createEndpoint(request: CreateEndpointRequest): CreateEndpointResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createEndpointWithOptions(request, headers, runtime);
 }
 
 model DeleteAppResponseBody = {
@@ -160,11 +262,18 @@ model DeleteAppResponseBody = {
 }
 
 model DeleteAppResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: DeleteAppResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAppResponseBody(name='body'),
 }
 
+/**
+ * @summary 删除Serverless应用。
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAppResponse
+ */
 async function deleteAppWithOptions(appName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAppResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -183,6 +292,11 @@ async function deleteAppWithOptions(appName: string, headers: map[string]string,
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 删除Serverless应用。
+ *
+ * @return DeleteAppResponse
+ */
 async function deleteApp(appName: string): DeleteAppResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -202,7 +316,37 @@ model GetAppResponseBody = {
     description?: string(name='description'),
     instanceId?: string(name='instanceId'),
     modifiedTime?: string(name='modifiedTime', example='2022-08-15T11:21:50.000Z'),
+    network?: [ 
+      {
+        domain?: string(name='domain'),
+        enabled?: boolean(name='enabled'),
+        port?: int32(name='port'),
+        type?: string(name='type'),
+        whiteIpGroup?: [ 
+          {
+            groupName?: string(name='groupName'),
+            ips?: [ string ](name='ips'),
+          }
+        ](name='whiteIpGroup'),
+      }
+    ](name='network'),
     ownerId?: string(name='ownerId', example='*******7595'),
+    privateNetwork?: [ 
+      {
+        domain?: string(name='domain'),
+        enabled?: boolean(name='enabled'),
+        port?: int32(name='port'),
+        pvlEndpointId?: string(name='pvlEndpointId'),
+        type?: string(name='type'),
+        vpcId?: string(name='vpcId'),
+        whiteIpGroup?: [ 
+          {
+            groupName?: string(name='groupName'),
+            ips?: [ string ](name='ips'),
+          }
+        ](name='whiteIpGroup'),
+      }
+    ](name='privateNetwork'),
     regionId?: string(name='regionId', example='cn-hangzhou'),
     status?: string(name='status', example='ACTIVE'),
     version?: string(name='version', example='7.10'),
@@ -210,11 +354,19 @@ model GetAppResponseBody = {
 }
 
 model GetAppResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAppResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAppResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取Serverless应用详情
+ *
+ * @param request GetAppRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAppResponse
+ */
 async function getAppWithOptions(appName: string, request: GetAppRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -240,6 +392,12 @@ async function getAppWithOptions(appName: string, request: GetAppRequest, header
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取Serverless应用详情
+ *
+ * @param request GetAppRequest
+ * @return GetAppResponse
+ */
 async function getApp(appName: string, request: GetAppRequest): GetAppResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -264,11 +422,18 @@ model GetAppQuotaResponseBody = {
 }
 
 model GetAppQuotaResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetAppQuotaResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAppQuotaResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取Serverless应用配额详情
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAppQuotaResponse
+ */
 async function getAppQuotaWithOptions(appName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetAppQuotaResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -287,6 +452,11 @@ async function getAppQuotaWithOptions(appName: string, headers: map[string]strin
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取Serverless应用配额详情
+ *
+ * @return GetAppQuotaResponse
+ */
 async function getAppQuota(appName: string): GetAppQuotaResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -319,11 +489,19 @@ model GetMonitorDataResponseBody = {
 }
 
 model GetMonitorDataResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetMonitorDataResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMonitorDataResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取监控数据
+ *
+ * @param request GetMonitorDataRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMonitorDataResponse
+ */
 async function getMonitorDataWithOptions(request: GetMonitorDataRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetMonitorDataResponse {
   Util.validateModel(request);
   var req = new OpenApi.OpenApiRequest{ 
@@ -344,6 +522,12 @@ async function getMonitorDataWithOptions(request: GetMonitorDataRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取监控数据
+ *
+ * @param request GetMonitorDataRequest
+ * @return GetMonitorDataResponse
+ */
 async function getMonitorData(request: GetMonitorDataRequest): GetMonitorDataResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -376,15 +560,23 @@ model ListAppsResponseBody = {
       version?: string(name='version', example='7.10'),
     }
   ](name='result'),
-  totalCount?: int32(name='totalCount', example='4'),
+  totalCount?: int32(name='totalCount', description='This parameter is required.', example='4'),
 }
 
 model ListAppsResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ListAppsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAppsResponseBody(name='body'),
 }
 
+/**
+ * @summary 查看Serverless应用列表
+ *
+ * @param request ListAppsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAppsResponse
+ */
 async function listAppsWithOptions(request: ListAppsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAppsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -428,6 +620,12 @@ async function listAppsWithOptions(request: ListAppsRequest, headers: map[string
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查看Serverless应用列表
+ *
+ * @param request ListAppsRequest
+ * @return ListAppsResponse
+ */
 async function listApps(request: ListAppsRequest): ListAppsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -439,8 +637,8 @@ model UpdateAppRequest {
   authentication?: {
     basicAuth?: [ 
       {
-        password?: string(name='password', example='Admin@123'),
-        username?: string(name='username', example='test-abc'),
+        password?: string(name='password'),
+        username?: string(name='username'),
       }
     ](name='basicAuth'),
   }(name='authentication'),
@@ -458,13 +656,13 @@ model UpdateAppRequest {
   }(name='limiterInfo'),
   network?: [ 
     {
-      domain?: string(name='domain', example='test-75b.public.cn-hangzhou.es-serverless.aliyuncs.com'),
-      enabled?: boolean(name='enabled', example='true'),
-      port?: int32(name='port', example='80'),
-      type?: string(name='type', example='PRIVATE_ES'),
+      domain?: string(name='domain'),
+      enabled?: boolean(name='enabled'),
+      port?: int32(name='port'),
+      type?: string(name='type'),
       whiteIpGroup?: [ 
         {
-          groupName?: string(name='groupName', example='local'),
+          groupName?: string(name='groupName'),
           ips?: [ string ](name='ips'),
         }
       ](name='whiteIpGroup'),
@@ -494,11 +692,19 @@ model UpdateAppResponseBody = {
 }
 
 model UpdateAppResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: UpdateAppResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAppResponseBody(name='body'),
 }
 
+/**
+ * @summary 编辑Serverless应用
+ *
+ * @param request UpdateAppRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAppResponse
+ */
 async function updateAppWithOptions(appName: string, request: UpdateAppRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAppResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -542,6 +748,12 @@ async function updateAppWithOptions(appName: string, request: UpdateAppRequest, 
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 编辑Serverless应用
+ *
+ * @param request UpdateAppRequest
+ * @return UpdateAppResponse
+ */
 async function updateApp(appName: string, request: UpdateAppRequest): UpdateAppResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
