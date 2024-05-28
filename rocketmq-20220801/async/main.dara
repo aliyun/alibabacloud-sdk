@@ -149,6 +149,7 @@ Valid values: 1 to 1000.', example='100'),
 Valid values:
 
 *   payByBandwidth: pay-by-bandwidth. If Internet access is enabled for an instance, specify this value for the parameter.
+*   payByTraffic: pay-by-traffic. If Internet access is enabled for an instance, specify this value for the parameter.
 *   uninvolved: No billing method is involved. If Internet access is disabled for an instance, specify this value for the parameter.', example='uninvolved'),
       internetSpec: string(name='internetSpec', description='Specifies whether to enable the Internet access feature.
 
@@ -165,7 +166,7 @@ By default, ApsaraMQ for RocketMQ allows you to access instances in VPCs. If you
     }(name='internetInfo', description='The Internet-related configurations.'),
     vpcInfo: {
       securityGroupIds?: string(name='securityGroupIds', description='The ID of the security group to which the instance belongs.', example='sg-bp17hpmgz96tvnsdy6so'),
-      vSwitchId: string(name='vSwitchId', description='The ID of the vSwitch with which you want to associate the instance.
+      vSwitchId: string(name='vSwitchId', description='The ID of the vSwitch with which you want to associate the instance, If there are multiple vSwitchs, please concatenate them using the "|" character.
 
 >  After an ApsaraMQ for RocketMQ instance is created, you cannot change the vSwitch with which the instance is associated. If you want to change the vSwitch with which the instance is associated, you must release the instance and purchase a new instance.', example='vsw-uf6gwtbn6etadpv*******'),
       vpcId: string(name='vpcId', description='The ID of the VPC in which you want to deploy the instance.
@@ -241,6 +242,7 @@ Valid values:
 
 *   cluster_ha: High-availability Cluster Edition
 *   single_node: Standalone Edition
+*   serverless: Serverless Edition
 
 If you set seriesCode to ultimate, you can set this parameter to only cluster_ha.
 
@@ -558,21 +560,33 @@ model GetInstanceResponseBody = {
       username?: string(name='username', description='The username of the instance. If you access a ApsaraMQ for RocketMQ instance over the Internet, you must configure the username and password of the instance in the SDK code for authentication.', example='6W0xz2uPfiwp****'),
     }(name='accountInfo', description='The account information.'),
     aclInfo?: {
-      aclType?: string(name='aclType', description='The authentication types of the instance. Deprecated, it is recommended to use the aclTypes field.
+      aclType?: string(name='aclType', description='The authentication type of the instance. This parameter is no longer in use. We recommend that you configure aclTypes.
 
 Valid values:
 
-default: intelligent authentication
+- default: intelligent identity authentication
 
-apache_acl: apache acl authentication', example='default', deprecated='true'),
-      aclTypes?: [ string ](name='aclTypes', description='The authentication types of the instance.
+- apache_acl:access control list (ACL) identity authentication**', example='default', deprecated='true'),
+      aclTypes?: [ string ](name='aclTypes', description='The authentication types of the instance.'),
+      defaultVpcAuthFree?: boolean(name='defaultVpcAuthFree', description='Indicates whether the authentication-free in VPCs feature is enabled.
 
 Valid values:
 
-default: intelligent authentication
+*   true
 
-apache_acl: apache acl authentication'),
-      defaultVpcAuthFree?: boolean(name='defaultVpcAuthFree', description='No need for authentication in intranet.', example='true'),
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   false
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='true'),
     }(name='aclInfo', description='The information about access control.'),
     bid?: string(name='bid', description='The business ID (BID) of the commodity.', example='26842'),
     commodityCode?: string(name='commodityCode', description='The commodity code of the instance. The commodity code of a ApsaraMQ for RocketMQ 5.0 instance has a similar format as ons_rmqsub_public_cn.', example='ons_rmqsub_public_cn'),
@@ -625,7 +639,7 @@ Valid values:
 After you enable the elastic TPS feature for a ApsaraMQ for RocketMQ instance, you can use a specific amount of TPS that exceeds the specification limit. You are charged for the elastic TPS feature. For more information, see [Computing fee](~~427237~~).
 
 > The elastic TPS feature is supported only by specific instance editions. For more information, see [Instance specifications](~~444715~~).', example='true'),
-    }(name='extConfig', description='The extended configurations. We recommend you configure the productInfo, internetInfo, or aclInfo parameter instead of this parameter.', deprecated='true'),
+    }(name='extConfig', description='The extended configurations. We recommend you configure productInfo, internetInfo, or aclInfo instead of this parameter.', deprecated='true'),
     groupCount?: long(name='groupCount', description='The number of groups.', example='10'),
     instanceId?: string(name='instanceId', description='The ID of the instance', example='rmq-cn-7e22ody****'),
     instanceName?: string(name='instanceName', description='The name of the instance.', example='test instance'),
@@ -640,7 +654,7 @@ Valid value:
         totalCount?: double(name='totalCount', description='The total number of topics on the instance.', example='100'),
         usedCount?: double(name='usedCount', description='The number of used topics on the instance.', example='10'),
       }
-    ](name='instanceQuotas', description='The quotas in the instance.'),
+    ](name='instanceQuotas', description='The instance quotas.'),
     networkInfo?: {
       endpoints?: [ 
         {
@@ -648,34 +662,13 @@ Valid value:
 
 Valid values:
 
-*   TCP_VPC
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    VPC endpoint
-
-    <!-- -->
-
-*   TCP_INTERNET
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    public endpoint
-
-    <!-- -->', example='TCP_INTERNET'),
+- TCP_VPC: VPC endpoint
+- TCP_INTERNET:public endpoint', example='TCP_INTERNET'),
           endpointUrl?: string(name='endpointUrl', description='The endpoint that is used to access the instance.', example='rmq-cn-c4d2tbk****-vpc.cn-hangzhou.rmq.aliyuncs.com:8080'),
-          ipWhitelist?: [ string ](name='ipWhitelist', description='The whitelist that includes the IP addresses that are allowed to access the ApsaraMQ for RocketMQ broker over the Internet. This parameter can be configured only if you use a public endpoint to access the ApsaraMQ for RocketMQ broker.
+          ipWhitelist?: [ string ](name='ipWhitelist', description='The whitelist that includes the IP addresses that are allowed to access the ApsaraMQ for RocketMQ broker over the Internet. This parameter can be configured only if you use the public endpoint to access the instance.
 
-*   If this parameter is not configured, all IP addresses are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.
-*   If this parameter is configured, only the IP addresses that are included in the whitelist can access the ApsaraMQ for RocketMQ broker over the Internet.
+*   If you do not configure an IP address whitelist, all CIDR blocks are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.
+*   If you configure an IP address whitelist, only the IP addresses in the whitelist are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.
 
 We recommend that you configure internetInfo.ipWhitelist instead of this parameter.', example='192.168.x.x/24'),
         }
@@ -702,10 +695,16 @@ By default, ApsaraMQ for RocketMQ instances are accessed in virtual private clo
 *   If this parameter is configured, only the IP addresses that are included in the whitelist can access the ApsaraMQ for RocketMQ broker over the Internet.'),
       }(name='internetInfo', description='The information about the Internet.'),
       vpcInfo?: {
-        securityGroupIds?: string(name='securityGroupIds', description='The ID of the security group with which the instance is associated.', example='sg-hp35r2hc3a3sv8q2sb16'),
-        vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated.', example='vsw-uf6gwtbn6etadpvz7****'),
+        securityGroupIds?: string(name='securityGroupIds', description='The security group ID.', example='sg-hp35r2hc3a3sv8q2sb16'),
+        vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated.', example='vsw-uf6gwtbn6etadpvz7****', deprecated='true'),
+        vSwitches?: [ 
+          {
+            vSwitchId?: string(name='vSwitchId'),
+            zoneId?: string(name='zoneId'),
+          }
+        ](name='vSwitches'),
         vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated.', example='vpc-uf6of9452b2pba82c****'),
-      }(name='vpcInfo', description='The information about the VPC.'),
+      }(name='vpcInfo', description='The virtual private cloud (VPC) information.'),
     }(name='networkInfo', description='The network information.'),
     paymentType?: string(name='paymentType', description='The billing method of the instance.
 
@@ -739,7 +738,12 @@ Valid values:
 After you enable the elastic TPS feature for a ApsaraMQ for RocketMQ instance, you can use a specific amount of TPS that exceeds the specification limit. You are charged for the elastic TPS feature. For more information, see [Computing fee](~~427237~~).
 
 > The elastic TPS feature is supported by only specific instance editions. For more information, see [Instance specifications](~~444715~~).', example='true'),
-      traceOn?: boolean(name='traceOn', description='Whether to enable tracking capability. Non-serverless instances are enabled by default, and serverless instances are optional for users.', example='true'),
+      traceOn?: boolean(name='traceOn', description='Indicates whether the message trace feature is enabled. Valid values:
+
+*   true
+*   false
+
+This parameter is not in use. By default, the message trace feature is enabled for ApsaraMQ for RocketMQ instances, regardless of whether this parameter is configured.', example='true'),
     }(name='productInfo', description='The extended configurations of the instance.'),
     regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
     releaseTime?: string(name='releaseTime', description='The time when the instance was released.', example='2022-09-07 00:00:00'),
@@ -944,6 +948,7 @@ model ListConsumerGroupSubscriptionsResponseBody = {
   code?: string(name='code', description='The returned error code.', example='MissingInstanceId'),
   data?: [ 
     {
+      consistency?: boolean(name='consistency'),
       consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='CID-TEST'),
       filterExpression?: string(name='filterExpression', description='The filter expression.', example='*'),
       filterExpressionType?: string(name='filterExpressionType', description='The type of the filter expression. Valid values: SQL, TAG, and UNSPECIFIED.', example='SQL'),
@@ -1202,6 +1207,7 @@ model ListTopicSubscriptionsResponseBody = {
   code?: string(name='code', example='MissingInstanceId'),
   data?: [ 
     {
+      consistency?: string(name='consistency'),
       consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
       filterExpression?: string(name='filterExpression', example='*'),
       filterExpressionType?: string(name='filterExpressionType', example='SQL'),
@@ -1437,9 +1443,13 @@ async function updateConsumerGroup(request: UpdateConsumerGroupRequest): UpdateC
 model UpdateInstanceRequest {
   instanceId: string(name='instanceId', description='The ID of the instance whose basic information and specifications you want to update.', example='rmq-cn-7e22ody****', position='Path'),
   aclInfo?: {
-    aclTypes?: [ string ](name='aclTypes'),
-    defaultVpcAuthFree?: boolean(name='defaultVpcAuthFree'),
-  }(name='aclInfo', position='Body'),
+    aclTypes?: [ string ](name='aclTypes', description='The authentication type of the instance.'),
+    defaultVpcAuthFree?: boolean(name='defaultVpcAuthFree', description='Indicates whether the authentication-free in VPCs feature is enabled.
+Indicates whether the authentication-free in VPCs feature is enabled.
+Valid values:
+- true
+- false'),
+  }(name='aclInfo', description='The access control list for the instance.', position='Body'),
   instanceName?: string(name='instanceName', description='The updated name of the instance.', example='test_instance', position='Body'),
   networkInfo?: {
     internetInfo?: {
