@@ -77,15 +77,26 @@ model Text {
   gmtCreate?: string(name='gmtCreate'),
   gmtModified?: string(name='gmtModified'),
   illustrationTaskIdList?: [ long ](name='illustrationTaskIdList'),
+  publishStatus?: string(name='publishStatus'),
   textContent?: string(name='textContent'),
   textId?: long(name='textId', description='This parameter is required.', example='1'),
   textIllustrationTag?: boolean(name='textIllustrationTag', example='true'),
   textModeType?: string(name='textModeType'),
   textStatus?: string(name='textStatus', description='This parameter is required.', example='Generating'),
+  textStyleType?: string(name='textStyleType'),
   textTaskId?: long(name='textTaskId', description='This parameter is required.', example='123'),
+  textThemes?: [ string ](name='textThemes'),
   title?: string(name='title', example='xxx'),
   userNameCreate?: string(name='userNameCreate', description='This parameter is required.', example='xxx'),
   userNameModified?: string(name='userNameModified', description='This parameter is required.', example='xxx'),
+}
+
+model TextQueryResult {
+  requestId?: string(name='requestId'),
+  texts?: [
+    Text
+  ](name='texts'),
+  total?: int32(name='total', example='10'),
 }
 
 model TextResult {
@@ -115,6 +126,7 @@ model TextTask {
 model TextTaskCreateCmd {
   contentRequirement?: string(name='contentRequirement', example='极氪007新车上市'),
   idempotentId?: string(name='idempotentId', example='28274623764834'),
+  industry?: string(name='industry'),
   introduction?: string(name='introduction', example='xxx'),
   number?: int32(name='number', description='This parameter is required.', example='4'),
   point?: string(name='point', example='超强续航'),
@@ -124,6 +136,7 @@ model TextTaskCreateCmd {
   target?: string(name='target'),
   textModeType?: string(name='textModeType', description='This parameter is required.'),
   theme?: string(name='theme', example='旅游路线'),
+  themes?: [ string ](name='themes'),
 }
 
 model TextTaskResult {
@@ -478,6 +491,10 @@ async function getTextTask(textTaskId: string): GetTextTaskResponse {
   return getTextTaskWithOptions(textTaskId, headers, runtime);
 }
 
+model ListTextThemesRequest {
+  industry?: string(name='industry'),
+}
+
 model ListTextThemesResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -487,13 +504,21 @@ model ListTextThemesResponse = {
 /**
  * @summary 查询文案主题列表
  *
+ * @param request ListTextThemesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTextThemesResponse
  */
-async function listTextThemesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListTextThemesResponse {
+async function listTextThemesWithOptions(request: ListTextThemesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTextThemesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.industry)) {
+    query['industry'] = request.industry;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'ListTextThemes',
@@ -512,11 +537,91 @@ async function listTextThemesWithOptions(headers: map[string]string, runtime: Ut
 /**
  * @summary 查询文案主题列表
  *
+ * @param request ListTextThemesRequest
  * @return ListTextThemesResponse
  */
-async function listTextThemes(): ListTextThemesResponse {
+async function listTextThemes(request: ListTextThemesRequest): ListTextThemesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listTextThemesWithOptions(headers, runtime);
+  return listTextThemesWithOptions(request, headers, runtime);
+}
+
+model ListTextsRequest {
+  generationSource?: string(name='generationSource', example='API'),
+  industry?: string(name='industry', example='Common'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  publishStatus?: string(name='publishStatus', example='PUBLISH'),
+  textStyleType?: string(name='textStyleType', example='WECHAT_MOMENT'),
+  textTheme?: string(name='textTheme', example='xxx'),
+}
+
+model ListTextsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TextQueryResult  
+}
+
+/**
+ * @summary 列举文案
+ *
+ * @param request ListTextsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTextsResponse
+ */
+async function listTextsWithOptions(request: ListTextsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTextsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.generationSource)) {
+    query['generationSource'] = request.generationSource;
+  }
+  if (!Util.isUnset(request.industry)) {
+    query['industry'] = request.industry;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.publishStatus)) {
+    query['publishStatus'] = request.publishStatus;
+  }
+  if (!Util.isUnset(request.textStyleType)) {
+    query['textStyleType'] = request.textStyleType;
+  }
+  if (!Util.isUnset(request.textTheme)) {
+    query['textTheme'] = request.textTheme;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTexts',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/texts`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列举文案
+ *
+ * @param request ListTextsRequest
+ * @return ListTextsResponse
+ */
+async function listTexts(request: ListTextsRequest): ListTextsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTextsWithOptions(request, headers, runtime);
 }
 
