@@ -142,6 +142,7 @@ model Task {
   defaultDatabase?: string(name='defaultDatabase'),
   defaultResourceQueueId?: string(name='defaultResourceQueueId'),
   defaultSqlComputeId?: string(name='defaultSqlComputeId'),
+  deploymentId?: string(name='deploymentId'),
   extraArtifactIds?: [ string ](name='extraArtifactIds'),
   extraSparkSubmitParams?: string(name='extraSparkSubmitParams'),
   files?: [ string ](name='files'),
@@ -149,6 +150,7 @@ model Task {
   gmtModified: string(name='gmtModified'),
   hasChanged?: boolean(name='hasChanged'),
   hasCommited: boolean(name='hasCommited'),
+  isStreaming?: boolean(name='isStreaming'),
   jars?: [ string ](name='jars'),
   lastRunResourceQueueId?: string(name='lastRunResourceQueueId'),
   modifier: long(name='modifier'),
@@ -165,6 +167,7 @@ model Task {
   sparkExecutorMemory: long(name='sparkExecutorMemory'),
   sparkLogLevel: string(name='sparkLogLevel'),
   sparkLogPath: string(name='sparkLogPath'),
+  sparkSubmitClause?: string(name='sparkSubmitClause'),
   sparkVersion: string(name='sparkVersion'),
   tags?: map[string]string(name='tags'),
   type: string(name='type'),
@@ -257,6 +260,34 @@ async function cancelJobRun(request: CancelJobRunRequest): CancelJobRunResponse 
   return @handler.do('RESTFUL', 'CancelJobRun', 'DELETE', '/api/v1/workspaces/{workspaceId}/jobRuns/{jobRunId}', 'json', false, 'json', request);
 }
 
+model CreateSqlStatementRequest {
+  workspaceId?: string(name='workspaceId', example='w-26ca1703f6d****', position='Path'),
+  codeContent?: string(name='codeContent', example='SHOW TABLES', position='Body'),
+  defaultCatalog?: string(name='defaultCatalog', example='default_catalog', position='Body'),
+  defaultDatabase?: string(name='defaultDatabase', example='default', position='Body'),
+  limit?: int32(name='limit', example='1000', position='Body'),
+  sqlComputeId?: string(name='sqlComputeId', example='sc-dfahdfjafhajd****', position='Body'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model CreateSqlStatementResponseBody = {
+  data?: {
+    statementId?: string(name='statementId', example='st-1231dfafadfa***'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model CreateSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSqlStatementResponseBody(name='body'),
+}
+
+async function createSqlStatement(request: CreateSqlStatementRequest): CreateSqlStatementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateSqlStatement', 'PUT', '/api/interactive/v1/workspace/{workspaceId}/statement', 'json', false, 'json', request);
+}
+
 model GetJobRunRequest {
   workspaceId: string(name='workspaceId', description='工作空间id。', example='w-1234abcd', position='Path'),
   jobRunId: string(name='jobRunId', description='任务实例ID。', example='jr-231231', position='Path'),
@@ -306,6 +337,40 @@ async function getJobRun(request: GetJobRunRequest): GetJobRunResponse {
   return @handler.do('RESTFUL', 'GetJobRun', 'GET', '/api/v1/workspaces/{workspaceId}/jobRuns/{jobRunId}', 'json', false, 'json', request);
 }
 
+model GetSqlStatementRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155****', position='Path'),
+  statementId?: string(name='statementId', example='st-2dadfhajk11cv****', position='Path'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model GetSqlStatementResponseBody = {
+  data?: {
+    executionTime?: [ long ](name='executionTime'),
+    sqlErrorCode?: string(name='sqlErrorCode', example='ERROR-102'),
+    sqlErrorMessage?: string(name='sqlErrorMessage', example='error message'),
+    sqlOutputs?: [ 
+      {
+        rows?: string(name='rows', example='[{\\"values\\":[\\"test_db\\",\\"test_table\\",false]}'),
+        schema?: string(name='schema', example='{\\"type\\":\\"struct\\",\\"fields\\":[{\\"name\\":\\"namespace\\",\\"type\\":\\"string\\",\\"nullable\\":false,\\"metadata\\":{}},{\\"name\\":\\"tableName\\",\\"type\\":\\"string\\",\\"nullable\\":false,\\"metadata\\":{}},{\\"name\\":\\"isTemporary\\",\\"type\\":\\"boolean\\",\\"nullable\\":false,\\"metadata\\":{}}]}'),
+      }
+    ](name='sqlOutputs'),
+    state?: string(name='state', example='running'),
+    statementId?: string(name='statementId', example='st-1231311abadfaa'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model GetSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSqlStatementResponseBody(name='body'),
+}
+
+async function getSqlStatement(request: GetSqlStatementRequest): GetSqlStatementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetSqlStatement', 'GET', '/api/interactive/v1/workspace/{workspaceId}/statement/{statementId}', 'json', false, 'json', request);
+}
+
 model GrantRoleToUsersRequest {
   roleArn?: string(name='roleArn', example='acs:emr::w-975bcfda9625****:role/Owner', position='Body'),
   userArns?: [ string ](name='userArns', position='Body'),
@@ -334,6 +399,7 @@ model ListJobRunsRequest {
     endTime?: long(name='endTime', example='1710432000000'),
     startTime?: long(name='startTime', example='1709740800000'),
   }(name='endTime', shrink='json', position='Query'),
+  jobRunDeploymentId?: string(name='jobRunDeploymentId', position='Query'),
   jobRunId?: string(name='jobRunId', description='作业id。', example='j-xxx', position='Query'),
   maxResults?: int32(name='maxResults', description='一次获取的最大记录数。', example='20', position='Query'),
   name?: string(name='name', description='作业名称。', example='emr-spark-demo-job', position='Query'),
@@ -633,5 +699,26 @@ model StartJobRunResponse = {
 async function startJobRun(request: StartJobRunRequest): StartJobRunResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'StartJobRun', 'POST', '/api/v1/workspaces/{workspaceId}/jobRuns', 'json', false, 'json', request);
+}
+
+model TerminateSqlStatementRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155****', position='Path'),
+  statementId?: string(name='statementId', example='st-abcadfadf12****', position='Path'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model TerminateSqlStatementResponseBody = {
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model TerminateSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TerminateSqlStatementResponseBody(name='body'),
+}
+
+async function terminateSqlStatement(request: TerminateSqlStatementRequest): TerminateSqlStatementResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'TerminateSqlStatement', 'POST', '/api/interactive/v1/workspace/{workspaceId}/statement/{statementId}/terminate', 'json', false, 'json', request);
 }
 

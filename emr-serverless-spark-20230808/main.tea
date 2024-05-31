@@ -140,6 +140,7 @@ model Task {
   defaultDatabase?: string(name='defaultDatabase'),
   defaultResourceQueueId?: string(name='defaultResourceQueueId'),
   defaultSqlComputeId?: string(name='defaultSqlComputeId'),
+  deploymentId?: string(name='deploymentId'),
   extraArtifactIds?: [ string ](name='extraArtifactIds'),
   extraSparkSubmitParams?: string(name='extraSparkSubmitParams'),
   files?: [ string ](name='files'),
@@ -147,6 +148,7 @@ model Task {
   gmtModified?: string(name='gmtModified', description='This parameter is required.'),
   hasChanged?: boolean(name='hasChanged'),
   hasCommited?: boolean(name='hasCommited', description='This parameter is required.'),
+  isStreaming?: boolean(name='isStreaming'),
   jars?: [ string ](name='jars'),
   lastRunResourceQueueId?: string(name='lastRunResourceQueueId'),
   modifier?: long(name='modifier', description='This parameter is required.'),
@@ -163,6 +165,7 @@ model Task {
   sparkExecutorMemory?: long(name='sparkExecutorMemory', description='This parameter is required.'),
   sparkLogLevel?: string(name='sparkLogLevel', description='This parameter is required.'),
   sparkLogPath?: string(name='sparkLogPath', description='This parameter is required.'),
+  sparkSubmitClause?: string(name='sparkSubmitClause'),
   sparkVersion?: string(name='sparkVersion', description='This parameter is required.'),
   tags?: map[string]string(name='tags'),
   type?: string(name='type', description='This parameter is required.'),
@@ -342,6 +345,91 @@ async function cancelJobRun(workspaceId: string, jobRunId: string, request: Canc
   return cancelJobRunWithOptions(workspaceId, jobRunId, request, headers, runtime);
 }
 
+model CreateSqlStatementRequest {
+  codeContent?: string(name='codeContent', example='SHOW TABLES'),
+  defaultCatalog?: string(name='defaultCatalog', example='default_catalog'),
+  defaultDatabase?: string(name='defaultDatabase', example='default'),
+  limit?: int32(name='limit', example='1000'),
+  sqlComputeId?: string(name='sqlComputeId', example='sc-dfahdfjafhajd****'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model CreateSqlStatementResponseBody = {
+  data?: {
+    statementId?: string(name='statementId', example='st-1231dfafadfa***'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model CreateSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSqlStatementResponseBody(name='body'),
+}
+
+/**
+ * @summary 使用session运行SQL
+ *
+ * @param request CreateSqlStatementRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSqlStatementResponse
+ */
+async function createSqlStatementWithOptions(workspaceId: string, request: CreateSqlStatementRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSqlStatementResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.codeContent)) {
+    body['codeContent'] = request.codeContent;
+  }
+  if (!Util.isUnset(request.defaultCatalog)) {
+    body['defaultCatalog'] = request.defaultCatalog;
+  }
+  if (!Util.isUnset(request.defaultDatabase)) {
+    body['defaultDatabase'] = request.defaultDatabase;
+  }
+  if (!Util.isUnset(request.limit)) {
+    body['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.sqlComputeId)) {
+    body['sqlComputeId'] = request.sqlComputeId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSqlStatement',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/interactive/v1/workspace/${OpenApiUtil.getEncodeParam(workspaceId)}/statement`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 使用session运行SQL
+ *
+ * @param request CreateSqlStatementRequest
+ * @return CreateSqlStatementResponse
+ */
+async function createSqlStatement(workspaceId: string, request: CreateSqlStatementRequest): CreateSqlStatementResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSqlStatementWithOptions(workspaceId, request, headers, runtime);
+}
+
 model GetJobRunRequest {
   regionId?: string(name='regionId', example='cn-hangzhou'),
 }
@@ -429,6 +517,78 @@ async function getJobRun(workspaceId: string, jobRunId: string, request: GetJobR
   return getJobRunWithOptions(workspaceId, jobRunId, request, headers, runtime);
 }
 
+model GetSqlStatementRequest {
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model GetSqlStatementResponseBody = {
+  data?: {
+    executionTime?: [ long ](name='executionTime'),
+    sqlErrorCode?: string(name='sqlErrorCode', example='ERROR-102'),
+    sqlErrorMessage?: string(name='sqlErrorMessage', example='error message'),
+    sqlOutputs?: [ 
+      {
+        rows?: string(name='rows', example='[{\\\\"values\\\\":[\\\\"test_db\\\\",\\\\"test_table\\\\",false]}'),
+        schema?: string(name='schema', example='{\\\\"type\\\\":\\\\"struct\\\\",\\\\"fields\\\\":[{\\\\"name\\\\":\\\\"namespace\\\\",\\\\"type\\\\":\\\\"string\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}},{\\\\"name\\\\":\\\\"tableName\\\\",\\\\"type\\\\":\\\\"string\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}},{\\\\"name\\\\":\\\\"isTemporary\\\\",\\\\"type\\\\":\\\\"boolean\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}}]}'),
+      }
+    ](name='sqlOutputs'),
+    state?: string(name='state', example='running'),
+    statementId?: string(name='statementId', example='st-1231311abadfaa'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model GetSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSqlStatementResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取Sql Statement状态
+ *
+ * @param request GetSqlStatementRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSqlStatementResponse
+ */
+async function getSqlStatementWithOptions(workspaceId: string, statementId: string, request: GetSqlStatementRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetSqlStatementResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSqlStatement',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/interactive/v1/workspace/${OpenApiUtil.getEncodeParam(workspaceId)}/statement/${OpenApiUtil.getEncodeParam(statementId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取Sql Statement状态
+ *
+ * @param request GetSqlStatementRequest
+ * @return GetSqlStatementResponse
+ */
+async function getSqlStatement(workspaceId: string, statementId: string, request: GetSqlStatementRequest): GetSqlStatementResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSqlStatementWithOptions(workspaceId, statementId, request, headers, runtime);
+}
+
 model GrantRoleToUsersRequest {
   roleArn?: string(name='roleArn', example='acs:emr::w-975bcfda9625****:role/Owner'),
   userArns?: [ string ](name='userArns'),
@@ -505,6 +665,7 @@ model ListJobRunsRequest {
     endTime?: long(name='endTime', example='1710432000000'),
     startTime?: long(name='startTime', example='1709740800000'),
   }(name='endTime'),
+  jobRunDeploymentId?: string(name='jobRunDeploymentId'),
   jobRunId?: string(name='jobRunId', description='作业id。', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='一次获取的最大记录数。', example='20'),
   name?: string(name='name', description='作业名称。', example='emr-spark-demo-job'),
@@ -527,6 +688,7 @@ model ListJobRunsRequest {
 model ListJobRunsShrinkRequest {
   creator?: string(name='creator', description='创建用户Uid。', example='1509789347011222'),
   endTimeShrink?: string(name='endTime'),
+  jobRunDeploymentId?: string(name='jobRunDeploymentId'),
   jobRunId?: string(name='jobRunId', description='作业id。', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='一次获取的最大记录数。', example='20'),
   name?: string(name='name', description='作业名称。', example='emr-spark-demo-job'),
@@ -610,6 +772,9 @@ async function listJobRunsWithOptions(workspaceId: string, tmpReq: ListJobRunsRe
   }
   if (!Util.isUnset(request.endTimeShrink)) {
     query['endTime'] = request.endTimeShrink;
+  }
+  if (!Util.isUnset(request.jobRunDeploymentId)) {
+    query['jobRunDeploymentId'] = request.jobRunDeploymentId;
   }
   if (!Util.isUnset(request.jobRunId)) {
     query['jobRunId'] = request.jobRunId;
@@ -1168,5 +1333,64 @@ async function startJobRun(workspaceId: string, request: StartJobRunRequest): St
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return startJobRunWithOptions(workspaceId, request, headers, runtime);
+}
+
+model TerminateSqlStatementRequest {
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model TerminateSqlStatementResponseBody = {
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model TerminateSqlStatementResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TerminateSqlStatementResponseBody(name='body'),
+}
+
+/**
+ * @summary 终止 session statement
+ *
+ * @param request TerminateSqlStatementRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TerminateSqlStatementResponse
+ */
+async function terminateSqlStatementWithOptions(workspaceId: string, statementId: string, request: TerminateSqlStatementRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TerminateSqlStatementResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'TerminateSqlStatement',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/interactive/v1/workspace/${OpenApiUtil.getEncodeParam(workspaceId)}/statement/${OpenApiUtil.getEncodeParam(statementId)}/terminate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 终止 session statement
+ *
+ * @param request TerminateSqlStatementRequest
+ * @return TerminateSqlStatementResponse
+ */
+async function terminateSqlStatement(workspaceId: string, statementId: string, request: TerminateSqlStatementRequest): TerminateSqlStatementResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return terminateSqlStatementWithOptions(workspaceId, statementId, request, headers, runtime);
 }
 
