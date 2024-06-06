@@ -61,6 +61,30 @@ model ConstituteItem {
   ](name='subConstituteItems'),
 }
 
+model ContentItem {
+  extInfo?: [ 
+    {
+      alignment?: string(name='alignment', example='center'),
+      index?: long(name='index', example='8'),
+      level?: long(name='level', example='2'),
+      pageNum?: [ long ](name='pageNum'),
+      pos?: [ 
+        {
+          x?: long(name='x', example='1'),
+          y?: long(name='y', example='2'),
+        }
+      ](name='pos'),
+      subType?: string(name='subType', example='picture'),
+      text?: string(name='text', example='版面内容'),
+      type?: string(name='type', example='table'),
+      uniqueId?: string(name='uniqueId', example='88c712db271443dd4e3697cb9b5dab3a'),
+    }
+  ](name='extInfo'),
+  score?: double(name='score', example='0.45'),
+  text?: string(name='text'),
+  type?: string(name='type', example='img'),
+}
+
 model EpdInventoryConstituteItem {
   carbonEmission?: double(name='carbonEmission'),
   factor?: string(name='factor'),
@@ -145,6 +169,10 @@ model GenerateResultResponse = {
   body?: GenerateResultResponseBody(name='body'),
 }
 
+/**
+  * Given a product ID, this API initiates a task to calculate the carbon footprint result for the corresponding product. The task\\"s status can be checked using the `IsCompleted` API. Following the generation of results, other result inquiry APIs can be accessed for display content.
+  *
+ */
 async function generateResult(request: GenerateResultRequest): GenerateResultResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GenerateResult', 'POST', '/api/v1/carbon/footprint/result/generate', 'json', false, 'json', request);
@@ -250,7 +278,7 @@ model GetDataItemListRequest {
 model GetDataItemListResponseBody = {
   data?: [ 
     {
-      code?: string(name='code', description='The identifier of the data item.', example='item_code'),
+      code?: string(name='code', description='The identifier of the data item.', example='demo_api_code'),
       name?: string(name='name', description='The name of the data item.', example='name_bbb'),
       period?: int32(name='period', description='Data filling method, 1: monthly value 2: annual value.', example='1'),
       unit?: string(name='unit', description='The data item unit.', example='kg'),
@@ -265,6 +293,10 @@ model GetDataItemListResponse = {
   body?: GetDataItemListResponseBody(name='body'),
 }
 
+/**
+  * - obtain data item detail list under the current enterprise.
+  *
+ */
 async function getDataItemList(request: GetDataItemListRequest): GetDataItemListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDataItemList', 'POST', '/api/v1/carbon/emission/data/item/list', 'json', false, 'json', request);
@@ -322,6 +354,10 @@ model GetDataQualityAnalysisResponse = {
   body?: GetDataQualityAnalysisResponseBody(name='body'),
 }
 
+/**
+  * This API returns the data quality evaluation results based on the user-provided product ID. It\\"s useful for understanding the data quality of the carbon emission factors for each inventory of the product.
+  *
+ */
 async function getDataQualityAnalysis(request: GetDataQualityAnalysisRequest): GetDataQualityAnalysisResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDataQualityAnalysis', 'POST', '/api/v1/carbon/footprint/data/quality/analysis', 'json', false, 'json', request);
@@ -329,7 +365,7 @@ async function getDataQualityAnalysis(request: GetDataQualityAnalysisRequest): G
 
 model GetDeviceInfoRequest {
   deviceId: string(name='deviceId', description='The ID of the device.', example='pn_69873', position='Query'),
-  ds: string(name='ds', description='The date on which the statistics are collected.', example='2022-07-26', position='Query'),
+  ds: string(name='ds', description='The time string in the YYYY-mm-dd format.', example='2022-07-26', position='Query'),
   factoryId: string(name='factoryId', description='The ID of the site.', example='pn_95', position='Query'),
 }
 
@@ -341,8 +377,8 @@ model GetDeviceInfoResponseBody = {
     firstTypeName?: string(name='firstTypeName', description='The level 1 meter type.', example='Electric meter'),
     recordList?: [ 
       {
-        identifier?: string(name='identifier', description='The identifier of the device.', example='Ia'),
-        paramName?: string(name='paramName', description='The name of the parameter.', example='Phase A current'),
+        identifier?: string(name='identifier', description='The device identifier.', example='Ia'),
+        paramName?: string(name='paramName', description='The parameter name.', example='Phase A current'),
         statisticsDate?: string(name='statisticsDate', description='The date on which the statistics were collected.', example='2022-07-26 00:00:00'),
         type?: string(name='type', description='The type of the measuring point.', example='DOUBLE'),
         unit?: string(name='unit', description='The unit of the parameter value.', example='A'),
@@ -352,7 +388,7 @@ model GetDeviceInfoResponseBody = {
     secondTypeName?: string(name='secondTypeName', description='The level 2 meter type.', example='Gateway meter'),
   }(name='data', description='The data returned.'),
   httpCode?: int32(name='httpCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+  requestId?: string(name='requestId', description='The request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='True'),
 }
 
@@ -365,6 +401,9 @@ model GetDeviceInfoResponse = {
 /**
   * *   You can call this operation to query the parameters of a data collection device based on the device ID. If the verification is passed, the device parameters are returned. If the verification fails, a null value is returned.
   * *   You can query the parameters of a single device by day. If data of the device does not exist, a null value is returned.
+  * - By current, endpoint only supports Hangzhou: `energyexpertexternal.cn-hangzhou.aliyuncs.com`.
+  * - To use this API, you need to be added to the whitelist. Please contact us through the official website <props="china">[here](https://energy.aliyun.com/ifa/web/defaultLoginPage?adapter=aliyun#/consult?source=%E8%83%BD%E8%80%97%E5%AE%9D%E7%99%BB%E5%BD%95%E9%A1%B5%EF%BC%88WEB%EF%BC%89)</props> 
+  * <props="intl">[here](https://energy.alibabacloud.com/common?adapter=aliyun&lang=en-US#/home/en)</props> to apply for whitelist activation.
   *
  */
 async function getDeviceInfo(request: GetDeviceInfoRequest): GetDeviceInfoResponse {
@@ -377,21 +416,22 @@ model GetDeviceListRequest {
 }
 
 model GetDeviceListResponseBody = {
-  code?: string(name='code', description='The code returned for the request.', example='Success'),
+  code?: string(name='code', description='The response code.', example='Success'),
   data?: {
     code?: string(name='code', description='The code returned for the request.', example='Success'),
     deviceList?: [ 
       {
-        deviceId?: string(name='deviceId', description='The ID of the device.', example='pn_69873'),
-        deviceName?: string(name='deviceName', description='The name of the device.', example='Main transformer 4#'),
+        deviceId?: string(name='deviceId', description='The device ID.', example='pn_69873'),
+        deviceName?: string(name='deviceName', description='The device name.', example='Main transformer 4#'),
         firstTypeName?: string(name='firstTypeName', description='The level 1 meter type.', example='Electric meter'),
         info?: {
-          constKva?: int32(name='constKva', description='The rated capacity.', example='100'),
+          constKva?: int32(name='constKva', description='The rated capacity.
+Unit is kVA.', example='100'),
           ct?: int32(name='ct', description='The transformation ratio of current.', example='1'),
           magnification?: int32(name='magnification', description='The magnification ratio.', example='80'),
           pressure?: int32(name='pressure', description='The high and low voltage.', example='0'),
           pt?: int32(name='pt', description='The transformation ratio of voltage.', example='80'),
-        }(name='info', description='The information about the device.'),
+        }(name='info', description='The device information.'),
         parentDevice?: string(name='parentDevice', description='The ID of the parent device.', example='pn_6987'),
         secondTypeName?: string(name='secondTypeName', description='The level 2 meter type.', example='Gateway meter'),
       }
@@ -401,7 +441,7 @@ model GetDeviceListResponseBody = {
     success?: boolean(name='success', description='Indicates whether the request was successful.', example='True'),
   }(name='data', description='The data returned.'),
   httpCode?: int32(name='httpCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+  requestId?: string(name='requestId', description='The request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -414,11 +454,53 @@ model GetDeviceListResponse = {
 /**
   * *   You can query the information about data collection devices of a site based on the ID of the site. If the verification is passed, the information about the devices of the site is returned. If the verification fails, a null value is returned.
   * *   Virtual meters at the site are not returned.
+  * - By current, endpoint only supports Hangzhou: `energyexpertexternal.cn-hangzhou.aliyuncs.com`.
+  * - To use this API, you need to be added to the whitelist. Please contact us through the official website <props="china">[here](https://energy.aliyun.com/ifa/web/defaultLoginPage?adapter=aliyun#/consult?source=%E8%83%BD%E8%80%97%E5%AE%9D%E7%99%BB%E5%BD%95%E9%A1%B5%EF%BC%88WEB%EF%BC%89)</props> 
+  * <props="intl">[here](https://energy.alibabacloud.com/common?adapter=aliyun&lang=en-US#/home/en)</props> to apply for whitelist activation.
   *
  */
 async function getDeviceList(request: GetDeviceListRequest): GetDeviceListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDeviceList', 'GET', '/api/external/getDeviceList', 'json', false, 'json', request);
+}
+
+model GetDocumentAnalyzeResultRequest {
+  jobId: string(name='jobId', example='bfce2248-1546-4298-8bcf-70ac26e69646', position='Body'),
+}
+
+model GetDocumentAnalyzeResultResponseBody = {
+  data?: {
+    kvListInfo?: [ 
+      {
+        context?: {
+          confidence?: {
+            keyConfidence?: double(name='keyConfidence', example='0.9994202852249146'),
+            valueConfidence?: double(name='valueConfidence', example='0.9794202852249146'),
+          }(name='confidence'),
+          key?: [
+            ContentItem
+          ](name='key'),
+          value?: [
+            ContentItem
+          ](name='value'),
+        }(name='context'),
+        keyName?: string(name='keyName'),
+        keyValue?: string(name='keyValue'),
+      }
+    ](name='kvListInfo'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model GetDocumentAnalyzeResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDocumentAnalyzeResultResponseBody(name='body'),
+}
+
+async function getDocumentAnalyzeResult(request: GetDocumentAnalyzeResultRequest): GetDocumentAnalyzeResultResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDocumentAnalyzeResult', 'POST', '/api/v1/aidoc/document/getDocumentAnalyzeResult', 'json', false, 'json', request);
 }
 
 model GetElecConstituteRequest {
@@ -684,6 +766,10 @@ model GetEpdInventoryConstituteResponse = {
   body?: GetEpdInventoryConstituteResponseBody(name='body'),
 }
 
+/**
+  * This API returns the emission amounts for various environmental impact categories at different levels for the given product ID. It helps understand the emission quantities for different environmental impact categories and inventories of the product.
+  *
+ */
 async function getEpdInventoryConstitute(request: GetEpdInventoryConstituteRequest): GetEpdInventoryConstituteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetEpdInventoryConstitute', 'POST', '/api/v1/carbon/footprint/result/epd/inventory/constitute', 'json', false, 'json', request);
@@ -717,6 +803,10 @@ model GetEpdSummaryResponse = {
   body?: GetEpdSummaryResponseBody(name='body'),
 }
 
+/**
+  * This API takes a product ID from the user and returns the summary of environmental impact generated for the product. This info helps understand the overall emissions for different environmental impact categories of the product.
+  *
+ */
 async function getEpdSummary(request: GetEpdSummaryRequest): GetEpdSummaryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetEpdSummary', 'POST', '/api/v1/carbon/footprint/result/epd/summary', 'json', false, 'json', request);
@@ -762,6 +852,10 @@ model GetFootprintListResponse = {
   body?: GetFootprintListResponseBody(name='body'),
 }
 
+/**
+  * With user-specified parameters such as enterprise code, current page, and page size, this API returns a list of matching product carbon footprints (or supply chain carbon footprints), including product names and product IDs. The product ID can be used as input parameters in other APIs to get the corresponding product\\"s detailed information.
+  *
+ */
 async function getFootprintList(request: GetFootprintListRequest): GetFootprintListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetFootprintList', 'POST', '/api/v1/carbon/footprint/product/list', 'json', false, 'json', request);
@@ -828,6 +922,10 @@ model GetGwpBenchmarkListResponse = {
   body?: GetGwpBenchmarkListResponseBody(name='body'),
 }
 
+/**
+  * This interface returns a list of proactive carbon reduction information given product ID. It\\"s used to understand the carbon reduction efforts at various levels of the product.
+  *
+ */
 async function getGwpBenchmarkList(request: GetGwpBenchmarkListRequest): GetGwpBenchmarkListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetGwpBenchmarkList', 'POST', '/api/v1/carbon/footprint/result/gwp/benchmark/list', 'json', false, 'json', request);
@@ -861,6 +959,10 @@ model GetGwpBenchmarkSummaryResponse = {
   body?: GetGwpBenchmarkSummaryResponseBody(name='body'),
 }
 
+/**
+  * The API takes a product ID and returns data on the carbon emissions reduction along with a list of the top four contributors to carbon reduction. This info helps understand the total carbon reduction of the product and its main sources.
+  *
+ */
 async function getGwpBenchmarkSummary(request: GetGwpBenchmarkSummaryRequest): GetGwpBenchmarkSummaryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetGwpBenchmarkSummary', 'POST', '/api/v1/carbon/footprint/result/gwp/benchmark/summary', 'json', false, 'json', request);
@@ -893,6 +995,10 @@ model GetGwpInventoryConstituteResponse = {
   body?: GetGwpInventoryConstituteResponseBody(name='body'),
 }
 
+/**
+  * Used to obtain the carbon emission composition analysis of a specified product. Carbon emission composition analysis includes two analysis dimensions: inventory and type. In the rendering effect, including a hierarchical list and pie chart.
+  *
+ */
 async function getGwpInventoryConstitute(request: GetGwpInventoryConstituteRequest): GetGwpInventoryConstituteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetGwpInventoryConstitute', 'POST', '/api/v1/carbon/footprint/result/gwp/inventory/constitute', 'json', false, 'json', request);
@@ -927,6 +1033,10 @@ model GetGwpInventorySummaryResponse = {
   body?: GetGwpInventorySummaryResponseBody(name='body'),
 }
 
+/**
+  * Returns the total carbon footprint data for the user-specified product ID, along with details on the top four contributors to the carbon footprint, helping to understand the overall carbon footprint and its main components.
+  *
+ */
 async function getGwpInventorySummary(request: GetGwpInventorySummaryRequest): GetGwpInventorySummaryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetGwpInventorySummary', 'POST', '/api/v1/carbon/footprint/result/gwp/inventory/summary', 'json', false, 'json', request);
@@ -969,6 +1079,10 @@ model GetInventoryListResponse = {
   body?: GetInventoryListResponseBody(name='body'),
 }
 
+/**
+  * This interface retrieves a descending order list of emissions for a specified product ID, environmental impact method, group level, and calculation method. It\\"s used to understand various environmental impact emission scenarios.
+  *
+ */
 async function getInventoryList(request: GetInventoryListRequest): GetInventoryListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetInventoryList', 'POST', '/api/v1/carbon/footprint/result/inventory/list', 'json', false, 'json', request);
@@ -981,19 +1095,19 @@ model GetOrgAndFactoryResponseBody = {
   code?: string(name='code', description='The code returned for the request.', example='Success'),
   data?: [ 
     {
-      aliyunPk?: string(name='aliyunPk', description='The ID of the Alibaba Cloud account.', example='1319617584664960'),
+      aliyunPk?: string(name='aliyunPk', description='The Alibaba Cloud account ID.', example='1319617584664960'),
       factoryList?: [ 
         {
-          factoryId?: string(name='factoryId', description='The ID of the site.', example='pn_95'),
-          factoryName?: string(name='factoryName', description='The name of the site.', example='Ledi Industrial Park 1'),
+          factoryId?: string(name='factoryId', description='The site ID.', example='pn_95'),
+          factoryName?: string(name='factoryName', description='The site name.', example='Ledi Industrial Park 1'),
         }
       ](name='factoryList', description='The sites.'),
-      organizationId?: string(name='organizationId', description='The ID of the organization.', example='6265f42XXXX2fec150'),
-      organizationName?: string(name='organizationName', description='The name of the organization.', example='Ledi Industrial Park'),
+      organizationId?: string(name='organizationId', description='The enterprise ID.', example='6265f42XXXX2fec150'),
+      organizationName?: string(name='organizationName', description='The enterprise name.', example='Ledi Industrial Park'),
     }
   ](name='data', description='data'),
   httpCode?: int32(name='httpCode', description='The HTTP status code.', example='200'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+  requestId?: string(name='requestId', description='The request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
   success?: boolean(name='success', description='Indicates whether the request was successful.', example='True'),
 }
 
@@ -1004,9 +1118,10 @@ model GetOrgAndFactoryResponse = {
 }
 
 /**
-  * *   You can set multiple request parameters to filter query results. Specified parameters have logical AND relations. Parameters without assigned values are not used as filtering conditions.
-  * *   The x-acs-caller-uid header is used to check whether the activated service plan is the required service plan. If the verification is passed, the information about the organizations and sites that are activated by using the Alibaba Cloud account is returned. If the verification fails, a null value is returned.
-  * *   If activated organizations and sites exist, the data of the organizations and sites is returned. If no organization or site data exists, a null value is returned.
+  * *   If an activated site exists, the information about the site and the organization to which the site belongs is returned. If no activated site exists, null is returned.
+  * - By current, endpoint only supports Hangzhou: `energyexpertexternal.cn-hangzhou.aliyuncs.com`.
+  * - To use this API, you need to be added to the whitelist. Please contact us through the official website <props="china">[here](https://energy.aliyun.com/ifa/web/defaultLoginPage?adapter=aliyun#/consult?source=%E8%83%BD%E8%80%97%E5%AE%9D%E7%99%BB%E5%BD%95%E9%A1%B5%EF%BC%88WEB%EF%BC%89)</props> 
+  * <props="intl">[here](https://energy.alibabacloud.com/common?adapter=aliyun&lang=en-US#/home/en)</props> to apply for whitelist activation.
   *
  */
 async function getOrgAndFactory(request: GetOrgAndFactoryRequest): GetOrgAndFactoryResponse {
@@ -1058,6 +1173,10 @@ model GetPcrInfoResponse = {
   body?: GetPcrInfoResponseBody(name='body'),
 }
 
+/**
+  * With the user-specified product ID, this interface retrieves detailed information and download links for previously generated PCR reports. To use it, two conditions must be met: 1) the result has already been generated; 2) the PCR report has been created.
+  *
+ */
 async function getPcrInfo(request: GetPcrInfoRequest): GetPcrInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetPcrInfo', 'POST', '/api/v1/carbon/footprint/result/pcr/detail', 'json', false, 'json', request);
@@ -1084,6 +1203,10 @@ model GetReductionProposalResponse = {
   body?: GetReductionProposalResponseBody(name='body'),
 }
 
+/**
+  * This API returns carbon reduction proposals based on the product ID. It\\"s useful for understanding optimization tips to reduce the carbon emissions associated with a product.
+  *
+ */
 async function getReductionProposal(request: GetReductionProposalRequest): GetReductionProposalResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetReductionProposal', 'POST', '/api/v1/carbon/footprint/result/reduction/proposal', 'json', false, 'json', request);
@@ -1111,6 +1234,10 @@ model IsCompletedResponse = {
   body?: IsCompletedResponseBody(name='body'),
 }
 
+/**
+  * This API checks the completion status of generating a report. It should be used before calling other result APIs, as they will only display content once the report generation is complete.
+  *
+ */
 async function isCompleted(request: IsCompletedRequest): IsCompletedResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'IsCompleted', 'POST', '/api/v1/carbon/footprint/result/completed', 'json', false, 'json', request);
@@ -1170,7 +1297,7 @@ async function pushDeviceData(request: PushDeviceDataRequest): PushDeviceDataRes
 model PushItemDataRequest {
   code: string(name='code', description='The enterprise code.', example='C-20210223-01', position='Body'),
   items: {
-    code: string(name='code', description='The data item code.', example='xxx'),
+    code: string(name='code', description='API data identification.<props="intl">For details: [GetDataItemList ](https://www.alibabacloud.com/help/en/energy-expert/developer-reference/api-energyexpertexternal-2022-09-23-getdataitemlist)</props>', example='demo_api_code'),
     month: string(name='month', description='The month.', example='1'),
     value: double(name='value', description='The value of the data item.', example='1.11'),
   }(name='items', description='Push data list.', position='Body'),
@@ -1189,7 +1316,9 @@ model PushItemDataResponse = {
 }
 
 /**
-  * N/A.
+  * - This interface is used for individual data item data.
+  * - Data items can link data to services such as carbon footprints and carbon inventories.
+  * - Depending on the platform configuration, active data on a yearly and monthly basis is supported.
   *
  */
 async function pushItemData(request: PushItemDataRequest): PushItemDataResponse {
@@ -1213,8 +1342,37 @@ model RecalculateCarbonEmissionResponse = {
   body?: RecalculateCarbonEmissionResponseBody(name='body'),
 }
 
+/**
+  * - After uploading the data items, you need to call this interface to recalculate the carbon inventory data.
+  *
+ */
 async function recalculateCarbonEmission(request: RecalculateCarbonEmissionRequest): RecalculateCarbonEmissionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RecalculateCarbonEmission', 'POST', '/api/v1/carbon/emission/data/item/recalculate', 'json', false, 'json', request);
+}
+
+model SendDocumentAskQuestionRequest {
+  folderId?: string(name='folderId', example='1a851c4a-1d65-11ef-99a7-ssfsfdd', position='Body'),
+  prompt: string(name='prompt', position='Body'),
+  sessionId?: string(name='sessionId', example='bfce2248-1546-4298-8bcf-70ac26e69646', position='Body'),
+}
+
+model SendDocumentAskQuestionResponseBody = {
+  data?: {
+    answer?: string(name='answer'),
+    document?: [ string ](name='document'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model SendDocumentAskQuestionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendDocumentAskQuestionResponseBody(name='body'),
+}
+
+async function sendDocumentAskQuestion(request: SendDocumentAskQuestionRequest): SendDocumentAskQuestionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SendDocumentAskQuestion', 'POST', '/api/v1/aidoc/document/sendDocumentAskQuestion', 'json', false, 'json', request);
 }
 
