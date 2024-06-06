@@ -2659,7 +2659,7 @@ This parameter is optional. If you enter a description, the description must be 
 *   **TCP**
 *   **UDP**', example='TCP', position='Query'),
   natIp: string(name='NatIp', description='The NAT IP address that provides address translation.', example='192.168.XX.XX', position='Query'),
-  natIpPort: string(name='NatIpPort', description='The frontend port to be modified in the mapping of FULLNAT port. Valid values: **1** to **65535**.', example='80', position='Query'),
+  natIpPort?: string(name='NatIpPort', description='The frontend port to be modified in the mapping of FULLNAT port. Valid values: **1** to **65535**.', example='80', position='Query'),
   networkInterfaceId: string(name='NetworkInterfaceId', description='The elastic network interface (ENI) ID.', example='eni-gw8g131ef2dnbu3k****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -6401,7 +6401,7 @@ async function deleteCommonBandwidthPackage(request: DeleteCommonBandwidthPackag
 model DeleteCustomerGatewayRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate a value, and you must make sure that each request has a unique token value. The token can contain only ASCII characters and cannot exceed 64 characters in length.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.
 
 >  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='02fb3da4-130e-11e9-8e44-0016e04****', position='Query'),
   customerGatewayId: string(name='CustomerGatewayId', description='The ID of the customer gateway.', example='cgw-bp1pvpl9r9adju6l5****', position='Query'),
@@ -6422,6 +6422,10 @@ model DeleteCustomerGatewayResponse = {
   body?: DeleteCustomerGatewayResponseBody(name='body'),
 }
 
+/**
+  * Before you delete a customer gateway, make sure that no IPsec-VPN connection is associated with the customer gateway. For more information about how to delete an IPsec-VPN connection, see [DeleteVpnAttachment](~~2526938~~) or [DeleteVpnConnection](~~2526948~~).
+  *
+ */
 async function deleteCustomerGateway(request: DeleteCustomerGatewayRequest): DeleteCustomerGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteCustomerGateway', 'POST', '/', 'json', false, 'json', request);
@@ -7389,7 +7393,7 @@ async function deleteRouteEntries(request: DeleteRouteEntriesRequest): DeleteRou
 }
 
 model DeleteRouteEntryRequest {
-  destinationCidrBlock?: string(name='DestinationCidrBlock', description='The destination CIDR block of the route entry. IPv4 and IPv6 CIDR blocks are supported.', example='47.100.XX.XX/16', position='Query'),
+  destinationCidrBlock?: string(name='DestinationCidrBlock', description='The destination CIDR block of the route. Only IPv4 CIDR blocks, IPv6 CIDR blocks, and prefix lists are supported.', example='47.100.XX.XX/16', position='Query'),
   nextHopId?: string(name='NextHopId', description='The ID of the next hop.
 
 *   To delete a route other than an equal-cost multi-path (ECMP) route, set the **NextHopId** parameter and ignore the **NextHopList** parameter.
@@ -8111,11 +8115,11 @@ model DeleteVpnConnectionResponse = {
 }
 
 /**
-  * *   **DeleteVpnConnection** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](~~73720~~) operation to query the status of the task.
-  *     *   If the VPN gateway is in the **updating** state, the IPsec-VPN connection is being deleted.
-  *     *   If the VPN gateway is in the **active** state, the IPsec-VPN connection is deleted.
-  * *   You cannot repeatedly call **DeleteVpnConnection** to delete an IPsec-VPN connection from the same VPN gateway within the specified period of time.
-  * >  After an IPsec-VPN connection between a virtual private cloud (VPC) and a data center is deleted, the communication between the VPC and data center is interrupted.
+  * *   **DeleteVpnConnection** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](~~73720~~) operation to query the status of a VPN gateway.
+  *     *   If a VPN gateway is in the **updating** state, the IPsec-VPN connection is being deleted.
+  *     *   If a VPN gateway is in the **active** state, the IPsec-VPN connection has been deleted.
+  * *   You cannot call the **DeleteVpnConnection** operation to delete multiple IPsec-VPN connections for a VPN gateway at a time.
+  * >  After an IPsec-VPN connection between a data center and Alibaba Cloud is deleted, the connection between the data center and Alibaba Cloud is closed.
   *
  */
 async function deleteVpnConnection(request: DeleteVpnConnectionRequest): DeleteVpnConnectionResponse {
@@ -8181,7 +8185,9 @@ You can use the client to generate the token, but you must make sure that the to
   routeDest: string(name='RouteDest', description='The destination CIDR block of the policy-based route.', example='10.0.0.0/24', position='Query'),
   routeSource: string(name='RouteSource', description='The source CIDR block of the policy-based route.', example='192.168.1.0/24', position='Query'),
   vpnGatewayId: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1a3kqjiiq9legfx****', position='Query'),
-  weight: int32(name='Weight', description='The weight of the policy-based route.', example='0', position='Query'),
+  weight: int32(name='Weight', description='The weight of the policy-based route. Valid values:
+
+You can call [DescribeVpnPbrRouteEntries](~~2526959~~) to query weights of policy-based routes.', example='0', position='Query'),
 }
 
 model DeleteVpnPbrRouteEntryResponseBody = {
@@ -8807,22 +8813,18 @@ You can call the [ListResourceGroups](~~158855~~) operation to query the resourc
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key. The tag key cannot be an empty string.
+      key?: string(name='Key', description='The key of the tag. The tag key cannot be an empty string.
 
-It can be at most 64 characters in length, and cannot contain `http://` or `https://`. It cannot start with `aliyun` or `acs:`.
+The tag key can be up to 64 characters in length and cannot contain `http://` or `https://`. The tag key cannot start with `aliyun` or `acs:`.
 
-You can specify at most 20 tag keys in each call.', example='TagKey'),
-      value?: string(name='Value', description='The tag value.
+You can specify at most 20 tag keys at a time.', example='TagKey'),
+      value?: string(name='Value', description='The value of the tag.
 
-The tag value can be an empty string and cannot exceed 128 characters in length. It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.
+The tag value can be up to 128 characters in length. It can be an empty string. It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.
 
-Each tag key corresponds to one tag value. You can specify at most 20 tag values in each call.', example='TagValue'),
+Each tag key corresponds to one tag value. You can specify at most 20 tag values at a time.', example='TagValue'),
     }
-  ](name='Tag', description='The tag value.
-
-The tag value can be an empty string and cannot exceed 128 characters in length. It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.
-
-Each tag key corresponds to one tag value. You can specify up to 20 tag values in each call.', position='Query'),
+  ](name='Tag', description='The tags to be added to the customer gateway.', position='Query'),
 }
 
 model DescribeCustomerGatewaysResponseBody = {
@@ -8830,25 +8832,25 @@ model DescribeCustomerGatewaysResponseBody = {
     customerGateway?: [ 
     {
       asn?: long(name='Asn', description='The autonomous system number (ASN) of the gateway device in the data center.', example='65530'),
-      authKey?: string(name='AuthKey', description='The authentication key of the Border Gateway Protocol (BGP) routing protocol for the gateway device in the data center.', example='AuthKey****'),
-      createTime?: long(name='CreateTime', description='The timestamp generated when the customer gateway was created. Unit: millisecond.
+      authKey?: string(name='AuthKey', description='The authentication key that is used to connect to the gateway device in the data center by using Border Gateway Protocol (BGP).', example='AuthKey****'),
+      createTime?: long(name='CreateTime', description='The time when the customer gateway was created. Unit: millisecond.
 
-This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
-      customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway.', example='cgw-bp1pvpl9r9adju6l5****'),
+This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
+      customerGatewayId?: string(name='CustomerGatewayId', description='The customer gateway ID.', example='cgw-bp1pvpl9r9adju6l5****'),
       description?: string(name='Description', description='The description of the customer gateway.', example='desctest'),
-      ipAddress?: string(name='IpAddress', description='The public IP address of the gateway device in the data center.', example='139.32.XX.XX'),
+      ipAddress?: string(name='IpAddress', description='The IP address of the gateway device in the data center.', example='139.32.XX.XX'),
       name?: string(name='Name', description='The name of the customer gateway.', example='nametest'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the customer gateway belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The key of tag N.', example='TagKey'),
-          value?: string(name='Value', description='The value of tag N.', example='TagValue'),
+          key?: string(name='Key', description='The key of the tag.', example='TagKey'),
+          value?: string(name='Value', description='The value of the tag.', example='TagValue'),
         }
       ](name='Tag')
-      }(name='Tags', description='The list of tags added to the customer gateway.'),
+      }(name='Tags', description='The tags that are added to the customer gateway.'),
     }
   ](name='CustomerGateway')
   }(name='CustomerGateways', description='The information about customer gateways.'),
@@ -12368,9 +12370,7 @@ This value is a UNIX timestamp representing the number of milliseconds that have
   requestId?: string(name='RequestId', description='The request ID.', example='5BE01CD7-5A50-472D-AC14-CA181C5C03BE'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the SSL client certificate belongs.
 
-The SSL client certificate is the same as the resource group of the SSL server associated with it.
-
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+The SSL client certificate and the SSL server associated with the SSL client certificate belong to the same resource group. You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
   sslVpnClientCertId?: string(name='SslVpnClientCertId', description='The ID of the SSL client certificate.', example='vsc-bp13k5mp4tg8v3z9b****'),
   sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL server.', example='vss-bp155e9yclsg1xgq4****'),
   status?: string(name='Status', description='The status of the SSL client certificate. Valid values:
@@ -12544,30 +12544,30 @@ model DescribeSslVpnServersResponseBody = {
 *   **true**
 *   **false** (default)', example='false'),
       connections?: int32(name='Connections', description='The total number of current connections.', example='0'),
-      createTime?: long(name='CreateTime', description='The timestamp generated when the SSL server was created.', example='1613800884000'),
+      createTime?: long(name='CreateTime', description='The timestamp generated when the SSL-VPN server was created.', example='1613800884000'),
       enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Indicates whether two-factor authentication is enabled.
 
 *   **true**
 *   **false** (default)', example='true'),
-      iDaaSApplicationId?: string(name='IDaaSApplicationId'),
+      iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****'),
       iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS instance.', example='idaas-cn-hangzhou-****'),
-      iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion'),
-      iDaaSRegionId?: string(name='IDaaSRegionId', description='The ID of the region where the IDaaS instance is created.', example='cn-hangzhou'),
+      iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', example='EIAM 2.0'),
+      iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS instance.', example='cn-hangzhou'),
       internetIp?: string(name='InternetIp', description='The public IP address of the VPN gateway.', example='47.5.XX.XX'),
       localSubnet?: string(name='LocalSubnet', description='The local CIDR block.', example='192.168.0.0/24'),
       maxConnections?: int32(name='MaxConnections', description='The maximum number of connections.', example='5'),
-      name?: string(name='Name', description='The name of the SSL server.', example='test'),
-      port?: int32(name='Port', description='The port that is used by the SSL server.', example='1194'),
-      proto?: string(name='Proto', description='The protocol that is used by the SSL server.', example='UDP'),
-      regionId?: string(name='RegionId', description='The ID of the region where the SSL server is created.', example='cn-hangzhou'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the SSL server belongs.
+      name?: string(name='Name', description='The name of the SSL-VPN server.', example='test'),
+      port?: int32(name='Port', description='The port that is used by the SSL-VPN server.', example='1194'),
+      proto?: string(name='Proto', description='The protocol that is used by the SSL-VPN server.', example='UDP'),
+      regionId?: string(name='RegionId', description='The region ID of the SSL-VPN server.', example='cn-hangzhou'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID of the SSL-VPN server.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
-      sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL server.', example='vss-bp15j3du13gq1dgey****'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
+      sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL-VPN server.', example='vss-bp15j3du13gq1dgey****'),
       vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1on0xae9d771ggi****'),
     }
   ](name='SslVpnServer')
-  }(name='SslVpnServers', description='The detailed information about the SSL servers.'),
+  }(name='SslVpnServers', description='The detailed information about the SSL-VPN server.'),
   totalCount?: int32(name='TotalCount', description='The number of entries returned.', example='1'),
 }
 
@@ -13969,25 +13969,27 @@ async function describeVpnConnection(request: DescribeVpnConnectionRequest): Des
 }
 
 model DescribeVpnConnectionLogsRequest {
-  from?: int32(name='From', description='The beginning of the time range to query. The value must be a UNIX timestamp. For example, 1671003744 specifies 15:42:24 (UTC+8) on December 14, 2022.
+  from?: int32(name='From', description='The start time of the flow log. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.
 
->  If you specify **From**, you must also specify **To** or **MinutePeriod**.', example='1671003744', position='Query'),
-  minutePeriod?: int32(name='MinutePeriod', description='The interval at which log data is queried. Valid values: **1** to **10**. Unit: minutes.
+>  If you specify **From**, you must specify **To** or **MinutePeriod**.', example='1671003744', position='Query'),
+  minutePeriod?: int32(name='MinutePeriod', description='The interval at which log data is collected. Valid values: **1** to **10**. Unit: minutes.
 
->  If both **From** and **To** are not specified, you must specify **MinutePeriod**.', example='10', position='Query'),
+>  If you do not specify **From** and **To**, you must specify **MinutePeriod**.', example='10', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: **1** to **50**. Default value: **10**.', example='10', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region to which the IPsec-VPN connection belongs.
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: **1** to **50**. Default value: **10**.', example='10', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
 
 You can call the [DescribeRegions](~~36063~~) operation to query the most recent region list.', example='eu-central-1', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  to?: int32(name='To', description='The end of the time range to query. The value must be a UNIX timestamp. For example, 1671004344 specifies 15:52:24 (UTC+8) on December 14, 2022.
+  to?: int32(name='To', description='The end time of the flow log. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.
 
->  If you specify **To**, you must also specify **From** or **MinutePeriod**.', example='1671004344', position='Query'),
-  tunnelId?: string(name='TunnelId', description='The tunnel ID of the IPsec-VPN connection. You can specify this parameter only for IPsec-VPN connections in dual-tunnel mode.', example='tun-opsqc4d97wni27****', position='Query'),
+>  If you specify **To**, you must specify **From** or **MinutePeriod**.', example='1671004344', position='Query'),
+  tunnelId?: string(name='TunnelId', description='The ID of the IPsec-VPN connection.
+
+This parameter is available only for a dual-tunnel IPsec-VPN connection.', example='tun-opsqc4d97wni27****', position='Query'),
   vpnConnectionId: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.', example='vco-m5evqnds4y459flt3****', position='Query'),
 }
 
@@ -13995,16 +13997,14 @@ model DescribeVpnConnectionLogsResponseBody = {
   count?: int32(name='Count', description='The number of entries on the current page.', example='10'),
   data?: {
     logs?: [ string ](name='Logs')
-  }(name='Data', description='An array of strings.
-
-Each item in the array is a log entry.'),
+  }(name='Data', description='The log list.'),
   isCompleted?: boolean(name='IsCompleted', description='Indicates whether the log is accurate. Valid values:
 
-*   **true**: accurate
-*   **false**: inaccurate', example='true'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='CF161502-4959-5C3B-B499-09B87BA931D9'),
+*   **true**
+*   **false**', example='true'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CF161502-4959-5C3B-B499-09B87BA931D9'),
 }
 
 model DescribeVpnConnectionLogsResponse = {
@@ -14585,43 +14585,43 @@ model DescribeVpnGatewaysResponseBody = {
   vpnGateways?: {
     vpnGateway?: [ 
     {
-      autoPropagate?: boolean(name='AutoPropagate', description='Indicates whether BGP routes are automatically advertised to the VPC. Valid values:
+      autoPropagate?: boolean(name='AutoPropagate', description='Indicates whether Border Gateway Protocol (BGP) routes are automatically advertised to the VPC. Valid values:
 
 *   **true**
 *   **false**', example='true'),
-      businessStatus?: string(name='BusinessStatus', description='The payment status of the VPN gateway.
+      businessStatus?: string(name='BusinessStatus', description='The payment status of the VPN gateway. Valid values:
 
-*   **Normal**
-*   **FinancialLocked**', example='Normal'),
+*   **Normal**: The VPN gateway runs as expected.
+*   **FinancialLocked**: The VPN gateway is locked due to overdue payments.', example='Normal'),
       chargeType?: string(name='ChargeType', description='The billing method of the VPN gateway.
 
-The value is fixed as **POSTPAY**, which indicates the pay-as-you-go billing method.', example='Example value for the China site (aliyun.com): Prepay. Example value for the International site (alibabacloud.com): POSTPAY.'),
-      createTime?: long(name='CreateTime', description='The timestamp when the VPN gateway was created. Unit: millisecond.
+Only **POSTPAY** may be returned, which indicates the pay-as-you-go billing method.', example='Example value for the China site (aliyun.com): Prepay. Example value for the International site (alibabacloud.com): POSTPAY.'),
+      createTime?: long(name='CreateTime', description='The timestamp generated when the VPN gateway was created. Unit: milliseconds.
 
-This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1515383700000'),
+This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1515383700000'),
       description?: string(name='Description', description='The description of the VPN gateway.', example='test'),
-      disasterRecoveryInternetIp?: string(name='DisasterRecoveryInternetIp', description='The second IP address assigned by the system to create an IPsec-VPN connection.
+      disasterRecoveryInternetIp?: string(name='DisasterRecoveryInternetIp', description='The second IP address that is assigned to the VPN gateway to create IPsec-VPN connections.
 
-This parameter is returned only when the VPN gateway supports the dual-tunnel mode.', example='47.91.XX.XX'),
-      disasterRecoveryVSwitchId?: string(name='DisasterRecoveryVSwitchId', description='The ID of the second vSwitch associated with the VPN gateway.
+This parameter is returned only if the VPN gateway supports IPsec-VPN connections in dual-tunnel mode.', example='47.91.XX.XX'),
+      disasterRecoveryVSwitchId?: string(name='DisasterRecoveryVSwitchId', description='The ID of the second vSwitch that is associated with the VPN gateway.
 
-This parameter is returned only when the VPN gateway supports the dual-tunnel mode.', example='vsw-p0w95ql6tmr2ludkt****'),
-      enableBgp?: boolean(name='EnableBgp', description='The BGP status of the VPN gateway.
+This parameter is returned only if the VPN gateway supports IPsec-VPN connections in dual-tunnel mode.', example='vsw-p0w95ql6tmr2ludkt****'),
+      enableBgp?: boolean(name='EnableBgp', description='The BGP status of the VPN gateway. Valid values:
 
-*   **true**
-*   **false**', example='true'),
-      endTime?: long(name='EndTime', description='The timestamp when the VPN gateway expires. Unit: millisecond.
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.', example='true'),
+      endTime?: long(name='EndTime', description='The timestamp generated when the VPN gateway expires. Unit: milliseconds.
 
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1518105600000'),
       eniInstanceIds?: {
         eniInstanceId?: [ string ](name='EniInstanceId')
       }(name='EniInstanceIds'),
-      internetIp?: string(name='InternetIp', description='*   If the VPN gateway supports IPsec-VPN connections in single-tunnel mode, the address is the IP address of the VPN gateway and can be used to create an IPsec-VPN connection or an SSL-VPN connection.
+      internetIp?: string(name='InternetIp', description='*   If the VPN gateway supports IPsec-VPN connections in single-tunnel mode, the value of this parameter is the IP address of the VPN gateway, which can be used to create IPsec-VPN or SSL-VPN connections.
 
-*   If the VPN gateway supports IPsec-VPN connections in dual-tunnel mode, the address is the first IP address used to create an IPsec-VPN connection. The address cannot be used to create an SSL-VPN connection.
+*   If the VPN gateway supports IPsec-VPN connections in dual-tunnel mode, the value of this parameter is the first IP address that is used to create an IPsec-VPN connection. The IP address cannot be used to create SSL-VPN connections.
 
-    If the VPN gateway supports IPsec-VPN connections in dual-tunnel mode, the system assigns two IP addresses to the VPN gateway to create two encrypted tunnels.', example='47.12.XX.XX'),
-      ipsecVpn?: string(name='IpsecVpn', description='Indicates whether IPsec-VPN is enabled for the VPN gateway.
+    If the VPN gateway supports IPsec-VPN connections in dual-tunnel mode, the system assigns two IPsec addresses to the VPN gateway to create IPsec-VPN connections in dual-tunnel mode.', example='47.12.XX.XX'),
+      ipsecVpn?: string(name='IpsecVpn', description='Indicates whether IPsec-VPN is enabled for the VPN gateway. Valid values:
 
 *   **enable**
 *   **disable**', example='enable'),
@@ -14631,43 +14631,43 @@ This value is a UNIX timestamp representing the number of milliseconds that have
 *   **public**
 *   **private**', example='public'),
       reservationData?: {
-        reservationEndTime?: string(name='ReservationEndTime', description='If the order type is **TEMP_UPGRADE** (temporary upgrade), this parameter specifies the time when the temporary upgrade expires.
+        reservationEndTime?: string(name='ReservationEndTime', description='If the value of ReservationOrderType is **TEMP_UPGRADE**, this parameter indicates the time when the temporary upgrade expires.
 
-If the order type is **RENEWCHANGE** (renewal with a specification change) or **RENEW** (renewal), this parameter indicates the time when the renewal or renewal with a specification change takes effect.', example='2021-07-20T16:00:00Z'),
-        reservationIpsec?: string(name='ReservationIpsec', description='The IPsec-VPN status of the order that has not taken effect. Valid values:
+If the value of ReservationOrderType is **RENEWCHANGE** or **RENEW**, this parameter indicates the time when the renewal or renewal with a specification change takes effect.', example='2021-07-20T16:00:00Z'),
+        reservationIpsec?: string(name='ReservationIpsec', description='The IPsec-VPN status of the pending order. Valid values:
 
 *   **enable**
 *   **disable**', example='enable'),
         reservationMaxConnections?: int32(name='ReservationMaxConnections', description='The maximum number of concurrent SSL-VPN connections of the pending order.', example='5'),
-        reservationOrderType?: string(name='ReservationOrderType', description='The type of the order that has not taken effect. Valid values:
+        reservationOrderType?: string(name='ReservationOrderType', description='The type of the pending order. Valid values:
 
-*   **RENEWCHANGE**: renewal with upgrade or downgrade
+*   **RENEWCHANGE**: renewal with a specification change
 *   **TEMP_UPGRADE**: temporary upgrade
 *   **RENEW**: renewal', example='TEMP_UPGRADE'),
         reservationSpec?: string(name='ReservationSpec', description='The bandwidth of the pending order. Unit: Mbit/s.', example='5'),
-        reservationSsl?: string(name='ReservationSsl', description='The SSL-VPN status of the order that has not taken effect. Valid values:
+        reservationSsl?: string(name='ReservationSsl', description='The SSL-VPN status of the pending order. Valid values:
 
 *   **enable**
 *   **disable**', example='enable'),
-        status?: string(name='Status', description='The status of the order that has not taken effect.
+        status?: string(name='Status', description='The status of the pending order.
 
 *   **1**: indicates that the order is an order for renewal or renewal with a specification change and the order has not taken effect.
-*   **2**: indicates that the order is an order for temporary upgrade and the order has taken effect. After the temporary upgrade expires, the system restores the VPN gateway to its previous specifications. In this case, **ReservationIpsec**, **ReservationMaxConnections**, **ReservationSpec**, and **ReservationSsl** indicate the previous specification.', example='1'),
-      }(name='ReservationData', description='The information about pending orders.
+*   **2**: indicates that the order is an order for temporary upgrade and the order has taken effect. After the temporary upgrade expires, the system restores the VPN gateway to its previous specifications. In this case, the values of **ReservationIpsec**, **ReservationMaxConnections**, **ReservationSpec**, and **ReservationSsl** indicate the previous specifications of the VPN gateway.', example='1'),
+      }(name='ReservationData', description='The pending orders.
 
->  This parameter is returned only when **IncludeReservationData** is set to **true**.'),
+>  This parameter is returned only if **IncludeReservationData** is set to **true**.'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the VPN gateway belongs.
 
-You can call the [ListResourceGroups](~~158855~~) operation to query the resource group information.', example='rg-acfmzs372yg****'),
-      spec?: string(name='Spec', description='The maximum bandwidth of the VPN gateway. **M** indicates Mbit/s.', example='5M'),
+You can call the [ListResourceGroups](~~158855~~) operation to query resource groups.', example='rg-acfmzs372yg****'),
+      spec?: string(name='Spec', description='The maximum bandwidth of the VPN gateway. Unit: **M**, which indicates Mbit/s.', example='5M'),
       sslMaxConnections?: long(name='SslMaxConnections', description='The number of SSL-VPN connections supported by the VPN gateway.', example='5'),
-      sslVpn?: string(name='SslVpn', description='Indicates whether SSL-VPN is enabled for the VPN gateway.
+      sslVpn?: string(name='SslVpn', description='Indicates whether SSL-VPN is enabled for the VPN gateway. Valid values:
 
 *   **enable**
 *   **disable**', example='enable'),
       sslVpnInternetIp?: string(name='SslVpnInternetIp', description='The IP address of the SSL-VPN connection.
 
-This parameter is returned only when the VPN gateway is a public VPN gateway and supports only the single-tunnel mode. In addition, the VPN gateway must have the SSL-VPN feature enabled.', example='47.74.XX.XX'),
+This parameter is returned only if the VPN gateway is a public VPN gateway and supports IPsec-VPN connections in dual-tunnel mode. In addition, SSL-VPN must be enabled for the VPN gateway.', example='47.74.XX.XX'),
       status?: string(name='Status', description='The status of the VPN gateway. Valid values:
 
 *   **init**
@@ -14675,48 +14675,48 @@ This parameter is returned only when the VPN gateway is a public VPN gateway and
 *   **active**
 *   **updating**
 *   **deleting**', example='active'),
-      tag?: string(name='Tag', description='The automatically generated tag of the VPN gateway.
+      tag?: string(name='Tag', description='The tag that is automatically generated for the VPN gateway. The tag consists of the following parameters:
 
 *   **VpnEnableBgp**: indicates whether the VPN gateway supports BGP. Valid values:
 
     *   **true**
     *   **false**
 
-*   **VisuallySsl**: indicates whether the VPN gateway allows you to view information about connected SSL clients.
+*   **VisuallySsl**: indicates whether the VPN gateway allows you to view the connection information of SSL clients. Valid values:
 
     *   **true**
     *   **false**
 
-*   **PbrPriority**: indicates whether the VPN gateway allows you to configure priorities for policy-based routes.
+*   **PbrPriority**: indicates whether the VPN gateway allows you to configure priorities for policy-based routes. Valid values:
 
     *   **true**
     *   **false**
 
-*   **VpnNewImage**: indicates whether the VPN gateway is upgraded.
+*   **VpnNewImage**: indicates whether the VPN gateway is upgraded. Valid values:
 
     *   **true**
     *   **false**
 
-*   **description**: the description of the VPN gateway. This parameter is for internal system use only.
+*   **description**: the description of the VPN gateway. This parameter is only for internal use.
 
-*   **VpnVersion**: the version of the VPN gateway.', example='{\\"VpnEnableBgp\\":\\"true\\",\\"VisuallySsl\\":\\"true\\",\\"PbrPriority\\":\\"true\\",\\"VpnNewImage\\":\\"true\\",\\"description\\":\\"forwarding1.3.7\\",\\"VpnVersion\\":\\"v1.2.4\\"}'),
+*   **VpnVersion**: the version number of the VPN gateway.', example='{\\"VpnEnableBgp\\":\\"true\\",\\"VisuallySsl\\":\\"true\\",\\"PbrPriority\\":\\"true\\",\\"VpnNewImage\\":\\"true\\",\\"description\\":\\"forwarding1.3.7\\",\\"VpnVersion\\":\\"v1.2.4\\"}'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The key of tag N.', example='FinanceDept'),
-          value?: string(name='Value', description='The value of tag N.', example='FinanceJoshua'),
+          key?: string(name='Key', description='The tag key.', example='FinanceDept'),
+          value?: string(name='Value', description='The tag value.', example='FinanceJoshua'),
         }
       ](name='Tag')
-      }(name='Tags', description='The tags to be added to the VPN gateway.'),
+      }(name='Tags', description='The tags that are added to the VPN gateway.'),
       vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which the VPN gateway belongs.', example='vsw-bp15lbk8sgtr6r5b0****'),
-      vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) to which the VPN gateway belongs.', example='vpc-bp1m3i0kn1nd4wiw9****'),
+      vpcId?: string(name='VpcId', description='The ID of the VPC to which the VPN gateway belongs.', example='vpc-bp1m3i0kn1nd4wiw9****'),
       vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp17lofy9fd0dnvzv****'),
       vpnType?: string(name='VpnType', description='The type of the VPN gateway.
 
-Only **Normal** may be returned, which indicates a standard NAT gateway.', example='Normal'),
+Only **Normal** may be returned, which indicates a standard VPN gateway.', example='Normal'),
     }
   ](name='VpnGateway')
-  }(name='VpnGateways', description='The information about VPN gateways.'),
+  }(name='VpnGateways', description='The VPN gateways.'),
 }
 
 model DescribeVpnGatewaysResponse = {
@@ -14751,13 +14751,13 @@ model DescribeVpnPbrRouteEntriesResponseBody = {
   vpnPbrRouteEntries?: {
     vpnPbrRouteEntry?: [ 
     {
-      createTime?: long(name='CreateTime', description='The time when the policy-based route was created. Unit: milliseconds.
+      createTime?: long(name='CreateTime', description='The time when the policy-based route was created. Unit: millisecond.
 
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
       nextHop?: string(name='NextHop', description='The next hop of the policy-based route.', example='vco-bp15oes1py4i66rmd****'),
       nextHopTunnelId?: string(name='NextHopTunnelId', description='The ID of the tunnel associated with the next hop of the policy-based route.
 
-This parameter is returned only if the VPN gateway supports the dual-tunnel mode.', example='tun-opsqc4d97wni2****'),
+This parameter is returned only if the VPN gateway supports IPsec-VPN connections in dual-tunnel mode.', example='tun-opsqc4d97wni2****'),
       priority?: int32(name='Priority', description='The priority of the policy-based route.
 
 A smaller value indicates a higher priority.', example='10'),
@@ -14767,15 +14767,15 @@ A smaller value indicates a higher priority.', example='10'),
 
 *   **published**: advertised to the VPC route table.
 *   **normal**: not advertised to the VPC route table.', example='published'),
-      vpnInstanceId?: string(name='VpnInstanceId', description='The VPN gateway ID.', example='vpn-bp1a3kqjiiq9legfx****'),
-      weight?: int32(name='Weight', description='The weight of the policy-based route. Valid values:
+      vpnInstanceId?: string(name='VpnInstanceId', description='The ID of the VPN gateway.', example='vpn-bp1a3kqjiiq9legfx****'),
+      weight?: int32(name='Weight', description='The weight of the policy-based route.
 
-*   For a VPN gateway that supports the dual-tunnel mode, the default value is **100**.
+For a VPN gateway that supports IPsec-VPN connections in single-tunnel mode, the weight of a policy-based route indicates the priority of the route.
 
-*   For a VPN gateway that supports the single-tunnel mode, the weight specifies the priority of the policy-based route.
+*   **100**: a high priority If multiple policy-based routes with the same source CIDR block and destination CIDR block exist, the IPsec-VPN connection associated with the policy-based route is the active connection.
+*   **0**: a low priority If multiple policy-based routes with the same source CIDR block and destination CIDR block exist, the IPsec-VPN connection associated with the policy-based route is the standby connection.
 
-    *   **100**: a high priority If multiple policy-based routes with the same source CIDR block and destination CIDR block exist, the IPsec-VPN connection associated with the policy-based route is the active connection.
-    *   **0**: a low priority If multiple policy-based routes with the same source CIDR block and destination CIDR block exist, the IPsec-VPN connection associated with the policy-based route is the standby connection.', example='0'),
+>  For a VPN gateway that does not support IPsec-VPN connections in single-tunnel mode, this parameter does not take effect.', example='0'),
     }
   ](name='VpnPbrRouteEntry')
   }(name='VpnPbrRouteEntries', description='The list of policy-based routes.'),
@@ -14986,33 +14986,41 @@ async function detachDhcpOptionsSetFromVpc(request: DetachDhcpOptionsSetFromVpcR
 }
 
 model DiagnoseVpnConnectionsRequest {
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
-  regionId: string(name='RegionId', example='cn-qingdao', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **10**.', example='10', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
+
+You can call the [DescribeRegions](~~36063~~) operation to query the most recent region list.', example='cn-qingdao', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  tunnelIds?: [ string ](name='TunnelIds', position='Query'),
-  vpnConnectionIds?: [ string ](name='VpnConnectionIds', position='Query'),
-  vpnGatewayId?: string(name='VpnGatewayId', example='vpn-bp10hz6b0mbp39flt****', position='Query'),
+  tunnelIds?: [ string ](name='TunnelIds', description='The list of tunnel IDs.', position='Query'),
+  vpnConnectionIds?: [ string ](name='VpnConnectionIds', description='The IDs of IPsec-VPN connections.', position='Query'),
+  vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp10hz6b0mbp39flt****', position='Query'),
 }
 
 model DiagnoseVpnConnectionsResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='B8094E1E-935B-1397-96A8-4F87A5D1BF29'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B8094E1E-935B-1397-96A8-4F87A5D1BF29'),
+  totalCount?: int32(name='TotalCount', description='The number of entries returned.', example='1'),
   vpnConnections?: [ 
     {
-      failedReason?: string(name='FailedReason', example='Phase1 negotiation timeout'),
-      failedReasonCode?: string(name='FailedReasonCode', example='Phase1NegotiationTimeout'),
-      failedTime?: long(name='FailedTime', example='1673581161000'),
-      mismatchLocalParam?: string(name='MismatchLocalParam', example='SHA256'),
-      mismatchRemoteParam?: string(name='MismatchRemoteParam', example='SHA'),
-      severity?: string(name='Severity', example='Warn'),
-      sourceLog?: string(name='SourceLog', example='2023-01-13 11:39:21 vco-bp1spxu8hlcvpd7ry**** [PROTO_ERR]: ikev1.c:1433:isakmp_ph1resend(): phase1 negotiation failed due to time up. [{remote id:4}{ph1: 172.16.0.88[500] <=> 192.168.0.206[500], 172.16.0.88 <=> 192.168.0.206}]'),
-      tunnelId?: string(name='TunnelId', example='tun-64n1sr9dig64k6****'),
-      vpnConnectionId?: string(name='VpnConnectionId', example='vco-bp1spxu8hlcvpd7ry****'),
+      failedReason?: string(name='FailedReason', description='The cause of the error.', example='Phase1 negotiation timeout'),
+      failedReasonCode?: string(name='FailedReasonCode', description='The error code.', example='Phase1NegotiationTimeout'),
+      failedTime?: long(name='FailedTime', description='The timestamp when the current error occurred on the IPsec-VPN connection. Unit: millisecond.
+
+This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1673581161000'),
+      mismatchLocalParam?: string(name='MismatchLocalParam', description='If the values of the parameters configured for the IPsec-VPN connection and the peer gateway device do not match, this parameter indicates the value of the parameters configured for the IPsec-VPN connection.', example='SHA256'),
+      mismatchRemoteParam?: string(name='MismatchRemoteParam', description='If the parameter values configured for the IPsec-VPN connection and the peer gateway device do not match, this parameter indicates the value of the parameter configured for the peer gateway device.', example='SHA'),
+      severity?: string(name='Severity', description='The error level. Valid values:
+
+*   **Critical**
+*   **Warn**
+*   **Normal**', example='Warn'),
+      sourceLog?: string(name='SourceLog', description='The log information about the error.', example='2023-01-13 11:39:21 vco-bp1spxu8hlcvpd7ry**** [PROTO_ERR]: ikev1.c:1433:isakmp_ph1resend(): phase1 negotiation failed due to time up. [{remote id:4}{ph1: 172.16.0.88[500] <=> 192.168.0.206[500], 172.16.0.88 <=> 192.168.0.206}]'),
+      tunnelId?: string(name='TunnelId', description='The tunnel ID.', example='tun-64n1sr9dig64k6****'),
+      vpnConnectionId?: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.', example='vco-bp1spxu8hlcvpd7ry****'),
     }
-  ](name='VpnConnections'),
+  ](name='VpnConnections', description='The diagnostic information.'),
 }
 
 model DiagnoseVpnConnectionsResponse = {
@@ -15021,6 +15029,12 @@ model DiagnoseVpnConnectionsResponse = {
   body?: DiagnoseVpnConnectionsResponseBody(name='body'),
 }
 
+/**
+  * *   If the IPsec-VPN connection is in single-tunnel mode, the request parameter `VpnConnectionIds` is required when you call the **DiagnoseVpnConnections** operation.
+  * *   If the IPsec-VPN connection is in dual-tunnel mode, the request parameter `TunnelIds` is required when you call the **DiagnoseVpnConnections** operation.
+  * *   After you call the **DiagnoseVpnConnections** operation, if the current IPsec-VPN connection is faulty, the operation returns the corresponding error code (**FailedReasonCode**) and log (**SourceLog**). You can troubleshoot based on the error code and log information. For more information, see [Common errors and troubleshooting methods for IPsec-VPN connections](~~477862~~).
+  *
+ */
 async function diagnoseVpnConnections(request: DiagnoseVpnConnectionsRequest): DiagnoseVpnConnectionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DiagnoseVpnConnections', 'POST', '/', 'json', false, 'json', request);
@@ -19660,10 +19674,10 @@ async function modifySnatEntry(request: ModifySnatEntryRequest): ModifySnatEntry
 model ModifySslVpnClientCertRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the value, but you must make sure that it is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.
 
->  If you do not set this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** may be different for each API request.', example='02fb3da4-130e-11e9-8e44-0016e04115b', position='Query'),
-  name?: string(name='Name', description='The name of the SSL-VPN client certificate.
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='02fb3da4-130e-11e9-8e44-0016e04115b', position='Query'),
+  name?: string(name='Name', description='The new name of the SSL client certificate. This parameter cannot be left empty.
 
 The name must be 1 to 100 characters in length and cannot start with `http://` or `https://`.', example='cert2', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -19673,13 +19687,13 @@ The name must be 1 to 100 characters in length and cannot start with `http://` o
 You can call the [DescribeRegions](~~36063~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  sslVpnClientCertId: string(name='SslVpnClientCertId', description='The ID of the SSL-VPN client certificate.', example='vsc-bp1n8wcf134yl0osrc****', position='Query'),
+  sslVpnClientCertId: string(name='SslVpnClientCertId', description='The ID of the SSL client certificate.', example='vsc-bp1n8wcf134yl0osrc****', position='Query'),
 }
 
 model ModifySslVpnClientCertResponseBody = {
   name?: string(name='Name', description='The name of the SSL client certificate.', example='cert2'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='606998F0-B94D-48FE-8316-ACA81BB230DA'),
-  sslVpnClientCertId?: string(name='SslVpnClientCertId', description='The ID of the SSL-VPN client certificate.', example='vsc-bp1n8wcf134yl0osr****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='606998F0-B94D-48FE-8316-ACA81BB230DA'),
+  sslVpnClientCertId?: string(name='SslVpnClientCertId', description='The ID of the SSL client certificate.', example='vsc-bp1n8wcf134yl0osr****'),
 }
 
 model ModifySslVpnClientCertResponse = {
@@ -19717,7 +19731,7 @@ You can use the client to generate the token, but you must make sure that the to
 
 > *   Two-factor authentication supports only IDaaS instances of earlier versions. If you do not have and cannot create IDaaS instances of earlier versions, you cannot enable two-factor authentication.
 > *   For existing SSL servers, if two-factor authentication is already enabled, you can continue to use two-factor authentication.', example='false', position='Query'),
-  iDaaSApplicationId?: string(name='IDaaSApplicationId', position='Query'),
+  iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****', position='Query'),
   iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the Identity as a Service (IDaaS) instance.', example='idaas-cn-hangzhou-****', position='Query'),
   iDaaSRegionId?: string(name='IDaaSRegionId', description='The ID of the region where the IDaaS instance is created.', example='cn-hangzhou', position='Query'),
   localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24', position='Query'),
@@ -19751,9 +19765,9 @@ model ModifySslVpnServerResponseBody = {
 
 *   **true**
 *   **false** (default)', example='false'),
-  iDaaSApplicationId?: string(name='IDaaSApplicationId'),
+  iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****'),
   iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS instance.', example='idaas-cn-hangzhou-****'),
-  iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion'),
+  iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', example='EIAM 2.0'),
   internetIp?: string(name='InternetIp', description='The public IP address.', example='47.98.XX.XX'),
   localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24'),
   maxConnections?: int32(name='MaxConnections', description='The maximum number of connections.', example='5'),
@@ -19777,7 +19791,7 @@ model ModifySslVpnServerResponse = {
 
 /**
   * *   If you modify only the **name** of the SSL server, the operation is synchronous. If you also modify other configurations besides the **name**, the operation is asynchronous.
-  * *   When **ModifySslVpnServer** is an asynchronous operation, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](~~73720~~) to query the status of the task.
+  * *   When **ModifySslVpnServer** is an asynchronous operation, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](~~2794055~~) to query the status of the task.
   *     *   If a VPN gateway is in the **updating** state, the configurations of the SSL server are being modified.
   *     *   If a VPN gateway is in the **active** state, the configurations of the SSL server are modified.
   * *   You cannot repeatedly call **ModifySslVpnServer** to modify the configurations of an SSL server within the specified period of time.
@@ -21224,7 +21238,7 @@ model ModifyVpnRouteEntryWeightRequest {
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='d7d24a21-f4ba-4454-9173-b3828dae492b', position='Query'),
-  newWeight: int32(name='NewWeight', description='The new weight that you want to set for the destination-based route. Valid values:
+  newWeight: int32(name='NewWeight', description='The new weight of the destination-based route. Valid values:
 
 *   **0**: a low priority
 *   **100**: a high priority', example='100', position='Query'),
@@ -21237,7 +21251,7 @@ You can use the client to generate the token, but you must make sure that the to
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   routeDest: string(name='RouteDest', description='The destination CIDR block of the destination-based route.', example='10.0.0.0/24', position='Query'),
   vpnGatewayId: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1a3kqjiiq9legfx****', position='Query'),
-  weight: int32(name='Weight', description='The previous weight of the destination-based route. Valid values:
+  weight: int32(name='Weight', description='The original weight of the destination-based route. Valid values:
 
 *   **0**: a low priority
 *   **100**: a high priority', example='0', position='Query'),
@@ -21254,6 +21268,7 @@ model ModifyVpnRouteEntryWeightResponse = {
 }
 
 /**
+  * *   In scenarios where a VPN gateway has an active and a standby destination-based route, if you need to modify the weight of the active destination-based route, you must first delete the standby destination-based route. After you modify the active destination-based route, configure a standby destination-based route. If you need to modify the weight of the standby destination-based route, you also need to delete the active destination-based route first. After you modify the standby destination-based route, configure an active destination-based route. For more information about how to delete a destination-based route, see [DeleteVpnRouteEntry](~~2526961~~).
   * *   **ModifyVpnRouteEntryWeight** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](~~73720~~) to query the status of the task.
   *     *   If the VPN gateway is in the **updating** state, the weight of the destination-based route is being modified.
   *     *   If the VPN gateway is in the **active** state, the weight of the destination-based route is modified.
