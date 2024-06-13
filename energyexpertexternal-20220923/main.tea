@@ -1186,7 +1186,7 @@ model GetEmissionSourceConstituteRequest {
   code?: string(name='code', description='The enterprise code.
 
 This parameter is required.', example='C-20240119-1'),
-  moduleCode?: string(name='moduleCode', description='Module code.', example='carbonInventory.check.scope_1_direct_ghg_emissions '),
+  moduleCode?: string(name='moduleCode', description='Module code.', example='carbonInventory.check.scope_1_direct_ghg_emissions'),
   moduleType?: int32(name='moduleType', description='Module type.
 
 This parameter is required.', example='3'),
@@ -1628,9 +1628,7 @@ model GetGasConstituteRequest {
   code?: string(name='code', description='The enterprise code.
 
 This parameter is required.', example='C-20240115-3'),
-  moduleCode?: string(name='moduleCode', description='Module code.
-
-This parameter is required.', example='carbonInventory.check.scope_1_direct_ghg_emissions'),
+  moduleCode?: string(name='moduleCode', description='Module code.', example='carbonInventory.check.scope_1_direct_ghg_emissions'),
   moduleType?: int32(name='moduleType', description='Module type.
 
 This parameter is required.', example='3'),
@@ -2925,16 +2923,16 @@ async function sendDocumentAskQuestion(request: SendDocumentAskQuestionRequest):
 }
 
 model SubmitDocumentAnalyzeJobRequest {
+  fileName?: string(name='fileName'),
   fileUrl?: string(name='fileUrl', example='https://example.com/example.pdf'),
   folderId?: string(name='folderId', example='folderCode'),
-  ossUrl?: string(name='ossUrl'),
   templateId?: string(name='templateId', description='This parameter is required.', example='templateCode'),
 }
 
 model SubmitDocumentAnalyzeJobAdvanceRequest {
-  fileUrl?: string(name='fileUrl', example='https://example.com/example.pdf'),
+  fileName?: string(name='fileName'),
+  fileUrlObject?: readable(name='fileUrl', example='https://example.com/example.pdf'),
   folderId?: string(name='folderId', example='folderCode'),
-  ossUrlObject?: readable(name='ossUrl'),
   templateId?: string(name='templateId', description='This parameter is required.', example='templateCode'),
 }
 
@@ -2962,14 +2960,14 @@ model SubmitDocumentAnalyzeJobResponse = {
 async function submitDocumentAnalyzeJobWithOptions(request: SubmitDocumentAnalyzeJobRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitDocumentAnalyzeJobResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['fileName'] = request.fileName;
+  }
   if (!Util.isUnset(request.fileUrl)) {
     query['fileUrl'] = request.fileUrl;
   }
   if (!Util.isUnset(request.folderId)) {
     query['folderId'] = request.folderId;
-  }
-  if (!Util.isUnset(request.ossUrl)) {
-    query['ossUrl'] = request.ossUrl;
   }
   if (!Util.isUnset(request.templateId)) {
     query['templateId'] = request.templateId;
@@ -3050,7 +3048,7 @@ async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJob
   var submitDocumentAnalyzeJobReq = new SubmitDocumentAnalyzeJobRequest{};
   OpenApiUtil.convert(request, submitDocumentAnalyzeJobReq);
 
-  if(!Util.isUnset(request.ossUrlObject)) {
+  if(!Util.isUnset(request.fileUrlObject)) {
     authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
     ossConfig.accessKeyId = authResponse.body.accessKeyId;
     ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
@@ -3058,7 +3056,7 @@ async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJob
 
     fileObj = new FileForm.FileField{
       filename = authResponse.body.objectKey,
-      content = request.ossUrlObject,
+      content = request.fileUrlObject,
       contentType = '',
     };
     ossHeader = new OSS.PostObjectRequest.header{
@@ -3074,7 +3072,7 @@ async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJob
       header = ossHeader,
     };
     ossClient.postObject(uploadRequest, ossRuntime);
-    submitDocumentAnalyzeJobReq.ossUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    submitDocumentAnalyzeJobReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
   }
   var submitDocumentAnalyzeJobResp = submitDocumentAnalyzeJobWithOptions(submitDocumentAnalyzeJobReq, headers, runtime);
   return submitDocumentAnalyzeJobResp;
