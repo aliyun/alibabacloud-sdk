@@ -1,0 +1,206 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('contactcenterai', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model RunCompletionRequest {
+  dialogue?: {
+    sentences?: [ 
+      {
+        chatId?: string(name='ChatId'),
+        role?: string(name='Role', description='This parameter is required.', example='user'),
+        text?: string(name='Text', description='This parameter is required.'),
+      }
+    ](name='Sentences'),
+    sessionId?: string(name='SessionId', example='d25zc9c7004f8dad2b454d'),
+  }(name='Dialogue', description='This parameter is required.'),
+  dimensions?: [ 
+    {
+      desc?: string(name='Desc'),
+      name?: string(name='Name', description='This parameter is required.'),
+    }
+  ](name='Dimensions'),
+  fields?: [ 
+    {
+      code?: string(name='Code', example='phoneNumber'),
+      desc?: string(name='Desc'),
+      enums?: [ string ](name='Enums'),
+      name?: string(name='Name', description='This parameter is required.'),
+    }
+  ](name='Fields'),
+  modelCode?: string(name='ModelCode', example='ccai-14b'),
+  stream?: boolean(name='Stream', example='false'),
+  templateIds?: [ long ](name='TemplateIds', description='This parameter is required.'),
+}
+
+model RunCompletionResponseBody = {
+  finishReason?: string(name='FinishReason'),
+  requestId?: string(name='RequestId', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  text?: string(name='Text'),
+}
+
+model RunCompletionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunCompletionResponseBody(name='body'),
+}
+
+/**
+ * @summary CCAI服务面API
+ *
+ * @param request RunCompletionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunCompletionResponse
+ */
+async function runCompletionWithOptions(workspaceId: string, appId: string, request: RunCompletionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunCompletionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.dialogue)) {
+    body['Dialogue'] = request.dialogue;
+  }
+  if (!Util.isUnset(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!Util.isUnset(request.fields)) {
+    body['Fields'] = request.fields;
+  }
+  if (!Util.isUnset(request.modelCode)) {
+    body['ModelCode'] = request.modelCode;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['Stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.templateIds)) {
+    body['TemplateIds'] = request.templateIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RunCompletion',
+    version = '2024-06-03',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(workspaceId)}/ccai/app/${OpenApiUtil.getEncodeParam(appId)}/completion`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary CCAI服务面API
+ *
+ * @param request RunCompletionRequest
+ * @return RunCompletionResponse
+ */
+async function runCompletion(workspaceId: string, appId: string, request: RunCompletionRequest): RunCompletionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return runCompletionWithOptions(workspaceId, appId, request, headers, runtime);
+}
+
+model RunCompletionMessageRequest {
+  messages?: [ 
+    {
+      content?: string(name='Content', description='This parameter is required.'),
+      role?: string(name='Role', description='This parameter is required.', example='user'),
+    }
+  ](name='Messages', description='This parameter is required.'),
+  modelCode?: string(name='ModelCode', example='ccai-14b'),
+  stream?: boolean(name='Stream', example='false'),
+}
+
+model RunCompletionMessageResponseBody = {
+  finishReason?: string(name='FinishReason'),
+  requestId?: string(name='RequestId', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  text?: string(name='Text'),
+}
+
+model RunCompletionMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunCompletionMessageResponseBody(name='body'),
+}
+
+/**
+ * @summary CCAI服务面API
+ *
+ * @param request RunCompletionMessageRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunCompletionMessageResponse
+ */
+async function runCompletionMessageWithOptions(workspaceId: string, appId: string, request: RunCompletionMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunCompletionMessageResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.messages)) {
+    body['Messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.modelCode)) {
+    body['ModelCode'] = request.modelCode;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['Stream'] = request.stream;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RunCompletionMessage',
+    version = '2024-06-03',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(workspaceId)}/ccai/app/${OpenApiUtil.getEncodeParam(appId)}/completion_message`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary CCAI服务面API
+ *
+ * @param request RunCompletionMessageRequest
+ * @return RunCompletionMessageResponse
+ */
+async function runCompletionMessage(workspaceId: string, appId: string, request: RunCompletionMessageRequest): RunCompletionMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return runCompletionMessageWithOptions(workspaceId, appId, request, headers, runtime);
+}
+
