@@ -41,10 +41,10 @@ model BuildIndexRequest {
   buildMode?: string(name='buildMode', description='The reindexing mode.', example='indexRecover', position='Body'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='my_data_source', position='Body'),
   dataSourceType?: string(name='dataSourceType', description='The type of the data source.', example='swift', position='Body'),
-  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. It is of the INT type. This parameter is required for the API-pushed data source.', example='1640867288', position='Body'),
-  domain?: string(name='domain', description='The data center where the data source is deployed.', example='test', position='Body'),
+  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. The value must be of the INTEGER type. This parameter is required if you specify an API data source.', example='1640867288', position='Body'),
+  domain?: string(name='domain', description='The data center in which the data source resides.', example='test', position='Body'),
   generation?: long(name='generation', description='The data restoration version.', example='160131146', position='Body'),
-  partition?: string(name='partition', description='This parameter is required for the odps data source.', example='20201010', position='Body'),
+  partition?: string(name='partition', description='The data partition. This parameter is required if dataSourceType is set to odps.', example='20201010', position='Body'),
 }
 
 model BuildIndexResponseBody = {
@@ -75,6 +75,7 @@ model CreateClusterRequest {
   autoLoad?: boolean(name='autoLoad', description='The remarks of the query node', example='true', position='Body'),
   dataNode?: {
     number?: int32(name='number', description='The number of data nodes', example='2'),
+    partition?: string(name='partition'),
   }(name='dataNode', description='The description of the data node', position='Body'),
   description?: string(name='description', description='The description of the cluster', example='"ha-tets"', position='Body'),
   name?: string(name='name', description='The name of the node', example='ha-cn-zvp2qr1sk01_qrs', position='Body'),
@@ -149,6 +150,7 @@ async function createDataSource(request: CreateDataSourceRequest): CreateDataSou
 
 model CreateIndexRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42ppr7901', position='Path'),
+  buildParallelNum?: int32(name='buildParallelNum', position='Body'),
   content?: string(name='content', description='The content of the index.', example='{\\"summarys\\":{\\"summary_fields\\":[\\"id\\"]},\\"indexs\\":[{\\"index_name\\":\\"index_id\\",\\"index_type\\":\\"PRIMARYKEY64\\",\\"index_fields\\":\\"id\\",\\"has_primary_key_attribute\\":true,\\"is_primary_key_sorted\\":false}],\\"attributes\\":[\\"id\\"],\\"fields\\":[{\\"field_name\\":\\"id\\",\\"field_type\\":\\"UINT16\\"}],\\"table_name\\":\\"index_2\\"}', position='Body'),
   dataSource?: string(name='dataSource', description='Optional. The data source, which can be MaxCompute, Message Service (MNS), Realtime Compute for Apache Flink, or StreamCompute.', example='test1', position='Body'),
   dataSourceInfo?: {
@@ -168,6 +170,7 @@ model CreateIndexRequest {
     dataTimeSec?: int32(name='dataTimeSec', example='1709715164'),
     domain?: string(name='domain', description='The data center where the data source is deployed.', example='vpc_hz_domain_1'),
     name?: string(name='name', description='The name of the index.', example='ha-cn-35t3n1yuj0d_index_1'),
+    processParallelNum?: int32(name='processParallelNum'),
     processPartitionCount?: int32(name='processPartitionCount', description='The number of resources used for data update.', example='4'),
     saroConfig?: {
       namespace?: string(name='namespace'),
@@ -188,6 +191,7 @@ model CreateIndexRequest {
         "description":
         []
     }', position='Body'),
+  mergeParallelNum?: int32(name='mergeParallelNum', position='Body'),
   name?: string(name='name', description='The name of the index.', example='ha-cn-zvp2qr1sk01_qrs', position='Body'),
   partition?: int32(name='partition', description='The data partition.', example='20211202', position='Body'),
   dryRun?: boolean(name='dryRun', example='true', position='Query'),
@@ -640,7 +644,9 @@ model GetClusterRequest {
 model GetClusterResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
+    config?: map[string]map[string]any(name='config'),
     configUpdateTime?: string(name='configUpdateTime', description='The time when the cluster was updated.', example='2021-08-09 00:01:02'),
+    createTime?: string(name='createTime'),
     currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced configuration version.', example='test_yyds_data1'),
     currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='test_yyds_data1'),
     dataNode?: {
@@ -1038,6 +1044,9 @@ Success responses
 model GetIndexResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: {
+    cluster?: map[string]ResultClusterValue(name='cluster'),
+    config?: map[string]map[string]any(name='config'),
+    configWhenBuild?: map[string]map[string]any(name='configWhenBuild'),
     content?: string(name='content', description='The content of the index.'),
     dataSource?: string(name='dataSource', example='ha-cn-tl32nd2nq01_00'),
     dataSourceInfo?: {
@@ -1056,6 +1065,7 @@ model GetIndexResponseBody = {
       }(name='config', description='The configuration of MaxCompute data sources.'),
       domain?: string(name='domain', description='The offline deployment name of the data source.'),
       name?: string(name='name', description='The name of the data source.'),
+      processParallelNum?: int32(name='processParallelNum'),
       processPartitionCount?: int32(name='processPartitionCount', description='The number of resources used for data update.'),
       saroConfig?: {
         namespace?: string(name='namespace'),
@@ -1204,10 +1214,10 @@ model GetNodeConfigResponseBody = {
     active?: boolean(name='active', description='Indicates whether the expression is the default one.', example='1'),
     dataDuplicateNumber?: int32(name='dataDuplicateNumber', description='The number of data replicas.', example='2'),
     dataFragmentNumber?: int32(name='dataFragmentNumber', description='The number of data shards.', example='2'),
-    flowRatio?: int32(name='flowRatio'),
+    flowRatio?: int32(name='flowRatio', description='The traffic percentage.', example='0'),
     minServicePercent?: int32(name='minServicePercent', description='The minimum service ratio.', example='100'),
     published?: boolean(name='published', description='Indicates whether the node is associated with the cluster.', example='true'),
-  }(name='result', description='The result set.'),
+  }(name='result', description='The configurations of the node.'),
 }
 
 model GetNodeConfigResponse = {
@@ -1366,6 +1376,7 @@ model ListAdvanceConfigsRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-pl32rf0js04', position='Path'),
   dataSourceName?: string(name='dataSourceName', position='Query'),
   indexName?: string(name='indexName', position='Query'),
+  newMode?: boolean(name='newMode', position='Query'),
   type?: string(name='type', description='The type of the advanced configurations. Valid values: online and offline. - online The default value is offline.', example='online', position='Query'),
 }
 
@@ -1373,8 +1384,10 @@ model ListAdvanceConfigsResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
+      advanceConfigType?: string(name='advanceConfigType'),
       content?: string(name='content'),
       contentType?: string(name='contentType'),
+      creator?: string(name='creator'),
       desc?: string(name='desc', description='The description.', example='test'),
       files?: [ 
         {
@@ -1502,7 +1515,9 @@ model ListClustersResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='F43E8AB4-419C-5F4C-90D6-615590DFAA3C'),
   result?: [ 
     {
+      config?: map[string]map[string]any(name='config'),
       configUpdateTime?: string(name='configUpdateTime', description='The time when the configuration was updated.', example='" "'),
+      createTime?: string(name='createTime'),
       currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced version.', example='" "'),
       currentOfflineDictConfigVersion?: string(name='currentOfflineDictConfigVersion', description='词典配置生效版本'),
       currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='" "'),
@@ -2185,7 +2200,7 @@ model ModifyFileRequest {
   indexName: string(name='indexName', description='The name of the index', example='automobile_vector', position='Path'),
   versionName: string(name='versionName', description='The name of the version', example='ha-cn-tl32m2c4u01@ha-cn-tl32m2c4u01_00@bj_vpc_domain_1@automobile_vector@index_config_edit', position='Path'),
   content?: string(name='content', description='The content of the file.', example='""', position='Body'),
-  partition?: int32(name='partition', description='The data partition. This parameter is required if the dataSourceType parameter is set to odps.', example='1', position='Body'),
+  partition?: int32(name='partition', description='This parameter is required when index building for full data in a MaxCompute data source is triggered.', example='ds=20220713', position='Body'),
   fileName: string(name='fileName', description='The name of the file in the full path', example='/schemas/generation_schema.json', position='Query'),
 }
 
@@ -2286,12 +2301,12 @@ async function modifyIndexVersion(request: ModifyIndexVersionRequest): ModifyInd
 
 model ModifyNodeConfigRequest {
   instanceId: string(name='instanceId', description='The ID of the instance.', example='ha-cn-2r42p5oi202', position='Path'),
-  active?: boolean(name='active', position='Body'),
-  dataDuplicateNumber?: int32(name='dataDuplicateNumber', position='Body'),
-  dataFragmentNumber?: int32(name='dataFragmentNumber', position='Body'),
-  flowRatio?: int32(name='flowRatio', position='Body'),
-  minServicePercent?: int32(name='minServicePercent', position='Body'),
-  published?: boolean(name='published', position='Body'),
+  active?: boolean(name='active', description='Specifies whether to enable the index.', example='true', position='Body'),
+  dataDuplicateNumber?: int32(name='dataDuplicateNumber', description='The number of data replicas.', example='1', position='Body'),
+  dataFragmentNumber?: int32(name='dataFragmentNumber', description='The number of data shards.', example='1', position='Body'),
+  flowRatio?: int32(name='flowRatio', description='The traffic percentage.', example='-100', position='Body'),
+  minServicePercent?: int32(name='minServicePercent', description='The minimum service ratio.', example='10', position='Body'),
+  published?: boolean(name='published', description='Specifies whether to mount the cluster.', example='true', position='Body'),
   clusterName?: string(name='clusterName', description='The name of the cluster.', example='vpc_sh_domain_2', position='Query'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source. Valid values: search and not_search. search indicates to search data. not_search indicates not to search data.', example='ha-cn-2r42ostoc01_0704', position='Query'),
   name: string(name='name', description='The original name of the node.', example='ha-cn-zvp2iv9a401_qrs', position='Query'),
@@ -2471,7 +2486,20 @@ async function modifyTable(request: ModifyTableRequest): ModifyTableResponse {
 model PublishAdvanceConfigRequest {
   instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7e22rof5304', position='Path'),
   configName: string(name='configName', description='The name of the configuration', example='ha-cn-0ju2rrogr01_online_config_v3', position='Path'),
-  body?: map[string]any(name='body', description='The structure of the request', example='{\\"desc\\":\\"new version\\"}', position='Body'),
+  desc?: string(name='desc', position='Body'),
+  files?: [ 
+    {
+      config?: {
+        content?: string(name='content'),
+        variables?: map[string]FilesConfigVariablesValue(name='variables'),
+      }(name='config'),
+      dirName?: string(name='dirName'),
+      fileName?: string(name='fileName'),
+      operateType?: string(name='operateType'),
+      ossPath?: string(name='ossPath'),
+      parentFullPath?: string(name='parentFullPath'),
+    }
+  ](name='files', position='Body'),
 }
 
 model PublishAdvanceConfigResponseBody = {
@@ -2617,6 +2645,48 @@ async function removeCluster(request: RemoveClusterRequest): RemoveClusterRespon
   return @handler.do('RESTFUL', 'RemoveCluster', 'DELETE', '/openapi/ha3/instances/{instanceId}/clusters/{clusterName}', 'json', false, 'json', request);
 }
 
+model StartIndexRequest {
+  instanceId: string(name='instanceId', example='ha-cn-7e22rgfyb01', position='Path'),
+  indexName: string(name='indexName', example='table_se_index', position='Path'),
+}
+
+model StartIndexResponseBody = {
+  requestId?: string(name='requestId', description='id of request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
+}
+
+model StartIndexResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartIndexResponseBody(name='body'),
+}
+
+async function startIndex(request: StartIndexRequest): StartIndexResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'StartIndex', 'POST', '/openapi/ha3/instances/{instanceId}/indexes/{indexName}/startIndex', 'json', false, 'json', request);
+}
+
+model StopIndexRequest {
+  instanceId: string(name='instanceId', example='ha-cn-0ju2rps6c08', position='Path'),
+  indexName: string(name='indexName', example='test_api', position='Path'),
+}
+
+model StopIndexResponseBody = {
+  requestId?: string(name='requestId', description='id of request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
+}
+
+model StopIndexResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopIndexResponseBody(name='body'),
+}
+
+async function stopIndex(request: StopIndexRequest): StopIndexResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'StopIndex', 'POST', '/openapi/ha3/instances/{instanceId}/indexes/{indexName}/stopIndex', 'json', false, 'json', request);
+}
+
 model StopTaskRequest {
   instanceId: string(name='instanceId', description='The ID of the instance', example='ha-cn-7mz2nx41h01', position='Path'),
   fsmId: string(name='fsmId', description='The ID of the device that has stopped', example='tisplus_opensearch@datasource_flow_fsm@1865410598556969-ha-cn-0ju2rrogr01_test_api_2@sz_vpc_domain_1@null@MANUAL-ha-cn-0ju2rrogr01_test_api_2@1657511220772@165343', position='Path'),
@@ -2696,6 +2766,11 @@ async function updateInstance(request: UpdateInstanceRequest): UpdateInstanceRes
   return @handler.do('RESTFUL', 'UpdateInstance', 'PUT', '/openapi/ha3/instances/{instanceId}', 'json', false, 'json', request);
 }
 
+model ResultClusterValue = {
+  buildParallelNum?: int32(name='buildParallelNum'),
+  mergeParallelNum?: int32(name='mergeParallelNum'),
+}
+
 model VariablesValue = {
   disableModify?: boolean(name='disableModify', description='Specifies whether the variable cannot be modified.', example='false'),
   isModify?: boolean(name='isModify', description='Specifies whether the variable is modified.', example='false'),
@@ -2710,5 +2785,13 @@ model VariablesValue = {
     funcClassName?: string(name='funcClassName', description='The class name.', example='""'),
     template?: string(name='template', description='The template of the variable.', example='""'),
   }(name='funcValue', description='The function variable.'),
+}
+
+model FilesConfigVariablesValue = {
+  description?: string(name='description'),
+  disableModify?: boolean(name='disableModify'),
+  isModify?: boolean(name='isModify'),
+  type?: string(name='type'),
+  value?: string(name='value'),
 }
 

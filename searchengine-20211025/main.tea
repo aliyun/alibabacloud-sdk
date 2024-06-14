@@ -34,6 +34,11 @@ model ErrorResponse {
   requestId?: string(name='requestId', example='90D6B8F5-FE97-4509-9AAB-367836C51818'),
 }
 
+model ResultClusterValue = {
+  buildParallelNum?: int32(name='buildParallelNum'),
+  mergeParallelNum?: int32(name='mergeParallelNum'),
+}
+
 model VariablesValue = {
   disableModify?: boolean(name='disableModify', description='Specifies whether the variable cannot be modified.', example='false'),
   isModify?: boolean(name='isModify', description='Specifies whether the variable is modified.', example='false'),
@@ -50,14 +55,22 @@ model VariablesValue = {
   }(name='funcValue', description='The function variable.'),
 }
 
+model FilesConfigVariablesValue = {
+  description?: string(name='description'),
+  disableModify?: boolean(name='disableModify'),
+  isModify?: boolean(name='isModify'),
+  type?: string(name='type'),
+  value?: string(name='value'),
+}
+
 model BuildIndexRequest {
   buildMode?: string(name='buildMode', description='The reindexing mode.', example='indexRecover'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source.', example='my_data_source'),
   dataSourceType?: string(name='dataSourceType', description='The type of the data source.', example='swift'),
-  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. It is of the INT type. This parameter is required for the API-pushed data source.', example='1640867288'),
-  domain?: string(name='domain', description='The data center where the data source is deployed.', example='test'),
+  dataTimeSec?: int32(name='dataTimeSec', description='The timestamp in seconds. The value must be of the INTEGER type. This parameter is required if you specify an API data source.', example='1640867288'),
+  domain?: string(name='domain', description='The data center in which the data source resides.', example='test'),
   generation?: long(name='generation', description='The data restoration version.', example='160131146'),
-  partition?: string(name='partition', description='This parameter is required for the odps data source.', example='20201010'),
+  partition?: string(name='partition', description='The data partition. This parameter is required if dataSourceType is set to odps.', example='20201010'),
 }
 
 model BuildIndexResponseBody = {
@@ -72,15 +85,17 @@ model BuildIndexResponse = {
 }
 
 /**
-  * ## Method
-  *     POST
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/actions/build-index
-  *
-  * @param request BuildIndexRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return BuildIndexResponse
+ * @summary Triggers reindexing.
+ *
+ * @description ## Method
+ *     POST
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/actions/build-index
+ *
+ * @param request BuildIndexRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BuildIndexResponse
  */
 async function buildIndexWithOptions(instanceId: string, request: BuildIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BuildIndexResponse {
   Util.validateModel(request);
@@ -126,13 +141,15 @@ async function buildIndexWithOptions(instanceId: string, request: BuildIndexRequ
 }
 
 /**
-  * ## Method
-  *     POST
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/actions/build-index
-  *
-  * @param request BuildIndexRequest
-  * @return BuildIndexResponse
+ * @summary Triggers reindexing.
+ *
+ * @description ## Method
+ *     POST
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/actions/build-index
+ *
+ * @param request BuildIndexRequest
+ * @return BuildIndexResponse
  */
 async function buildIndex(instanceId: string, request: BuildIndexRequest): BuildIndexResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -144,6 +161,7 @@ model CreateClusterRequest {
   autoLoad?: boolean(name='autoLoad', description='The remarks of the query node', example='true'),
   dataNode?: {
     number?: int32(name='number', description='The number of data nodes', example='2'),
+    partition?: string(name='partition'),
   }(name='dataNode', description='The description of the data node'),
   description?: string(name='description', description='The description of the cluster', example='"ha-tets"'),
   name?: string(name='name', description='The name of the node', example='ha-cn-zvp2qr1sk01_qrs'),
@@ -164,15 +182,17 @@ model CreateClusterResponse = {
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/clusters`
-  *
-  * @param request CreateClusterRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateClusterResponse
+ * @summary Creates a cluster.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/clusters`
+ *
+ * @param request CreateClusterRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateClusterResponse
  */
 async function createClusterWithOptions(instanceId: string, request: CreateClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateClusterResponse {
   Util.validateModel(request);
@@ -212,13 +232,15 @@ async function createClusterWithOptions(instanceId: string, request: CreateClust
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/clusters`
-  *
-  * @param request CreateClusterRequest
-  * @return CreateClusterResponse
+ * @summary Creates a cluster.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/clusters`
+ *
+ * @param request CreateClusterRequest
+ * @return CreateClusterResponse
  */
 async function createCluster(instanceId: string, request: CreateClusterRequest): CreateClusterResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -261,6 +283,14 @@ model CreateDataSourceResponse = {
   body?: CreateDataSourceResponseBody(name='body'),
 }
 
+/**
+ * @summary Creates data sources.
+ *
+ * @param request CreateDataSourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDataSourceResponse
+ */
 async function createDataSourceWithOptions(instanceId: string, request: CreateDataSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateDataSourceResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -307,6 +337,12 @@ async function createDataSourceWithOptions(instanceId: string, request: CreateDa
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Creates data sources.
+ *
+ * @param request CreateDataSourceRequest
+ * @return CreateDataSourceResponse
+ */
 async function createDataSource(instanceId: string, request: CreateDataSourceRequest): CreateDataSourceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -314,7 +350,8 @@ async function createDataSource(instanceId: string, request: CreateDataSourceReq
 }
 
 model CreateIndexRequest {
-  content?: string(name='content', description='The content of the index.', example='{\\"summarys\\":{\\"summary_fields\\":[\\"id\\"]},\\"indexs\\":[{\\"index_name\\":\\"index_id\\",\\"index_type\\":\\"PRIMARYKEY64\\",\\"index_fields\\":\\"id\\",\\"has_primary_key_attribute\\":true,\\"is_primary_key_sorted\\":false}],\\"attributes\\":[\\"id\\"],\\"fields\\":[{\\"field_name\\":\\"id\\",\\"field_type\\":\\"UINT16\\"}],\\"table_name\\":\\"index_2\\"}'),
+  buildParallelNum?: int32(name='buildParallelNum'),
+  content?: string(name='content', description='The content of the index.', example='{\\\\"summarys\\\\":{\\\\"summary_fields\\\\":[\\\\"id\\\\"]},\\\\"indexs\\\\":[{\\\\"index_name\\\\":\\\\"index_id\\\\",\\\\"index_type\\\\":\\\\"PRIMARYKEY64\\\\",\\\\"index_fields\\\\":\\\\"id\\\\",\\\\"has_primary_key_attribute\\\\":true,\\\\"is_primary_key_sorted\\\\":false}],\\\\"attributes\\\\":[\\\\"id\\\\"],\\\\"fields\\\\":[{\\\\"field_name\\\\":\\\\"id\\\\",\\\\"field_type\\\\":\\\\"UINT16\\\\"}],\\\\"table_name\\\\":\\\\"index_2\\\\"}'),
   dataSource?: string(name='dataSource', description='Optional. The data source, which can be MaxCompute, Message Service (MNS), Realtime Compute for Apache Flink, or StreamCompute.', example='test1'),
   dataSourceInfo?: {
     autoBuildIndex?: boolean(name='autoBuildIndex', description='Specifies whether to enable the automatic full indexing feature.', example='true'),
@@ -333,6 +370,7 @@ model CreateIndexRequest {
     dataTimeSec?: int32(name='dataTimeSec', example='1709715164'),
     domain?: string(name='domain', description='The data center where the data source is deployed.', example='vpc_hz_domain_1'),
     name?: string(name='name', description='The name of the index.', example='ha-cn-35t3n1yuj0d_index_1'),
+    processParallelNum?: int32(name='processParallelNum'),
     processPartitionCount?: int32(name='processPartitionCount', description='The number of resources used for data update.', example='4'),
     saroConfig?: {
       namespace?: string(name='namespace'),
@@ -353,6 +391,7 @@ model CreateIndexRequest {
         "description":
         []
     }'),
+  mergeParallelNum?: int32(name='mergeParallelNum'),
   name?: string(name='name', description='The name of the index.', example='ha-cn-zvp2qr1sk01_qrs'),
   partition?: int32(name='partition', description='The data partition.', example='20211202'),
   dryRun?: boolean(name='dryRun', example='true'),
@@ -370,19 +409,21 @@ model CreateIndexResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * POST
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/indexes
-  * ```
-  *
-  * @param request CreateIndexRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateIndexResponse
+ * @summary Creates an index.
+ *
+ * @description ### Method
+ * ```java
+ * POST
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/indexes
+ * ```
+ *
+ * @param request CreateIndexRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateIndexResponse
  */
 async function createIndexWithOptions(instanceId: string, request: CreateIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateIndexResponse {
   Util.validateModel(request);
@@ -392,6 +433,9 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
   }
 
   var body : map[string]any = {};
+  if (!Util.isUnset(request.buildParallelNum)) {
+    body['buildParallelNum'] = request.buildParallelNum;
+  }
   if (!Util.isUnset(request.content)) {
     body['content'] = request.content;
   }
@@ -406,6 +450,9 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
   }
   if (!Util.isUnset(request.extend)) {
     body['extend'] = request.extend;
+  }
+  if (!Util.isUnset(request.mergeParallelNum)) {
+    body['mergeParallelNum'] = request.mergeParallelNum;
   }
   if (!Util.isUnset(request.name)) {
     body['name'] = request.name;
@@ -434,17 +481,19 @@ async function createIndexWithOptions(instanceId: string, request: CreateIndexRe
 }
 
 /**
-  * ### Method
-  * ```java
-  * POST
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/indexes
-  * ```
-  *
-  * @param request CreateIndexRequest
-  * @return CreateIndexResponse
+ * @summary Creates an index.
+ *
+ * @description ### Method
+ * ```java
+ * POST
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/indexes
+ * ```
+ *
+ * @param request CreateIndexRequest
+ * @return CreateIndexResponse
  */
 async function createIndex(instanceId: string, request: CreateIndexRequest): CreateIndexResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -481,15 +530,17 @@ model CreateInstanceResponse = {
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/api/instances?dryRun=false`
-  *
-  * @param request CreateInstanceRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return CreateInstanceResponse
+ * @summary Creates a Havenask instance.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/api/instances?dryRun=false`
+ *
+ * @param request CreateInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInstanceResponse
  */
 async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceResponse {
   Util.validateModel(request);
@@ -523,13 +574,15 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/api/instances?dryRun=false`
-  *
-  * @param request CreateInstanceRequest
-  * @return CreateInstanceResponse
+ * @summary Creates a Havenask instance.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/api/instances?dryRun=false`
+ *
+ * @param request CreateInstanceRequest
+ * @return CreateInstanceResponse
  */
 async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -607,6 +660,14 @@ model CreateTableResponse = {
   body?: CreateTableResponseBody(name='body'),
 }
 
+/**
+ * @summary 创建索引V2
+ *
+ * @param request CreateTableRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTableResponse
+ */
 async function createTableWithOptions(instanceId: string, request: CreateTableRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTableResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -662,6 +723,12 @@ async function createTableWithOptions(instanceId: string, request: CreateTableRe
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 创建索引V2
+ *
+ * @param request CreateTableRequest
+ * @return CreateTableResponse
+ */
 async function createTable(instanceId: string, request: CreateTableRequest): CreateTableResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -680,14 +747,16 @@ model DeleteAdvanceConfigResponse = {
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteAdvanceConfigResponse
+ * @summary Deletes the details about advanced configurations.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAdvanceConfigResponse
  */
 async function deleteAdvanceConfigWithOptions(instanceId: string, configName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAdvanceConfigResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -708,12 +777,14 @@ async function deleteAdvanceConfigWithOptions(instanceId: string, configName: st
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
-  *
-  * @return DeleteAdvanceConfigResponse
+ * @summary Deletes the details about advanced configurations.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+ *
+ * @return DeleteAdvanceConfigResponse
  */
 async function deleteAdvanceConfig(instanceId: string, configName: string): DeleteAdvanceConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -733,14 +804,16 @@ model DeleteDataSourceResponse = {
 }
 
 /**
-  * ## Method
-  * `DELETE`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteDataSourceResponse
+ * @summary Deletes a specified data source.
+ *
+ * @description ## Method
+ * `DELETE`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDataSourceResponse
  */
 async function deleteDataSourceWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDataSourceResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -761,12 +834,14 @@ async function deleteDataSourceWithOptions(instanceId: string, dataSourceName: s
 }
 
 /**
-  * ## Method
-  * `DELETE`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @return DeleteDataSourceResponse
+ * @summary Deletes a specified data source.
+ *
+ * @description ## Method
+ * `DELETE`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @return DeleteDataSourceResponse
  */
 async function deleteDataSource(instanceId: string, dataSourceName: string): DeleteDataSourceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -775,7 +850,9 @@ async function deleteDataSource(instanceId: string, dataSourceName: string): Del
 }
 
 model DeleteIndexRequest {
-  dataSource?: string(name='dataSource', description='The data source', example='ha-cn-pl32rf0js04_test'),
+  dataSource?: string(name='dataSource', description='The data source
+
+This parameter is required.', example='ha-cn-pl32rf0js04_test'),
   deleteDataSource?: boolean(name='deleteDataSource'),
 }
 
@@ -791,15 +868,17 @@ model DeleteIndexResponse = {
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}?dataSource=xxx
-  *
-  * @param request DeleteIndexRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteIndexResponse
+ * @summary Deletes an index.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}?dataSource=xxx
+ *
+ * @param request DeleteIndexRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteIndexResponse
  */
 async function deleteIndexWithOptions(instanceId: string, indexName: string, request: DeleteIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteIndexResponse {
   Util.validateModel(request);
@@ -830,13 +909,15 @@ async function deleteIndexWithOptions(instanceId: string, indexName: string, req
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}?dataSource=xxx
-  *
-  * @param request DeleteIndexRequest
-  * @return DeleteIndexResponse
+ * @summary Deletes an index.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}?dataSource=xxx
+ *
+ * @param request DeleteIndexRequest
+ * @return DeleteIndexResponse
  */
 async function deleteIndex(instanceId: string, indexName: string, request: DeleteIndexRequest): DeleteIndexResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -856,14 +937,16 @@ model DeleteIndexVersionResponse = {
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteIndexVersionResponse
+ * @summary Deletes the version of an index.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteIndexVersionResponse
  */
 async function deleteIndexVersionWithOptions(instanceId: string, indexName: string, versionName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteIndexVersionResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -884,12 +967,14 @@ async function deleteIndexVersionWithOptions(instanceId: string, indexName: stri
 }
 
 /**
-  * ## Method
-  *     DELETE
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}
-  *
-  * @return DeleteIndexVersionResponse
+ * @summary Deletes the version of an index.
+ *
+ * @description ## Method
+ *     DELETE
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}
+ *
+ * @return DeleteIndexVersionResponse
  */
 async function deleteIndexVersion(instanceId: string, indexName: string, versionName: string): DeleteIndexVersionResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -909,14 +994,16 @@ model DeleteInstanceResponse = {
 }
 
 /**
-  * ### Method
-  * `DELETE`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return DeleteInstanceResponse
+ * @summary Deletes a specified instance.
+ *
+ * @description ### Method
+ * `DELETE`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstanceResponse
  */
 async function deleteInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -937,12 +1024,14 @@ async function deleteInstanceWithOptions(instanceId: string, headers: map[string
 }
 
 /**
-  * ### Method
-  * `DELETE`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @return DeleteInstanceResponse
+ * @summary Deletes a specified instance.
+ *
+ * @description ### Method
+ * `DELETE`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @return DeleteInstanceResponse
  */
 async function deleteInstance(instanceId: string): DeleteInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -961,6 +1050,13 @@ model DeleteTableResponse = {
   body?: DeleteTableResponseBody(name='body'),
 }
 
+/**
+ * @summary 删除索引表V2
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteTableResponse
+ */
 async function deleteTableWithOptions(instanceId: string, tableName: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteTableResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -979,6 +1075,11 @@ async function deleteTableWithOptions(instanceId: string, tableName: string, hea
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 删除索引表V2
+ *
+ * @return DeleteTableResponse
+ */
 async function deleteTable(instanceId: string, tableName: string): DeleteTableResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -1006,6 +1107,12 @@ model DescribeRegionsResponse = {
   body?: DescribeRegionsResponseBody(name='body'),
 }
 
+/**
+ * @param request DescribeRegionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeRegionsResponse
+ */
 async function describeRegionsWithOptions(request: DescribeRegionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -1031,6 +1138,10 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, heade
   return callApi(params, req, runtime);
 }
 
+/**
+ * @param request DescribeRegionsRequest
+ * @return DescribeRegionsResponse
+ */
 async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -1049,18 +1160,20 @@ model ForceSwitchResponse = {
 }
 
 /**
-  * \\### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ForceSwitchResponse
+ * @summary Performs a forced switchover.
+ *
+ * @description \\### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ForceSwitchResponse
  */
 async function forceSwitchWithOptions(instanceId: string, fsmId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ForceSwitchResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1081,16 +1194,18 @@ async function forceSwitchWithOptions(instanceId: string, fsmId: string, headers
 }
 
 /**
-  * \\### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
-  * ```
-  *
-  * @return ForceSwitchResponse
+ * @summary Performs a forced switchover.
+ *
+ * @description \\### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/force-switch/{fsmId}
+ * ```
+ *
+ * @return ForceSwitchResponse
  */
 async function forceSwitch(instanceId: string, fsmId: string): ForceSwitchResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1129,15 +1244,17 @@ model GetAdvanceConfigResponse = {
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
-  *
-  * @param request GetAdvanceConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetAdvanceConfigResponse
+ * @summary Queries the information about a dictionary.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+ *
+ * @param request GetAdvanceConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAdvanceConfigResponse
  */
 async function getAdvanceConfigWithOptions(instanceId: string, configName: string, request: GetAdvanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAdvanceConfigResponse {
   Util.validateModel(request);
@@ -1165,13 +1282,15 @@ async function getAdvanceConfigWithOptions(instanceId: string, configName: strin
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
-  *
-  * @param request GetAdvanceConfigRequest
-  * @return GetAdvanceConfigResponse
+ * @summary Queries the information about a dictionary.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}
+ *
+ * @param request GetAdvanceConfigRequest
+ * @return GetAdvanceConfigResponse
  */
 async function getAdvanceConfig(instanceId: string, configName: string, request: GetAdvanceConfigRequest): GetAdvanceConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1180,7 +1299,9 @@ async function getAdvanceConfig(instanceId: string, configName: string, request:
 }
 
 model GetAdvanceConfigFileRequest {
-  fileName?: string(name='fileName', description='The name of the file', example='/intervene_dict/chn_ecommerce_general.dict'),
+  fileName?: string(name='fileName', description='The name of the file
+
+This parameter is required.', example='/intervene_dict/chn_ecommerce_general.dict'),
 }
 
 model GetAdvanceConfigFileResponseBody = {
@@ -1197,15 +1318,17 @@ model GetAdvanceConfigFileResponse = {
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
-  *
-  * @param request GetAdvanceConfigFileRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetAdvanceConfigFileResponse
+ * @summary Obtains the information in a specified advanced configuration file.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+ *
+ * @param request GetAdvanceConfigFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAdvanceConfigFileResponse
  */
 async function getAdvanceConfigFileWithOptions(instanceId: string, configName: string, request: GetAdvanceConfigFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAdvanceConfigFileResponse {
   Util.validateModel(request);
@@ -1233,13 +1356,15 @@ async function getAdvanceConfigFileWithOptions(instanceId: string, configName: s
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
-  *
-  * @param request GetAdvanceConfigFileRequest
-  * @return GetAdvanceConfigFileResponse
+ * @summary Obtains the information in a specified advanced configuration file.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+ *
+ * @param request GetAdvanceConfigFileRequest
+ * @return GetAdvanceConfigFileResponse
  */
 async function getAdvanceConfigFile(instanceId: string, configName: string, request: GetAdvanceConfigFileRequest): GetAdvanceConfigFileResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1250,7 +1375,9 @@ async function getAdvanceConfigFile(instanceId: string, configName: string, requ
 model GetClusterResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
   result?: {
+    config?: map[string]object(name='config'),
     configUpdateTime?: string(name='configUpdateTime', description='The time when the cluster was updated.', example='2021-08-09 00:01:02'),
+    createTime?: string(name='createTime'),
     currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced configuration version.', example='test_yyds_data1'),
     currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='test_yyds_data1'),
     dataNode?: {
@@ -1278,14 +1405,16 @@ model GetClusterResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetClusterResponse
+ * @summary Queries the details of a cluster.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetClusterResponse
  */
 async function getClusterWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetClusterResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1306,12 +1435,14 @@ async function getClusterWithOptions(instanceId: string, clusterName: string, he
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
-  *
-  * @return GetClusterResponse
+ * @summary Queries the details of a cluster.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instance/{instanceId}/clusters/{clusterName}`
+ *
+ * @return GetClusterResponse
  */
 async function getCluster(instanceId: string, clusterName: string): GetClusterResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1397,14 +1528,16 @@ model GetClusterRunTimeInfoResponse = {
 }
 
 /**
-  * ### Method
-  * GET
-  * ### URI
-  * /openapi/ha3/instances/{instanceId}/cluster-run-time-info
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetClusterRunTimeInfoResponse
+ * @summary Queries the runtime information about a specified cluster.
+ *
+ * @description ### Method
+ * GET
+ * ### URI
+ * /openapi/ha3/instances/{instanceId}/cluster-run-time-info
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetClusterRunTimeInfoResponse
  */
 async function getClusterRunTimeInfoWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetClusterRunTimeInfoResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1425,12 +1558,14 @@ async function getClusterRunTimeInfoWithOptions(instanceId: string, headers: map
 }
 
 /**
-  * ### Method
-  * GET
-  * ### URI
-  * /openapi/ha3/instances/{instanceId}/cluster-run-time-info
-  *
-  * @return GetClusterRunTimeInfoResponse
+ * @summary Queries the runtime information about a specified cluster.
+ *
+ * @description ### Method
+ * GET
+ * ### URI
+ * /openapi/ha3/instances/{instanceId}/cluster-run-time-info
+ *
+ * @return GetClusterRunTimeInfoResponse
  */
 async function getClusterRunTimeInfo(instanceId: string): GetClusterRunTimeInfoResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1457,14 +1592,16 @@ model GetDataSourceResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetDataSourceResponse
+ * @summary Obtains a data source.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDataSourceResponse
  */
 async function getDataSourceWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDataSourceResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1485,12 +1622,14 @@ async function getDataSourceWithOptions(instanceId: string, dataSourceName: stri
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @return GetDataSourceResponse
+ * @summary Obtains a data source.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @return GetDataSourceResponse
  */
 async function getDataSource(instanceId: string, dataSourceName: string): GetDataSourceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1546,6 +1685,13 @@ model GetDataSourceDeployResponse = {
   body?: GetDataSourceDeployResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取数据源部署信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDataSourceDeployResponse
+ */
 async function getDataSourceDeployWithOptions(instanceId: string, deployName: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDataSourceDeployResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -1564,6 +1710,11 @@ async function getDataSourceDeployWithOptions(instanceId: string, deployName: st
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取数据源部署信息
+ *
+ * @return GetDataSourceDeployResponse
+ */
 async function getDataSourceDeploy(instanceId: string, deployName: string, dataSourceName: string): GetDataSourceDeployResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -1624,16 +1775,18 @@ model GetDeployGraphResponse = {
 }
 
 /**
-  * ## Method
-  * GET
-  * ## URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/deploy-graph
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetDeployGraphResponse
+ * @summary Displays the overview of the deployment.
+ *
+ * @description ## Method
+ * GET
+ * ## URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/deploy-graph
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDeployGraphResponse
  */
 async function getDeployGraphWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetDeployGraphResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1654,14 +1807,16 @@ async function getDeployGraphWithOptions(instanceId: string, headers: map[string
 }
 
 /**
-  * ## Method
-  * GET
-  * ## URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/deploy-graph
-  * ```
-  *
-  * @return GetDeployGraphResponse
+ * @summary Displays the overview of the deployment.
+ *
+ * @description ## Method
+ * GET
+ * ## URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/deploy-graph
+ * ```
+ *
+ * @return GetDeployGraphResponse
  */
 async function getDeployGraph(instanceId: string): GetDeployGraphResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1670,7 +1825,9 @@ async function getDeployGraph(instanceId: string): GetDeployGraphResponse {
 }
 
 model GetFileRequest {
-  fileName?: string(name='fileName', description='The name of the file in full path', example='/schemas/automobile_vector_schema.json'),
+  fileName?: string(name='fileName', description='The name of the file in full path
+
+This parameter is required.', example='/schemas/automobile_vector_schema.json'),
 }
 
 model GetFileResponseBody = {
@@ -1692,15 +1849,17 @@ model GetFileResponse = {
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
-  *
-  * @param request GetFileRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetFileResponse
+ * @summary Queries details about the version information of an index table.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+ *
+ * @param request GetFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetFileResponse
  */
 async function getFileWithOptions(instanceId: string, indexName: string, versionName: string, request: GetFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetFileResponse {
   Util.validateModel(request);
@@ -1728,13 +1887,15 @@ async function getFileWithOptions(instanceId: string, indexName: string, version
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
-  *
-  * @param request GetFileRequest
-  * @return GetFileResponse
+ * @summary Queries details about the version information of an index table.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+ *
+ * @param request GetFileRequest
+ * @return GetFileResponse
  */
 async function getFile(instanceId: string, indexName: string, versionName: string, request: GetFileRequest): GetFileResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1745,6 +1906,9 @@ async function getFile(instanceId: string, indexName: string, versionName: strin
 model GetIndexResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: {
+    cluster?: map[string]ResultClusterValue(name='cluster'),
+    config?: map[string]object(name='config'),
+    configWhenBuild?: map[string]object(name='configWhenBuild'),
     content?: string(name='content', description='The content of the index.'),
     dataSource?: string(name='dataSource', example='ha-cn-tl32nd2nq01_00'),
     dataSourceInfo?: {
@@ -1763,6 +1927,7 @@ model GetIndexResponseBody = {
       }(name='config', description='The configuration of MaxCompute data sources.'),
       domain?: string(name='domain', description='The offline deployment name of the data source.'),
       name?: string(name='name', description='The name of the data source.'),
+      processParallelNum?: int32(name='processParallelNum'),
       processPartitionCount?: int32(name='processPartitionCount', description='The number of resources used for data update.'),
       saroConfig?: {
         namespace?: string(name='namespace'),
@@ -1805,6 +1970,13 @@ model GetIndexResponse = {
   body?: GetIndexResponseBody(name='body'),
 }
 
+/**
+ * @summary Queries the information about an index version.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetIndexResponse
+ */
 async function getIndexWithOptions(instanceId: string, indexName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -1823,6 +1995,11 @@ async function getIndexWithOptions(instanceId: string, indexName: string, header
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Queries the information about an index version.
+ *
+ * @return GetIndexResponse
+ */
 async function getIndex(instanceId: string, indexName: string): GetIndexResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -1851,14 +2028,16 @@ model GetIndexVersionResponse = {
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetIndexVersionResponse
+ * @summary Obtains the information about index versions that the current index version can be rolled back to.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetIndexVersionResponse
  */
 async function getIndexVersionWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetIndexVersionResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1879,12 +2058,14 @@ async function getIndexVersionWithOptions(instanceId: string, clusterName: strin
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
-  *
-  * @return GetIndexVersionResponse
+ * @summary Obtains the information about index versions that the current index version can be rolled back to.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+ *
+ * @return GetIndexVersionResponse
  */
 async function getIndexVersion(instanceId: string, clusterName: string): GetIndexVersionResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1927,14 +2108,16 @@ model GetInstanceResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return GetInstanceResponse
+ * @summary Queries the details of an instance based on a specified instance ID.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetInstanceResponse
  */
 async function getInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -1955,12 +2138,14 @@ async function getInstanceWithOptions(instanceId: string, headers: map[string]st
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @return GetInstanceResponse
+ * @summary Queries the details of an instance based on a specified instance ID.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @return GetInstanceResponse
  */
 async function getInstance(instanceId: string): GetInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -1980,10 +2165,10 @@ model GetNodeConfigResponseBody = {
     active?: boolean(name='active', description='Indicates whether the expression is the default one.', example='1'),
     dataDuplicateNumber?: int32(name='dataDuplicateNumber', description='The number of data replicas.', example='2'),
     dataFragmentNumber?: int32(name='dataFragmentNumber', description='The number of data shards.', example='2'),
-    flowRatio?: int32(name='flowRatio'),
+    flowRatio?: int32(name='flowRatio', description='The traffic percentage.', example='0'),
     minServicePercent?: int32(name='minServicePercent', description='The minimum service ratio.', example='100'),
     published?: boolean(name='published', description='Indicates whether the node is associated with the cluster.', example='true'),
-  }(name='result', description='The result set.'),
+  }(name='result', description='The configurations of the node.'),
 }
 
 model GetNodeConfigResponse = {
@@ -1992,6 +2177,14 @@ model GetNodeConfigResponse = {
   body?: GetNodeConfigResponseBody(name='body'),
 }
 
+/**
+ * @summary Gets the configuration information of a node.
+ *
+ * @param request GetNodeConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetNodeConfigResponse
+ */
 async function getNodeConfigWithOptions(instanceId: string, request: GetNodeConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetNodeConfigResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -2023,6 +2216,12 @@ async function getNodeConfigWithOptions(instanceId: string, request: GetNodeConf
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Gets the configuration information of a node.
+ *
+ * @param request GetNodeConfigRequest
+ * @return GetNodeConfigResponse
+ */
 async function getNodeConfig(instanceId: string, request: GetNodeConfigRequest): GetNodeConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -2099,6 +2298,13 @@ model GetTableResponse = {
   body?: GetTableResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取索引表信息V2
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTableResponse
+ */
 async function getTableWithOptions(instanceId: string, tableName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTableResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -2117,6 +2323,11 @@ async function getTableWithOptions(instanceId: string, tableName: string, header
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取索引表信息V2
+ *
+ * @return GetTableResponse
+ */
 async function getTable(instanceId: string, tableName: string): GetTableResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -2137,6 +2348,13 @@ model GetTableGenerationResponse = {
   body?: GetTableGenerationResponseBody(name='body'),
 }
 
+/**
+ * @summary 根据generationId获取某个索引版本状态V2
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTableGenerationResponse
+ */
 async function getTableGenerationWithOptions(instanceId: string, tableName: string, generationId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTableGenerationResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -2155,6 +2373,11 @@ async function getTableGenerationWithOptions(instanceId: string, tableName: stri
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 根据generationId获取某个索引版本状态V2
+ *
+ * @return GetTableGenerationResponse
+ */
 async function getTableGeneration(instanceId: string, tableName: string, generationId: string): GetTableGenerationResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -2162,7 +2385,9 @@ async function getTableGeneration(instanceId: string, tableName: string, generat
 }
 
 model ListAdvanceConfigDirRequest {
-  dirName?: string(name='dirName', description='The name of the directory', example='/zones/general'),
+  dirName?: string(name='dirName', description='The name of the directory
+
+This parameter is required.', example='/zones/general'),
 }
 
 model ListAdvanceConfigDirResponseBody = {
@@ -2184,15 +2409,17 @@ model ListAdvanceConfigDirResponse = {
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/dir?dirName={dirName}`
-  *
-  * @param request ListAdvanceConfigDirRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListAdvanceConfigDirResponse
+ * @summary Obtains the file list in an advanced configuration directory.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/dir?dirName={dirName}`
+ *
+ * @param request ListAdvanceConfigDirRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAdvanceConfigDirResponse
  */
 async function listAdvanceConfigDirWithOptions(instanceId: string, configName: string, request: ListAdvanceConfigDirRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAdvanceConfigDirResponse {
   Util.validateModel(request);
@@ -2220,13 +2447,15 @@ async function listAdvanceConfigDirWithOptions(instanceId: string, configName: s
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/dir?dirName={dirName}`
-  *
-  * @param request ListAdvanceConfigDirRequest
-  * @return ListAdvanceConfigDirResponse
+ * @summary Obtains the file list in an advanced configuration directory.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/dir?dirName={dirName}`
+ *
+ * @param request ListAdvanceConfigDirRequest
+ * @return ListAdvanceConfigDirResponse
  */
 async function listAdvanceConfigDir(instanceId: string, configName: string, request: ListAdvanceConfigDirRequest): ListAdvanceConfigDirResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2237,6 +2466,7 @@ async function listAdvanceConfigDir(instanceId: string, configName: string, requ
 model ListAdvanceConfigsRequest {
   dataSourceName?: string(name='dataSourceName'),
   indexName?: string(name='indexName'),
+  newMode?: boolean(name='newMode'),
   type?: string(name='type', description='The type of the advanced configurations. Valid values: online and offline. - online The default value is offline.', example='online'),
 }
 
@@ -2244,8 +2474,10 @@ model ListAdvanceConfigsResponseBody = {
   requestId?: string(name='requestId', description='The ID of the request.', example='4FB0325E-8C37-5525-96AC-0333523170A3'),
   result?: [ 
     {
+      advanceConfigType?: string(name='advanceConfigType'),
       content?: string(name='content'),
       contentType?: string(name='contentType'),
+      creator?: string(name='creator'),
       desc?: string(name='desc', description='The description.', example='test'),
       files?: [ 
         {
@@ -2269,13 +2501,15 @@ model ListAdvanceConfigsResponse = {
 }
 
 /**
-  * ## Sample requests
-  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
-  *
-  * @param request ListAdvanceConfigsRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListAdvanceConfigsResponse
+ * @summary Obtains a list of advanced configurations.
+ *
+ * @description ## Sample requests
+ * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
+ *
+ * @param request ListAdvanceConfigsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAdvanceConfigsResponse
  */
 async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAdvanceConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAdvanceConfigsResponse {
   Util.validateModel(request);
@@ -2285,6 +2519,9 @@ async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAd
   }
   if (!Util.isUnset(request.indexName)) {
     query['indexName'] = request.indexName;
+  }
+  if (!Util.isUnset(request.newMode)) {
+    query['newMode'] = request.newMode;
   }
   if (!Util.isUnset(request.type)) {
     query['type'] = request.type;
@@ -2309,11 +2546,13 @@ async function listAdvanceConfigsWithOptions(instanceId: string, request: ListAd
 }
 
 /**
-  * ## Sample requests
-  * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
-  *
-  * @param request ListAdvanceConfigsRequest
-  * @return ListAdvanceConfigsResponse
+ * @summary Obtains a list of advanced configurations.
+ *
+ * @description ## Sample requests
+ * `GET /openapi/ha3/instances/ose-test1/advanced-configs`
+ *
+ * @param request ListAdvanceConfigsRequest
+ * @return ListAdvanceConfigsResponse
  */
 async function listAdvanceConfigs(instanceId: string, request: ListAdvanceConfigsRequest): ListAdvanceConfigsResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2337,14 +2576,16 @@ model ListClusterNamesResponse = {
 }
 
 /**
-  * ### Method
-  * GET
-  * ### URI
-  * /openapi/ha3/instances/{instanceId}/cluster-names
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListClusterNamesResponse
+ * @summary Queries cluster names.
+ *
+ * @description ### Method
+ * GET
+ * ### URI
+ * /openapi/ha3/instances/{instanceId}/cluster-names
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListClusterNamesResponse
  */
 async function listClusterNamesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListClusterNamesResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2365,12 +2606,14 @@ async function listClusterNamesWithOptions(headers: map[string]string, runtime: 
 }
 
 /**
-  * ### Method
-  * GET
-  * ### URI
-  * /openapi/ha3/instances/{instanceId}/cluster-names
-  *
-  * @return ListClusterNamesResponse
+ * @summary Queries cluster names.
+ *
+ * @description ### Method
+ * GET
+ * ### URI
+ * /openapi/ha3/instances/{instanceId}/cluster-names
+ *
+ * @return ListClusterNamesResponse
  */
 async function listClusterNames(): ListClusterNamesResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2416,18 +2659,20 @@ model ListClusterTasksResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/cluster-tasks
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListClusterTasksResponse
+ * @summary Displays cluster tasks .
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/cluster-tasks
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListClusterTasksResponse
  */
 async function listClusterTasksWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListClusterTasksResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2448,16 +2693,18 @@ async function listClusterTasksWithOptions(instanceId: string, headers: map[stri
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/cluster-tasks
-  * ```
-  *
-  * @return ListClusterTasksResponse
+ * @summary Displays cluster tasks .
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/cluster-tasks
+ * ```
+ *
+ * @return ListClusterTasksResponse
  */
 async function listClusterTasks(instanceId: string): ListClusterTasksResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2469,7 +2716,9 @@ model ListClustersResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='F43E8AB4-419C-5F4C-90D6-615590DFAA3C'),
   result?: [ 
     {
+      config?: map[string]object(name='config'),
       configUpdateTime?: string(name='configUpdateTime', description='The time when the configuration was updated.', example='" "'),
+      createTime?: string(name='createTime'),
       currentAdvanceConfigVersion?: string(name='currentAdvanceConfigVersion', description='The effective advanced version.', example='" "'),
       currentOfflineDictConfigVersion?: string(name='currentOfflineDictConfigVersion', description='词典配置生效版本'),
       currentOnlineConfigVersion?: string(name='currentOnlineConfigVersion', description='The effective online configuration version.', example='" "'),
@@ -2502,18 +2751,20 @@ model ListClustersResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/clusters
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListClustersResponse
+ * @summary Queries the list of clusters.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/clusters
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListClustersResponse
  */
 async function listClustersWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListClustersResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2534,16 +2785,18 @@ async function listClustersWithOptions(instanceId: string, headers: map[string]s
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/clusters
-  * ```
-  *
-  * @return ListClustersResponse
+ * @summary Queries the list of clusters.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/clusters
+ * ```
+ *
+ * @return ListClustersResponse
  */
 async function listClusters(instanceId: string): ListClustersResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2577,14 +2830,16 @@ model ListDataSourceSchemasResponse = {
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/schemas`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListDataSourceSchemasResponse
+ * @summary Obtains the schema information of a specified data source.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/schemas`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDataSourceSchemasResponse
  */
 async function listDataSourceSchemasWithOptions(instanceId: string, dataSourceName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourceSchemasResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2605,12 +2860,14 @@ async function listDataSourceSchemasWithOptions(instanceId: string, dataSourceNa
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/schemas`
-  *
-  * @return ListDataSourceSchemasResponse
+ * @summary Obtains the schema information of a specified data source.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/schemas`
+ *
+ * @return ListDataSourceSchemasResponse
  */
 async function listDataSourceSchemas(instanceId: string, dataSourceName: string): ListDataSourceSchemasResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2656,18 +2913,20 @@ model ListDataSourceTasksResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/data-source-tasks
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListDataSourceTasksResponse
+ * @summary Displays data source tasks.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/data-source-tasks
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDataSourceTasksResponse
  */
 async function listDataSourceTasksWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourceTasksResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2688,16 +2947,18 @@ async function listDataSourceTasksWithOptions(instanceId: string, headers: map[s
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/data-source-tasks
-  * ```
-  *
-  * @return ListDataSourceTasksResponse
+ * @summary Displays data source tasks.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/data-source-tasks
+ * ```
+ *
+ * @return ListDataSourceTasksResponse
  */
 async function listDataSourceTasks(instanceId: string): ListDataSourceTasksResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2726,14 +2987,16 @@ model ListDataSourcesResponse = {
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources`
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListDataSourcesResponse
+ * @summary Obtains the list of data sources.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources`
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDataSourcesResponse
  */
 async function listDataSourcesWithOptions(instanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListDataSourcesResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -2754,12 +3017,14 @@ async function listDataSourcesWithOptions(instanceId: string, headers: map[strin
 }
 
 /**
-  * ## Method
-  * `GET`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources`
-  *
-  * @return ListDataSourcesResponse
+ * @summary Obtains the list of data sources.
+ *
+ * @description ## Method
+ * `GET`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources`
+ *
+ * @return ListDataSourcesResponse
  */
 async function listDataSources(instanceId: string): ListDataSourcesResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2768,7 +3033,9 @@ async function listDataSources(instanceId: string): ListDataSourcesResponse {
 }
 
 model ListDateSourceGenerationsRequest {
-  domainName?: string(name='domainName', description='The data center where the data source is deployed.', example='bj_vpc_domain_1'),
+  domainName?: string(name='domainName', description='The data center where the data source is deployed.
+
+This parameter is required.', example='bj_vpc_domain_1'),
   validStatus?: boolean(name='validStatus', description='The valid state of the data source. Valid values: true and false. The default value of this parameter is true.
 
 1.  true indicates that the generations that have not expired and of which the tasks have been executed are returned.
@@ -2797,15 +3064,17 @@ model ListDateSourceGenerationsResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/generations?domainName={domainName}`
-  *
-  * @param request ListDateSourceGenerationsRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListDateSourceGenerationsResponse
+ * @summary Obtains the data restoration version of a data source.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/generations?domainName={domainName}`
+ *
+ * @param request ListDateSourceGenerationsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDateSourceGenerationsResponse
  */
 async function listDateSourceGenerationsWithOptions(instanceId: string, dataSourceName: string, request: ListDateSourceGenerationsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListDateSourceGenerationsResponse {
   Util.validateModel(request);
@@ -2836,13 +3105,15 @@ async function listDateSourceGenerationsWithOptions(instanceId: string, dataSour
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/generations?domainName={domainName}`
-  *
-  * @param request ListDateSourceGenerationsRequest
-  * @return ListDateSourceGenerationsResponse
+ * @summary Obtains the data restoration version of a data source.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}/generations?domainName={domainName}`
+ *
+ * @param request ListDateSourceGenerationsRequest
+ * @return ListDateSourceGenerationsResponse
  */
 async function listDateSourceGenerations(instanceId: string, dataSourceName: string, request: ListDateSourceGenerationsRequest): ListDateSourceGenerationsResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2920,15 +3191,17 @@ model ListIndexesResponse = {
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes
-  *
-  * @param request ListIndexesRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListIndexesResponse
+ * @summary Obtains the index list.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes
+ *
+ * @param request ListIndexesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListIndexesResponse
  */
 async function listIndexesWithOptions(instanceId: string, request: ListIndexesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListIndexesResponse {
   Util.validateModel(request);
@@ -2956,13 +3229,15 @@ async function listIndexesWithOptions(instanceId: string, request: ListIndexesRe
 }
 
 /**
-  * ## Method
-  *     GET
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes
-  *
-  * @param request ListIndexesRequest
-  * @return ListIndexesResponse
+ * @summary Obtains the index list.
+ *
+ * @description ## Method
+ *     GET
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes
+ *
+ * @param request ListIndexesRequest
+ * @return ListIndexesResponse
  */
 async function listIndexes(instanceId: string, request: ListIndexesRequest): ListIndexesResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -2971,7 +3246,9 @@ async function listIndexes(instanceId: string, request: ListIndexesRequest): Lis
 }
 
 model ListInstanceSpecsRequest {
-  type?: string(name='type', description='The node type. Valid values: qrs, search, index, and cluster. qrs indicates a query node, search indicates a data node, index indicates an index node, and cluster indicates a cluster.', example='search'),
+  type?: string(name='type', description='The node type. Valid values: qrs, search, index, and cluster. qrs indicates a query node, search indicates a data node, index indicates an index node, and cluster indicates a cluster.
+
+This parameter is required.', example='search'),
 }
 
 model ListInstanceSpecsResponseBody = {
@@ -2993,15 +3270,17 @@ model ListInstanceSpecsResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
-  *
-  * @param request ListInstanceSpecsRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListInstanceSpecsResponse
+ * @summary Queries instances.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
+ *
+ * @param request ListInstanceSpecsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstanceSpecsResponse
  */
 async function listInstanceSpecsWithOptions(instanceId: string, request: ListInstanceSpecsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceSpecsResponse {
   Util.validateModel(request);
@@ -3029,13 +3308,15 @@ async function listInstanceSpecsWithOptions(instanceId: string, request: ListIns
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
-  *
-  * @param request ListInstanceSpecsRequest
-  * @return ListInstanceSpecsResponse
+ * @summary Queries instances.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/specs?type=qrs`
+ *
+ * @param request ListInstanceSpecsRequest
+ * @return ListInstanceSpecsResponse
  */
 async function listInstanceSpecs(instanceId: string, request: ListInstanceSpecsRequest): ListInstanceSpecsResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3106,15 +3387,17 @@ model ListInstancesResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/[code]/instances`
-  *
-  * @param tmpReq ListInstancesRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListInstancesResponse
+ * @summary Queries instances.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/[code]/instances`
+ *
+ * @param tmpReq ListInstancesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstancesResponse
  */
 async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
   Util.validateModel(tmpReq);
@@ -3165,13 +3448,15 @@ async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: m
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/[code]/instances`
-  *
-  * @param request ListInstancesRequest
-  * @return ListInstancesResponse
+ * @summary Queries instances.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/[code]/instances`
+ *
+ * @param request ListInstancesRequest
+ * @return ListInstancesResponse
  */
 async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3180,14 +3465,16 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 }
 
 model ListOnlineConfigsRequest {
-  domain?: string(name='domain', description='The name of the domain', example='sz_vpc_domain_1'),
+  domain?: string(name='domain', description='The name of the domain
+
+This parameter is required.', example='sz_vpc_domain_1'),
 }
 
 model ListOnlineConfigsResponseBody = {
   requestId?: string(name='requestId', description='id of request', example='E45380E8-994A-5402-9806-F114B3295FCF'),
   result?: [ 
     {
-      config?: string(name='config', description='The configuration information', example='{\\"specItems\\":[{\\"specKey\\":\\"YQ_KEYWORD_NUMBER_PLUS\\",\\"value\\":\\"1\\"}]}'),
+      config?: string(name='config', description='The configuration information', example='{\\\\"specItems\\\\":[{\\\\"specKey\\\\":\\\\"YQ_KEYWORD_NUMBER_PLUS\\\\",\\\\"value\\\\":\\\\"1\\\\"}]}'),
       indexName?: string(name='indexName', description='The name of the index', example='generation'),
     }
   ](name='result', description='List'),
@@ -3200,19 +3487,21 @@ model ListOnlineConfigsResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs?domain={domain}
-  * ```
-  *
-  * @param request ListOnlineConfigsRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListOnlineConfigsResponse
+ * @summary Obtains the details of online configurations.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs?domain={domain}
+ * ```
+ *
+ * @param request ListOnlineConfigsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOnlineConfigsResponse
  */
 async function listOnlineConfigsWithOptions(instanceId: string, nodeName: string, request: ListOnlineConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOnlineConfigsResponse {
   Util.validateModel(request);
@@ -3240,17 +3529,19 @@ async function listOnlineConfigsWithOptions(instanceId: string, nodeName: string
 }
 
 /**
-  * ### Method
-  * ```java
-  * GET
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs?domain={domain}
-  * ```
-  *
-  * @param request ListOnlineConfigsRequest
-  * @return ListOnlineConfigsResponse
+ * @summary Obtains the details of online configurations.
+ *
+ * @description ### Method
+ * ```java
+ * GET
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs?domain={domain}
+ * ```
+ *
+ * @param request ListOnlineConfigsRequest
+ * @return ListOnlineConfigsResponse
  */
 async function listOnlineConfigs(instanceId: string, nodeName: string, request: ListOnlineConfigsRequest): ListOnlineConfigsResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3274,15 +3565,17 @@ model ListQueryResultResponse = {
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/query?query=xxxx`
-  *
-  * @param request ListQueryResultRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ListQueryResultResponse
+ * @summary Queries the query result.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/query?query=xxxx`
+ *
+ * @param request ListQueryResultRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQueryResultResponse
  */
 async function listQueryResultWithOptions(instanceId: string, request: ListQueryResultRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListQueryResultResponse {
   Util.validateModel(request);
@@ -3313,13 +3606,15 @@ async function listQueryResultWithOptions(instanceId: string, request: ListQuery
 }
 
 /**
-  * ### Method
-  * `GET`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/query?query=xxxx`
-  *
-  * @param request ListQueryResultRequest
-  * @return ListQueryResultResponse
+ * @summary Queries the query result.
+ *
+ * @description ### Method
+ * `GET`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/query?query=xxxx`
+ *
+ * @param request ListQueryResultRequest
+ * @return ListQueryResultResponse
  */
 async function listQueryResult(instanceId: string, request: ListQueryResultRequest): ListQueryResultResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3342,6 +3637,13 @@ model ListTableGenerationsResponse = {
   body?: ListTableGenerationsResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取索引generation列表V2
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTableGenerationsResponse
+ */
 async function listTableGenerationsWithOptions(instanceId: string, tableName: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListTableGenerationsResponse {
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -3360,6 +3662,11 @@ async function listTableGenerationsWithOptions(instanceId: string, tableName: st
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取索引generation列表V2
+ *
+ * @return ListTableGenerationsResponse
+ */
 async function listTableGenerations(instanceId: string, tableName: string): ListTableGenerationsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -3387,6 +3694,14 @@ model ListTablesResponse = {
   body?: ListTablesResponseBody(name='body'),
 }
 
+/**
+ * @summary 获取索引列表V2
+ *
+ * @param request ListTablesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTablesResponse
+ */
 async function listTablesWithOptions(instanceId: string, request: ListTablesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTablesResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -3412,6 +3727,12 @@ async function listTablesWithOptions(instanceId: string, request: ListTablesRequ
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 获取索引列表V2
+ *
+ * @param request ListTablesRequest
+ * @return ListTablesResponse
+ */
 async function listTables(instanceId: string, request: ListTablesRequest): ListTablesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -3421,7 +3742,9 @@ async function listTables(instanceId: string, request: ListTablesRequest): ListT
 model ModifyAdvanceConfigFileRequest {
   content?: string(name='content', description='The content of the file.', example='"ha3"'),
   variables?: map[string]VariablesValue(name='variables', description='The variable.'),
-  fileName?: string(name='fileName', description='The name of the file.', example='/qrs.json'),
+  fileName?: string(name='fileName', description='The name of the file.
+
+This parameter is required.', example='/qrs.json'),
 }
 
 model ModifyAdvanceConfigFileResponseBody = {
@@ -3436,15 +3759,17 @@ model ModifyAdvanceConfigFileResponse = {
 }
 
 /**
-  * ## Method
-  *     put
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
-  *
-  * @param request ModifyAdvanceConfigFileRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyAdvanceConfigFileResponse
+ * @summary Modifies the advanced configurations.
+ *
+ * @description ## Method
+ *     put
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+ *
+ * @param request ModifyAdvanceConfigFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyAdvanceConfigFileResponse
  */
 async function modifyAdvanceConfigFileWithOptions(instanceId: string, configName: string, request: ModifyAdvanceConfigFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyAdvanceConfigFileResponse {
   Util.validateModel(request);
@@ -3481,13 +3806,15 @@ async function modifyAdvanceConfigFileWithOptions(instanceId: string, configName
 }
 
 /**
-  * ## Method
-  *     put
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
-  *
-  * @param request ModifyAdvanceConfigFileRequest
-  * @return ModifyAdvanceConfigFileResponse
+ * @summary Modifies the advanced configurations.
+ *
+ * @description ## Method
+ *     put
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/file?fileName={fileName}
+ *
+ * @param request ModifyAdvanceConfigFileRequest
+ * @return ModifyAdvanceConfigFileResponse
  */
 async function modifyAdvanceConfigFile(instanceId: string, configName: string, request: ModifyAdvanceConfigFileRequest): ModifyAdvanceConfigFileResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3511,15 +3838,17 @@ model ModifyClusterDescResponse = {
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/clusters/{clusterName}/desc`
-  *
-  * @param request ModifyClusterDescRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyClusterDescResponse
+ * @summary Modifies the description of a specified cluster.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/clusters/{clusterName}/desc`
+ *
+ * @param request ModifyClusterDescRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyClusterDescResponse
  */
 async function modifyClusterDescWithOptions(instanceId: string, clusterName: string, request: ModifyClusterDescRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterDescResponse {
   Util.validateModel(request);
@@ -3547,13 +3876,15 @@ async function modifyClusterDescWithOptions(instanceId: string, clusterName: str
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/clusters/{clusterName}/desc`
-  *
-  * @param request ModifyClusterDescRequest
-  * @return ModifyClusterDescResponse
+ * @summary Modifies the description of a specified cluster.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/clusters/{clusterName}/desc`
+ *
+ * @param request ModifyClusterDescRequest
+ * @return ModifyClusterDescResponse
  */
 async function modifyClusterDesc(instanceId: string, clusterName: string, request: ModifyClusterDescRequest): ModifyClusterDescResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3585,13 +3916,15 @@ model ModifyClusterOfflineConfigResponse = {
 }
 
 /**
-  * ## Request syntax
-  *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
-  *
-  * @param request ModifyClusterOfflineConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyClusterOfflineConfigResponse
+ * @summary Modifies the configuration information of a cluster.
+ *
+ * @description ## Request syntax
+ *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
+ *
+ * @param request ModifyClusterOfflineConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyClusterOfflineConfigResponse
  */
 async function modifyClusterOfflineConfigWithOptions(instanceId: string, request: ModifyClusterOfflineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterOfflineConfigResponse {
   Util.validateModel(request);
@@ -3643,11 +3976,13 @@ async function modifyClusterOfflineConfigWithOptions(instanceId: string, request
 }
 
 /**
-  * ## Request syntax
-  *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
-  *
-  * @param request ModifyClusterOfflineConfigRequest
-  * @return ModifyClusterOfflineConfigResponse
+ * @summary Modifies the configuration information of a cluster.
+ *
+ * @description ## Request syntax
+ *     PUT /openapi/ha3/instances/{instanceId}/cluster-offline-config
+ *
+ * @param request ModifyClusterOfflineConfigRequest
+ * @return ModifyClusterOfflineConfigResponse
  */
 async function modifyClusterOfflineConfig(instanceId: string, request: ModifyClusterOfflineConfigRequest): ModifyClusterOfflineConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3672,15 +4007,17 @@ model ModifyClusterOnlineConfigResponse = {
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
-  *
-  * @param request ModifyClusterOnlineConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyClusterOnlineConfigResponse
+ * @summary Modifies the online configurations of a cluster.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
+ *
+ * @param request ModifyClusterOnlineConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyClusterOnlineConfigResponse
  */
 async function modifyClusterOnlineConfigWithOptions(instanceId: string, request: ModifyClusterOnlineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyClusterOnlineConfigResponse {
   Util.validateModel(request);
@@ -3711,13 +4048,15 @@ async function modifyClusterOnlineConfigWithOptions(instanceId: string, request:
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
-  *
-  * @param request ModifyClusterOnlineConfigRequest
-  * @return ModifyClusterOnlineConfigResponse
+ * @summary Modifies the online configurations of a cluster.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/cluster-online-config`
+ *
+ * @param request ModifyClusterOnlineConfigRequest
+ * @return ModifyClusterOnlineConfigResponse
  */
 async function modifyClusterOnlineConfig(instanceId: string, request: ModifyClusterOnlineConfigRequest): ModifyClusterOnlineConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3742,15 +4081,17 @@ model ModifyDataSourceResponse = {
 }
 
 /**
-  * ## Method
-  * `PUT`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @param request ModifyDataSourceRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyDataSourceResponse
+ * @summary Modifies a data source.
+ *
+ * @description ## Method
+ * `PUT`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @param request ModifyDataSourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyDataSourceResponse
  */
 async function modifyDataSourceWithOptions(instanceId: string, dataSourceName: string, request: ModifyDataSourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyDataSourceResponse {
   Util.validateModel(request);
@@ -3784,13 +4125,15 @@ async function modifyDataSourceWithOptions(instanceId: string, dataSourceName: s
 }
 
 /**
-  * ## Method
-  * `PUT`
-  * ## URI
-  * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
-  *
-  * @param request ModifyDataSourceRequest
-  * @return ModifyDataSourceResponse
+ * @summary Modifies a data source.
+ *
+ * @description ## Method
+ * `PUT`
+ * ## URI
+ * `/openapi/ha3/instances/{instanceId}/data-sources/{dataSourceName}`
+ *
+ * @param request ModifyDataSourceRequest
+ * @return ModifyDataSourceResponse
  */
 async function modifyDataSource(instanceId: string, dataSourceName: string, request: ModifyDataSourceRequest): ModifyDataSourceResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3800,8 +4143,10 @@ async function modifyDataSource(instanceId: string, dataSourceName: string, requ
 
 model ModifyFileRequest {
   content?: string(name='content', description='The content of the file.', example='""'),
-  partition?: int32(name='partition', description='The data partition. This parameter is required if the dataSourceType parameter is set to odps.', example='1'),
-  fileName?: string(name='fileName', description='The name of the file in the full path', example='/schemas/generation_schema.json'),
+  partition?: int32(name='partition', description='This parameter is required when index building for full data in a MaxCompute data source is triggered.', example='ds=20220713'),
+  fileName?: string(name='fileName', description='The name of the file in the full path
+
+This parameter is required.', example='/schemas/generation_schema.json'),
 }
 
 model ModifyFileResponseBody = {
@@ -3816,15 +4161,17 @@ model ModifyFileResponse = {
 }
 
 /**
-  * ## Method
-  *     PUT
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
-  *
-  * @param request ModifyFileRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyFileResponse
+ * @summary Modifies a file.
+ *
+ * @description ## Method
+ *     PUT
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+ *
+ * @param request ModifyFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyFileResponse
  */
 async function modifyFileWithOptions(instanceId: string, indexName: string, versionName: string, request: ModifyFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyFileResponse {
   Util.validateModel(request);
@@ -3861,13 +4208,15 @@ async function modifyFileWithOptions(instanceId: string, indexName: string, vers
 }
 
 /**
-  * ## Method
-  *     PUT
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
-  *
-  * @param request ModifyFileRequest
-  * @return ModifyFileResponse
+ * @summary Modifies a file.
+ *
+ * @description ## Method
+ *     PUT
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/versions/{versionName}/file?fileName=/root/test.txt
+ *
+ * @param request ModifyFileRequest
+ * @return ModifyFileResponse
  */
 async function modifyFile(instanceId: string, indexName: string, versionName: string, request: ModifyFileRequest): ModifyFileResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3900,15 +4249,17 @@ model ModifyIndexPartitionResponse = {
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/index-partition`
-  *
-  * @param request ModifyIndexPartitionRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyIndexPartitionResponse
+ * @summary Modifies the information about index partitions.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/index-partition`
+ *
+ * @param request ModifyIndexPartitionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyIndexPartitionResponse
  */
 async function modifyIndexPartitionWithOptions(instanceId: string, request: ModifyIndexPartitionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyIndexPartitionResponse {
   Util.validateModel(request);
@@ -3945,13 +4296,15 @@ async function modifyIndexPartitionWithOptions(instanceId: string, request: Modi
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/index-partition`
-  *
-  * @param request ModifyIndexPartitionRequest
-  * @return ModifyIndexPartitionResponse
+ * @summary Modifies the information about index partitions.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/index-partition`
+ *
+ * @param request ModifyIndexPartitionRequest
+ * @return ModifyIndexPartitionResponse
  */
 async function modifyIndexPartition(instanceId: string, request: ModifyIndexPartitionRequest): ModifyIndexPartitionResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -3981,15 +4334,17 @@ model ModifyIndexVersionResponse = {
 }
 
 /**
-  * ## Method
-  *     PUT
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
-  *
-  * @param request ModifyIndexVersionRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyIndexVersionResponse
+ * @summary Modifies the index version of a cluster (an index version rollback).
+ *
+ * @description ## Method
+ *     PUT
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+ *
+ * @param request ModifyIndexVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyIndexVersionResponse
  */
 async function modifyIndexVersionWithOptions(instanceId: string, clusterName: string, request: ModifyIndexVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyIndexVersionResponse {
   Util.validateModel(request);
@@ -4012,13 +4367,15 @@ async function modifyIndexVersionWithOptions(instanceId: string, clusterName: st
 }
 
 /**
-  * ## Method
-  *     PUT
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
-  *
-  * @param request ModifyIndexVersionRequest
-  * @return ModifyIndexVersionResponse
+ * @summary Modifies the index version of a cluster (an index version rollback).
+ *
+ * @description ## Method
+ *     PUT
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/clusters/{clusterName}/index-version
+ *
+ * @param request ModifyIndexVersionRequest
+ * @return ModifyIndexVersionResponse
  */
 async function modifyIndexVersion(instanceId: string, clusterName: string, request: ModifyIndexVersionRequest): ModifyIndexVersionResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4027,22 +4384,26 @@ async function modifyIndexVersion(instanceId: string, clusterName: string, reque
 }
 
 model ModifyNodeConfigRequest {
-  active?: boolean(name='active'),
-  dataDuplicateNumber?: int32(name='dataDuplicateNumber'),
-  dataFragmentNumber?: int32(name='dataFragmentNumber'),
-  flowRatio?: int32(name='flowRatio'),
-  minServicePercent?: int32(name='minServicePercent'),
-  published?: boolean(name='published'),
+  active?: boolean(name='active', description='Specifies whether to enable the index.', example='true'),
+  dataDuplicateNumber?: int32(name='dataDuplicateNumber', description='The number of data replicas.', example='1'),
+  dataFragmentNumber?: int32(name='dataFragmentNumber', description='The number of data shards.', example='1'),
+  flowRatio?: int32(name='flowRatio', description='The traffic percentage.', example='-100'),
+  minServicePercent?: int32(name='minServicePercent', description='The minimum service ratio.', example='10'),
+  published?: boolean(name='published', description='Specifies whether to mount the cluster.', example='true'),
   clusterName?: string(name='clusterName', description='The name of the cluster.', example='vpc_sh_domain_2'),
   dataSourceName?: string(name='dataSourceName', description='The name of the data source. Valid values: search and not_search. search indicates to search data. not_search indicates not to search data.', example='ha-cn-2r42ostoc01_0704'),
-  name?: string(name='name', description='The original name of the node.', example='ha-cn-zvp2iv9a401_qrs'),
+  name?: string(name='name', description='The original name of the node.
+
+This parameter is required.', example='ha-cn-zvp2iv9a401_qrs'),
   type?: string(name='type', description='The type of the algorithm. Valid values: pop, cp, hot, hint, and suggest.
 
 *   pop indicates the popularity model.
 *   cp indicates the category prediction model.
 *   hot indicates the top search model.
 *   hint indicates the hint model.
-*   suggest indicates the drop-down suggestion model.', example='" "'),
+*   suggest indicates the drop-down suggestion model.
+
+This parameter is required.', example='" "'),
 }
 
 model ModifyNodeConfigResponseBody = {
@@ -4057,19 +4418,21 @@ model ModifyNodeConfigResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
-  * ```
-  *
-  * @param request ModifyNodeConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyNodeConfigResponse
+ * @summary Modifies the configurations of a node.
+ *
+ * @description ### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
+ * ```
+ *
+ * @param request ModifyNodeConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyNodeConfigResponse
  */
 async function modifyNodeConfigWithOptions(instanceId: string, request: ModifyNodeConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyNodeConfigResponse {
   Util.validateModel(request);
@@ -4127,17 +4490,19 @@ async function modifyNodeConfigWithOptions(instanceId: string, request: ModifyNo
 }
 
 /**
-  * ### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
-  * ```
-  *
-  * @param request ModifyNodeConfigRequest
-  * @return ModifyNodeConfigResponse
+ * @summary Modifies the configurations of a node.
+ *
+ * @description ### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node-config?type=qrs&name=test
+ * ```
+ *
+ * @param request ModifyNodeConfigRequest
+ * @return ModifyNodeConfigResponse
  */
 async function modifyNodeConfig(instanceId: string, request: ModifyNodeConfigRequest): ModifyNodeConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4161,19 +4526,21 @@ model ModifyOnlineConfigResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * put
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
-  * ```
-  *
-  * @param request ModifyOnlineConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyOnlineConfigResponse
+ * @summary Modifies online configurations.
+ *
+ * @description ### Method
+ * ```java
+ * put
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
+ * ```
+ *
+ * @param request ModifyOnlineConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyOnlineConfigResponse
  */
 async function modifyOnlineConfigWithOptions(instanceId: string, nodeName: string, indexName: string, request: ModifyOnlineConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyOnlineConfigResponse {
   Util.validateModel(request);
@@ -4201,17 +4568,19 @@ async function modifyOnlineConfigWithOptions(instanceId: string, nodeName: strin
 }
 
 /**
-  * ### Method
-  * ```java
-  * put
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
-  * ```
-  *
-  * @param request ModifyOnlineConfigRequest
-  * @return ModifyOnlineConfigResponse
+ * @summary Modifies online configurations.
+ *
+ * @description ### Method
+ * ```java
+ * put
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/node/{nodeName}/online-configs/{indexName}
+ * ```
+ *
+ * @param request ModifyOnlineConfigRequest
+ * @return ModifyOnlineConfigResponse
  */
 async function modifyOnlineConfig(instanceId: string, nodeName: string, indexName: string, request: ModifyOnlineConfigRequest): ModifyOnlineConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4236,15 +4605,17 @@ model ModifyPasswordResponse = {
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/password`
-  *
-  * @param request ModifyPasswordRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return ModifyPasswordResponse
+ * @summary 修改实例的密码
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/password`
+ *
+ * @param request ModifyPasswordRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyPasswordResponse
  */
 async function modifyPasswordWithOptions(instanceId: string, request: ModifyPasswordRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyPasswordResponse {
   Util.validateModel(request);
@@ -4275,13 +4646,15 @@ async function modifyPasswordWithOptions(instanceId: string, request: ModifyPass
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/password`
-  *
-  * @param request ModifyPasswordRequest
-  * @return ModifyPasswordResponse
+ * @summary 修改实例的密码
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/password`
+ *
+ * @param request ModifyPasswordRequest
+ * @return ModifyPasswordResponse
  */
 async function modifyPassword(instanceId: string, request: ModifyPasswordRequest): ModifyPasswordResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4356,6 +4729,14 @@ model ModifyTableResponse = {
   body?: ModifyTableResponseBody(name='body'),
 }
 
+/**
+ * @summary 修改索引V2
+ *
+ * @param request ModifyTableRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyTableResponse
+ */
 async function modifyTableWithOptions(instanceId: string, tableName: string, request: ModifyTableRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ModifyTableResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -4405,6 +4786,12 @@ async function modifyTableWithOptions(instanceId: string, tableName: string, req
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 修改索引V2
+ *
+ * @param request ModifyTableRequest
+ * @return ModifyTableResponse
+ */
 async function modifyTable(instanceId: string, tableName: string, request: ModifyTableRequest): ModifyTableResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -4412,7 +4799,20 @@ async function modifyTable(instanceId: string, tableName: string, request: Modif
 }
 
 model PublishAdvanceConfigRequest {
-  body?: map[string]any(name='body', description='The structure of the request', example='{\\"desc\\":\\"new version\\"}'),
+  desc?: string(name='desc'),
+  files?: [ 
+    {
+      config?: {
+        content?: string(name='content'),
+        variables?: map[string]FilesConfigVariablesValue(name='variables'),
+      }(name='config'),
+      dirName?: string(name='dirName'),
+      fileName?: string(name='fileName'),
+      operateType?: string(name='operateType'),
+      ossPath?: string(name='ossPath'),
+      parentFullPath?: string(name='parentFullPath'),
+    }
+  ](name='files'),
 }
 
 model PublishAdvanceConfigResponseBody = {
@@ -4427,25 +4827,30 @@ model PublishAdvanceConfigResponse = {
 }
 
 /**
-  * ## Method
-  * ~~~
-  * POST
-  * ~~~
-  * ## URI
-  * ~~~
-  * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
-  * ~~~
-  *
-  * @param request PublishAdvanceConfigRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return PublishAdvanceConfigResponse
+ * @summary Publishes a version of advanced configurations.
+ *
+ * @description ## Method
+ * ~~~
+ * POST
+ * ~~~
+ * ## URI
+ * ~~~
+ * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
+ * ~~~
+ *
+ * @param request PublishAdvanceConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PublishAdvanceConfigResponse
  */
 async function publishAdvanceConfigWithOptions(instanceId: string, configName: string, request: PublishAdvanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PublishAdvanceConfigResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.body)) {
-    body['body'] = request.body;
+  if (!Util.isUnset(request.desc)) {
+    body['desc'] = request.desc;
+  }
+  if (!Util.isUnset(request.files)) {
+    body['files'] = request.files;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -4467,17 +4872,19 @@ async function publishAdvanceConfigWithOptions(instanceId: string, configName: s
 }
 
 /**
-  * ## Method
-  * ~~~
-  * POST
-  * ~~~
-  * ## URI
-  * ~~~
-  * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
-  * ~~~
-  *
-  * @param request PublishAdvanceConfigRequest
-  * @return PublishAdvanceConfigResponse
+ * @summary Publishes a version of advanced configurations.
+ *
+ * @description ## Method
+ * ~~~
+ * POST
+ * ~~~
+ * ## URI
+ * ~~~
+ * /openapi/ha3/instances/{instanceId}/advanced-configs/{configName}/actions/publish
+ * ~~~
+ *
+ * @param request PublishAdvanceConfigRequest
+ * @return PublishAdvanceConfigResponse
  */
 async function publishAdvanceConfig(instanceId: string, configName: string, request: PublishAdvanceConfigRequest): PublishAdvanceConfigResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4501,15 +4908,17 @@ model PublishIndexVersionResponse = {
 }
 
 /**
-  * ## Method
-  *     POST
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/actions/publish
-  *
-  * @param request PublishIndexVersionRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return PublishIndexVersionResponse
+ * @summary Publishes a specified index version.
+ *
+ * @description ## Method
+ *     POST
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/actions/publish
+ *
+ * @param request PublishIndexVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PublishIndexVersionResponse
  */
 async function publishIndexVersionWithOptions(instanceId: string, indexName: string, request: PublishIndexVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PublishIndexVersionResponse {
   Util.validateModel(request);
@@ -4537,13 +4946,15 @@ async function publishIndexVersionWithOptions(instanceId: string, indexName: str
 }
 
 /**
-  * ## Method
-  *     POST
-  * ## URI
-  *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/actions/publish
-  *
-  * @param request PublishIndexVersionRequest
-  * @return PublishIndexVersionResponse
+ * @summary Publishes a specified index version.
+ *
+ * @description ## Method
+ *     POST
+ * ## URI
+ *     /openapi/ha3/instances/{instanceId}/indexes/{indexName}/actions/publish
+ *
+ * @param request PublishIndexVersionRequest
+ * @return PublishIndexVersionResponse
  */
 async function publishIndexVersion(instanceId: string, indexName: string, request: PublishIndexVersionRequest): PublishIndexVersionResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4570,15 +4981,17 @@ model RecoverIndexResponse = {
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/recover-index`
-  *
-  * @param request RecoverIndexRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return RecoverIndexResponse
+ * @summary Restores data from an index.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/recover-index`
+ *
+ * @param request RecoverIndexRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RecoverIndexResponse
  */
 async function recoverIndexWithOptions(instanceId: string, request: RecoverIndexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RecoverIndexResponse {
   Util.validateModel(request);
@@ -4615,13 +5028,15 @@ async function recoverIndexWithOptions(instanceId: string, request: RecoverIndex
 }
 
 /**
-  * ### Method
-  * `POST`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}/recover-index`
-  *
-  * @param request RecoverIndexRequest
-  * @return RecoverIndexResponse
+ * @summary Restores data from an index.
+ *
+ * @description ### Method
+ * `POST`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}/recover-index`
+ *
+ * @param request RecoverIndexRequest
+ * @return RecoverIndexResponse
  */
 async function recoverIndex(instanceId: string, request: RecoverIndexRequest): RecoverIndexResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4646,6 +5061,14 @@ model ReindexResponse = {
   body?: ReindexResponseBody(name='body'),
 }
 
+/**
+ * @summary 索引重建V2
+ *
+ * @param request ReindexRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ReindexResponse
+ */
 async function reindexWithOptions(instanceId: string, tableName: string, request: ReindexRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ReindexResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -4677,6 +5100,12 @@ async function reindexWithOptions(instanceId: string, tableName: string, request
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 索引重建V2
+ *
+ * @param request ReindexRequest
+ * @return ReindexResponse
+ */
 async function reindex(instanceId: string, tableName: string, request: ReindexRequest): ReindexResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -4695,18 +5124,20 @@ model RemoveClusterResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * DELETE
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/clusters/{clusterName}
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return RemoveClusterResponse
+ * @summary Deletes a cluster.
+ *
+ * @description ### Method
+ * ```java
+ * DELETE
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/clusters/{clusterName}
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemoveClusterResponse
  */
 async function removeClusterWithOptions(instanceId: string, clusterName: string, headers: map[string]string, runtime: Util.RuntimeOptions): RemoveClusterResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -4727,21 +5158,109 @@ async function removeClusterWithOptions(instanceId: string, clusterName: string,
 }
 
 /**
-  * ### Method
-  * ```java
-  * DELETE
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/clusters/{clusterName}
-  * ```
-  *
-  * @return RemoveClusterResponse
+ * @summary Deletes a cluster.
+ *
+ * @description ### Method
+ * ```java
+ * DELETE
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/clusters/{clusterName}
+ * ```
+ *
+ * @return RemoveClusterResponse
  */
 async function removeCluster(instanceId: string, clusterName: string): RemoveClusterResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return removeClusterWithOptions(instanceId, clusterName, headers, runtime);
+}
+
+model StartIndexResponseBody = {
+  requestId?: string(name='requestId', description='id of request', example='D39EE0F1-D7EF-5F46-B781-6BF4185308B0'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
+}
+
+model StartIndexResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartIndexResponseBody(name='body'),
+}
+
+/**
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartIndexResponse
+ */
+async function startIndexWithOptions(instanceId: string, indexName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StartIndexResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'StartIndex',
+    version = '2021-10-25',
+    protocol = 'HTTPS',
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/startIndex`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @return StartIndexResponse
+ */
+async function startIndex(instanceId: string, indexName: string): StartIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startIndexWithOptions(instanceId, indexName, headers, runtime);
+}
+
+model StopIndexResponseBody = {
+  requestId?: string(name='requestId', description='id of request', example='E7B7D598-B080-5C8E-AA35-D43EC0D5F886'),
+  result?: map[string]any(name='result', description='Map', example='{}'),
+}
+
+model StopIndexResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopIndexResponseBody(name='body'),
+}
+
+/**
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopIndexResponse
+ */
+async function stopIndexWithOptions(instanceId: string, indexName: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopIndexResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'StopIndex',
+    version = '2021-10-25',
+    protocol = 'HTTPS',
+    pathname = `/openapi/ha3/instances/${OpenApiUtil.getEncodeParam(instanceId)}/indexes/${OpenApiUtil.getEncodeParam(indexName)}/stopIndex`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @return StopIndexResponse
+ */
+async function stopIndex(instanceId: string, indexName: string): StopIndexResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopIndexWithOptions(instanceId, indexName, headers, runtime);
 }
 
 model StopTaskResponseBody = {
@@ -4756,18 +5275,20 @@ model StopTaskResponse = {
 }
 
 /**
-  * ### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/stop-task/{fsmId}
-  * ```
-  *
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return StopTaskResponse
+ * @summary Stops an FSM task.
+ *
+ * @description ### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/stop-task/{fsmId}
+ * ```
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopTaskResponse
  */
 async function stopTaskWithOptions(instanceId: string, fsmId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopTaskResponse {
   var req = new OpenApi.OpenApiRequest{ 
@@ -4788,16 +5309,18 @@ async function stopTaskWithOptions(instanceId: string, fsmId: string, headers: m
 }
 
 /**
-  * ### Method
-  * ```java
-  * PUT
-  * ```
-  * ### URI
-  * ```java
-  * /openapi/ha3/instances/{instanceId}/stop-task/{fsmId}
-  * ```
-  *
-  * @return StopTaskResponse
+ * @summary Stops an FSM task.
+ *
+ * @description ### Method
+ * ```java
+ * PUT
+ * ```
+ * ### URI
+ * ```java
+ * /openapi/ha3/instances/{instanceId}/stop-task/{fsmId}
+ * ```
+ *
+ * @return StopTaskResponse
  */
 async function stopTask(instanceId: string, fsmId: string): StopTaskResponse {
   var runtime = new Util.RuntimeOptions{};
@@ -4840,15 +5363,17 @@ model UpdateInstanceResponse = {
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @param request UpdateInstanceRequest
-  * @param headers map
-  * @param runtime runtime options for this request RuntimeOptions
-  * @return UpdateInstanceResponse
+ * @summary Modifies the configuration of a specified instance.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @param request UpdateInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstanceResponse
  */
 async function updateInstanceWithOptions(instanceId: string, request: UpdateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceResponse {
   Util.validateModel(request);
@@ -4882,13 +5407,15 @@ async function updateInstanceWithOptions(instanceId: string, request: UpdateInst
 }
 
 /**
-  * ### Method
-  * `PUT`
-  * ### URI
-  * `/openapi/ha3/instances/{instanceId}`
-  *
-  * @param request UpdateInstanceRequest
-  * @return UpdateInstanceResponse
+ * @summary Modifies the configuration of a specified instance.
+ *
+ * @description ### Method
+ * `PUT`
+ * ### URI
+ * `/openapi/ha3/instances/{instanceId}`
+ *
+ * @param request UpdateInstanceRequest
+ * @return UpdateInstanceResponse
  */
 async function updateInstance(instanceId: string, request: UpdateInstanceRequest): UpdateInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
