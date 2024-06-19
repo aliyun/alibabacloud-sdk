@@ -32,7 +32,6 @@ init(configuration: ClientConfiguration){
     'cn-heyuan' = 'r-kvstore.aliyuncs.com',
     'cn-guangzhou' = 'r-kvstore.aliyuncs.com',
     'cn-hongkong' = 'r-kvstore.aliyuncs.com',
-    'ap-southeast-1' = 'r-kvstore.aliyuncs.com',
     'cn-hangzhou-finance' = 'r-kvstore.aliyuncs.com',
     'cn-shanghai-finance-1' = 'r-kvstore.aliyuncs.com',
     'cn-shenzhen-finance-1' = 'r-kvstore.aliyuncs.com',
@@ -339,13 +338,7 @@ model CreateCacheAnalysisTaskResponse = {
 }
 
 /**
-  * > ApsaraDB for Redis has optimized the cache analytics feature to improve user experience. This API operation is phased out. You can use the new API operation for cache analytics. For more information, see [API operations for cache analytics are upgraded](~~186019~~).
-  * Before you call this operation, make sure that the instance meets the following requirements:
-  * *   The engine version of the instance is Redis 4.0 or later.
-  * *   The instance is a Community Edition instance or an Enhanced Edition (Tair) [DRAM-based instance](~~126164~~).
-  * This feature is unavailable for cloud disk-based cluster instances. For more information, see [Comparison between ApsaraDB for Redis instances that use local disks and those that use cloud disks](~~188068~~).
-  * *   The instance is of the latest minor version. For more information about whether you must update the minor version of an instance, see [How do I check whether the minor version of an ApsaraDB for Redis instance is the latest?](~~129203~~)
-  * After you call this operation, you can call the [DescribeCacheAnalysisReport](~~128808~~) operation to view the analytic results.
+  * This operation is no longer available. Use the new operation. For more information, see [Real-time key statistics and offline key analysis](~~184226~~).
   *
  */
 async function createCacheAnalysisTask(request: CreateCacheAnalysisTaskRequest): CreateCacheAnalysisTaskResponse {
@@ -514,6 +507,7 @@ model CreateInstanceRequest {
 
 > The private IP address must be available within the CIDR block of the vSwitch to which to connect the instance.', example='172.16.0.***', position='Query'),
   readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read-only nodes in the instance. This parameter is available only if you create a read/write splitting instance that uses cloud disks. Valid values: 1 to 5.', example='5', minimum=1, maximum=5, position='Query'),
+  recoverConfigMode?: string(name='RecoverConfigMode', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where you want to create the instance. You can call the [DescribeRegions](~~61012~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-resourcegroupid1', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -526,6 +520,7 @@ model CreateInstanceRequest {
 > If you specify this parameter, the master node and replica node of the instance can be deployed in different zones and disaster recovery is implemented across zones. The instance can withstand failures in data centers.', example='cn-hangzhou-h', position='Query'),
   securityToken?: string(name='SecurityToken', description='系统自动生成的安全 Token，无需传入', position='Query'),
   shardCount?: int32(name='ShardCount', description='The number of data shards. This parameter is available only if you create a cluster instance that uses cloud disks.', example='4', minimum=1, maximum=128, position='Query'),
+  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', position='Query'),
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The ID of the original instance. If you want to create an instance based on a backup file of a specified instance, you can specify this parameter and use the **BackupId** or **RestoreTime** parameter to specify the backup file.', example='r-bp1zxszhcgatnx****', position='Query'),
   tag?: [ 
     {
@@ -655,13 +650,45 @@ model CreateInstancesResponse = {
 
 /**
   * Before you call this operation, make sure that you understand the billing methods and [pricing](~~54532~~) of ApsaraDB for Redis.
-  * >  For more information about how to create an instance that meets your requirements in the ApsaraDB for Redis console, see Step 1: Create an ApsaraDB for Redis instance.[](~~26351~~)
-  * This operation can only be used to create ApsaraDB for Redis Community Edition instances and ApsaraDB for Redis Enhanced Edition (Tair) DRAM-based classic instances.
+  * >  You can call this operation to create an ApsaraDB for Redis classic instance or a Tair DRAM-based classic instance. We recommend that you use an API operation for creating a single instance:
+  * *   [CreateInstance](~~473757~~): creates an ApsaraDB for Redis instance or a Tair DRAM-based classic instance.
+  * *   [CreateTairInstance](~~473770~~): creates a Tair cloud-native instance. The instance can be a DRAM-based, persistent memory-optimized, or ESSD/SSD-based instance.
   *
  */
 async function createInstances(request: CreateInstancesRequest): CreateInstancesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateInstances', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateParameterGroupRequest {
+  category: string(name='Category', example='enterprise', position='Query'),
+  engineType: string(name='EngineType', example='redis', position='Query'),
+  engineVersion: string(name='EngineVersion', example='6.0', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  parameterGroupDesc?: string(name='ParameterGroupDesc', example='test', position='Query'),
+  parameterGroupName: string(name='ParameterGroupName', example='tw_test1', position='Query'),
+  parameters: string(name='Parameters', example='{"hz":"15","#no_loose_disabled-commands":"flushall"}', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model CreateParameterGroupResponseBody = {
+  paramGroupId?: string(name='ParamGroupId', example='g-51ii2ienn0dg0xi8****'),
+  requestId?: string(name='RequestId', example='62DA5BE5-F9C9-527C-ACCB-4D783C297A3A'),
+}
+
+model CreateParameterGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateParameterGroupResponseBody(name='body'),
+}
+
+async function createParameterGroup(request: CreateParameterGroupRequest): CreateParameterGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateParameterGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateTairInstanceRequest {
@@ -677,22 +704,17 @@ model CreateTairInstanceRequest {
 
 *   **true**: uses a coupon.
 *   **false**: does not use a coupon.', example='true', position='Query'),
-  backupId?: string(name='BackupId', description='The ID of the backup set of the source instance. If you want to create an instance based on a backup set of a specified instance, you can specify this parameter after you specify the **SrcDBInstanceId** parameter. Then, the system creates an instance based on the backup set that is specified by this parameter. You can call the [DescribeBackups](~~61081~~) operation to query the IDs of backup sets.
-
->  If you want to create an instance based on a backup set of a specified instance, you must specify this parameter after you use the **SrcDBInstanceId** parameter to specify the ID of the source instance. Then, the system creates an instance based on the backup set that is specified by this parameter.', example='11111111', position='Query'),
+  backupId?: string(name='BackupId', description='The ID of the backup set of the source instance. The system uses the data stored in the backup set to create an instance. You can call the [DescribeBackups](~~61081~~) operation to query the backup set ID.', example='11111111', position='Query'),
   businessInfo?: string(name='BusinessInfo', description='The ID of the promotion event or the business information.', example='000000000', position='Query'),
   chargeType?: string(name='ChargeType', description='The billing method of the instance. Default value: PrePaid. Valid values:
 
 *   **PrePaid**: subscription
 *   **PostPaid**: pay-as-you-go', example='PrePaid', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that the token is unique among different requests. The token is case-sensitive. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  clusterBackupId?: string(name='ClusterBackupId', description='This parameter is supported for specific new cluster instances. You can query the backup set ID by using the [DescribeClusterBackupList](~~2679158~~) operation.
+  clusterBackupId?: string(name='ClusterBackupId', description='This parameter is supported for specific new cluster instances. You can query the backup set ID by calling the [DescribeClusterBackupList](~~2679158~~) operation.
 
 *   If this parameter is supported, you can specify the backup set ID. In this case, you do not need to specify the **BackupId** parameter.
-
-<!---->
-
-*   If this parameter is not supported, set the BackupId parameter to the IDs of backup sets in all shards of the source instance, separated by commas (,). Example: "11101,11102".', example='cb-hyxdof5x9kqb****', position='Query'),
+*   If this parameter is not supported, set the BackupId parameter to the IDs of backup sets in all shards of the source instance, separated by commas (,). Example: "2158\\*\\*\\*\\*20,2158\\*\\*\\*\\*22".', example='cb-hyxdof5x9kqb****', position='Query'),
   couponNo?: string(name='CouponNo', description='The coupon code.', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Default value: false. Valid values:
 
@@ -703,7 +725,13 @@ model CreateTairInstanceRequest {
 *   For Tair DRAM-based instances (tair_rdb) that are compatible with Redis 5.0 or 6.0, set this parameter to 5.0 or 6.0.
 *   For Tair persistent memory-optimized instances (tair_scm) that are compatible with Redis 6.0, set this parameter to 1.0.
 *   For Tair ESSD-based instances (tair_essd) that are compatible with Redis 4.0 or 6.0, set this parameter to 1.0 or 2.0.', example='1.0', position='Query'),
-  globalInstanceId?: string(name='GlobalInstanceId', description='The ID of the distributed instance.', example='gr-bp14rkqrhac****', position='Query'),
+  globalInstanceId?: string(name='GlobalInstanceId', description='Specifies whether to use the created instance as a child instance of a distributed instance.
+
+*   If you want the created instance to be used as the first child instance, enter **true**.
+*   If you want the created instance to be used as the second or third child instance, enter the ID of the distributed instance, such as gr-bp14rkqrhac\\*\\*\\*\\*.
+*   If you do not want the created instance to be used as a distributed instance, leave the parameter empty.
+
+>  If you want the created instance to be used as a distributed instance, the created instance must be a Tair DRAM-based instance.', example='gr-bp14rkqrhac****', position='Query'),
   globalSecurityGroupIds?: string(name='GlobalSecurityGroupIds', description='The global IP whitelist template of the instance. Separate multiple IP whitelist templates with commas (,) and make sure that each IP whitelist template is unique.', example='g-zsldxfiwjmti0kcm****', position='Query'),
   instanceClass: string(name='InstanceClass', description='The instance type. For more information, see the following topics:
 
@@ -733,7 +761,10 @@ model CreateTairInstanceRequest {
   privateIpAddress?: string(name='PrivateIpAddress', description='The private IP address of the instance.
 
 > The IP address must be within the CIDR block of the vSwitch to which you want the instance to connect. You can call the [DescribeVSwitches](~~35748~~) operation of the VPC API to query the CIDR block information.', example='172.16.88.***', position='Query'),
-  readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read-only nodes of the instance. This parameter is available only if you create a read/write splitting instance that uses cloud disks. You can use this parameter to specify a custom number of read-only nodes for the instance. Valid value: 1 to 5.', example='5', minimum=1, maximum=5, position='Query'),
+  readOnlyCount?: int32(name='ReadOnlyCount', description='The number of read replicas in the primary zone. This parameter applies only to read/write splitting instances that use cloud disks. You can use this parameter to customize the number of read replicas. Valid values: 1 to 9.
+
+>  The sum of the values of this parameter and SlaveReadOnlyCount cannot be greater than 9.', example='5', minimum=1, maximum=5, position='Query'),
+  recoverConfigMode?: string(name='RecoverConfigMode', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where you want to create the instance. You can call the [DescribeRegions](~~61012~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which you want to assign the instance.
 
@@ -744,27 +775,27 @@ model CreateTairInstanceRequest {
 *   Before you modify the resource group to which an instance belongs, you can call the [ListResources](~~158866~~) operation to view the current resource group of the instance.', example='rg-acfmyiu4ekp****', minimum=1, maximum=4096, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  restoreTime?: string(name='RestoreTime', position='Query'),
+  restoreTime?: string(name='RestoreTime', description='If data flashback is enabled for the source instance, you can use this parameter to specify a point in time within the backup retention period of the source instance. The system uses the backup data of the source instance at the point in time to create an instance. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.', example='2021-07-06T07:25:57Z', position='Query'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone. You can call the [DescribeRegions](~~61012~~) operation to query the ID of the secondary zone.
 
 > You cannot specify multiple zone IDs or set this parameter to a value that is the same as that of the ZoneId parameter.', example='cn-hangzhou-h', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
   shardCount?: int32(name='ShardCount', description='The number of data nodes in the instance. Valid values:
 
-*   **1**: You can create an instance in the standard architecture that contains only one data node. For more information about the standard architecture, see [Cluster master-replica instances](~~52228~~). This is the default value.
-*   **2** to **32**: You can create an instance in the cluster architecture that contains the specified number of data nodes. For more information about the cluster architecture, see [Cluster master-replica instances](~~52228~~).
+*   **1** (default): You can create a [standard instance](~~52228~~) that contains only a single data node.
+*   **2** to **32**: You can create a [cluster instance](~~52228~~) that contains the specified number of data nodes.
 
-> Only persistent memory-optimized instances can use the cluster architecture. Therefore, you can set this parameter to an integer from **2** to **32** only if you set the **InstanceType** parameter to **tair_scm**.', example='1', minimum=1, maximum=64, position='Query'),
+>  When the **InstanceType** parameter is set to **tair_rdb** or **tair_scm**, this parameter can be set to **2** to **32**. Only DRAM-based and persistent memory-optimized instances support the cluster architecture.', example='1', minimum=1, maximum=64, position='Query'),
   shardType?: string(name='ShardType', description='The data shard type of the instance. Default value: MASTER_SLAVE. Valid values:
 
 *   **MASTER_SLAVE**: runs in a master-replica architecture that provides high availability.
 *   **STAND_ALONE**: runs in a standalone architecture. If the only node fails, the system creates a new instance and switches the workloads to the new instance. This may cause data loss. You can set this parameter to this value only if the instance uses the **single-zone** deployment type. If you set this parameter to this value, you cannot create cluster or read/write splitting instances.', example='MASTER_SLAVE', position='Query'),
-  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', description='The number of read replicas in the secondary zone. This parameter is used to create a read/write splitting instance that is deployed across multiple zones.
+  slaveReadOnlyCount?: int32(name='SlaveReadOnlyCount', description='The number of read replicas in the secondary zone when you create a multi-zone read/write splitting instance. The sum of the values of this parameter and ReadOnlyCount cannot be greater than 9.
 
-> To create a read/write splitting instance that is deployed across multiple zones, you must specify both SlaveReadOnlyCount and SecondaryZoneId.', example='1', position='Query'),
-  srcDBInstanceId?: string(name='SrcDBInstanceId', description='The ID of the source instance.
+> When you create a multi-zone read/write splitting instance, you must specify both SlaveReadOnlyCount and SecondaryZoneId.', example='1', position='Query'),
+  srcDBInstanceId?: string(name='SrcDBInstanceId', description='If you want to create an instance based on the backup set of an existing instance, set this parameter to the ID of the source instance.
 
-> If you want to create an instance based on the backup set of an existing instance, set this parameter to the ID of the source instance and the **BackupId** parameter to the backup set that you want to use.', example='r-bp1zxszhcgatnx****', position='Query'),
+>  Then, you can use the **BackupId**, **ClusterBackupId**, or **RestoreTime** parameter to specify the backup set that you want to use or the point in time. This parameter must be used in combination with one of the preceding three parameters.', example='r-bp1zxszhcgatnx****', position='Query'),
   storage?: int32(name='Storage', description='The storage space of cloud disks. Valid values vary based on the instance specifications. For more information, see [ESSD-based instances](~~443846~~).
 
 > This parameter is available and required only if the **InstanceType** parameter is set to **tair_essd**.', example='60', position='Query'),
@@ -804,7 +835,7 @@ model CreateTairInstanceResponseBody = {
 
 This parameter is returned only if the **InstanceName** parameter is specified in the request.', example='redistest'),
   instanceStatus?: string(name='InstanceStatus', description='The state of the instance. The return value is **Creating**.', example='Creating'),
-  orderId?: long(name='OrderId', description='The ID of the order.', example='2084452111111'),
+  orderId?: long(name='OrderId', description='The order ID.', example='2084452111111'),
   port?: int32(name='Port', description='The port number that is used to connect to the instance.', example='6379'),
   QPS?: long(name='QPS', description='The maximum number of read and write operations that can be processed by the instance per second. The value is a theoretical value.', example='100000'),
   regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
@@ -928,6 +959,32 @@ model DeleteInstanceResponse = {
 async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteParameterGroupRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  parameterGroupId: string(name='ParameterGroupId', description='The ID of the parameter template.', example='rpg-sys-00*****', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model DeleteParameterGroupResponseBody = {
+  paramGroupId?: string(name='ParamGroupId', description='The parameter template ID, which is globally unique.', example='sys-001*****'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2BE6E619-A657-42E3-AD2D-18F8428A****'),
+}
+
+model DeleteParameterGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteParameterGroupResponseBody(name='body'),
+}
+
+async function deleteParameterGroup(request: DeleteParameterGroupRequest): DeleteParameterGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteParameterGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteShardingNodeRequest {
@@ -1553,6 +1610,7 @@ model DescribeBackupsResponseBody = {
       nodeInstanceId?: string(name='NodeInstanceId', description='The node ID.
 
 >  If the instance uses the standard architecture, this parameter returns the instance ID.', example='r-bp10noxlhcoim2****-db-1'),
+      recoverConfigMode?: string(name='RecoverConfigMode'),
     }
   ](name='Backup')
   }(name='Backups', description='Details of the backup files.'),
@@ -1736,6 +1794,7 @@ model DescribeClusterBackupListResponseBody = {
 
 *   **0**: unavailable
 *   **1**: available', example='1'),
+          recoverConfigMode?: string(name='RecoverConfigMode'),
         }
       ](name='Backups', description='The backup sets of all nodes in the instance.'),
       clusterBackupEndTime?: string(name='ClusterBackupEndTime', description='The end time of the backup.', example='2024-01-10T17:21:55Z'),
@@ -2428,16 +2487,28 @@ model DescribeHistoryMonitorValuesRequest {
 *   If the number of data nodes in the instance is greater than 32, the time range to query for the Data Node Aggregation and Proxy Node Aggregation metrics cannot exceed 1 hour.', example='2022-11-06T00:30:00Z', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****', position='Query'),
   intervalForHistory: string(name='IntervalForHistory', description='The interval at which to collect monitoring data. Unit: minutes. Set the value to `01m`.', example='01m', position='Query'),
-  monitorKeys?: string(name='MonitorKeys', description='The monitoring metrics. Separate the metrics with commas (,).
-*   This parameter is empty by default. The UsedMemory and quotaMemory metrics are returned. For information about the metrics that are supported by ApsaraDB for Redis instances and their descriptions, see [View performance monitoring data](~~122091~~).
+  monitorKeys?: string(name='MonitorKeys', description='The monitoring metrics. Separate the metrics with commas (,). Take CpuUsage as an example:
 
-*   To ensure query efficiency, we recommend that you specify no more than five metrics for a single node at a time, and specify only a single metric when you query aggregate metrics.', example='memoryUsage', position='Query'),
+*   To query the overall CPU utilization of all data nodes, specify **CpuUsage$db**.
+*   To query the CPU utilization of a single data node, specify **CpuUsage** and NodeId.
+
+For more information about the monitoring metrics, see **Additional description of MonitorKeys**.
+
+> 
+
+*   This parameter is empty by default, which indicates that the UsedMemory and quotaMemory metrics are returned.
+
+*   To ensure query efficiency, we recommend that you specify no more than five metrics for a single node at a time, and specify only a single metric when you query aggregate metrics.
+
+[Additional description of MonitorKeys](https://help.aliyun.com/zh/redis/developer-reference/api-r-kvstore-2015-01-01-describehistorymonitorvalues-redis)', example='memoryUsage', position='Query'),
   nodeId?: string(name='NodeId', description='The ID of the node in the instance. You can set this parameter to query the data of a specified node.
 
 *   This parameter is available only for read/write splitting or cluster instances of ApsaraDB for Redis.
 
 *   You can call the [DescribeLogicInstanceTopology](~~94665~~) operation to query node IDs.', example='r-bp1zxszhcgatnx****-db-0#1679****', position='Query'),
-  nodeRole?: string(name='NodeRole', position='Query'),
+  nodeRole?: string(name='NodeRole', description='If you want to query the metrics of the read replicas in a cloud-native read/write splitting instance, you must set this parameter to **READONLY** and specify **NodeId**.
+
+> In other cases, you do not need to specify this parameter or you can set this parameter to **MASTER**.', example='READONLY', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -3433,6 +3504,189 @@ model DescribeMonitorItemsResponse = {
 async function describeMonitorItems(request: DescribeMonitorItemsRequest): DescribeMonitorItemsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeMonitorItems', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeParameterGroupRequest {
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  parameterGroupId: string(name='ParameterGroupId', description='The ID of the parameter template.', example='rpg-sys-00*****', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model DescribeParameterGroupResponseBody = {
+  parameterGroup?: {
+    category?: long(name='Category', description='The service category. Valid values:
+
+*   **0**: Community Edition
+*   **1**: Enhanced Edition (Tair)', example='1'),
+    created?: string(name='Created', description='The time when the parameter template was created.', example='2023-04-18 16:32:45'),
+    engine?: string(name='Engine', example='redis'),
+    engineVersion?: string(name='EngineVersion', description='The compatible engine version.', example='5.0'),
+    modified?: string(name='Modified', description='The time when the parameter template was last modified.', example='2023-04-18 16:32:45'),
+    paramGroupId?: string(name='ParamGroupId', description='The parameter template ID, which is globally unique.', example='sys-001*****'),
+    paramGroupsDetails?: [ 
+      {
+        paramName?: string(name='ParamName', description='The name of the parameter.', example='timeout'),
+        paramValue?: string(name='ParamValue', description='The value of the parameter.', example='1000'),
+      }
+    ](name='ParamGroupsDetails', description='The parameter details of the parameter template.'),
+    parameterGroupDesc?: string(name='ParameterGroupDesc', description='The description of the parameter template.', example='test'),
+    parameterGroupName?: string(name='ParameterGroupName', description='The name of the parameter template.', example='testGroupName'),
+  }(name='ParameterGroup', description='The information about the parameter template.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A501A191-BD70-5E50-98A9-C2A486A82****'),
+}
+
+model DescribeParameterGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeParameterGroupResponseBody(name='body'),
+}
+
+async function describeParameterGroup(request: DescribeParameterGroupRequest): DescribeParameterGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeParameterGroup', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeParameterGroupSupportParamRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  category?: string(name='Category', description='The service category. Valid values:
+
+*   **standard**: Community Edition
+*   **enterprise**: Enhanced Edition (Tair)', example='standard', position='Query'),
+  engineType?: string(name='EngineType', description='The engine type. Valid values:
+
+*   **redis**: Redis or Tair DRAM-based instances
+*   **tair_pena**: Tair persistent memory-optimized instances
+*   **tair_pdb**: Tair ESSD-based instances', example='redis', position='Query'),
+  engineVersion: string(name='EngineVersion', description='The engine version.', example='5', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model DescribeParameterGroupSupportParamResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='BB73740C-23E2-4392-9DA4-2660C74C****'),
+  resourceList?: [ 
+    {
+      category?: string(name='Category', description='The service category.', example='standard'),
+      dbType?: string(name='DbType', description='The engine type.', example='redis'),
+      dbVersion?: string(name='DbVersion', description='The engine version.', example='5'),
+      paramName?: string(name='ParamName', description='The name of the parameter.', example='rt_threshold_ms'),
+    }
+  ](name='ResourceList', description='The parameters.'),
+}
+
+model DescribeParameterGroupSupportParamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeParameterGroupSupportParamResponseBody(name='body'),
+}
+
+async function describeParameterGroupSupportParam(request: DescribeParameterGroupSupportParamRequest): DescribeParameterGroupSupportParamResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeParameterGroupSupportParam', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeParameterGroupTemplateListRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  category: string(name='Category', description='The service category. Valid values:
+
+standard: Community Edition enterprise: Enhanced Edition (Tair)', example='standard', position='Query'),
+  characterType?: string(name='CharacterType', description='The role of the instance. Valid values: logic: logical instance. db: database instance. proxy: proxy node. cs: ConfigServer node. normal: master-replica database instance.', example='db', position='Query'),
+  engineType: string(name='EngineType', description='The engine type. Valid values:
+
+redis: Redis or Tair DRAM-based instance tair_pena: Tair persistent memory-optimized instance tair_pdb: Tair ESSD-based instance', example='redis', position='Query'),
+  engineVersion: string(name='EngineVersion', description='The compatible engine version. Valid values:
+
+ApsaraDB for Redis Community Edition: 5.0, 6.0, and 7.0. Tair DRAM-based instances: 5.0 and 6.0. Tair persistent memory-optimized instances: 6.0. Tair ESSD-based instances: 4.0.', example='5.0', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model DescribeParameterGroupTemplateListResponseBody = {
+  engineVersion?: string(name='EngineVersion', description='The compatible engine version. Valid values:
+
+ApsaraDB for Redis Community Edition: 5.0, 6.0, and 7.0. Tair DRAM-based instances: 5.0 and 6.0. Tair persistent memory-optimized instances: 6.0. Tair ESSD-based instances: 4.0.', example='5'),
+  parameters?: [ 
+    {
+      checkingCode?: string(name='CheckingCode', description='The regular expression used to validate input.', example='"\\\\d+\\\\s+\\\\d+\\\\s+\\\\d+"'),
+      effective?: long(name='Effective', description='Indicates whether the modification takes effect. Valid values: 0 and 1. A value of 0 indicates that the modification does not take effect. A value of 1 indicates that the modification takes effect.', example='1'),
+      factor?: long(name='Factor', description='A divisor of the parameter. For a parameter of the integer or byte type, the valid values must be a multiple of Factor unless you set Factor to 0.', example='1'),
+      parameterDescription?: string(name='ParameterDescription', description='The description of the parameter.'),
+      parameterName?: string(name='ParameterName', description='The parameter name.', example='appendonly'),
+      parameterValue?: string(name='ParameterValue', description='The default value of the parameter.', example='10'),
+      revisable?: long(name='Revisable', description='Indicates whether the parameter can be modified. Valid values:
+
+*   **0: The parameter cannot be modified.**
+*   **1**: The parameter can be modified.', example='0'),
+      supportModifyForMinorVersion?: boolean(name='SupportModifyForMinorVersion', description='Indicates whether the minor version can be changed. Valid values: true and false.', example='true'),
+      unit?: string(name='Unit', description='The unit of the parameter value. Valid values: INT (ordinary integer), STRING (fixed string), and B (byte).', example='STRING'),
+    }
+  ](name='Parameters', description='The information about parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='5D622714-AEDD-4609-9167-F5DDD3D1****'),
+}
+
+model DescribeParameterGroupTemplateListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeParameterGroupTemplateListResponseBody(name='body'),
+}
+
+async function describeParameterGroupTemplateList(request: DescribeParameterGroupTemplateListRequest): DescribeParameterGroupTemplateListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeParameterGroupTemplateList', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DescribeParameterGroupsRequest {
+  dbType?: string(name='DbType', description='The database type. Valid values: **redis** (default) and **tair**.', example='redis', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model DescribeParameterGroupsResponseBody = {
+  parameterGroups?: [ 
+    {
+      category?: long(name='Category', description='The service category. Valid values:
+
+*   **0**: Community Edition
+*   **1**: Enhanced Edition (Tair)', example='0'),
+      created?: string(name='Created', description='The time when the parameter template was created.', example='2023-04-18 16:32:45'),
+      engine?: string(name='Engine', description='The engine type. Valid values:
+
+*   **redis**: Redis or Tair DRAM-based instance
+*   **tair_pena**: Tair persistent memory-optimized instance
+*   **tair_pdb**: Tair ESSD-based instance', example='redis'),
+      engineVersion?: string(name='EngineVersion', description='The compatible engine version.', example='5'),
+      modified?: string(name='Modified', description='The time when the parameter template was last modified.', example='2023-04-18 16:32:45'),
+      paramGroupId?: string(name='ParamGroupId', description='The parameter template ID.', example='test01'),
+      parameterGroupDesc?: string(name='ParameterGroupDesc', description='The description of the parameter template.', example='test'),
+      parameterGroupName?: string(name='ParameterGroupName', description='The name of the parameter template.', example='testGroupName'),
+    }
+  ](name='ParameterGroups', description='The list of parameter templates.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='686BB8A6-BBA5-47E5-8A75-D2ADE433****'),
+}
+
+model DescribeParameterGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeParameterGroupsResponseBody(name='body'),
+}
+
+async function describeParameterGroups(request: DescribeParameterGroupsRequest): DescribeParameterGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeParameterGroups', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeParameterModificationHistoryRequest {
@@ -4629,9 +4883,10 @@ model MigrateToOtherZoneResponse = {
 }
 
 /**
-  * For more information about how to migrate an instance across zones in the ApsaraDB for Redis console, see [Migrate an instance across zones](~~106272~~).
-  * > *   If the network type of an ApsaraDB for Redis instance is switched from classic network to Virtual Private Cloud (VPC), and the endpoint of the classic network is retained, you can migrate the instance across zones only after the classic network endpoint is released upon expiration.
-  * > *   After the data is migrated, the endpoint of an instance remains unchanged. However, the virtual IP address (VIP) is changed. We recommend that you use the endpoint instead of the VIP to connect to the instance.
+  * Before you call this operation, you must release the public endpoint (if any) of the instance. For more information, see [Migrate an instance across zones](~~106272~~).
+  * > 
+  * *   If the network type of an ApsaraDB for Redis instance is switched from classic network to Virtual Private Cloud (VPC), and the classic network endpoint is retained, you can migrate the instance across zones only after the classic network endpoint is released upon expiration.
+  * *   After the instance is migrated, the endpoint of the instance remains unchanged. However, the virtual IP address (VIP) is changed. We recommend that you use the endpoint instead of the VIP to connect to the instance.
   *
  */
 async function migrateToOtherZone(request: MigrateToOtherZoneRequest): MigrateToOtherZoneResponse {
@@ -4783,12 +5038,13 @@ async function modifyAuditLogConfig(request: ModifyAuditLogConfigRequest): Modif
 
 model ModifyBackupPolicyRequest {
   regionId?: string(name='RegionId', position='Host'),
-  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The number of days for which data backup files are retained. Valid values: 7 to 730. Default value: 7.', example='7', minimum=7, maximum=730, position='Query'),
-  enableBackupLog?: int32(name='EnableBackupLog', description='Specifies whether to enable incremental data backup. Default value: 0. Valid values:
+  backupRetentionPeriod?: int32(name='BackupRetentionPeriod', description='The number of days for which you want to retain data backup files. Valid values: 7 to 730. Default value: 7.', example='7', maximum=730, position='Query'),
+  enableBackupLog?: int32(name='EnableBackupLog', description='Enables or disables the data flashback feature for the instance. Valid values:
 
-*   **1**: enables incremental data backup.
-*   **0**: disables incremental data backup.
->This parameter is available only for ApsaraDB for Redis Enhanced Edition (Tair) DRAM-based and persistent memory-optimized instances. For more information, see [Data flashback](~~443784~~).', example='1', position='Query'),
+*   **1**: enables the data flashback feature. You must also enable AOF persistence by setting `appendonly` to `yes` in the parameter settings of the instance. Then, you can use the data flashback feature.
+*   **0** (default): disables the data flashback feature.
+
+>  This parameter is available only for ApsaraDB for Redis Enhanced Edition (Tair) DRAM-based and persistent memory-optimized instances. For more information, see [Data flashback](~~443784~~).', example='1', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.', example='r-bp1zxszhcgatnx****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -4824,6 +5080,32 @@ model ModifyBackupPolicyResponse = {
 async function modifyBackupPolicy(request: ModifyBackupPolicyRequest): ModifyBackupPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyBackupPolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyDBInstanceAutoUpgradeRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  DBInstanceId: string(name='DBInstanceId', example='r-bp1zxszhcgatnx****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+  value: string(name='Value', example='0', position='Query'),
+}
+
+model ModifyDBInstanceAutoUpgradeResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='2FF6158E-3394-4A90-B634-79C49184****'),
+}
+
+model ModifyDBInstanceAutoUpgradeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyDBInstanceAutoUpgradeResponseBody(name='body'),
+}
+
+async function modifyDBInstanceAutoUpgrade(request: ModifyDBInstanceAutoUpgradeRequest): ModifyDBInstanceAutoUpgradeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyDBInstanceAutoUpgrade', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyDBInstanceConnectionStringRequest {
@@ -5475,6 +5757,44 @@ model ModifyIntranetAttributeResponse = {
 async function modifyIntranetAttribute(request: ModifyIntranetAttributeRequest): ModifyIntranetAttributeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyIntranetAttribute', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyParameterGroupRequest {
+  category: string(name='Category', description='The service category. Valid values:
+
+*   **standard**: Community Edition
+*   **enterprise**: Enhanced Edition (Tair)', example='enterprise', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  parameterGroupDesc?: string(name='ParameterGroupDesc', description='The description of the parameter template. The description must be 0 to 200 characters in length.', example='test', position='Query'),
+  parameterGroupId: string(name='ParameterGroupId', description='The parameter template ID.', example='sys-001****', position='Query'),
+  parameterGroupName?: string(name='ParameterGroupName', description='The new name of the parameter template. The name must meet the following requirements:
+
+*   The name can contain letters, digits, and underscores (\\_). It must start with a letter and cannot contain Chinese characters.
+*   The name can be 8 to 64 characters in length.', example='testGroupName', position='Query'),
+  parameters: string(name='Parameters', description='A JSON-formatted object that specifies the parameter-value pairs. Format: {"Parameter 1":"Value 1","Parameter 2":"Value 2"...}. The specified value overwrites the original content.
+
+>  The parameters that can be added for different editions are displayed in the console.', example='{"hz":"12"}', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  securityToken?: string(name='SecurityToken', position='Query'),
+}
+
+model ModifyParameterGroupResponseBody = {
+  paramGroupId?: string(name='ParamGroupId', description='The parameter template ID.', example='testGroupName'),
+  requestId?: string(name='RequestId', description='The request ID.', example='AD425AD3-CC7B-4EE2-A5CB-2F61BA73****'),
+}
+
+model ModifyParameterGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyParameterGroupResponseBody(name='body'),
+}
+
+async function modifyParameterGroup(request: ModifyParameterGroupRequest): ModifyParameterGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyParameterGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyResourceGroupRequest {
