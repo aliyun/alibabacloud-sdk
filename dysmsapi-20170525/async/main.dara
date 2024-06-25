@@ -23,12 +23,12 @@ init(configuration: ClientConfiguration){
   @version = '2017-05-25';
   @endpointRule = 'central';
   @endpointMap = {
-    ap-southeast-1 = 'dysmsapi.ap-southeast-1.aliyuncs.com',
-    ap-southeast-5 = 'dysmsapi.ap-southeast-5.aliyuncs.com',
-    cn-beijing = 'dysmsapi-proxy.cn-beijing.aliyuncs.com',
-    cn-hongkong = 'dysmsapi-xman.cn-hongkong.aliyuncs.com',
-    eu-central-1 = 'dysmsapi.eu-central-1.aliyuncs.com',
-    us-east-1 = 'dysmsapi.us-east-1.aliyuncs.com',
+    'ap-southeast-1' = 'dysmsapi.ap-southeast-1.aliyuncs.com',
+    'ap-southeast-5' = 'dysmsapi.ap-southeast-5.aliyuncs.com',
+    'cn-beijing' = 'dysmsapi-proxy.cn-beijing.aliyuncs.com',
+    'cn-hongkong' = 'dysmsapi-xman.cn-hongkong.aliyuncs.com',
+    'eu-central-1' = 'dysmsapi.eu-central-1.aliyuncs.com',
+    'us-east-1' = 'dysmsapi.us-east-1.aliyuncs.com',
   };
 }
 
@@ -37,30 +37,42 @@ function close(): void {
 }
 
 model AddShortUrlRequest {
-  effectiveDays: string(name='EffectiveDays', example='7', position='Body'),
+  effectiveDays: string(name='EffectiveDays', description='The validity period of the short URL. Unit: days. The maximum validity period is 90 days.', example='7', position='Body'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  shortUrlName: string(name='ShortUrlName', position='Body'),
-  sourceUrl: string(name='SourceUrl', example='https://www.****.com/product/sms', position='Body'),
+  shortUrlName: string(name='ShortUrlName', description='The service name of the short URL. The name cannot exceed 13 characters in length.', example='The Alibaba Cloud Short Link service.', position='Body'),
+  sourceUrl: string(name='SourceUrl', description='The source URL. The URL cannot exceed 1,000 characters in length.', example='https://www.****.com/product/sms', position='Body'),
 }
 
 model AddShortUrlResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    expireDate?: string(name='ExpireDate', example='2021-09-19 00:00:00'),
-    shortUrl?: string(name='ShortUrl', example='http://****.cn/6y8uy7'),
-    sourceUrl?: string(name='SourceUrl', example='https://www.****.com/product/sms'),
-  }(name='Data'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+    expireDate?: string(name='ExpireDate', description='The time when the short URL expires.
+
+> The value of **ExpireDate** is on the hour.', example='2021-09-19 00:00:00'),
+    shortUrl?: string(name='ShortUrl', description='The short URL.', example='http://****.cn/6y8uy7'),
+    sourceUrl?: string(name='SourceUrl', description='The source URL.', example='https://www.****.com/product/sms'),
+  }(name='Data', description='The details of the short URL.'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
 }
 
 model AddShortUrlResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddShortUrlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddShortUrlResponseBody(name='body'),
 }
 
+/**
+  * *   Before you call this operation, you must register the primary domain name of the source URL in the Short Message Service (SMS) console. After the domain name is registered, you can call this operation to create a short URL. For more information, see [Domain name registration](~~302325~~#title-mau-zdh-hd0).
+  * *   You can create up to 3,000 short URLs within a natural day.
+  * *   After a short URL is generated, a security review is required. Generally, the review takes 10 minutes to 2 hours to complete. Before the security review is passed, the short URL cannot be directly accessed.
+  *
+ */
 async function addShortUrl(request: AddShortUrlRequest): AddShortUrlResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AddShortUrl', 'POST', '/', 'json', true, 'form', request);
@@ -68,32 +80,69 @@ async function addShortUrl(request: AddShortUrlRequest): AddShortUrlResponse {
 
 model AddSmsSignRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  remark: string(name='Remark', position='Query'),
+  remark: string(name='Remark', description='The description of the signature application. The description cannot exceed 200 characters in length. The description is one of the reference information for signature review. We recommend that you describe the use scenarios of your services in detail, and provide information that can verify the services, such as a website URL, a domain name with an ICP filing, an app download URL, an official account name, or a mini program name. For sign-in scenarios, you must also provide an account and password for tests. A detailed description can improve the review efficiency of signatures and templates.', example='This is the abbreviation of our company.', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   signFileList: [ 
     {
-      fileContents: string(name='FileContents', example='R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uL****'),
-      fileSuffix: string(name='FileSuffix', example='jpg'),
+      fileContents: string(name='FileContents', description='The Base64-encoded string of the qualification document. An image cannot exceed 2 MB in size. In some scenarios, you must upload supporting documents to apply for signatures. For more information, see [SMS signature specifications](~~108076~~).', example='R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uL****'),
+      fileSuffix: string(name='FileSuffix', description='The format of the qualification document. You can upload multiple images. Images in JPG, PNG, GIF, or JPEG format are supported.
+
+In some scenarios, you must upload supporting documents to apply for signatures. For more information, see [SMS signature specifications](~~108076~~).
+
+> If you apply for a signature for other users or if the signature source is the name of an enterprise or public institution, you must upload a certificate and a letter of authorization. For more information, see [Certificate](~~108076~~) and [Letter of authorization](~~56741~~).', example='jpg'),
     }
-  ](name='SignFileList', position='Body'),
-  signName: string(name='SignName', position='Query'),
-  signSource: int32(name='SignSource', example='1', position='Query'),
-  signType?: int32(name='SignType', example='1', position='Query'),
+  ](name='SignFileList', description='The signature files.', position='Body'),
+  signName: string(name='SignName', description='The name of the signature.
+
+> 
+
+*   The signature name is not case-sensitive. For example, \\[Alibaba Cloud Communication] and \\[alibaba cloud communication] are considered as the same name.
+
+*   If your verification code signature and general-purpose signature have the same name, the system uses the general-purpose signature to send messages by default.', example='Aliyun', position='Query'),
+  signSource: int32(name='SignSource', description='The source of the signature. Valid values:
+
+*   **0**: the full name or abbreviation of an enterprise or institution
+*   **1**: the full name or abbreviation of a website that has obtained an ICP filing from the Ministry of Industry and Information Technology (MIIT) of China
+*   **2**: the full name or abbreviation of an app
+*   **3**: the full name or abbreviation of an official account or mini-program
+*   **4**: the full name or abbreviation of an e-commerce store
+*   **5**: the full name or abbreviation of a trademark', example='1', position='Query'),
+  signType?: int32(name='SignType', description='The type of the signature. Valid values:
+
+*   **0**: verification code
+*   **1**: general-purpose', example='1', position='Query'),
 }
 
 model AddSmsSignResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  signName?: string(name='SignName'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  signName?: string(name='SignName', description='The name of the signature.', example='Aliyun'),
 }
 
 model AddSmsSignResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddSmsSignResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddSmsSignResponseBody(name='body'),
 }
 
+/**
+  * You can call the AddSmsSign operation or use the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm#/overview) to create an SMS signature. The signature must comply with the [SMS signature specifications](~~108076~~). You can call the QuerySmsSign operation or use the SMS console to query the review status of the signature.
+  * For more information, see [Usage notes](~~55324~~).
+  * ### QPS limit
+  * You can call this operation only once per second. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  * > 
+  * *   You cannot cancel the review of a signature.
+  * *   Individual users can create only one verification code signature, and can create only one general-purpose signature within a natural day. If you need to apply for multiple signatures, we recommend that you upgrade your account to an enterprise user.
+  * *   If you need to use the same signature for messages sent to recipients both in and outside the Chinese mainland, the signature must be a general-purpose signature.
+  * *   If you apply for a signature or message template, you must specify the signature scenario or template type. You must also provide the information of your services, such as a website URL, a domain name with an ICP filing, an application download URL, or the name of your WeChat official account or mini program. For sign-in scenarios, you must also provide an account and password for tests. A detailed description can improve the review efficiency of signatures and templates.
+  * *   An SMS signature must undergo a thorough review process before it can be approved for use.
+  *
+ */
 async function addSmsSign(request: AddSmsSignRequest): AddSmsSignResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AddSmsSign', 'POST', '/', 'json', true, 'form', request);
@@ -101,77 +150,123 @@ async function addSmsSign(request: AddSmsSignRequest): AddSmsSignResponse {
 
 model AddSmsTemplateRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  remark: string(name='Remark', position='Query'),
+  remark: string(name='Remark', description='The description of the message template. It is one of the reference information for template review. The description cannot exceed 100 characters in length.', example='Apply for a template to send verification codes.', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  templateContent: string(name='TemplateContent', position='Query'),
-  templateName: string(name='TemplateName', position='Query'),
-  templateType: int32(name='TemplateType', example='1', position='Query'),
+  templateContent: string(name='TemplateContent', description='The content of the template. The content can be up to 500 characters in length. For more information, see [Message template specifications](~~108253~~).', example='You are applying for mobile registration. The verification code is: ${code}, valid for 5 minutes!', position='Query'),
+  templateName: string(name='TemplateName', description='The name of the template. The name can be up to 30 characters in length.', example='Aliyun Test', position='Query'),
+  templateType: int32(name='TemplateType', description='The type of the message. Valid values:
+
+*   **0**: verification code
+*   **1**: notification
+*   **2**: promotional message
+*   **3**: message sent to countries or regions outside the Chinese mainland
+
+> Only enterprise users can send promotional messages, or send messages to countries or regions outside the Chinese mainland.', example='1', position='Query'),
 }
 
 model AddSmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  templateCode?: string(name='TemplateCode', example='SMS_15255****'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  templateCode?: string(name='TemplateCode', description='The code of the message template.', example='SMS_15255****'),
 }
 
 model AddSmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: AddSmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddSmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * You can call the operation or use the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview) to apply for a message template. The template must comply with the [message template specifications](~~108253~~). You can call the [QuerySmsTemplate](~~419289~~) operation or use the Alibaba Cloud SMS console to check whether the message template is approved.
+  * > 
+  * *   Message templates pending approval can be withdrawn. You can withdraw a message template pending approval on the Message Templates tab in the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview).
+  * *   Message templates that have been approved can be deleted, and cannot be modified. You can delete a message template pending approval on the Message Templates tab in the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview).
+  * *   If you call the AddSmsTemplate operation, you can apply for a maximum of 100 message templates in a calendar day. After you apply for a message template, we recommend that you wait for at least 30 seconds before you apply for another one. If you use the Alibaba Cloud SMS console, you can apply for an unlimited number of message templates.
+  * *   Messages sent to the Chinese mainland and messages sent to countries or regions outside the Chinese mainland use separate message templates. Create message templates based on your needs.
+  * *   If you apply for a signature or message template, you must specify the signature scenario or template type. You must also provide the information of your services, such as a website URL, a domain name with an ICP filing, an application download URL, or the name of your WeChat official account or mini program. For sign-in scenarios, you must also provide an account and password for tests. A detailed description can improve the review efficiency of signatures and templates.
+  * *   A signature must undergo a thorough review process before it can be approved for use. For more information, see [Usage notes](~~55324~~).
+  * ### QPS limits
+  * You can call this operation up to 1,000 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function addSmsTemplate(request: AddSmsTemplateRequest): AddSmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AddSmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CheckMobilesCardSupportRequest {
-  mobiles: [  map[string]any ](name='Mobiles', position='Query'),
-  templateCode: string(name='TemplateCode', example='CARD_SMS_****', position='Query'),
+  mobiles: [  map[string]any ](name='Mobiles', description='The list of mobile phone numbers that receive messages.', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_****', position='Query'),
 }
 
 model CheckMobilesCardSupportResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
     queryResult?: [ 
       {
-        mobile?: string(name='mobile', example='1390000****'),
-        support?: boolean(name='support', example='true'),
+        mobile?: string(name='mobile', description='The mobile phone number.', example='1390000****'),
+        support?: boolean(name='support', description='Indicates whether the mobile phone number supports card messages.
+
+*   **true**
+*   **false**', example='true'),
       }
-    ](name='queryResult'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
-  success?: boolean(name='Success', example='true'),
+    ](name='queryResult', description='The list of returned results.'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model CheckMobilesCardSupportResponse = {
-  headers: map[string]string(name='headers'),
-  body: CheckMobilesCardSupportResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckMobilesCardSupportResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 2,000 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function checkMobilesCardSupport(request: CheckMobilesCardSupportRequest): CheckMobilesCardSupportResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CheckMobilesCardSupport', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ConversionDataIntlRequest {
-  conversionRate: string(name='ConversionRate', example='0.53', position='Query'),
+  conversionRate: string(name='ConversionRate', description='The conversion rate.
+
+> The value of this parameter is a double, and ranges from 0 to 1.', example='0.53', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  reportTime?: long(name='ReportTime', example='1349055900000', position='Query'),
+  reportTime?: long(name='ReportTime', description='The time point at which the conversion rate is monitored. The value is a UNIX timestamp. Unit: milliseconds.
+
+> If you do not specify this parameter, the current timestamp is used by default.', example='1349055900000', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ConversionDataIntlResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
+  code?: string(name='Code', description='The status code. If OK is returned, the request is successful. For more information, see [Error codes](https://help.aliyun.com/document_detail/101346.html?spm=a2c4g.101345.0.0.74326ff2J5EZyt).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
 }
 
 model ConversionDataIntlResponse = {
-  headers: map[string]string(name='headers'),
-  body: ConversionDataIntlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConversionDataIntlResponseBody(name='body'),
 }
 
 async function conversionDataIntl(request: ConversionDataIntlRequest): ConversionDataIntlResponse {
@@ -180,39 +275,71 @@ async function conversionDataIntl(request: ConversionDataIntlRequest): Conversio
 }
 
 model CreateCardSmsTemplateRequest {
-  factorys?: string(name='Factorys', example='XiaoMi', position='Query'),
-  memo?: string(name='Memo', position='Query'),
-  template: map[string]any(name='Template', shrink='json', position='Query'),
-  templateName: string(name='TemplateName', position='Query'),
+  factorys?: string(name='Factorys', description='The mobile phone manufacturer. Valid values:
+
+*   **HuaWei**: HUAWEI
+*   **XiaoMi**: Xiaomi
+*   **OPPO**: OPPO
+*   **VIVO**: vivo
+*   **MEIZU**: MEIZU
+
+> If this parameter is not specified, the system automatically specifies a supported mobile phone manufacturer.', example='XiaoMi', position='Query'),
+  memo?: string(name='Memo', description='The description of the message template.', position='Query'),
+  template: map[string]any(name='Template', description='The content of the card message template.
+
+> 
+
+*   For information about fields such as Template, ExtendInfo, TemplateContent, TmpCard, and Action, see [Parameters of card message templates](~~434929~~).
+
+*   Message template content varies based on the template type. For more information, see [Sample message templates](~~435361~~).', shrink='json', position='Query'),
+  templateName: string(name='TemplateName', description='The name of the card message template.', position='Query'),
 }
 
 model CreateCardSmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    templateCode?: string(name='TemplateCode', example='CARD_SMS_60000****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  success?: boolean(name='Success', example='true'),
+    templateCode?: string(name='TemplateCode', description='The code of the message template.
+
+You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm?spm=5176.12818093.categories-n-products.ddysms.3b2816d0xml2NA#/overview).
+
+> Make sure that the message template has been approved.', example='CARD_SMS_60000****'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model CreateCardSmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateCardSmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCardSmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * *   The CreateCardSmsTemplate operation saves the card message template information, submits it to the mobile phone manufacturer for approval, and returns the message template ID.
+  * *   If the type of the message template is not supported or events that are not supported by the mobile phone manufacturer are specified, the template is not submitted. For more information, see [Supported message templates](~~434611~~).
+  * *   For information about sample card message templates, see [Sample card message templates](~~435361~~).
+  * ### QPS limit
+  * You can call this operation up to 300 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function createCardSmsTemplate(request: CreateCardSmsTemplateRequest): CreateCardSmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateCardSmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model CreateSmartShortUrlRequest {
-  expiration?: long(name='Expiration', example='46', position='Query'),
+  outId?: string(name='OutId', example='示例值示例值', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  phoneNumbers?: string(name='PhoneNumbers', example='示例值示例值', position='Query'),
+  phoneNumbers: string(name='PhoneNumbers', example='15900195***', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  sourceName?: string(name='SourceName', example='示例值示例值', position='Query'),
-  sourceUrl?: string(name='SourceUrl', example='示例值', position='Query'),
+  sourceUrl: string(name='SourceUrl', example='示例值', position='Query'),
 }
 
 model CreateSmartShortUrlResponseBody = {
@@ -231,8 +358,9 @@ model CreateSmartShortUrlResponseBody = {
 }
 
 model CreateSmartShortUrlResponse = {
-  headers: map[string]string(name='headers'),
-  body: CreateSmartShortUrlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSmartShortUrlResponseBody(name='body'),
 }
 
 async function createSmartShortUrl(request: CreateSmartShortUrlRequest): CreateSmartShortUrlResponse {
@@ -240,24 +368,101 @@ async function createSmartShortUrl(request: CreateSmartShortUrlRequest): CreateS
   return @handler.do('RPC', 'CreateSmartShortUrl', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateSmsSignRequest {
+  applySceneContent?: string(name='ApplySceneContent', example='http://www.aliyun.com/', position='Query'),
+  moreData?: [ string ](name='MoreData', shrink='json', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  qualificationId: long(name='QualificationId', example='2004393xxxx', position='Query'),
+  remark?: string(name='Remark', maxLength=500, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  signName: string(name='SignName', position='Query'),
+  signSource: int32(name='SignSource', example='1', position='Query'),
+  signType?: int32(name='SignType', example='1', position='Query'),
+  thirdParty?: boolean(name='ThirdParty', example='false', position='Query'),
+}
+
+model CreateSmsSignResponseBody = {
+  code?: string(name='Code', example='OK'),
+  message?: string(name='Message', example='OK'),
+  orderId?: string(name='OrderId', example='20044156924'),
+  requestId?: string(name='RequestId', example='CCA2BCFF-2BA7-427C-90EE-AC6994748607'),
+  signName?: string(name='SignName'),
+}
+
+model CreateSmsSignResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSmsSignResponseBody(name='body'),
+}
+
+async function createSmsSign(request: CreateSmsSignRequest): CreateSmsSignResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSmsSign', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateSmsTemplateRequest {
+  applySceneContent?: string(name='ApplySceneContent', example='http://www.aliyun.com/', position='Query'),
+  intlType?: int32(name='IntlType', example='0', position='Query'),
+  moreData?: [ string ](name='MoreData', shrink='json', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  relatedSignName?: string(name='RelatedSignName', position='Query'),
+  remark?: string(name='Remark', maxLength=500, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  templateContent: string(name='TemplateContent', maxLength=500, position='Query'),
+  templateName: string(name='TemplateName', maxLength=30, position='Query'),
+  templateRule?: string(name='TemplateRule', example='{"code":"characterWithNumber"}', position='Query'),
+  templateType: int32(name='TemplateType', example='0', position='Query'),
+}
+
+model CreateSmsTemplateResponseBody = {
+  code?: string(name='Code', example='OK'),
+  message?: string(name='Message', example='OK'),
+  orderId?: string(name='OrderId', example='20044158441'),
+  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  templateCode?: string(name='TemplateCode', example='SMS_100000056'),
+  templateName?: string(name='TemplateName'),
+}
+
+model CreateSmsTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSmsTemplateResponseBody(name='body'),
+}
+
+async function createSmsTemplate(request: CreateSmsTemplateRequest): CreateSmsTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSmsTemplate', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteShortUrlRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  sourceUrl: string(name='SourceUrl', example='https://www.****.com/product/sms', position='Body'),
+  sourceUrl: string(name='SourceUrl', description='The source address. The address can be up to 1,000 characters in length.', example='https://www.****.com/product/sms', position='Body'),
 }
 
 model DeleteShortUrlResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
 }
 
 model DeleteShortUrlResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteShortUrlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteShortUrlResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limits
+  * You can call this operation up to 100 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function deleteShortUrl(request: DeleteShortUrlRequest): DeleteShortUrlResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteShortUrl', 'POST', '/', 'json', true, 'form', request);
@@ -267,21 +472,34 @@ model DeleteSmsSignRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  signName: string(name='SignName', position='Query'),
+  signName: string(name='SignName', description='The signature.
+
+> The signature must be submitted by the current Alibaba Cloud account, and has been approved.', example='Aliyun', position='Query'),
 }
 
 model DeleteSmsSignResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
-  signName?: string(name='SignName'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
+  signName?: string(name='SignName', description='The signature.', example='Aliyun'),
 }
 
 model DeleteSmsSignResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteSmsSignResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSmsSignResponseBody(name='body'),
 }
 
+/**
+  * *   You cannot delete a signature that has not been approved.
+  * *   After you delete a signature, you cannot recover it. Proceed with caution.
+  * ### QPS limits
+  * You can call this operation up to 1,000 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function deleteSmsSign(request: DeleteSmsSignRequest): DeleteSmsSignResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteSmsSign', 'POST', '/', 'json', false, 'json', request);
@@ -291,86 +509,177 @@ model DeleteSmsTemplateRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  templateCode: string(name='TemplateCode', example='SMS_152550****', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm) and obtain the message template code on the **Message Templates** tab. You can also obtain the message template code by calling the [AddSmsTemplate](~~121208~~) operation.', example='SMS_152550****', position='Query'),
 }
 
 model DeleteSmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='CCA2BCFF-2BA7-427C-90EE-AC6994748607'),
-  templateCode?: string(name='TemplateCode', example='SMS_20375****'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CCA2BCFF-2BA7-427C-90EE-AC6994748607'),
+  templateCode?: string(name='TemplateCode', description='The code of the message template.', example='SMS_20375****'),
 }
 
 model DeleteSmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: DeleteSmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * *   Message templates pending approval can be withdrawn. You can delete a message template pending approval on the Message Templates tab in the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview).
+  * *   Message templates that have been approved can be deleted, and cannot be modified. You can delete a message template pending approval on the Message Templates tab in the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview).
+  * *   You cannot recover deleted message templates. Proceed with caution.
+  * ### QPS limits
+  * You can call this operation up to 1,000 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function deleteSmsTemplate(request: DeleteSmsTemplateRequest): DeleteSmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteSmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetCardSmsLinkRequest {
-  cardCodeType?: int32(name='CardCodeType', example='2', position='Query'),
-  cardLinkType?: int32(name='CardLinkType', example='1', position='Query'),
-  cardTemplateCode: string(name='CardTemplateCode', example='CARD_SMS_****', position='Query'),
-  cardTemplateParamJson?: string(name='CardTemplateParamJson', position='Query'),
-  customShortCodeJson?: string(name='CustomShortCodeJson', example='abCde', position='Query'),
-  domain?: string(name='Domain', position='Query'),
-  outId?: string(name='OutId', example='BC20220608102511660860762****', position='Query'),
-  phoneNumberJson?: string(name='PhoneNumberJson', example='[\\"1390000****
+  cardCodeType?: int32(name='CardCodeType', description='The code type of the URLs.
+
+*   **1**: group texting
+*   **2**: personalization', example='2', position='Query'),
+  cardLinkType?: int32(name='CardLinkType', description='The type of the short URLs.
+
+*   1: standard short code.
+*   2: custom short code.
+
+> If the **CardLinkType** is not specified, standard short codes are generated. If you need to generate custom short codes, contact Alibaba Cloud SMS technical support.', example='1', position='Query'),
+  cardTemplateCode: string(name='CardTemplateCode', description='The code of the message template. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_****', position='Query'),
+  cardTemplateParamJson?: string(name='CardTemplateParamJson', description='The variables of the message template.', position='Query'),
+  customShortCodeJson?: string(name='CustomShortCodeJson', description='The custom short code. It can contain 4 to 8 digits or letters.
+
+> If the CardLinkType parameter is set to 2, the CustomShortCodeJson parameter is required.', example='abCde', position='Query'),
+  domain?: string(name='Domain', description='The original domain name. You must submit domain names for approval in advance.
+
+> 
+
+*   If the **CardLinkType** parameter is set to **2**, the **Domain** parameter is required.
+
+*   The **Domain** parameter cannot exceed 100 characters in length. If the parameter is not specified, a default domain name is used.', example='xxx.com', position='Query'),
+  outId?: string(name='OutId', description='The extension field.', example='BC20220608102511660860762****', position='Query'),
+  phoneNumberJson?: string(name='PhoneNumberJson', description='The mobile phone numbers of recipients, custom identifiers, or system identifiers.
+
+> 
+
+*   A maximum of 10,000 mobile phone numbers are supported.
+
+*   You can enter custom identifier. Each identifier can be a maximum of 60 characters in length.
+
+*   You can apply for a maximum of 10 OPPO templates at a time.', example='[\\"1390000****
 \\",\\"1370000****
 \\"]', position='Query'),
-  signNameJson: string(name='SignNameJson', position='Query'),
+  signNameJson: string(name='SignNameJson', description='The signature. You can view the template code in the **Signature** column on the **Signaturess** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> The signatures must be approved and correspond to the mobile numbers in sequence.', position='Query'),
 }
 
 model GetCardSmsLinkResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    cardPhoneNumbers?: string(name='CardPhoneNumbers'),
-    cardSignNames?: string(name='CardSignNames'),
-    cardSmsLinks?: string(name='CardSmsLinks', example='[\\"mw2m.cn/LAaGGa\\",\\"mw2m.cn/LAAaes\\"]'),
-    cardTmpState?: int32(name='CardTmpState', example='0'),
-    notMediaMobiles?: string(name='NotMediaMobiles', example='1390000****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
-  success?: boolean(name='Success', example='true'),
+    cardPhoneNumbers?: string(name='CardPhoneNumbers', description='The mobile phone numbers that support card messages.', example='[\\"1390000****\\",\\"1370000****\\"]'),
+    cardSignNames?: string(name='CardSignNames', description='The signatures must correspond to the mobile numbers and short URLs in sequence.'),
+    cardSmsLinks?: string(name='CardSmsLinks', description='The short URLs.', example='[\\"mw2m.cn/LAaGGa\\",\\"mw2m.cn/LAAaes\\"]'),
+    cardTmpState?: int32(name='CardTmpState', description='The review status of the card message template.
+
+*   **0**: pending approval
+*   **1**: approved
+*   **2**: rejected
+
+> Unapproved card messages are rolled back.', example='0'),
+    notMediaMobiles?: string(name='NotMediaMobiles', description='The mobile phone numbers that do not support card messages.', example='1390000****'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model GetCardSmsLinkResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetCardSmsLinkResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCardSmsLinkResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 1,000 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function getCardSmsLink(request: GetCardSmsLinkRequest): GetCardSmsLinkResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetCardSmsLink', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetMediaResourceIdRequest {
-  extendInfo?: string(name='ExtendInfo', example='{\\"img_rate\\":\\"oneToOne\\"}', position='Query'),
-  fileSize: long(name='FileSize', example='12', minimum=0, maximum=9223372036854775807, position='Query'),
-  memo?: string(name='Memo', position='Query'),
-  ossKey: string(name='OssKey', example='oss://alicom-fc-media/1947741454322274/alicom-fc-media/pic/202205191526575398603697152.png', position='Query'),
-  resourceType: int32(name='ResourceType', example='1', minimum=0, maximum=10000, position='Query'),
+  extendInfo?: string(name='ExtendInfo', description='The extended fields.
+
+> If you set the ResourceType parameter to **2**, this parameter is required.', example='{\\"img_rate\\":\\"oneToOne\\"}', position='Query'),
+  fileSize: long(name='FileSize', description='The size of the resource. Unit: bytes.', example='12', minimum=0, maximum=9223372036854775807, position='Query'),
+  memo?: string(name='Memo', description='The description of the resource.', position='Query'),
+  ossKey: string(name='OssKey', description='The address of the resource.', example='oss://alicom-fc-media/1947741454322274/alicom-fc-media/pic/202205191526575398603697152.png', position='Query'),
+  resourceType: int32(name='ResourceType', description='The type of the resource.
+
+*   **1**: text.
+*   **2**: image. A small image cannot exceed 100 KB in size, and a large image cannot exceed 2 MB in size. The image must be clear. Supported format: JPG, JPEG, and PNG.
+*   **3**: audio.
+*   **4**: video. Supported format: MP4.
+
+> 
+
+*   If you set the ResourceType parameter to 2, the **img_rate** required is required. Valid values:
+
+*   1:1
+
+*   16:9
+
+*   3:1
+
+*   48:65', example='1', minimum=0, maximum=10000, position='Query'),
 }
 
 model GetMediaResourceIdResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    resUrlDownload?: string(name='ResUrlDownload', example='http://test-example.com/download.jpg'),
-    resourceId?: long(name='ResourceId', example='SMS_14571****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='F07CF237-F6E3-5F77-B91B-F9B7C5DE84AB'),
-  success?: boolean(name='Success', example='true'),
+    resUrlDownload?: string(name='ResUrlDownload', description='The download URL of the resource.', example='http://test-example.com/download.jpg'),
+    resourceId?: long(name='ResourceId', description='The resource ID.', example='SMS_14571****'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F07CF237-F6E3-5F77-B91B-F9B7C5DE84AB'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model GetMediaResourceIdResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetMediaResourceIdResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMediaResourceIdResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 300 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function getMediaResourceId(request: GetMediaResourceIdRequest): GetMediaResourceIdResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetMediaResourceId', 'POST', '/', 'json', false, 'json', request);
@@ -380,70 +689,212 @@ model GetOSSInfoForCardTemplateRequest {
 }
 
 model GetOSSInfoForCardTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
   data?: {
-    accessKeyId?: string(name='AccessKeyId', example='LTAIxetqt1Dg****'),
-    aliUid?: string(name='AliUid', example='599333677478****'),
-    bucket?: string(name='Bucket', example='alicom-cardsms-resources'),
-    expireTime?: string(name='ExpireTime', example='1634209418'),
-    host?: string(name='Host', example='https://alicom-cardsms-resources.oss-cn-zhangjiakou.aliyuncs.com'),
-    policy?: string(name='Policy', example='eyJxxx0='),
-    signature?: string(name='Signature'),
-    startPath?: string(name='StartPath', example='1631792777'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
-  success?: boolean(name='Success', example='true'),
+    accessKeyId?: string(name='AccessKeyId', description='The AccessKey ID.', example='LTAIxetqt1Dg****'),
+    aliUid?: string(name='AliUid', description='The ID of the Alibaba Cloud account.', example='599333677478****'),
+    bucket?: string(name='Bucket', description='The name of the OSS bucket.', example='alicom-cardsms-resources'),
+    expireTime?: string(name='ExpireTime', description='The timeout period.', example='1634209418'),
+    host?: string(name='Host', description='The hostname.', example='https://alicom-cardsms-resources.oss-cn-zhangjiakou.aliyuncs.com'),
+    policy?: string(name='Policy', description='The signature policy.', example='eyJxxx0='),
+    signature?: string(name='Signature', description='The signature.', example='Aliyun'),
+    startPath?: string(name='StartPath', description='The path of the policy.', example='1631792777'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model GetOSSInfoForCardTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: GetOSSInfoForCardTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOSSInfoForCardTemplateResponseBody(name='body'),
 }
 
+/**
+  * Resources such as images and videos used for card message templates can be uploaded to Object Storage Service (OSS) buckets for storage. For more information, see [Upload files to OSS](~~437303~~).
+  * ### QPS limit
+  * You can call this operation up to 300 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function getOSSInfoForCardTemplate(request: GetOSSInfoForCardTemplateRequest): GetOSSInfoForCardTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetOSSInfoForCardTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
-model ListTagResourcesRequest {
-  nextToken?: string(name='NextToken', position='Query'),
+model GetOSSInfoForUploadFileRequest {
+  bizType?: string(name='BizType', example='fcMediaSms', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageSize?: int32(name='PageSize', example='20', position='Query'),
-  prodCode?: string(name='ProdCode', example='dysms', position='Query'),
-  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  resourceId?: [ string ](name='ResourceId', example='SMS_23423423', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  resourceType: string(name='ResourceType', example='TEMPLATE', position='Query'),
+}
+
+model GetOSSInfoForUploadFileResponseBody = {
+  code?: string(name='Code', example='OK'),
+  message?: string(name='Message', example='OK'),
+  model?: {
+    accessKeyId?: string(name='AccessKeyId', example='LTAIxetqt1Dg****'),
+    expireTime?: string(name='ExpireTime', example='1719297445'),
+    host?: string(name='Host', example='https://alicom-fc-media.oss-cn-zhangjiakou.aliyuncs.com'),
+    policy?: string(name='Policy', example='eyJleHBpcmF0aW9uIjoiMjAyN***Ni0yNVQwNjozNzoyNS45NzBaI**iY29uZGl0aW9ucyI6W1siY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwMF0sWyJzdGFydHMtd2l0***sIiRrZXkiLCIiXV19'),
+    signature?: string(name='Signature', example='BXnwCWPrhVb*****aoZHZfli5KE='),
+    startPath?: string(name='StartPath', example='123456'),
+  }(name='Model'),
+  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700EDCFD0D'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetOSSInfoForUploadFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOSSInfoForUploadFileResponseBody(name='body'),
+}
+
+async function getOSSInfoForUploadFile(request: GetOSSInfoForUploadFileRequest): GetOSSInfoForUploadFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetOSSInfoForUploadFile', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetSmsSignRequest {
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  signName: string(name='SignName', position='Query'),
+}
+
+model GetSmsSignResponseBody = {
+  applyScene?: string(name='ApplyScene', example='http://www.aliyun.com/'),
+  auditInfo?: {
+    auditDate?: string(name='AuditDate', example='2024-06-03 12:02:34'),
+    rejectInfo?: string(name='RejectInfo'),
+  }(name='AuditInfo'),
+  code?: string(name='Code', example='OK'),
+  createDate?: string(name='CreateDate', example='2024-06-03 10:02:34'),
+  fileUrlList?: [ string ](name='FileUrlList'),
+  message?: string(name='Message', example='OK'),
+  orderId?: string(name='OrderId', example='20044156924'),
+  qualificationId?: long(name='QualificationId', example='2004393xxxx'),
+  remark?: string(name='Remark'),
+  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  signCode?: string(name='SignCode', example='SIGN_100xxx077042023_16884xxxx64065_hrsdB'),
+  signName?: string(name='SignName'),
+  signStatus?: long(name='SignStatus', example='1'),
+  signTag?: string(name='SignTag', example='2'),
+  signUsage?: string(name='SignUsage'),
+  thirdParty?: boolean(name='ThirdParty', example='false'),
+}
+
+model GetSmsSignResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSmsSignResponseBody(name='body'),
+}
+
+async function getSmsSign(request: GetSmsSignRequest): GetSmsSignResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSmsSign', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetSmsTemplateRequest {
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  templateCode: string(name='TemplateCode', example='SMS_20375****', position='Query'),
+}
+
+model GetSmsTemplateResponseBody = {
+  applyScene?: string(name='ApplyScene', example='http://www.aliyun.com/'),
+  auditInfo?: {
+    auditDate?: string(name='AuditDate', example='2024-06-03 11:20:34'),
+    rejectInfo?: string(name='RejectInfo'),
+  }(name='AuditInfo'),
+  code?: string(name='Code', example='OK'),
+  createDate?: string(name='CreateDate', example='2024-06-03 10:02:34'),
+  fileUrlList?: {
+    fileUrl?: [ string ](name='FileUrl')
+  }(name='FileUrlList'),
+  intlType?: int32(name='IntlType', example='0'),
+  message?: string(name='Message', example='OK'),
+  moreDataFileUrlList?: {
+    moreDataFileUrl?: [ string ](name='MoreDataFileUrl')
+  }(name='MoreDataFileUrlList'),
+  orderId?: string(name='OrderId', example='20030193785'),
+  relatedSignName?: string(name='RelatedSignName'),
+  remark?: string(name='Remark'),
+  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E47708****'),
+  templateCode?: string(name='TemplateCode', example='SMS_2322****'),
+  templateContent?: string(name='TemplateContent'),
+  templateName?: string(name='TemplateName'),
+  templateStatus?: string(name='TemplateStatus', example='1'),
+  templateTag?: int32(name='TemplateTag', example='2'),
+  templateType?: string(name='TemplateType', example='1'),
+  variableAttribute?: string(name='VariableAttribute', example='{"code":"characterWithNumber"}'),
+}
+
+model GetSmsTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetSmsTemplateResponseBody(name='body'),
+}
+
+async function getSmsTemplate(request: GetSmsTemplateRequest): GetSmsTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetSmsTemplate', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListTagResourcesRequest {
+  nextToken?: string(name='NextToken', description='The token used to query the next page.', example='23432453245', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20', position='Query'),
+  prodCode?: string(name='ProdCode', description='The name of the cloud service. Set the value to **dysms**.', example='dysms', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. Set the value to **cn-hangzhou**.', example='cn-hangzhou', position='Query'),
+  resourceId?: [ string ](name='ResourceId', description='The code of the message template. Specify either the Tag or the ResourceId parameter.', example='SMS_23423423', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. Set the value to TEMPLATE.', example='TEMPLATE', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', example='TestKey'),
-      value?: string(name='Value', example='TestValue'),
+      key?: string(name='Key', description='The key of the tag.', example='TestKey'),
+      value?: string(name='Value', description='The value of the tag.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tag list. Specify either the Tag or the ResourceId parameter. You can specify a maximum of 20 tags.', position='Query'),
 }
 
 model ListTagResourcesResponseBody = {
-  code?: string(name='Code', example='OK'),
-  nextToken?: string(name='NextToken', example='"23432453245"'),
-  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  nextToken?: string(name='NextToken', description='The token used to query the next page.', example='"23432453245"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
   tagResources?: {
     tagResource?: [ 
     {
-      resourceId?: string(name='ResourceId', example='SMS_23423****'),
-      resourceType?: string(name='ResourceType', example='ALIYUN::DYSMS::TEMPLATE'),
-      tagKey?: string(name='TagKey', example='TestKey'),
-      tagValue?: string(name='TagValue', example='TestValue'),
+      resourceId?: string(name='ResourceId', description='The code of the message template.', example='SMS_23423****'),
+      resourceType?: string(name='ResourceType', description='The type of resource.', example='ALIYUN::DYSMS::TEMPLATE'),
+      tagKey?: string(name='TagKey', description='The tag key.', example='TestKey'),
+      tagValue?: string(name='TagValue', description='The tag value.', example='TestValue'),
     }
   ](name='TagResource')
-  }(name='TagResources'),
+  }(name='TagResources', description='The list of tags.'),
 }
 
 model ListTagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  body: ListTagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 50 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
@@ -451,32 +902,65 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 
 model ModifySmsSignRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  remark: string(name='Remark', position='Query'),
+  remark: string(name='Remark', description='The scenario description of your released services. Provide the information of your services, such as a website URL, a domain name with an ICP filing, an app download URL, or the name of your WeChat official account or mini program. For sign-in scenarios, you must also provide an account and password for tests. A detailed description can improve the review efficiency of signatures and templates.
+
+> The description can be up to 200 characters in length.', example='This is the abbreviation of our company.', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   signFileList: [ 
     {
-      fileContents: string(name='FileContents', example='R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uLiwAA'),
-      fileSuffix: string(name='FileSuffix', example='jpg'),
+      fileContents: string(name='FileContents', description='The base64-encoded string of the signed files. The size of the image cannot exceed 2 MB.
+
+In some scenarios, documents are required to prove your identity. For more information, see [Signature specifications](~~108076~~).', example='R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uLiwAA'),
+      fileSuffix: string(name='FileSuffix', description='The format of the documents. You can upload multiple images. JPG, PNG, GIF, and JPEG are supported.
+
+In some scenarios, documents are required to prove your identity. For more information, see [Signature specifications](~~108076~~).
+
+> If the signature is used for other purposes or the signature source is an enterprise or public institution, you must upload some documents and an authorization letter. For more information, see [Documents](~~108076~~) and [Letter of authorization](~~56741~~).', example='jpg'),
     }
-  ](name='SignFileList', position='Body'),
-  signName: string(name='SignName', position='Query'),
-  signSource: int32(name='SignSource', example='1', position='Query'),
-  signType?: int32(name='SignType', example='1', position='Query'),
+  ](name='SignFileList', description='The list of signature files.', position='Body'),
+  signName: string(name='SignName', description='The signature.', example='Aliyun', position='Query'),
+  signSource: int32(name='SignSource', description='The source of the signature. Valid values:
+
+*   **0**: full name or abbreviation of an enterprise or institution.
+*   **1**: full name or abbreviation of a website with Ministry of Industry and Information Technology (MIIT) filing.
+*   **2**: full name or abbreviation of an app.
+*   **3**: full name or abbreviation of a WeChat official account or applet.
+*   **4**: full name or abbreviation of an e-commerce store.
+*   **5**: full name or abbreviation of a trademark.', example='1', position='Query'),
+  signType?: int32(name='SignType', description='The type of the signature. Valid values:
+
+*   **0**: verification-code signature
+*   **1**: general-purpose signature', example='1', position='Query'),
 }
 
 model ModifySmsSignResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  signName?: string(name='SignName'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  signName?: string(name='SignName', description='The signature.', example='Aliyun'),
 }
 
 model ModifySmsSignResponse = {
-  headers: map[string]string(name='headers'),
-  body: ModifySmsSignResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySmsSignResponseBody(name='body'),
 }
 
+/**
+  * You can call the operation or use the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview) to modify an existing signature and submit the signature for approval. The signature must comply with the [signature specifications](~~108076~~).
+  * For more information, see [Usage notes](~~55324~~).
+  * ### QPS limits
+  * You can call this operation up to 1,000 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  * > 
+  * *   Signatures pending approval cannot be modified.
+  * *   You cannot modify a signature after it is approved. If you no longer need the signature, you can delete it.
+  * *   If you are an individual user, you cannot apply for a new signature on the same day that your signature is rejected or deleted. We recommend that you modify the rejected signature and submit it again.
+  *
+ */
 async function modifySmsSign(request: ModifySmsSignRequest): ModifySmsSignResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifySmsSign', 'POST', '/', 'json', true, 'form', request);
@@ -484,102 +968,163 @@ async function modifySmsSign(request: ModifySmsSignRequest): ModifySmsSignRespon
 
 model ModifySmsTemplateRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  remark: string(name='Remark', position='Query'),
+  remark: string(name='Remark', description='The description of the message template. It is one of the reference information for template review. The description cannot exceed 100 characters in length.', example='Modify the parameters of the template.', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  templateCode: string(name='TemplateCode', example='SMS_15255****', position='Query'),
-  templateContent: string(name='TemplateContent', position='Query'),
-  templateName: string(name='TemplateName', position='Query'),
-  templateType: int32(name='TemplateType', example='1', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the template code on the **Templates** tab. You can also call the [AddSmsTemplate](~~121208~~) operation to obtain the template code.', example='SMS_15255****', position='Query'),
+  templateContent: string(name='TemplateContent', description='The content of the template. The content must be 1 to 500 characters in length.
+
+> When you modify a template, design the template content based on the review comments.', example='You are applying for mobile registration. The verification code is: ${code}, valid for 5 minutes!', position='Query'),
+  templateName: string(name='TemplateName', description='The name of the template. The name must be 1 to 30 characters in length.', example='aliyun verification code', position='Query'),
+  templateType: int32(name='TemplateType', description='The type of the message. Valid values:
+
+*   **0**: verification code
+*   **1**: text message
+*   **2**: promotional message
+*   **3**: message sent to countries or regions outside the Chinese mainland', example='1', position='Query'),
 }
 
 model ModifySmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  templateCode?: string(name='TemplateCode', example='SMS_15255****'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  templateCode?: string(name='TemplateCode', description='The code of the message template.', example='SMS_15255****'),
 }
 
 model ModifySmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: ModifySmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * After you apply for a message template, if the template fails to pass the review, you can call this operation to modify the template and submit the template again. You can call this operation to modify only a template for a specific message type.
+  * The template content must comply with the [SMS template specifications](~~108253~~).
+  * For more information, see [Usage notes](~~55324~~).
+  * ### QPS limit
+  * You can call this operation up to 1,000 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function modifySmsTemplate(request: ModifySmsTemplateRequest): ModifySmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifySmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryCardSmsTemplateRequest {
-  templateCode: string(name='TemplateCode', example='CARD_SMS_4139', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_4139', position='Query'),
 }
 
 model QueryCardSmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
   data?: {
-    templates?: [  map[string]any ](name='Templates'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
-  success?: boolean(name='Success', example='true'),
+    templates?: [  map[string]any ](name='Templates', description='The array of objects.'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model QueryCardSmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryCardSmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCardSmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 300 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function queryCardSmsTemplate(request: QueryCardSmsTemplateRequest): QueryCardSmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QueryCardSmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryCardSmsTemplateReportRequest {
-  endDate?: string(name='EndDate', example='2020-10-11 00:00:01', position='Query'),
-  startDate?: string(name='StartDate', example='2020-10-10 00:00:01', position='Query'),
-  templateCodes: [ string ](name='TemplateCodes', position='Query'),
+  endDate?: string(name='EndDate', description='The end of the time range to query. Specify the time in the yyyy-MM-dd HH:mm:ss format.', example='2020-10-11 00:00:01', position='Query'),
+  startDate?: string(name='StartDate', description='The beginning of the time range to query. Specify the time in the yyyy-MM-dd HH:mm:ss format.', example='2020-10-10 00:00:01', position='Query'),
+  templateCodes: [ string ](name='TemplateCodes', description='The array of message templates.', position='Query'),
 }
 
 model QueryCardSmsTemplateReportResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    model?: [  map[string]any ](name='model'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
-  success?: boolean(name='Success', example='true'),
+    model?: [  map[string]any ](name='model', description='The details of the data returned.'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model QueryCardSmsTemplateReportResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryCardSmsTemplateReportResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryCardSmsTemplateReportResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 300 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function queryCardSmsTemplateReport(request: QueryCardSmsTemplateReportRequest): QueryCardSmsTemplateReportResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QueryCardSmsTemplateReport', 'POST', '/', 'json', false, 'json', request);
 }
 
 model QueryMobilesCardSupportRequest {
-  mobiles: [  map[string]any ](name='Mobiles', shrink='json', position='Query'),
-  templateCode: string(name='TemplateCode', position='Query'),
+  mobiles: [  map[string]any ](name='Mobiles', description='The list of mobile phone numbers.', shrink='json', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_0000', position='Query'),
 }
 
 model QueryMobilesCardSupportResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
     queryResult?: [ 
       {
-        mobile?: string(name='Mobile'),
-        support?: boolean(name='Support'),
+        mobile?: string(name='Mobile', description='The mobile phone number.', example='1380000****'),
+        support?: boolean(name='Support', description='Indicates whether the mobile phone number supports card messages. Valid values:
+
+*   **true**
+*   **false**', example='true'),
       }
-    ](name='QueryResult'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='08C17DFE-2E10-54F4-BAFB-7180039CC217'),
-  success?: boolean(name='Success'),
+    ](name='QueryResult', description='The list of returned results.'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='08C17DFE-2E10-54F4-BAFB-7180039CC217'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model QueryMobilesCardSupportResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryMobilesCardSupportResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryMobilesCardSupportResponseBody(name='body'),
 }
 
 async function queryMobilesCardSupport(request: QueryMobilesCardSupportRequest): QueryMobilesCardSupportResponse {
@@ -588,19 +1133,15 @@ async function queryMobilesCardSupport(request: QueryMobilesCardSupportRequest):
 }
 
 model QueryPageSmartShortUrlLogRequest {
-  clickState?: long(name='ClickState', example='12', position='Query'),
-  createDateEnd?: long(name='CreateDateEnd', example='14', position='Query'),
-  createDateStart?: long(name='CreateDateStart', example='31', position='Query'),
-  endId?: long(name='EndId', example='46', position='Query'),
+  createDateEnd: long(name='CreateDateEnd', example='20181225', position='Query'),
+  createDateStart: long(name='CreateDateStart', example='20181225', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNo?: long(name='PageNo', example='99', position='Query'),
-  pageSize?: long(name='PageSize', example='84', position='Query'),
-  phoneNumber?: string(name='PhoneNumber', example='示例值示例值示例值', position='Query'),
+  pageNo: long(name='PageNo', example='1', position='Query'),
+  pageSize: long(name='PageSize', example='10', position='Query'),
+  phoneNumber?: string(name='PhoneNumber', example='1390000****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  shortName?: string(name='ShortName', example='示例值示例值示例值', position='Query'),
-  shortUrl?: string(name='ShortUrl', example='示例值示例值示例值', position='Query'),
-  startId?: long(name='StartId', example='89', position='Query'),
+  shortUrl?: string(name='ShortUrl', example='http://ays.cn/****', position='Query'),
 }
 
 model QueryPageSmartShortUrlLogResponseBody = {
@@ -627,8 +1168,9 @@ model QueryPageSmartShortUrlLogResponseBody = {
 }
 
 model QueryPageSmartShortUrlLogResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryPageSmartShortUrlLogResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryPageSmartShortUrlLogResponseBody(name='body'),
 }
 
 async function queryPageSmartShortUrlLog(request: QueryPageSmartShortUrlLogRequest): QueryPageSmartShortUrlLogResponse {
@@ -637,40 +1179,58 @@ async function queryPageSmartShortUrlLog(request: QueryPageSmartShortUrlLogReque
 }
 
 model QuerySendDetailsRequest {
-  bizId?: string(name='BizId', example='134523^435****', position='Query'),
-  currentPage: long(name='CurrentPage', example='1', position='Query'),
+  bizId?: string(name='BizId', description='The ID of the delivery receipt. The delivery receipt ID is the value of the BizId parameter that is returned when you call the SendSms or SendBatchSms operation.', example='134523^435****', position='Query'),
+  currentPage: long(name='CurrentPage', description='The page number of the first page.', example='1', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageSize: long(name='PageSize', example='10', position='Query'),
-  phoneNumber: string(name='PhoneNumber', example='1390000****', position='Query'),
+  pageSize: long(name='PageSize', description='The number of items displayed per page.
+
+Valid values: 1 to 50.', example='10', position='Query'),
+  phoneNumber: string(name='PhoneNumber', description='The mobile numbers of the recipients. Format:
+
+*   If you send messages in the Chinese mainland, specify an 11-digit mobile number, for example, 1390000\\*\\*\\*\\*.
+*   If you send messages to countries or regions outside the Chinese mainland, specify this parameter in the \\<Area code>\\<Mobile number> format. Example: 8520000\\*\\*\\*\\*.', example='1390000****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  sendDate: string(name='SendDate', example='20181228', position='Query'),
+  sendDate: string(name='SendDate', description='The date when the message was sent. You can query messages that were sent within the last 30 days.
+
+Format: yyyyMMdd. Example: 20181225.', example='20181228', position='Query'),
 }
 
 model QuerySendDetailsResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+  code?: string(name='Code', description='The response code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
   smsSendDetailDTOs?: {
     smsSendDetailDTO?: [ 
     {
-      content?: string(name='Content'),
-      errCode?: string(name='ErrCode', example='DELIVERED'),
-      outId?: string(name='OutId', example='123'),
-      phoneNum?: string(name='PhoneNum', example='1390000****'),
-      receiveDate?: string(name='ReceiveDate', example='2019-01-08 16:44:13'),
-      sendDate?: string(name='SendDate', example='2019-01-08 16:44:10'),
-      sendStatus?: long(name='SendStatus', example='3'),
-      templateCode?: string(name='TemplateCode', example='SMS_12231****'),
+      content?: string(name='Content', description='The content of the message.', example='【Aliyun】This is a test message.'),
+      errCode?: string(name='ErrCode', description='The status code returned by the carrier.
+
+*   If the message is delivered, "DELIVERED" is returned.
+*   For information about the error codes that may be returned if the message is not delivered, see [error codes](~~101347~~).', example='DELIVERED'),
+      outId?: string(name='OutId', description='The extended field.', example='123'),
+      phoneNum?: string(name='PhoneNum', description='The mobile numbers of the recipients.', example='1390000****'),
+      receiveDate?: string(name='ReceiveDate', description='The date and time when the message was received.', example='2019-01-08 16:44:13'),
+      sendDate?: string(name='SendDate', description='The date and time when the message was sent.', example='2019-01-08 16:44:10'),
+      sendStatus?: long(name='SendStatus', description='The delivery status of the message. Valid values:
+
+*   **1**: The message has not received a delivery receipt yet.
+*   **2**: The message failed to be delivered.
+*   **3**: The message was delivered.', example='3'),
+      templateCode?: string(name='TemplateCode', description='The ID of the message template.', example='SMS_12231****'),
     }
   ](name='SmsSendDetailDTO')
-  }(name='SmsSendDetailDTOs'),
-  totalCount?: string(name='TotalCount', example='1'),
+  }(name='SmsSendDetailDTOs', description='The details of the message.'),
+  totalCount?: string(name='TotalCount', description='The number of sent messages.', example='1'),
 }
 
 model QuerySendDetailsResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySendDetailsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySendDetailsResponseBody(name='body'),
 }
 
 async function querySendDetails(request: QuerySendDetailsRequest): QuerySendDetailsResponse {
@@ -679,41 +1239,60 @@ async function querySendDetails(request: QuerySendDetailsRequest): QuerySendDeta
 }
 
 model QuerySendStatisticsRequest {
-  endDate: string(name='EndDate', example='20201003', position='Query'),
-  isGlobe: int32(name='IsGlobe', example='1', minLength=1, maxLength=2, minimum=1, maximum=2, position='Query'),
+  endDate: string(name='EndDate', description='The end of the time range to query. Format: yyyyMMdd. Example: 20181225.', example='20201003', position='Query'),
+  isGlobe: int32(name='IsGlobe', description='The site from where the message is sent. Valid values:
+
+*   **1**: China site
+*   **2**: international site', example='1', minLength=1, maxLength=2, minimum=1, maximum=2, position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageIndex: int32(name='PageIndex', example='1', minLength=1, minimum=1, position='Query'),
-  pageSize: int32(name='PageSize', example='10', minLength=1, maxLength=50, minimum=1, maximum=50, position='Query'),
+  pageIndex: int32(name='PageIndex', description='The page number. Default value: **1**.', example='1', minLength=1, minimum=1, position='Query'),
+  pageSize: int32(name='PageSize', description='The number of entries to return on each page. Valid values: **1 to 50**.', example='10', minLength=1, maxLength=50, minimum=1, maximum=50, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  signName?: string(name='SignName', position='Query'),
-  startDate: string(name='StartDate', example='20201002', position='Query'),
-  templateType?: int32(name='TemplateType', example='0', position='Query'),
+  signName?: string(name='SignName', description='The signature.', example='Aliyun', position='Query'),
+  startDate: string(name='StartDate', description='The beginning of the time range to query. Format: yyyyMMdd. Example: 20181225.', example='20201002', position='Query'),
+  templateType?: int32(name='TemplateType', description='The type of the message template. Valid values: Valid values:
+
+*   **0**: verification code
+*   **1**: notification
+*   **2**: promotional message (Enterprise users only)
+*   **3**: international purpose (Enterprise users only)
+*   **7**: digital message', example='0', position='Query'),
 }
 
 model QuerySendStatisticsResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
     targetList?: [ 
       {
-        noRespondedCount?: long(name='NoRespondedCount', example='1'),
-        respondedFailCount?: long(name='RespondedFailCount', example='2'),
-        respondedSuccessCount?: long(name='RespondedSuccessCount', example='17'),
-        sendDate?: string(name='SendDate', example='20201010'),
-        totalCount?: long(name='TotalCount', example='20'),
+        noRespondedCount?: long(name='NoRespondedCount', description='The number of messages without a delivery receipt.', example='1'),
+        respondedFailCount?: long(name='RespondedFailCount', description='The number of messages with a delivery receipt that indicates a failure.', example='2'),
+        respondedSuccessCount?: long(name='RespondedSuccessCount', description='The number of messages with a delivery receipt that indicates a success.', example='17'),
+        sendDate?: string(name='SendDate', description='The date when the message is sent. Format: yyyyMMdd. Example: 20181225.', example='20201010'),
+        totalCount?: long(name='TotalCount', description='The number of delivered messages.', example='20'),
       }
-    ](name='TargetList'),
-    totalSize?: long(name='TotalSize', example='20'),
-  }(name='Data'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E47708****'),
+    ](name='TargetList', description='The details of the data returned.'),
+    totalSize?: long(name='TotalSize', description='The total number of entries returned.', example='20'),
+  }(name='Data', description='The data returned.'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E47708****'),
 }
 
 model QuerySendStatisticsResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySendStatisticsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySendStatisticsResponseBody(name='body'),
 }
 
+/**
+  * You can call the operation to query message delivery details, including the number of delivered messages, the number of messages with delivery receipts, and the time that a message is sent. If a large number of messages are sent on the specified date, you can specify the number of items displayed on each page and the number of pages to view the details by page.
+  * ### QPS limits
+  * You can call this operation up to 20 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function querySendStatistics(request: QuerySendStatisticsRequest): QuerySendStatisticsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QuerySendStatistics', 'POST', '/', 'json', false, 'json', request);
@@ -723,30 +1302,44 @@ model QueryShortUrlRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  shortUrl: string(name='ShortUrl', example='http://****.cn/6y8uy7', position='Body'),
+  shortUrl: string(name='ShortUrl', description='The short URL. You can query the short URL by calling the [AddShortUrl](~~186774~~) operation.', example='http://****.cn/6y8uy7', position='Body'),
 }
 
 model QueryShortUrlResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    createDate?: string(name='CreateDate', example='2019-01-08 16:44:13'),
-    expireDate?: string(name='ExpireDate', example='2019-01-22 11:21:11'),
-    pageViewCount?: string(name='PageViewCount', example='300'),
-    shortUrl?: string(name='ShortUrl', example='http://****.cn/6y8uy7'),
-    shortUrlName?: string(name='ShortUrlName'),
-    shortUrlStatus?: string(name='ShortUrlStatus', example='expired'),
-    sourceUrl?: string(name='SourceUrl', example='https://www.****.com/product/sms'),
-    uniqueVisitorCount?: string(name='UniqueVisitorCount', example='23'),
-  }(name='Data'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+    createDate?: string(name='CreateDate', description='The time when the short URL was created.', example='2019-01-08 16:44:13'),
+    expireDate?: string(name='ExpireDate', description='The time when the short URL expires.', example='2019-01-22 11:21:11'),
+    pageViewCount?: string(name='PageViewCount', description='The PV.', example='300'),
+    shortUrl?: string(name='ShortUrl', description='The short URL.', example='http://****.cn/6y8uy7'),
+    shortUrlName?: string(name='ShortUrlName', description='The service name of the short URL.', example='The Alibaba Cloud Short Link service.'),
+    shortUrlStatus?: string(name='ShortUrlStatus', description='The status of the short URL. Valid values:
+
+*   **expired**
+*   **effective**
+*   **audit**
+*   **reject**', example='expired'),
+    sourceUrl?: string(name='SourceUrl', description='The source address.', example='https://www.****.com/product/sms'),
+    uniqueVisitorCount?: string(name='UniqueVisitorCount', description='The UV.', example='23'),
+  }(name='Data', description='The details of the short URL.'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
 }
 
 model QueryShortUrlResponse = {
-  headers: map[string]string(name='headers'),
-  body: QueryShortUrlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryShortUrlResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limits
+  * You can call this operation up to 20 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function queryShortUrl(request: QueryShortUrlRequest): QueryShortUrlResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QueryShortUrl', 'POST', '/', 'json', true, 'form', request);
@@ -756,24 +1349,42 @@ model QuerySmsSignRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  signName: string(name='SignName', position='Query'),
+  signName: string(name='SignName', description='The signature.', example='Aliyun', position='Query'),
 }
 
 model QuerySmsSignResponseBody = {
-  code?: string(name='Code', example='OK'),
-  createDate?: string(name='CreateDate', example='2019-01-08 16:44:13'),
-  message?: string(name='Message', example='OK'),
-  reason?: string(name='Reason'),
-  requestId?: string(name='RequestId', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
-  signName?: string(name='SignName'),
-  signStatus?: int32(name='SignStatus', example='1'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  createDate?: string(name='CreateDate', description='The date and time when the signature was created.', example='2019-01-08 16:44:13'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  reason?: string(name='Reason', description='The remarks of the review. Valid values:
+
+*   If the signature is in the **Approved** or **Pending Approval** state, No Remarks is returned.
+*   If the signature is in the **Not Approved** state, the reason why the signature is rejected is returned.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CC89A90C-978F-46AC-B80D-54738371E7CA'),
+  signName?: string(name='SignName', description='The signature.', example='Aliyun'),
+  signStatus?: int32(name='SignStatus', description='The status of the signature. Valid values:
+
+*   **0**: The signature is pending approval.
+*   **1**: The signature is approved.
+*   **2**: The signature is rejected. The Reason parameter indicates the reason why the signature is rejected.
+*   **10**: The signature is cancelled.', example='1'),
 }
 
 model QuerySmsSignResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySmsSignResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySmsSignResponseBody(name='body'),
 }
 
+/**
+  * After you apply for an SMS signature, you can query its status by using the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm) or calling the operation. If the signature is rejected, you can modify the signature based on the reason why it is rejected.
+  * ### QPS limits
+  * You can call this API operation up to 500 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function querySmsSign(request: QuerySmsSignRequest): QuerySmsSignResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QuerySmsSign', 'POST', '/', 'json', false, 'json', request);
@@ -781,40 +1392,61 @@ async function querySmsSign(request: QuerySmsSignRequest): QuerySmsSignResponse 
 
 model QuerySmsSignListRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  pageIndex?: int32(name='PageIndex', example='1', minLength=1, minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=50, position='Query'),
+  pageIndex?: int32(name='PageIndex', description='The page number. Default value: **1**.', example='1', minLength=1, minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of signatures per page. Valid values: **1 to 50**.', example='10', minimum=1, maximum=50, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model QuerySmsSignListResponseBody = {
-  code?: string(name='Code', example='OK'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  message?: string(name='Message', example='OK'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E47708****'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  currentPage?: int32(name='CurrentPage', description='The page number. Default value: **1**.', example='1'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  pageSize?: int32(name='PageSize', description='The number of signatures per page. Valid values: **1 to 50**.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E47708****'),
   smsSignList?: [ 
     {
-      auditStatus?: string(name='AuditStatus', example='AUDIT_STATE_NOT_PASS'),
-      businessType?: string(name='BusinessType'),
-      createDate?: string(name='CreateDate', example='2020-01-08 16:44:13'),
-      orderId?: string(name='OrderId', example='236****5'),
+      auditStatus?: string(name='AuditStatus', description='The approval status of the signature. Valid values:
+
+*   **AUDIT_STATE_INIT**: The signature is pending approval.
+*   **AUDIT_STATE_PASS**: The signature is approved.
+*   **AUDIT_STATE_NOT_PASS**: The signature is rejected. You can view the reason in the Reason response parameter.
+*   **AUDIT_STATE_CANCEL**: The approval is canceled.', example='AUDIT_STATE_NOT_PASS'),
+      businessType?: string(name='BusinessType', description='The type of the signature scenario. The return value ends with "type". Valid values:
+
+*   Verification code type
+*   General-purpose type', example='Verification code type'),
+      createDate?: string(name='CreateDate', description='The time when the signature was created. Format: yyyy-MM-dd HH:mm:ss.', example='2020-01-08 16:44:13'),
+      orderId?: string(name='OrderId', description='The ticket ID.', example='236****5'),
       reason?: {
-        rejectDate?: string(name='RejectDate', example='2020-01-08 19:02:13'),
-        rejectInfo?: string(name='RejectInfo'),
-        rejectSubInfo?: string(name='RejectSubInfo'),
-      }(name='Reason'),
-      signName?: string(name='SignName'),
+        rejectDate?: string(name='RejectDate', description='The time when the signature was rejected. Format: yyyy-MM-dd HH:mm:ss.', example='2020-01-08 19:02:13'),
+        rejectInfo?: string(name='RejectInfo', description='The reason why the signature was rejected.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+        rejectSubInfo?: string(name='RejectSubInfo', description='The remarks about the rejection.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+      }(name='Reason', description='The approval remarks.
+
+*   If the value of AuditStatus is **AUDIT_STATE_PASS** or **AUDIT_STATE_INIT**, the value of Reason is No Approval Remarks.
+*   If the value of AuditStatus is **AUDIT_STATE_NOT_PASS**, the reason why the signature is rejected is returned.'),
+      signName?: string(name='SignName', description='The name of the signature.', example='Aliyun'),
     }
-  ](name='SmsSignList'),
-  totalCount?: long(name='TotalCount', example='100'),
+  ](name='SmsSignList', description='The queried message signatures.'),
+  totalCount?: long(name='TotalCount', description='The total number of signatures.', example='100'),
 }
 
 model QuerySmsSignListResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySmsSignListResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySmsSignListResponseBody(name='body'),
 }
 
+/**
+  * You can call this operation to query the details of message signatures, including the name, creation time, and approval status of each signature. If a message template is rejected, the reason is returned. Modify the message signature based on the reason.
+  * ### QPS limit
+  * You can call this operation up to 10 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function querySmsSignList(request: QuerySmsSignListRequest): QuerySmsSignListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QuerySmsSignList', 'POST', '/', 'json', false, 'json', request);
@@ -824,27 +1456,52 @@ model QuerySmsTemplateRequest {
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  templateCode: string(name='TemplateCode', example='SMS_1525***', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the template code on the **Templates** tab. You can also call the [AddSmsTemplate](~~121208~~) operation to obtain the template code.', example='SMS_1525***', position='Query'),
 }
 
 model QuerySmsTemplateResponseBody = {
-  code?: string(name='Code', example='OK'),
-  createDate?: string(name='CreateDate', example='2019-06-04 11:42:17'),
-  message?: string(name='Message', example='OK'),
-  reason?: string(name='Reason'),
-  requestId?: string(name='RequestId', example='0A974B78-02BF-4C79-ADF3-90CFBA1B55B1'),
-  templateCode?: string(name='TemplateCode', example='SMS_16703****'),
-  templateContent?: string(name='TemplateContent'),
-  templateName?: string(name='TemplateName'),
-  templateStatus?: int32(name='TemplateStatus', example='1'),
-  templateType?: int32(name='TemplateType', example='1'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  createDate?: string(name='CreateDate', description='The time when the message template was created.', example='2019-06-04 11:42:17'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  reason?: string(name='Reason', description='The approval remarks.
+
+*   If the value of AuditStatus is **AUDIT_STATE_PASS** or **AUDIT_STATE_INIT**, the value of Reason is No Approval Remarks.
+*   If the value of AuditStatus is **AUDIT_STATE_NOT_PASS**, the reason why the message template is rejected is returned.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0A974B78-02BF-4C79-ADF3-90CFBA1B55B1'),
+  templateCode?: string(name='TemplateCode', description='The code of the message template.', example='SMS_16703****'),
+  templateContent?: string(name='TemplateContent', description='The content of the message template.', example='You are applying for mobile registration. The verification code is: ${code}, valid for 5 minutes!'),
+  templateName?: string(name='TemplateName', description='The name of the message template.', example='aliyun verification code'),
+  templateStatus?: int32(name='TemplateStatus', description='The approval status of the message template. Valid values:
+
+*   **0**: The message template is pending approval.
+*   **1**: The message template is approved.
+*   **AUDIT_STATE_NOT_PASS**: The message template is rejected. You can view the reason in the Reason response parameter.
+*   **10**: The approval is canceled.', example='1'),
+  templateType?: int32(name='TemplateType', description='The type of the message. Valid values:
+
+*   **0**: verification code
+*   **1**: notification message
+*   **2**: promotional message
+*   **3**: message sent to countries or regions outside the Chinese mainland', example='1'),
 }
 
 model QuerySmsTemplateResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySmsTemplateResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySmsTemplateResponseBody(name='body'),
 }
 
+/**
+  * After you create a message template, you can call this operation to query the approval status of the template. If a message template is rejected, the reason is returned. Modify the message template based on the reason.
+  * ### QPS limit
+  * You can call this operation up to 5,000 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function querySmsTemplate(request: QuerySmsTemplateRequest): QuerySmsTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QuerySmsTemplate', 'POST', '/', 'json', false, 'json', request);
@@ -852,112 +1509,213 @@ async function querySmsTemplate(request: QuerySmsTemplateRequest): QuerySmsTempl
 
 model QuerySmsTemplateListRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  pageIndex?: int32(name='PageIndex', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=50, position='Query'),
+  pageIndex?: int32(name='PageIndex', description='The page number. Default value: **1**.', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of templates per page. Valid values: **1 to 50**.', example='10', minimum=1, maximum=50, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model QuerySmsTemplateListResponseBody = {
-  code?: string(name='Code', example='OK'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  message?: string(name='Message', example='OK'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E47708****'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  currentPage?: int32(name='CurrentPage', description='The page number. Default value: **1**.', example='1'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  pageSize?: int32(name='PageSize', description='The number of templates per page. Valid values: **1 to 50**.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='819BE656-D2E0-4858-8B21-B2E47708****'),
   smsTemplateList?: [ 
     {
-      auditStatus?: string(name='AuditStatus', example='AUDIT_STATE_PASS'),
-      createDate?: string(name='CreateDate', example='2020-06-04 11:42:17'),
-      orderId?: string(name='OrderId', example='2361****'),
-      outerTemplateType?: int32(name='OuterTemplateType', example='0'),
+      auditStatus?: string(name='AuditStatus', description='The approval status of the message template. Valid values:
+
+*   **AUDIT_STATE_INIT**: The message template is pending approval.
+*   **AUDIT_STATE_PASS**: The message template is approved.
+*   **AUDIT_STATE_NOT_PASS**: The message template is rejected. You can view the reason in the Reason response parameter.
+*   **AUDIT_STATE_CANCEL** or **AUDIT_SATE_CANCEL**: The approval is canceled.', example='AUDIT_STATE_PASS'),
+      createDate?: string(name='CreateDate', description='The time when the message template was created. The time is in the yyyy-MM-dd HH:mm:ss format.', example='2020-06-04 11:42:17'),
+      orderId?: string(name='OrderId', description='The ticket ID.', example='2361****'),
+      outerTemplateType?: int32(name='OuterTemplateType', description='The type of the message template. We recommend that you specify this parameter. Valid values:
+
+*   **0**: verification code
+*   **1**: notification message
+*   **2**: promotional message
+*   **3**: message sent to countries or regions outside the Chinese mainland
+*   **7**: digital message
+
+> The template type is the same as the value of the TemplateType parameter in the AddSmsTemplate and ModifySmsTemplate operations.', example='0'),
       reason?: {
-        rejectDate?: string(name='RejectDate', example='2020-06-04 16:01:17'),
-        rejectInfo?: string(name='RejectInfo'),
-        rejectSubInfo?: string(name='RejectSubInfo'),
-      }(name='Reason'),
-      templateCode?: string(name='TemplateCode', example='SMS_1525***'),
-      templateContent?: string(name='TemplateContent', example='123456789'),
-      templateName?: string(name='TemplateName'),
-      templateType?: int32(name='TemplateType', example='7'),
+        rejectDate?: string(name='RejectDate', description='The time when the message template was rejected. Format: yyyy-MM-dd HH:mm:ss.', example='2020-06-04 16:01:17'),
+        rejectInfo?: string(name='RejectInfo', description='The reason why the message template was rejected.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+        rejectSubInfo?: string(name='RejectSubInfo', description='The remarks about the rejection.', example='The document cannot verify the authenticity of the information. Please upload it again.'),
+      }(name='Reason', description='The approval remarks.
+
+*   If the value of AuditStatus is **AUDIT_STATE_PASS** or **AUDIT_STATE_INIT**, the value of Reason is No Approval Remarks.
+*   If the value of AuditStatus is **AUDIT_STATE_NOT_PASS**, the reason why the message template is rejected is returned.'),
+      templateCode?: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the template code on the **Templates** tab. You can also call the [AddSmsTemplate](~~121208~~) operation to obtain the template code.', example='SMS_1525***'),
+      templateContent?: string(name='TemplateContent', description='The content of the message template.', example='123456789'),
+      templateName?: string(name='TemplateName', description='The name of the message template.', example='aliyun verification code'),
+      templateType?: int32(name='TemplateType', description='The type of the message template. Valid values:
+
+*   **0**: notification message
+*   **1**: promotional message
+*   **2**: verification code
+*   **6**: message sent to countries or regions outside the Chinese mainland
+*   **7**: digital message', example='7'),
     }
-  ](name='SmsTemplateList'),
-  totalCount?: long(name='TotalCount', example='100'),
+  ](name='SmsTemplateList', description='The queried message templates.'),
+  totalCount?: long(name='TotalCount', description='The total number of templates.', example='100'),
 }
 
 model QuerySmsTemplateListResponse = {
-  headers: map[string]string(name='headers'),
-  body: QuerySmsTemplateListResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QuerySmsTemplateListResponseBody(name='body'),
 }
 
+/**
+  * You can call this operation to query the details of message templates, including the name, creation time, and approval status of each template. If a message template is rejected, the reason is returned. Modify the message template based on the reason.
+  * ### QPS limit
+  * You can call this operation up to 10 times per second per account. If the number of calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function querySmsTemplateList(request: QuerySmsTemplateListRequest): QuerySmsTemplateListResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'QuerySmsTemplateList', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SendBatchCardSmsRequest {
-  cardTemplateCode: string(name='CardTemplateCode', example='CARD_SMS_3245', position='Query'),
-  cardTemplateParamJson?: string(name='CardTemplateParamJson', example='[{\\"customurl\\":\\"http://www.alibaba.com\\",\\"dyncParams\\":\\"{\\\\\\"a\\\\\\":\\\\\\"hello\\\\\\",\\\\\\"b\\\\\\":\\\\\\"world\\\\\\"}\\"}]', position='Query'),
-  digitalTemplateCode?: string(name='DigitalTemplateCode', example='DIGITAL_SMS_234080176', position='Query'),
-  digitalTemplateParamJson?: string(name='DigitalTemplateParamJson', example='[{"a":1,"b":2},{"a":9,"b":8}]', position='Query'),
-  fallbackType: string(name='FallbackType', example='SMS', position='Query'),
-  outId?: string(name='OutId', example='16545681783595370', position='Query'),
-  phoneNumberJson: string(name='PhoneNumberJson', example='[\\"1390000****\\",\\"1370000****\\"]"', position='Query'),
-  signNameJson: string(name='SignNameJson', position='Query'),
-  smsTemplateCode?: string(name='SmsTemplateCode', example='SMS_234251075', position='Query'),
-  smsTemplateParamJson?: string(name='SmsTemplateParamJson', example='[{"a":1,"b":2},{"a":9,"b":8}]', position='Query'),
-  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson', example='[\\"6\\",\\"6\\"]', position='Query'),
-  templateCode?: string(name='TemplateCode', example='SMS_20375****', position='Query'),
-  templateParamJson?: string(name='TemplateParamJson', example='[{"name":"TemplateParamJson"},{"name":"TemplateParamJson"}]', position='Query'),
+  cardTemplateCode: string(name='CardTemplateCode', description='The code of the message template. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_3245', position='Query'),
+  cardTemplateParamJson?: string(name='CardTemplateParamJson', description='The variables of the card message template.', example='[{\\"customurl\\":\\"http://www.alibaba.com\\",\\"dyncParams\\":\\"{\\\\\\"a\\\\\\":\\\\\\"hello\\\\\\",\\\\\\"b\\\\\\":\\\\\\"world\\\\\\"}\\"}]', position='Query'),
+  digitalTemplateCode?: string(name='DigitalTemplateCode', description='The code of the digital message template that applies when the card message is rolled back. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='DIGITAL_SMS_234080176', position='Query'),
+  digitalTemplateParamJson?: string(name='DigitalTemplateParamJson', description='The variables of the digital message template.', example='[{"a":1,"b":2},{"a":9,"b":8}]', position='Query'),
+  fallbackType: string(name='FallbackType', description='The rollback type. Valid values:
+
+*   **SMS**: text message
+*   **DIGITALSMS**: digital message
+*   **NONE**: none', example='SMS', position='Query'),
+  outId?: string(name='OutId', description='The ID that is reserved for the caller of the operation.', example='16545681783595370', position='Query'),
+  phoneNumberJson: string(name='PhoneNumberJson', description='The mobile numbers of the recipients.', example='[\\"1390000****\\",\\"1370000****\\"]"', position='Query'),
+  signNameJson: string(name='SignNameJson', description='The signature. You can view the template code in the **Signature** column on the **Signaturess** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> The signatures must be approved and correspond to the mobile numbers in sequence.', position='Query'),
+  smsTemplateCode?: string(name='SmsTemplateCode', description='The code of the text message template that applies when the card message is rolled back. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='SMS_234251075', position='Query'),
+  smsTemplateParamJson?: string(name='SmsTemplateParamJson', description='The variables of the text message template.', example='[{"a":1,"b":2},{"a":9,"b":8}]', position='Query'),
+  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson', description='The extension code of the upstream message.', example='[\\"6\\",\\"6\\"]', position='Query'),
+  templateCode?: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Alibaba Cloud console](https://dysms.console.aliyun.com/dysms.htm?spm=5176.12818093.categories-n-products.ddysms.3b2816d0xml2NA#/overview), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the **template code** on the **Templates** tab.
+
+> You must specify a message template that is created in the SMS console and approved by Alibaba Cloud. If you send messages to countries or regions outside the Chinese mainland, use the corresponding message templates.', example='SMS_20375****', position='Query'),
+  templateParamJson?: string(name='TemplateParamJson', description='The value of the variable in the message template.
+
+> If you need to add line breaks to the JSON template, make sure that the format is valid. In addition, the sequence of variable values must be the same as that of the mobile numbers and signatures.', example='[{"name":"TemplateParamJson"},{"name":"TemplateParamJson"}]', position='Query'),
 }
 
 model SendBatchCardSmsResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   For more information about other response codes, see [API error codes](~~101346~~).', example='OK'),
   data?: {
-    bizCardId?: string(name='BizCardId', example='123'),
-    bizDigitalId?: string(name='BizDigitalId', example='3214'),
-    bizSmsId?: string(name='BizSmsId', example='3256'),
-    cardTmpState?: int32(name='CardTmpState', example='0'),
-    mediaMobiles?: string(name='MediaMobiles', example='1390000****'),
-    notMediaMobiles?: string(name='NotMediaMobiles', example='1390000****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
-  success?: boolean(name='Success', example='true'),
+    bizCardId?: string(name='BizCardId', description='The ID of the card message.', example='123'),
+    bizDigitalId?: string(name='BizDigitalId', description='The ID of the digital message.', example='3214'),
+    bizSmsId?: string(name='BizSmsId', description='The ID of the text message.', example='3256'),
+    cardTmpState?: int32(name='CardTmpState', description='The review status of the card message template.
+
+*   **0**: pending approval
+*   **1**: approved
+*   **2**: rejected
+
+> Unapproved card messages are rolled back.', example='0'),
+    mediaMobiles?: string(name='MediaMobiles', description='The mobile phone number from which the card message is sent.', example='1390000****'),
+    notMediaMobiles?: string(name='NotMediaMobiles', description='The mobile phone number whose card message is rolled back.', example='1390000****'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model SendBatchCardSmsResponse = {
-  headers: map[string]string(name='headers'),
-  body: SendBatchCardSmsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendBatchCardSmsResponseBody(name='body'),
 }
 
+/**
+  * You can call the operation to send multiple card messages to a maximum of mobile phone numbers at a time. Different signatures and rollback settings can be specified for the mobile phone numbers.
+  * ### QPS limit
+  * You can call this operation up to 1,000 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function sendBatchCardSms(request: SendBatchCardSmsRequest): SendBatchCardSmsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SendBatchCardSms', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SendBatchSmsRequest {
-  outId?: string(name='OutId', example='abcdefg', position='Query'),
+  outId?: string(name='OutId', description='The extension field of the external record. The value is a string that contains no more than 256 characters.
+
+> The parameter is optional.', example='abcdefg', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  phoneNumberJson: string(name='PhoneNumberJson', example='["1590000****","1350000****"]', position='Body'),
+  phoneNumberJson: string(name='PhoneNumberJson', description='The mobile number of the recipient. Format:
+
+*   Message delivery to the Chinese mainland: +/+86/0086/86 or an 11-digit mobile number without a prefix. Example: 1590000\\*\\*\\*\\*.
+*   Message delivery to countries or regions outside the Chinese mainland: Dialing code + Mobile number. Example: 852000012\\*\\*\\*\\*.
+
+> We recommend that you call the SendSms operation to send verification codes.', example='["1590000****","1350000****"]', position='Body'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  signNameJson: string(name='SignNameJson', position='Body'),
-  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson', example='["90999","90998"]', position='Body'),
-  templateCode: string(name='TemplateCode', example='SMS_15255****', position='Query'),
-  templateParamJson?: string(name='TemplateParamJson', example='[{"name":"TemplateParamJson"},{"name":"TemplateParamJson"}]', position='Body'),
+  signNameJson: string(name='SignNameJson', description='The signature.
+
+Log on to the Alibaba Cloud SMS console. In the left-side navigation pane, click **Go Globe** or **Go China**. You can view the signature in the **Signature** column on the **Signatures** tab.
+
+> The signatures must be approved and correspond to the mobile numbers in sequence.', example='["Aliyun","Alibaba"]', position='Body'),
+  smsUpExtendCodeJson?: string(name='SmsUpExtendCodeJson', description='The extension code of the MO message. Format: JSON array.
+
+> The parameter is optional.', example='["90999","90998"]', position='Body'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+Log on to the Alibaba Cloud SMS console. In the left-side navigation pane, click **Go Globe** or **Go China**. You can view the message template in the **Template Code** column on the **Message Templates** tab.
+
+> The message templates must be created on the Go Globe page and approved.', example='SMS_15255****', position='Query'),
+  templateParamJson?: string(name='TemplateParamJson', description='The value of the variable in the message template.
+
+> If you need to add line breaks to the JSON template, make sure that the format is valid. In addition, the sequence of variable values must be the same as that of the mobile numbers and signatures.', example='[{"name":"TemplateParamJson"},{"name":"TemplateParamJson"}]', position='Body'),
 }
 
 model SendBatchSmsResponseBody = {
-  bizId?: string(name='BizId', example='9006197469364984400'),
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8D230E'),
+  bizId?: string(name='BizId', description='The ID of the delivery receipt. You can use one of the following methods to query the delivery status of a message based on the ID.
+
+*   Call the [QuerySendDetails](~~102352~~) operation.
+*   Log on to the [Alibaba Cloud SMS console](https://dysms.console.aliyun.com/dysms.htm#/overview). In the left-side navigation pane, choose **Analytics** > **Delivery Report**.', example='9006197469364984400'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8D230E'),
 }
 
 model SendBatchSmsResponse = {
-  headers: map[string]string(name='headers'),
-  body: SendBatchSmsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendBatchSmsResponseBody(name='body'),
 }
 
+/**
+  * You can call the operation to send messages to a maximum of 100 recipients at a time.
+  *
+ */
 async function sendBatchSms(request: SendBatchSmsRequest): SendBatchSmsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SendBatchSms', 'POST', '/', 'json', true, 'form', request);
@@ -966,97 +1724,193 @@ async function sendBatchSms(request: SendBatchSmsRequest): SendBatchSmsResponse 
 model SendCardSmsRequest {
   cardObjects: [ 
     {
-      customUrl?: string(name='customUrl', example='https://alibaba.com'),
-      dyncParams?: string(name='dyncParams'),
-      mobile?: string(name='mobile', example='1390000****'),
+      customUrl?: string(name='customUrl', description='The URL to which the message is redirected if the message fails to be rendered.', example='https://alibaba.com'),
+      dyncParams?: string(name='dyncParams', description='The variables. Special characters, such as $ and {}, do not need to be entered.'),
+      mobile?: string(name='mobile', description='The mobile phone number.', example='1390000****'),
     }
-  ](name='CardObjects', position='Query'),
-  cardTemplateCode: string(name='CardTemplateCode', example='CARD_SMS_70', position='Query'),
-  digitalTemplateCode?: string(name='DigitalTemplateCode', example='SMS_003', position='Query'),
-  digitalTemplateParam?: string(name='DigitalTemplateParam', position='Query'),
-  fallbackType: string(name='FallbackType', example='SMS', position='Query'),
-  outId?: string(name='OutId', example='38d76c9b-4a9a-4c89-afae-61fd8e0e****', position='Query'),
-  signName: string(name='SignName', position='Query'),
-  smsTemplateCode?: string(name='SmsTemplateCode', example='SIER_TEST_01', position='Query'),
-  smsTemplateParam?: string(name='SmsTemplateParam', position='Query'),
-  smsUpExtendCode?: string(name='SmsUpExtendCode', example='1', position='Query'),
-  templateCode?: string(name='TemplateCode', example='SMS_2322****', position='Query'),
-  templateParam?: string(name='TemplateParam', position='Query'),
+  ](name='CardObjects', description='The objects of the message template.', position='Query'),
+  cardTemplateCode: string(name='CardTemplateCode', description='The code of the message template. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='CARD_SMS_70', position='Query'),
+  digitalTemplateCode?: string(name='DigitalTemplateCode', description='The code of the digital message template that applies when the card message is rolled back. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved.', example='SMS_003', position='Query'),
+  digitalTemplateParam?: string(name='DigitalTemplateParam', description='The variables of the digital message template.
+
+> If you need to add line breaks to the JSON template, make sure that the format is valid.', example='{\\"msg\\",\\"xxxd\\"}', position='Query'),
+  fallbackType: string(name='FallbackType', description='The rollback type. Valid values:
+
+*   **SMS**: text message
+*   **DIGITALSMS**: digital message
+*   **NONE**: none', example='SMS', position='Query'),
+  outId?: string(name='OutId', description='The ID that is reserved for the caller of the operation.', example='38d76c9b-4a9a-4c89-afae-61fd8e0e****', position='Query'),
+  signName: string(name='SignName', description='The signature. You can view the template code in the **Signature** column on the **Signaturess** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> The signature must be approved.', position='Query'),
+  smsTemplateCode?: string(name='SmsTemplateCode', description='The code of the text message template that applies when the card message is rolled back. You can view the template code in the **Template Code** column on the **Templates** tab of the **Go China** page in the Alibaba Cloud SMS console.
+
+> Make sure that the message template has been approved. If you set the **FallbackType** parameter to **SMS**, this parameter is required.', example='SIER_TEST_01', position='Query'),
+  smsTemplateParam?: string(name='SmsTemplateParam', description='The variables of the text message template.
+
+> If you need to add line breaks to the JSON template, make sure that the format is valid.', position='Query'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode', description='The extension code of the upstream message. Upstream messages are messages sent to the communication service provider. Upstream messages are used to customize a service, complete an inquiry, or send a request. You are charged for sending upstream messages based on the billing standards of the service provider.
+
+> If you do not need upstream messages, ignore this parameter.', example='1', position='Query'),
+  templateCode?: string(name='TemplateCode', description='The code of the text message template.
+
+Log on to the Alibaba Cloud SMS console. In the left-side navigation pane, click **Go Globe** or **Go China**. You can view the message template in the **Template Code** column on the **Message Templates** tab.
+
+> The message templates must be created on the Go Globe page and approved.', example='SMS_2322****', position='Query'),
+  templateParam?: string(name='TemplateParam', description='The variables of the message template. Format: JSON.
+
+> If you need to add line breaks to the JSON template, make sure that the format is valid.', example='{
+      \\"code\\": \\"1111\\"
+}', position='Query'),
 }
 
 model SendCardSmsResponseBody = {
-  code?: string(name='Code', example='OK'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
   data?: {
-    bizCardId?: string(name='BizCardId', example='123'),
-    bizDigitalId?: string(name='BizDigitalId', example='232'),
-    bizSmsId?: string(name='BizSmsId', example='524'),
-    cardTmpState?: int32(name='CardTmpState', example='0'),
-    mediaMobiles?: string(name='MediaMobiles', example='1390000****'),
-    notMediaMobiles?: string(name='NotMediaMobiles', example='1390000****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8D28D0'),
-  success?: boolean(name='Success', example='true'),
+    bizCardId?: string(name='BizCardId', description='The ID of the card message.', example='123'),
+    bizDigitalId?: string(name='BizDigitalId', description='The ID of the digital message.', example='232'),
+    bizSmsId?: string(name='BizSmsId', description='The ID of the text message.', example='524'),
+    cardTmpState?: int32(name='CardTmpState', description='The review status of the card message template.
+
+*   **0**: pending approval
+*   **1**: approved
+*   **2**: rejected
+
+> Unapproved card messages are rolled back.', example='0'),
+    mediaMobiles?: string(name='MediaMobiles', description='The mobile phone number from which the card message is sent.', example='1390000****'),
+    notMediaMobiles?: string(name='NotMediaMobiles', description='The mobile phone number whose card message is rolled back.', example='1390000****'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8D28D0'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model SendCardSmsResponse = {
-  headers: map[string]string(name='headers'),
-  body: SendCardSmsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendCardSmsResponseBody(name='body'),
 }
 
+/**
+  * *   Make sure that the message template that you want to use has been approved. If the mobile phone number of a recipient does not support card messages, the SendCardSms operation allows the rollback feature to ensure successful delivery.
+  * *   When you call the SendCardSms operation to send card messages, the operation checks whether the mobile phone numbers of the recipients support card messages. If the mobile phone numbers do not support card messages, you can specify whether to enable rollback. Otherwise, the card message cannot be delivered.
+  * ### QPS limit
+  * You can call this operation up to 1,000 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function sendCardSms(request: SendCardSmsRequest): SendCardSmsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SendCardSms', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SendSmsRequest {
-  outId?: string(name='OutId', example='abcdefgh', position='Query'),
+  outId?: string(name='OutId', description='The extension field.
+
+> You can ignore this parameter if you do not have special requirements.', example='abcdefgh', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  phoneNumbers: string(name='PhoneNumbers', example='1390000****', position='Query'),
+  phoneNumbers: string(name='PhoneNumbers', description='The mobile numbers of the recipients. Format:
+
+*   If you send messages to the Chinese mainland, specify mobile numbers that are prefixed with +, +86, 0086, or 86, or 11-digit mobile numbers without prefixes. Example: 1390000\\*\\*\\*\\*.
+*   If you send messages to countries or regions outside the Chinese mainland, specify this parameter in the \\<Area code>\\<Mobile number> format. Example: 852000012\\*\\*\\*\\*.
+
+You can send messages to multiple mobile numbers, separate the mobile numbers with commas (,). You can specify up to 1,000 mobile numbers in each request. Compared with sending messages to a single mobile number, sending messages to multiple mobile numbers requires longer response time.
+
+> We recommend that you send one verification code message to a mobile number in each request.', example='1390000****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  signName: string(name='SignName', position='Query'),
-  smsUpExtendCode?: string(name='SmsUpExtendCode', example='90999', position='Query'),
-  templateCode: string(name='TemplateCode', example='SMS_15305****', position='Query'),
-  templateParam?: string(name='TemplateParam', example='{"code":"1111"}', position='Query'),
+  signName: string(name='SignName', description='The signature.
+
+You can log on to the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm?spm=5176.12818093.categories-n-products.ddysms.3b2816d0xml2NA#/overview), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the signature on the **Signatures** tab.
+
+> You must specify a signature that is created in the SMS console and approved by Alibaba Cloud. For more information about SMS signature specifications, see [SMS signature specifications](~~108076~~).', example='Aliyun', position='Query'),
+  smsUpExtendCode?: string(name='SmsUpExtendCode', description='The extension code of the upstream message. Upstream messages are messages sent to the communication service provider. Upstream messages are used to customize a service, complete an inquiry, or send a request. You are charged for sending upstream messages based on the billing standards of the service provider.
+
+> The extension code is automatically generated by the system when the signature is generated. You do not need to specify the extension code. You can ignore this parameter if you do not have special requirements.', example='90999', position='Query'),
+  templateCode: string(name='TemplateCode', description='The code of the message template.
+
+You can log on to the [Short Message Service (SMS) console](https://dysms.console.aliyun.com/dysms.htm?spm=5176.12818093.categories-n-products.ddysms.3b2816d0xml2NA#/overview), click **Go China** or **Go Globe** in the left-side navigation pane, and then view the **template code** on the **Templates** tab.
+
+> You must specify a message template that is created in the SMS console and approved by Alibaba Cloud. If you send messages to countries or regions outside the Chinese mainland, use the corresponding message templates.', example='SMS_15305****', position='Query'),
+  templateParam?: string(name='TemplateParam', description='The value of the variable in the message template. You can specify multiple parameter values. Example:{"name":"Sam","number":"1390000\\*\\*\\*\\*"}.
+
+> 
+
+*   If line breaks are required in JSON-formatted data, they must meet the relevant requirements that are specified in the standard JSON protocol.
+
+*   For more information about template variables, see [SMS template specifications](~~108253~~).', example='{"code":"1111"}', position='Query'),
 }
 
 model SendSmsResponseBody = {
-  bizId?: string(name='BizId', example='9006197469364984****'),
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
+  bizId?: string(name='BizId', description='The ID of the delivery receipt.
+
+You can call the [QuerySendDetails](~~QuerySendDetails~~) operation to query the delivery status based on the receipt ID.', example='9006197469364984****'),
+  code?: string(name='Code', description='The HTTP status code.
+
+*   The value OK indicates that the request was successful.
+*   Other values indicate that the request failed. For more information, see [Error codes](~~101346~~).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8DE990'),
 }
 
 model SendSmsResponse = {
-  headers: map[string]string(name='headers'),
-  body: SendSmsResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendSmsResponseBody(name='body'),
 }
 
+/**
+  * *   This operation is mainly used to send a single message. In special scenarios, you can send multiple messages with the same content to a maximum of 1,000 mobile numbers. Note that group sending may be delayed.
+  * *   To send messages with different signatures and template content to multiple mobile numbers in a single request, call the [SendBatchSms](~~102364~~) operation.
+  * *   You are charged for using Alibaba Cloud Short Message Service (SMS) based on the amount of messages sent. For more information, see [Pricing](https://www.aliyun.com/price/product#/sms/detail).
+  * *   If your verification code signature and general-purpose signature have the same name, the system uses the general-purpose signature to send messages by default.
+  *
+ */
 async function sendSms(request: SendSmsRequest): SendSmsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SendSms', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SmsConversionIntlRequest {
-  conversionTime?: long(name='ConversionTime', example='1349055900000', position='Query'),
-  delivered: boolean(name='Delivered', example='true', position='Query'),
-  messageId: string(name='MessageId', example='1008030300****', position='Query'),
+  conversionTime?: long(name='ConversionTime', description='The time when the OTP message was delivered. The value is a UNIX timestamp. Unit: milliseconds.
+
+*   If you leave the parameter empty, the current timestamp is specified by default.
+*   If you specify the parameter, the timestamp must be greater than the message sending time and less than the current timestamp.', example='1349055900000', position='Query'),
+  delivered: boolean(name='Delivered', description='Specifies whether customers replied to the OTP message. Valid values: true and false.', example='true', position='Query'),
+  messageId: string(name='MessageId', description='The ID of the message.', example='1008030300****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model SmsConversionIntlResponseBody = {
-  code?: string(name='Code', example='OK'),
-  message?: string(name='Message', example='OK'),
-  requestId?: string(name='RequestId', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
+  code?: string(name='Code', description='The response code. If OK is returned, the request is successful. For more information, see [Error codes](https://help.aliyun.com/document_detail/101346.html?spm=a2c4g.101345.0.0.74326ff2J5EZyt).', example='OK'),
+  message?: string(name='Message', description='The returned message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F655A8D5-B967-440B-8683-DAD6FF8D****'),
 }
 
 model SmsConversionIntlResponse = {
-  headers: map[string]string(name='headers'),
-  body: SmsConversionIntlResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SmsConversionIntlResponseBody(name='body'),
 }
 
+/**
+  * Metrics:
+  * *   Requested OTP messages
+  * *   Verified OTP messages
+  * An OTP conversion rate is calculated based on the following formula: OTP conversion rate = Number of verified OTP messages/Number of requested OTP messages.
+  * > If you call the SmsConversion operation to query OTP conversion rates, your business may be affected. We recommend that you perform the following operations: 1. Call the SmsConversion operation in an asynchronous manner by configuring queues or events. 2. Manually degrade your services or use a circuit breaker to automatically degrade services.
+  *
+ */
 async function smsConversionIntl(request: SmsConversionIntlRequest): SmsConversionIntlResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SmsConversionIntl', 'POST', '/', 'json', false, 'json', request);
@@ -1064,31 +1918,43 @@ async function smsConversionIntl(request: SmsConversionIntlRequest): SmsConversi
 
 model TagResourcesRequest {
   ownerId?: long(name='OwnerId', position='Query'),
-  prodCode?: string(name='ProdCode', example='dysms', position='Query'),
-  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  resourceId?: [ string ](name='ResourceId', example='SMS_23423423', position='Query'),
+  prodCode?: string(name='ProdCode', description='The name of the cloud service. Set the value to **dysms**.', example='dysms', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. Set the value to **cn-hangzhou**.', example='cn-hangzhou', position='Query'),
+  resourceId?: [ string ](name='ResourceId', description='The code of the message template.', example='SMS_23423423', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  resourceType: string(name='ResourceType', example='TEMPLATE', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. Set the value to **TEMPLATE**.', example='TEMPLATE', position='Query'),
   tag: [ 
     {
-      key?: string(name='Key', example='TestKey'),
-      value?: string(name='Value', example='TestValue'),
+      key?: string(name='Key', description='The array of tag keys. Valid values of N: 1 to 20.', example='TestKey'),
+      value?: string(name='Value', description='The array of tag values. Valid values of N: 1 to 20.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tag.', position='Query'),
 }
 
 model TagResourcesResponseBody = {
-  code?: string(name='Code', example='OK'),
-  data?: string(name='Data', example='true'),
-  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700A8C****'),
+  code?: string(name='Code', description='The response code.
+
+*   If OK is returned, the request is successful.
+*   Other values indicate that the request fails. For more information, see [Error codes](~~101346~~).', example='OK'),
+  data?: string(name='Data', description='Indicates whether tags were attached. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A90E4451-FED7-49D2-87C8-00700A8C****'),
 }
 
 model TagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  body: TagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
 }
 
+/**
+  * ### QPS limit
+  * You can call this operation up to 50 times per second per account. If the number of the calls per second exceeds the limit, throttling is triggered. As a result, your business may be affected. We recommend that you take note of the limit when you call this operation.
+  *
+ */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
@@ -1113,12 +1979,82 @@ model UntagResourcesResponseBody = {
 }
 
 model UntagResourcesResponse = {
-  headers: map[string]string(name='headers'),
-  body: UntagResourcesResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UntagResourcesResponseBody(name='body'),
 }
 
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateSmsSignRequest {
+  applySceneContent?: string(name='ApplySceneContent', example='http://www.aliyun.com/', position='Query'),
+  moreData?: [ string ](name='MoreData', shrink='json', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  qualificationId: long(name='QualificationId', example='2004393xxxx', position='Query'),
+  remark?: string(name='Remark', maxLength=500, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  signName: string(name='SignName', position='Query'),
+  signSource: int32(name='SignSource', example='1', position='Query'),
+  signType?: int32(name='SignType', example='1', position='Query'),
+  thirdParty?: boolean(name='ThirdParty', example='false', position='Query'),
+}
+
+model UpdateSmsSignResponseBody = {
+  code?: string(name='Code', example='OK'),
+  message?: string(name='Message', example='OK'),
+  orderId?: string(name='OrderId', example='20044174408'),
+  requestId?: string(name='RequestId', example='A90E4451-FED7-49D2-87C8-00700A8C4D0D'),
+  signName?: string(name='SignName'),
+}
+
+model UpdateSmsSignResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSmsSignResponseBody(name='body'),
+}
+
+async function updateSmsSign(request: UpdateSmsSignRequest): UpdateSmsSignResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateSmsSign', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateSmsTemplateRequest {
+  applySceneContent?: string(name='ApplySceneContent', example='http://www.aliyun.com/', position='Query'),
+  intlType?: int32(name='IntlType', example='0', position='Query'),
+  moreData?: [ string ](name='MoreData', shrink='json', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  relatedSignName?: string(name='RelatedSignName', position='Query'),
+  remark?: string(name='Remark', maxLength=500, position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  templateCode: string(name='TemplateCode', example='SMS_152550****', position='Query'),
+  templateContent: string(name='TemplateContent', maxLength=500, position='Query'),
+  templateName: string(name='TemplateName', maxLength=30, position='Query'),
+  templateRule?: string(name='TemplateRule', example='{"code":"characterWithNumber"}', position='Query'),
+  templateType: int32(name='TemplateType', example='0', position='Query'),
+}
+
+model UpdateSmsTemplateResponseBody = {
+  code?: string(name='Code', example='OK'),
+  message?: string(name='Message', example='OK'),
+  orderId?: string(name='OrderId', example='200412717818'),
+  requestId?: string(name='RequestId', example='819BE656-D2E0-4858-8B21-B2E477085AAF'),
+  templateCode?: string(name='TemplateCode', example='SMS_2322****'),
+  templateName?: string(name='TemplateName'),
+}
+
+model UpdateSmsTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSmsTemplateResponseBody(name='body'),
+}
+
+async function updateSmsTemplate(request: UpdateSmsTemplateRequest): UpdateSmsTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateSmsTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
