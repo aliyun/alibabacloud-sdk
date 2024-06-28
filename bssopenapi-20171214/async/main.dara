@@ -1958,6 +1958,7 @@ If you specify DAILY for this parameter, the BillingDate parameter is required.'
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to query. Default value: 20. Maximum value: 300.', example='20', position='Query'),
   nextToken?: string(name='NextToken', description='The token that is used for the next query. The parameter must be left empty or set to the value of the NextToken parameter returned in the last call. Otherwise, an error is returned. If the parameter is left empty, the data is queried from the first entry.', example='CAESEgoQCg4KCmd', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
+  pipCode?: string(name='PipCode', position='Query'),
   productCode?: string(name='ProductCode', description='The code of the service.', example='rds', position='Query'),
   productType?: string(name='ProductType', description='The type of the service.', example='rds', position='Query'),
   splitItemID?: string(name='SplitItemID', description='The ID of the split item.', example='i-kjhdskjgshfdlkjfdh', position='Query'),
@@ -2065,32 +2066,6 @@ model DescribeSplitItemBillResponse = {
 async function describeSplitItemBill(request: DescribeSplitItemBillRequest): DescribeSplitItemBillResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeSplitItemBill', 'POST', '/', 'json', false, 'json', request);
-}
-
-model EnableBillGenerationRequest {
-  ownerId: long(name='OwnerId', position='Query'),
-  productCode: string(name='ProductCode', description='The code of the product.', example='ess', position='Query'),
-}
-
-model EnableBillGenerationResponseBody = {
-  code?: string(name='Code', description='The status code.', example='200'),
-  data?: {
-    boolean?: boolean(name='Boolean', description='Indicates whether the feature is enabled.', example='true'),
-  }(name='Data', description='The data returned.'),
-  message?: string(name='Message', description='The message returned.', example='Successful!'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='5F2648ED-170B-5882-BFF4-98BE522A60F2'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='true'),
-}
-
-model EnableBillGenerationResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: EnableBillGenerationResponseBody(name='body'),
-}
-
-async function enableBillGeneration(request: EnableBillGenerationRequest): EnableBillGenerationResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'EnableBillGeneration', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetAccountRelationRequest {
@@ -2212,11 +2187,11 @@ model GetOrderDetailResponseBody = {
       order?: [ 
       {
         afterTaxAmount?: string(name='AfterTaxAmount', description='The after-tax amount of the order.', example='0'),
-        commodityCode?: string(name='CommodityCode', description='The service code.', example='ecs'),
+        commodityCode?: string(name='CommodityCode', description='The service code.', example='rds'),
         config?: string(name='Config', description='The configurations of the main service.', example='DBInstanceClass:[DBInstanceClass:rds.mysql.s1.small;EngineVersion:8.0;Region:cn-qingdao;]DBFlowType:[Region:cn-qingdao;]'),
         createTime?: string(name='CreateTime', description='The time when the order was created.', example='2017-06-08T09:41:30Z'),
         currency?: string(name='Currency', description='The currency.', example='CNY'),
-        extendInfos?: map[string]string(name='ExtendInfos'),
+        extendInfos?: map[string]string(name='ExtendInfos', description='The order extension information.'),
         instanceIDs?: string(name='InstanceIDs', description='The instance IDs.', example='["rm-bp1a2vsr018313t6o"]'),
         operator?: string(name='Operator', description='The ID of the Resource Access Management (RAM) user who performs operations on the order. If no RAM user is involved, leave this parameter blank.', example='23424243432'),
         orderId?: string(name='OrderId', description='The ID of the order.', example='3453425324'),
@@ -2360,8 +2335,11 @@ async function getPayAsYouGoPrice(request: GetPayAsYouGoPriceRequest): GetPayAsY
 
 model GetResourcePackagePriceRequest {
   duration: int32(name='Duration', description='The validity period of the resource plan. The value must be the same as the duration of the resource plan specified in the specifications.', example='6', position='Query'),
-  effectiveDate?: string(name='EffectiveDate', description='The time when the resource plan takes effect. If you do not specify this parameter, the resource plan immediately takes effect by default. Specify the time in the ISO 8601 standard in the yyyy-MM-ddThh:mm:ssZ format. The time must be in UTC.', example='2020-02-10T12:00:00Z', position='Query'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='OSSBAG-cn-0xl0002', position='Query'),
+  effectiveDate?: string(name='EffectiveDate', description='The time when the resource plan takes effect. If you do not specify this parameter, the resource plan immediately takes effect by default. 
+When the **OrderType** is **BUY**, resource packs with the **EffectiveDate longer than the current time of 6 months** are not supported. 
+If the **OrderType** is **UPGRADE**, the **EffectiveDate** **must be less than or equal to** the actual expiration time of the upgraded instance.
+Specify the time in the ISO 8601 standard in the yyyy-MM-ddThh:mm:ssZ format. The time must be in UTC.', example='2020-02-10T12:00:00Z', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance. **This parameter is required when the order type is renewal or upgrade.**', example='OSSBAG-cn-0xl0002', position='Query'),
   orderType?: string(name='OrderType', description='The type of the order. Valid values:
 
 *   BUY: You place the order to purchase an instance.
@@ -3424,10 +3402,12 @@ model QueryCostUnitResourceResponseBody = {
         apportionName?: string(name='ApportionName', description='The split name of the resource.', example='test'),
         commodityCode?: string(name='CommodityCode', description='The product code of the resource.', example='rds'),
         commodityName?: string(name='CommodityName', description='The commodity name of the resource.', example='ApsaraDB'),
+        pipCode?: string(name='PipCode'),
         relatedResources?: string(name='RelatedResources', description='The resources related to the resource instance.', example='oss'),
         resourceGroup?: string(name='ResourceGroup', description='The resource group to which the resource belongs.', example='Default Resource Group'),
         resourceId?: string(name='ResourceId', description='The instance ID of the resource.', example='OSSBAG-cn-v0h1s4hma018'),
         resourceNick?: string(name='ResourceNick', description='The custom name of the resource.', example='testResource'),
+        resourceSource?: string(name='ResourceSource'),
         resourceStatus?: string(name='ResourceStatus', description='The status of the resource.', example='Available'),
         resourceTag?: string(name='ResourceTag', description='The tags of the resource.', example='testResource'),
         resourceType?: string(name='ResourceType', description='The type of the resource.', example='FPT_ossbag_absolute_Storage_bj'),
@@ -5427,7 +5407,7 @@ model SubscribeBillToOSSRequest {
 *   ACP1: a member account of a virtual network operator (VNO)
 
 Default value: MA.', example='MA', position='Query'),
-  rowLimitPerFile?: int32(name='RowLimitPerFile', example='300000', position='Query'),
+  rowLimitPerFile?: int32(name='RowLimitPerFile', description='The upper limit of the number of lines in a single file. When the bill file exceeds the upper limit, it will be split into multiple files and merged into a compressed package.', example='300000', position='Query'),
   subscribeBucket: string(name='SubscribeBucket', description='The OSS bucket that stores the bills to which you want to subscribe.', example='xxxxxx-bucket', position='Query'),
   subscribeType?: string(name='SubscribeType', description='The type of the bill to which you want to subscribe. Valid values:
 
@@ -5437,6 +5417,7 @@ Default value: MA.', example='MA', position='Query'),
 *   InstanceDetailMonthly: instance-based bills summarized by billing cycle
 *   SplitItemDetailDaily: split bills summarized by day
 *   MonthBill: monthly bills in the PDF format. You can subscribe to the monthly PDF bills only of the master account.', example='BillingItemDetailForBillingPeriod', position='Query'),
+  usingSsl?: string(name='UsingSsl', description='Whether to protect network communications through the SSL (Secure Sockets Layer) encryption protocol. When this parameter is set to true, it means that SSL encryption is enabled to ensure the security and integrity of data transmission.', example='true', position='Query'),
 }
 
 model SubscribeBillToOSSResponseBody = {
