@@ -1,0 +1,246 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('bailian', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AddFileRequest {
+  categoryId?: string(name='CategoryId', description='This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405'),
+  leaseId?: string(name='LeaseId', description='This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.1716698936847'),
+  parser?: string(name='Parser', description='This parameter is required.', example='DASHSCOPE_DOCMIND'),
+}
+
+model AddFileResponseBody = {
+  code?: string(name='Code', example='DataCenter.FileTooLarge'),
+  data?: {
+    fileId?: string(name='FileId', example='file_9a65732555b54d5ea10796ca5742ba22_XXXXXXXX'),
+    parser?: string(name='Parser', example='DASHSCOPE_DOCMIND'),
+  }(name='Data'),
+  message?: string(name='Message', example='User not authorized to operate on the specified resource.'),
+  requestId?: string(name='RequestId', example='778C0B3B-xxxx-5FC1-A947-36EDD13606AB'),
+  status?: string(name='Status', example='200'),
+  success?: string(name='Success', example='true'),
+}
+
+model AddFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddFileResponseBody(name='body'),
+}
+
+/**
+ * @summary 将临时上传的文档导入百炼数据中心，导入成功之后会自动触发文档解析。
+ *
+ * @param request AddFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddFileResponse
+ */
+async function addFileWithOptions(WorkspaceId: string, request: AddFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddFileResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.categoryId)) {
+    body['CategoryId'] = request.categoryId;
+  }
+  if (!Util.isUnset(request.leaseId)) {
+    body['LeaseId'] = request.leaseId;
+  }
+  if (!Util.isUnset(request.parser)) {
+    body['Parser'] = request.parser;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddFile',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/datacenter/file`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 将临时上传的文档导入百炼数据中心，导入成功之后会自动触发文档解析。
+ *
+ * @param request AddFileRequest
+ * @return AddFileResponse
+ */
+async function addFile(WorkspaceId: string, request: AddFileRequest): AddFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return addFileWithOptions(WorkspaceId, request, headers, runtime);
+}
+
+model ApplyFileUploadLeaseRequest {
+  fileName?: string(name='FileName', description='This parameter is required.'),
+  md5?: string(name='Md5', description='This parameter is required.', example='19657c391f6c70bcea63c154d8606bb3'),
+  sizeInBytes?: string(name='SizeInBytes', description='This parameter is required.', example='1000'),
+}
+
+model ApplyFileUploadLeaseResponseBody = {
+  code?: string(name='Code', example='DataCenter.FileTooLarge'),
+  data?: {
+    fileUploadLeaseId?: string(name='FileUploadLeaseId', example='1e6a159107384782be5e45ac4759b247.1719325231035'),
+    param?: {
+      headers?: any(name='Headers', example='"X-bailian-extra": "MTAwNTQyNjQ5NTE2OTE3OA==",
+        "Content-Type": "application/pdf"'),
+      method?: string(name='Method', example='PUT'),
+      url?: string(name='Url', example='https://bailian-datahub-data-origin-prod.oss-cn-hangzhou.aliyuncs.com/1005426495169178/10024405/68abd1dea7b6404d8f7d7b9f7fbd332d.1716698936847.pdf?Expires=1716699536&OSSAccessKeyId=TestID&Signature=HfwPUZo4pR6DatSDym0zFKVh9Wg%3D'),
+    }(name='Param'),
+    type?: string(name='Type', example='HTTP'),
+  }(name='Data'),
+  message?: string(name='Message', example='User not authorized to operate on the specified resource'),
+  requestId?: string(name='RequestId', example='778C0B3B-xxxx-5FC1-A947-36EDD13606AB'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ApplyFileUploadLeaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ApplyFileUploadLeaseResponseBody(name='body'),
+}
+
+/**
+ * @summary 请求文档上传租约，进行文档上传。
+ *
+ * @param request ApplyFileUploadLeaseRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ApplyFileUploadLeaseResponse
+ */
+async function applyFileUploadLeaseWithOptions(CategoryId: string, WorkspaceId: string, request: ApplyFileUploadLeaseRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ApplyFileUploadLeaseResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    body['FileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.md5)) {
+    body['Md5'] = request.md5;
+  }
+  if (!Util.isUnset(request.sizeInBytes)) {
+    body['SizeInBytes'] = request.sizeInBytes;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ApplyFileUploadLease',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/datacenter/category/${OpenApiUtil.getEncodeParam(CategoryId)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 请求文档上传租约，进行文档上传。
+ *
+ * @param request ApplyFileUploadLeaseRequest
+ * @return ApplyFileUploadLeaseResponse
+ */
+async function applyFileUploadLease(CategoryId: string, WorkspaceId: string, request: ApplyFileUploadLeaseRequest): ApplyFileUploadLeaseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return applyFileUploadLeaseWithOptions(CategoryId, WorkspaceId, request, headers, runtime);
+}
+
+model DescribeFileResponseBody = {
+  code?: string(name='Code', example='Success'),
+  data?: {
+    categoryId?: string(name='CategoryId', example='cate_cdd11b1b79a74e8bbd675c356a91ee3XXXXXXXX'),
+    createTime?: string(name='CreateTime', example='2024-05-26 12:45:43'),
+    fileId?: string(name='FileId', example='file_9a65732555b54d5ea10796ca5742ba22_XXXXXXXX'),
+    fileName?: string(name='FileName', example='test.pdf'),
+    fileType?: string(name='FileType', example='pdf'),
+    parser?: string(name='Parser', example='DASHSCOPE_DOCMIND'),
+    sizeInBytes?: long(name='SizeInBytes', example='1234'),
+    status?: string(name='Status', example='PARSE_SUCCESS'),
+  }(name='Data'),
+  message?: string(name='Message', example='Requests throttling triggered.'),
+  requestId?: string(name='RequestId', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFileResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取文档基本信息，包括文档名称、类型、状态等。
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeFileResponse
+ */
+async function describeFileWithOptions(WorkspaceId: string, FileId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeFileResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeFile',
+    version = '2023-12-29',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/datacenter/file/${OpenApiUtil.getEncodeParam(FileId)}/`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取文档基本信息，包括文档名称、类型、状态等。
+ *
+ * @return DescribeFileResponse
+ */
+async function describeFile(WorkspaceId: string, FileId: string): DescribeFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeFileWithOptions(WorkspaceId, FileId, headers, runtime);
+}
+
