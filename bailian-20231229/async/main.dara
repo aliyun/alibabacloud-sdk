@@ -99,6 +99,56 @@ async function applyFileUploadLease(request: ApplyFileUploadLeaseRequest): Apply
   return @handler.do('RESTFUL', 'ApplyFileUploadLease', 'POST', '/{WorkspaceId}/datacenter/category/{CategoryId}', 'json', true, 'form', request);
 }
 
+model CreateIndexRequest {
+  workspaceId: string(name='WorkspaceId', example='ws_3Nt27MYcoK191ISp', position='Path'),
+  categoryIds?: [ string ](name='CategoryIds', shrink='json', position='Query'),
+  chunkSize?: int32(name='ChunkSize', example='128', position='Query'),
+  columns?: [ 
+    {
+      column?: string(name='Column'),
+      isRecall?: boolean(name='IsRecall'),
+      isSearch?: boolean(name='IsSearch'),
+      name?: string(name='Name'),
+      type?: string(name='Type'),
+    }
+  ](name='Columns', shrink='json', position='Query'),
+  description?: string(name='Description', position='Query'),
+  documentIds?: [ string ](name='DocumentIds', shrink='json', position='Query'),
+  embeddingModelName?: string(name='EmbeddingModelName', example='text-embedding-v2', position='Query'),
+  name: string(name='Name', position='Query'),
+  overlapSize?: int32(name='OverlapSize', example='16', position='Query'),
+  rerankMinScore?: double(name='RerankMinScore', example='0.20', position='Query'),
+  rerankModelName?: string(name='RerankModelName', example='gte-rerank-hybrid', position='Query'),
+  separator?: string(name='Separator', example=',', position='Query'),
+  sinkInstanceId?: string(name='SinkInstanceId', example='gp-bp321093j84', position='Query'),
+  sinkRegion?: string(name='SinkRegion', example='cn-hangzhou', position='Query'),
+  sinkType: string(name='SinkType', example='DEFAULT', position='Query'),
+  sourceType: string(name='SourceType', example='DATA_CENTER_FILE', position='Query'),
+  structureType: string(name='StructureType', example='structured', position='Query'),
+}
+
+model CreateIndexResponseBody = {
+  code?: string(name='Code', example='Forbidden'),
+  data?: {
+    id?: string(name='Id', example='jkurxhju6b'),
+  }(name='Data'),
+  message?: string(name='Message', example='Invalid input, variable name is missing'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17204B98-7734-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateIndexResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateIndexResponseBody(name='body'),
+}
+
+async function createIndex(request: CreateIndexRequest): CreateIndexResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateIndex', 'POST', '/{WorkspaceId}/index/create', 'json', false, 'json', request);
+}
+
 model DescribeFileRequest {
   workspaceId: string(name='WorkspaceId', example='ws_3AXoiweeTyTd03IN', position='Path'),
   fileId: string(name='FileId', example='file_9a65732555b54d5ea10796ca5742ba22_XXXXXXXX', position='Path'),
@@ -132,5 +182,122 @@ model DescribeFileResponse = {
 async function describeFile(request: DescribeFileRequest): DescribeFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DescribeFile', 'GET', '/{WorkspaceId}/datacenter/file/{FileId}/', 'json', false, 'json', request);
+}
+
+model GetIndexJobStatusRequest {
+  workspaceId: string(name='WorkspaceId', example='ws_3Nt27MYcoK191ISp', position='Path'),
+  indexId: string(name='IndexId', example='79c0aly8zw', position='Query'),
+  jobId: string(name='JobId', example='20230718xxxx-146c93bf', position='Query'),
+}
+
+model GetIndexJobStatusResponseBody = {
+  code?: string(name='Code', example='Index.Forbidden'),
+  data?: {
+    documents?: [ 
+      {
+        code?: string(name='Code', example='Index.Document.ChunkError'),
+        docId?: string(name='DocId', example='file_9a65732555b54d5ea10796ca5742ba22_XXXXXXXX'),
+        docName?: string(name='DocName'),
+        message?: string(name='Message', example='document parse error'),
+        status?: string(name='Status', example='RUNNING'),
+      }
+    ](name='Documents'),
+    jobId?: string(name='JobId', example='66122af12a4e45ddae6bd6c845556647'),
+    status?: string(name='Status', example='PENDING'),
+  }(name='Data'),
+  message?: string(name='Message', example='User not authorized to operate on the specified resource.'),
+  requestId?: string(name='RequestId', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetIndexJobStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetIndexJobStatusResponseBody(name='body'),
+}
+
+async function getIndexJobStatus(request: GetIndexJobStatusRequest): GetIndexJobStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetIndexJobStatus', 'GET', '/{WorkspaceId}/index/job/status', 'json', false, 'json', request);
+}
+
+model RetrieveRequest {
+  workspaceId: string(name='WorkspaceId', example='ws_3Nt27MYcoK191ISp', position='Path'),
+  denseSimilarityTopK?: int32(name='DenseSimilarityTopK', example='100', position='Query'),
+  enableReranking?: boolean(name='EnableReranking', example='true', position='Query'),
+  enableRewrite?: boolean(name='EnableRewrite', example='false', position='Query'),
+  indexId: string(name='IndexId', example='5pwe0m2g6t', position='Query'),
+  query?: string(name='Query', position='Query'),
+  rerank?: [ 
+    {
+      modelName?: string(name='ModelName', example='gte-rerank-hybrid'),
+    }
+  ](name='Rerank', shrink='json', position='Query'),
+  rerankMinScore?: float(name='RerankMinScore', example='0.20', position='Query'),
+  rerankTopN?: int32(name='RerankTopN', example='5', position='Query'),
+  rewrite?: [ 
+    {
+      modelName?: string(name='ModelName'),
+    }
+  ](name='Rewrite', shrink='json', position='Query'),
+  saveRetrieverHistory?: boolean(name='SaveRetrieverHistory', example='false', position='Query'),
+  sparseSimilarityTopK?: int32(name='SparseSimilarityTopK', example='100', position='Query'),
+}
+
+model RetrieveResponseBody = {
+  code?: string(name='Code', example='Index.InvalidParameter'),
+  data?: {
+    nodes?: [ 
+      {
+        metadata?: any(name='Metadata'),
+        score?: double(name='Score', example='0.3'),
+        text?: string(name='Text'),
+      }
+    ](name='Nodes'),
+  }(name='Data'),
+  message?: string(name='Message', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17204B98-7734-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model RetrieveResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RetrieveResponseBody(name='body'),
+}
+
+async function retrieve(request: RetrieveRequest): RetrieveResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'Retrieve', 'POST', '/{WorkspaceId}/index/retrieve', 'json', false, 'json', request);
+}
+
+model SubmitIndexJobRequest {
+  workspaceId: string(name='WorkspaceId', example='ws_3Nt27MYcoK191ISp', position='Path'),
+  indexId: string(name='IndexId', example='79c0aly8zw', position='Query'),
+}
+
+model SubmitIndexJobResponseBody = {
+  code?: string(name='Code', example='InvalidParameter'),
+  data?: {
+    id?: string(name='Id', example='eFDr2fGRzP9gdDZWAdo3YQ=='),
+    indexId?: string(name='IndexId', example='khdyak1uuj'),
+  }(name='Data'),
+  message?: string(name='Message', example='Required parameter(%s) missing or invalid, please check the request parameters.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='Success'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model SubmitIndexJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SubmitIndexJobResponseBody(name='body'),
+}
+
+async function submitIndexJob(request: SubmitIndexJobRequest): SubmitIndexJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SubmitIndexJob', 'POST', '/{WorkspaceId}/index/submit_index_job', 'json', false, 'json', request);
 }
 
