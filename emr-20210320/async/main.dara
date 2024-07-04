@@ -1325,7 +1325,7 @@ async function createCluster(request: CreateClusterRequest): CreateClusterRespon
 
 model CreateNodeGroupRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.', example='C-E525E04F3914****', position='Query'),
-  nodeGroup: NodeGroupConfig(name='NodeGroup', description='The information about a machine group.', position='Query'),
+  nodeGroup: NodeGroupConfig(name='NodeGroup', description='The information about the node group.', position='Query'),
   regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
@@ -1349,6 +1349,31 @@ async function createNodeGroup(request: CreateNodeGroupRequest): CreateNodeGroup
   return @handler.do('RPC', 'CreateNodeGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateScriptRequest {
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+  scriptType: string(name='ScriptType', description='集群脚本类型。', example='BOOTSTRAP', position='Query'),
+  scripts: [
+    Script
+  ](name='Scripts', description='集群脚本列表。', position='Query'),
+}
+
+model CreateScriptResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  scriptId?: string(name='ScriptId', example='cs-d6d6bc841c0d415fb81808bc6d09****'),
+}
+
+model CreateScriptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateScriptResponseBody(name='body'),
+}
+
+async function createScript(request: CreateScriptRequest): CreateScriptResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateScript', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DecreaseNodesRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****', position='Query'),
   decreaseNodeCount?: int32(name='DecreaseNodeCount', description='The number of nodes to scale in. The number of nodes to be scaled in. The value should be less than the number of surviving nodes in the current node group.', example='3', position='Query'),
@@ -1368,10 +1393,6 @@ model DecreaseNodesResponse = {
   body?: DecreaseNodesResponseBody(name='body'),
 }
 
-/**
-  * 缩容节点。
-  *
- */
 async function decreaseNodes(request: DecreaseNodesRequest): DecreaseNodesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DecreaseNodes', 'POST', '/', 'json', false, 'json', request);
@@ -1425,13 +1446,35 @@ async function deleteCluster(request: DeleteClusterRequest): DeleteClusterRespon
   return @handler.do('RPC', 'DeleteCluster', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteScriptRequest {
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+  scriptId: string(name='ScriptId', description='脚本ID。', example='cs-da7476a7679a4d4c9cede62ebe09****', position='Query'),
+  scriptType: string(name='ScriptType', description='集群脚本类型。', example='BOOTSTRAP', position='Query'),
+}
+
+model DeleteScriptResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model DeleteScriptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteScriptResponseBody(name='body'),
+}
+
+async function deleteScript(request: DeleteScriptRequest): DeleteScriptResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteScript', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetApiTemplateRequest {
   regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
   templateId: string(name='TemplateId', description='集群模板id。', example='at-41b4c6a0fc63****', position='Query'),
 }
 
 model GetApiTemplateResponseBody = {
-  data?: ApiTemplate(name='Data', deprecated='true'),
+  data?: ApiTemplate(name='Data', description='The content of the API operation template.', deprecated='true'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -1569,22 +1612,21 @@ model GetAutoScalingPolicyResponseBody = {
     scalingPolicyId?: string(name='ScalingPolicyId', description='The ID of the scaling policy.', example='asp-asduwe23znl***'),
     scalingRules?: [ 
       {
-        activityType?: string(name='ActivityType', description='The type of the scaling activity. Valid values:
+        activityType?: string(name='ActivityType', description='The scaling type. Valid values:
 
-*   SCALE_OUT: scale-out rules
-*   SCALE_IN: scale-in rules', example='SCALE_OUT'),
+*   SCALE_OUT
+*   SCALE_IN', example='SCALE_OUT'),
         adjustmentType?: string(name='AdjustmentType', description='The adjustment type.', example='CHANGE_IN_CAPACITY'),
-        adjustmentValue?: int32(name='AdjustmentValue', description='The adjustment value. The value must be a positive number, which indicates the number of instances to be scaled out or in.', example='100'),
-        metricsTrigger?: MetricsTrigger(name='MetricsTrigger', description='The description of scaling by load.'),
-        minAdjustmentValue?: int32(name='MinAdjustmentValue'),
+        adjustmentValue?: int32(name='AdjustmentValue', description='The adjustment value. The parameter value must be a positive integer, which indicates the number of instances that you want to add or remove.', example='100'),
+        metricsTrigger?: MetricsTrigger(name='MetricsTrigger', description='The description of load-based scaling.'),
         ruleName?: string(name='RuleName', description='The name of the auto scaling rule.', example='scaling-out-memory'),
-        timeTrigger?: TimeTrigger(name='TimeTrigger', description='The description of scaling by time.'),
-        triggerType?: string(name='TriggerType', description='The type of the scaling rule. Valid values:
+        timeTrigger?: TimeTrigger(name='TimeTrigger', description='The description of time-based scaling.'),
+        triggerType?: string(name='TriggerType', description='The type of the auto scaling rule. Valid values:
 
-*   TIME_TRIGGER: scaling by time.
-*   METRICS_TRIGGER: scaling by load.', example='TIME_TRIGGER'),
+*   TIME_TRIGGER: time-based scaling
+*   METRICS_TRIGGER: load-based scaling', example='TIME_TRIGGER'),
       }
-    ](name='ScalingRules', description='The scaling rules.'),
+    ](name='ScalingRules', description='The auto scaling rules.'),
   }(name='ScalingPolicy', description='The information about the auto scaling policy.'),
 }
 
@@ -1605,7 +1647,7 @@ model GetClusterRequest {
 }
 
 model GetClusterResponseBody = {
-  cluster?: Cluster(name='Cluster', description='The details of the master instance.'),
+  cluster?: Cluster(name='Cluster', description='The details of the cluster.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -3853,7 +3895,7 @@ model GetOperationRequest {
 }
 
 model GetOperationResponseBody = {
-  operation?: Operation(name='Operation', description='The operation that is performed.'),
+  operation?: Operation(name='Operation', description='The operation that was performed.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='9E3A7161-EB7B-172B-8D18-FFB06BA3896A'),
 }
 
@@ -3863,10 +3905,6 @@ model GetOperationResponse = {
   body?: GetOperationResponseBody(name='body'),
 }
 
-/**
-  * 获取操作详情。
-  *
- */
 async function getOperation(request: GetOperationRequest): GetOperationResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetOperation', 'POST', '/', 'json', false, 'json', request);
@@ -3875,16 +3913,20 @@ async function getOperation(request: GetOperationRequest): GetOperationResponse 
 model IncreaseNodesRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='The configurations of the applications. Valid values of N: 1 to 1000.', position='Query'),
+  ](name='ApplicationConfigs', description='The configurations of the applications. Valid values of N: 1 to 1000.', example='Month', position='Query'),
   autoPayOrder?: boolean(name='AutoPayOrder', description='Indicates whether to automatically pay for the orders involved in the scale-out operation. This parameter takes effect only when the PaymentType parameter is set to Subscription. Valid values:
 
 *   true: automatically pays for the order involved in this operation.
 *   false: does not automatically pay for the orders involved in this operation.
 
 Default value: false', example='false', position='Query'),
+  autoRenew?: boolean(name='AutoRenew', position='Query'),
   clusterId: string(name='ClusterId', description='The ID of the cluster.', example='c-b933c5aac8fe****', position='Query'),
   increaseNodeCount: int32(name='IncreaseNodeCount', description='The number of nodes. The number of incremental nodes for this scale-out. Valid values: 1 to 500.', example='3', position='Query'),
-  minIncreaseNodeCount?: int32(name='MinIncreaseNodeCount', position='Query'),
+  minIncreaseNodeCount?: int32(name='MinIncreaseNodeCount', description='The minimum number of nodes that can be added. Valid values: 1 to 500.
+
+*   If you configure this parameter, and the number of available Elastic Compute Service (ECS) instances is less than the value of the IncreaseNodeCount parameter, the system tries to add nodes based on the number specified by the `MinIncreaseNodeCount` parameter. If the minimum number of nodes are added, the scale-out status is `PARTIAL_COMPLETED`.
+*   If you do not configure this parameter, and the number of available ECS instances is less than the value of the IncreaseNodeCount parameter, the scale-out process fails. The scale-out status is `FAILED`.', position='Query'),
   nodeGroupId: string(name='NodeGroupId', description='The ID of the node group. The target node group to which you want to scale out the cluster.', example='ng-869471354ecd****', position='Query'),
   paymentDuration?: int32(name='PaymentDuration', description='The subscription duration. Valid values when the PaymentDurationUnit value is Month: 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36, 48, and 60.', example='12', position='Query'),
   paymentDurationUnit?: string(name='PaymentDurationUnit', description='The unit of the subscription duration. Valid values:
@@ -3910,7 +3952,7 @@ async function increaseNodes(request: IncreaseNodesRequest): IncreaseNodesRespon
 }
 
 model JoinResourceGroupRequest {
-  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.', example='cn-hangzhou', position='Query'),
   resourceGroupId: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****', position='Query'),
   resourceId: string(name='ResourceId', description='The ID of the resource.', example='c-c95f0a39d8ff****', position='Query'),
   resourceType: string(name='ResourceType', description='The type of the resource. Valid values:
@@ -3947,7 +3989,7 @@ model ListApiTemplatesRequest {
 model ListApiTemplatesResponseBody = {
   apiTemplates?: [
     ApiTemplate
-  ](name='ApiTemplates', deprecated='true'),
+  ](name='ApiTemplates', description='The API operation templates.', deprecated='true'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
   nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -4125,35 +4167,7 @@ model ListClustersRequest {
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: 1 to 100.', example='20', position='Query'),
   nextToken?: string(name='NextToken', description='The starting point of the current query. If you do not configure this parameter, the query starts from the beginning.', example='eyJlY21OZXh0VG9rZW4iOiIxIiwidGFpaGFvTmV4dFRva2VuIjoiNTYiLCJ0YWloYW9OZXh0VG9rZW5JbnQiOjU2LCJlY21OZXh0VG9rZW5JbnQiOjF9', position='Query'),
   paymentTypes?: [ string ](name='PaymentTypes', description='The billing methods. You can specify a maximum of 2 items.', example='["ECS"]', position='Query'),
-  regionId: string(name='RegionId', description='The region ID.
-
-Valid values:
-
-*   cn-qingdao
-*   cn-beijing
-*   cn-zhangjiakou
-*   cn-huhehaote
-*   cn-hangzhou
-*   cn-shanghai
-*   cn-shenzhen
-*   cn-chengdu
-*   cn-hongkong
-*   cn-wulanchabu
-*   cn-heyuan-acdr-1
-*   cn-qingdao-acdr-ut-1
-*   ap-northeast-1
-*   ap-southeast-1
-*   ap-southeast-2
-*   ap-southeast-3
-*   ap-southeast-5
-*   ap-south-1
-*   us-east-1
-*   us-west-1
-*   me-east-1
-*   me-central-1
-*   eu-central-1
-*   eu-west-1
-*   cn-north-2-gov-1', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****', position='Query'),
   tags?: [
     Tag
@@ -4163,7 +4177,7 @@ Valid values:
 model ListClustersResponseBody = {
   clusters?: [
     ClusterSummary
-  ](name='Clusters', description='The list of clusters.'),
+  ](name='Clusters', description='The clusters.'),
   maxResults?: int32(name='MaxResults', description='The number of entries returned per page.', example='20'),
   nextToken?: string(name='NextToken', description='The page number of the next page returned.', example='eyJlY21OZXh0VG9rZW4iOiIxIiwidGFpaGFvTmV4dFRva2VuIjoiNTYiLCJ0YWloYW9OZXh0VG9rZW5JbnQiOjU2LCJlY21OZXh0VG9rZW5JbnQiOjF9'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='9E3A7161-EB7B-172B-8D18-FFB06BA3896A'),
@@ -6064,6 +6078,44 @@ async function listDoctorReports(request: ListDoctorReportsRequest): ListDoctorR
   return @handler.do('RPC', 'ListDoctorReports', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListInspectionHistoryRequest {
+  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  component?: string(name='Component', description='组件名称', position='Query'),
+  instanceId?: string(name='InstanceId', description='节点id', position='Query'),
+  language?: string(name='Language', position='Query'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  service?: string(name='Service', description='服务名称', position='Query'),
+  type?: string(name='Type', description='巡检历史类型 application/component', position='Query'),
+}
+
+model ListInspectionHistoryResponseBody = {
+  data?: [ 
+    {
+      changeMessage?: string(name='ChangeMessage', description='变更消息'),
+      healthStatus?: string(name='HealthStatus', description='巡检状态'),
+      inspectionItems?: [ map[string]string ](name='InspectionItems', description='巡检变更明细', example='null'),
+      reportTime?: string(name='ReportTime'),
+    }
+  ](name='Data', description='Created on 2023/8/21'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListInspectionHistoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInspectionHistoryResponseBody(name='body'),
+}
+
+async function listInspectionHistory(request: ListInspectionHistoryRequest): ListInspectionHistoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListInspectionHistory', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListInstanceTypesRequest {
   clusterId?: string(name='ClusterId', description='集群ID，仅升配场景使用。', example='c-b933c5aac8fe****', position='Query'),
   clusterType: string(name='ClusterType', description='创建的EMR集群类型。取值范围：
@@ -6098,7 +6150,7 @@ model ListInstanceTypesRequest {
 model ListInstanceTypesResponseBody = {
   instanceTypes?: [
     InstanceType
-  ](name='InstanceTypes'),
+  ](name='InstanceTypes', description='The instance types.'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
   nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -6220,6 +6272,62 @@ async function listReleaseVersions(request: ListReleaseVersionsRequest): ListRel
   return @handler.do('RPC', 'ListReleaseVersions', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListResourceHealthInspectionsRequest {
+  applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS', position='Query'),
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  componentName?: string(name='ComponentName', description='组件名称。', example='DataNode', position='Query'),
+  healthStatuses?: [ string ](name='HealthStatuses', description='健康状态。', example='["BAD"]', position='Query'),
+  language?: string(name='Language', description='语言', position='Query'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  nodeIds?: [ string ](name='NodeIds', description='节点Id列表。', example='["i-bp14l5n4v46uxsscl033"]', position='Query'),
+  nodeNames?: [ string ](name='NodeNames', description='节点名称列表。', example='["core1-1"]', position='Query'),
+  regionId: string(name='RegionId', description='地域ID。', example='cn-hangzhou', position='Query'),
+  resourceType?: string(name='ResourceType', description='查询的目标资源类型，合法值：
+<p>
+- APPLICATION
+<p>
+- COMPONENT
+<p>
+- COMPONENT_INSTANCE
+<p>', example='APPLICATION', position='Query'),
+}
+
+model ListResourceHealthInspectionsResponseBody = {
+  healthInspections?: [ 
+    {
+      applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
+      componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
+      healthMessage?: string(name='HealthMessage', description='健康详细信息。', example='Connection timeout'),
+      healthStatus?: string(name='HealthStatus', description='健康状态。', example='GOOD'),
+      inspectionName?: string(name='InspectionName', description='巡检项名称。', example='live_status_check'),
+      nodeId?: string(name='NodeId', description='节点ID。', example='core1-1'),
+      nodeName?: string(name='NodeName', description='节点名称。', example='core1-1'),
+      reportTime?: long(name='ReportTime', description='最近上报时间戳。', example='1639709192940'),
+      ruleName?: string(name='RuleName', description='规则名称。', example='live_status_check_1'),
+    }
+  ](name='HealthInspections'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+}
+
+model ListResourceHealthInspectionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListResourceHealthInspectionsResponseBody(name='body'),
+}
+
+/**
+  * 查询资源巡检项。
+  *
+ */
+async function listResourceHealthInspections(request: ListResourceHealthInspectionsRequest): ListResourceHealthInspectionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListResourceHealthInspections', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListScriptsRequest {
   clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
   maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='10', position='Query'),
@@ -6234,21 +6342,31 @@ model ListScriptsResponseBody = {
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
   scripts?: [ 
     {
-      action?: string(name='Action', description='API名称。', example='ListScripts'),
-      endTime?: long(name='EndTime', description='结束执行时间。', example='1639715635819'),
-      executionFailStrategy?: string(name='ExecutionFailStrategy', description='执行失败策略。', example='FAILED_CONTINUE'),
-      executionMoment?: string(name='ExecutionMoment', description='执行时机。', example='BEFORE_INSTALL'),
-      executionState?: string(name='ExecutionState'),
-      lastUpdateTime?: long(name='LastUpdateTime', description='最近一次编辑时间。', example='1639714634819'),
-      nodeSelector?: NodeSelector(name='NodeSelector', description='节点选择器。'),
-      regionId?: string(name='RegionId', description='区域ID。', example='cn-hangzhou'),
-      scriptArgs?: string(name='ScriptArgs', description='集群脚本执行参数。', example='--mode=client -h -p'),
-      scriptId?: string(name='ScriptId', description='脚本ID。', example='cs-bf25219d103043a0820613e32781****'),
-      scriptName?: string(name='ScriptName', description='集群脚本名称。', example='check_env'),
-      scriptPath?: string(name='ScriptPath', description='集群脚本路径。', example='oss://bucket1/check_evn.sh'),
-      startTime?: long(name='StartTime', description='开始执行时间。', example='1639714634000'),
+      action?: string(name='Action', description='The name of the API operation.', example='ListScripts'),
+      endTime?: long(name='EndTime', description='The time when the system finishes the running of the script. This parameter is returned only if the ScriptType parameter is set to NORMAL.', example='1639715635819'),
+      executionFailStrategy?: string(name='ExecutionFailStrategy', description='The policy that is used to handle execution failures of the script. Valid values:
+
+*   FAILED_CONTINUE
+*   FAILED_BLOCK', example='FAILED_CONTINUE'),
+      executionMoment?: string(name='ExecutionMoment', description='The time based on which the system runs the script. Valid values:
+
+*   BEFORE_INSTALL
+*   AFTER_STARTED', example='BEFORE_INSTALL'),
+      executionState?: string(name='ExecutionState', description='The status of the script. This parameter is returned only if the `ScriptType` parameter is set to `NORMAL`. Valid values:
+
+*   SCRIPT_COMPLETED
+*   SCRIPT_SUBMISSION_FAILED
+*   SCRIPT_RUNNING', example='SCRIPT_COMPLETED'),
+      lastUpdateTime?: long(name='LastUpdateTime', description='The time when the script was last modified.', example='1639714634819'),
+      nodeSelector?: NodeSelector(name='NodeSelector', description='The node selector.'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      scriptArgs?: string(name='ScriptArgs', description='The runtime parameters of the script.', example='--mode=client -h -p'),
+      scriptId?: string(name='ScriptId', description='The script ID.', example='cs-bf25219d103043a0820613e32781****'),
+      scriptName?: string(name='ScriptName', description='The name of the script.', example='check_env'),
+      scriptPath?: string(name='ScriptPath', description='The path in which the script is stored.', example='oss://bucket1/check_evn.sh'),
+      startTime?: long(name='StartTime', description='The time when the system starts to run the script. This parameter is returned only if the ScriptType parameter is set to NORMAL.', example='1639714634000'),
     }
-  ](name='Scripts'),
+  ](name='Scripts', description='The scripts.'),
   totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
 }
 
@@ -6258,10 +6376,6 @@ model ListScriptsResponse = {
   body?: ListScriptsResponseBody(name='body'),
 }
 
-/**
-  * 查询集群脚本。
-  *
- */
 async function listScripts(request: ListScriptsRequest): ListScriptsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListScripts', 'POST', '/', 'json', false, 'json', request);
@@ -6306,13 +6420,12 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 
 model PutAutoScalingPolicyRequest {
   clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
-  constraints?: ScalingConstraints(name='Constraints', description='最大最小值约束。', position='Query'),
+  constraints?: ScalingConstraints(name='Constraints', description='The maximum and minimum numbers of nodes in a node group.', position='Query'),
   nodeGroupId: string(name='NodeGroupId', description='节点组ID。节点组 Id-针对 ACK 集群，此字段为空。', example='ng-869471354ecd****', position='Query'),
   regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
   scalingRules?: [
     ScalingRule
-  ](name='ScalingRules', description='弹性伸缩规则描述列表。
-<p>', position='Query'),
+  ](name='ScalingRules', description='The auto scaling rules. Number of elements in the array: 0 to 100.', position='Query'),
 }
 
 model PutAutoScalingPolicyResponseBody = {
@@ -6373,10 +6486,6 @@ model RunApiTemplateResponse = {
   body?: RunApiTemplateResponseBody(name='body'),
 }
 
-/**
-  * 执行集群模板
-  *
- */
 async function runApiTemplate(request: RunApiTemplateRequest): RunApiTemplateResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RunApiTemplate', 'POST', '/', 'json', false, 'json', request);
@@ -6407,8 +6516,8 @@ model RunApplicationActionRequest {
 model RunApplicationActionResponseBody = {
   abnInstances?: [ 
     {
-      nodeId?: string(name='NodeId', example='i-bp1cudc25w2bfwl5****'),
-      nodeName?: string(name='NodeName', example='core1-1'),
+      nodeId?: string(name='NodeId', description='The ID of the abnormal node.', example='i-bp1cudc25w2bfwl5****'),
+      nodeName?: string(name='NodeName', description='The name of the abnormal node.', example='core1-1'),
     }
   ](name='AbnInstances', description='The abnormal nodes.'),
   operationId?: string(name='OperationId', description='The operation ID.', example='op-13c37a77c505****'),
@@ -6434,7 +6543,7 @@ model TagResourcesRequest {
 *   cluster: cluster', example='cluster', position='Query'),
   tags: [
     Tag
-  ](name='Tags', description='The list of tags to be bound.', example='[null]', position='Query'),
+  ](name='Tags', description='The tags.', example='[null]', position='Query'),
 }
 
 model TagResourcesResponseBody = {
@@ -6475,10 +6584,6 @@ model UntagResourcesResponse = {
   body?: UntagResourcesResponseBody(name='body'),
 }
 
-/**
-  * 删除指定资源标签。
-  *
- */
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
@@ -6531,6 +6636,7 @@ model UpdateApplicationConfigsRequest {
   description?: string(name='Description', description='The description.', example='更新YARN内存配置。', position='Query'),
   nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-869471354ecd****', position='Query'),
   nodeId?: string(name='NodeId', description='The node ID.', example='i-bp1cudc25w2bfwl5****', position='Query'),
+  refreshConfig?: boolean(name='RefreshConfig', description='Specifies whether to refresh the configurations.', example='true', position='Query'),
   regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
@@ -6548,5 +6654,28 @@ model UpdateApplicationConfigsResponse = {
 async function updateApplicationConfigs(request: UpdateApplicationConfigsRequest): UpdateApplicationConfigsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateApplicationConfigs', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateScriptRequest {
+  clusterId: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。', example='cn-hangzhou', position='Query'),
+  script: Script(name='Script', description='集群脚本。', shrink='json', position='Query'),
+  scriptId: string(name='ScriptId', description='脚本ID。', example='cs-da7476a7679a4d4c9cede62ebe09****', position='Query'),
+  scriptType: string(name='ScriptType', description='集群脚本类型。', example='BOOTSTRAP', position='Query'),
+}
+
+model UpdateScriptResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model UpdateScriptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateScriptResponseBody(name='body'),
+}
+
+async function updateScript(request: UpdateScriptRequest): UpdateScriptResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateScript', 'POST', '/', 'json', false, 'json', request);
 }
 
