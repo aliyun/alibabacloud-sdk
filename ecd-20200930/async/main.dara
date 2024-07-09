@@ -68,6 +68,19 @@ model FilePermissionMember {
   roleId: string(name='RoleId'),
 }
 
+model Permission {
+  createTime?: string(name='CreateTime'),
+  description?: string(name='Description'),
+  destCidrIp?: string(name='DestCidrIp'),
+  ipProtocol?: string(name='IpProtocol'),
+  nicType?: string(name='NicType'),
+  policy?: string(name='Policy'),
+  portRange?: string(name='PortRange'),
+  priority?: string(name='Priority'),
+  sourceCidrIp?: string(name='SourceCidrIp'),
+  sourcePortRange?: string(name='SourcePortRange'),
+}
+
 model ActivateOfficeSiteRequest {
   officeSiteId: string(name='OfficeSiteId', description='The ID of the convenience office network that is locked.', example='cn-hangzhou+dir-803704****', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
@@ -419,7 +432,7 @@ async function applyCoordinationForMonitoring(request: ApplyCoordinationForMonit
 model ApproveFotaUpdateRequest {
   appVersion: string(name='AppVersion', description='Mirror version.', example='0.0.1-D-20220513.143129', position='Query'),
   desktopId: string(name='DesktopId', description='The ID of the cloud computer.', example='ecd-138dsptkrt00u****', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
 }
 
 model ApproveFotaUpdateResponseBody = {
@@ -948,6 +961,8 @@ async function createADConnectorDirectory(request: CreateADConnectorDirectoryReq
 
 model CreateADConnectorOfficeSiteRequest {
   adHostname?: string(name='AdHostname', description='The hostname of the domain controller. The hostname must comply with the naming conventions for Windows hosts.', example='beijing-ad01', position='Query'),
+  backupDCHostname?: string(name='BackupDCHostname', position='Query'),
+  backupDns?: string(name='BackupDns', position='Query'),
   bandwidth?: int32(name='Bandwidth', description='The maximum public bandwidth of the Internet access package. Valid values: 0 to 200.\\
 If you do not specify this parameter or you set this parameter to 0, Internet access is disabled.', example='1', position='Query'),
   cenId: string(name='CenId', description='The ID of the CEN instance.', example='cen-3gwy16dojz1m65****', position='Query'),
@@ -960,7 +975,7 @@ If you do not specify this parameter or you set this parameter to 0, Internet ac
 *   `10.0.0.0/12` (subnet mask range: 12 to 24 bits)
 *   `172.16.0.0/12` (subnet mask range: 12 to 24 bits)
 *   `192.168.0.0/16` (subnet mask range: 16 to 24 bits)', example='47.100.XX.XX', position='Query'),
-  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from WUYING clients.
+  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from Alibaba Cloud Workspace clients.
 
 >  The VPC connection depends on Alibaba Cloud PrivateLink. You can use PrivateLink for free. When you set this parameter to `VPC` or `Any`, PrivateLink is automatically activated.
 
@@ -1644,10 +1659,10 @@ Valid values:
   stopDuration?: long(name='StopDuration', description='The period of time before the idle cloud desktop is stopped. When the specified period of time is reached, the idle cloud desktop automatically stops. If an end user connects to a stopped cloud desktop, the cloud desktop automatically starts. Unit: milliseconds.', example='300000', position='Query'),
   tag?: [ 
     {
-      key: string(name='Key'),
-      value: string(name='Value'),
+      key: string(name='Key', description='The key of the tag. If you specify the `Tag` parameter, you must also specify the `Key` parameter. The tag key can be up to 128 characters in length and cannot contain `http://` or `https://`. The tag key cannot start with `aliyun` or `acs:`. You cannot specify an empty string as a tag key.', example='TestKey'),
+      value: string(name='Value', description='The value of the tag. The tag value can be an empty string. The tag value can be up to 128 characters in length. It cannot start with `acs:` and cannot contain `http://` or `https://`.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tags that you want to attach to the cloud computer pool. You can specify 1 to 20 tags.', position='Query'),
   volumeEncryptionEnabled?: boolean(name='VolumeEncryptionEnabled', description='Specifies whether to enable disk encryption.', example='false', position='Query'),
   volumeEncryptionKey?: string(name='VolumeEncryptionKey', description='The ID of the Key Management Service (KMS) key that you want to use when disk encryption is enabled. You can call the [ListKeys](~~28951~~) operation to obtain a list of KMS keys.', example='08c33a6f-4e0a-4a1b-a3fa-7ddfa1d4****', position='Query'),
   vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) in which you want to create the desktop group.', example='hide', position='Query'),
@@ -2115,7 +2130,7 @@ Valid values:
 
     <!-- -->
 
-    To make the payment, log on to the WUYING Workspace console, go to the Orders page, and find the order based on the order ID.
+    To make the payment, log on to the Elastic Desktop Service console, go to the Orders page, and find the order based on the order ID.
 
     <!-- -->', example='false', position='Query'),
   autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the premium bandwidth plan.
@@ -2634,6 +2649,7 @@ Valid values:
     The disks on your local computer are not mapped to the cloud desktop. This value is the default value.
 
     <!-- -->', example='off', position='Query'),
+  maxReconnectTime?: int32(name='MaxReconnectTime', position='Query'),
   name?: string(name='Name', description='The name of the policy.', example='testPolicyGroupName', position='Query'),
   netRedirect?: string(name='NetRedirect', description='Specifies whether to enable the network redirection feature.
 
@@ -3066,8 +3082,8 @@ model CreateRAMDirectoryResponse = {
 
 /**
   * Before you create a RAM directory, complete the following preparations:
-  * *   Call the `CreateVpc` operation to create a virtual private cloud (VPC) in a region supported by WUYING Workspace.
-  * *   Call the `CreateVSwitch` operation to create a vSwitch in the VPC. The vSwitch is in a zone that is supported by WUYING Workspace. You can call the [DescribeZones](~~196648~~) operation to obtain the most recent zone list for a region supported by WUYING Workspace.
+  * *   Call the `CreateVpc` operation to create a virtual private cloud (VPC) in a region supported by Elastic Desktop Service.
+  * *   Call the `CreateVSwitch` operation to create a vSwitch in the VPC. The vSwitch is in a zone that is supported by Elastic Desktop Service. You can call the [DescribeZones](~~196648~~) operation to obtain the most recent zone list for a region supported by Elastic Desktop Service
   *
  */
 async function createRAMDirectory(request: CreateRAMDirectoryRequest): CreateRAMDirectoryResponse {
@@ -3079,7 +3095,7 @@ model CreateSimpleOfficeSiteRequest {
   bandwidth?: int32(name='Bandwidth', description='The maximum public bandwidth. Value range: 10 to 200. Unit: Mbit/s. This parameter is available if you set `EnableInternetAccess` to `true`.', example='10', position='Query'),
   cenId?: string(name='CenId', description='The Cloud Enterprise Network (CEN) instance ID.
 
->  If you want end users to connect to cloud computers from WUYING clients over VPCs, you can attach the office network to a CEN instance. The CEN instance is the one that connects to your on-premises network over VPN Gateway or Express Connect.', example='cen-3gwy16dojz1m65****', position='Query'),
+>  If you want end users to connect to cloud computers from Alibaba Cloud Workspace clients over VPCs, you can attach the office network to a CEN instance. The CEN instance is the one that connects to your on-premises network over VPN Gateway or Express Connect.', example='cen-3gwy16dojz1m65****', position='Query'),
   cenOwnerId?: long(name='CenOwnerId', description='The ID of the Alibaba Cloud account to which the Cloud Enterprise Network (CEN) instance belongs.
 
 - If you do not specify the CenId parameter, or the CEN instance that is specified by the CenId parameter belongs to the current Alibaba Cloud account, skip this parameter.
@@ -3108,7 +3124,7 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='false', position='Query'),
-  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from WUYING clients.
+  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from Alibaba Cloud Workspace clients.
 
 >  The VPC connection depends on Alibaba Cloud PrivateLink. You can use PrivateLink for free. When you set this parameter to VPC or Any, PrivateLink is automatically activated.````', example='Internet', position='Query'),
   enableAdminAccess?: boolean(name='EnableAdminAccess', description='Specifies whether to grant the local administrator permissions to users that are authorized to use cloud computers in the office network.
@@ -3717,7 +3733,7 @@ model DescribeAutoSnapshotPolicyResponseBody = {
   autoSnapshotPolicies?: [ 
     {
       creationTime?: string(name='CreationTime', description='The time when the automatic snapshot policy was created. The time follows the [ISO 8601](~~25696~~) standard in the `yyyy-mm-ddthh:mm:ssz` format. The time is displayed in UTC.', example='2023-01-11T09:14:00Z'),
-      cronExpression?: string(name='CronExpression', description='The cron expression that specifies when WUYING Workspace creates snapshots on the cloud computers.', example='0 0 5,7 ? * 2/2'),
+      cronExpression?: string(name='CronExpression', description='The cron expression that specifies when Elastic Desktop Service creates snapshots on the cloud computers.', example='0 0 5,7 ? * 2/2'),
       desktopNum?: int32(name='DesktopNum', description='The number of cloud computers to which the automatic snapshot policy is applied.', example='5'),
       policyId?: string(name='PolicyId', description='The ID of the automatic snapshot policy.', example='sp-3e3bmfcdkjfl1****'),
       policyName?: string(name='PolicyName', description='The name of the automatic snapshot policy.', example='snapshot01'),
@@ -4674,10 +4690,10 @@ Valid values:
 *   2: overdue or expired', example='1', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The key of the tag. If you specify the `Tag` parameter, you must also specify the `Key` parameter. The tag key can be up to 128 characters in length and cannot contain `http://` or `https://`. The tag key cannot start with `aliyun` or `acs:`. You cannot specify an empty string as a tag key.', example='TestKey'),
+      value?: string(name='Value', description='The value of the tag. The tag value can be an empty string. The tag value can be up to 128 characters in length. It cannot start with `acs:` and cannot contain `http://` or `https://`.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tags attached to the cloud computer pool. You can specify 1 to 20 tags.', position='Query'),
 }
 
 model DescribeDesktopGroupsResponseBody = {
@@ -4890,10 +4906,10 @@ Valid values:
       systemDiskSize?: int32(name='SystemDiskSize', description='The system disk capacity. Unit: GiB.', example='80'),
       tags?: [ 
         {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
+          key?: string(name='Key', description='The key of the tag.', example='desktop_group_name'),
+          value?: string(name='Value', description='The value of the tag.', example='ds-dq2mybjr23yw*****'),
         }
-      ](name='Tags'),
+      ](name='Tags', description='The tags attached to the cloud computer pool.'),
       version?: int32(name='Version', description='The version number of the cloud computer pool.', example='2'),
       volumeEncryptionEnabled?: boolean(name='VolumeEncryptionEnabled', description='Indicates whether disk encryption is enabled.', example='false'),
       volumeEncryptionKey?: string(name='VolumeEncryptionKey', description='The ID of the Key Management Service (KMS) key for disk encryption.', example='e5409ada-xxxx-xxxx-xxxx-89e31e23e993'),
@@ -4916,7 +4932,7 @@ async function describeDesktopGroups(request: DescribeDesktopGroupsRequest): Des
 
 model DescribeDesktopInfoRequest {
   desktopId?: [ string ](name='DesktopId', description='The IDs of the cloud computers. You can specify 1 to 100 IDs.', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
 }
 
 model DescribeDesktopInfoResponseBody = {
@@ -5079,6 +5095,7 @@ async function describeDesktopOversoldUserGroup(request: DescribeDesktopOversold
 }
 
 model DescribeDesktopSessionsRequest {
+  checkOsSession?: boolean(name='CheckOsSession', position='Query'),
   desktopId?: [ string ](name='DesktopId', description='The IDs of the cloud computers. You can specify the IDs of 1 to 100 cloud computers.', position='Query'),
   desktopName?: string(name='DesktopName', description='The name of the cloud computer.', example='DemoComputer', position='Query'),
   endTime?: string(name='EndTime', description='The end of the time range to query.', example='2023-02-13T02:51:43Z', position='Query'),
@@ -5086,7 +5103,7 @@ model DescribeDesktopSessionsRequest {
   officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network.', example='cn-hangzhou+dir-363353****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   sessionStatus?: string(name='SessionStatus', description='The state of the session.
 
 Valid values:
@@ -5094,6 +5111,7 @@ Valid values:
 *   Connected
 *   Disconnected', example='Connected', position='Query'),
   startTime?: string(name='StartTime', description='The start of the time range to query.', example='2023-01-28T02:31:43Z', position='Query'),
+  subPayType?: string(name='SubPayType', position='Query'),
 }
 
 model DescribeDesktopSessionsResponseBody = {
@@ -5110,6 +5128,7 @@ model DescribeDesktopSessionsResponseBody = {
       latestConnectionTime?: long(name='LatestConnectionTime', description='The duration of the last connection to the cloud computer. Unit: seconds.', example='120'),
       officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network.', example='cn-hangzhou+dir-8904****'),
       officeSiteName?: string(name='OfficeSiteName', description='The name of the office network.', example='DemoOfficeSite'),
+      osSessionStatus?: string(name='OsSessionStatus'),
       osType?: string(name='OsType', description='The OS.
 
 Valid values:
@@ -5131,6 +5150,7 @@ Valid values:
 
 *   Connected
 *   Disconnected', example='Connected'),
+      subPayType?: string(name='SubPayType'),
       totalConnectionTime?: long(name='TotalConnectionTime', description='The total connection duration. Unit: seconds.', example='240'),
     }
   ](name='Sessions', description='Details of the session.'),
@@ -5435,6 +5455,7 @@ model DescribeDesktopsRequest {
 > Only one end user can use the cloud desktop at a time.', example='alice', position='Query'),
   excludedEndUserId?: [ string ](name='ExcludedEndUserId', description='The IDs of the end users that are excluded from the end users that are assigned the cloud desktop. You can specify 1 to 100 end user IDs.', example='andy', position='Query'),
   expiredTime?: string(name='ExpiredTime', description='The time when the subscription cloud desktop expires.', example='2022-12-31T15:59:59Z', position='Query'),
+  fillResourceGroup?: boolean(name='FillResourceGroup', position='Query'),
   filterDesktopGroup?: boolean(name='FilterDesktopGroup', description='Specifies whether to filter cloud desktops in the desktop group.', example='false', position='Query'),
   gpuInstanceGroupId?: string(name='GpuInstanceGroupId', position='Query'),
   groupId?: string(name='GroupId', description='The ID of the desktop group.
@@ -5456,6 +5477,7 @@ model DescribeDesktopsRequest {
   qosRuleId?: string(name='QosRuleId', position='Query'),
   queryFotaUpdate?: boolean(name='QueryFotaUpdate', description='Specifies whether to query the information about image update of the cloud desktop.', example='false', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](~~DescribeRegions~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
   snapshotPolicyId?: string(name='SnapshotPolicyId', description='The ID of the snapshot policy.', example='sp-hb12mclyne09xw***', position='Query'),
   subPayType?: string(name='SubPayType', position='Query'),
   tag?: [ 
@@ -5686,6 +5708,12 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='ASP'),
+      resourceGroups?: [ 
+        {
+          id?: string(name='Id'),
+          name?: string(name='Name'),
+        }
+      ](name='ResourceGroups'),
       sessionType?: string(name='SessionType', description='The type of the session.
 
 Valid values:
@@ -6350,6 +6378,9 @@ Valid values:
           vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch with which the AD connector is associated.', example='vsw-bp19ocz3erfx15uon****'),
         }
       ](name='ADConnectors', description='Details of the AD connector.'),
+      adHostname?: string(name='AdHostname'),
+      backupDCHostname?: string(name='BackupDCHostname'),
+      backupDns?: string(name='BackupDns'),
       creationTime?: string(name='CreationTime', description='The time when the directory was created.', example='2020-11-02T01:44Z'),
       customSecurityGroupId?: string(name='CustomSecurityGroupId', description='The security group ID. This parameter is returned only when the directory type is AD office network.', example='sg-bp1ce64o4g9mdf5u****'),
       desktopAccessType?: string(name='DesktopAccessType', description='The method in which the cloud computer is connected.
@@ -6571,7 +6602,7 @@ model DescribeFotaPendingDesktopsRequest {
 *   Default value: 20.', example='20', minimum=0, maximum=500, position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of `NextToken`.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
   officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network. You can call the [DescribeOfficeSites](~~216071~~) operation to obtain the value of this parameter.', example='cn-hangzhou+dir-363353****', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   taskUid?: string(name='TaskUid', description='The ID of the image update task. You can call the [DescribeFotaTasks](~~437001~~) operation to obtain the value of this parameter.', example='aot-c4khwrp9ocml4****', position='Query'),
 }
 
@@ -6632,7 +6663,7 @@ Valid values:
 *   Valid values: 1 to 100
 *   Default value: 20', example='20', minimum=0, maximum=500, position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. If the NextToken parameter is empty, no next page exists.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   taskUid?: [ string ](name='TaskUid', description='The IDs of the image update tasks.', position='Query'),
   userStatus?: string(name='UserStatus', description='Specifies whether to automatically push the image update task.
 
@@ -7733,7 +7764,7 @@ Valid values:
 Valid values:
 
 *   html5: web client
-*   linux: WUYING hardware terminal
+*   linux: Alibaba Cloud Workspace hardware terminal
 *   android: Android client
 *   windows: Windows client
 *   ios: iOS client
@@ -7753,12 +7784,14 @@ Valid values:
 *   read: One-way transfer is allowed.
 *   readwrite: Two-way transfer is allowed.
 *   off: Two-way transfer is not allowed.', example='readwrite'),
+      colorEnhancement?: string(name='ColorEnhancement'),
       cpuDownGradeDuration?: int32(name='CpuDownGradeDuration', description='The CPU underclocking duration. Valid values: 30 to 120.', example='30'),
       cpuProcessors?: [ string ](name='CpuProcessors', description='The process whitelist that is not restricted by the CPU usage limit.'),
       cpuProtectedMode?: string(name='CpuProtectedMode', description='Indicates whether the switch for CPU protection mode is turned on. Valid values: on and off.', example='on'),
       cpuRateLimit?: int32(name='CpuRateLimit', description='The overall CPU utilization. Valid values: 70 to 90.', example='70'),
       cpuSampleDuration?: int32(name='CpuSampleDuration', description='The overall CPU sampling duration. Valid values: 10 to 60.', example='10'),
       cpuSingleRateLimit?: int32(name='CpuSingleRateLimit', description='The usage of a single CPU. Valid values: 70 to 100.', example='70'),
+      displayMode?: string(name='DisplayMode'),
       domainList?: string(name='DomainList', description='Indicates whether the access control for domain names is enabled. The domain names can contain wildcard characters (\\*). Multiple domain names are separated by commas (,). Valid values:
 
 *   off
@@ -7816,6 +7849,7 @@ Valid values:
 *   read: read-only
 *   readwrite: read and write
 *   off: no permissions', example='readwrite'),
+      maxReconnectTime?: int32(name='MaxReconnectTime'),
       memoryDownGradeDuration?: int32(name='MemoryDownGradeDuration', description='The duration required for underclocking memory by a single process. Valid values: 30 to 120.', example='30'),
       memoryProcessors?: [ string ](name='MemoryProcessors', description='The whitelist of processes that are not restricted by the memory usage limit.'),
       memoryProtectedMode?: string(name='MemoryProtectedMode', description='Indicates whether the switch for memory protection mode is turned on. Valid values: on and off.', example='on'),
@@ -7871,6 +7905,7 @@ Valid values:
 
 *   off
 *   on', example='on'),
+      qualityEnhancement?: string(name='QualityEnhancement'),
       recordContent?: string(name='RecordContent', description='Indicates whether the custom screen recording feature is enabled. Valid values:
 
 *   on
@@ -7911,6 +7946,9 @@ Valid values:
 *   GLOBAL: The policy takes effect globally.
 *   IP: The policy takes effect based on IP addresses.', example='GLOBAL'),
       scopeValue?: [ string ](name='ScopeValue', description='This parameter is required when Scope is set to IP. This parameter takes effect when Scope is set to IP.'),
+      smoothEnhancement?: string(name='SmoothEnhancement'),
+      streamingMode?: string(name='StreamingMode'),
+      targetFps?: int32(name='TargetFps'),
       usbRedirect?: string(name='UsbRedirect', description='Indicates whether the USB redirection feature is enabled.
 
 Valid values:
@@ -7938,6 +7976,11 @@ Valid values:
           vendorId?: string(name='VendorId', description='The vendor ID (VID). For more information, see [Valid USB VIDs](https://www.usb.org/sites/default/files/vendor_ids032322.pdf\\_1.pdf).', example='04**'),
         }
       ](name='UsbSupplyRedirectRule', description='The USB redirection rule.'),
+      videoEncAvgKbps?: int32(name='VideoEncAvgKbps'),
+      videoEncMaxQP?: int32(name='VideoEncMaxQP'),
+      videoEncMinQP?: int32(name='VideoEncMinQP'),
+      videoEncPeakKbps?: int32(name='VideoEncPeakKbps'),
+      videoEncPolicy?: string(name='VideoEncPolicy'),
       videoRedirect?: string(name='VideoRedirect', description='Indicates whether the multimedia redirection feature is enabled. Valid values: on and off.', example='off'),
       visualQuality?: string(name='VisualQuality', description='The image display quality.
 
@@ -9155,13 +9198,13 @@ Default value: 10.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The token that determines the start point of the next query. If this parameter is left empty, all results are returned.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
   officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network to which the cloud computer pool belongs.', example='cn-hangzhou+dir-467671****', position='Query'),
   policyGroupId?: string(name='PolicyGroupId', description='The ID of the policy that is associated with the cloud computer pool.', example='pg-53iyi2aar0nd6****', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The key of the tag. If you specify the `Tag` parameter, you must also specify the `Key` parameter. The tag key can be up to 128 characters in length and cannot contain `http://` or `https://`. The tag key cannot start with `aliyun` or `acs:`. You cannot specify an empty string as a tag key.', example='TestKey'),
+      value?: string(name='Value', description='The value of the tag. The tag value can be an empty string. The tag value can be up to 128 characters in length. It cannot start with `acs:` and cannot contain `http://` or `https://`.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tags attached to the cloud computer pool. You can specify 1 to 20 tags.', position='Query'),
 }
 
 model ExportDesktopGroupInfoResponseBody = {
@@ -10366,7 +10409,6 @@ model MigrateDesktopsRequest {
   desktopId: [ string ](name='DesktopId', description='The IDs of the cloud computers. You can specify 1 to 100 IDs.', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the most recent region list.', example='cn-shanghai', position='Query'),
   targetOfficeSiteId: string(name='TargetOfficeSiteId', description='The ID of the destination office network.', example='cn-shenzhen+dir-388505****', position='Query'),
-  targetSubnetId?: string(name='TargetSubnetId', position='Query'),
 }
 
 model MigrateDesktopsResponseBody = {
@@ -10463,6 +10505,8 @@ async function modifyADConnectorDirectory(request: ModifyADConnectorDirectoryReq
 
 model ModifyADConnectorOfficeSiteRequest {
   adHostname?: string(name='AdHostname', description='The hostname of the domain controller. The hostname must comply with the naming conventions for hostnames in Windows.', example='beijing-ad01', position='Query'),
+  backupDCHostname?: string(name='BackupDCHostname', position='Query'),
+  backupDns?: string(name='BackupDns', position='Query'),
   dnsAddress?: [ string ](name='DnsAddress', description='Details of the IP addresses of the Domain Name System (DNS) servers that correspond to the enterprise AD system. You can specify only one IP address.', example='127.0.*.*', position='Query'),
   domainName?: string(name='DomainName', description='The domain name of the enterprise AD system. You can register each domain name only once.', example='example.com', position='Query'),
   domainPassword?: string(name='DomainPassword', description='The password of the domain administrator. The username can be up to 64 characters in length.', example='testPassword', position='Query'),
@@ -11254,7 +11298,7 @@ Valid values:
 If the ratio of connected sessions is greater than the specified value, new cloud computers are created. If the ratio of connected sessions is smaller than the specified value, idle cloud computers are deleted.
 
 >  This parameter is unavailable.', example='0.5', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   resetType?: long(name='ResetType', description='The disk reset type of cloud computers.
 
 Valid values:
@@ -11448,7 +11492,7 @@ Default value: true. Valid values:
 
     <!-- -->
 
-    You can log on to the WUYING Workspace console and complete the payment based on the order ID on the Orders page.
+    You can log on to the Elastic Desktop Service console and complete the payment based on the order ID on the Orders page.
 
     <!-- -->', example='false', position='Query'),
   desktopId?: string(name='DesktopId', description='The ID of a cloud computer.', example='ecd-4543qyik164a4****', position='Query'),
@@ -11864,7 +11908,7 @@ model ModifyImagePermissionResponse = {
 
 /**
   * ### [](#)Security of shared images
-  * WUYING Workspace cannot guarantee the integrity and security of shared images. When you use a shared image, you must make sure that the image comes from a trusted sharer or account, and you are legally responsible for using the shared image.
+  * Elastic Desktop Service cannot guarantee the integrity and security of shared images. When you use a shared image, you must make sure that the image comes from a trusted sharer or account, and you are legally responsible for using the shared image.
   * ### [](#)Quota and billing
   * *   A shared image does not count against the image quotas of principals to which the image is shared.
   * *   After a principal uses a shared image to create a cloud computer, the sharer is not charged for the shared image.
@@ -11929,7 +11973,7 @@ Valid values:
 
     <!-- -->
 
-    To make the payment, log on to the WUYING Workspace console, go to the Orders page, and find the order based on the order ID.
+    To make the payment, log on to the Elastic Desktop Service console, go to the Orders page, and find the order based on the order ID.
 
     <!-- -->', example='true', position='Query'),
   bandwidth: int32(name='Bandwidth', description='The bandwidth provided by the premium bandwidth plan. Unit: Mbit/s.
@@ -12002,7 +12046,7 @@ async function modifyNetworkPackageEnabled(request: ModifyNetworkPackageEnabledR
 }
 
 model ModifyOfficeSiteAttributeRequest {
-  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from WUYING clients.
+  desktopAccessType?: string(name='DesktopAccessType', description='The method to connect to cloud computers from Alibaba Cloud Workspace clients.
 
 >  VPC connection relies on the Alibaba Cloud PrivateLink service. You can use PrivateLink for free. When you set this parameter to `VPC` or `Any`, the system automatically activates PrivateLink.
 
@@ -12010,14 +12054,14 @@ Valid values:
 
 *   INTERNET (default): allows end users to connect to cloud computers over the Internet.
 *   VPC: allows end users to connect to cloud computers over VPCs.
-*   ANY: allows end users to connect to cloud computers over the Internet and VPCs. When end users connect to cloud computers from WUYING clients, you can choose a connection method based on your business requirements.', example='INTERNET', position='Query'),
+*   ANY: allows end users to connect to cloud computers over the Internet and VPCs. When end users connect to cloud computers from Elastic Desktop Service, you can choose a connection method based on your business requirements.', example='INTERNET', position='Query'),
   enableAdminAccess?: boolean(name='EnableAdminAccess', description='Specifies whether to grant the local administrator permissions to users that are authorized to use cloud computers in the office network.
 
 Valid values:
 
 * true (default)
 * false', example='false', position='Query'),
-  needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='Specifies whether to enable two-factor verification when an end user logs on to a WUYING client. This parameter is required only for convenience office networks. If two-factor verification is enabled, the system checks whether security risks exist within the logon account when the end user uses a convenience user to log on to the client. If risks are detected, the system sends a verification code to the email address that is associated with the account of the convenience user. Then, the end user can log on to the client only when the verification code is correct.', example='false', position='Query'),
+  needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='Specifies whether to enable two-factor verification when an end user logs on to an Alibaba Cloud Workspace client. This parameter is required only for convenience office networks. If two-factor verification is enabled, the system checks whether security risks exist within the logon account when the end user uses a convenience user to log on to the client. If risks are detected, the system sends a verification code to the email address that is associated with the account of the convenience user. Then, the end user can log on to the client only when the verification code is correct.', example='false', position='Query'),
   needVerifyZeroDevice?: boolean(name='NeedVerifyZeroDevice', description='Specifies whether to enable device verification. This parameter is required only for convenience office networks. This parameter is left empty for enterprise Active Directory (AD) office networks.', example='false', position='Query'),
   officeSiteId: string(name='OfficeSiteId', description='The office network ID.', example='cn-hangzhou+dir-882398****', position='Query'),
   officeSiteName?: string(name='OfficeSiteName', description='The office network name. The name must be 2 to 255 characters in length. It can contain letters, digits, colons (:), underscores (\\_), periods (.), and hyphens (-). It must start with a letter and cannot start with `http://` or `https://`.\\
@@ -12248,6 +12292,7 @@ Default value: TCP.', example='BOTH', position='Query'),
 *   read: read-only permissions. Local disks are mapped to cloud desktops. You can only read (copy) local files but cannot modify them.
 *   readwrite: read and write permissions. Local disks are mapped to cloud desktops. You can read (copy) and modify local files.
 *   off: no permissions. Local disks are not mapped to cloud desktops.', example='off', position='Query'),
+  maxReconnectTime?: int32(name='MaxReconnectTime', position='Query'),
   name?: string(name='Name', description='The name of the policy.', example='testPolicyGroupName', position='Query'),
   netRedirect?: string(name='NetRedirect', description='The network redirection feature. Valid values:
 
@@ -12960,7 +13005,7 @@ Default value: true. Valid values:
 
     <!-- -->
 
-    You can log on to the WUYING Workspace console and complete the payment based on the order ID on the Orders page.
+    You can log on to the Elastic Desktop Service console and complete the payment based on the order ID on the Orders page.
 
     <!-- -->', example='true', position='Query'),
   autoRenew?: boolean(name='AutoRenew', position='Query'),
@@ -12992,6 +13037,7 @@ Default value: Month. Valid values:
     <!-- -->', example='Month', position='Query'),
   promotionId?: string(name='PromotionId', description='The ID of the promotional activity.', example='500030980150146', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceType?: string(name='ResourceType', position='Query'),
 }
 
 model RenewDesktopsResponseBody = {
@@ -13031,7 +13077,7 @@ Valid values:
 
     <!-- -->
 
-    To make the payment, log on to the WUYING Workspace console, go to the Orders page, and find the order based on the order ID.
+    To make the payment, log on to the Elastic Desktop Service console, go to the Orders page, and find the order based on the order ID.
 
     <!-- -->', example='true', position='Query'),
   networkPackageId: [ string ](name='NetworkPackageId', description='The IDs of premium bandwidth plans. You can specify up to 100 IDs.', position='Query'),
@@ -13199,7 +13245,7 @@ The Base64-encoded command content cannot exceed 16 KB in size.
 Default value: PlainText. If the specified value of this parameter is invalid, PlainText is used by default.', example='Base64', position='Query'),
   desktopId: [ string ](name='DesktopId', description='The ID of cloud desktop N. Valid values of N: 1 to 50.\\
 If multiple cloud desktops are specified and the command execution succeeds on at least one of the cloud desktops, the operation is considered successful. If multiple cloud desktops are specified and the command execution fails on all the cloud desktops, verify the value of the parameter and try again.', position='Query'),
-  endUserId?: string(name='EndUserId', description='The ID of the end user. If you specify a value, you run the command as the end user that is granted specific permissions. Note: The end user has sessions on a cloud computer. That is, when the cloud computer is started, the end user logs on to a WUYING client and connects to the cloud computer, and the cloud computer is not preempted by another end user during the connection. This parameter is not available for Linux cloud computers.', example='User1', position='Query'),
+  endUserId?: string(name='EndUserId', description='The ID of the end user. If you specify a value, you run the command as the end user that is granted specific permissions. Note: The end user has sessions on a cloud computer. That is, when the cloud computer is started, the end user logs on to an Alibaba Cloud Workspace client and connects to the cloud computer, and the cloud computer is not preempted by another end user during the connection. This parameter is not available for Linux cloud computers.', example='User1', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou', position='Query'),
   timeout?: long(name='Timeout', description='The timeout period for the command to run. Unit: seconds. Default value: 60.\\
 A timeout error occurs if the command cannot be run because the process slows down or because a specific module or the Cloud Assistant client does not exist. When a timeout error occurs, the command process is forcibly terminated.', example='3600', position='Query'),
@@ -13265,7 +13311,7 @@ async function sendVerifyCode(request: SendVerifyCodeRequest): SendVerifyCodeRes
 
 model SetDesktopGroupScaleTimerRequest {
   desktopGroupId: string(name='DesktopGroupId', description='The ID of the cloud computer pool.', example='dg-2i8qxpv6t1a03****', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   scaleTimerInfos?: [ 
     {
       buyResAmount?: int32(name='BuyResAmount', description='One option for the auto scaling policy. This option specifies the number of cloud computers that you want to create in the cloud computer pool. Valid values: 0 to 200.', example='5'),
@@ -13412,6 +13458,27 @@ model SetDesktopGroupTimerStatusResponse = {
 async function setDesktopGroupTimerStatus(request: SetDesktopGroupTimerStatusRequest): SetDesktopGroupTimerStatusResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SetDesktopGroupTimerStatus', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SetDesktopMaintenanceRequest {
+  desktopIds: [ string ](name='DesktopIds', position='Query'),
+  mode: string(name='Mode', example='enter', position='Query'),
+  regionId: string(name='RegionId', example='cn-hangzhou', position='Query'),
+}
+
+model SetDesktopMaintenanceResponseBody = {
+  requestId?: string(name='RequestId', example='BA6A1853-3EA9-5EEB-86C8-3D14A3E01905'),
+}
+
+model SetDesktopMaintenanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetDesktopMaintenanceResponseBody(name='body'),
+}
+
+async function setDesktopMaintenance(request: SetDesktopMaintenanceRequest): SetDesktopMaintenanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SetDesktopMaintenance', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SetDirectorySsoStatusRequest {
@@ -13806,7 +13873,7 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateFotaTaskRequest {
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by WUYING Workspace.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~196646~~) operation to query the regions supported by Elastic Desktop Service.', example='cn-hangzhou', position='Query'),
   taskUid: string(name='TaskUid', description='The ID of the image update task. You can call the [DescribeFotaTasks](~~437001~~) operation to obtain the value of this parameter.', example='aot-c4khwrp9ocml4****', position='Query'),
   userStatus?: string(name='UserStatus', description='Specifies whether to automatically push the image update task.
 
@@ -13827,7 +13894,7 @@ model UpdateFotaTaskResponse = {
 }
 
 /**
-  * You can call this operation to manage each image update task. This operation is valid only when the auto-update switch in the image update module for global image updates is turned off. If the auto-update switch is turned on, the switches for each image update task are always turned on. If you want to turn on or off the auto-update switch, go to the WUYING Workspace console and choose **Operations > Image Updates** in the left-side navigation pane.
+  * You can call this operation to manage each image update task. This operation is valid only when the auto-update switch in the image update module for global image updates is turned off. If the auto-update switch is turned on, the switches for each image update task are always turned on. If you want to turn on or off the auto-update switch, go to the Elastic Desktop Service console and choose **Operations > Image Updates** in the left-side navigation pane.
   *
  */
 async function updateFotaTask(request: UpdateFotaTaskRequest): UpdateFotaTaskResponse {
@@ -13850,7 +13917,7 @@ Valid values:
   imageName: string(name='ImageName', description='The name of the image. The name must be 2 to 128 characters in length. The name must start with a letter but cannot start with `http://` or `https://`. The name can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).', example='Win10_Test', position='Query'),
   licenseType?: string(name='LicenseType', description='The type of the license that is used to activate the operating system after the image is imported. Valid values:
 
-*   Auto: WUYING Workspace detects the operating system of the image and allocates a license to the operating system. In this mode, the system first checks whether a license allocated by an official Alibaba Cloud channel is specified in the `Platform`. If a license allocated by an official Alibaba Cloud channel is specified, the system allocates the license to the imported image. If no such license is specified, the BYOL (Bring Your Own License) mode is used.
+*   Auto: Elastic Desktop Service detects the operating system of the image and allocates a license to the operating system. In this mode, the system first checks whether a license allocated by an official Alibaba Cloud channel is specified in the `Platform`. If a license allocated by an official Alibaba Cloud channel is specified, the system allocates the license to the imported image. If no such license is specified, the BYOL (Bring Your Own License) mode is used.
 *   Aliyun: The license that is allocated by an official Alibaba Cloud channel and is specified by `Platform` is used for the operating system distribution.
 *   BYOL: The license that comes with the source operating system is used. When you use the BYOL mode, make sure that your license key is supported by Alibaba Cloud.
 
@@ -13936,7 +14003,7 @@ Valid values:
 
 Valid values:
 
-*   InvalidCen.CenUidInvalid: The Alibaba Cloud account is invalid or the Alibaba Cloud account does not have the permission to access WUYING Workspace.
+*   InvalidCen.CenUidInvalid: The Alibaba Cloud account is invalid or the Alibaba Cloud account does not have the permission to access Elastic Desktop Service.
 *   VerifyCode.InvalidTokenCode: The verification code is invalid.
 *   VerifyCode.ReachTokenRetryTime: The maximum number of times for entering a verification code reaches the limit.
 *   Conflict: A CIDR block conflict exists. If the verification result of at least one route is Conflict, Conflict is returned for this parameter.
