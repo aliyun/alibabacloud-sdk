@@ -1,0 +1,306 @@
+/**
+ *
+ */
+import Util;
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('farui', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model CreateTextFileRequest {
+  clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  createTime?: string(name='CreateTime', example='1714476549'),
+  textFileName?: string(name='TextFileName'),
+  textFileUrl?: string(name='TextFileUrl'),
+}
+
+model CreateTextFileAdvanceRequest {
+  clientToken?: string(name='ClientToken', example='e9a93201-7e96-4dc1-9678-2832fc132d08'),
+  createTime?: string(name='CreateTime', example='1714476549'),
+  textFileName?: string(name='TextFileName'),
+  textFileUrlObject?: readable(name='TextFileUrl'),
+}
+
+model CreateTextFileResponseBody = {
+  code?: string(name='Code', example='Request.Signature.Error'),
+  data?: {
+    textFileId?: string(name='TextFileId', example='36d6447d277c4a1c9fd0def1d16341f1'),
+    textFileName?: string(name='TextFileName'),
+    textFileUrl?: string(name='TextFileUrl'),
+  }(name='Data'),
+  httpStatusCode?: long(name='HttpStatusCode', example='200'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='81E6F6D2-8ACB-5BDA-9C7C-4D6268CD9652'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model CreateTextFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTextFileResponseBody(name='body'),
+}
+
+/**
+ * @summary 上传合同文件
+ *
+ * @param request CreateTextFileRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTextFileResponse
+ */
+async function createTextFileWithOptions(WorkspaceId: string, request: CreateTextFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTextFileResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    body['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.createTime)) {
+    body['CreateTime'] = request.createTime;
+  }
+  if (!Util.isUnset(request.textFileName)) {
+    body['TextFileName'] = request.textFileName;
+  }
+  if (!Util.isUnset(request.textFileUrl)) {
+    body['TextFileUrl'] = request.textFileUrl;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateTextFile',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(WorkspaceId)}/data/textFile`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 上传合同文件
+ *
+ * @param request CreateTextFileRequest
+ * @return CreateTextFileResponse
+ */
+async function createTextFile(WorkspaceId: string, request: CreateTextFileRequest): CreateTextFileResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTextFileWithOptions(WorkspaceId, request, headers, runtime);
+}
+
+async function createTextFileAdvance(WorkspaceId: string, request: CreateTextFileAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateTextFileResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.empty(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'FaRui',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var createTextFileReq = new CreateTextFileRequest{};
+  OpenApiUtil.convert(request, createTextFileReq);
+
+  if(!Util.isUnset(request.textFileUrlObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.textFileUrlObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    createTextFileReq.textFileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var createTextFileResp = createTextFileWithOptions(WorkspaceId, createTextFileReq, headers, runtime);
+  return createTextFileResp;
+}
+
+model RunLegalAdviceConsultationRequest {
+  appId?: string(name='appId', example='farui'),
+  assistant?: {
+    id?: string(name='id', example='assitant_abc_123'),
+    metaData?: map[string]string(name='metaData'),
+    type?: string(name='type', example='legal_advice_consult'),
+    version?: string(name='version', example='1.0.0'),
+  }(name='assistant'),
+  stream?: boolean(name='stream', example='true'),
+  thread?: {
+    messages?: [ 
+      {
+        content?: string(name='content'),
+        role?: string(name='role', example='user'),
+      }
+    ](name='messages'),
+  }(name='thread'),
+}
+
+model RunLegalAdviceConsultationShrinkRequest {
+  appId?: string(name='appId', example='farui'),
+  assistantShrink?: string(name='assistant'),
+  stream?: boolean(name='stream', example='true'),
+  threadShrink?: string(name='thread'),
+}
+
+model RunLegalAdviceConsultationResponseBody = {
+  code?: string(name='Code', example='Request.Signature.Error'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='744419D0-671A-5997-9840-E8AE48356194'),
+  responseMarkdown?: string(name='ResponseMarkdown'),
+  round?: int32(name='Round', example='1'),
+  status?: string(name='Status'),
+  success?: boolean(name='Success', example='True'),
+  usage?: {
+    inputTokens?: int32(name='InputTokens', example='500'),
+    outputTokens?: int32(name='OutputTokens', example='700'),
+    totalTokens?: int32(name='TotalTokens', example='1200'),
+  }(name='Usage'),
+  httpStatusCode?: string(name='httpStatusCode', example='200'),
+}
+
+model RunLegalAdviceConsultationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunLegalAdviceConsultationResponseBody(name='body'),
+}
+
+/**
+ * @summary 法律咨询
+ *
+ * @param tmpReq RunLegalAdviceConsultationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RunLegalAdviceConsultationResponse
+ */
+async function runLegalAdviceConsultationWithOptions(workspaceId: string, tmpReq: RunLegalAdviceConsultationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): RunLegalAdviceConsultationResponse {
+  Util.validateModel(tmpReq);
+  var request = new RunLegalAdviceConsultationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.assistant)) {
+    request.assistantShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.assistant, 'assistant', 'json');
+  }
+  if (!Util.isUnset(tmpReq.thread)) {
+    request.threadShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.thread, 'thread', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appId)) {
+    body['appId'] = request.appId;
+  }
+  if (!Util.isUnset(request.assistantShrink)) {
+    body['assistant'] = request.assistantShrink;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.threadShrink)) {
+    body['thread'] = request.threadShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RunLegalAdviceConsultation',
+    version = '2024-06-28',
+    protocol = 'HTTPS',
+    pathname = `/${OpenApiUtil.getEncodeParam(workspaceId)}/farui/legalAdvice/consult`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 法律咨询
+ *
+ * @param request RunLegalAdviceConsultationRequest
+ * @return RunLegalAdviceConsultationResponse
+ */
+async function runLegalAdviceConsultation(workspaceId: string, request: RunLegalAdviceConsultationRequest): RunLegalAdviceConsultationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return runLegalAdviceConsultationWithOptions(workspaceId, request, headers, runtime);
+}
+
