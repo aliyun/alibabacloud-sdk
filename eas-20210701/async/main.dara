@@ -72,6 +72,8 @@ model Group {
 
 model Instance {
   currentAmount?: float(name='CurrentAmount', example='0.444'),
+  externalIP?: string(name='ExternalIP', example='192.168.1.100'),
+  externalInstancePort?: int32(name='ExternalInstancePort', example='8080'),
   hostIP?: string(name='HostIP'),
   hostName?: string(name='HostName'),
   innerIP?: string(name='InnerIP'),
@@ -87,11 +89,13 @@ model Instance {
   resourceType?: string(name='ResourceType', example='PublicResource'),
   restartCount?: int32(name='RestartCount'),
   role?: string(name='Role', example='Standard'),
-  startAt?: string(name='StartAt'),
+  startAt?: string(name='StartAt', deprecated='true'),
+  startTime?: string(name='StartTime'),
   status?: string(name='Status'),
   tenantHostIP?: string(name='TenantHostIP', example='192.168.0.39'),
   tenantInstanceIP?: string(name='TenantInstanceIP', example='192.168.0.39'),
   totalProcesses?: int32(name='TotalProcesses'),
+  zone?: string(name='Zone', example='cn-shanghai-a'),
 }
 
 model Resource {
@@ -109,6 +113,7 @@ model Resource {
   resourceType?: string(name='ResourceType'),
   status?: string(name='Status'),
   updateTime?: string(name='UpdateTime'),
+  vendor?: string(name='Vendor'),
 }
 
 model ResourceInstance {
@@ -204,18 +209,18 @@ model Service {
 }
 
 model CloneServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  body?: string(name='body', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
+  clusterId: string(name='ClusterId', description='The cluster ID.', example='cn-hangzhou', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  body?: string(name='body', description='The request body. For more information, see [CreateService](~~412086~~).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
 }
 
 model CloneServiceResponseBody = {
-  internetEndpoint?: string(name='InternetEndpoint', example='http://10123*****.cn-shanghai.aliyuncs.com/api/predict/echo'),
-  intranetEndpoint?: string(name='IntranetEndpoint', example='http://10123*****.vpc.cn-shanghai.aliyuncs.com/api/predict/echo'),
+  internetEndpoint?: string(name='InternetEndpoint', description='The public endpoint of the service.', example='http://10123*****.cn-shanghai.aliyuncs.com/api/predict/echo'),
+  intranetEndpoint?: string(name='IntranetEndpoint', description='The private endpoint of the service.', example='http://10123*****.vpc.cn-shanghai.aliyuncs.com/api/predict/echo'),
   requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
-  serviceId?: string(name='ServiceId', example='eas-m-r9knx7n9guf2p*****'),
-  serviceName?: string(name='ServiceName', example='foo'),
-  status?: string(name='Status', example='Creating'),
+  serviceId?: string(name='ServiceId', description='The service ID.', example='eas-m-r9knx7n9guf2p*****'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='foo'),
+  status?: string(name='Status', description='The service status.', example='Creating'),
 }
 
 model CloneServiceResponse = {
@@ -230,13 +235,13 @@ async function cloneService(request: CloneServiceRequest): CloneServiceResponse 
 }
 
 model CommitServiceRequest {
-  clusterId?: string(name='ClusterId', example='cn-beijing', position='Path'),
-  serviceName?: string(name='ServiceName', example='foo', position='Path'),
+  clusterId?: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-beijing', position='Path'),
+  serviceName?: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model CommitServiceResponseBody = {
-  message?: string(name='Message', example='Success'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model CommitServiceResponse = {
@@ -409,40 +414,63 @@ async function createGatewayIntranetLinkedVpc(request: CreateGatewayIntranetLink
 }
 
 model CreateResourceRequest {
-  autoRenewal?: boolean(name='AutoRenewal', description='Specifies whether to enable auto-renewal. Valid values: false (default)
+  autoRenewal?: boolean(name='AutoRenewal', description='Specifies whether to enable auto-renewal. Valid values:
 
+*   false (default)
 *   true', example='false', position='Body'),
-  chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
+  chargeType?: string(name='ChargeType', description='The billing method. Valid values:
 
 *   PrePaid: the subscription billing method.
-*   PostPaid: the pay-as-you-go billing method.', example='PostPaid', position='Body'),
-  ecsInstanceCount?: int32(name='EcsInstanceCount', description='The number of ECS instances.', example='5', position='Body'),
-  ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.', example='ecs.c6.8xlarge', position='Body'),
-  resourceType?: string(name='ResourceType', example='Dedicated', position='Body'),
+*   PostPaid: the pay-as-you-go billing method.
+
+>  This parameter is required when the ResourceType parameter is set to Dedicated.', example='PostPaid', position='Body'),
+  ecsInstanceCount?: int32(name='EcsInstanceCount', description='The number of ECS instances.
+
+>  This parameter is required when the ResourceType parameter is set to Dedicated.', example='5', position='Body'),
+  ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.
+
+>  This parameter is required when the ResourceType parameter is set to Dedicated.', example='ecs.c6.8xlarge', position='Body'),
+  resourceType?: string(name='ResourceType', description='The type of the resource group. Valid values:
+
+*   Dedicated: the dedicated resource group.
+*   SelfManaged: the self-managed resource group.
+
+>  If you use a self-managed resource group, you must configure a whitelist.', example='Dedicated', position='Body'),
   selfManagedResourceOptions?: {
-    externalClusterId?: string(name='ExternalClusterId', example='cf0386f250f2545689ca7fdd1cd******'),
-    nodeMatchLabels?: map[string]string(name='NodeMatchLabels'),
+    externalClusterId?: string(name='ExternalClusterId', description='The ID of the self-managed cluster.', example='cf0386f250f2545689ca7fdd1cd******'),
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels', description='The tag key-value pairs for nodes.'),
     nodeTolerations?: [ 
       {
-        effect?: string(name='effect', example='NoSchedule'),
-        key?: string(name='key', example='key1'),
-        operator?: string(name='operator', example='Equal'),
-        value?: string(name='value', example='value1'),
+        effect?: string(name='effect', description='The result.
+
+Valid values:
+
+*   PreferNoSchedule
+*   NoSchedule
+*   NoExecute', example='NoSchedule'),
+        key?: string(name='key', description='The key name.', example='key1'),
+        operator?: string(name='operator', description='The relationship between key names and key values.
+
+Valid values:
+
+*   Equal
+*   Exists', example='Equal'),
+        value?: string(name='value', description='The key value.', example='value1'),
       }
-    ](name='NodeTolerations'),
-    roleName?: string(name='RoleName', example='clusterrole'),
-  }(name='SelfManagedResourceOptions', position='Body'),
+    ](name='NodeTolerations', description='Tolerations for nodes.'),
+    roleName?: string(name='RoleName', description='The name of the RAM user to which the permissions on Elastic Algorithm Service of Platform for AI (PAI-EAS) are granted.', example='clusterrole'),
+  }(name='SelfManagedResourceOptions', description='The configurations of the self-managed resource group.', position='Body'),
   systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GiB. Valid values: 200 to 2000. Default value: 200.', example='200', minimum=200, maximum=2000, position='Body'),
-  zone?: string(name='Zone', description='The zone to which the instance belongs.', example='cn-shanghai-f', position='Body'),
+  zone?: string(name='Zone', description='The ID of the zone in which the instance resides.', example='cn-shanghai-f', position='Body'),
 }
 
 model CreateResourceResponseBody = {
-  clusterId?: string(name='ClusterId', example='cn-shanghai'),
-  instanceIds?: [ string ](name='InstanceIds'),
-  ownerUid?: string(name='OwnerUid', example='14401087478****'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  resourceId?: string(name='ResourceId', example='eas-r-h7lcw24dyqztwxxxxxx'),
-  resourceName?: string(name='ResourceName', example='MyResource'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the resource group belongs.', example='cn-shanghai'),
+  instanceIds?: [ string ](name='InstanceIds', description='The instance IDs.'),
+  ownerUid?: string(name='OwnerUid', description='The user ID (UID) of the resource group owner.', example='14401087478****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource group.', example='eas-r-h7lcw24dyqztwxxxxxx'),
+  resourceName?: string(name='ResourceName', description='The name of the resource group.', example='MyResource'),
 }
 
 model CreateResourceResponse = {
@@ -461,21 +489,27 @@ async function createResource(request: CreateResourceRequest): CreateResourceRes
 }
 
 model CreateResourceInstancesRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
-  autoRenewal?: boolean(name='AutoRenewal', example='false', position='Body'),
-  chargeType: string(name='ChargeType', example='PrePaid', position='Body'),
-  ecsInstanceCount: int32(name='EcsInstanceCount', example='5', position='Body'),
-  ecsInstanceType: string(name='EcsInstanceType', example='ecs.s6-c1m2.xlarge', position='Body'),
-  systemDiskSize?: int32(name='SystemDiskSize', example='200', minimum=200, maximum=2000, position='Body'),
-  userData?: string(name='UserData', example='x112223333', position='Body'),
-  zone?: string(name='Zone', example='cn-shanghai-f', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
+  autoRenewal?: boolean(name='AutoRenewal', description='Specifies whether to enable auto-renewal. Valid values:
+
+*   false (default)
+*   true', example='false', position='Body'),
+  chargeType: string(name='ChargeType', description='The billing method of the instance. Valid values:
+
+*   PrePaid: subscription.
+*   PostPaid: pay-as-you-go.', example='PrePaid', position='Body'),
+  ecsInstanceCount: int32(name='EcsInstanceCount', description='The number of instances that you want to create. Valid values: 1 to 100.', example='5', position='Body'),
+  ecsInstanceType: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.', example='ecs.s6-c1m2.xlarge', position='Body'),
+  systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GiB. Valid values: 200 to 2000. Default value: 200.', example='200', minimum=200, maximum=2000, position='Body'),
+  userData?: string(name='UserData', description='The user-defined information. This parameter is not in use.', example='x112223333', position='Body'),
+  zone?: string(name='Zone', description='The zone to which the instance belongs.', example='cn-shanghai-f', position='Body'),
 }
 
 model CreateResourceInstancesResponseBody = {
-  instanceIds?: [ string ](name='InstanceIds'),
-  message?: string(name='Message', example='Create 5 new ecs instance(s) in resource [eas-r-asdasdasd] successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  instanceIds?: [ string ](name='InstanceIds', description='The instance IDs.'),
+  message?: string(name='Message', description='The returned message.', example='Create 5 new ecs instance(s) in resource [eas-r-asdasdasd] successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceInstancesResponse = {
@@ -490,15 +524,15 @@ async function createResourceInstances(request: CreateResourceInstancesRequest):
 }
 
 model CreateResourceLogRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
-  logStore?: string(name='LogStore', example='access_log', position='Body'),
-  projectName?: string(name='ProjectName', example='eas-r-asdasdasd-sls', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
+  logStore: string(name='LogStore', description='The Logstore of Log Service. For more information about how to query a Logstore, see [ListLogStores](~~426970~~).', example='access_log', position='Body'),
+  projectName: string(name='ProjectName', description='The Log Service project that is associated with the resource group. For more information about how to query the project, see [ListProject](~~74955~~).', example='eas-r-asdasdasd-sls', position='Body'),
 }
 
 model CreateResourceLogResponseBody = {
-  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model CreateResourceLogResponse = {
@@ -532,28 +566,89 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='true', position='Query'),
-  labels?: map[string]string(name='Labels', shrink='json', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='123456', position='Query'),
-  body?: string(name='body', example='{
-      "name": "foo",
-      "model_path": "http://path/to/model.tar.gz",
-      "processor": "tensorflow_cpu",
-      "metadata": {
-            "instance": 2,
-            "memory": 7000,
-            "cpu": 4
-      }
+  labels?: map[string]string(name='Labels', description='The custom label.', shrink='json', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='123456', position='Query'),
+  body?: string(name='body', description='The request body. For more information about the key request parameters, see **Table 1. Request body parameters** and **Table 2. Metadata parameters**. For more information about all related parameters, see [Parameters of model services](~~450525~~).', example='Service deployment by using an image:
+{
+  "name": "foo",
+  "metadata": {
+    "instance": 2,
+    "memory": 7000,
+    "cpu": 4
+    },
+  "containers": [
+    {
+      "image": "****",
+      "script": "**** --listen=0.0.0.0 --server_port=8000 --headless",
+      "port": 8000
+    }
+  ],
+  "storage": [
+    {
+      "oss": {
+        "path": "oss://examplebuket/data111/",
+        "readOnly": false
+      },
+      "properties": {
+        "resource_type": "model"
+      },
+      "mount_path": "/data"
+    }
+  ]
+}
+AI-Web application deployment by using an image:
+{
+  "name": "foo",
+  "metadata": {
+    "instance": 1,
+    "memory": 7000,
+    "cpu": 4,
+    "enable_webservice": true
+  },
+  "containers": [
+    {
+      "image": "****",
+      "script": "**** --listen=0.0.0.0 --server_port=8000 --headless",
+      "port": 8000
+    }
+  ],
+  "storage": [
+    {
+      "oss": {
+        "path": "oss://examplebucket/data111/",
+        "readOnly": false
+      },
+      "properties": {
+      "resource_type": "model"
+      },
+      "mount_path": "/data"
+    }
+  ]
+}
+Service deployment by using models and processors:
+{
+  "metadata": {
+    "instance": 1,
+    "memory": 7000,
+    "cpu": 4
+  },
+  "name": "foo",
+  "model_config": {},
+  "processor_type": "python",
+  "processor_path": "oss://****",
+  "processor_entry": "a.py",
+  "model_path": "oss://****"
 }', position='Body'),
 }
 
 model CreateServiceResponseBody = {
-  internetEndpoint?: string(name='InternetEndpoint', example='http://pai-eas.vpc.cn-shanghai.****'),
-  intranetEndpoint?: string(name='IntranetEndpoint', example='http://pai-eas.cn-shanghai.****'),
-  region?: string(name='Region', example='cn-shanghai'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceId?: string(name='ServiceId', example='eas-m-aaxxxddf'),
-  serviceName?: string(name='ServiceName', example='yourname'),
-  status?: string(name='Status', example='Creating'),
+  internetEndpoint?: string(name='InternetEndpoint', description='The public endpoint of the created service.', example='http://pai-eas.vpc.cn-shanghai.****'),
+  intranetEndpoint?: string(name='IntranetEndpoint', description='The internal endpoint of the created service.', example='http://pai-eas.cn-shanghai.****'),
+  region?: string(name='Region', description='The region ID of the created service.', example='cn-shanghai'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  serviceId?: string(name='ServiceId', description='The ID of the created service.', example='eas-m-aaxxxddf'),
+  serviceName?: string(name='ServiceName', description='The name of the created service.', example='yourname'),
+  status?: string(name='Status', description='The service state.', example='Creating'),
 }
 
 model CreateServiceResponse = {
@@ -562,18 +657,22 @@ model CreateServiceResponse = {
   body?: CreateServiceResponseBody(name='body'),
 }
 
+/**
+  * **Before you call this operation, make sure that you are familiar with the [billing](~~144261~~) of Elastic Algorithm Service (EAS).
+  *
+ */
 async function createService(request: CreateServiceRequest): CreateServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateService', 'POST', '/api/v2/services', 'json', false, 'json', request);
 }
 
 model CreateServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
   behavior?: {
     onZero?: {
       scaleDownGracePeriodSeconds?: int32(name='scaleDownGracePeriodSeconds', description='The time window that is required before the number of instances is reduced to 0. The number of instances can be reduced to 0 only if no request is available or no traffic exists in the specified time window. Default value: 600.', example='600'),
-      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', description='The number of instances that you want to create at a time if the number of instances is scaled out from 0. Default value: 1.', example='1'),
+      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', description='The number of instances that you want to create at a time if the number of instances is 0. Default value: 1.', example='1'),
     }(name='onZero', description='The operation that reduces the number of instances to 0.'),
     scaleDown?: {
       stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', description='The time window that is required before the scale-in operation is performed. The scale-in operation can be performed only if the specified metric drops below the specified threshold in the specified time window. Default value: 300.', example='300'),
@@ -582,26 +681,28 @@ model CreateServiceAutoScalerRequest {
       stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', description='The time window that is required before the scale-out operation is performed. The scale-out operation can be performed only if the specified metric exceeds the specified threshold in the specified time window. Default value: 0.', example='0'),
     }(name='scaleUp', description='The scale-out operation.'),
   }(name='behavior', description='The Autoscaler operation.', position='Body'),
-  max: int32(name='max', description='The maximum number of instances. The value must be greater than that of the min parameter.', example='8', position='Body'),
-  min: int32(name='min', description='The minimum number of instances. The value must be greater than 0.', example='2', position='Body'),
+  max: int32(name='max', description='The maximum number of instances in the service. The value of max must be greater than the value of min.', example='8', position='Body'),
+  min: int32(name='min', description='The minimum number of instances in the service.', example='2', position='Body'),
   scaleStrategies: [ 
     {
       metricName: string(name='metricName', description='The name of the metric for triggering auto scaling. Valid values:
 
-*   QPS: the queries per second (QPS) for an individual instance.
-*   CPU: the CPU utilization.', example='QPS'),
+*   qps: the queries per second (qps) for an individual instance.
+*   cpu: the cpu utilization.
+* gpu[util]: gpu utilization.', example='qps'),
       service?: string(name='service', description='The service for which the metric is specified. If you do not set this parameter, the current service is specified by default.', example='demo_svc'),
       threshold: float(name='threshold', description='The threshold of the metric that triggers auto scaling.
 
-*   If you set metricName to QPS, scale-out is triggered when the average QPS for a single instance is greater than this threshold.
-*   If you set metricName to CPU, scale-out is triggered when the average CPU utilization for a single instance is greater than this threshold.', example='10'),
+*   If you set metricName to qps, scale-out is triggered when the average qps for a single instance is greater than this threshold.
+*   If you set metricName to cpu, scale-out is triggered when the average cpu utilization for a single instance is greater than this threshold.
+*   If you set metricName to gpu, scale-out is triggered when the average cpu utilization for a single instance is greater than this threshold.', example='10'),
     }
-  ](name='scaleStrategies', description='The Autoscaler strategies.', position='Body'),
+  ](name='scaleStrategies', description='The service for which the metric is specified. If you do not set this parameter, the current service is specified by default.', position='Body'),
 }
 
 model CreateServiceAutoScalerResponseBody = {
-  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceAutoScalerResponse = {
@@ -616,21 +717,21 @@ async function createServiceAutoScaler(request: CreateServiceAutoScalerRequest):
 }
 
 model CreateServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  excludeDates?: [ string ](name='ExcludeDates', position='Body'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  excludeDates?: [ string ](name='ExcludeDates', description='The points in time that are excluded when you schedule a CronHPA job. The points in time must be specified by using a cron expression.', position='Body'),
   scaleJobs: [ 
     {
-      name?: string(name='Name', example='scale-job-1'),
-      schedule: string(name='Schedule', example='0 18 * * * *'),
-      targetSize: int32(name='TargetSize', example='1'),
+      name?: string(name='Name', description='The name of the CronHPA job.', example='scale-job-1'),
+      schedule: string(name='Schedule', description='The cron expression that is used to configure the execution time of the CronHPA job. For more information about how to configure cron expressions, see **Description of special characters** in this topic.', example='0 18 * * * *'),
+      targetSize: int32(name='TargetSize', description='The number of instances that you want to configure for the CronHPA job.', example='1'),
     }
-  ](name='ScaleJobs', position='Body'),
+  ](name='ScaleJobs', description='The description of the CronHPA job.', position='Body'),
 }
 
 model CreateServiceCronScalerResponseBody = {
-  message?: string(name='Message', example='Create cron scaler for service [foo] successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Create cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model CreateServiceCronScalerResponse = {
@@ -645,15 +746,15 @@ async function createServiceCronScaler(request: CreateServiceCronScalerRequest):
 }
 
 model CreateServiceMirrorRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  ratio?: int32(name='Ratio', example='30', position='Body'),
-  target?: [ string ](name='Target', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  ratio?: int32(name='Ratio', description='The percentage of the traffic that is mirrored to the destination service. Valid values: 0 to 100.', example='30', position='Body'),
+  target?: [ string ](name='Target', description='The instances.', position='Body'),
 }
 
 model CreateServiceMirrorResponseBody = {
-  message?: string(name='Message', example='Traffic mirroring is ON for service [foo] in region [cn-shanghia], ratio [70%]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+  message?: string(name='Message', description='The returned message.', example='Traffic mirroring is ON for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
 }
 
 model CreateServiceMirrorResponse = {
@@ -735,13 +836,13 @@ async function deleteGatewayIntranetLinkedVpc(request: DeleteGatewayIntranetLink
 }
 
 model DeleteResourceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DeleteResourceResponseBody = {
-  message?: string(name='Message', example='Resource [eas-r-asdasdasd] is deleted.'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82-9624-EC2B1779848E'),
+  message?: string(name='Message', description='The returned message.', example='Resource [eas-r-asdasdasd] is deleted.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82-9624-EC2B1779848E'),
 }
 
 model DeleteResourceResponse = {
@@ -756,13 +857,13 @@ async function deleteResource(request: DeleteResourceRequest): DeleteResourceRes
 }
 
 model DeleteResourceDLinkRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DeleteResourceDLinkResponseBody = {
-  message?: string(name='Message', example='Network interfaces are deleting'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Network interfaces are deleting'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceDLinkResponse = {
@@ -777,15 +878,18 @@ async function deleteResourceDLink(request: DeleteResourceDLinkRequest): DeleteR
 }
 
 model DeleteResourceInstancesRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
-  allFailed?: boolean(name='AllFailed', example='true', position='Query'),
-  instanceList?: string(name='InstanceList', example='eas-i-xxxxxxx,eas-i-xxxxxxx', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
+  allFailed?: boolean(name='AllFailed', description='Specifies whether to delete all the instances that fail to be created. Valid values:
+
+*   true
+*   false', example='true', position='Query'),
+  instanceList?: string(name='InstanceList', description='The instances. Separate multiple instances with commas (,), such as `instanceId1,instanceId2`. For more information about how to query the instances, see [ListResourceInstances](~~412129~~).', example='eas-i-xxxxxxx,eas-i-xxxxxxx', position='Query'),
 }
 
 model DeleteResourceInstancesResponseBody = {
-  message?: string(name='Message', example='Instances eas-i-011227132046,eas-i-011227132046 are deleting'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Instances eas-i-011227132046,eas-i-011227132046 are deleting'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteResourceInstancesResponse = {
@@ -821,13 +925,13 @@ async function deleteResourceLog(request: DeleteResourceLogRequest): DeleteResou
 }
 
 model DeleteServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DeleteServiceResponseBody = {
-  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is terminating'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Service [foo] in region [cn-shanghai] is terminating'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceResponse = {
@@ -842,13 +946,13 @@ async function deleteService(request: DeleteServiceRequest): DeleteServiceRespon
 }
 
 model DeleteServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DeleteServiceAutoScalerResponseBody = {
-  message?: string(name='Message', example='Autoscaler for service [foo] deleted successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Autoscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceAutoScalerResponse = {
@@ -863,13 +967,13 @@ async function deleteServiceAutoScaler(request: DeleteServiceAutoScalerRequest):
 }
 
 model DeleteServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DeleteServiceCronScalerResponseBody = {
-  message?: string(name='Message', example='Cronscaler for service [foo] deleted successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Cronscaler for service [foo] deleted successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceCronScalerResponse = {
@@ -884,16 +988,16 @@ async function deleteServiceCronScaler(request: DeleteServiceCronScalerRequest):
 }
 
 model DeleteServiceInstancesRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
   container?: string(name='Container', description='The name of the container whose process needs to be restarted. This parameter takes effect only if the SoftRestart parameter is set to true.', example='worker0', position='Query'),
-  instanceList: string(name='InstanceList', example='foo-rdsbxxxx,foo-rdsaxxxx', position='Query'),
+  instanceList: string(name='InstanceList', description='The instances that you want to restart. Separate multiple instance names with commas (,). For more information about how to query the instance name, see [ListServiceInstances](~~412108~~).', example='foo-rdsbxxxx,foo-rdsaxxxx', position='Query'),
   softRestart?: boolean(name='SoftRestart', description='Specifies whether to restart only the container process without recreating the instance. Default value: false. Valid values: true and false.', example='true', position='Query'),
 }
 
 model DeleteServiceInstancesResponseBody = {
-  message?: string(name='Message', example='Instance(s) [foo-rdsb,foo-rdsa]  for service [foo] in region [cn-shanghai] was deleted successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Instance(s) [foo-rdsb,foo-rdsa]  for service [foo] in region [cn-shanghai] was deleted successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DeleteServiceInstancesResponse = {
@@ -930,13 +1034,13 @@ async function deleteServiceLabel(request: DeleteServiceLabelRequest): DeleteSer
 }
 
 model DeleteServiceMirrorRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DeleteServiceMirrorResponseBody = {
-  message?: string(name='Message', example='Traffic mirroring is OFF for service [foo] in region [cn-shanghia], ratio [70%]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+  message?: string(name='Message', description='The returned message.', example='Traffic mirroring is OFF for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
 }
 
 model DeleteServiceMirrorResponse = {
@@ -1057,13 +1161,13 @@ async function describeBenchmarkTask(request: DescribeBenchmarkTaskRequest): Des
 }
 
 model DescribeBenchmarkTaskReportRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  taskName: string(name='TaskName', example='benchmark-larec-test-015d', position='Path'),
-  reportType?: string(name='ReportType', example='report', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the stress testing task is performed.', example='cn-shanghai', position='Path'),
+  taskName: string(name='TaskName', description='The name of the stress testing task. For more information about how to query the name of a stress testing task, see [ListBenchmarkTask](~~432976~~).', example='benchmark-larec-test-015d', position='Path'),
+  reportType?: string(name='ReportType', description='The report type of the stress testing task. Valid values: RAW and Report.', example='report', position='Query'),
 }
 
 model DescribeBenchmarkTaskReportResponseBody = {
-  data?: any(name='Data', example='{
+  data?: any(name='Data', description='If the value of ReportType is set to RAW, the details about the stress testing report are returned.', example='{
     "TimestampList": ["int64"],
     "QPSList": ["float32"],
     "RTList": [
@@ -1109,8 +1213,8 @@ model DescribeBenchmarkTaskReportResponseBody = {
       }
     ]
   }'),
-  reportUrl?: string(name='ReportUrl', example='http://eas-benchmark.oss-cn-chengdu.aliyuncs.com/summary/benchmark-larec-test-015d-10007.html'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+  reportUrl?: string(name='ReportUrl', description='If the value of ReportType is set to Report, the URL of the stress testing report is returned.', example='http://eas-benchmark.oss-cn-chengdu.aliyuncs.com/summary/benchmark-larec-test-015d-10007.html'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82********'),
 }
 
 model DescribeBenchmarkTaskReportResponse = {
@@ -1125,21 +1229,21 @@ async function describeBenchmarkTaskReport(request: DescribeBenchmarkTaskReportR
 }
 
 model DescribeGatewayRequest {
-  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
-  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the private gateway.', example='cn-hangzhou', position='Path'),
+  gatewayId: string(name='GatewayId', description='The ID of the private gateway. For more information about the private gateway ID, see the private_gateway_id parameter returned by [ListResources](~~412133~~).', example='gw-1uhcqmsc7x22******', position='Path'),
 }
 
 model DescribeGatewayResponseBody = {
-  callerUid?: string(name='CallerUid', example='20123*******'),
-  createTime?: string(name='CreateTime', description='网关创建时间', example='2020-05-19T14:19:42Z'),
-  externalClusterId?: string(name='ExternalClusterId', example='c935eadf284c14c2da57a2a13ad6******'),
-  gatewayId?: string(name='GatewayId', description='网关ID', example='gw-1uhcqmsc7x22******'),
-  gatewayName?: string(name='GatewayName', example='mygateway1'),
-  instanceType?: string(name='InstanceType', description='网关创建的实例种类', example='ecs.c6.4xlarge'),
+  callerUid?: string(name='CallerUid', description='The UID of the account that is used to create the private gateway.', example='20123*******'),
+  createTime?: string(name='CreateTime', description='The time when the private gateway was created. The time is displayed in UTC.', example='2020-05-19T14:19:42Z'),
+  externalClusterId?: string(name='ExternalClusterId', description='The ID of the self-managed cluster.', example='c935eadf284c14c2da57a2a13ad6******'),
+  gatewayId?: string(name='GatewayId', description='The ID of the private gateway.', example='gw-1uhcqmsc7x22******'),
+  gatewayName?: string(name='GatewayName', description='The private gateway alias.', example='mygateway1'),
+  instanceType?: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge'),
   internetAclPolicyList?: [ 
     {
       comment?: string(name='Comment', description='The description.', example='test'),
-      entry?: string(name='Entry', description='The accessible CIDR block.', example='192.168.1.1/32'),
+      entry?: string(name='Entry', description='The Classless Inter-Domain Routing (CIDR) block that is allowed to access the private gateway.', example='192.168.1.1/32'),
       status?: string(name='Status', description='The state of the private gateway.
 
 Valid values:
@@ -1161,42 +1265,27 @@ Valid values:
     <!-- -->', example='Running'),
     }
   ](name='InternetAclPolicyList', description='The Internet access control policies.'),
-  internetDomain?: string(name='InternetDomain', description='网关内部域名', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
-  internetEnabled?: boolean(name='InternetEnabled', example='true'),
-  intranetDomain?: string(name='IntranetDomain', description='网关外部域名', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
-  intranetEnabled?: boolean(name='IntranetEnabled', example='true'),
+  internetDomain?: string(name='InternetDomain', description='The public endpoint.', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
+  internetEnabled?: boolean(name='InternetEnabled', description='Indicates whether Internet access is enabled.', example='true'),
+  intranetDomain?: string(name='IntranetDomain', description='The internal endpoint.', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
+  intranetEnabled?: boolean(name='IntranetEnabled', description='Indicates whether internal network access is enabled.', example='true'),
   intranetLinkedVpcList?: [ 
     {
       ip?: string(name='Ip', description='The IP address.', example='192.168.10.11'),
-      securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='sg-2ze4pgstgszvgq******'),
-      status?: string(name='Status', description='The state of the private gateway.
-
-Valid values:
+      securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-2ze4pgstgszvgq******'),
+      status?: string(name='Status', description='The state of the private gateway. Valid values:
 
 *   Creating
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   Running
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->', example='Running'),
+*   Running', example='Running'),
       vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1txzxsdck43pp******'),
       vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-bp1g11zvka6zr3i******'),
     }
-  ](name='IntranetLinkedVpcList'),
-  parentUid?: string(name='ParentUid', description='创建网关的用户ID', example='11234*******'),
-  region: string(name='Region', description='网关所在地域', example='cn-hangzhou'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  status?: string(name='Status', description='网关现在的状态', example='PrivateGatewayRunning'),
-  updateTime?: string(name='UpdateTime', description='网关最后一次的更新时间', example='2021-02-24T11:52:17Z'),
+  ](name='IntranetLinkedVpcList', description='The internal endpoints.'),
+  parentUid?: string(name='ParentUid', description='The user ID (UID) of the Alibaba Cloud account that is used to create the private gateway.', example='11234*******'),
+  region: string(name='Region', description='The region ID of the private gateway.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  status?: string(name='Status', description='The state of the private gateway.', example='PrivateGatewayRunning'),
+  updateTime?: string(name='UpdateTime', description='The time when the private gateway was updated. The time is displayed in UTC.', example='2021-02-24T11:52:17Z'),
 }
 
 model DescribeGatewayResponse = {
@@ -1211,8 +1300,8 @@ async function describeGateway(request: DescribeGatewayRequest): DescribeGateway
 }
 
 model DescribeGroupRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  groupName: string(name='GroupName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the service group belongs.', example='cn-shanghai', position='Path'),
+  groupName: string(name='GroupName', description='The name of the service group. For more information about how to query the group name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DescribeGroupResponse = {
@@ -1245,10 +1334,10 @@ model DescribeResourceResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='902976F2-6FAF-5404-8A4D-6CC223***'),
   resourceId?: string(name='ResourceId', description='The ID of the Elastic Algorithm Service (EAS) resource.', example='eas-r-glkfpsxuw57x1h*****'),
   resourceName?: string(name='ResourceName', description='The name of the EAS resource.', example='my-resouce****'),
-  resourceType?: string(name='ResourceType', description='The type of the resource. Valid values:
+  resourceType?: string(name='ResourceType', description='The type of the resource group. Valid values:
 
-- Dedicated
-- SelfManaged', example='Dedicated'),
+*   Dedicated: the dedicated resource group.
+*   SelfManaged: the self-managed resource group.', example='Dedicated'),
   status?: string(name='Status', description='The state of the resource group.', example='ResourceReady'),
   updateTime?: string(name='UpdateTime', description='The time when the resource group was last updated.', example='2021-02-24T11:52:17Z'),
 }
@@ -1265,17 +1354,17 @@ async function describeResource(request: DescribeResourceRequest): DescribeResou
 }
 
 model DescribeResourceDLinkRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-adfabas', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-adfabas', position='Path'),
 }
 
 model DescribeResourceDLinkResponseBody = {
-  auxVSwitchList?: [ string ](name='AuxVSwitchList'),
-  destinationCIDRs?: string(name='DestinationCIDRs', description='The CIDR blocks of the clients that you want to connect to. The CIDR blocks are added to the back-to-origin route of the server.', example='72.16.0.0/16'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  securityGroupId?: string(name='SecurityGroupId', example='sg-bp1j1z7297hcink9d****'),
-  vSwitchId?: string(name='VSwitchId', example='vsw-8vbqn2at0kljjxxxx****'),
-  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+  auxVSwitchList?: [ string ](name='AuxVSwitchList', description='The IDs of the secondary vSwitches that are directly connected.'),
+  destinationCIDRs?: string(name='DestinationCIDRs', description='The CIDR blocks of the clients that you want to connect to. After this parameter is specified, the CIDR blocks are added to the back-to-origin route of the server. Either this parameter or the VSwitchIdList parameter can be used to determine CIDR blocks.', example='72.16.0.0/16'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group that is directly connected.', example='sg-bp1j1z7297hcink9d****'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the primary vSwitch that is directly connected.', example='vsw-8vbqn2at0kljjxxxx****'),
+  vpcId?: string(name='VpcId', description='The ID of the VPC that is directly connected.', example='vpc-uf66uio7md****'),
 }
 
 model DescribeResourceDLinkResponse = {
@@ -1290,16 +1379,16 @@ async function describeResourceDLink(request: DescribeResourceDLinkRequest): Des
 }
 
 model DescribeResourceLogRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
 }
 
 model DescribeResourceLogResponseBody = {
-  logStore?: string(name='LogStore', example='access_log'),
-  message?: string(name='Message', example='Network interfaces are updating'),
-  projectName?: string(name='ProjectName', example='eas-r-asdasdasd-sls'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  status?: string(name='Status', example='ResourceReady'),
+  logStore?: string(name='LogStore', description='The Logstore of Log Service.', example='access_log'),
+  message?: string(name='Message', description='The returned message.', example='Network interfaces are updating'),
+  projectName?: string(name='ProjectName', description='The Log Service project that is associated with the resource group.', example='eas-r-asdasdasd-sls'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  status?: string(name='Status', description='The state of the resource group.', example='ResourceReady'),
 }
 
 model DescribeResourceLogResponse = {
@@ -1314,8 +1403,8 @@ async function describeResourceLog(request: DescribeResourceLogRequest): Describ
 }
 
 model DescribeServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DescribeServiceResponse = {
@@ -1330,12 +1419,12 @@ async function describeService(request: DescribeServiceRequest): DescribeService
 }
 
 model DescribeServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='echo', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='echo', position='Path'),
 }
 
 model DescribeServiceAutoScalerResponseBody = {
-  behavior?: map[string]any(name='Behavior', example='{
+  behavior?: map[string]any(name='Behavior', description='The additional information about the Autoscaler policy, such as the interval of triggering Autoscaler.', example='{
   "behavior": {
     "scaleDown": {
       "stabilizationWindowSeconds": 150
@@ -1344,22 +1433,31 @@ model DescribeServiceAutoScalerResponseBody = {
 }'),
   currentMetrics?: [ 
     {
-      metricName?: string(name='metricName', example='qps'),
-      service?: string(name='service', example='demo_svc'),
-      value?: float(name='value', example='10'),
+      metricName?: string(name='metricName', description='The metric name. Valid values:
+
+*   QPS
+*   CPU', example='qps'),
+      service?: string(name='service', description='The service for which the metric is specified.', example='demo_svc'),
+      value?: float(name='value', description='The metric value.', example='10'),
     }
-  ](name='CurrentMetrics'),
-  maxReplica?: int32(name='MaxReplica', example='8'),
-  minReplica?: int32(name='MinReplica', example='3'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  ](name='CurrentMetrics', description='The metrics.'),
+  maxReplica?: int32(name='MaxReplica', description='The maximum number of instances in the service.', example='8'),
+  minReplica?: int32(name='MinReplica', description='The minimum number of instances in the service.', example='3'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   scaleStrategies?: [ 
     {
-      metricName?: string(name='metricName', example='QPS'),
-      service?: string(name='service', example='demo_svc'),
-      threshold?: float(name='threshold', example='10'),
+      metricName?: string(name='metricName', description='The metric name. Valid values:
+
+*   QPS: the queries per second (QPS) for an individual instance.
+*   CPU: the CPU utilization.', example='QPS'),
+      service?: string(name='service', description='The service for which the metric is specified. If you do not set this parameter, the current service is specified by default.', example='demo_svc'),
+      threshold?: float(name='threshold', description='The threshold of the metric that triggers auto scaling.
+
+*   If you set metricName to QPS, scale-out is triggered when the average QPS for a single instance is greater than this threshold.
+*   If you set metricName to CPU, scale-out is triggered when the average CPU utilization for a single instance is greater than this threshold.', example='10'),
     }
-  ](name='ScaleStrategies'),
-  serviceName?: string(name='ServiceName', example='foo'),
+  ](name='ScaleStrategies', description='The auto scaling policies.'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='foo'),
 }
 
 model DescribeServiceAutoScalerResponse = {
@@ -1374,25 +1472,25 @@ async function describeServiceAutoScaler(request: DescribeServiceAutoScalerReque
 }
 
 model DescribeServiceCronScalerRequest {
-  clusterId?: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName?: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DescribeServiceCronScalerResponseBody = {
-  excludeDates?: [ string ](name='ExcludeDates'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  excludeDates?: [ string ](name='ExcludeDates', description='The points in time that are excluded when you schedule a CronHPA job. The points in time must be specified by using a cron expression.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   scaleJobs?: [ 
     {
-      createTime?: string(name='CreateTime', example='2020-06-24T02:11:30Z'),
-      lastProbeTime?: string(name='LastProbeTime', example='2022-02-24T06:31:00Z'),
-      message?: string(name='Message', example='"cron hpa job scale-jobs-0 executed successfully. current replicas:3, desired replicas:2."'),
-      name?: string(name='Name', example='scale-job-1'),
-      schedule?: string(name='Schedule', example='0 18 * * * *'),
-      state?: string(name='State', example='Succeed'),
-      targetSize?: int32(name='TargetSize', example='1'),
+      createTime?: string(name='CreateTime', description='The time when the most recent CronHPA job was created. The time is displayed in UTC.', example='2020-06-24T02:11:30Z'),
+      lastProbeTime?: string(name='LastProbeTime', description='The time when the most recent CronHPA job ran. The time is displayed in UTC.', example='2022-02-24T06:31:00Z'),
+      message?: string(name='Message', description='The returned message.', example='"cron hpa job scale-jobs-0 executed successfully. current replicas:3, desired replicas:2."'),
+      name?: string(name='Name', description='The name of the CronHPA job.', example='scale-job-1'),
+      schedule?: string(name='Schedule', description='The cron expression that is used to configure the execution time of the CronHPA job.', example='0 18 * * * *'),
+      state?: string(name='State', description='The status of the most recent CronHPA job.', example='Succeed'),
+      targetSize?: int32(name='TargetSize', description='The number of instances that you expect to configure for the CronHPA job.', example='1'),
     }
-  ](name='ScaleJobs'),
-  serviceName?: string(name='ServiceName', example='foo'),
+  ](name='ScaleJobs', description='The CronHPA jobs.'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='foo'),
 }
 
 model DescribeServiceCronScalerResponse = {
@@ -1407,19 +1505,19 @@ async function describeServiceCronScaler(request: DescribeServiceCronScalerReque
 }
 
 model DescribeServiceDiagnosisRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
 }
 
 model DescribeServiceDiagnosisResponseBody = {
   diagnosisList?: [ 
     {
-      advices?: [ string ](name='Advices'),
-      causes?: [ string ](name='Causes'),
-      error?: string(name='Error', example='Container worker0 failed to pull image.'),
+      advices?: [ string ](name='Advices', description='The suggestions about how to handle the errors.'),
+      causes?: [ string ](name='Causes', description='The causes of the errors.'),
+      error?: string(name='Error', description='The error message.', example='Container worker0 failed to pull image.'),
     }
-  ](name='DiagnosisList'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  ](name='DiagnosisList', description='The diagnostics list.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DescribeServiceDiagnosisResponse = {
@@ -1434,29 +1532,35 @@ async function describeServiceDiagnosis(request: DescribeServiceDiagnosisRequest
 }
 
 model DescribeServiceEventRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  endTime?: string(name='EndTime', example='2006-01-02 15:04:05', position='Query'),
-  eventType?: string(name='EventType', example='Normal', position='Query'),
-  instanceName?: string(name='InstanceName', example='echo-test-784xxxx85d-hhnd8', position='Query'),
-  pageNum?: string(name='PageNum', example='1', position='Query'),
-  pageSize?: string(name='PageSize', example='20', position='Query'),
-  startTime?: string(name='StartTime', example='2006-01-02 15:04:05', position='Query'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. By default, the current point in time is the end of the time range to query.', example='2006-01-02 15:04:05', position='Query'),
+  eventType?: string(name='EventType', description='The event type. Valid values:
+
+*   Normal
+*   Warning', example='Normal', position='Query'),
+  instanceName?: string(name='InstanceName', description='The instance name. For more information about how to obtain the instance name, see [ListServiceInstances](~~412108~~).', example='echo-test-784xxxx85d-hhnd8', position='Query'),
+  pageNum?: string(name='PageNum', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. The time must be in UTC. The default value is seven days ago.', example='2006-01-02 15:04:05', position='Query'),
 }
 
 model DescribeServiceEventResponseBody = {
   events?: [ 
     {
-      message?: string(name='Message', example='{\\"versionId\\":1,\\"message\\":\\"Stage scale complete\\",\\"availableInstance\\":1,\\"unavailableInstance\\":0}'),
-      reason?: string(name='Reason', example='Updating'),
-      time?: string(name='Time', example='2022-04-09 06:30:00'),
-      type?: string(name='Type', example='Normal'),
+      message?: string(name='Message', description='The returned message. The message is formatted and returned in the JSON format.', example='{\\"versionId\\":1,\\"message\\":\\"Stage scale complete\\",\\"availableInstance\\":1,\\"unavailableInstance\\":0}'),
+      reason?: string(name='Reason', description='The cause of the event. The information about the change in the service status is returned.', example='Updating'),
+      time?: string(name='Time', description='The time when the event occurred. The time must be in UTC.', example='2022-04-09 06:30:00'),
+      type?: string(name='Type', description='The event type. Valid values:
+
+*   Normal
+*   Warning', example='Normal'),
     }
-  ](name='Events'),
-  pageNum?: long(name='PageNum', example='1'),
-  requestId?: string(name='RequestId', example='3D491C94-6239-5318-B4B4-799D859***'),
-  totalCount?: long(name='TotalCount', example='29'),
-  totalPageNum?: long(name='TotalPageNum', example='12'),
+  ](name='Events', description='The events.'),
+  pageNum?: long(name='PageNum', description='The page number.', example='1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3D491C94-6239-5318-B4B4-799D859***'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='29'),
+  totalPageNum?: long(name='TotalPageNum', description='The total number of pages returned.', example='12'),
 }
 
 model DescribeServiceEventResponse = {
@@ -1471,18 +1575,18 @@ async function describeServiceEvent(request: DescribeServiceEventRequest): Descr
 }
 
 model DescribeServiceInstanceDiagnosisRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  instanceName: string(name='InstanceName', example='foo-69xxxx4f4-5w9r9', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
+  instanceName: string(name='InstanceName', description='The name of the instance that runs the service.', example='foo-69xxxx4f4-5w9r9', position='Path'),
 }
 
 model DescribeServiceInstanceDiagnosisResponseBody = {
   diagnosis?: {
-    advices?: [ string ](name='Advices'),
-    causes?: [ string ](name='Causes'),
-    error?: string(name='Error', example='Container worker0 failed to pull image.'),
-  }(name='Diagnosis'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+    advices?: [ string ](name='Advices', description='The solutions to the errors.'),
+    causes?: [ string ](name='Causes', description='The causes of the errors.'),
+    error?: string(name='Error', description='The error message.', example='Container worker0 failed to pull image.'),
+  }(name='Diagnosis', description='The diagnostics information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
 }
 
 model DescribeServiceInstanceDiagnosisResponse = {
@@ -1497,25 +1601,43 @@ async function describeServiceInstanceDiagnosis(request: DescribeServiceInstance
 }
 
 model DescribeServiceLogRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='echo', position='Path'),
-  containerName?: string(name='ContainerName', example='worker0', position='Query'),
-  endTime?: string(name='EndTime', example='2006-01-02 15:04:05', position='Query'),
-  instanceName?: string(name='InstanceName', example='echo-da290ac8-7fckm', position='Query'),
-  ip?: string(name='Ip', example='10.0.0.1', position='Query'),
-  keyword?: string(name='Keyword', example='key', position='Query'),
-  pageNum?: long(name='PageNum', example='1', position='Query'),
-  pageSize?: long(name='PageSize', example='500', position='Query'),
-  previous?: boolean(name='Previous', example='true', position='Query'),
-  startTime?: string(name='StartTime', example='2006-01-02 15:04:05', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='echo', position='Path'),
+  containerName?: string(name='ContainerName', description='The name of the container that runs the service.', example='worker0', position='Query'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. The time must be in UTC.', example='2006-01-02 15:04:05', position='Query'),
+  instanceName?: string(name='InstanceName', description='The name of the instance that runs the service. For more information about how to query the instance name, see [ListServiceInstances](~~412108~~).', example='echo-da290ac8-7fckm', position='Query'),
+  ip?: string(name='Ip', description='The IP address of the instance whose logs you want to query. For more information about how to query the IP address of an instance, see [ListServiceInstances](~~412108~~).', example='10.0.0.1', position='Query'),
+  keyword?: string(name='Keyword', description='The keyword that you use to query the logs of the service.', example='key', position='Query'),
+  pageNum?: long(name='PageNum', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Default value: 500.', example='500', position='Query'),
+  previous?: boolean(name='Previous', description='Specifies whether to query the logs that are generated before the instance last restarts. This parameter is available only if the instance restarts.
+
+Valid values:
+
+*   true
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   false
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='true', position='Query'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. The time must be in Coordinated Universal Time (UTC).', example='2006-01-02 15:04:05', position='Query'),
 }
 
 model DescribeServiceLogResponseBody = {
-  logs?: [ string ](name='Logs'),
-  pageNum?: long(name='PageNum', example='1'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
-  totalCount?: long(name='TotalCount', example='1'),
-  totalPageNum?: long(name='TotalPageNum', example='500'),
+  logs?: [ string ](name='Logs', description='The returned logs.'),
+  pageNum?: long(name='PageNum', description='The page number.', example='1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82********'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='1'),
+  totalPageNum?: long(name='TotalPageNum', description='The total number of pages returned.', example='500'),
 }
 
 model DescribeServiceLogResponse = {
@@ -1530,15 +1652,15 @@ async function describeServiceLog(request: DescribeServiceLogRequest): DescribeS
 }
 
 model DescribeServiceMirrorRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model DescribeServiceMirrorResponseBody = {
-  ratio?: string(name='Ratio', example='50'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceName?: string(name='ServiceName', example='foo'),
-  target?: string(name='Target', example='foo2,foo3'),
+  ratio?: string(name='Ratio', description='The percentage of traffic that you want to mirror. Valid values: 0 to 100.', example='50'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='foo'),
+  target?: string(name='Target', description='The destination services to which you want to mirror traffic.', example='foo2,foo3'),
 }
 
 model DescribeServiceMirrorResponse = {
@@ -1553,20 +1675,20 @@ async function describeServiceMirror(request: DescribeServiceMirrorRequest): Des
 }
 
 model DescribeSpotDiscountHistoryRequest {
-  instanceType?: string(name='InstanceType', example='ecs.c6.4xlarge', position='Query'),
-  isProtect?: boolean(name='IsProtect', example='false', position='Query'),
+  instanceType: string(name='InstanceType', description='The type of the Elastic Compute Service (ECS) instance.', example='ecs.c6.4xlarge', position='Query'),
+  isProtect?: boolean(name='IsProtect', description='Specifies whether the preemptible instance has a protection period. During the 1-hour protection period of the preemptible instance, the preemptible instance will not be released.', example='false', position='Query'),
 }
 
 model DescribeSpotDiscountHistoryResponseBody = {
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
   spotDiscounts?: [ 
     {
-      instanceType?: string(name='InstanceType', example='ecs.c7.large'),
-      spotDiscount?: string(name='SpotDiscount', example='0.1'),
-      timestamp?: string(name='Timestamp', example='2024-04-10T10:00:00Z'),
-      zoneId?: string(name='ZoneId', example='cn-hangzhou-i'),
+      instanceType?: string(name='InstanceType', description='The type of the ECS instance.', example='ecs.c7.large'),
+      spotDiscount?: string(name='SpotDiscount', description='The discount for the preemptible instance. For example, 0.1 represents a 90% discount.', example='0.1'),
+      timestamp?: string(name='Timestamp', description='The time when the discount is available. The time must be in UTC.', example='2024-04-10T10:00:00Z'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-i'),
     }
-  ](name='SpotDiscounts'),
+  ](name='SpotDiscounts', description='The discount for the preemptible instance.'),
 }
 
 model DescribeSpotDiscountHistoryResponse = {
@@ -1581,17 +1703,17 @@ async function describeSpotDiscountHistory(request: DescribeSpotDiscountHistoryR
 }
 
 model DevelopServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='echo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='echo', position='Path'),
   exit?: string(name='Exit', description='Specifies whether to exit development mode. Valid values:
 
-*   true
-*   false (default)', example='true', position='Query'),
+*   true: exits development mode.
+*   false (default): enters development mode.', example='true', position='Query'),
 }
 
 model DevelopServiceResponseBody = {
-  message?: string(name='Message', example='Success'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model DevelopServiceResponse = {
@@ -1606,7 +1728,7 @@ async function developService(request: DevelopServiceRequest): DevelopServiceRes
 }
 
 model ListBenchmarkTaskRequest {
-  filter?: string(name='Filter', description='The keyword used to query required stress testing tasks. If this parameter is specified, the system returns stress testing tasks based on the names of the stress testing tasks in the matched Elastic Algorithm service (EAS).', example='test_bench', position='Query'),
+  filter?: string(name='Filter', description='The keyword used to query required stress testing tasks. If this parameter is specified, the system returns stress testing tasks based on the names of the stress testing tasks in the matched Elastic Algorithm Service (EAS).', example='test_bench', position='Query'),
   pageNumber?: string(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries per page. Default value: 100.', example='10', position='Query'),
   serviceName?: string(name='ServiceName', description='The name of the EAS service that corresponds to the stress testing task. For more information about how to query the service name, see [ListServices](~~412109~~).', example='test_bench_srv', position='Query'),
@@ -1618,17 +1740,91 @@ model ListBenchmarkTaskResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   tasks?: [ 
     {
-      availableAgent?: long(name='AvailableAgent', example='2'),
-      createTime?: string(name='CreateTime', example='2020-12-04T02:43:15Z'),
-      message?: string(name='Message', example='Benchmark task [benchmark-larec-test-1076] is Running'),
-      region?: string(name='Region', example='cn-shanghai'),
-      serviceName?: string(name='ServiceName', example='test_quota'),
-      status?: string(name='Status', example='Running'),
-      taskId?: string(name='TaskId', example='eas-b-gv4y86uvgt****i'),
-      taskName?: string(name='TaskName', example='benchmark-larec-test-1076'),
-      updateTime?: string(name='UpdateTime', example='2020-06-24T03:11:30Z'),
+      availableAgent?: long(name='AvailableAgent', description='The number of instances that are available for stress testing.', example='2'),
+      createTime?: string(name='CreateTime', description='The time when the stress testing task was created.', example='2020-12-04T02:43:15Z'),
+      message?: string(name='Message', description='The returned message.', example='Benchmark task [benchmark-larec-test-1076] is Running'),
+      region?: string(name='Region', description='The region ID of the stress testing task.', example='cn-shanghai'),
+      serviceName?: string(name='ServiceName', description='The name of the service on which you want to perform a stress testing.', example='test_quota'),
+      status?: string(name='Status', description='The state of the stress testing task.
+
+Valid values:
+
+*   Creating
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Starting
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   DeleteFailed
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Running
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Stopping
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Error
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Updating
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Deleting
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   CreateFailed
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Running'),
+      taskId?: string(name='TaskId', description='The ID of the stress testing task.', example='eas-b-gv4y86uvgt****i'),
+      taskName?: string(name='TaskName', description='The name of the stress testing task.', example='benchmark-larec-test-1076'),
+      updateTime?: string(name='UpdateTime', description='The time when the stress testing task was updated.', example='2020-06-24T03:11:30Z'),
     }
-  ](name='Tasks', description='The time when the stress testing task was updated.'),
+  ](name='Tasks', description='The stress testing tasks.'),
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
@@ -1700,20 +1896,20 @@ async function listGatewayIntranetLinkedVpc(request: ListGatewayIntranetLinkedVp
 }
 
 model ListGroupsRequest {
-  filter?: string(name='Filter', example='foo', position='Query'),
-  pageNumber?: string(name='PageNumber', example='1', position='Query'),
-  pageSize?: string(name='PageSize', example='20', position='Query'),
-  workspaceId?: string(name='WorkspaceId', position='Query'),
+  filter?: string(name='Filter', description='The name of the filter that is used to filter out unwanted service groups. Fuzzy match is supported.', example='foo', position='Query'),
+  pageNumber?: string(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='123***', position='Query'),
 }
 
 model ListGroupsResponseBody = {
   groups?: [
     Group
-  ](name='Groups'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  totalCount?: long(name='TotalCount', example='5'),
+  ](name='Groups', description='The service groups.'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='5'),
 }
 
 model ListGroupsResponse = {
@@ -1757,28 +1953,205 @@ async function listResourceInstanceWorker(request: ListResourceInstanceWorkerReq
 }
 
 model ListResourceInstancesRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  resourceId: string(name='ResourceId', example='iot', position='Path'),
-  chargeType?: string(name='ChargeType', example='PrePaid', position='Query'),
-  filter?: string(name='Filter', example='10.224.xx.xx', position='Query'),
-  instanceIP?: string(name='InstanceIP', example='10.224.xx.xx', position='Query'),
-  instanceId?: string(name='InstanceId', example='i-bp1jd6x3uotsv****', position='Query'),
-  instanceName?: string(name='InstanceName', example='e-xxxx***', position='Query'),
-  instanceStatus?: string(name='InstanceStatus', example='Ready', position='Query'),
-  order?: string(name='Order', example='desc', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='20', position='Query'),
-  sort?: string(name='Sort', example='CreateTime', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the resource group belongs.', example='cn-shanghai', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='iot', position='Path'),
+  chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
+
+*   PrePaid: subscription.
+*   PostPaid: pay-as-you-go.', example='PrePaid', position='Query'),
+  filter?: string(name='Filter', description='The keyword used to query instances. Instances can be queried by instance ID or instance IP address.', example='10.224.xx.xx', position='Query'),
+  instanceIP?: string(name='InstanceIP', description='The IP address of the instance.', example='10.224.xx.xx', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID. For more information about how to query the instance ID, see [ListResourceInstances](~~412129~~).', example='i-bp1jd6x3uotsv****', position='Query'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='e-xxxx***', position='Query'),
+  instanceStatus?: string(name='InstanceStatus', description='The instance state.
+
+Valid values:
+
+*   Ready-SchedulingDisabled
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instance is available but unschedulable
+
+    <!-- -->
+
+    .
+
+*   Ready
+
+    <!-- -->
+
+    : The instance
+
+    <!-- -->
+
+    is running
+
+    <!-- -->
+
+    .
+
+*   NotReady
+
+    <!-- -->
+
+    : The instance is unready.
+
+    <!-- -->
+
+    <!-- -->
+
+*   Stopped
+
+    <!-- -->
+
+    : The instance has stopped.
+
+    <!-- -->
+
+    <!-- -->
+
+*   NotReady-SchedulingDisabled
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instance is unavailable and unschedulable
+
+    <!-- -->
+
+    .
+
+*   Attaching
+
+    <!-- -->
+
+    : The instance
+
+    <!-- -->
+
+    is starting
+
+    <!-- -->
+
+    .
+
+*   Deleting
+
+    <!-- -->
+
+    : The instance is being deleted.
+
+    <!-- -->
+
+    <!-- -->
+
+*   CreateFailed: The instance failed to be created.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Ready', position='Query'),
+  order?: string(name='Order', description='The sorting order.
+
+Valid values:
+
+*   asc: The instances are sorted in ascending order.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   desc
+
+    <!-- -->
+
+    : The instances are sorted in descending order.
+
+    <!-- -->
+
+    <!-- -->', example='desc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
+  sort?: string(name='Sort', description='The field that you use to sort the query results.
+
+Valid values:
+
+*   CreateTime
+
+    <!-- -->
+
+    : The instances are sorted based on the time when the instances were created.
+
+    <!-- -->
+
+    <!-- -->
+
+*   MemoryUsed
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instances are sorted based on the memory usage of the instances
+
+    <!-- -->
+
+    .
+
+*   GpuUsed
+
+    <!-- -->
+
+    : The instances are sorted based on the
+
+    <!-- -->
+
+    GPU usage of the instances.
+
+    <!-- -->
+
+*   ExpireTime: The instances are sorted based on the time when the instances expired.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   CpuUsed
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instances are sorted based on the CPU utilization of the instances.
+
+    <!-- -->', example='CreateTime', position='Query'),
 }
 
 model ListResourceInstancesResponseBody = {
   instances?: [
     ResourceInstance
-  ](name='Instances'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  ](name='Instances', description='The instances.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model ListResourceInstancesResponse = {
@@ -1825,7 +2198,10 @@ model ListResourcesRequest {
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
   resourceId?: string(name='ResourceId', description='The ID of the resource group. You can call the [CreateResource](~~412111~~) operation to query the ID of the resource group.', example='eas-r-h7lcw24dyqztwxxxxxx', position='Query'),
   resourceName?: string(name='ResourceName', description='The name of the resource group. You can call the [CreateResource](~~412111~~) operation to query the name of the resource group.', example='MyResource', position='Query'),
-  resourceType?: string(name='ResourceType', example='Dedicated', position='Query'),
+  resourceType?: string(name='ResourceType', description='The type of the resource group. Valid values:
+
+*   Dedicated: the dedicated resource group.
+*   SelfManaged: the self-managed resource group.', example='Dedicated', position='Query'),
 }
 
 model ListResourcesResponseBody = {
@@ -1850,17 +2226,17 @@ async function listResources(request: ListResourcesRequest): ListResourcesRespon
 }
 
 model ListServiceContainersRequest {
-  clusterId?: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName?: string(name='ServiceName', example='foo', position='Path'),
-  instanceName?: string(name='InstanceName', example='foo-69xxxx4f4-5w9r9', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
+  instanceName: string(name='InstanceName', description='The name of the instance that runs the service.', example='foo-69xxxx4f4-5w9r9', position='Path'),
 }
 
 model ListServiceContainersResponseBody = {
   containers?: [
     ContainerInfo
   ](name='Containers', description='The containers of the service.'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceName?: string(name='ServiceName', example='foo'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='foo'),
 }
 
 model ListServiceContainersResponse = {
@@ -1875,51 +2251,145 @@ async function listServiceContainers(request: ListServiceContainersRequest): Lis
 }
 
 model ListServiceInstancesRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  filter?: string(name='Filter', example='10.118.xx.xx', position='Query'),
-  hostIP?: string(name='HostIP', example='10.224.xx.xx', position='Query'),
-  instanceIP?: string(name='InstanceIP', example='10.224.xx.xx', position='Query'),
-  instanceName?: string(name='InstanceName', example='foo-bdc5xxxx-8l7rk', position='Query'),
-  instanceStatus?: string(name='InstanceStatus', example='Running', position='Query'),
-  instanceType?: string(name='InstanceType', example='ecs.c7.large', position='Query'),
-  isSpot?: boolean(name='IsSpot', example='false', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  filter?: string(name='Filter', description='The keyword used to query instances. Instances can be queried based on instance name, instance IP address, IP address of the server where the instance resides, and instance type.', example='10.118.xx.xx', position='Query'),
+  hostIP?: string(name='HostIP', description='The IP address of the server where the instance resides.', example='10.224.xx.xx', position='Query'),
+  instanceIP?: string(name='InstanceIP', description='The IP address of the instance.', example='10.224.xx.xx', position='Query'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='foo-bdc5xxxx-8l7rk', position='Query'),
+  instanceStatus?: string(name='InstanceStatus', description='The instance state.', example='Running', position='Query'),
+  instanceType?: string(name='InstanceType', description='The instance type.', example='ecs.c7.large', position='Query'),
+  isSpot?: boolean(name='IsSpot', description='Specifies whether the instance is a preemptible instance.', example='false', position='Query'),
   order?: string(name='Order', description='The sorting order.
 
 Valid values:
 
-*   asc: The instances are sorted in ascending order.
+*   asc
+
+    <!-- -->
+
+    :
 
     <!-- -->
 
     <!-- -->
 
-    <!-- -->
+    The instances are sorted in ascending order.
 
 *   desc
 
     <!-- -->
 
-    : The instances are sorted in descending order.
+    :
 
     <!-- -->
 
-    <!-- -->', example='desc', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='20', position='Query'),
-  resourceType?: string(name='ResourceType', example='PublicResource', position='Query'),
-  role?: string(name='Role', example='Queue', position='Query'),
-  sort?: string(name='Sort', example='StartTime', position='Query'),
+    <!-- -->
+
+    The instances are sorted in descending order.', example='desc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20', position='Query'),
+  resourceType?: string(name='ResourceType', description='The type of the resource group to which the instance belongs.
+
+Valid values:
+
+*   PublicResource
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   DedicatedResource
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='PublicResource', position='Query'),
+  role?: string(name='Role', description='The service role.
+
+Valid values:
+
+*   DataSet
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    dataset service
+
+    <!-- -->
+
+    .
+
+*   SDProxy
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    Stable-Diffusion proxy service
+
+    <!-- -->
+
+    .
+
+*   Standard
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    standard service
+
+    <!-- -->
+
+    .
+
+*   Queue
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    queue service
+
+    <!-- -->
+
+    .', example='Queue', position='Query'),
+  sort?: string(name='Sort', description='The field that you use to sort the query results.
+
+*   Set the value to StartTime.
+
+    <!-- -->
+
+    <!-- -->
+
+    The value specifies that the query results are sorted based on the time when the instances were created
+
+    <!-- -->
+
+    .', example='StartTime', position='Query'),
 }
 
 model ListServiceInstancesResponseBody = {
   instances?: [
     Instance
-  ](name='Instances'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  ](name='Instances', description='The instances.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model ListServiceInstancesResponse = {
@@ -1934,17 +2404,17 @@ async function listServiceInstances(request: ListServiceInstancesRequest): ListS
 }
 
 model ListServiceVersionsRequest {
-  clusterId: string(name='ClusterId', example='cn-hangzhou', position='Path'),
-  serviceName: string(name='ServiceName', example='test_oss', position='Path'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-hangzhou', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='test_oss', position='Path'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='10', position='Query'),
 }
 
 model ListServiceVersionsResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
-  totalCount?: long(name='TotalCount', example='166'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='166'),
   versions?: [ 
     {
       buildTime?: string(name='BuildTime', description='The time when the service version was created. The time is displayed in UTC.', example='2022-08-29T22:02:14Z'),
@@ -1953,7 +2423,7 @@ model ListServiceVersionsResponseBody = {
 *   true: The image is available.
 *   false: The image is unavailable.
 *   unknown: The availability of the image is unknown.', example='true'),
-      imageId?: int32(name='ImageId', description='The ID of the image.', example='4'),
+      imageId?: int32(name='ImageId', description='The image ID.', example='4'),
       message?: string(name='Message', description='The returned message.', example='Service is Running'),
       serviceConfig?: string(name='ServiceConfig', description='The service deployment configurations. This parameter is returned only if the service is deployed by using a custom image.', example='{
     "metadata": {
@@ -1963,13 +2433,13 @@ model ListServiceVersionsResponseBody = {
     },
     "name": "echo"
 }'),
-      serviceRunnable?: string(name='ServiceRunnable', description='Indicates whether EAS is enabled. Valid values:
+      serviceRunnable?: string(name='ServiceRunnable', description='Indicates whether Elastic Algorithm service (EAS) is activated. Valid values:
 
-*   true: EAS is enabled.
-*   false: EAS is not enabled.
-*   unknown: The enabling status of EAS is unknown.', example='true'),
+*   true: EAS is activated.
+*   false: EAS is not activated.
+*   unknown: The activation of EAS is unknown.', example='true'),
     }
-  ](name='Versions', description='The versions of the service.'),
+  ](name='Versions', description='The historical versions of the service.'),
 }
 
 model ListServiceVersionsResponse = {
@@ -1984,85 +2454,219 @@ async function listServiceVersions(request: ListServiceVersionsRequest): ListSer
 }
 
 model ListServicesRequest {
-  filter?: string(name='Filter', description='{
-  "RequestId": "40325405-579C-4D82-9624-EC2B1779848E",
-  "Services": [
-    {
-      "ServiceId": "200516454695942578",
-      "ServiceName": "vipserver",
-      "ParentUid": "1628454689805075",
-      "CallerUid": "eas",
-      "CurrentVersion": 1,
-      "Cpu": 1,
-      "Gpu": 0,
-      "Memory": 900,
-      "Image": "registry.cn-zhangjiakou.aliyuncs.com/eas/ndisearch_v1_inner_zhangbei:v0.0.3-20200302145109",
-      "Resource": "seccontent_inner_2080ti_5",
-      "Namespace": "vipserver",
-      "CreateTime": "2019-10-25T10:37:53Z",
-      "UpdateTime": "2019-10-30T16:50:59Z",
-      "TotalInstance": 1,
-      "RunningInstance": 1,
-      "PendingInstance": 0,
-      "LatestVersion": 1,
-      "Status": "Running",
-      "Reason": "RUNNING",
-      "Message": "Service is now scaling",
-      "AccessToken": "",
-      "Weight": 0
-    },
-    {
-      "ServiceId": 97097,
-      "ServiceName": "a1",
-      "CallerUid": "eas",
-      "CurrentVersion": 1,
-      "Cpu": 1,
-      "Gpu": 0,
-      "Memory": 900,
-      "Image": "registry.cn-hangzhou.aliyuncs.com/eas/pi_imemb_tb:v0.0.1-20191023130701",
-      "Resource": "seccontent_inner_b",
-      "Namespace": "a1",
-      "CreateTime": "2020-05-26T18:03:11Z",
-      "UpdateTime": "2020-05-26T18:03:11Z",
-      "TotalInstance": 1,
-      "RunningInstance": 0,
-      "PendingInstance": 1,
-      "LatestVersion": 1,
-      "Status": "Failed",
-      "Reason": "FAILED",
-      "Message": "the server could not find the requested resource (post services.meta.k8s.io)",
-      "AccessToken": "regression_test_token",
-      "Weight": 0
-    }
-  ],
-  "PageNumber": 1,
-  "PageSize": 2,
-  "TotalCount": 2
-}', example='foo', position='Query'),
-  groupName?: string(name='GroupName', example='foo', position='Query'),
-  label?: map[string]string(name='Label', shrink='json', position='Query'),
-  order?: string(name='Order', example='asc', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='376577', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='100', position='Query'),
-  parentServiceUid?: string(name='ParentServiceUid', example='eas-m-ijafy3c8cxxxx', position='Query'),
-  quotaId?: string(name='QuotaId', example='quota12345', position='Query'),
-  resourceName?: string(name='ResourceName', example='eas-r-hd0qwy8cxxxx', position='Query'),
-  serviceName?: string(name='ServiceName', example='echo_test', position='Query'),
-  serviceStatus?: string(name='ServiceStatus', example='Running', position='Query'),
-  serviceType?: string(name='ServiceType', example='Standard', position='Query'),
-  serviceUid?: string(name='ServiceUid', example='eas-m-c9iw3yitxxxx', position='Query'),
-  sort?: string(name='Sort', example='CreateTime', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='123456', position='Query'),
+  filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo', position='Query'),
+  groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](~~412109~~).', example='foo', position='Query'),
+  label?: map[string]string(name='Label', description='The tag that is used to filter services.', shrink='json', position='Query'),
+  order?: string(name='Order', description='The sorting order. Valid values:
+
+*   desc (default): The query results are sorted in descending order.
+*   asc: The query results are sorted in ascending order.', example='asc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='100', position='Query'),
+  parentServiceUid?: string(name='ParentServiceUid', description='The ID of the primary service that corresponds to the Band member service.', example='eas-m-ijafy3c8cxxxx', position='Query'),
+  quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345', position='Query'),
+  resourceName?: string(name='ResourceName', description='The name or ID of the resource group to which the service belongs.', example='eas-r-hd0qwy8cxxxx', position='Query'),
+  serviceName?: string(name='ServiceName', description='The service name.', example='echo_test', position='Query'),
+  serviceStatus?: string(name='ServiceStatus', description='The service state.
+
+Valid values:
+
+*   Creating
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Stopped
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Failed
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Complete
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Cloning
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Stopping
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Updating
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Waiting
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   HotUpdate
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Committing
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Starting
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   DeleteFailed
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Running
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Developing
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Scaling
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Deleted
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Pending
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Deleting
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Running', position='Query'),
+  serviceType?: string(name='ServiceType', description='The service type. Valid values:
+
+*   Async
+*   Standard
+*   Offline Task
+*   Proxima
+
+Valid values:
+
+*   Async
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Standard
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   OfflineTask
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   Proxima
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Standard', position='Query'),
+  serviceUid?: string(name='ServiceUid', description='The user ID (UID) of the service.', example='eas-m-c9iw3yitxxxx', position='Query'),
+  sort?: string(name='Sort', description='The sort field. By default, the query results are sorted by the timestamp type in descending order.', example='CreateTime', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='123456', position='Query'),
 }
 
 model ListServicesResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='100'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='100'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   services?: [
     Service
-  ](name='Services'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  ](name='Services', description='The services.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model ListServicesResponse = {
@@ -2077,15 +2681,18 @@ async function listServices(request: ListServicesRequest): ListServicesResponse 
 }
 
 model ReleaseServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  trafficState?: string(name='TrafficState', example='grouping', position='Body'),
-  weight?: int32(name='Weight', example='100', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  trafficState?: string(name='TrafficState', description='The traffic state. Valid values:
+
+*   standalone: independent traffic.
+*   grouping: grouped traffic.', example='grouping', position='Body'),
+  weight?: int32(name='Weight', description='The weight of the canary release. Valid values: 0 to 100.', example='100', position='Body'),
 }
 
 model ReleaseServiceResponseBody = {
-  message?: string(name='Message', example='Releasing service [foo] in region [cn-shanghai] with weight [40], service status: [Running]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Releasing service [foo] in region [cn-shanghai] with weight [40], service status: [Running]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model ReleaseServiceResponse = {
@@ -2142,13 +2749,13 @@ async function startBenchmarkTask(request: StartBenchmarkTaskRequest): StartBenc
 }
 
 model StartServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model StartServiceResponseBody = {
-  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model StartServiceResponse = {
@@ -2184,13 +2791,13 @@ async function stopBenchmarkTask(request: StopBenchmarkTaskRequest): StopBenchma
 }
 
 model StopServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
 }
 
 model StopServiceResponseBody = {
-  message?: string(name='Message', example='Succeed to auto scale service [foo]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Succeed to auto scale service [foo]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model StopServiceResponse = {
@@ -2205,8 +2812,8 @@ async function stopService(request: StopServiceRequest): StopServiceResponse {
 }
 
 model UpdateAppServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
   quotaId?: string(name='QuotaId', description='The quota ID.', example='abcdef', position='Query'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='123456', position='Query'),
   appType?: string(name='AppType', description='The application type.
@@ -2239,7 +2846,7 @@ Valid values:
 
 model UpdateAppServiceResponseBody = {
   message?: string(name='Message', description='The returned message.', example='Succee'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model UpdateAppServiceResponse = {
@@ -2256,7 +2863,7 @@ async function updateAppService(request: UpdateAppServiceRequest): UpdateAppServ
 model UpdateBenchmarkTaskRequest {
   clusterId: string(name='ClusterId', description='The ID of the region where the stress testing task is performed.', example='cn-shanghai', position='Path'),
   taskName: string(name='TaskName', description='The name of the stress testing task.', example='benchmark-larec-test-645c', position='Path'),
-  body?: string(name='body', description='The request body. The body includes the parameters that are set to create a stress testing task.', example='{
+  body?: string(name='body', description='The request body. The body includes the parameters that are set to create a stress testing task. For more information, see **Table 1. Fields in the base parameter**.', example='{
     "base":  {
          "qps": 200
     }
@@ -2328,24 +2935,23 @@ model UpdateResourceRequest {
   resourceId: string(name='ResourceId', description='The ID of the resource group. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
   resourceName?: string(name='ResourceName', description='The new name of the resource group after the update. The name can be up to 27 characters in length.', example='iot', position='Body'),
   selfManagedResourceOptions?: {
-    nodeMatchLabels?: map[string]string(name='NodeMatchLabels', description='The key-value pairs for matched nodes.'),
+    nodeMatchLabels?: map[string]string(name='NodeMatchLabels', description='Tag tag key-value pairs for nodes.'),
     nodeTolerations?: [ 
       {
         effect?: string(name='effect', description='The effect.
-
 Valid values:
 - PreferNoSchedule
 - NoSchedule
 - NoExecute', example='NoSchedule'),
-        key?: string(name='key', description='The name of the key.', example='key1'),
+        key?: string(name='key', description='The key name.', example='key1'),
         operator?: string(name='operator', description='Relationship between key names and key values.
 Valid values:
 - Equal
 - Exists', example='Equal'),
-        value?: string(name='value', description='The name of the value.', example='value1'),
+        value?: string(name='value', description='The key value.', example='value1'),
       }
     ](name='NodeTolerations', description='Tolerations for nodes.'),
-  }(name='SelfManagedResourceOptions', description='The configurable options for self managed resource group.', position='Body'),
+  }(name='SelfManagedResourceOptions', description='The configuration items of the self-managed resource group.', position='Body'),
 }
 
 model UpdateResourceResponseBody = {
@@ -2391,16 +2997,20 @@ async function updateResourceDLink(request: UpdateResourceDLinkRequest): UpdateR
 }
 
 model UpdateResourceInstanceRequest {
-  clusterId: string(name='ClusterId', example='cn-beijing', position='Path'),
-  resourceId: string(name='ResourceId', example='eas-r-asdasdasd', position='Path'),
-  instanceId: string(name='InstanceId', example='eas-i-asdasdasd', position='Path'),
-  action: string(name='Action', example='Cordon', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region to which the instance belongs.', example='cn-beijing', position='Path'),
+  resourceId: string(name='ResourceId', description='The ID of the resource group to which the instance belongs. For more information about how to query the ID of a resource group, see [ListResources](~~412133~~).', example='eas-r-asdasdasd', position='Path'),
+  instanceId: string(name='InstanceId', description='The instance ID. For more information about how to query the instance ID, see [ListResourceInstances](~~412129~~).', example='eas-i-asdasdasd', position='Path'),
+  action: string(name='Action', description='The operation that updates the scheduling state of the instance in a dedicated resource group. Valid values:
+
+*   Uncordon: allows scheduling the service to this instance.
+*   Cordon: prohibits scheduling the service to this instance.
+*   Drain: evicts the service that has been scheduled to this instance.', example='Cordon', position='Body'),
 }
 
 model UpdateResourceInstanceResponseBody = {
-  instanceId?: string(name='InstanceId', example='eas-i-asdasdasd'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  resourceId?: string(name='ResourceId', example='eas-r-asdasdasd'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='eas-i-asdasdasd'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource group.', example='eas-r-asdasdasd'),
 }
 
 model UpdateResourceInstanceResponse = {
@@ -2415,18 +3025,18 @@ async function updateResourceInstance(request: UpdateResourceInstanceRequest): U
 }
 
 model UpdateServiceRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
   updateType?: string(name='UpdateType', description='The type of the service update. Valid values: merge and replace. By default, merge is used if you do not specify this parameter.
 
 *   merge: If the JSON string configured for the existing service is `{"a":"b"}` and the JSON string specified in the body parameter is `{"c":"d"}`, the JSON string is `{"a":"b","c":"d"}` after the service update.
 *   replace: If the JSON string configured for the existing service is `{"a":"b"}` and the JSON string specified in the body parameter is `{"c":"d"}`, the JSON string is `{"c":"d"}` after the service update.', example='merge', position='Query'),
-  body?: string(name='body', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
+  body?: string(name='body', description='The request body. The body includes the request parameters that you want to update. For more information about the request parameters, see [CreateService](~~412086~~).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
 }
 
 model UpdateServiceResponseBody = {
-  message?: string(name='Message', example='Succeed to update service [foo] in region [cn-shanghai]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Succeed to update service [foo] in region [cn-shanghai]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceResponse = {
@@ -2441,34 +3051,40 @@ async function updateService(request: UpdateServiceRequest): UpdateServiceRespon
 }
 
 model UpdateServiceAutoScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
   behavior?: {
     onZero?: {
-      scaleDownGracePeriodSeconds?: int32(name='scaleDownGracePeriodSeconds', example='600'),
-      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', example='1'),
-    }(name='onZero'),
+      scaleDownGracePeriodSeconds?: int32(name='scaleDownGracePeriodSeconds', description='The time window that is required before the number of instances is reduced to 0. Default value: 600. The number of instances can be reduced to 0 only if no request is available or no traffic exists in the specified time window.', example='600'),
+      scaleUpActivationReplicas?: int32(name='scaleUpActivationReplicas', description='The number of instances that you want to create at a time if the number of instances is scaled out from 0. Default value: 1.', example='1'),
+    }(name='onZero', description='The operation that reduces the number of instances to 0.'),
     scaleDown?: {
-      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='300'),
-    }(name='scaleDown'),
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', description='The time window that is required before the scale-in operation is performed. Default value: 300. The scale-in operation can be performed only if the specified metric drops below the threshold in the specified time window.', example='300'),
+    }(name='scaleDown', description='The scale-in operation.'),
     scaleUp?: {
-      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', example='0'),
-    }(name='scaleUp'),
-  }(name='behavior', position='Body'),
-  max: int32(name='max', example='8', position='Body'),
-  min: int32(name='min', example='2', position='Body'),
+      stabilizationWindowSeconds?: int32(name='stabilizationWindowSeconds', description='The time window that is required before the scale-out operation is performed. Default value: 0. The scale-out operation can be performed only if the specified metric exceeds the specified threshold in the specified time window.', example='0'),
+    }(name='scaleUp', description='The scale-out operation.'),
+  }(name='behavior', description='The Autoscaler operation.', position='Body'),
+  max: int32(name='max', description='The maximum number of instances. The value must be greater than that of the min parameter.', example='8', position='Body'),
+  min: int32(name='min', description='The minimum number of instances. The value must be greater than 0.', example='2', position='Body'),
   scaleStrategies: [ 
     {
-      metricName: string(name='metricName', example='qps'),
-      service?: string(name='service', example='demo_svc'),
-      threshold: float(name='threshold', example='100'),
+      metricName: string(name='metricName', description='The name of the metric for triggering auto scaling. Valid values:
+
+*   qps: the queries per second (QPS) for an individual instance.
+*   cpu: the CPU utilization.', example='qps'),
+      service?: string(name='service', description='The service for which the metric is specified. If you do not set this parameter, the current service is specified by default.', example='demo_svc'),
+      threshold: float(name='threshold', description='The threshold of the metric that triggers auto scaling.
+
+*   If you set metricName to QPS, scale-out is triggered when the average QPS for a single instance is greater than this threshold.
+*   If you set metricName to CPU, scale-out is triggered when the average CPU utilization for a single instance is greater than this threshold.', example='100'),
     }
-  ](name='scaleStrategies', position='Body'),
+  ](name='scaleStrategies', description='The auto scaling policies.', position='Body'),
 }
 
 model UpdateServiceAutoScalerResponseBody = {
-  message?: string(name='Message', example='Update auto scale for service [foo] successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Update auto scale for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceAutoScalerResponse = {
@@ -2483,21 +3099,21 @@ async function updateServiceAutoScaler(request: UpdateServiceAutoScalerRequest):
 }
 
 model UpdateServiceCronScalerRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  excludeDates?: [ string ](name='ExcludeDates', position='Body'),
+  clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  excludeDates?: [ string ](name='ExcludeDates', description='The points in time that are excluded when you schedule a CronHPA job. The points in time must be specified by using a cron expression.', position='Body'),
   scaleJobs: [ 
     {
-      name?: string(name='Name', example='scale-job-1'),
-      schedule: string(name='Schedule', example='0 18 * * * *'),
-      targetSize: int32(name='TargetSize', example='2'),
+      name?: string(name='Name', description='The name of the CronHPA job.', example='scale-job-1'),
+      schedule: string(name='Schedule', description='The cron expression that is used to configure the execution time of the CronHPA job. For more information about how to configure cron expressions, see **Description of special characters** in this topic.', example='0 18 * * * *'),
+      targetSize: int32(name='TargetSize', description='The number of instances that you want to configure for the CronHPA job.', example='2'),
     }
-  ](name='ScaleJobs', position='Body'),
+  ](name='ScaleJobs', description='The description of the CronHPA job.', position='Body'),
 }
 
 model UpdateServiceCronScalerResponseBody = {
-  message?: string(name='Message', example='Update cron scaler for service [foo] successfully'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Update cron scaler for service [foo] successfully'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceCronScalerResponse = {
@@ -2513,8 +3129,8 @@ async function updateServiceCronScaler(request: UpdateServiceCronScalerRequest):
 
 model UpdateServiceInstanceRequest {
   clusterId: string(name='ClusterId', description='The region ID of the service.', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', description='The service name.', example='foo', position='Path'),
-  instanceName: string(name='InstanceName', description='The name of the service instance.', example='foo-69xxxx4f4-5w9r9', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  instanceName: string(name='InstanceName', description='The instance name. For more information about how to query the instance name, see [ListServiceInstances](~~412108~~).', example='foo-69xxxx4f4-5w9r9', position='Path'),
   isolate?: boolean(name='Isolate', description='Specifies whether to isolate the service instance. Valid values:
 
 *   true
@@ -2560,15 +3176,15 @@ async function updateServiceLabel(request: UpdateServiceLabelRequest): UpdateSer
 }
 
 model UpdateServiceMirrorRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
-  ratio?: int32(name='Ratio', example='30', position='Body'),
-  target?: [ string ](name='Target', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  ratio?: int32(name='Ratio', description='The percentage of traffic that you want to mirror. Valid values: 0 to 100.', example='30', position='Body'),
+  target?: [ string ](name='Target', description='The service instances.', position='Body'),
 }
 
 model UpdateServiceMirrorResponseBody = {
-  message?: string(name='Message', example='Traffic mirroring is updating for service [foo] in region [cn-shanghia], ratio [70%]'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+  message?: string(name='Message', description='The returned message.', example='Traffic mirroring is updating for service [foo] in region [cn-shanghia], ratio [70%]'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
 }
 
 model UpdateServiceMirrorResponse = {
@@ -2583,44 +3199,18 @@ async function updateServiceMirror(request: UpdateServiceMirrorRequest): UpdateS
 }
 
 model UpdateServiceSafetyLockRequest {
-  clusterId: string(name='ClusterId', example='cn-beijing', position='Path'),
-  serviceName: string(name='ServiceName', example='foo', position='Path'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-beijing', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
   lock: string(name='Lock', description='The lock scope. Valid values:
 
 *   all: locks all operations.
-*   dangerous: locks high-risk operations such as delete and stop operations.
-*   none: locks no operations.
-
-Enumerated values:
-
-*   all
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   dangerous
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   none
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->', example='dangerous', position='Body'),
+*   dangerous: locks dangerous operations such as delete and stop operations.
+*   none: locks no operations.', example='dangerous', position='Body'),
 }
 
 model UpdateServiceSafetyLockResponseBody = {
-  message?: string(name='Message', example='service safety lock updated to dangerous'),
-  requestId?: string(name='RequestId', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
+  message?: string(name='Message', description='The returned message.', example='service safety lock updated to dangerous'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E089D584-B6F4-50C4-9902-DA2295B7****'),
 }
 
 model UpdateServiceSafetyLockResponse = {
@@ -2635,14 +3225,14 @@ async function updateServiceSafetyLock(request: UpdateServiceSafetyLockRequest):
 }
 
 model UpdateServiceVersionRequest {
-  clusterId: string(name='ClusterId', example='cn-shanghai', position='Path'),
-  serviceName: string(name='ServiceName', example='echo', position='Path'),
-  version: int32(name='Version', example='1', position='Body'),
+  clusterId: string(name='ClusterId', description='The ID of the region where the service is deployed.', example='cn-shanghai', position='Path'),
+  serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='echo', position='Path'),
+  version: int32(name='Version', description='The destination version of the service. The value must be of the INT type. The value must be greater than 0 and smaller than the current version of the service.', example='1', position='Body'),
 }
 
 model UpdateServiceVersionResponseBody = {
-  message?: string(name='Message', example='Service [foo] in region [cn-shanghai] is starting'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  message?: string(name='Message', description='The returned message.', example='Service [foo] in region [cn-shanghai] is starting'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
 model UpdateServiceVersionResponse = {
