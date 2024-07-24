@@ -216,6 +216,7 @@ model Nodepool {
       id?: string(name='id'),
       matchCriteria?: string(name='match_criteria'),
     }(name='private_pool_options'),
+    ramRoleName?: string(name='ram_role_name', example='example-role'),
     rdsInstances?: [ string ](name='rds_instances'),
     scalingPolicy?: string(name='scaling_policy', example='release'),
     securityGroupId?: string(name='security_group_id', example='sg-2zeihch86ooz9io4****'),
@@ -548,9 +549,12 @@ async function checkServiceRole(request: CheckServiceRoleRequest): CheckServiceR
 }
 
 model CleanClusterUserPermissionsRequest {
-  clusterId: string(name='ClusterId', example='c5b5e80b0b64a4bf6939d2d8fbbc5****', position='Path'),
-  uid: string(name='Uid', example='2xxxxxxxxxxxxxxxxxx', position='Path'),
-  force?: boolean(name='Force', example='false', position='Query'),
+  clusterId: string(name='ClusterId', description='The ID of the cluster.', example='c5b5e80b0b64a4bf6939d2d8fbbc5****', position='Path'),
+  uid: string(name='Uid', description='The ID of the specified Resource Access Management (RAM) user or RAM role within the Alibaba Cloud account.', example='2xxxxxxxxxxxxxxxxxx', position='Path'),
+  force?: boolean(name='Force', description='Specifies whether to forcefully delete the specified kubeconfig files. Valid values:
+
+*   **false** (default): checks the cluster access records within the previous seven days before deleting the kubeconfig files. The kubeconfig files are not deleted if cluster access records are found or fail to be retrieved.
+*   **true**: forcefully deletes the kubeconfig files without checking cluster access records.', example='false', position='Query'),
 }
 
 model CleanClusterUserPermissionsResponse = {
@@ -558,20 +562,32 @@ model CleanClusterUserPermissionsResponse = {
   statusCode?: int32(name='statusCode'),
 }
 
+/**
+  * > 
+  * *   To call this operation, make sure that you have the AliyunCSFullAccess permissions.
+  * *   You cannot revoke the permissions of an Alibaba Cloud account.
+  * *   You cannot revoke the permissions of the account that you use to call this operation.
+  *
+ */
 async function cleanClusterUserPermissions(request: CleanClusterUserPermissionsRequest): CleanClusterUserPermissionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CleanClusterUserPermissions', 'DELETE', '/cluster/{ClusterId}/user/{Uid}/permissions', 'none', false, 'json', request);
 }
 
 model CleanUserPermissionsRequest {
-  uid: string(name='Uid', example='26562443851650****', position='Path'),
-  clusterIds?: [ string ](name='ClusterIds', shrink='simple', position='Query'),
-  force?: boolean(name='Force', example='false', position='Query'),
+  uid: string(name='Uid', description='The ID of the specified Resource Access Management (RAM) user or RAM role within the Alibaba Cloud account.', example='26562443851650****', position='Path'),
+  clusterIds?: [ string ](name='ClusterIds', description='The cluster IDs.
+
+*   If cluster IDs are specified, only the kubeconfig files of the specified clusters and the relevant RBAC permissions are deleted and revoked.', shrink='simple', position='Query'),
+  force?: boolean(name='Force', description='Specifies whether to forcefully delete the specified kubeconfig files. Valid values:
+
+*   **false** (default): checks the cluster access records within the previous seven days before deleting the kubeconfig files. The kubeconfig files are not deleted if cluster access records are found or fail to be retrieved.
+*   **true**: forcefully deletes the kubeconfig files without checking cluster access records.', example='false', position='Query'),
 }
 
 model CleanUserPermissionsResponseBody = {
-  requestId?: string(name='request_id'),
-  taskId?: string(name='task_id'),
+  requestId?: string(name='request_id', description='请求ID。', example='687C5BAA-D103-4993-884B-C35E4314****'),
+  taskId?: string(name='task_id', description='任务ID', example='clean-user-permissions-2085266204********-6694c16e6ae07***********'),
 }
 
 model CleanUserPermissionsResponse = {
@@ -580,6 +596,12 @@ model CleanUserPermissionsResponse = {
   body?: CleanUserPermissionsResponseBody(name='body'),
 }
 
+/**
+  * >- To call this operation, make sure that you have the AliyunCSFullAccess permissions.
+  * >- You cannot revoke the permissions of an Alibaba Cloud account.
+  * >- You cannot revoke the permissions of the account that you use to call this operation.
+  *
+ */
 async function cleanUserPermissions(request: CleanUserPermissionsRequest): CleanUserPermissionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CleanUserPermissions', 'DELETE', '/users/{Uid}/permissions', 'json', false, 'json', request);
@@ -2430,7 +2452,7 @@ For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, t
     taints?: [
       Taint
     ](name='taints', description='The taints of the nodes in the node pool. Taints are added to nodes to prevent pods from being scheduled to inappropriate nodes. However, tolerations allow pods to be scheduled to nodes with matching taints. For more information, see [taint-and-toleration](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/taint-and-toleration/).'),
-    unschedulable?: boolean(name='unschedulable', description='扩容后的节点是否可调度。', example='true'),
+    unschedulable?: boolean(name='unschedulable', example='true'),
     userData?: string(name='user_data', description='The user data of the node pool. For more information, see [Generate user data](~~49121~~).', example='IyEvYmluL3NoCmVjaG8gIkhlbGxvIEFDSyEi'),
   }(name='kubernetes_config', description='The configuration of the cluster where the node pool is deployed.'),
   management?: {
@@ -2439,17 +2461,17 @@ For example, if the node IP address is 192.168.0.55, the prefix is aliyun.com, t
 *   `true`: Auto repair is enabled.
 *   `false`: Auto repair is disabled.', example='true'),
     autoRepairPolicy?: {
-      restartNode?: boolean(name='restart_node', description='是否允许重启节点。', example='true'),
-    }(name='auto_repair_policy', description='自动修复节点策略。'),
-    autoUpgrade?: boolean(name='auto_upgrade', description='是否自动升级。', example='true'),
+      restartNode?: boolean(name='restart_node', example='true'),
+    }(name='auto_repair_policy'),
+    autoUpgrade?: boolean(name='auto_upgrade', example='true'),
     autoUpgradePolicy?: {
-      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', description='是否允许自动升级kubelet。', example='true'),
-    }(name='auto_upgrade_policy', description='自动升级策略。'),
-    autoVulFix?: boolean(name='auto_vul_fix', description='是否自动修复CVE。', example='true'),
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', example='true'),
+    }(name='auto_upgrade_policy'),
+    autoVulFix?: boolean(name='auto_vul_fix', example='true'),
     autoVulFixPolicy?: {
-      restartNode?: boolean(name='restart_node', description='是否允许重启节点。', example='true'),
-      vulLevel?: string(name='vul_level', description='允许自动修复的漏洞级别，以逗号分隔。', example='asap,nntf'),
-    }(name='auto_vul_fix_policy', description='自动修复CVE策略。'),
+      restartNode?: boolean(name='restart_node', example='true'),
+      vulLevel?: string(name='vul_level', example='asap,nntf'),
+    }(name='auto_vul_fix_policy'),
     enable?: boolean(name='enable', description='Indicates whether the managed node pool feature is enabled. Valid values:
 
 *   `true`: The managed node pool feature is enabled.
@@ -2468,8 +2490,8 @@ Default value: 1.', example='1'),
   }(name='management', description='The configuration of the managed node pool feature.'),
   maxNodes?: long(name='max_nodes', description='The maximum number of nodes that are supported by the edge node pool. The value of this parameter must be equal to or greater than 0. A value of 0 indicates that the number of nodes in the node pool is limited only by the quota of nodes in the cluster. In most cases, this parameter is set to a value larger than 0 for edge node pools. This parameter is set to 0 for node pools whose types are ess or default edge node pools.', example='10'),
   nodeConfig?: {
-    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration', description='Kubelet参数配置。'),
-  }(name='node_config', description='节点配置'),
+    kubeletConfiguration?: KubeletConfig(name='kubelet_configuration'),
+  }(name='node_config'),
   nodepoolInfo?: {
     created?: string(name='created', description='The time when the node pool was created.', example='2020-09-27T19:14:09.156823496+08:00'),
     isDefault?: boolean(name='is_default', description='Indicates whether the node pool is a default node pool. A Container Service for Kubernetes (ACK) cluster usually has only one default node pool. Valid values: `true`: The node pool is a default node pool. `false`: The node pool is not a default node pool.', example='true'),
@@ -2490,7 +2512,7 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
     autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
 If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='1'),
-    cisEnabled?: boolean(name='cis_enabled', description='【已废弃】请使用参数security_hardening_os替代。', example='false', deprecated='true'),
+    cisEnabled?: boolean(name='cis_enabled', example='false', deprecated='true'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as cost or insufficient inventory. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: Pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created.
@@ -2501,19 +2523,19 @@ If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', ex
     deploymentsetId?: string(name='deploymentset_id', description='The ID of the deployment set to which the ECS instances in the node pool belong.', example='ds-bp1d19mmbsv3jf6xxxxx'),
     desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
     imageId?: string(name='image_id', description='The ID of the custom image. You can call the `DescribeKubernetesVersionMetadata` operation to query the images supported by ACK.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd'),
-    imageType?: string(name='image_type', description='操作系统镜像类型。', example='AliyunLinux'),
+    imageType?: string(name='image_type', example='AliyunLinux'),
     instanceChargeType?: string(name='instance_charge_type', description='The billing method of the nodes in the node pool. Valid values:
 
 *   `PrePaid`: the subscription billing method.
 *   `PostPaid`: the pay-as-you-go billing method.', example='PostPaid'),
     instancePatterns?: [
       InstancePatterns
-    ](name='instance_patterns'),
+    ](name='instance_patterns', description='实例属性'),
     instanceTypes?: [ string ](name='instance_types', description='A list of instance types. You can select multiple instance types. When the system needs to create a node, it starts from the first instance type until the node is created. The instance type that is used to create the node varies based on the actual instance stock.'),
     internetChargeType?: string(name='internet_charge_type', description='The billing method of the public IP address of the node.', example='PayByBandwidth'),
     internetMaxBandwidthOut?: long(name='internet_max_bandwidth_out', description='The maximum outbound bandwidth of the public IP address of the node. Unit: Mbit/s. Valid values: 1 to 100.', example='10'),
     keyPair?: string(name='key_pair', description='The name of the key pair. You must set this parameter or the `login_password` parameter. You must set `key_pair` if the node pool is a managed node pool.', example='pro-nodepool'),
-    loginAsNonRoot?: boolean(name='login_as_non_root', description='弹出的ECS实例是否使用以非root用户登录。', example='true'),
+    loginAsNonRoot?: boolean(name='login_as_non_root', example='true'),
     loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.
 
 For security purposes, the returned password is encrypted.', example='********'),
@@ -2553,7 +2575,7 @@ Valid value: `Month`.', example='Month'),
 *   `None`: no private node pool is used. The resources of private node pools are not used to launch the instances.', example='Open'),
     }(name='private_pool_options', description='The configuration of the private node pool.'),
     ramPolicy?: string(name='ram_policy', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage ECS instances.', example='KubernetesWorkerRole-021dc54f-929b-437a-8ae0-34c24d3e****'),
-    ramRoleName?: string(name='ram_role_name', example='KubernetesWorkerRole-4a4fa089-80c1-48a5-b3c6-9349311f****'),
+    ramRoleName?: string(name='ram_role_name', description='Worker RAM角色名称。', example='KubernetesWorkerRole-4a4fa089-80c1-48a5-b3c6-9349311f****'),
     rdsInstances?: [ string ](name='rds_instances', description='After you specify the list of RDS instances, the ECS instances in the cluster are automatically added to the whitelist of the RDS instances.'),
     scalingGroupId?: string(name='scaling_group_id', description='The ID of the scaling group.', example='asg-2zeieod8giqmov7z****'),
     scalingPolicy?: string(name='scaling_policy', description='The scaling mode of the scaling group. Valid values:
@@ -2562,13 +2584,8 @@ Valid value: `Month`.', example='Month'),
 *   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached with local disks.', example='release'),
     securityGroupId?: string(name='security_group_id', description='The ID of the security group to which the node pool is added. If the node pool is added to multiple security groups, the first ID in the value of `security_group_ids` is returned.', example='sg-2ze60ockeekspl3d****'),
     securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of the security groups to which the node pool is added.'),
-    securityHardeningOs?: boolean(name='security_hardening_os', description='阿里云OS安全加固。取值：
-
-- `true`：开启阿里云OS安全加固。
-- `false`：不开启阿里云OS安全加固。
-
-默认值：`false`。', example='false'),
-    socEnabled?: boolean(name='soc_enabled', description='是否开启等保加固，仅当系统镜像选择Alibaba Cloud Linux 2或Alibaba Cloud Linux 3时，可为节点开启等保加固。阿里云为Alibaba Cloud Linux 2和Alibaba Cloud Linux 3等保2.0三级版镜像提供等保合规的基线检查标准和扫描程序。', example='false'),
+    securityHardeningOs?: boolean(name='security_hardening_os', example='false'),
+    socEnabled?: boolean(name='soc_enabled', example='false'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances are supplemented when the number of preemptible instances drops below the specified minimum number. If this parameter is set to true, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values: Valid values:
 
@@ -2576,8 +2593,8 @@ Valid value: `Month`.', example='Month'),
 *   `false`: Supplementation of preemptible instances is disabled.', example='false'),
     spotPriceLimit?: [ 
       {
-        instanceType?: string(name='instance_type', description='The instance type of preemptible instances.', example='ecs.c6.large'),
-        priceLimit?: string(name='price_limit', description='The price limit of a preemptible instance.
+        instanceType?: string(name='instance_type', description='The instance type of the preemptible instances.', example='ecs.c6.large'),
+        priceLimit?: string(name='price_limit', description='The price cap of a preemptible instance of the type.
 
 Unit: USD/hour.', example='0.39'),
       }
@@ -2589,27 +2606,35 @@ Unit: USD/hour.', example='0.39'),
 *   SpotAsPriceGo: a preemptible instance for which the system automatically bids based on the current market price.
 
 For more information, see [Preemptible instances](~~157759~~).', example='NoSpot'),
-    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', description='节点系统盘是否开启Burst（性能突发），磁盘类型为cloud_auto时配置。', example='true'),
-    systemDiskCategories?: [ string ](name='system_disk_categories', description='系统盘的多磁盘类型。当无法使用高优先级的磁盘类型时，自动尝试下一优先级的磁盘类型创建系统盘。取值：
-- `cloud`：普通云盘。
-- `cloud_efficiency`：高效云盘。
-- `cloud_ssd`：SSD云盘。
-- `cloud_essd`：ESSD云盘。
-- `cloud_auto`：ESSD AutoPL 云盘。
-- `cloud_essd_entry`：ESSD Entry 云盘。
+    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', example='true'),
+    systemDiskCategories?: [ string ](name='system_disk_categories', description='The system disk types. The system attempts to create system disks from a disk type with a lower priority when the disk type with a higher priority is unavailable. Valid values: Valid values:
 
-默认值：`cloud_efficiency`'),
-    systemDiskCategory?: string(name='system_disk_category', description='The type of system disk. Valid values:
+*   `cloud`: basic disk
+*   `cloud_efficiency`: ultra disk
+*   `cloud_ssd`: standard SSD
+*   `cloud_essd`: ESSD
+*   `cloud_auto`: ESSD AutoPL disk
+*   `cloud_essd_entry`: ESSD Entry disk
 
-*   `cloud_efficiency`: ultra disk.
-*   `cloud_ssd`: standard SSD.', example='cloud_efficiency'),
-    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', description='系统盘采用的加密算法。取值范围：aes-256。', example='aes-256'),
-    systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='是否加密系统盘。取值：
-- `true`：加密。
-- `false`：不加密。', example='false'),
-    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', description='系统盘使用的KMS密钥ID。', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
+Default value: `cloud_efficiency`.'),
+    systemDiskCategory?: string(name='system_disk_category', description='The system disk type. Valid values:
+
+*   `cloud`: basic disk
+*   `cloud_efficiency`: ultra disk
+*   `cloud_ssd`: standard SSD
+*   `cloud_essd`: Enterprise SSD (ESSD)
+*   `cloud_auto`: ESSD AutoPL disk
+*   `cloud_essd_entry`: ESSD Entry disk
+
+Default value: `cloud_efficiency`.', example='cloud_efficiency'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', example='aes-256'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='Specifies whether to encrypt the system disk. Valid values: Valid values:
+
+*   `true`: encrypts the system disk.
+*   `false`: does not encrypt the system disk.', example='false'),
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for enhanced SSDs (ESSDs).', example='PL1'),
-    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', description='节点系统盘预配置的读写IOPS，磁盘类型为cloud_auto时配置。', example='1000'),
+    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', example='1000'),
     systemDiskSize?: long(name='system_disk_size', description='The system disk size of a node. Unit: GiB.
 
 Valid values: 20 to 500.', example='120'),
@@ -2621,7 +2646,7 @@ A key must be unique and cannot exceed 128 characters in length. Neither keys no
     vswitchIds?: [ string ](name='vswitch_ids', description='The IDs of vSwitches. You can specify 1 to 20 vSwitches.
 
 > We recommend that you select vSwitches in different zones to ensure high availability.'),
-  }(name='scaling_group', description='The configuration of the scaling group.'),
+  }(name='scaling_group', description='The configurations of the scaling group.'),
   status?: {
     failedNodes?: long(name='failed_nodes', description='The number of failed nodes.', example='0'),
     healthyNodes?: long(name='healthy_nodes', description='The number of healthy nodes.', example='3'),
@@ -3058,7 +3083,7 @@ model DescribeClusterResourcesRequest {
 For more information about how to query cluster IDs, see [View cluster information](~~89446~~).
 
 You can also call the [DescribeClustersV1](~~183905~~) API operation to query all clusters that belong to an Alibaba Cloud account.', example='cb95aa626a47740afbf6aa099b65****', position='Path'),
-  withAddonResources?: boolean(name='with_addon_resources', position='Query'),
+  withAddonResources?: boolean(name='with_addon_resources', description='Specifies whether to query the resources created by cluster components at the same time.', position='Query'),
 }
 
 model DescribeClusterResourcesResponse = {
@@ -3069,40 +3094,44 @@ model DescribeClusterResourcesResponse = {
       clusterId?: string(name='cluster_id', description='The cluster ID.', example='cb95aa626a47740afbf6aa099b65****'),
       created?: string(name='created', description='The time when the resource was created.', example='2020-09-11T10:11:54+08:00'),
       instanceId?: string(name='instance_id', description='The resource ID.', example='lb-wz9poz4r0ymh8u0uf****'),
-      resourceInfo?: string(name='resource_info', description='The information about the resource. For more information about how to query the source information about a resource, see [ListStackResources](~~133836~~).', example='{\\"Id\\":\\"k8s_master_slb\\",\\"Name\\":\\"k8s_master_slb\\",\\"Type\\":\\"ALIYUN::SLB::LoadBalancer\\",\\"Status\\":\\"CREATE_COMPLETE\\",\\"StatusReason\\":\\"state changed\\",\\"Updated\\":\\"2020-05-21T13:25:02\\",\\"PhysicalId\\":\\"lb-wz9poz4r0ymh8u0uf****\\"}'),
+      resourceInfo?: string(name='resource_info', description='The resource information. For more information about how to query the source information about the resource, see [ListStackResources](~~133836~~).', example='{\\"Id\\":\\"k8s_master_slb\\",\\"Name\\":\\"k8s_master_slb\\",\\"Type\\":\\"ALIYUN::SLB::LoadBalancer\\",\\"Status\\":\\"CREATE_COMPLETE\\",\\"StatusReason\\":\\"state changed\\",\\"Updated\\":\\"2020-05-21T13:25:02\\",\\"PhysicalId\\":\\"lb-wz9poz4r0ymh8u0uf****\\"}'),
       resourceType?: string(name='resource_type', description='The resource type.', example='ALIYUN::SLB::LoadBalancer'),
       state?: string(name='state', description='The resource status. Valid values:
 
-*   `CREATE_COMPLETE`: The resource is created.
-*   `CREATE_FAILED`: The resource failed to be created.
-*   `CREATE_IN_PROGRESS`: The resource is being created.
-*   `DELETE_FAILED`: The resource failed to be deleted.
-*   `DELETE_IN_PROGRESS`: The resource is being deleted.
-*   `ROLLBACK_COMPLETE`: The resource is rolled back.
-*   `ROLLBACK_FAILED`: The resource failed to be rolled back.
-*   `ROLLBACK_IN_PROGRESS`: The resource is being rolled back.', example='CREATE_COMPLETE'),
-      autoCreate?: long(name='auto_create', description='Indicates whether the resource is created by Container Service for Kubernetes (ACK). Valid values:
+*   `CREATE_COMPLETE`: the resource is created.
+*   `CREATE_FAILED`: the resource failed to be created.
+*   `CREATE_IN_PROGRESS`: the resource is being created.
+*   `DELETE_FAILED`: the resource failed to be deleted.
+*   `DELETE_IN_PROGRESS`: the resource is being deleted.
+*   `ROLLBACK_COMPLETE`: the resource is rolled back.
+*   `ROLLBACK_FAILED`: the resource failed to be rolled back.
+*   `ROLLBACK_IN_PROGRESS`: the resource is being rolled back.', example='CREATE_COMPLETE'),
+      autoCreate?: long(name='auto_create', description='Specifies whether the resource is created by Container Service for Kubernetes (ACK). Valid values:
 
-*   1: The resource is created by ACK.
-*   0: The resource is an existing resource.', example='1'),
+*   1: the resource is created by ACK.
+*   0: the resource is an existing resource.', example='1'),
       dependencies?: [ 
         {
           clusterId?: string(name='cluster_id'),
           resourceType?: string(name='resource_type'),
           instanceId?: string(name='instance_id'),
         }
-      ](name='dependencies'),
+      ](name='dependencies', description='The dependent resources.'),
       associatedObject?: {
-        kind?: string(name='kind'),
-        namespace?: string(name='namespace'),
-        name?: string(name='name'),
-      }(name='associated_object'),
+        kind?: string(name='kind', description='The Kubernetes object type.', example='Service'),
+        namespace?: string(name='namespace', description='The namespace in which the Kubernetes object resides.', example='kube-system'),
+        name?: string(name='name', description='The Kubernetes object name.', example='nginx-ingress-lb'),
+      }(name='associated_object', description='The Kubernetes object with which the resource is associated.'),
       deleteBehavior?: {
-        deleteByDefault?: boolean(name='delete_by_default'),
-        changeable?: boolean(name='changeable'),
-      }(name='delete_behavior'),
-      creatorType?: string(name='creator_type'),
-      extraInfo?: map[string]any(name='extra_info'),
+        deleteByDefault?: boolean(name='delete_by_default', description='Specifies whether to delete the resource by default when the cluster is deleted.', example='false'),
+        changeable?: boolean(name='changeable', description='Specifies whether the default behavior returned in delete_by_default can be changed.', example='false'),
+      }(name='delete_behavior', description='The deletion behavior of the resource when the cluster is deleted.'),
+      creatorType?: string(name='creator_type', description='The type of the resource creator. Valid values:
+
+*   user: the resource is created by the user.
+*   system: the resource is created by the ACK management system.
+*   addon: the resource is created by a cluster component.', example='addon'),
+      extraInfo?: map[string]any(name='extra_info', description='The additional information about the resource.', example='{"IP": "xx.xx.xx.xx"}'),
     }
   ](name='body'),
 }
@@ -4861,29 +4890,47 @@ async function listClusterChecks(request: ListClusterChecksRequest): ListCluster
 }
 
 model ListClusterKubeconfigStatesRequest {
-  clusterId?: string(name='ClusterId', example='c82e6987e2961451182edacd74faf****', position='Path'),
-  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
-  pageSize?: int32(name='pageSize', example='10', position='Query'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  pageNumber?: int32(name='pageNumber', description='The page number.
+
+*   Valid values: ≥ 1.
+*   Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.
+
+*   Valid values: 10 to 50.
+*   Default value: 10.', example='10', position='Query'),
 }
 
 model ListClusterKubeconfigStatesResponseBody = {
   page?: {
-    pageNumber?: int32(name='page_number', example='1'),
-    pageSize?: int32(name='page_size', example='10'),
-    totalCount?: int32(name='total_count', example='5'),
-  }(name='page'),
+    pageNumber?: int32(name='page_number', description='The page number.', example='1'),
+    pageSize?: int32(name='page_size', description='The number of entries per page.', example='10'),
+    totalCount?: int32(name='total_count', description='The total number of entries returned.', example='5'),
+  }(name='page', description='The pagination information.'),
   states?: [ 
     {
-      accountDisplayName?: string(name='account_display_name', example='tom'),
-      accountId?: string(name='account_id', example='22855*****************'),
-      accountName?: string(name='account_name', example='tom'),
-      accountState?: string(name='account_state', example='Active'),
-      accountType?: string(name='account_type', example='RamUser'),
-      certExpireTime?: string(name='cert_expire_time', example='2027-07-15T01:32:20Z'),
-      certState?: string(name='cert_state', example='Expired'),
-      revokable?: boolean(name='revokable', example='true'),
+      accountDisplayName?: string(name='account_display_name', description='The display name of the account.', example='tom'),
+      accountId?: string(name='account_id', description='The ID of an Alibaba Cloud account, RAM user, or RAM role.', example='22855*****************'),
+      accountName?: string(name='account_name', description='The name of the account.', example='tom'),
+      accountState?: string(name='account_state', description='The status of the account. Valid values:
+
+*   Active: The account is active.
+*   InActive: The account is locked.
+*   Deleted: The account is deleted.', example='Active'),
+      accountType?: string(name='account_type', description='The type of the account. Valid values:
+
+*   RootAccount: Alibaba Cloud account.
+*   RamUser: RAM user.
+*   RamRole: RAM role.', example='RamUser'),
+      certExpireTime?: string(name='cert_expire_time', description='Expiration time of the certificate.', example='2027-07-15T01:32:20Z'),
+      certState?: string(name='cert_state', description='The status of the certificate.
+
+*   Unexpired: The certificate is not expired.
+*   Expired: The certificate is expired.
+*   Unknown: The status of the certificate is unknown.', example='Expired'),
+      revokable?: boolean(name='revokable', description='Indicates whether the certificate can be revoked.', example='true'),
     }
-  ](name='states'),
+  ](name='states', description='The status of the kubeconfig files associated with the cluster.'),
 }
 
 model ListClusterKubeconfigStatesResponse = {
@@ -4892,6 +4939,12 @@ model ListClusterKubeconfigStatesResponse = {
   body?: ListClusterKubeconfigStatesResponseBody(name='body'),
 }
 
+/**
+  * > 
+  * *   To call this operation, make sure that you have ram:ListUsers and ram:ListRoles permissions.
+  * *   To call this operation, make sure that you have the AliyunCSFullAccess permissions.
+  *
+ */
 async function listClusterKubeconfigStates(request: ListClusterKubeconfigStatesRequest): ListClusterKubeconfigStatesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListClusterKubeconfigStates', 'GET', '/clusters/{ClusterId}/kubeconfig/states', 'json', false, 'json', request);
@@ -4971,26 +5024,53 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ListUserKubeConfigStatesRequest {
-  uid?: string(name='Uid', example='2xxxxxxxxxxxxxxxxxx', position='Path'),
-  pageNumber?: int32(name='page_number', example='2', position='Query'),
-  pageSize?: int32(name='page_size', example='10', position='Query'),
+  uid?: string(name='Uid', description='The ID of the specified Resource Access Management (RAM) user or RAM role within the Alibaba Cloud account.', example='2xxxxxxxxxxxxxxxxxx', position='Path'),
+  pageNumber?: int32(name='page_number', description='The page number.
+
+*   Valid values: ≥ 1.
+*   Default value: 1.', example='2', position='Query'),
+  pageSize?: int32(name='page_size', description='The number of entries per page.
+
+*   Value values: 1 to 100.
+*   Default value: 50.', example='10', position='Query'),
 }
 
 model ListUserKubeConfigStatesResponseBody = {
   page?: {
-    pageNumber?: int32(name='page_number', example='1'),
-    pageSize?: int32(name='page_size', example='10'),
-    totalCount?: int32(name='total_count', example='100'),
-  }(name='page'),
+    pageNumber?: int32(name='page_number', description='The page number of the returned page.', example='1'),
+    pageSize?: int32(name='page_size', description='The number of entries per page.', example='10'),
+    totalCount?: int32(name='total_count', description='The total number of entries returned.', example='100'),
+  }(name='page', description='The pagination information.'),
   states?: [ 
     {
-      certExpireTime?: string(name='cert_expire_time', example='2026-11-30T07:41:50Z'),
-      certState?: string(name='cert_state', example='Unissued'),
-      clusterId?: string(name='cluster_id', example='c5b5e80b0b64a4bf6939d2d8fbbc5****'),
-      clusterName?: string(name='cluster_name', example='cluster-demo'),
-      clusterState?: string(name='cluster_state', example='running'),
+      certExpireTime?: string(name='cert_expire_time', description='The expiration date of the certificate used in a kubeconfig file. Format: the UTC time in the RFC3339 format.', example='2026-11-30T07:41:50Z'),
+      certState?: string(name='cert_state', description='The current status of the certificate used in a kubeconfig file. Valid values:
+
+*   Expired: The certificate is expired.
+*   Unexpired: The certificate is not expired.
+*   Unissued: The certificate is not issued.
+*   Unknown: The status of the certificate is unknown.
+*   Removed: The certificate is removed. An issue record is found for the certificate.', example='Unissued'),
+      clusterId?: string(name='cluster_id', description='The cluster ID.', example='c5b5e80b0b64a4bf6939d2d8fbbc5****'),
+      clusterName?: string(name='cluster_name', description='The cluster name.
+
+The name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). The name cannot start with a hyphen (-).', example='cluster-demo'),
+      clusterState?: string(name='cluster_state', description='The status of the cluster. Valid values:
+
+*   `initial`: The cluster is being created.
+*   `failed`: The cluster failed to be created.
+*   `running`: The cluster is running.
+*   `updating`: The cluster is being upgraded.
+*   `updating_failed`: The cluster failed to be updated.
+*   `scaling`: The cluster is being scaled.
+*   `waiting`: The cluster is waiting for connection requests.
+*   `disconnected`: The cluster is disconnected.
+*   `stopped`: The cluster is stopped.
+*   `deleting`: The cluster is being deleted.
+*   `deleted`: The cluster is deleted.
+*   `delete_failed`: The cluster failed to be deleted.', example='running'),
     }
-  ](name='states'),
+  ](name='states', description='The status of the kubeconfig files.'),
 }
 
 model ListUserKubeConfigStatesResponse = {
@@ -4999,6 +5079,10 @@ model ListUserKubeConfigStatesResponse = {
   body?: ListUserKubeConfigStatesResponseBody(name='body'),
 }
 
+/**
+  * >  To call this operation, make sure that you have the AliyunCSFullAccess permissions.
+  *
+ */
 async function listUserKubeConfigStates(request: ListUserKubeConfigStatesRequest): ListUserKubeConfigStatesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListUserKubeConfigStates', 'GET', '/users/{Uid}/kubeconfig/states', 'json', false, 'json', request);
@@ -6184,15 +6268,22 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateClusterAuditLogConfigRequest {
-  clusterid?: string(name='clusterid', example='c82e6987e2961451182edacd74faf****', position='Path'),
-  disable?: boolean(name='disable', example='false', position='Body'),
-  slsProjectName?: string(name='sls_project_name', example='k8s-log-c82e6987e2961451182edacd74faf****', position='Body'),
+  clusterid?: string(name='clusterid', description='The cluster ID.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  disable?: boolean(name='disable', description='Enable or disable the audit log feature.
+
+*   false: enables the audit log feature or updates the audit log configuration.
+*   true: disables the audit log feature.', example='false', position='Body'),
+  slsProjectName?: string(name='sls_project_name', description='The [SLS project](https://help.aliyun.com/zh/sls/product-overview/project?spm=a2c4g.11186623.0.i3) to which the [Logstore](https://help.aliyun.com/zh/sls/product-overview/logstore?spm=a2c4g.11186623.0.0.48287ce0jAUWWM) belongs.
+
+*   Default value: k8s-log-{clusterid}.
+*   After the cluster audit log feature is enabled, a Logstore is created in the specified SLS project to store the cluster audit logs.
+*   If you want to change the project after the cluster audit log feature is enabled, you can use this parameter to specify another SLS project. You can perform this operation only in ACK managed clusters.', example='k8s-log-c82e6987e2961451182edacd74faf****', position='Body'),
 }
 
 model UpdateClusterAuditLogConfigResponseBody = {
-  clusterId?: string(name='cluster_id', example='c93095129fc41463aa455d89444fd****'),
-  requestId?: string(name='request_id', example='48BD70F6-A7E6-543D-9F23-08DEB764C92E'),
-  taskId?: string(name='task_id', example='T-5faa48fb31b6b8078d00****'),
+  clusterId?: string(name='cluster_id', description='The cluster ID.', example='c93095129fc41463aa455d89444fd****'),
+  requestId?: string(name='request_id', description='The ID of the request.', example='48BD70F6-A7E6-543D-9F23-08DEB764C92E'),
+  taskId?: string(name='task_id', description='The ID of the task.', example='T-5faa48fb31b6b8078d00****'),
 }
 
 model UpdateClusterAuditLogConfigResponse = {
@@ -6201,6 +6292,10 @@ model UpdateClusterAuditLogConfigResponse = {
   body?: UpdateClusterAuditLogConfigResponseBody(name='body'),
 }
 
+/**
+  * Before you call this operation, ensure that you understand the billing methods and pricing of [Simple Log Service](https://www.aliyun.com/price/product#/sls/detail/sls) (SLS).
+  *
+ */
 async function updateClusterAuditLogConfig(request: UpdateClusterAuditLogConfigRequest): UpdateClusterAuditLogConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateClusterAuditLogConfig', 'PUT', '/clusters/{clusterid}/audit_log', 'json', false, 'json', request);
@@ -6413,14 +6508,21 @@ model UpgradeClusterAddonsRequest {
   ](name='body', description='The request parameters.', position='Body'),
 }
 
+model UpgradeClusterAddonsResponseBody = {
+  clusterId?: string(name='cluster_id'),
+  requestId?: string(name='request_id'),
+  taskId?: string(name='task_id'),
+}
+
 model UpgradeClusterAddonsResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
+  body?: UpgradeClusterAddonsResponseBody(name='body'),
 }
 
 async function upgradeClusterAddons(request: UpgradeClusterAddonsRequest): UpgradeClusterAddonsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'UpgradeClusterAddons', 'POST', '/clusters/{ClusterId}/components/upgrade', 'none', false, 'json', request);
+  return @handler.do('RESTFUL', 'UpgradeClusterAddons', 'POST', '/clusters/{ClusterId}/components/upgrade', 'json', false, 'json', request);
 }
 
 model UpgradeClusterNodepoolRequest {
