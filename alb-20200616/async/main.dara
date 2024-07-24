@@ -457,7 +457,7 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error code is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
 *   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a **2xx** HTTP status code is returned and the operation is performed.', example='true', position='Query'),
-  healthCheckCodes?: [ string ](name='HealthCheckCodes', description='The HTTP status codes that indicate healthy backend servers.', example='5', position='Query'),
+  healthCheckCodes?: [ string ](name='HealthCheckCodes', description='The HTTP status codes that indicate a healthy backend server.', example='5', position='Query'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks.
 
 Valid values: **0 to 65535**.
@@ -468,36 +468,37 @@ Default value: **0**. If you set the value to 0, the port of a backend server is
 *   **$SERVER_IP**: the private IP addresses of backend servers. If an IP address is specified, or this parameter is not specified, the ALB instance uses the private IP addresses of backend servers as domain names for health checks.
 *   **domain**: The domain name must be 1 to 80 characters in length, and can contain letters, digits, periods (.), and hyphens (-).
 
->  This parameter takes effect only when `HealthCheckProtocol` is set to **HTTP** or **HTTPS**. HTTPS is unavailable by default. If you want to use HTTPS, log on to the SLB console, go to the Quota Center page, click the **ALB** tab, and then apply for the privilege to use HTTPS.', example='$_ip', position='Query'),
-  healthCheckHttpVersion?: string(name='HealthCheckHttpVersion', description='The HTTP version that is used for health checks.
+>  This parameter takes effect only if `HealthCheckProtocol` is set to **HTTP** or **HTTPS**.', example='$_ip', position='Query'),
+  healthCheckHttpVersion?: string(name='HealthCheckHttpVersion', description='The HTTP version for health checks.
 
 Valid values: **HTTP 1.0** and **HTTP 1.1**.
 
 Default value: **HTTP 1.1**.
 
-> This parameter is valid only if the `HealthCheckProtocol` parameter is set to **HTTP**.', example='HTTP 1.0', position='Query'),
+>  This parameter is available only if `HealthCheckProtocol` is set to **HTTP** or **HTTPS**.', example='HTTP 1.0', position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed.
 
 Valid values: **1 to 50**.
 
 Default value: **2**.', example='2', position='Query'),
-  healthCheckMethod?: string(name='HealthCheckMethod', description='The method that you want to use for the health check. Valid values:
+  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP method that is used for health checks. Valid values:
 
-*   **HEAD**: By default, the ALB instance sends HEAD requests to a backend server to perform HTTP health checks.
-*   **POST**: gRPC health checks automatically use the POST method.
+*   **HEAD** (default): By default, HTTP and HTTPS health checks use the HEAD method.
+*   **POST**: gRPC health checks use the POST method by default.
 *   **GET**: If the length of a response exceeds 8 KB, the response is truncated. However, the health check result is not affected.
 
-> This parameter takes effect only when the **HealthCheckProtocol** parameter is set to **HTTP** or **gRPC**.', example='HEAD', position='Query'),
+>  This parameter is available only if **HealthCheckProtocol** is set to **HTTP**, **HTTPS**, or **gRPC**.', example='HEAD', position='Query'),
   healthCheckPath?: string(name='HealthCheckPath', description='The URL that is used for health checks.
 
-It must be 1 to 80 characters in length, and can contain letters, digits, hyphens (-), forward slashes (/), periods (.), percent signs (%), question marks (?), number signs (#), and ampersands (&). It can also contain the following extended characters: `_ ; ~ ! ( ) * [ ] @ $ ^ : \\" , +`. The URL must start with a forward slash (/).
+The URL must be 1 to 80 characters in length, and can contain letters, digits, the following special characters: - / . % ? # &, and the following extended characters: `_ ; ~ ! ( ) * [ ] @ $ ^ : \\" , +`. The URL must start with a forward slash (/).
 
-> This parameter is valid only if the `HealthCheckProtocol` parameter is set to **HTTP**.', example='/test/index.html', position='Query'),
-  healthCheckProtocol?: string(name='HealthCheckProtocol', description='The protocol that you want to use for health checks. Valid values:
+>  This parameter is available only if `HealthCheckProtocol` is set to **HTTP** or **HTTPS**.', example='/test/index.html', position='Query'),
+  healthCheckProtocol?: string(name='HealthCheckProtocol', description='The protocol that is used for health checks. Valid values:
 
-*   **HTTP** (default): To perform HTTP health checks, ALB sends HEAD or GET requests to a backend server to check whether the backend server is healthy.
-*   **TCP**: To perform TCP health checks, ALB sends SYN packets to a backend server to check whether the port of the backend server is available to receive requests.
-*   **gRPC**: To perform gRPC health checks, ALB sends POST or GET requests to a backend server to check whether the backend server is healthy.', example='HTTP', position='Query'),
+*   **HTTP** (default): HTTP health checks simulate browser behaviors by sending HEAD or GET requests to probe the availability of backend servers.
+*   **HTTPS**: The ALB instance sends HEAD or GET requests, which simulate browser requests, to check whether the backend server is healthy. HTTPS supports encryption and provides higher security than HTTP.
+*   **TCP**: TCP health checks send TCP SYN packets to a backend server to check whether the port of the backend server is reachable.
+*   **gRPC**: gRPC health checks send POST or GET requests to a backend server to check whether the backend server is healthy.', example='HTTP', position='Query'),
   healthCheckTemplateName: string(name='HealthCheckTemplateName', description='The name of the health check template.
 
 The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (\\_), and hyphens (-). The name must start with a letter.', example='HealthCheckTemplate1', position='Query'),
@@ -2807,7 +2808,7 @@ model GetLoadBalancerAttributeResponseBody = {
   loadBalancerBillingConfig?: {
     payType?: string(name='PayType', description='The billing method.
 
-Set the value to **PostPay**, which indicates the pay-as-you-go billing method.', example='PostPay'),
+Only **PostPay** is returned, which indicates the pay-as-you-go billing method.', example='PostPay'),
   }(name='LoadBalancerBillingConfig', description='The billing method of the ALB instance.'),
   loadBalancerBussinessStatus?: string(name='LoadBalancerBussinessStatus', description='The service status of the ALB instance. Valid values:
 
@@ -2894,16 +2895,14 @@ This parameter takes effect when **AddressIPVersion** is set to **IPv4** or **Du
 This parameter takes effect only when **AddressIPVersion** is set to **DualStack**. The network type is determined by the value of **Ipv6AddressType**.', example='2408:XXXX:39d:eb00::/56'),
           ipv6AddressHcStatus?: string(name='Ipv6AddressHcStatus'),
         }
-      ](name='LoadBalancerAddresses', description='The IP address of the ALB instance.'),
+      ](name='LoadBalancerAddresses', description='The address of the ALB instance.'),
       status?: string(name='Status'),
       vSwitchId?: string(name='VSwitchId', description='The vSwitch in the zone. You can specify only one vSwitch (subnet) in each zone of an ALB instance.', example='vsw-bp12mw1f8k3jgy****'),
       zoneId?: string(name='ZoneId', description='The zone ID of the ALB instance.
 
 You can call the [DescribeZones](~~189196~~) operation to query the most recent zone list.', example='cn-hangzhou-a'),
     }
-  ](name='ZoneMappings', description='The zone ID of the ALB instance.
-
-You can call the [DescribeZones](~~189196~~) operation to query the zones of the ALB instance.'),
+  ](name='ZoneMappings', description='The mapping between zones and the vSwitches. You must specify at least two zones.'),
 }
 
 model GetLoadBalancerAttributeResponse = {
