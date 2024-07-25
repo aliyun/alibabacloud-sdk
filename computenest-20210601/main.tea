@@ -28,6 +28,56 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CommodityValue = {
+  result?: {
+    order?: {
+      currency?: string(name='Currency'),
+      tradeAmount?: string(name='TradeAmount'),
+      discountAmount?: string(name='DiscountAmount'),
+      originalAmount?: string(name='OriginalAmount'),
+    }(name='Order'),
+    inquiryType?: string(name='InquiryType'),
+    subOrders?: {
+      subOrder?: [ 
+        {
+          moduleInstance?: [ 
+            {
+              moduleId?: long(name='ModuleId'),
+              moduleName?: string(name='ModuleName'),
+              moduleCode?: string(name='ModuleCode'),
+              totalProductFee?: double(name='TotalProductFee'),
+              discountFee?: double(name='DiscountFee'),
+              payFee?: double(name='PayFee'),
+              priceUnit?: string(name='PriceUnit'),
+              isPricingModule?: boolean(name='IsPricingModule'),
+              needOrderPay?: boolean(name='NeedOrderPay'),
+              priceType?: string(name='PriceType'),
+              moduleAttrs?: [ 
+                {
+                  type?: long(name='Type'),
+                  name?: string(name='Name'),
+                  code?: string(name='Code'),
+                  value?: string(name='Value'),
+                  unit?: string(name='Unit'),
+                }
+              ](name='ModuleAttrs'),
+            }
+          ](name='ModuleInstance'),
+        }
+      ](name='SubOrder'),
+    }(name='SubOrders'),
+    coupons?: [ 
+      {
+        canPromFee?: double(name='CanPromFee'),
+        couponDesc?: string(name='CouponDesc'),
+        couponName?: string(name='CouponName'),
+        couponOptionNo?: string(name='CouponOptionNo'),
+        selected?: boolean(name='Selected'),
+      }
+    ](name='Coupons'),
+  }(name='Result'),
+}
+
 model CancelServiceUsageRequest {
   clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000'),
   needDelete?: boolean(name='NeedDelete', example='true'),
@@ -272,6 +322,7 @@ model CreateServiceInstanceRequest {
 
 *   **true**
 *   **false**', example='false'),
+    couponId?: string(name='CouponId'),
     payPeriod?: long(name='PayPeriod', description='The subscription duration.', example='1'),
     payPeriodUnit?: string(name='PayPeriodUnit', description='The unit of the subscription duration. Valid values:
 
@@ -351,6 +402,7 @@ model CreateServiceInstanceShrinkRequest {
 
 *   **true**
 *   **false**', example='false'),
+    couponId?: string(name='CouponId'),
     payPeriod?: long(name='PayPeriod', description='The subscription duration.', example='1'),
     payPeriodUnit?: string(name='PayPeriodUnit', description='The unit of the subscription duration. Valid values:
 
@@ -779,6 +831,7 @@ async function generateServicePolicy(request: GenerateServicePolicyRequest): Gen
 model GetServiceEstimateCostRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='qwertyuiop'),
   commodity?: {
+    couponId?: string(name='CouponId'),
     payPeriod?: int32(name='PayPeriod', description='The subscription duration.', example='1'),
     payPeriodUnit?: string(name='PayPeriodUnit', description='The unit of the subscription duration. Valid values:
 
@@ -832,7 +885,7 @@ This parameter is required.', example='service-12xxxxxx'),
 }
 
 model GetServiceEstimateCostResponseBody = {
-  commodity?: map[string]any(name='Commodity', description='Estimated commodity cost.', example='{\\\\"cmgj00059839\\\\": {\\\\"Result\\\\": {\\\\"InquiryType\\\\": \\\\"Buy\\\\", \\\\"Order\\\\": {\\\\"Currency\\\\": \\\\"CNY\\\\", \\\\"DiscountAmount\\\\": \\\\"0.0\\\\", \\\\"TradeAmount\\\\": \\\\"0.01\\\\", \\\\"OriginalAmount\\\\": \\\\"0.01\\\\"}}}}'),
+  commodity?: map[string]CommodityValue(name='Commodity', description='Estimated commodity cost.', example='{\\\\"cmgj00059839\\\\": {\\\\"Result\\\\": {\\\\"InquiryType\\\\": \\\\"Buy\\\\", \\\\"Order\\\\": {\\\\"Currency\\\\": \\\\"CNY\\\\", \\\\"DiscountAmount\\\\": \\\\"0.0\\\\", \\\\"TradeAmount\\\\": \\\\"0.01\\\\", \\\\"OriginalAmount\\\\": \\\\"0.01\\\\"}}}}'),
   requestId?: string(name='RequestId', description='The request ID.', example='08ABBB67-39C9-5EE7-98E5-80486F75CE8D'),
   resources?: map[string]any(name='Resources', description='Estimated resource cost.', example='{
     "EcsInstance" : {
@@ -1550,6 +1603,12 @@ async function listServiceCategories(): ListServiceCategoriesResponse {
 }
 
 model ListServiceInstanceLogsRequest {
+  filter?: [ 
+    {
+      name?: string(name='Name'),
+      value?: [ string ](name='Value'),
+    }
+  ](name='Filter'),
   logSource?: string(name='LogSource', description='The log source. Valid values:
 
 *   computeNest (default): logs of the deployment and upgrade of the service instance.
@@ -1617,6 +1676,9 @@ model ListServiceInstanceLogsResponse = {
 async function listServiceInstanceLogsWithOptions(request: ListServiceInstanceLogsRequest, runtime: Util.RuntimeOptions): ListServiceInstanceLogsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.filter)) {
+    query['Filter'] = request.filter;
+  }
   if (!Util.isUnset(request.logSource)) {
     query['LogSource'] = request.logSource;
   }
@@ -2084,15 +2146,24 @@ async function listServiceUsages(request: ListServiceUsagesRequest): ListService
 }
 
 model ListTagKeysRequest {
-  nextToken?: string(name='NextToken', example='AAAAAfu+XtuBE55iRLHEYYuojI4='),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='service'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='AAAAAfu+XtuBE55iRLHEYYuojI4='),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceType?: string(name='ResourceType', description='The resource type. Valid values:
+
+*   service: service
+*   serviceinstance: service instance
+*   artifact: artifact
+*   dataset: dataset
+
+This parameter is required.', example='service'),
 }
 
 model ListTagKeysResponseBody = {
-  keys?: [ string ](name='Keys'),
-  nextToken?: string(name='NextToken', example='AAAAAZ9FmxgN6wKfeK/GOKRnnjU='),
-  requestId?: string(name='RequestId', example='8872ACE6-0297-54A4-8AAD-3A8623EC6C5D'),
+  keys?: [ string ](name='Keys', description='Details of the tag keys.'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='AAAAAZ9FmxgN6wKfeK/GOKRnnjU='),
+  requestId?: string(name='RequestId', description='The request ID.', example='8872ACE6-0297-54A4-8AAD-3A8623EC6C5D'),
 }
 
 model ListTagKeysResponse = {
@@ -2145,16 +2216,29 @@ async function listTagKeys(request: ListTagKeysRequest): ListTagKeysResponse {
 }
 
 model ListTagValuesRequest {
-  key?: string(name='Key', description='This parameter is required.', example='ECS'),
-  nextToken?: string(name='NextToken', example='AAAAAfmTH5rcd4YFfob4P0uDAAc='),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='service'),
+  key?: string(name='Key', description='The tag key.
+
+>  This parameter is required.
+
+This parameter is required.', example='ECS'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='AAAAAfmTH5rcd4YFfob4P0uDAAc='),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceType?: string(name='ResourceType', description='The resource type. Valid values:
+
+*   service: service
+*   serviceinstance: service instance
+*   artifact: artifact
+*   dataset: dataset
+
+This parameter is required.', example='service'),
 }
 
 model ListTagValuesResponseBody = {
-  nextToken?: string(name='NextToken', example='AAAAAVz7BQqj2xtiNSC3d3RAD38='),
-  requestId?: string(name='RequestId', example='0631D623-D917-1C2D-ACD6-5B3B19XXXXXX'),
-  values?: [ string ](name='Values'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='AAAAAVz7BQqj2xtiNSC3d3RAD38='),
+  requestId?: string(name='RequestId', description='The request ID.', example='0631D623-D917-1C2D-ACD6-5B3B19XXXXXX'),
+  values?: [ string ](name='Values', description='The information of the tag values.'),
 }
 
 model ListTagValuesResponse = {
@@ -2417,19 +2501,30 @@ async function stopServiceInstance(request: StopServiceInstanceRequest): StopSer
 }
 
 model TagResourcesRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='service'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceId?: [ string ](name='ResourceId', description='The resource IDs. You can specify up to 50 resource IDs.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type. Valid values:
+
+*   service: service
+*   serviceinstance: service instance
+*   artifact: artifact
+*   dataset: dataset
+
+This parameter is required.', example='service'),
   tag?: [ 
     {
-      key?: string(name='Key', example='Key1'),
-      value?: string(name='Value', example='Value1'),
+      key?: string(name='Key', description='The tag key.', example='Key1'),
+      value?: string(name='Value', description='The tag value.', example='Value1'),
     }
-  ](name='Tag'),
+  ](name='Tag', description='The tag key and value.'),
 }
 
 model TagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
 }
 
 model TagResourcesResponse = {
@@ -2485,15 +2580,35 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UnTagResourcesRequest {
-  all?: boolean(name='All', example='false'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='This parameter is required.', example='service'),
-  tagKey?: [ string ](name='TagKey'),
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resource. Valid values:
+
+*   true: All tags are removed from the resource.
+*   false (default): The specified tags are removed from the resource.', example='false'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceId?: [ string ](name='ResourceId', description='The resource ID.
+
+You can remove tags from up to 50 resources at a time.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The resource type. Valid values:
+
+*   service: service
+*   serviceinstance: service instance
+*   artifact: artifact
+*   dataset: dataset
+
+This parameter is required.', example='service'),
+  tagKey?: [ string ](name='TagKey', description='The tag keys.
+
+You can specify a maximum of 20 tag keys.
+
+> If you set the `All` parameter to `true`, you do not need to specify tag keys.'),
 }
 
 model UnTagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
+  requestId?: string(name='RequestId', description='The request ID.', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
 }
 
 model UnTagResourcesResponse = {
