@@ -42,7 +42,7 @@ model AddImageRequest {
   }(name='ContainerImageSpec'),
   description?: string(name='Description'),
   imageVersion?: string(name='ImageVersion', example='V1.0'),
-  name?: string(name='Name', example='app-image'),
+  name?: string(name='Name', description='This parameter is required.', example='app-image'),
   VMImageSpec?: {
     imageId?: string(name='ImageId', example='m-bp1akkkr1rkxtb******'),
   }(name='VMImageSpec'),
@@ -52,7 +52,7 @@ model AddImageShrinkRequest {
   containerImageSpecShrink?: string(name='ContainerImageSpec'),
   description?: string(name='Description'),
   imageVersion?: string(name='ImageVersion', example='V1.0'),
-  name?: string(name='Name', example='app-image'),
+  name?: string(name='Name', description='This parameter is required.', example='app-image'),
   VMImageSpecShrink?: string(name='VMImageSpec'),
 }
 
@@ -68,6 +68,13 @@ model AddImageResponse = {
   body?: AddImageResponseBody(name='body'),
 }
 
+/**
+ * @summary 添加托管侧用户自定义镜像
+ *
+ * @param tmpReq AddImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddImageResponse
+ */
 async function addImageWithOptions(tmpReq: AddImageRequest, runtime: Util.RuntimeOptions): AddImageResponse {
   Util.validateModel(tmpReq);
   var request = new AddImageShrinkRequest{};
@@ -111,6 +118,12 @@ async function addImageWithOptions(tmpReq: AddImageRequest, runtime: Util.Runtim
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 添加托管侧用户自定义镜像
+ *
+ * @param request AddImageRequest
+ * @return AddImageResponse
+ */
 async function addImage(request: AddImageRequest): AddImageResponse {
   var runtime = new Util.RuntimeOptions{};
   return addImageWithOptions(request, runtime);
@@ -124,7 +137,8 @@ model CreateJobRequest {
     }(name='Network'),
   }(name='DeploymentPolicy'),
   jobDescription?: string(name='JobDescription', example='Demo'),
-  jobName?: string(name='JobName', example='testjob'),
+  jobName?: string(name='JobName', description='This parameter is required.', example='testjob'),
+  jobScheduler?: string(name='JobScheduler'),
   tasks?: [ 
     {
       executorPolicy?: {
@@ -150,6 +164,7 @@ model CreateJobRequest {
         taskExecutor?: [ 
           {
             container?: {
+              appId?: string(name='AppId'),
               command?: [ string ](name='Command'),
               environmentVars?: [ 
                 {
@@ -157,16 +172,17 @@ model CreateJobRequest {
                   value?: string(name='Value', example='/usr/local/bin'),
                 }
               ](name='EnvironmentVars'),
-              image?: string(name='Image', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc/hpl:latest'),
+              image?: string(name='Image', description='This parameter is required.', example='registry-vpc.cn-hangzhou.aliyuncs.com/ehpc/hpl:latest'),
               workingDir?: string(name='WorkingDir', example='/usr/local/'),
             }(name='Container'),
             VM?: {
-              image?: string(name='Image', example='m-xxxx'),
+              appId?: string(name='AppId'),
+              image?: string(name='Image', description='This parameter is required.', example='m-xxxx'),
               prologScript?: string(name='PrologScript', example='ZWNobyBoZWxsbyBlY3Mh'),
               script?: string(name='Script', example='ZWNobyBoZWxsbyBlY3Mh'),
             }(name='VM'),
           }
-        ](name='TaskExecutor'),
+        ](name='TaskExecutor', description='This parameter is required.'),
         volumeMount?: [ 
           {
             mountOptions?: string(name='MountOptions', example='{"server":"xxxxx-xxxxx.cn-heyuan.nas.aliyuncs.com","vers":"3","path":"/data","options":"nolock,tcp,noresvport"}'),
@@ -177,19 +193,26 @@ model CreateJobRequest {
       }(name='TaskSpec'),
       taskSustainable?: boolean(name='TaskSustainable', example='true'),
     }
-  ](name='Tasks'),
+  ](name='Tasks', description='This parameter is required.'),
 }
 
 model CreateJobShrinkRequest {
   deploymentPolicyShrink?: string(name='DeploymentPolicy'),
   jobDescription?: string(name='JobDescription', example='Demo'),
-  jobName?: string(name='JobName', example='testjob'),
-  tasksShrink?: string(name='Tasks'),
+  jobName?: string(name='JobName', description='This parameter is required.', example='testjob'),
+  jobScheduler?: string(name='JobScheduler'),
+  tasksShrink?: string(name='Tasks', description='This parameter is required.'),
 }
 
 model CreateJobResponseBody = {
   jobId?: string(name='JobId', example='job-xxxx'),
   requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+  tasks?: [ 
+    {
+      executorIds?: [ string ](name='ExecutorIds'),
+      taskName?: string(name='TaskName'),
+    }
+  ](name='Tasks'),
 }
 
 model CreateJobResponse = {
@@ -198,6 +221,13 @@ model CreateJobResponse = {
   body?: CreateJobResponseBody(name='body'),
 }
 
+/**
+ * @summary 提交任务
+ *
+ * @param tmpReq CreateJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateJobResponse
+ */
 async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.RuntimeOptions): CreateJobResponse {
   Util.validateModel(tmpReq);
   var request = new CreateJobShrinkRequest{};
@@ -217,6 +247,9 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.Runt
   }
   if (!Util.isUnset(request.jobName)) {
     query['JobName'] = request.jobName;
+  }
+  if (!Util.isUnset(request.jobScheduler)) {
+    query['JobScheduler'] = request.jobScheduler;
   }
   if (!Util.isUnset(request.tasksShrink)) {
     query['Tasks'] = request.tasksShrink;
@@ -238,6 +271,12 @@ async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.Runt
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 提交任务
+ *
+ * @param request CreateJobRequest
+ * @return CreateJobResponse
+ */
 async function createJob(request: CreateJobRequest): CreateJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return createJobWithOptions(request, runtime);
@@ -273,6 +312,13 @@ model DeleteJobsResponse = {
   body?: DeleteJobsResponseBody(name='body'),
 }
 
+/**
+ * @summary 删除作业
+ *
+ * @param tmpReq DeleteJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteJobsResponse
+ */
 async function deleteJobsWithOptions(tmpReq: DeleteJobsRequest, runtime: Util.RuntimeOptions): DeleteJobsResponse {
   Util.validateModel(tmpReq);
   var request = new DeleteJobsShrinkRequest{};
@@ -307,6 +353,12 @@ async function deleteJobsWithOptions(tmpReq: DeleteJobsRequest, runtime: Util.Ru
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 删除作业
+ *
+ * @param request DeleteJobsRequest
+ * @return DeleteJobsResponse
+ */
 async function deleteJobs(request: DeleteJobsRequest): DeleteJobsResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteJobsWithOptions(request, runtime);
@@ -338,6 +390,13 @@ model DescribeJobMetricDataResponse = {
   body?: DescribeJobMetricDataResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询作业性能数据
+ *
+ * @param tmpReq DescribeJobMetricDataRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeJobMetricDataResponse
+ */
 async function describeJobMetricDataWithOptions(tmpReq: DescribeJobMetricDataRequest, runtime: Util.RuntimeOptions): DescribeJobMetricDataResponse {
   Util.validateModel(tmpReq);
   var request = new DescribeJobMetricDataShrinkRequest{};
@@ -375,6 +434,12 @@ async function describeJobMetricDataWithOptions(tmpReq: DescribeJobMetricDataReq
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询作业性能数据
+ *
+ * @param request DescribeJobMetricDataRequest
+ * @return DescribeJobMetricDataResponse
+ */
 async function describeJobMetricData(request: DescribeJobMetricDataRequest): DescribeJobMetricDataResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeJobMetricDataWithOptions(request, runtime);
@@ -408,6 +473,13 @@ model DescribeJobMetricLastResponse = {
   body?: DescribeJobMetricLastResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询作业即时监控项
+ *
+ * @param tmpReq DescribeJobMetricLastRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeJobMetricLastResponse
+ */
 async function describeJobMetricLastWithOptions(tmpReq: DescribeJobMetricLastRequest, runtime: Util.RuntimeOptions): DescribeJobMetricLastResponse {
   Util.validateModel(tmpReq);
   var request = new DescribeJobMetricLastShrinkRequest{};
@@ -442,17 +514,26 @@ async function describeJobMetricLastWithOptions(tmpReq: DescribeJobMetricLastReq
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询作业即时监控项
+ *
+ * @param request DescribeJobMetricLastRequest
+ * @return DescribeJobMetricLastResponse
+ */
 async function describeJobMetricLast(request: DescribeJobMetricLastRequest): DescribeJobMetricLastResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeJobMetricLastWithOptions(request, runtime);
 }
 
 model GetImageRequest {
-  imageId?: string(name='ImageId', example='m-2ze74g5mvy4pjg*****'),
+  imageCategory?: string(name='ImageCategory'),
+  imageId?: string(name='ImageId', description='This parameter is required.', example='m-2ze74g5mvy4pjg*****'),
+  imageType?: string(name='ImageType'),
 }
 
 model GetImageResponseBody = {
   image?: {
+    appId?: string(name='AppId'),
     containerImageSpec?: {
       isACREnterprise?: boolean(name='IsACREnterprise', example='True'),
       isACRRegistry?: boolean(name='IsACRRegistry', example='True'),
@@ -466,9 +547,10 @@ model GetImageResponseBody = {
     }(name='ContainerImageSpec'),
     createTime?: string(name='CreateTime', example='2022-12-23T09:51:39Z'),
     description?: string(name='Description'),
-    imageType?: string(name='ImageType', example='VM'),
+    imageType?: string(name='ImageType', description='This parameter is required.', example='VM'),
     name?: string(name='Name', example='app-image'),
     size?: string(name='Size', example='40 GiB'),
+    status?: string(name='Status'),
     VMImageSpec?: {
       architecture?: string(name='Architecture', example='x86_64'),
       imageId?: string(name='ImageId', example='m-uf60twafjtaart******'),
@@ -488,11 +570,24 @@ model GetImageResponse = {
   body?: GetImageResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询托管侧镜像详情。
+ *
+ * @param request GetImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetImageResponse
+ */
 async function getImageWithOptions(request: GetImageRequest, runtime: Util.RuntimeOptions): GetImageResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.imageCategory)) {
+    query['ImageCategory'] = request.imageCategory;
+  }
   if (!Util.isUnset(request.imageId)) {
     query['ImageId'] = request.imageId;
+  }
+  if (!Util.isUnset(request.imageType)) {
+    query['ImageType'] = request.imageType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -511,6 +606,12 @@ async function getImageWithOptions(request: GetImageRequest, runtime: Util.Runti
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询托管侧镜像详情。
+ *
+ * @param request GetImageRequest
+ * @return GetImageResponse
+ */
 async function getImage(request: GetImageRequest): GetImageResponse {
   var runtime = new Util.RuntimeOptions{};
   return getImageWithOptions(request, runtime);
@@ -533,6 +634,7 @@ model GetJobResponseBody = {
     jobDescription?: string(name='JobDescription', example='Demo'),
     jobId?: string(name='JobId', example='job-xxxx'),
     jobName?: string(name='JobName', example='testJob'),
+    jobScheduler?: string(name='JobScheduler'),
     startTime?: string(name='StartTime', example='2024-03-05 20:00:48'),
     status?: string(name='Status', example='Succeed'),
     tasks?: [ 
@@ -590,6 +692,13 @@ model GetJobResponse = {
   body?: GetJobResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询作业详情
+ *
+ * @param request GetJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetJobResponse
+ */
 async function getJobWithOptions(request: GetJobRequest, runtime: Util.RuntimeOptions): GetJobResponse {
   Util.validateModel(request);
   var query = {};
@@ -613,6 +722,12 @@ async function getJobWithOptions(request: GetJobRequest, runtime: Util.RuntimeOp
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询作业详情
+ *
+ * @param request GetJobRequest
+ * @return GetJobResponse
+ */
 async function getJob(request: GetJobRequest): GetJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return getJobWithOptions(request, runtime);
@@ -664,6 +779,13 @@ model ListExecutorsResponse = {
   body?: ListExecutorsResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询全局Executor信息
+ *
+ * @param tmpReq ListExecutorsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExecutorsResponse
+ */
 async function listExecutorsWithOptions(tmpReq: ListExecutorsRequest, runtime: Util.RuntimeOptions): ListExecutorsResponse {
   Util.validateModel(tmpReq);
   var request = new ListExecutorsShrinkRequest{};
@@ -698,21 +820,31 @@ async function listExecutorsWithOptions(tmpReq: ListExecutorsRequest, runtime: U
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询全局Executor信息
+ *
+ * @param request ListExecutorsRequest
+ * @return ListExecutorsResponse
+ */
 async function listExecutors(request: ListExecutorsRequest): ListExecutorsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listExecutorsWithOptions(request, runtime);
 }
 
 model ListImagesRequest {
+  imageCategory?: string(name='ImageCategory'),
   imageIds?: [ string ](name='ImageIds'),
   imageNames?: [ string ](name='ImageNames'),
+  imageType?: string(name='ImageType'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
 }
 
 model ListImagesShrinkRequest {
+  imageCategory?: string(name='ImageCategory'),
   imageIdsShrink?: string(name='ImageIds'),
   imageNamesShrink?: string(name='ImageNames'),
+  imageType?: string(name='ImageType'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
 }
@@ -720,10 +852,11 @@ model ListImagesShrinkRequest {
 model ListImagesResponseBody = {
   images?: [ 
     {
+      appId?: string(name='AppId', description='This parameter is required.'),
       createTime?: string(name='CreateTime', example='2022-12-09T07:06:34Z'),
       description?: string(name='Description'),
-      imageId?: string(name='ImageId', example='m-bp181x855551ww5yq****'),
-      imageType?: string(name='ImageType', example='VM'),
+      imageId?: string(name='ImageId', description='This parameter is required.', example='m-bp181x855551ww5yq****'),
+      imageType?: string(name='ImageType', description='This parameter is required.', example='VM'),
       name?: string(name='Name', example='app-image'),
       version?: string(name='Version', example='v1.0'),
     }
@@ -741,6 +874,13 @@ model ListImagesResponse = {
   body?: ListImagesResponseBody(name='body'),
 }
 
+/**
+ * @summary 查看托管侧镜像列表
+ *
+ * @param tmpReq ListImagesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListImagesResponse
+ */
 async function listImagesWithOptions(tmpReq: ListImagesRequest, runtime: Util.RuntimeOptions): ListImagesResponse {
   Util.validateModel(tmpReq);
   var request = new ListImagesShrinkRequest{};
@@ -752,11 +892,17 @@ async function listImagesWithOptions(tmpReq: ListImagesRequest, runtime: Util.Ru
     request.imageNamesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.imageNames, 'ImageNames', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.imageCategory)) {
+    query['ImageCategory'] = request.imageCategory;
+  }
   if (!Util.isUnset(request.imageIdsShrink)) {
     query['ImageIds'] = request.imageIdsShrink;
   }
   if (!Util.isUnset(request.imageNamesShrink)) {
     query['ImageNames'] = request.imageNamesShrink;
+  }
+  if (!Util.isUnset(request.imageType)) {
+    query['ImageType'] = request.imageType;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
@@ -781,6 +927,12 @@ async function listImagesWithOptions(tmpReq: ListImagesRequest, runtime: Util.Ru
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查看托管侧镜像列表
+ *
+ * @param request ListImagesRequest
+ * @return ListImagesResponse
+ */
 async function listImages(request: ListImagesRequest): ListImagesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listImagesWithOptions(request, runtime);
@@ -819,6 +971,13 @@ model ListJobExecutorsResponse = {
   body?: ListJobExecutorsResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询作业Executor信息
+ *
+ * @param request ListJobExecutorsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListJobExecutorsResponse
+ */
 async function listJobExecutorsWithOptions(request: ListJobExecutorsRequest, runtime: Util.RuntimeOptions): ListJobExecutorsResponse {
   Util.validateModel(request);
   var query = {};
@@ -851,6 +1010,12 @@ async function listJobExecutorsWithOptions(request: ListJobExecutorsRequest, run
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询作业Executor信息
+ *
+ * @param request ListJobExecutorsRequest
+ * @return ListJobExecutorsResponse
+ */
 async function listJobExecutors(request: ListJobExecutorsRequest): ListJobExecutorsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listJobExecutorsWithOptions(request, runtime);
@@ -907,6 +1072,13 @@ model ListJobsResponse = {
   body?: ListJobsResponseBody(name='body'),
 }
 
+/**
+ * @summary 查询作业列表
+ *
+ * @param tmpReq ListJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListJobsResponse
+ */
 async function listJobsWithOptions(tmpReq: ListJobsRequest, runtime: Util.RuntimeOptions): ListJobsResponse {
   Util.validateModel(tmpReq);
   var request = new ListJobsShrinkRequest{};
@@ -947,13 +1119,19 @@ async function listJobsWithOptions(tmpReq: ListJobsRequest, runtime: Util.Runtim
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 查询作业列表
+ *
+ * @param request ListJobsRequest
+ * @return ListJobsResponse
+ */
 async function listJobs(request: ListJobsRequest): ListJobsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listJobsWithOptions(request, runtime);
 }
 
 model RemoveImageRequest {
-  imageId?: string(name='ImageId', example='m-bp14wakr1rkxtb******'),
+  imageId?: string(name='ImageId', description='This parameter is required.', example='m-bp14wakr1rkxtb******'),
 }
 
 model RemoveImageResponseBody = {
@@ -967,6 +1145,13 @@ model RemoveImageResponse = {
   body?: RemoveImageResponseBody(name='body'),
 }
 
+/**
+ * @summary 移除托管侧镜像信息。
+ *
+ * @param request RemoveImageRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemoveImageResponse
+ */
 async function removeImageWithOptions(request: RemoveImageRequest, runtime: Util.RuntimeOptions): RemoveImageResponse {
   Util.validateModel(request);
   var query = {};
@@ -990,6 +1175,12 @@ async function removeImageWithOptions(request: RemoveImageRequest, runtime: Util
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary 移除托管侧镜像信息。
+ *
+ * @param request RemoveImageRequest
+ * @return RemoveImageResponse
+ */
 async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
   var runtime = new Util.RuntimeOptions{};
   return removeImageWithOptions(request, runtime);
