@@ -36,7 +36,7 @@ init(configuration: ClientConfiguration){
     'cn-chengdu' = 'mongodb.cn-chengdu.aliyuncs.com',
     'cn-hongkong' = 'mongodb.aliyuncs.com',
     'ap-northeast-1' = 'mongodb.ap-northeast-1.aliyuncs.com',
-    'ap-southeast-1' = 'mongodb.aliyuncs.com',
+    'ap-southeast-1' = 'mongodb.ap-southeast-1.aliyuncs.com',
     'ap-southeast-2' = 'mongodb.ap-southeast-2.aliyuncs.com',
     'ap-southeast-3' = 'mongodb.ap-southeast-3.aliyuncs.com',
     'ap-southeast-5' = 'mongodb.ap-southeast-5.aliyuncs.com',
@@ -212,6 +212,16 @@ model CheckRecoveryConditionRequest {
   databaseNames?: string(name='DatabaseNames', description='The name of the source database. The value is a JSON array.
 
 >  If you do not specify this parameter, all databases are restored by default.', example='["db1","db2"]', position='Query'),
+  destRegion?: string(name='DestRegion', description='The region of the backup set used for the cross-region backup and restoration.
+
+>  This parameter is required when you set the RestoreType parameter to 3.', example='cn-hangzhou', position='Query'),
+  instanceType?: string(name='InstanceType', description='The instance architecture. Valid values:
+
+*   replicate
+*   sharding
+
+> * This parameter is required when you set the RestoreType parameter to 2.
+> * This parameter is required when you set the RestoreType parameter to 3.', example='replicate', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='sg-bp179****', position='Query'),
@@ -221,7 +231,17 @@ model CheckRecoveryConditionRequest {
 
 > *   The time can be a point in time within the past seven days. The time must be earlier than the current time, but later than the time when the instance was created.
 > *   You must specify one of the RestoreTime and **BackupId** parameters.', example='2022-08-22T08:00:00Z', position='Query'),
+  restoreType?: string(name='RestoreType', description='The restoration type.
+
+> * 0: The data of the source instance is restored to a new instance in the same region.
+> * 1: The data of the source instance is restored to an earlier point in time.
+> * 2: The data of a deleted instance is restored to a new instance from the backup set.
+> * 3: The data of a deleted instance is restored to a new instance in another region from the backup set.', example='0', position='Query'),
   sourceDBInstance?: string(name='SourceDBInstance', description='The ID of the source instance.', example='dds-bp1378****', position='Query'),
+  srcRegion?: string(name='SrcRegion', description='The region where the source instance resides.
+
+> * This parameter is required when you set the RestoreType parameter to 2.
+> * This parameter is required when you set the RestoreType parameter to 3.', example='cn-beijing', position='Query'),
 }
 
 model CheckRecoveryConditionResponseBody = {
@@ -271,7 +291,8 @@ model CreateAccountResponse = {
 }
 
 /**
-  * Database accounts can be created only for shards in sharded cluster instances that use cloud disks.
+  * *   You can create an account for shard nodes only in an ApsaraDB for MongoDB sharded cluster instance that uses cloud disks.
+  * *   The account is granted read-only permissions.
   *
  */
 async function createAccount(request: CreateAccountRequest): CreateAccountResponse {
@@ -355,7 +376,7 @@ The values that can be specified for this parameter vary based on the instance t
 > When you call this operation to clone an instance, you can set this parameter to specify the database to clone. Otherwise, all databases of the instance are cloned.', example='mongodbtest', position='Query'),
   encrypted?: boolean(name='Encrypted', description='Specifies whether to enable disk encryption.', example='true', position='Query'),
   encryptionKey?: string(name='EncryptionKey', description='The ID of the custom key.', example='2axxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', position='Query'),
-  engine: string(name='Engine', description='The database engine of the instance. The value is fixed as **MongoDB**.', example='MongoDB', position='Query'),
+  engine?: string(name='Engine', description='The database engine of the instance. The value is fixed as **MongoDB**.', example='MongoDB', position='Query'),
   engineVersion: string(name='EngineVersion', description='The version of the database engine. Valid values:
 
 *   **6.0**
@@ -413,6 +434,7 @@ Valid values: **1** to **9**, **12**, **24**, **36**, and **60**.
   restoreTime?: string(name='RestoreTime', description='The point in time to which the instance is restored, which must be within seven days. The time is displayed in the *yyyy-MM-dd*T*HH:mm:ss*Z format (UTC time).
 
 > When you call this operation to restore an instance to the specified time, this parameter is required. The **SrcDBInstanceId** parameter is also required.', example='2022-03-13T12:11:14Z', position='Query'),
+  restoreType?: string(name='RestoreType', position='Query'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The zone where the secondary node resides for multi-zone deployment. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G.
@@ -447,6 +469,7 @@ Valid values: **1** to **9**, **12**, **24**, **36**, and **60**.
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The ID of the source instance.
 
 > When you call this operation to clone an instance, this parameter is required. The **BackupId** or **RestoreTime** parameter is also required. When you call this operation to restore an instance from the recycle bin, this parameter is required. The **BackupId** or **RestoreTime** parameter is not required.', example='dds-bp1ee12ad351****', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
   storageEngine?: string(name='StorageEngine', description='The storage engine of the instance. Default value: WiredTiger. Valid values:
 
 *   **WiredTiger**
@@ -697,6 +720,7 @@ model CreateShardingDBInstanceRequest {
 *   **false** (default)
 
 > This parameter is available and optional if you set the value of **ChargeType** to **PrePaid**.', example='true', position='Query'),
+  backupId?: string(name='BackupId', position='Query'),
   chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
 *   **PostPaid** (default): pay-as-you-go
@@ -720,6 +744,7 @@ model CreateShardingDBInstanceRequest {
 *   The name must start with a letter.
 *   It can contain digits, letters, underscores (\\_), and hyphens (-).
 *   It must be 2 to 256 characters in length.', example='test', position='Query'),
+  destRegion?: string(name='DestRegion', position='Query'),
   encrypted?: boolean(name='Encrypted', description='Specifies whether to enable disk encryption.', example='true', position='Query'),
   encryptionKey?: string(name='EncryptionKey', description='The ID of the custom key.', example='2axxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', position='Query'),
   engine: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.', example='MongoDB', position='Query'),
@@ -804,6 +829,7 @@ Valid values: **0**, 1, 2, 3, 4, and **5**. Default value: **0**.
   restoreTime?: string(name='RestoreTime', description='The point in time to restore the instance, which must be within seven days. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in Coordinated Universal Time (UTC).
 
 > This parameter is required only if you call this operation to clone an instance. If you specify this parameter, you must also specify **SrcDBInstanceId**.', example='2022-03-08T02:30:25Z', position='Query'),
+  restoreType?: string(name='RestoreType', position='Query'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of secondary zone 1 for multi-zone deployment. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G
@@ -839,6 +865,7 @@ Valid values: **0**, 1, 2, 3, 4, and **5**. Default value: **0**.
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The source instance ID.
 
 > This parameter is required only if you call this operation to clone an instance. If you specify this parameter, you must also specify **RestoreTime**.', example='dds-bp11483712c1****', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
   storageEngine?: string(name='StorageEngine', description='The storage engine of the instance. Set the value to **WiredTiger**.
 
 > *   If you call this operation to clone an instance, set the value of this parameter to the storage engine of the source instance.
@@ -1612,11 +1639,13 @@ async function describeBackupDBs(request: DescribeBackupDBsRequest): DescribeBac
 model DescribeBackupPolicyRequest {
   regionId?: string(name='RegionId', position='Host'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp16cb162771****', position='Query'),
+  instanceType?: string(name='InstanceType', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
 }
 
 model DescribeBackupPolicyResponseBody = {
@@ -1633,11 +1662,19 @@ model DescribeBackupPolicyResponseBody = {
 *   **480**: every 8 hours.
 *   **720**: every 12 hours.', example='-1'),
   backupRetentionPeriod?: string(name='BackupRetentionPeriod', description='The retention period of the backup data. Unit: day.', example='30'),
+  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion'),
+  crossBackupPeriod?: string(name='CrossBackupPeriod'),
+  crossLogRetentionType?: string(name='CrossLogRetentionType'),
+  crossLogRetentionValue?: int32(name='CrossLogRetentionValue'),
+  crossRetentionType?: string(name='CrossRetentionType'),
+  crossRetentionValue?: int32(name='CrossRetentionValue'),
+  destRegion?: string(name='DestRegion'),
   enableBackupLog?: int32(name='EnableBackupLog', description='Indicates whether the log backup feature is enabled. Valid values:
 
 *   **0** (default): The log backup feature is disabled.
 *   **1**: The log backup feature is enabled.', example='1'),
-  highFrequencyBackupRetention?: string(name='HighFrequencyBackupRetention'),
+  enableCrossLogBackup?: int32(name='EnableCrossLogBackup'),
+  highFrequencyBackupRetention?: string(name='HighFrequencyBackupRetention', description='The retention period of high-frequency backups. Unit: day.', example='1'),
   logBackupRetentionPeriod?: int32(name='LogBackupRetentionPeriod', description='The number of days for which log backups are retained. Valid values: 7 to 730.', example='7'),
   preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The day of a week on which to back up data. Valid values:
 
@@ -1649,11 +1686,13 @@ model DescribeBackupPolicyResponseBody = {
 *   **Saturday**
 *   **Sunday**', example='Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'),
   preferredBackupTime?: string(name='PreferredBackupTime', description='The time range during which the backup was created. The time follows the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time is displayed in UTC.', example='09:00Z-10:00Z'),
+  preferredNextBackupTime?: string(name='PreferredNextBackupTime'),
   requestId?: string(name='RequestId', description='The request ID.', example='5A9464CA-F7DC-5434-90B1-DF7F197C****'),
   snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Valid values:
 
 *   **Flash**: single-digit second backup
 *   **Standard** (default): standard backup', example='Standard'),
+  srcRegion?: string(name='SrcRegion'),
 }
 
 model DescribeBackupPolicyResponse = {
@@ -1668,20 +1707,24 @@ async function describeBackupPolicy(request: DescribeBackupPolicyRequest): Descr
 }
 
 model DescribeBackupStorageRequest {
-  DBInstanceId: string(name='DBInstanceId', example='dds-2zeb2d64cb46xxxx', position='Query'),
-  nodeId?: string(name='NodeId', example='d-2zee48956b4axxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-2zeb2d64cb46xxxx', position='Query'),
+  nodeId?: string(name='NodeId', description='The ID of the shard node in the sharded cluster instance.
+
+>  This parameter is required only when the **DBInstanceId** parameter is set to the ID of a sharded cluster instance.', example='d-2zee48956b4axxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', example='cn-bejing', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeDBInstanceAttribute](~~62010~~) operation to query the most recent region list.', example='cn-bejing', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeBackupStorageResponseBody = {
-  freeSize?: long(name='FreeSize', example='42949672960'),
-  fullStorageSize?: long(name='FullStorageSize', example='789221621'),
-  logStorageSize?: long(name='LogStorageSize', example='7892216'),
-  requestId?: string(name='RequestId', example='D648B367-15B6-1B42-BD4B-4XXXXXXXXX'),
+  freeSize?: long(name='FreeSize', description='The free quota for the storage capacity used for backup. Unit: bytes.', example='42949672960'),
+  fullStorageSize?: long(name='FullStorageSize', description='The storage capacity used for the full backup. Unit: bytes.
+
+>  Instances that use cloud disks support snapshot backup. The size of the storage used for the current full backup is the size of the snapshot chain.', example='789221621'),
+  logStorageSize?: long(name='LogStorageSize', description='The storage capacity used for the log backup. Unit: bytes.', example='7892216'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D648B367-15B6-1B42-BD4B-4XXXXXXXXX'),
 }
 
 model DescribeBackupStorageResponse = {
@@ -1697,8 +1740,10 @@ async function describeBackupStorage(request: DescribeBackupStorageRequest): Des
 
 model DescribeBackupTasksRequest {
   regionId?: string(name='RegionId', position='Host'),
-  backupJobId?: string(name='BackupJobId', example='170034', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', example='dds-2zeb2d64cb46xxxx', position='Query'),
+  backupJobId?: string(name='BackupJobId', description='The ID of the backup task.
+
+>  If you call the [CreateBackup](~~61075~~) operation to perform a manual backup task, you can set this parameter to the returned backup ID to query the backup progress of the task.', example='170034', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-2zeb2d64cb46xxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -1709,14 +1754,22 @@ model DescribeBackupTasksRequest {
 model DescribeBackupTasksResponseBody = {
   backupJobs?: [ 
     {
-      backupSetStatus?: string(name='BackupSetStatus', example='Scheduled'),
-      backupStartTime?: string(name='BackupStartTime', example='2024-01-16T11:04:56Z'),
-      backupjobId?: string(name='BackupjobId', example='170034'),
-      jobMode?: string(name='JobMode', example='Manual'),
-      progress?: string(name='Progress', example='18%'),
+      backupSetStatus?: string(name='BackupSetStatus', description='The backup task status. Valid values:
+
+*   **Scheduled**: The backup task is in planning. Regular backup tasks that have not started are also in this state.
+*   **Checking**: The instance is being checked before the backup.
+*   **Backuping**: The backup task is in progress.
+*   **Finished**: The backup task is completed.', example='Scheduled'),
+      backupStartTime?: string(name='BackupStartTime', description='The start time of the backup task.', example='2024-01-16T11:04:56Z'),
+      backupjobId?: string(name='BackupjobId', description='The ID of the backup task.', example='170034'),
+      jobMode?: string(name='JobMode', description='The backup mode. Valid values:
+
+*   **Automated**: automatic backup
+*   **Manual**: manual backup', example='Manual'),
+      progress?: string(name='Progress', description='The progress of the backup task. Unit: %. The progress is returned only for running backup tasks.', example='18%'),
     }
-  ](name='BackupJobs'),
-  requestId?: string(name='RequestId', example='D648B367-15B6-1B42-BD4B-47507C9CC****'),
+  ](name='BackupJobs', description='The details of the backup task.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D648B367-15B6-1B42-BD4B-47507C9CC****'),
 }
 
 model DescribeBackupTasksResponse = {
@@ -1738,6 +1791,7 @@ If you set the **DBInstanceId** parameter to the ID of a sharded cluster instanc
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
 > If you set this parameter to the ID of a sharded cluster instance, you must also specify the **NodeId** parameter.', example='dds-bp1a7009eb24****', position='Query'),
+  destRegion?: string(name='DestRegion', position='Query'),
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC. The end time must be later than the start time.', example='2022-01-14T13:00Z', position='Query'),
   nodeId?: string(name='NodeId', description='The ID of the shard node in the sharded cluster instance.
 
@@ -1752,6 +1806,7 @@ If you set the **DBInstanceId** parameter to the ID of a sharded cluster instanc
 *   **100**', example='30', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC.', example='2022-01-13T13:00Z', position='Query'),
 }
 
@@ -1760,13 +1815,13 @@ model DescribeBackupsResponseBody = {
     backup?: [ 
     {
       backupDBNames?: string(name='BackupDBNames', description='The name of the database that has been backed up.', example='database'),
-      backupDownloadURL?: string(name='BackupDownloadURL', description='The Internet download URL of the backup set. If the download URL is unavailable, this parameter is an empty string.', example='http://rdsbak-hz-v3.oss-cn-hangzhou.aliyuncs.com/custins5559****/hins1936****_data_2022052504****_qp.xb?Expires=165361****&OSSAccessKeyId=LTAI4G2wxd32KLGARf****&Signature=lkFPjOY%2F8adB18vnOCbtmT7****&Region=cn-hangzhou'),
-      backupEndTime?: string(name='BackupEndTime', description='The end of the backup time range. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:57:34Z'),
+      backupDownloadURL?: string(name='BackupDownloadURL', description='The URL that is used to download the backup set over the Internet. If the backup set cannot be downloaded, an empty string is returned.', example='http://rdsbak-hz-v3.oss-cn-hangzhou.aliyuncs.com/custins5559****/hins1936****_data_2022052504****_qp.xb?Expires=165361****&OSSAccessKeyId=LTAI4G2wxd32KLGARf****&Signature=lkFPjOY%2F8adB18vnOCbtmT7****&Region=cn-hangzhou'),
+      backupEndTime?: string(name='BackupEndTime', description='The end time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:57:34Z'),
       backupId?: string(name='BackupId', description='The ID of the backup set.', example='32102****'),
       backupIntranetDownloadURL?: string(name='BackupIntranetDownloadURL', description='The internal download URL of the backup set.
 
-> You can use this URL to download the backup set from on the Elastic Compute Service (ECS) instance which is on the same network as the ApsaraDB for MongoDB instance.', example='http://rdsbak-hz-v3.oss-cn-hangzhou-internal.aliyuncs.com/custins5559*****/hins1936****_data_2022052504****_qp.xb?Expires=165361****&OSSAccessKeyId=LTAI4G2wxd32KLGARfi****&Signature=lkFPjOY%2F8adB18vnOCbtmT7ii****&Region=cn-hangzhou'),
-      backupJobId?: string(name='BackupJobId'),
+>  You can use the URL to download the specified backup set on an Elastic Compute Service (ECS) instance that is in the same Virtual Private Cloud (VPC) as the ApsaraDB for MongoDB instance.', example='http://rdsbak-hz-v3.oss-cn-hangzhou-internal.aliyuncs.com/custins5559*****/hins1936****_data_2022052504****_qp.xb?Expires=165361****&OSSAccessKeyId=LTAI4G2wxd32KLGARfi****&Signature=lkFPjOY%2F8adB18vnOCbtmT7ii****&Region=cn-hangzhou'),
+      backupJobId?: string(name='BackupJobId', description='The ID of the backup task.', example='1123xxxx'),
       backupMethod?: string(name='BackupMethod', description='The method that is used to generate the backup set. Valid values:
 
 *   **Snapshot**
@@ -1776,19 +1831,22 @@ model DescribeBackupsResponseBody = {
 
 *   **Automated**:
 *   **Manual**', example='Automated'),
+      backupName?: string(name='BackupName'),
+      backupScale?: string(name='BackupScale'),
       backupSize?: long(name='BackupSize', description='The size of the backup set. Unit: bytes.', example='6168576'),
-      backupStartTime?: string(name='BackupStartTime', description='The beginning of the backup time range. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:56:17Z'),
+      backupStartTime?: string(name='BackupStartTime', description='The start time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:56:17Z'),
       backupStatus?: string(name='BackupStatus', description='The status of the backup task. Valid values:
 
-*   **Success**
-*   **Failed**', example='Success'),
+*   **Success**: The backup task is successful.
+*   **Failed**: The backup task failed.', example='Success'),
       backupType?: string(name='BackupType', description='The backup type. Valid values:
 
 *   **FullBackup**
 *   **IncrementalBackup**', example='FullBackup'),
+      isAvail?: boolean(name='IsAvail'),
     }
   ](name='Backup')
-  }(name='Backups', description='The details of the backup sets.'),
+  }(name='Backups', description='The details of the backup set.'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page. Valid values:
 
@@ -1814,6 +1872,9 @@ model DescribeClusterBackupsRequest {
   regionId?: string(name='RegionId', position='Host'),
   backupId?: string(name='BackupId', description='The ID of the cluster backup set.', example='5664****', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='dds-bp16cb162771****', position='Query'),
+  destRegion?: string(name='DestRegion', description='The region where cross-region backups reside.
+
+>  This parameter is required if you want to query cross-region backups.', example='cn-shanghai', position='Query'),
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC. The end time must be later than the start time.', example='2019-03-14T13:10Z', position='Query'),
   isOnlyGetClusterBackUp?: boolean(name='IsOnlyGetClusterBackUp', description='Specifies whether to query information about child nodes in the cluster backup. Valid values:
 
@@ -1829,26 +1890,48 @@ model DescribeClusterBackupsRequest {
 *   **100**', example='30', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.
+
+> 
+
+*   This parameter is required if you want to query the backup sets of a released instance.
+
+*   This parameter is required if you want to query cross-region backups.', example='cn-hangzhou', position='Query'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC.', example='2019-03-13T12:11:14Z', position='Query'),
 }
 
 model DescribeClusterBackupsResponseBody = {
   clusterBackups?: [ 
     {
+      attachLogStatus?: string(name='AttachLogStatus', description='The backup status. Valid values:
+
+*   **init**: The backup is being initialized.
+*   **No_Need**: Log backup is not performed.
+*   **Running**: Log backup is being performed.
+*   **Ready**: Log backup is complete.
+*   **Failed**: Log backup failed.
+
+>  If the **ClusterBackupStatus** parameter is set to OK, full backup is successful. If you want to perform point-in-time-restoration on an instance for which log backup is enabled or to implement consistency restoration, make sure that log backup is complete.', example='Ready'),
       backups?: [ 
         {
           backupDownloadURL?: string(name='BackupDownloadURL', description='The URL that is used to download the backup set over the Internet. If the backup set cannot be downloaded, an empty string is returned.', example='http://oss.com/xxx'),
-          backupEndTime?: string(name='BackupEndTime', description='The end of the backup time range. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2023-10-16T19:33:20Z'),
+          backupEndTime?: string(name='BackupEndTime', description='The end time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2023-10-16T19:33:20Z'),
           backupId?: string(name='BackupId', description='The ID of the backup set.', example='738025367'),
           backupIntranetDownloadURL?: string(name='BackupIntranetDownloadURL', description='The URL that is used to download the backup set over an internal network. If the backup set cannot be downloaded, null is returned.', example='http://oss.com/xxx'),
           backupName?: string(name='BackupName', description='The backup name.', example='12345678.tar.gz'),
           backupSize?: string(name='BackupSize', description='The size of the backup file. Unit: bytes.', example='77544597650'),
-          backupStartTime?: string(name='BackupStartTime', description='The beginning of the backup time range. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2023-10-16T19:33:20Z'),
+          backupStartTime?: string(name='BackupStartTime', description='The start time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2023-10-16T19:33:20Z'),
           backupStatus?: string(name='BackupStatus', description='The status of the backup task. Valid values:
 
 *   **Success**: The backup task is successful.
 *   **Failed**: The backup task failed.', example='Success'),
-          instanceName?: string(name='InstanceName', description='The name of the shard.', example='d-bp16cb162771****'),
+          extraInfo?: {
+            instanceClass?: string(name='InstanceClass', description='The instance type of the node.', example='mdb.shard.4x.large.d'),
+            nodeId?: string(name='NodeId', description='The node ID.', example='d-2ze75ab1fa5d****'),
+            nodeType?: string(name='NodeType', description='The node type.', example='db'),
+            storageSize?: string(name='StorageSize', description='The storage capacity of the node. Unit: MB.', example='20480'),
+          }(name='ExtraInfo', description='The information of the node associated with the backup.'),
+          instanceName?: string(name='InstanceName', description='The shard name.', example='d-bp16cb162771****'),
           isAvail?: string(name='IsAvail', description='Indicates whether the backup set is available. Valid values:
 
 *   **0**: unavailable
@@ -1856,14 +1939,14 @@ model DescribeClusterBackupsResponseBody = {
         }
       ](name='Backups', description='The collection of the backup sets of each child node in a cluster backup set.'),
       clusterBackupEndTime?: string(name='ClusterBackupEndTime', description='The end of the time range within which the cluster backup is performed.', example='2023-10-16T19:33:20Z'),
-      clusterBackupId?: string(name='ClusterBackupId', description='The ID of the cluster backup set.', example='cb-o8c2ugnxo26kx***'),
+      clusterBackupId?: string(name='ClusterBackupId', description='The backup set ID.', example='cb-o8c2ugnxo26kx***'),
       clusterBackupMode?: string(name='ClusterBackupMode', description='The cluster backup mode.', example='Automated'),
       clusterBackupSize?: string(name='ClusterBackupSize', description='The size of the cluster backup set. Unit: bytes.', example='107374182400'),
       clusterBackupStartTime?: string(name='ClusterBackupStartTime', description='The beginning of the time range within which the cluster backup is performed.', example='2023-10-16T19:33:20Z'),
       clusterBackupStatus?: string(name='ClusterBackupStatus', description='The status of the cluster backup set.', example='OK'),
       extraInfo?: {
-        registryFromHistory?: string(name='RegistryFromHistory', description='Indicates whether the cluster backups are from the historical backup sets. If the value of this parameter is **1**, the cluster backups are migrated from the historical backup sets.', example='1'),
-      }(name='ExtraInfo', description='The additional information in JSON format.'),
+        registryFromHistory?: string(name='RegistryFromHistory', description='Indicates whether the cluster backups are migrated from the historical backup sets. If the value of this parameter is **1**, the cluster backups are migrated from the historical backup sets.', example='1'),
+      }(name='ExtraInfo', description='The additional information in the JSON format.'),
       isAvail?: int32(name='IsAvail', description='Indicates whether the cluster backup sets take effect. Valid values:
 
 *   **1**: The cluster backup sets take effect.
@@ -1935,7 +2018,10 @@ model DescribeDBInstanceAttributeRequest {
   regionId?: string(name='RegionId', position='Host'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp11483712c1****', position='Query'),
   engine?: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.', example='MongoDB', position='Query'),
-  isDelete?: boolean(name='IsDelete', example='false', position='Query'),
+  isDelete?: boolean(name='IsDelete', description='Specifies whether to delete the instance. Valid values:
+
+- **false**: queries the details of running instances.
+- **true**: queries the details of deleted instances.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. For more information, see [View the basic information of a resource group](~~151181~~).
@@ -1950,12 +2036,12 @@ model DescribeDBInstanceAttributeResponseBody = {
   DBInstances?: {
     DBInstance?: [ 
     {
-      burstingEnabled?: boolean(name='BurstingEnabled', description='是否已开启突发', example='true'),
+      burstingEnabled?: boolean(name='BurstingEnabled', description='Indicates whether performance burst is enabled for the ESSD AutoPL disk.', example='true'),
       capacityUnit?: string(name='CapacityUnit', description='The read and write throughput consumed by the instance.', example='100'),
       chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
-*   **PrePaid**: subscription.
-*   **PostPaid**: pay-as-you-go.', example='PostPaid'),
+*   **PrePaid**: subscription
+*   **PostPaid**: pay-as-you-go', example='PostPaid'),
       configserverList?: {
         configserverAttribute?: [ 
         {
@@ -1965,44 +2051,44 @@ model DescribeDBInstanceAttributeResponseBody = {
           nodeClass?: string(name='NodeClass', description='The instance type of the Configserver node.', example='dds.cs.mid'),
           nodeDescription?: string(name='NodeDescription', description='The name of the Configserver node.', example='testConfigserver'),
           nodeId?: string(name='NodeId', description='The ID of the Configserver node.', example='dds-bp11483712c1****-cs'),
-          nodeStorage?: int32(name='NodeStorage', description='The storage capacity of the Configserver node.', example='20'),
+          nodeStorage?: int32(name='NodeStorage', description='The storage capacity of the Configserver node. Unit: GB.', example='20'),
           port?: int32(name='Port', description='The port number that is used to connect to the Configserver node.', example='3717'),
           status?: string(name='Status', description='The status of the Configserver node. For more information, see [Instance states](~~63870~~).', example='Running'),
         }
       ](name='ConfigserverAttribute')
-      }(name='ConfigserverList', description='The details of the Configserver nodes.
+      }(name='ConfigserverList', description='The information of the Configserver nodes.
 
-> This parameter is returned if the instance is a sharded cluster instance.'),
+>  This parameter is returned if the instance is a sharded cluster instance.'),
       creationTime?: string(name='CreationTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-02T07:43:59Z'),
       currentKernelVersion?: string(name='CurrentKernelVersion', description='The minor version of the current database in the instance.', example='5.0.5-20220721143518_0'),
-      DBInstanceClass?: string(name='DBInstanceClass', description='The instance type.', example='dds.mongo.mid'),
+      DBInstanceClass?: string(name='DBInstanceClass', description='The instance type of the instance.', example='dds.mongo.mid'),
       DBInstanceDescription?: string(name='DBInstanceDescription', description='The name of the instance.', example='Test database'),
       DBInstanceId?: string(name='DBInstanceId', description='The instance ID.', example='dds-bp11483712c1****'),
       DBInstanceOrderStatus?: string(name='DBInstanceOrderStatus', description='The status of the orders generated for the instance. Valid values:
 
 *   **all_completed**: All orders are being produced or complete.
 *   **order_unpaid**: The instance has unpaid orders.
-*   **order_wait_for_produce**: Order are being delivered for production.
+*   **order_wait_for_produce**: Orders are being delivered for production.
 
-> The order production process includes the following steps: place an order, pay for an order, deliver an order for production, produce an order, and complete an order.
+>  The order production process includes the following steps: place an order, pay for an order, deliver an order for production, produce an order, and complete the production.
 
 *   If an order is in the **order_wait_for_produce** state for a long time, an error occurs when the order is being delivered for production. The system will automatically retry.
 *   The instance status changes only when the order is in the producing and complete state, such as changing configurations and running.', example='all_completed'),
       DBInstanceReleaseProtection?: boolean(name='DBInstanceReleaseProtection', description='Indicates whether release protection is enabled for the instance. Valid values:
 
-*   **true**: Release protection is enabled.
-*   **false** Release protection is disabled.', example='false'),
+*   **true**
+*   **false**', example='false'),
       DBInstanceStatus?: string(name='DBInstanceStatus', description='The status of the instance. For more information, see [Instance states](~~63870~~).', example='Running'),
       DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the instance.', example='10'),
       DBInstanceType?: string(name='DBInstanceType', description='The architecture of the instance. Valid values:
 
-*   **replicate**: replica set instance.
-*   **sharding**: sharded cluster instance.', example='replicate'),
+*   **replicate**: replica set instance
+*   **sharding**: sharded cluster instance', example='replicate'),
       destroyTime?: string(name='DestroyTime', description='The time when the instance data was destroyed. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-12-10T16:00:00Z'),
-      encrypted?: boolean(name='Encrypted', description='是否开启云盘加密', example='true'),
-      encryptionKey?: string(name='EncryptionKey', description='云盘加密对应的kms-key', example='07609cc3-3109-408f-a35e-c548e776da0b'),
+      encrypted?: boolean(name='Encrypted', description='Indicates whether disk encryption is enabled.', example='true'),
+      encryptionKey?: string(name='EncryptionKey', description='The Key Management Service (KMS) key used for disk encryption.', example='07609cc3-3109-408f-a35e-c548e776da0b'),
       engine?: string(name='Engine', description='The database engine of the instance.', example='MongoDB'),
-      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values:
+      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance.
 
 *   **6.0**
 *   **5.0**
@@ -2011,15 +2097,15 @@ model DescribeDBInstanceAttributeResponseBody = {
 *   **4.0**', example='4.4'),
       expireTime?: string(name='ExpireTime', description='The time when the subscription instance expires. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time is displayed in UTC.
 
-> This parameter is returned if the instance is a subscription instance.', example='2022-02-05T16:00Z'),
+>  This parameter is returned if the instance is a subscription instance.', example='2022-02-05T16:00Z'),
       hiddenZoneId?: string(name='HiddenZoneId', description='The ID of the secondary zone 2 of the instance. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G
 *   **cn-hangzhou-h**: Hangzhou Zone H
 *   **cn-hangzhou-i**: Hangzhou Zone I
-*   **cn-hongkong-b**: Hong Kong Zone B
-*   **cn-hongkong-c**: Hong Kong Zone C
-*   **cn-hongkong-d**: Hong Kong Zone D
+*   **cn-hongkong-b**: Hongkong Zone B
+*   **cn-hongkong-c**: Hongkong Zone C
+*   **cn-hongkong-d**: Hongkong Zone D
 *   **cn-wulanchabu-a**: Ulanqab Zone A
 *   **cn-wulanchabu-b**: Ulanqab Zone B
 *   **cn-wulanchabu-c**: Ulanqab Zone C
@@ -2037,21 +2123,21 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 *   This parameter is returned if the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses multi-zone deployment.
 
-*   This parameter is returned only if you use the Chine site (aliyun.com).', example='cn-hangzhou-h'),
+*   This parameter is returned only if you use the China site (aliyun.com).', example='cn-hangzhou-h'),
       kindCode?: string(name='KindCode', description='The kind code of the instance. Valid values:
 
-*   **0**: physical machine.
-*   **1**: Elastic Compute Service (ECS) instance.
-*   **2**: Docker cluster.
-*   **18**: Kubernetes cluster.', example='1'),
+*   **0**: physical machine
+*   **1**: Elastic Compute Service (ECS) instance
+*   **2**: Docker cluster
+*   **18**: Kubernetes cluster', example='1'),
       lastDowngradeTime?: string(name='LastDowngradeTime', description='The date when the last downgrade operation was performed on the instance.', example='2022-01-08'),
       lockMode?: string(name='LockMode', description='The lock status of the instance. Valid values:
 
 *   **Unlock**: The instance is not locked.
 *   **ManualLock**: The instance is manually locked.
 *   **LockByExpiration**: The instance is automatically locked due to instance expiration.
-*   **LockByRestoration**: The instance is automatically locked before it is rolled back.
-*   **LockByDiskQuota**: The instance is automatically locked due to exhausted storage capacity.
+*   **LockByRestoration**: The instance is automatically locked before the instance is rolled back.
+*   **LockByDiskQuota**: The instance is automatically locked after the storage space is exhausted.
 *   **Released**: The instance is released.', example='Unlock'),
       maintainEndTime?: string(name='MaintainEndTime', description='The end time of the maintenance window. The time follows the ISO 8601 standard in the *HH:mm*Z format. The time is displayed in UTC.', example='03:00Z'),
       maintainStartTime?: string(name='MaintainStartTime', description='The start time of the maintenance window. The time follows the ISO 8601 standard in the *HH:mm*Z format. The time is displayed in UTC.', example='18:00Z'),
@@ -2071,35 +2157,35 @@ model DescribeDBInstanceAttributeResponseBody = {
           status?: string(name='Status', description='The status of the mongos node. For more information, see [Instance states](~~63870~~).', example='Running'),
           VPCId?: string(name='VPCId', description='The VPC ID of the instance.
 
-> This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1n3i15v90el48nx****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1n3i15v90el48nx****'),
           vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the instance.
 
-> This parameter is returned if the network type of the instance is VPC.', example='vsw-bp1vj604nj5a9zz74****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='vsw-bp1vj604nj5a9zz74****'),
           vpcCloudInstanceId?: string(name='VpcCloudInstanceId', description='The ID of the mongos node.', example='s-bp1d8c262a158****'),
         }
       ](name='MongosAttribute')
-      }(name='MongosList', description='The details of the mongos nodes.
+      }(name='MongosList', description='The information of the mongos nodes.
 
-> This parameter is returned if the instance is a sharded cluster instance.'),
+>  This parameter is returned if the instance is a sharded cluster instance.'),
       networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
 
-*   **Classic**
-*   **VPC**', example='VPC'),
+*   **Classic**: classic network
+*   **VPC**: VPC', example='VPC'),
       protocolType?: string(name='ProtocolType', description='The access protocol type of the instance. Valid values:
 
 *   **mongodb**
 *   **dynamodb**
 
-> This parameter is returned if the instance is a sharded cluster instance.', example='mongodb'),
-      provisionedIops?: long(name='ProvisionedIops', description='预配置性能', example='1960'),
+>  This parameter is returned if the instance is a sharded cluster instance.', example='mongodb'),
+      provisionedIops?: long(name='ProvisionedIops', description='The provisioned performance of the ESSD AutoPL disk.', example='1960'),
       readonlyReplicas?: string(name='ReadonlyReplicas', description='The number of read-only nodes in the instance.', example='1'),
       regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
-      replacateId?: string(name='ReplacateId', description='The logical ID of the replica instance.
+      replacateId?: string(name='ReplacateId', description='The logical ID of the replica set instance.
 
-> ApsaraDB for MongoDB does not support new instances of this type. This parameter applies only to previous-version replica instances.', example='bls-m****'),
+>  ApsaraDB for MongoDB does not support new instances of this type. This parameter applies only to previous-version replica set instances.', example='bls-m****'),
       replicaSetName?: string(name='ReplicaSetName', description='The name of the replica set instance.
 
-> This parameter is returned if the instance is a replica set instance.', example='mgset-10ace****'),
+>  This parameter is returned if the instance is a replica set instance.', example='mgset-10ace****'),
       replicaSets?: {
         replicaSet?: [ 
         {
@@ -2107,40 +2193,40 @@ model DescribeDBInstanceAttributeResponseBody = {
           connectionPort?: string(name='ConnectionPort', description='The port number that is used to connect to the node.', example='3717'),
           networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
 
-*   **Classic**: classic network.
-*   **VPC**: VPC.', example='VPC'),
+*   **Classic**: classic network
+*   **VPC**: VPC', example='VPC'),
           replicaSetRole?: string(name='ReplicaSetRole', description='The role of the node. Valid values:
 
 *   **Primary**
 *   **Secondary**', example='Primary'),
           VPCCloudInstanceId?: string(name='VPCCloudInstanceId', description='The instance ID.
 
-> This parameter is returned if the network type of the instance is VPC.', example='dds-bp11483712c1****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='dds-bp11483712c1****'),
           VPCId?: string(name='VPCId', description='The VPC ID of the instance.
 
-> This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1jk5vwkcri27qme****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1jk5vwkcri27qme****'),
           vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the instance.
 
-> This parameter is returned if the network type of the instance is Virtual Private Cloud (VPC).', example='vpc-bp1jk5vwkcri27qme****'),
+>  This parameter is returned if the network type of the instance is virtual private cloud (VPC).', example='vpc-bp1jk5vwkcri27qme****'),
         }
       ](name='ReplicaSet')
-      }(name='ReplicaSets', description='The details of the replica set instance.
+      }(name='ReplicaSets', description='The information of the replica set instance.
 
-> This parameter is returned if the instance is a replica set instance.'),
+>  This parameter is returned if the instance is a replica set instance.'),
       replicationFactor?: string(name='ReplicationFactor', description='The number of nodes in the instance.
 
-> This parameter is returned if the instance is a replica set instance.', example='3'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.
+>  This parameter is returned if the instance is a replica set instance.', example='3'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.
 
-> This parameter is returned only if you use the China site (aliyun.com).', example='rg-acfmyiu4ekp****'),
+>  This parameter is returned only if you use the China site (aliyun.com).', example='rg-acfmyiu4ekp****'),
       secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone 1 of the instance. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G
 *   **cn-hangzhou-h**: Hangzhou Zone H
 *   **cn-hangzhou-i**: Hangzhou Zone I
-*   **cn-hongkong-b**: Hong Kong Zone B
-*   **cn-hongkong-c**: Hong Kong Zone C
-*   **cn-hongkong-d**: Hong Kong Zone D
+*   **cn-hongkong-b**: Hongkong Zone B
+*   **cn-hongkong-c**: Hongkong Zone C
+*   **cn-hongkong-d**: Hongkong Zone D
 *   **cn-wulanchabu-a**: Ulanqab Zone A
 *   **cn-wulanchabu-b**: Ulanqab Zone B
 *   **cn-wulanchabu-c**: Ulanqab Zone C
@@ -2158,7 +2244,7 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 *   This parameter is returned if the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses multi-zone deployment.
 
-*   This parameter is returned only if you use the Chine site (aliyun.com).', example='cn-hangzhou-i'),
+*   This parameter is returned only if you use the China site (aliyun.com).', example='cn-hangzhou-i'),
       shardList?: {
         shardAttribute?: [ 
         {
@@ -2169,50 +2255,50 @@ model DescribeDBInstanceAttributeResponseBody = {
           nodeClass?: string(name='NodeClass', description='The instance type of the shard node.', example='dds.shard.mid'),
           nodeDescription?: string(name='NodeDescription', description='The name of the shard node.', example='testshard'),
           nodeId?: string(name='NodeId', description='The ID of the shard node.', example='d-bp16e09d9c5d****'),
-          nodeStorage?: int32(name='NodeStorage', description='The storage capacity of the shard node.', example='10'),
+          nodeStorage?: int32(name='NodeStorage', description='The storage capacity of the shard node. Unit: GB.', example='10'),
           port?: int32(name='Port', description='The port number that is used to connect to the shard node.', example='3717'),
           readonlyReplicas?: int32(name='ReadonlyReplicas', description='The number of read-only nodes in the shard node. Valid values: **0** to **5**. The value must be an integer.', example='0'),
           status?: string(name='Status', description='The status of the shard node. For more information, see [Instance states](~~63870~~).', example='Running'),
         }
       ](name='ShardAttribute')
-      }(name='ShardList', description='The details of the shard nodes.
+      }(name='ShardList', description='The information of the shard nodes.
 
-> This parameter is returned if the instance is a sharded cluster instance.'),
+>  This parameter is returned if the instance is a sharded cluster instance.'),
       storageEngine?: string(name='StorageEngine', description='The storage engine of the instance.', example='WiredTiger'),
       storageType?: string(name='StorageType', description='The storage type of the instance. Valid values:
 
-**cloud_essd1**: PL1 ESSD. **cloud_essd2**: PL2. ESSD. **cloud_essd3**: PL3 ESSD. **local_ssd**: local SSD.', example='cloud_essd1'),
-      syncPercent?: string(name='SyncPercent', description='数据同步进度百分比。当实例处在变配中时，需要进行数据同步等操作，可以通过该字段判断同步进度。', example='0.8'),
+**cloud_essd1**: ESSD PL1 **cloud_essd2**: ESSD PL2 **cloud_essd3**: ESSD PL3 **local_ssd**: local SSD **cloud_essd_dbfs_s**: DBFS disk', example='cloud_essd1'),
+      syncPercent?: string(name='SyncPercent', description='The progress of data synchronization in percentage. When you are changing the configurations of the instance, you must synchronize the data of the instance. You can obtain the data synchronization progress based on the value returned for this parameter.', example='0.8'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The tag key of the instance.', example='test'),
-          value?: string(name='Value', description='The tag value of the instance.', example='api'),
+          key?: string(name='Key', description='The tag key.', example='test'),
+          value?: string(name='Value', description='The tag value.', example='api'),
         }
       ](name='Tag')
       }(name='Tags', description='The details of the instance tags.'),
-      useClusterBackup?: boolean(name='UseClusterBackup', description='是否使用集群备份模式。取值说明：
+      useClusterBackup?: boolean(name='UseClusterBackup', description='Indicates whether the cluster backup mode is enabled. Valid values:
 
-- **true**：启用集群备份模式。
-- **false**未启用集群备份模式。', example='true'),
+*   **true**: The cluster backup mode is enabled.
+*   **false**: The cluster backup mode is disabled.', example='true'),
       VPCCloudInstanceIds?: string(name='VPCCloudInstanceIds', description='The instance ID.
 
-> This parameter is returned if the network type of the instance is VPC.', example='dds-bp11483712c1****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='dds-bp11483712c1****'),
       VPCId?: string(name='VPCId', description='The VPC ID of the instance.
 
-> This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1n3i15v90el48nx****'),
+>  This parameter is returned if the network type of the instance is VPC.', example='vpc-bp1n3i15v90el48nx****'),
       vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the instance.
 
-> This parameter is returned if the network type of the instance is VPC.', example='vsw-bp1oo2a7isyrb8igf****'),
-      vpcAuthMode?: string(name='VpcAuthMode', description='Indicates whether password-free access over VPC is enabled. Valid values:
+>  This parameter is returned if the network type of the instance is VPC.', example='vsw-bp1oo2a7isyrb8igf****'),
+      vpcAuthMode?: string(name='VpcAuthMode', description='Indicates whether password-free access within the VPC is enabled. Valid values:
 
-*   **Open**: Password-free access over VPC is enabled.
-*   **Close**: Password-free access over VPC is disabled, and you must use a password for access.
-*   **NotSupport**: Password-free access over VPC is not supported.', example='Open'),
-      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hangzhou-b'),
+*   **Open**: Password-free access within the VPC is enabled.
+*   **Close**: Password-free access within the VPC is disabled, and you must use a password for access.
+*   **NotSupport**: Password-free access within the VPC is not supported.', example='Open'),
+      zoneId?: string(name='ZoneId', description='The ID of the zone in which the instance resides.', example='cn-hangzhou-b'),
     }
   ](name='DBInstance')
-  }(name='DBInstances', description='The details of the instance.'),
+  }(name='DBInstances', description='The information of the instance.'),
   requestId?: string(name='RequestId', description='The request ID.', example='A935A8EE-A6CC-53DE-98BA-20ABAA7E632B'),
 }
 
@@ -2299,7 +2385,8 @@ model DescribeDBInstancePerformanceRequest {
 
 >  If you set this parameter to the ID of a sharded cluster instance, you must also specify the **NodeId** parameter.', example='dds-bp2635****', position='Query'),
   endTime: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC. The end time must be later than the start time.', example='2022-06-13T11:58Z', position='Query'),
-  key: string(name='Key', description='The performance metric. For more information about valid values, see [Performance metrics](~~64048~~).
+  interval?: string(name='Interval', description='The interval at which performance data is collected. Valid values: 5, 30, 60, 600, 1800, 3600, 86400.', example='60', position='Query'),
+  key: string(name='Key', description='The performance metric. For more information about valid values, see [Monitoring items and metrics](~~216973~~).
 
 >  If you need to specify multiple metrics, separate the metrics with commas (,).', example='CpuUsage', position='Query'),
   nodeId?: string(name='NodeId', description='The ID of the mongos or shard node in a sharded cluster instance. You can specify this parameter to view the performance data of a single node.
@@ -2307,16 +2394,13 @@ model DescribeDBInstancePerformanceRequest {
 >  This parameter is valid when you set the **DBInstanceId** parameter to the ID of a sharded cluster instance.', example='d-bp2287****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  replicaSetRole?: string(name='ReplicaSetRole', description='The role of the node in a standalone or replica set instance. Valid values:
+  replicaSetRole?: string(name='ReplicaSetRole', description='The role of the node in the standalone or replica set instance. Valid values:
 
 *   **Primary**
 *   **Secondary**
 
-> 
-
-*   This parameter is valid only when you set the **DBInstanceId** parameter to the ID of a standalone instance or a replica set instance.
-
-*   If you set the **DBInstanceId** parameter to the ID of a standalone instance, the value of this parameter can only be **Primary**.', example='Primary', position='Query'),
+>  *  This parameter is valid only when you specify the **DBInstanceId** parameter to the ID of a standalone instance or a replica set instance.
+> *  This parameter can be set only to **Primary** when you specify the **DBInstanceId** parameter to the ID of a standalone instance.', example='Primary', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   roleId?: string(name='RoleId', description='The role ID of the node in a standalone or replica set instance. You can call the [DescribeReplicaSetRole](~~62134~~) operation to query the role ID of the node.
@@ -2579,72 +2663,79 @@ model DescribeDBInstancesResponseBody = {
   DBInstances?: {
     DBInstance?: [ 
     {
-      capacityUnit?: string(name='CapacityUnit', description='The read and write throughput consumed by the instance.
+      backupRetentionPolicy?: int32(name='BackupRetentionPolicy', description='The backup retention policy configured for the instance. Valid values:
 
->  This parameter is returned when the instance is a serverless instance.', example='100'),
+*   **0**: All backup sets of the instance are immediately deleted when the instance is released.
+*   **1**: A backup set of the instance is automatically backed up and retained for a long period of time when the instance is released.
+*   **2**: All backup sets of the instance are automatically backed up and retained for a long period of time when the instance is released.', example='1'),
+      capacityUnit?: string(name='CapacityUnit', description='The I/O throughput consumed by the instance.
+
+>  This parameter is required only when the instance is a serverless instance.', example='100'),
       chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
-*   **PrePaid**: subscription.
-*   **PostPaid**: pay-as-you-go.', example='PrePaid'),
+*   **PrePaid**: subscription
+*   **PostPaid:** pay-as-you-go', example='PrePaid'),
       creationTime?: string(name='CreationTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2021-03-25T02:18:00Z'),
       DBInstanceClass?: string(name='DBInstanceClass', description='The instance type of the instance.', example='dds.mongo.mid'),
       DBInstanceDescription?: string(name='DBInstanceDescription', description='The description of the instance.', example='Test database'),
-      DBInstanceId?: string(name='DBInstanceId', description='The instance ID', example='dds-bp18b0934e70****'),
+      DBInstanceId?: string(name='DBInstanceId', description='The instance ID.', example='dds-bp18b0934e70****'),
       DBInstanceStatus?: string(name='DBInstanceStatus', description='The status of the instance. For more information, see [Instance states](~~63870~~).', example='Running'),
       DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the instance.', example='20'),
-      DBInstanceType?: string(name='DBInstanceType', description='The architecture of the instance. Valid values:
+      DBInstanceType?: string(name='DBInstanceType', description='The architecture of the instance.
 
-*   **sharding**: sharded cluster instance.
-*   **replicate**: replica set or standalone instance.', example='sharding'),
-      destroyTime?: string(name='DestroyTime', description='The time when the instance data was destroyed. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
+*   **sharding**: sharded cluster instance
+*   **replicate**: replica set or standalone instance', example='sharding'),
+      destroyTime?: string(name='DestroyTime', description='The time when the instance data is destroyed. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
 
-> *   Subscription instances are released 15 days after expiration. After the instances are released, the data of the instances is deleted and cannot be restored.
-> *   Pay-as-you-go instances are locked after the payments have been overdue for longer than 24 hours. The instances are released after the payments have been overdue for longer than 15 days. The data of released instances is deleted and cannot be restored.', example='2021-12-10T16:00:00Z'),
-      engine?: string(name='Engine', description='The database engine of the instance.', example='MongoDB'),
-      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance.
+> *   For a subscription instance, the computing resources of the instance are released on the 16th day after expiration, and the data of the instance is retained for seven days. The data is deleted on the 23th day after expiration and cannot be restored.
+> *   For a pay-as-you-go instance, the computing resources of the instance are released on the 16th day after the payment becomes overdue, and the data of the instance is retained for seven days. The data is deleted on the 23th day after the payment becomes overdue and cannot be restored.', example='2021-12-10T16:00:00Z'),
+      engine?: string(name='Engine', description='The engine of the instance.', example='MongoDB'),
+      engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values:
 
+*   **7.0**
+*   **6.0**
 *   **5.0**
 *   **4.4**
 *   **4.2**
 *   **4.0**
 *   **3.4**', example='4.2'),
       expireTime?: string(name='ExpireTime', description='The time when the instance expires. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time is displayed in UTC.', example='2021-11-25T16:00Z'),
-      hiddenZoneId?: string(name='HiddenZoneId', description='The ID of the secondary zone 2 of the instance. Valid values:
+      hiddenZoneId?: string(name='HiddenZoneId', description='The secondary zone 2 of the instance in the multi-zone deployment. Valid values:
 
-*   **cn-hangzhou-g**: Hangzhou Zone G.
-*   **cn-hangzhou-h**: Hangzhou Zone H.
-*   **cn-hangzhou-i**: Hangzhou Zone I.
-*   **cn-hongkong-b**: Hong Kong Zone B.
-*   **cn-hongkong-c**: Hong Kong Zone C.
-*   **cn-hongkong-d**: Hong Kong Zone D.
-*   **cn-wulanchabu-a**: Ulanqab Zone A.
-*   **cn-wulanchabu-b**: Ulanqab Zone B.
-*   **cn-wulanchabu-c**: Ulanqab Zone C.
-*   **ap-southeast-1a**: Singapore Zone A.
-*   **ap-southeast-1b**: Singapore Zone B.
-*   **ap-southeast-1c**: Singapore Zone C.
-*   **ap-southeast-5a**: Jakarta Zone A.
-*   **ap-southeast-5b**: Jakarta Zone B.
-*   **ap-southeast-5c**: Jakarta Zone C.
-*   **eu-central-1a**: Frankfurt Zone A.
-*   **eu-central-1b**: Frankfurt Zone B.
-*   **eu-central-1c**: Frankfurt Zone C.
+*   **cn-hangzhou-g**: Hangzhou Zone G
+*   **cn-hangzhou-h**: Hangzhou Zone H
+*   **cn-hangzhou-i**: Hangzhou Zone I
+*   **cn-hongkong-b**: Hong Kong Zone B
+*   **cn-hongkong-c**: Hong Kong Zone C
+*   **cn-hongkong-d**: Hong Kong Zone D
+*   **cn-wulanchabu-a**: Ulanqab Zone A
+*   **cn-wulanchabu-b**: Ulanqab Zone B
+*   **cn-wulanchabu-c**: Ulanqab Zone C
+*   **ap-southeast-1a**: Singapore Zone A
+*   **ap-southeast-1b**: Singapore Zone B
+*   **ap-southeast-1c**: Singapore Zone C
+*   **ap-southeast-5a**: Jakarta Zone A
+*   **ap-southeast-5b**: Jakarta Zone B
+*   **ap-southeast-5c**: Jakarta Zone C
+*   **eu-central-1a**: Frankfurt Zone A
+*   **eu-central-1b**: Frankfurt Zone B
+*   **eu-central-1c**: Frankfurt Zone C
 
-> *   This parameter is returned if the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses multi-zone deployment.
+> *   This parameter is returned only when the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses the multi-zone deployment.
 > *   This parameter is returned only if you use the China site (aliyun.com).', example='cn-hangzhou-h'),
       kindCode?: string(name='KindCode', description='The kind code of the instance. Valid values:
 
-*   **0**: physical machine.
-*   **1**: Elastic Compute Service (ECS) instance.
-*   **2**: Docker cluster.
-*   **18**: Kubernetes cluster.', example='1'),
+*   **0**: physical machine
+*   **1**: Elastic Compute Service (ECS) instance
+*   **2**: Docker cluster
+*   **18**: Kubernetes cluster', example='1'),
       lastDowngradeTime?: string(name='LastDowngradeTime', description='The date when the last downgrade operation was performed.', example='2021-05-08'),
       lockMode?: string(name='LockMode', description='The lock status of the instance. Valid values:
 
-*   **Unlock**: The instance is not locked.
+*   **Unlock**: The cluster is unlocked.
 *   **ManualLock**: The instance is manually locked.
 *   **LockByExpiration**: The instance is automatically locked due to instance expiration.
-*   **LockByRestoration**: The instance is automatically locked before the instance is rolled back.
+*   **LockByRestoration**: The instance is automatically locked before it is rolled back.
 *   **LockByDiskQuota**: The instance is automatically locked after the storage space is exhausted.
 *   **Released**: The instance is released. After an instance is released, the instance cannot be unlocked. You can only restore the backup data of the instance to a new instance. This process requires a long period of time.', example='Unlock'),
       mongosList?: {
@@ -2660,35 +2751,36 @@ model DescribeDBInstancesResponseBody = {
 >  This parameter is returned if the instance is a sharded cluster instance.'),
       networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
 
-*   **Classic**: classic network.
-*   **VPC**: VPC.', example='Classic'),
+*   **Classic**: classic network
+*   **VPC**: VPC', example='Classic'),
       regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou'),
+      releaseTime?: string(name='ReleaseTime', description='The time when the instance was released.', example='2024-06-17T07:01Z'),
       replicationFactor?: string(name='ReplicationFactor', description='The number of nodes in the instance.
 
 >  This parameter is returned if the instance is a replica set instance.', example='3'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmyiu4ekp****'),
-      secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the secondary zone 1 of the instance. Valid values:
+      secondaryZoneId?: string(name='SecondaryZoneId', description='The secondary zone 1 of the instance in the multi-zone deployment. Valid values:
 
-*   **cn-hangzhou-g**: Hangzhou Zone G.
-*   **cn-hangzhou-h**: Hangzhou Zone H.
-*   **cn-hangzhou-i**: Hangzhou Zone I.
-*   **cn-hongkong-b**: Hong Kong Zone B.
-*   **cn-hongkong-c**: Hong Kong Zone C.
-*   **cn-hongkong-d**: Hong Kong Zone D.
-*   **cn-wulanchabu-a**: Ulanqab Zone A.
-*   **cn-wulanchabu-b**: Ulanqab Zone B.
-*   **cn-wulanchabu-c**: Ulanqab Zone C.
-*   **ap-southeast-1a**: Singapore Zone A.
-*   **ap-southeast-1b**: Singapore Zone B.
-*   **ap-southeast-1c**: Singapore Zone C.
-*   **ap-southeast-5a**: Jakarta Zone A.
-*   **ap-southeast-5b**: Jakarta Zone B.
-*   **ap-southeast-5c**: Jakarta Zone C.
-*   **eu-central-1a**: Frankfurt Zone A.
-*   **eu-central-1b**: Frankfurt Zone B.
-*   **eu-central-1c**: Frankfurt Zone C.
+*   **cn-hangzhou-g**: Hangzhou Zone G
+*   **cn-hangzhou-h**: Hangzhou Zone H
+*   **cn-hangzhou-i**: Hangzhou Zone I
+*   **cn-hongkong-b**: Hong Kong Zone B
+*   **cn-hongkong-c**: Hong Kong Zone C
+*   **cn-hongkong-d**: Hong Kong Zone D
+*   **cn-wulanchabu-a**: Ulanqab Zone A
+*   **cn-wulanchabu-b**: Ulanqab Zone B
+*   **cn-wulanchabu-c**: Ulanqab Zone C
+*   **ap-southeast-1a**: Singapore Zone A
+*   **ap-southeast-1b**: Singapore Zone B
+*   **ap-southeast-1c**: Singapore Zone C
+*   **ap-southeast-5a**: Jakarta Zone A
+*   **ap-southeast-5b**: Jakarta Zone B
+*   **ap-southeast-5c**: Jakarta Zone C
+*   **eu-central-1a**: Frankfurt Zone A
+*   **eu-central-1b**: Frankfurt Zone B
+*   **eu-central-1c**: Frankfurt Zone C
 
-> *   This parameter is returned if the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses multi-zone deployment.
+> *   This parameter is returned only when the instance is a replica set or sharded cluster instance that runs MongoDB 4.4 or 5.0 and uses the multi-zone deployment.
 > *   This parameter is returned only if you use the China site (aliyun.com).', example='cn-hangzhou-i'),
       shardList?: {
         shardAttribute?: [ 
@@ -2705,8 +2797,8 @@ model DescribeDBInstancesResponseBody = {
 >  This parameter is returned if the instance is a sharded cluster instance.'),
       storageType?: string(name='StorageType', description='The storage type of the instance. Valid values:
 
-*   **cloud_essd**: enhanced SSD (ESSD).
-*   **local_ssd**: local SSD.', example='local_ssd'),
+*   **cloud_essd**: Enterprise SSD (ESSD)
+*   **local_ssd**: local SSD', example='local_ssd'),
       tags?: {
         tag?: [ 
         {
@@ -2714,15 +2806,15 @@ model DescribeDBInstancesResponseBody = {
           value?: string(name='Value', description='The tag value.', example='api'),
         }
       ](name='Tag')
-      }(name='Tags', description='The details of the resource tags.'),
-      vpcAuthMode?: string(name='VpcAuthMode', description='Indicates whether password-free access within a virtual private cloud (VPC) is enabled. Valid values:
+      }(name='Tags', description='The details of the tag.'),
+      vpcAuthMode?: string(name='VpcAuthMode', description='Indicates whether password-free access over virtual private cloud (VPC) is enabled. Valid values:
 
-*   **Open**
-*   **Close**', example='Close'),
-      zoneId?: string(name='ZoneId', description='The ID of the zone in which the instance resides.', example='cn-hangzhou-g'),
+*   **Open**: Password-free access over VPC is enabled.
+*   **Close**: Password-free access over VPC is disabled.', example='Close'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the instance.', example='cn-hangzhou-g'),
     }
   ](name='DBInstance')
-  }(name='DBInstances', description='The details of the instances.'),
+  }(name='DBInstances', description='The details of the instance.'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='30'),
   requestId?: string(name='RequestId', description='The request ID.', example='0E4FE33F-5510-5758-8FA7-A6672CDE****'),
@@ -3343,7 +3435,7 @@ async function describeInstanceAutoRenewalAttribute(request: DescribeInstanceAut
 
 model DescribeInstanceRecoverTimeRequest {
   regionId?: string(name='RegionId', position='Host'),
-  DBInstanceId: string(name='DBInstanceId', example='dds-bpxxxxxxxx', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bpxxxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -3352,14 +3444,16 @@ model DescribeInstanceRecoverTimeRequest {
 }
 
 model DescribeInstanceRecoverTimeResponseBody = {
-  requestId?: string(name='RequestId', example='F8CA8312-530A-413A-9129-F2BB32A8D404'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F8CA8312-530A-413A-9129-F2BB32A8D404'),
   restoreRanges?: [ 
     {
-      restoreBeginTime?: string(name='RestoreBeginTime', example='2023-10-16T19:33:20Z'),
-      restoreEndTime?: string(name='RestoreEndTime', example='2023-10-16T19:43:20Z'),
-      restoreType?: string(name='RestoreType', example='PointInTime'),
+      restoreBeginTime?: string(name='RestoreBeginTime', description='The beginning of the time range to which data can be restored.', example='2023-10-16T19:33:20Z'),
+      restoreEndTime?: string(name='RestoreEndTime', description='The end of the time range to which data can be restored.', example='2023-10-16T19:43:20Z'),
+      restoreType?: string(name='RestoreType', description='The method used to restore data. Valid value:
+
+*   PointInTime (default): Data is restored to a point in time.', example='PointInTime'),
     }
-  ](name='RestoreRanges'),
+  ](name='RestoreRanges', description='The time ranges to which data can be restored. The time ranges include those used for point-in-time data restoration.'),
 }
 
 model DescribeInstanceRecoverTimeResponse = {
@@ -3696,8 +3790,11 @@ model DescribePriceRequest {
 *   **badds_sharding_jp**: a sharded cluster instance that uses the subscription billing method and is available on the Japan site (jp.alibabacloud.com)
 *   **badds_intl**: a replica set instance that uses the subscription billing method and is available on the International site (alibabacloud.com)
 *   **dds_intl**: a replica set instance that uses the pay-as-you-go billing method and is available on the International site (alibabacloud.com)', example='badds', position='Query'),
-  couponNo?: string(name='CouponNo', description='The coupon code. Default value: **youhuiquan_promotion_option_id_for_blank**.', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
-  DBInstances: string(name='DBInstances', description='A JSON string that contains the details of the ApsaraDB for MongoDB instance. For more information, see the [DBInstances](~~197291~~) parameter in the DescribePrice operation.', example='[ { "DBInstanceId":"dds-bp1b6e54e7cc****", "RegionId":"cn-hangzhou", "ZoneId":"cn-hangzhou-h", "Engine":"MongoDB", "EngineVersion":" 5.0", "DBInstanceClass":"mdb.shard.2x.xlarge.d", "DBInstanceStorage":30, "ChargeType":"PrePaid", "Period":1, "StorageType":"cloud_essd1" } ]', position='Query'),
+  couponNo?: string(name='CouponNo', description='Specifies whether to use coupons. Default value: null. Valid values:
+
+*   **default** or **null**: uses coupons.
+*   **youhuiquan_promotion_option_id_for_blank**: does not use coupons.', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
+  DBInstances: string(name='DBInstances', description='A JSON string that contains the details of the instance. For more information about the parameter and sample JSON formats, see [DescribePrice](~~197291~~).', example='[ { "DBInstanceId":"dds-bp1b6e54e7cc****", "RegionId":"cn-hangzhou", "ZoneId":"cn-hangzhou-h", "Engine":"MongoDB", "EngineVersion":" 5.0", "DBInstanceClass":"mdb.shard.2x.xlarge.d", "DBInstanceStorage":30, "ChargeType":"PrePaid", "Period":1, "StorageType":"cloud_essd1" } ]', position='Query'),
   orderParamOut?: string(name='OrderParamOut', description='Specifies whether to return the OrderParams parameter. Valid values:
 
 *   **false** (default)
@@ -3718,8 +3815,8 @@ model DescribePriceRequest {
 
 model DescribePriceResponseBody = {
   order?: {
-    code?: string(name='Code'),
-    contractActivity?: boolean(name='ContractActivity'),
+    code?: string(name='Code', description='The order code.', example='""'),
+    contractActivity?: boolean(name='ContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
     coupons?: {
       coupon?: [ 
       {
@@ -3738,47 +3835,47 @@ model DescribePriceResponseBody = {
         promotionOptionCode?: string(name='PromotionOptionCode', description='The promotional option code.', example='youhui_quan'),
         promotionRuleIdList?: {
           promotionRuleId?: [ long ](name='PromotionRuleId')
-        }(name='PromotionRuleIdList', description='Details about the rules that match the coupon.'),
+        }(name='PromotionRuleIdList', description='The IDs of the rules that correspond to the coupon.'),
       }
     ](name='Coupon')
     }(name='Coupons', description='The information of coupons.'),
     currency?: string(name='Currency', description='The currency.', example='USD'),
     depreciateInfo?: {
-      cheapRate?: double(name='CheapRate'),
-      cheapStandAmount?: double(name='CheapStandAmount'),
+      cheapRate?: double(name='CheapRate', description='The price reduction rate.', example='30%'),
+      cheapStandAmount?: double(name='CheapStandAmount', description='The new total price displayed on the official website.', example='9*'),
       contractActivity?: {
-        activityId?: long(name='ActivityId'),
-        activityName?: string(name='ActivityName'),
-        finalFee?: double(name='FinalFee'),
-        finalPromFee?: double(name='FinalPromFee'),
-        optionCode?: string(name='OptionCode'),
+        activityId?: long(name='ActivityId', description='The activity ID.', example='41120065996xxxxx'),
+        activityName?: string(name='ActivityName', description='The activity name.', example='contract promotion_order_xxx discount'),
+        finalFee?: double(name='FinalFee', description='The price after the promotion.', example='20522.4'),
+        finalPromFee?: double(name='FinalPromFee', description='The total discount amount.', example='3621.6'),
+        optionCode?: string(name='OptionCode', description='The promotion ID.', example='wanhua_activity'),
         optionIds?: {
           optionId?: [ long ](name='OptionId')
-        }(name='OptionIds'),
-        prodFee?: double(name='ProdFee'),
-      }(name='ContractActivity'),
-      differential?: double(name='Differential'),
-      differentialName?: string(name='DifferentialName'),
-      isContractActivity?: boolean(name='IsContractActivity'),
-      isShow?: string(name='IsShow'),
-      listPrice?: double(name='ListPrice'),
-      monthPrice?: double(name='MonthPrice'),
-      originalStandAmount?: double(name='OriginalStandAmount'),
-    }(name='DepreciateInfo'),
+        }(name='OptionIds', description='The promotion IDs.'),
+        prodFee?: double(name='ProdFee', description='The original price.', example='24144.0'),
+      }(name='ContractActivity', description='The contract promotion.'),
+      differential?: double(name='Differential', description='The price difference displayed in the total order amount.', example='**'),
+      differentialName?: string(name='DifferentialName', description='The name of the price difference.', example='XXXXX'),
+      isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+      isShow?: string(name='IsShow', description='Indicates whether the price reduction rate is displayed.', example='true'),
+      listPrice?: double(name='ListPrice', description='The list price.', example='1*'),
+      monthPrice?: double(name='MonthPrice', description='The monthly price.', example='**'),
+      originalStandAmount?: double(name='OriginalStandAmount', description='The original total price displayed on the official website.', example='12*'),
+    }(name='DepreciateInfo', description='The price reduction information.'),
     discountAmount?: string(name='DiscountAmount', description='The discount amount of the order.', example='322.4'),
-    isContractActivity?: boolean(name='IsContractActivity'),
-    message?: string(name='Message'),
-    optionalPromotions?: string(name='OptionalPromotions'),
+    isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+    message?: string(name='Message', description='The order information.', example='""'),
+    optionalPromotions?: string(name='OptionalPromotions', description='The promotional activity information.', example='\\[{\\”activityCategory\\”:\\”discount\\”,\\”activityExtInfo\\”:{\\”noUseYouhuiquan\\”:\\”true\\”,\\”activityId\\”:\\”191156098xxxx\\”,\\”activityExtraAttr\\”:\\”{\\\\\\\\”forbiddenCpsProfit\\\\\\\\”:\\\\\\\\”true\\\\\\\\”,\\\\\\\\”forbiddenCouponsRestricted\\\\\\\\”:\\\\\\\\”true\\\\\\\\”,\\\\\\\\”forbiddenAmbassadorProfit\\\\\\\\”:\\\\\\\\”true\\\\\\\\”}\\”,\\”isActivityIdFromWanHuaTong\\”:\\”true\\”,\\”isContractActivity\\”:\\”false\\”},\\”canPromFee\\”:906130,\\”optionCode\\”:\\”wanhua_activity\\”,\\”promotionName\\”:\\”FY24--MongoDB replica set - first-time purchase - \\* discount for a one-year period - first-time purchase benefits\\”,\\”promotionOptionNo\\”:\\”19115609882xxxx\\”,\\”promotionRuleIdList\\”:\\[2091xxxx],\\”selected\\”:true,\\”targetArticleItemCodes\\”:\\[]},{\\”activityCategory\\”:\\”discount\\”,\\”activityExtInfo\\”:{\\”activityId\\”:\\”1018040010xxxxx\\”,\\”wanHuaOrderExpireSec\\”:\\”604800\\”,\\”isActivityIdFromWanHuaTong\\”:\\”true\\”,\\”isContractActivity\\”:\\”false\\”},\\”canPromFee\\”:339799,\\”optionCode\\”:\\”wanhua_activity\\”,\\”promotionName\\”:\\”FY24--MongoDB discount for a one-year period \\”,\\”promotionOptionNo\\”:\\”10180400107xxxxx\\”,\\”promotionRuleIdList\\”:\\[xxxxx],\\”selected\\”:false,\\”targetArticleItemCodes\\”:\\[]}]”'),
     originalAmount?: string(name='OriginalAmount', description='The original price of the order.', example='322.4'),
-    promDetailList?: string(name='PromDetailList'),
+    promDetailList?: string(name='PromDetailList', description='The promotional activity that is hit.', example='\\[{\\”finalPromFee\\”:90xxx,\\”optionCode\\”:\\”wanhua_activity\\”,\\”promType\\”:\\”discount\\”,\\”promotionId\\”:2091xxxx,\\”promotionName\\”:\\”\\* discount is provided for new users who purchase ApsaraDB for MongoDB replica set instances for one year. A new user can purchase an ApsaraDB for MongoDB replica set instance only by using the discount.\\”}]”'),
     ruleIds?: {
       ruleId?: [ string ](name='RuleId')
     }(name='RuleIds', description='The rules of the order.'),
-    showDiscountInfo?: boolean(name='ShowDiscountInfo', description='Indicates whether the information of the discount is displayed.', example='true'),
-    standDiscountPrice?: double(name='StandDiscountPrice'),
-    standPrice?: double(name='StandPrice'),
+    showDiscountInfo?: boolean(name='ShowDiscountInfo', description='Indicates whether the discount information is displayed.', example='true'),
+    standDiscountPrice?: double(name='StandDiscountPrice', description='The discount.', example='0'),
+    standPrice?: double(name='StandPrice', description='The discount.', example='0'),
     tradeAmount?: string(name='TradeAmount', description='The final price of the order.', example='0'),
-  }(name='Order', description='The order.'),
+  }(name='Order', description='The order information.'),
   orderParams?: string(name='OrderParams', description='The order parameters.
 
 > This parameter is returned only when the **OrderParamOut** parameter is set to **true**.', example='{\\"autoPay\\":false}"'),
@@ -3795,123 +3892,133 @@ model DescribePriceResponseBody = {
   subOrders?: {
     subOrder?: [ 
     {
-      contractActivity?: boolean(name='ContractActivity'),
+      contractActivity?: boolean(name='ContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
       depreciateInfo?: {
-        cheapRate?: double(name='CheapRate'),
-        cheapStandAmount?: double(name='CheapStandAmount'),
+        cheapRate?: double(name='CheapRate', description='The price reduction rate.', example='30%'),
+        cheapStandAmount?: double(name='CheapStandAmount', description='The new total price displayed on the official website.', example='9*'),
         contractActivity?: {
-          activityId?: long(name='ActivityId'),
-          activityName?: string(name='ActivityName'),
-          finalFee?: double(name='FinalFee'),
-          finalPromFee?: double(name='FinalPromFee'),
-          optionCode?: string(name='OptionCode'),
+          activityId?: long(name='ActivityId', description='The activity ID.', example='41120065996xxxxx'),
+          activityName?: string(name='ActivityName', description='The activity name.', example='contract promotion_order_xxx discount'),
+          finalFee?: double(name='FinalFee', description='The price after the promotion.', example='20522.4'),
+          finalPromFee?: double(name='FinalPromFee', description='The total discount amount.', example='3621.6'),
+          optionCode?: string(name='OptionCode', description='The promotion ID.', example='wanhua_activity'),
           optionIds?: {
             optionId?: [ long ](name='OptionId')
-          }(name='OptionIds'),
-          prodFee?: double(name='ProdFee'),
-        }(name='ContractActivity'),
-        differential?: double(name='Differential'),
-        differentialName?: string(name='DifferentialName'),
-        isContractActivity?: boolean(name='IsContractActivity'),
-        isShow?: string(name='IsShow'),
-        listPrice?: double(name='ListPrice'),
-        monthPrice?: double(name='MonthPrice'),
-        originalStandAmount?: double(name='OriginalStandAmount'),
-        startTime?: string(name='StartTime'),
-      }(name='DepreciateInfo'),
+          }(name='OptionIds', description='The promotion IDs.'),
+          prodFee?: double(name='ProdFee', description='The original price.', example='24144.0'),
+        }(name='ContractActivity', description='The activity information.'),
+        differential?: double(name='Differential', description='The price difference displayed in the total order amount.', example='**'),
+        differentialName?: string(name='DifferentialName', description='The name of the price difference.', example='XXXXX'),
+        isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+        isShow?: string(name='IsShow', description='Indicates whether the price reduction rate is displayed.', example='true'),
+        listPrice?: double(name='ListPrice', description='The list price.', example='1*'),
+        monthPrice?: double(name='MonthPrice', description='The monthly price.', example='**'),
+        originalStandAmount?: double(name='OriginalStandAmount', description='The original total price displayed on the official website.', example='12*'),
+        startTime?: string(name='StartTime', description='The start time of the activity.', example='2024-02-29 10:30:00'),
+      }(name='DepreciateInfo', description='The price reduction information.'),
       discountAmount?: string(name='DiscountAmount', description='The discount amount of the order.', example='322.4'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='dds-bp1b6e54e7cc****'),
-      isContractActivity?: boolean(name='IsContractActivity'),
-      isNewOfficialActivity?: string(name='IsNewOfficialActivity'),
+      isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+      isNewOfficialActivity?: string(name='IsNewOfficialActivity', description='Indicates whether the discount is hit.', example='true'),
       moduleInstance?: {
         moduleInstance?: [ 
         {
-          contractActivity?: boolean(name='ContractActivity'),
-          cycleFee?: string(name='CycleFee'),
+          contractActivity?: boolean(name='ContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+          cycleFee?: string(name='CycleFee', description='The cycle fee of the module.', example='0.0'),
           depreciateInfo?: {
-            cheapRate?: double(name='CheapRate'),
-            cheapStandAmount?: double(name='CheapStandAmount'),
-            differential?: double(name='Differential'),
-            differentialName?: string(name='DifferentialName'),
-            isContractActivity?: boolean(name='IsContractActivity'),
-            isShow?: string(name='IsShow'),
-            listPrice?: double(name='ListPrice'),
-            monthPrice?: double(name='MonthPrice'),
-            originalStandAmount?: double(name='OriginalStandAmount'),
-          }(name='DepreciateInfo'),
-          discountFee?: string(name='DiscountFee'),
+            cheapRate?: double(name='CheapRate', description='The price reduction rate.', example='30%'),
+            cheapStandAmount?: double(name='CheapStandAmount', description='The new total price displayed on the official website.', example='9*'),
+            differential?: double(name='Differential', description='The price difference displayed in the total order amount.', example='**'),
+            differentialName?: string(name='DifferentialName', description='The name of the price difference.', example='XXXXX'),
+            isContractActivity?: boolean(name='IsContractActivity', description='Indicates whether the contract promotion is hit.', example='false'),
+            isShow?: string(name='IsShow', description='Indicates whether the price reduction rate is displayed.', example='true'),
+            listPrice?: double(name='ListPrice', description='The list price.', example='1*'),
+            monthPrice?: double(name='MonthPrice', description='The monthly price.', example='**'),
+            originalStandAmount?: double(name='OriginalStandAmount', description='The original total price displayed on the official website.', example='12*'),
+          }(name='DepreciateInfo', description='The activity information.'),
+          discountFee?: string(name='DiscountFee', description='The discount.', example='0.0'),
           moduleAttrs?: {
             moduleAttr?: [ 
             {
-              code?: string(name='Code'),
-              name?: string(name='Name'),
-              type?: string(name='Type'),
-              value?: string(name='Value'),
+              code?: string(name='Code', description='The attribute code.', example='dds_dbtype'),
+              name?: string(name='Name', description='The attribute name.', example='MongoDB'),
+              type?: string(name='Type', description='The attribute type.', example='3'),
+              value?: string(name='Value', description='The attribute value.', example='MongoDB'),
             }
           ](name='moduleAttr')
-          }(name='ModuleAttrs'),
-          moduleCode?: string(name='ModuleCode'),
-          moduleId?: long(name='ModuleId'),
-          moduleName?: string(name='ModuleName'),
-          needOrderPay?: boolean(name='NeedOrderPay'),
-          payFee?: double(name='PayFee'),
-          pricingModule?: boolean(name='PricingModule'),
+          }(name='ModuleAttrs', description='The module attributes.'),
+          moduleCode?: string(name='ModuleCode', description='The module code.', example='dds_dbtype'),
+          moduleId?: long(name='ModuleId', description='The module ID', example='1017110000415xxx'),
+          moduleName?: string(name='ModuleName', description='The module name.', example='database type'),
+          needOrderPay?: boolean(name='NeedOrderPay', description='Indicates whether the order is paid.', example='true'),
+          payFee?: double(name='PayFee', description='The actual amount paid.', example='0.0'),
+          pricingModule?: boolean(name='PricingModule', description='Indicates whether the item is billed.', example='false'),
           promDetailList?: {
-            promDetal?: [ 
+            promDetail?: [ 
             {
-              activityExtInfo?: map[string]any(name='ActivityExtInfo'),
-              derivedPromType?: string(name='DerivedPromType'),
-              finalPromFee?: double(name='FinalPromFee'),
-              optionCode?: string(name='OptionCode'),
-              promType?: string(name='PromType'),
-              promotionCode?: string(name='PromotionCode'),
-              promotionId?: long(name='PromotionId'),
-              promotionName?: string(name='PromotionName'),
+              activityExtInfo?: map[string]any(name='ActivityExtInfo', description='The additional promotion information.', example='{
+    "activityId": "1512010241743170"
+}'),
+              derivedPromType?: string(name='DerivedPromType', description='The sub-type of the promotion.', example='subPrice'),
+              finalPromFee?: double(name='FinalPromFee', description='The discount amount.', example='0.0'),
+              optionCode?: string(name='OptionCode', description='The code of the commodity to which the coupon can be applied.', example='wanhua_activity'),
+              promType?: string(name='PromType', description='The sub-type of the promotion.', example='discount'),
+              promotionCode?: string(name='PromotionCode', description='The coupon code.', example='aliwood-xxx'),
+              promotionId?: long(name='PromotionId', description='The ID of the promotional activity.', example='8105187xxxx'),
+              promotionName?: string(name='PromotionName', description='The promotional activity name.', example='\\[Item with price reduction in x xxxx] ApsaraDB for MongoDB instances of a full range of specifications - xxxxx'),
             }
-          ](name='PromDetal')
-          }(name='PromDetailList'),
-          standPrice?: double(name='StandPrice'),
-          totalProductFee?: double(name='TotalProductFee'),
+          ](name='PromDetail')
+          }(name='PromDetailList', description='The promotion details.'),
+          standDiscountPrice?: double(name='StandDiscountPrice', description='The discount.', example='451.00'),
+          standPrice?: double(name='StandPrice', description='The discount.', example='0'),
+          totalProductFee?: double(name='TotalProductFee', description='The original price of the product.', example='0.0'),
         }
       ](name='ModuleInstance')
-      }(name='ModuleInstance'),
+      }(name='ModuleInstance', description='The configuration item of the instance in the order.'),
       optionalPromotions?: {
         optionalPromotion?: [ 
         {
-          activityCategory?: string(name='ActivityCategory'),
-          activityExtInfo?: map[string]any(name='ActivityExtInfo'),
-          canPromFee?: double(name='CanPromFee'),
-          optionCode?: string(name='OptionCode'),
-          promotionName?: string(name='PromotionName'),
-          promotionOptionNo?: string(name='PromotionOptionNo'),
-          selected?: boolean(name='Selected'),
-          show?: boolean(name='Show'),
+          activityCategory?: string(name='ActivityCategory', description='The activity type.', example='discount'),
+          activityExtInfo?: map[string]any(name='ActivityExtInfo', description='The additional activity information.', example='{
+    "activityId": "1512010241743170"
+}'),
+          canPromFee?: double(name='CanPromFee', description='The amount that can be deducted by using the coupon.', example='4560789'),
+          optionCode?: string(name='OptionCode', description='The promotion type.', example='wanhua_activity'),
+          promotionName?: string(name='PromotionName', description='The promotion name.', example='\\[Item with price reduction in xxx] ApsaraDB for MongoDB instances of a full range of specifications - xxx'),
+          promotionOptionNo?: string(name='PromotionOptionNo', description='The promotion ID.', example='1512010241xxxxx'),
+          promotionRuleIdList?: {
+            promotionRuleId?: [ string ](name='promotionRuleId')
+          }(name='PromotionRuleIdList', description='The IDs of the rules that correspond to the coupon.'),
+          selected?: boolean(name='Selected', description='Indicates whether', example='false'),
+          show?: boolean(name='Show', description='Indicates whether the discount is displayed.', example='true'),
           targetArticleItemCodes?: {
             targetArticleItemCode?: [ string ](name='targetArticleItemCode')
-          }(name='TargetArticleItemCodes'),
+          }(name='TargetArticleItemCodes', description='The specification codes of the product.'),
         }
       ](name='OptionalPromotion')
-      }(name='OptionalPromotions'),
-      originalAmount?: string(name='OriginalAmount', description='The list price of the order.', example='322.4'),
+      }(name='OptionalPromotions', description='The promotional options that can be configured.'),
+      originalAmount?: string(name='OriginalAmount', description='The original price of the order.', example='322.4'),
       promDetailList?: {
-        promDetal?: [ 
+        promDetail?: [ 
         {
-          activityExtInfo?: map[string]any(name='ActivityExtInfo'),
-          derivedPromType?: string(name='DerivedPromType'),
-          finalPromFee?: double(name='FinalPromFee'),
-          optionCode?: string(name='OptionCode'),
-          promType?: string(name='PromType'),
-          promotionCode?: string(name='PromotionCode'),
-          promotionId?: long(name='PromotionId'),
-          promotionName?: string(name='PromotionName'),
+          activityExtInfo?: map[string]any(name='ActivityExtInfo', description='The additional activity information.', example='{
+    "activityId": "1512010241743170"
+}'),
+          derivedPromType?: string(name='DerivedPromType', description='The sub-type of the promotion.', example='subPrice'),
+          finalPromFee?: double(name='FinalPromFee', description='The discount amount.', example='0.0'),
+          optionCode?: string(name='OptionCode', description='The code of the coupon.', example='youhui_quan'),
+          promType?: string(name='PromType', description='The sub-type of the promotion.', example='discount'),
+          promotionCode?: string(name='PromotionCode', description='The coupon code.', example='ali-wood'),
+          promotionId?: long(name='PromotionId', description='The promotion ID.', example='233xxxxx'),
+          promotionName?: string(name='PromotionName', description='The name of the promotional activity.', example='\\[Item with price reduction in x xxxx] ApsaraDB for MongoDB instances of a full range of specifications - xxxxx'),
         }
-      ](name='PromDetal')
-      }(name='PromDetailList'),
+      ](name='PromDetail')
+      }(name='PromDetailList', description='The promotion details.'),
       ruleIds?: {
         ruleId?: [ string ](name='RuleId')
-      }(name='RuleIds', description='The promotion rules.'),
-      standDiscountPrice?: double(name='StandDiscountPrice'),
-      standPrice?: double(name='StandPrice'),
+      }(name='RuleIds', description='The activity rules.'),
+      standDiscountPrice?: double(name='StandDiscountPrice', description='The discount.', example='8687'),
+      standPrice?: double(name='StandPrice', description='The discount.', example='62982'),
       tradeAmount?: string(name='TradeAmount', description='The actual price of the order.', example='0'),
     }
   ](name='SubOrder')
@@ -4587,23 +4694,7 @@ model EvaluateResourceRequest {
 > This parameter is required when you check whether resources are sufficient for creating or upgrading a replica set instance. For more information about instance types, see [Instance types](~~57141~~).', example='dds.mongo.mid', position='Query'),
   DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance. This parameter is required when you check whether resources are sufficient for upgrading an instance.', example='dds-bp14bf67a76d****', position='Query'),
   engine?: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.', example='MongoDB', position='Query'),
-  engineVersion: string(name='EngineVersion', description='The version of the database engine. Valid values:
-
-*   **7.0**
-*   **6.0**
-*   **5.0**
-*   **4.4**
-*   **4.2**
-*   **4.0**
-
-<!---->
-
-*   3.4
-*   4.0
-*   4.2
-*   4.4
-*   5.0
-*   6.0', example='4.0', position='Query'),
+  engineVersion: string(name='EngineVersion', description='The version of the database engine.', example='4.0', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   readonlyReplicas?: string(name='ReadonlyReplicas', description='The number of read-only nodes in the instance. Valid values: **1** to **5**.
@@ -4738,10 +4829,12 @@ model MigrateAvailableZoneRequest {
 *   **MaintainTime**: The instance is migrated to the destination zone during the maintenance window of the instance.
 
 Default value: **Immediately**.', example='Immediately', position='Query'),
+  hiddenZoneId?: string(name='HiddenZoneId', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  secondaryZoneId?: string(name='SecondaryZoneId', position='Query'),
   vswitch?: string(name='Vswitch', description='The ID of the vSwitch in the destination zone.
 
 > If the instance is deployed in a VPC, you must specify this parameter.', example='vsw-bp1buy0h9myt5i9e7****', position='Query'),
@@ -4850,18 +4943,28 @@ async function modifyAccountDescription(request: ModifyAccountDescriptionRequest
 }
 
 model ModifyActiveOperationTasksRequest {
-  ids: string(name='Ids', example='11111,22222', position='Query'),
-  immediateStart?: int32(name='ImmediateStart', example='0', position='Query'),
+  ids: string(name='Ids', description='The IDs of the O\\&M tasks. Separate multiple task IDs with commas (,).
+
+>  You can call the DescribeActiveOperationTask operation to query the IDs of O\\&M tasks.', example='11111,22222', position='Query'),
+  immediateStart?: int32(name='ImmediateStart', description='Specifies whether to immediately start scheduling. Valid values:
+
+*   0 (default): Scheduling is not started immediately.
+*   1: Scheduling is started immediately.
+
+> -   If you set this parameter to 0, the SwitchTime parameter takes effect. If you set this parameter to 1, the SwitchTime parameter does not take effect. In this case, the start time of the task is the current time, and the system determines the switching time based on the start time.
+> -   Immediate scheduling specifies that the task enters the preparing state instead of being executed immediately. After the preparation is complete, the switchover is performed. You can call the DescribeActiveOperationTasks operation to query the preparation time that is returned for the PrepareInterval parameter.', example='0', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  switchTime: string(name='SwitchTime', example='2019-10-17T18:50:00Z', position='Query'),
+  switchTime: string(name='SwitchTime', description='The scheduled switching time that you want to specify. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+>  The time that is specified by the SwitchTime parameter cannot be later than the time that is specified by the Deadline parameter. You can call the DescribeActiveOperationTasks operation to query the latest switching time that is returned for the Deadline parameter.', example='2019-10-17T18:50:00Z', position='Query'),
 }
 
 model ModifyActiveOperationTasksResponseBody = {
-  ids?: string(name='Ids', example='11111,22222'),
-  requestId?: string(name='RequestId', example='CAAE9DDA-65FD-584C-A378-F1F24676****'),
+  ids?: string(name='Ids', description='The IDs of the O\\&M tasks. Multiple task IDs are separated by commas (,).', example='11111,22222'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CAAE9DDA-65FD-584C-A378-F1F24676****'),
 }
 
 model ModifyActiveOperationTasksResponse = {
@@ -4961,37 +5064,52 @@ async function modifyAuditPolicy(request: ModifyAuditPolicyRequest): ModifyAudit
 
 model ModifyBackupPolicyRequest {
   regionId?: string(name='RegionId', position='Host'),
-  backupInterval?: string(name='BackupInterval', description='The frequency at which high-frequency backups are created. Valid values:
+  backupInterval?: string(name='BackupInterval', description='The frequency at which high-frequency backup is created. Valid values:
 
-*   **-1**: disables high-frequency backup.
-*   **15**: every 15 minutes.
-*   **30**: every 30 minutes.
-*   **60**: every hour.
-*   **120**: every 2 hours.
-*   **180**: every 3 hours.
-*   **240**: every 4 hours.
-*   **360**: every 6 hours.
-*   **480**: every 8 hours.
-*   **720**: every 12 hours.
+*   **-1**: High-frequency backup is disabled.
+*   **30**: High-frequency backups are generated every 30 minutes.
+*   **60**: High-frequency backups are generated every 1 hour.
+*   **120**: High-frequency backups are generated every 2 hours.
+*   **180**: High-frequency backups are generated every 3 hours.
+*   **240**: High-frequency backups are generated every 4 hours.
+*   **360**: High-frequency backups are generated every 6 hours.
+*   **480**: High-frequency backups are generated every 8 hours.
+*   **720**: High-frequency backups are generated every 12 hours.
 
-> * If **SnapshotBackupType** is set to **Standard**, this parameter is set to **-1** and cannot be changed.
-> * High-frequency backup takes effect only when **SnapshotBackupType** is set to **Flash** and the value of this parameter is greater than 0.', example='-1', position='Query'),
+> 
+
+*   If the **SnapshotBackupType** parameter is set to **Standard**, this parameter is set to -1 and cannot be changed.
+
+*   High-frequency backup takes effect only when the **SnapshotBackupType** parameter is set to **Flash** and the value of this parameter is greater than 0.', example='-1', position='Query'),
   backupRetentionPeriod?: long(name='BackupRetentionPeriod', description='The retention period of full backups.
 
-> * If your instance is created before September 10, 2021, backups are retained for seven days by default.
-> * If your instance is created after September 10, 2021, backups are retained for 30 days by default.', example='30', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='dds-bp16cb162771****', position='Query'),
-  enableBackupLog?: long(name='EnableBackupLog', description='Specifies whether to enable log backup. Default value: 0. Valid values:
+> 
 
-*   **0**: disables log backup.
-*   **1**: enables log backup.', example='0', position='Query'),
-  highFrequencyBackupRetention?: long(name='HighFrequencyBackupRetention', position='Query'),
+*   If your instance is created before September 10, 2021, backups are retained for seven days by default.
+
+*   If your instance is created after September 10, 2021, backups are retained for 30 days by default.', example='30', position='Query'),
+  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion', position='Query'),
+  crossBackupPeriod?: string(name='CrossBackupPeriod', position='Query'),
+  crossBackupType?: string(name='CrossBackupType', position='Query'),
+  crossLogRetentionType?: string(name='CrossLogRetentionType', position='Query'),
+  crossLogRetentionValue?: int32(name='CrossLogRetentionValue', position='Query'),
+  crossRetentionType?: string(name='CrossRetentionType', position='Query'),
+  crossRetentionValue?: int32(name='CrossRetentionValue', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp16cb162771****', position='Query'),
+  destRegion?: string(name='DestRegion', position='Query'),
+  enableBackupLog?: long(name='EnableBackupLog', description='Specifies whether to enable the log backup feature. Valid values:
+
+*   **0** (default): The log backup feature is disabled.
+*   **1**: The log backup feature is enabled.', example='0', position='Query'),
+  enableCrossLogBackup?: int32(name='EnableCrossLogBackup', position='Query'),
+  highFrequencyBackupRetention?: long(name='HighFrequencyBackupRetention', description='The number of days for which high-frequency backups are retained. Before you use this parameter, make sure that you specify the BackupInterval parameter. By default, high-frequency backups are retained for one day.', position='Query'),
+  instanceType?: string(name='InstanceType', position='Query'),
   logBackupRetentionPeriod?: long(name='LogBackupRetentionPeriod', description='The number of days for which log backups are retained. Default value: 7.
 
 Valid values: 7 to 730.', example='7', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  preferredBackupPeriod: string(name='PreferredBackupPeriod', description='The day of a week on which to back up data. Valid values:
+  preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The day of a week when the system regularly backs up data. Valid values:
 
 *   **Monday**
 *   **Tuesday**
@@ -5002,19 +5120,20 @@ Valid values: 7 to 730.', example='7', position='Query'),
 *   **Sunday**
 
 >  Separate multiple values with commas (,).', example='Monday,Wednesday,Friday,Sunday', position='Query'),
-  preferredBackupTime: string(name='PreferredBackupTime', description='The time range to back up data. Specify the time in the *HH:mm*Z-*HH:mm*Z format. The time must be in UTC.
+  preferredBackupTime?: string(name='PreferredBackupTime', description='The start time of the backup. Specify the time in the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time must be in UTC.
 
 >  The time range is 1 hour.', example='03:00Z-04:00Z', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Default value: Standard. Valid values:
+  snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Valid values:
 
 *   **Flash**: single-digit second backup
-*   **Standard**: standard backup', example='Standard', position='Query'),
+*   **Standard** (default): standard backup', example='Standard', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
 }
 
 model ModifyBackupPolicyResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='644A359C-B871-4DD3-97B5-ED91EF5809C2'),
+  requestId?: string(name='RequestId', description='The request ID.', example='644A359C-B871-4DD3-97B5-ED91EF5809C2'),
 }
 
 model ModifyBackupPolicyResponse = {
@@ -5037,8 +5156,9 @@ model ModifyDBInstanceConnectionStringRequest {
   newConnectionString: string(name='NewConnectionString', description='The new endpoint. It must be 8 to 64 characters in length and can contain letters and digits. It must start with a lowercase letter.
 
 > You need only to specify the prefix of the endpoint. The content other than the prefix cannot be modified.', example='aliyuntest111', position='Query'),
-  newPort?: int32(name='NewPort', description='新的端口，端口范围需要在1000~65535之间。
-> 当**DBInstanceId**参数传入的是云盘实例ID时，本参数才可用。', example='3310', position='Query'),
+  newPort?: int32(name='NewPort', description='The new port number of the instance. The port number must be within the range from 1000 to 65535.
+
+>  This parameter is available only when you set the **DBInstanceId** parameter to the ID of an instance that uses cloud disks.', example='3310', position='Query'),
   nodeId?: string(name='NodeId', description='The ID of the mongos in the specified sharded cluster instance. Only one mongos ID can be specified in each call.
 
 > This parameter is valid only when you specify the **DBInstanceId** parameter to the ID of a sharded cluster instance.', example='s-bpxxxxxxxx', position='Query'),
@@ -5058,6 +5178,12 @@ model ModifyDBInstanceConnectionStringResponse = {
   body?: ModifyDBInstanceConnectionStringResponseBody(name='body'),
 }
 
+/**
+  * You can modify the connection strings and ports of the following instances:
+  * *   You can modify the connection strings of instances that use local or cloud disks.
+  * *   You can only modify the ports of instances that use cloud disks.
+  *
+ */
 async function modifyDBInstanceConnectionString(request: ModifyDBInstanceConnectionStringRequest): ModifyDBInstanceConnectionStringResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyDBInstanceConnectionString', 'POST', '/', 'json', false, 'json', request);
@@ -5103,21 +5229,41 @@ async function modifyDBInstanceDescription(request: ModifyDBInstanceDescriptionR
 
 model ModifyDBInstanceDiskTypeRequest {
   regionId?: string(name='RegionId', position='Host'),
-  autoPay?: boolean(name='AutoPay', example='true', position='Query'),
-  autoRenew?: string(name='AutoRenew', example='false', position='Query'),
-  businessInfo?: string(name='BusinessInfo', example='{“ActivityId":"000000000"}', position='Query'),
-  couponNo?: string(name='CouponNo', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', example='dds-bp1fa5efaa93****', position='Query'),
-  dbInstanceStorageType?: string(name='DbInstanceStorageType', example='cloud_auto', position='Query'),
-  extraParam?: string(name='ExtraParam', example='async', position='Query'),
-  orderType?: string(name='OrderType', example='UPGRADE', position='Query'),
-  provisionedIops?: long(name='ProvisionedIops', example='1960', minimum=0, maximum=50000, position='Query'),
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable automatic payment. Valid values:
+
+*   **true**: enables automatic payment. Make sure that you have sufficient balance within your account.
+*   **false**: disables automatic payment. You must perform the following operations to pay for the instance: Log on to the ApsaraDB for MongoDB console. In the upper-right corner, click **Expenses** and select **User Center** from the drop-down list. The User Center page appears. In the left-side navigation pane, choose **Order Management** > Renew. On the Renewal tab, find the bill that you want to pay and then click Renew in the Actions column.
+
+Default value: **true**.', example='true', position='Query'),
+  autoRenew?: string(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
+
+*   **true**
+*   **false**
+
+Default value: **false**.', example='false', position='Query'),
+  businessInfo?: string(name='BusinessInfo', description='The business information. This is an additional parameter.', example='{“ActivityId":"000000000"}', position='Query'),
+  couponNo?: string(name='CouponNo', description='The coupon code. Default value: `youhuiquan_promotion_option_id_for_blank`.', example='youhuiquan_promotion_option_id_for_blank', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp1fa5efaa93****', position='Query'),
+  dbInstanceStorageType?: string(name='DbInstanceStorageType', description='The new disk type. Valid values:
+
+*   **cloud_auto**: ESSD AutoPL disk
+*   **cloud_essd1**: PL1 ESSD
+*   **cloud_essd2**: PL2 ESSD
+*   **cloud_essd3**: PL3 ESSD', example='cloud_auto', position='Query'),
+  extraParam?: string(name='ExtraParam', description='An additional parameter.', example='async', position='Query'),
+  orderType?: string(name='OrderType', description='The type of configuration changes. Valid values:
+
+*   **UPGRADE**
+*   **DOWNGRADE**
+
+>  This parameter is valid only when the billing method of the instance is subscription.', example='UPGRADE', position='Query'),
+  provisionedIops?: long(name='ProvisionedIops', description='The provisioned IOPS. Valid values: 0 to 50000.', example='1960', minimum=0, maximum=50000, position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ModifyDBInstanceDiskTypeResponseBody = {
-  orderId?: string(name='OrderId', example='21012719476****'),
-  requestId?: string(name='RequestId', example='D8F1D721-6439-4257-A89C-F1E8E9C9****'),
+  orderId?: string(name='OrderId', description='The order ID.', example='21012719476****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D8F1D721-6439-4257-A89C-F1E8E9C9****'),
 }
 
 model ModifyDBInstanceDiskTypeResponse = {
@@ -5877,12 +6023,12 @@ async function modifySecurityIps(request: ModifySecurityIpsRequest): ModifySecur
 }
 
 model ModifyTaskInfoRequest {
-  actionParams?: string(name='ActionParams', description='The action-related parameters. Such parameters can be added based on your business requirements. The ActionParams parameter value varies based on the taskAction parameter value.', example='{\\"recoverMode\\":\\"immediate\\"}', position='Query'),
+  actionParams?: string(name='ActionParams', description='A action-related parameter. This parameter can be extended based on your business requirements. This parameter value varies with the value of the TaskAction parameter.', example='{\\"recoverMode\\":\\"immediate\\"}', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](~~61933~~) operation to query the region ID.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   stepName: string(name='StepName', description='The name of the step visible to the user.', example='exec_task', position='Query'),
-  taskAction: string(name='TaskAction', description='The name of the action to perform. Specify the value of this parameter as the action name corresponding to the current state of the task. The action name can be obtained from the actionInfo parameter returned by the [DescribeHistoryTasks](~~2639186~~) operation.', example='modifySwitchTime', position='Query'),
+  taskAction: string(name='TaskAction', description='The action name that corresponds to the state described in the actionInfo parameter of the [DescribeHistoryTasks](~~2639186~~) operation.', example='modifySwitchTime', position='Query'),
   taskId: string(name='TaskId', description='The task ID. Separate multiple IDs with commas (,). You can specify up to 10 task IDs.', example='t-83br18hlpdrw3uxxxx', position='Query'),
 }
 
@@ -5910,7 +6056,12 @@ async function modifyTaskInfo(request: ModifyTaskInfoRequest): ModifyTaskInfoRes
 
 model ReleaseNodePrivateNetworkAddressRequest {
   regionId?: string(name='RegionId', position='Host'),
-  connectionType?: string(name='ConnectionType', position='Query'),
+  connectionType?: string(name='ConnectionType', description='The public endpoint type. Valid values:
+
+*   **SRV**
+*   **Normal**
+
+>  This parameter is valid only when you want to release an SRV endpoint.', example='SRV', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The ID of the sharded cluster instance.', example='dds-bp1a7009eb24****', position='Query'),
   networkType?: string(name='NetworkType', description='The network type of the internal endpoint. Valid values:
 
@@ -5949,7 +6100,12 @@ async function releaseNodePrivateNetworkAddress(request: ReleaseNodePrivateNetwo
 
 model ReleasePublicNetworkAddressRequest {
   regionId?: string(name='RegionId', position='Host'),
-  connectionType?: string(name='ConnectionType', position='Query'),
+  connectionType?: string(name='ConnectionType', description='The public endpoint type. Valid values:
+
+*   **SRV**
+*   **Normal**
+
+>  This parameter is valid only when you want to release an SRV endpoint.', example='SRV', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
 >  If you set this parameter to the ID of a sharded cluster instance, you must also specify the **NodeId** parameter.', example='dds-bp2235****', position='Query'),
@@ -6034,11 +6190,10 @@ model ResetAccountPasswordRequest {
 
 *   The password must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. Special characters include `! # $ % ^ & * ( ) _ + - =`
 *   The password must be 8 to 32 characters in length.', example='Ali!123456', position='Query'),
-  characterType?: string(name='CharacterType', description='实例的角色类型，取值说明
+  characterType?: string(name='CharacterType', description='The role of the instance.
 
-
-- 当实例类型为分片集群时，charactertype为必选； 取值为db 和cs。
-- 当实例类型为副本集时，charactertype 可为空或传入normal。', example='db', position='Query'),
+*   If the instance is a sharded cluster instance, this parameter is required. Valid values: db and cs.
+*   If the instance is a replica set instance, you can leave this parameter empty or set the parameter to normal.', example='db', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bpxxxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -6096,36 +6251,30 @@ async function restartDBInstance(request: RestartDBInstanceRequest): RestartDBIn
   return @handler.do('RPC', 'RestartDBInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
-model RestoreDBInstanceRequest {
+model RestartNodeRequest {
   regionId?: string(name='RegionId', position='Host'),
-  backupId: int32(name='BackupId', description='The ID of the backup set.
-
-> You can call the [DescribeBackups](~~62172~~) operation to query the backup set ID.', example='22536****', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='dds-bp2356****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', example='dds-bpxxxxxxxx', position='Query'),
+  nodeId?: string(name='NodeId', example='d-bp128a003436****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  roleId: string(name='RoleId', example='6025****', position='Query'),
 }
 
-model RestoreDBInstanceResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='973DCB8F-56B3-4102-8777-3A90495927F7'),
+model RestartNodeResponseBody = {
+  requestId?: string(name='RequestId', example='ECBCA991-XXXX-XXXX-834C-B3E8007F33AA'),
 }
 
-model RestoreDBInstanceResponse = {
+model RestartNodeResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: RestoreDBInstanceResponseBody(name='body'),
+  body?: RestartNodeResponseBody(name='body'),
 }
 
-/**
-  * This operation is applicable to replica set instances, but cannot be performed on standalone instances and sharded cluster instances. You can use the following methods to clone an instance: [Create an instance from a backup point](~~55013~~) to clone a standalone instance. Call the [CreateShardingDBInstance](~~61884~~) operation to clone a sharded cluster instance.
-  * > This operation overwrites the data of the current instance, and the data cannot be recovered. Proceed with caution.
-  *
- */
-async function restoreDBInstance(request: RestoreDBInstanceRequest): RestoreDBInstanceResponse {
+async function restartNode(request: RestartNodeRequest): RestartNodeResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'RestoreDBInstance', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'RestartNode', 'POST', '/', 'json', false, 'json', request);
 }
 
 model SwitchDBInstanceHARequest {
