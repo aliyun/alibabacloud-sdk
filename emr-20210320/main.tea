@@ -86,14 +86,39 @@ model AckConfig {
   limitMemory?: float(name='LimitMemory', description='Pod的内存限制值。'),
   mountHostCgroup?: boolean(name='MountHostCgroup'),
   namespace?: string(name='Namespace', description='ack 命名空间'),
+  nodeAffinity?: string(name='NodeAffinity'),
   nodeSelectors?: [
     Tag
   ](name='NodeSelectors', description='ack的节点标签限制'),
+  podAffinity?: string(name='PodAffinity'),
+  podAntiAffinity?: string(name='PodAntiAffinity'),
+  preStartCommand?: [ string ](name='PreStartCommand'),
+  pvcs?: [ 
+    {
+      dataDiskSize?: long(name='DataDiskSize'),
+      dataDiskStorageClass?: string(name='DataDiskStorageClass'),
+      name?: string(name='Name'),
+      path?: string(name='Path'),
+    }
+  ](name='Pvcs'),
   requestCpu?: float(name='RequestCpu', description='Pod的CPU请求值'),
   requestMemory?: float(name='RequestMemory', description='Pod的内存请求值。'),
   tolerations?: [
     Toleration
   ](name='Tolerations', description='ack的节点污点容忍'),
+  volumeMounts?: [ 
+    {
+      name?: string(name='Name'),
+      path?: string(name='Path'),
+    }
+  ](name='VolumeMounts'),
+  volumes?: [ 
+    {
+      name?: string(name='Name'),
+      path?: string(name='Path'),
+      type?: string(name='Type'),
+    }
+  ](name='Volumes'),
 }
 
 model AckNode {
@@ -316,6 +341,7 @@ model Cluster {
   clusterType?: string(name='ClusterType', description='集群类型。', example='DATALAKE'),
   createTime?: long(name='CreateTime', description='创建时间。', example='1592837465784'),
   deployMode?: string(name='DeployMode', description='部署模式。', example='HA'),
+  description?: string(name='Description'),
   emrDefaultRole?: string(name='EmrDefaultRole', description='EMR默认角色。', example='AliyunEMRDefaultRole'),
   endTime?: long(name='EndTime', description='删除时间。', example='1592837465784'),
   expireTime?: long(name='ExpireTime', description='过期时间。', example='1592837465784'),
@@ -377,6 +403,7 @@ model ClusterSummary {
 - DATAFLOW：实时数据流。
 - DATASERVING：数据服务。', example='DATALAKE'),
   createTime?: long(name='CreateTime', description='创建时间。', example='1592837465784'),
+  description?: string(name='Description'),
   emrDefaultRole?: string(name='EmrDefaultRole', description='EMR服务角色。'),
   endTime?: long(name='EndTime', description='删除时间。', example='1592837465784'),
   expireTime?: long(name='ExpireTime', description='过期时间。', example='1592837465784'),
@@ -771,6 +798,7 @@ model NodeGroup {
 
 model NodeGroupConfig {
   additionalSecurityGroupIds?: [ string ](name='AdditionalSecurityGroupIds', description='附加安全组。除集群设置的安全组外，为节点组单独设置的附加安全组。数组元数个数N的取值范围：0~2。', example='["sg-hp3abbae8lb6lmb1****"]'),
+  autoScalingPolicy?: AutoScalingPolicy(name='AutoScalingPolicy'),
   componentTags?: [ string ](name='ComponentTags'),
   costOptimizedConfig?: CostOptimizedConfig(name='CostOptimizedConfig', description='成本优化模式配置。'),
   dataDisks?: [
@@ -5468,7 +5496,7 @@ model GetOperationRequest {
   clusterId?: string(name='ClusterId', description='The ID of the cluster that you want to query.
 
 This parameter is required.', example='c-b933c5aac8fe****'),
-  operationId?: string(name='OperationId', description='The ID of the operation.
+  operationId?: string(name='OperationId', description='The operation ID. For more information, see [CreateCluster](https://help.aliyun.com/document_detail/454393.html) [IncreaseNodes](https://help.aliyun.com/document_detail/454397.html)
 
 This parameter is required.', example='op-13c37a77c505****'),
   regionId?: string(name='RegionId', description='The district ID.
@@ -5537,14 +5565,17 @@ async function getOperation(request: GetOperationRequest): GetOperationResponse 
 model IncreaseNodesRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='The configurations of the applications. Valid values of N: 1 to 1000.', example='Month'),
+  ](name='ApplicationConfigs', description='The application configurations. You can specify a maximum of 1,000 items.', example='Month'),
   autoPayOrder?: boolean(name='AutoPayOrder', description='Indicates whether to automatically pay for the orders involved in the scale-out operation. This parameter takes effect only when the PaymentType parameter is set to Subscription. Valid values:
 
 *   true: automatically pays for the order involved in this operation.
 *   false: does not automatically pay for the orders involved in this operation.
 
 Default value: false', example='false'),
-  autoRenew?: boolean(name='AutoRenew'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for nodes. Valid values:
+
+*   true
+*   false (default value)', example='false'),
   clusterId?: string(name='ClusterId', description='The ID of the cluster.
 
 This parameter is required.', example='c-b933c5aac8fe****'),
@@ -8930,100 +8961,6 @@ async function listDoctorReports(request: ListDoctorReportsRequest): ListDoctorR
   return listDoctorReportsWithOptions(request, runtime);
 }
 
-model ListInspectionHistoryRequest {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac8fe****'),
-  component?: string(name='Component', description='组件名称'),
-  instanceId?: string(name='InstanceId', description='节点id'),
-  language?: string(name='Language'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  regionId?: string(name='RegionId', description='地域ID。', example='cn-hangzhou'),
-  service?: string(name='Service', description='服务名称'),
-  type?: string(name='Type', description='巡检历史类型 application/component'),
-}
-
-model ListInspectionHistoryResponseBody = {
-  data?: [ 
-    {
-      changeMessage?: string(name='ChangeMessage', description='变更消息'),
-      healthStatus?: string(name='HealthStatus', description='巡检状态'),
-      inspectionItems?: [ map[string]string ](name='InspectionItems', description='巡检变更明细', example='null'),
-      reportTime?: string(name='ReportTime'),
-    }
-  ](name='Data', description='Created on 2023/8/21'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
-}
-
-model ListInspectionHistoryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListInspectionHistoryResponseBody(name='body'),
-}
-
-/**
- * @param request ListInspectionHistoryRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListInspectionHistoryResponse
- */
-async function listInspectionHistoryWithOptions(request: ListInspectionHistoryRequest, runtime: Util.RuntimeOptions): ListInspectionHistoryResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.component)) {
-    query['Component'] = request.component;
-  }
-  if (!Util.isUnset(request.instanceId)) {
-    query['InstanceId'] = request.instanceId;
-  }
-  if (!Util.isUnset(request.language)) {
-    query['Language'] = request.language;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.service)) {
-    query['Service'] = request.service;
-  }
-  if (!Util.isUnset(request.type)) {
-    query['Type'] = request.type;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListInspectionHistory',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request ListInspectionHistoryRequest
- * @return ListInspectionHistoryResponse
- */
-async function listInspectionHistory(request: ListInspectionHistoryRequest): ListInspectionHistoryResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listInspectionHistoryWithOptions(request, runtime);
-}
-
 model ListInstanceTypesRequest {
   clusterId?: string(name='ClusterId', description='集群ID，仅升配场景使用。', example='c-b933c5aac8fe****'),
   clusterType?: string(name='ClusterType', description='创建的EMR集群类型。取值范围：
@@ -9429,128 +9366,6 @@ async function listReleaseVersions(request: ListReleaseVersionsRequest): ListRel
   return listReleaseVersionsWithOptions(request, runtime);
 }
 
-model ListResourceHealthInspectionsRequest {
-  applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
-  clusterId?: string(name='ClusterId', description='集群ID。
-
-This parameter is required.', example='c-b933c5aac8fe****'),
-  componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
-  healthStatuses?: [ string ](name='HealthStatuses', description='健康状态。', example='["BAD"]'),
-  language?: string(name='Language', description='语言'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  nodeIds?: [ string ](name='NodeIds', description='节点Id列表。', example='["i-bp14l5n4v46uxsscl033"]'),
-  nodeNames?: [ string ](name='NodeNames', description='节点名称列表。', example='["core1-1"]'),
-  regionId?: string(name='RegionId', description='地域ID。
-
-This parameter is required.', example='cn-hangzhou'),
-  resourceType?: string(name='ResourceType', description='查询的目标资源类型，合法值：
-<p>
-- APPLICATION
-<p>
-- COMPONENT
-<p>
-- COMPONENT_INSTANCE
-<p>', example='APPLICATION'),
-}
-
-model ListResourceHealthInspectionsResponseBody = {
-  healthInspections?: [ 
-    {
-      applicationName?: string(name='ApplicationName', description='应用名称。', example='HDFS'),
-      componentName?: string(name='ComponentName', description='组件名称。', example='DataNode'),
-      healthMessage?: string(name='HealthMessage', description='健康详细信息。', example='Connection timeout'),
-      healthStatus?: string(name='HealthStatus', description='健康状态。', example='GOOD'),
-      inspectionName?: string(name='InspectionName', description='巡检项名称。', example='live_status_check'),
-      nodeId?: string(name='NodeId', description='节点ID。', example='core1-1'),
-      nodeName?: string(name='NodeName', description='节点名称。', example='core1-1'),
-      reportTime?: long(name='ReportTime', description='最近上报时间戳。', example='1639709192940'),
-      ruleName?: string(name='RuleName', description='规则名称。', example='live_status_check_1'),
-    }
-  ](name='HealthInspections'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
-}
-
-model ListResourceHealthInspectionsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListResourceHealthInspectionsResponseBody(name='body'),
-}
-
-/**
- * @description 查询资源巡检项。
- *
- * @param request ListResourceHealthInspectionsRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListResourceHealthInspectionsResponse
- */
-async function listResourceHealthInspectionsWithOptions(request: ListResourceHealthInspectionsRequest, runtime: Util.RuntimeOptions): ListResourceHealthInspectionsResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.applicationName)) {
-    query['ApplicationName'] = request.applicationName;
-  }
-  if (!Util.isUnset(request.clusterId)) {
-    query['ClusterId'] = request.clusterId;
-  }
-  if (!Util.isUnset(request.componentName)) {
-    query['ComponentName'] = request.componentName;
-  }
-  if (!Util.isUnset(request.healthStatuses)) {
-    query['HealthStatuses'] = request.healthStatuses;
-  }
-  if (!Util.isUnset(request.language)) {
-    query['Language'] = request.language;
-  }
-  if (!Util.isUnset(request.maxResults)) {
-    query['MaxResults'] = request.maxResults;
-  }
-  if (!Util.isUnset(request.nextToken)) {
-    query['NextToken'] = request.nextToken;
-  }
-  if (!Util.isUnset(request.nodeIds)) {
-    query['NodeIds'] = request.nodeIds;
-  }
-  if (!Util.isUnset(request.nodeNames)) {
-    query['NodeNames'] = request.nodeNames;
-  }
-  if (!Util.isUnset(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceType)) {
-    query['ResourceType'] = request.resourceType;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListResourceHealthInspections',
-    version = '2021-03-20',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @description 查询资源巡检项。
- *
- * @param request ListResourceHealthInspectionsRequest
- * @return ListResourceHealthInspectionsResponse
- */
-async function listResourceHealthInspections(request: ListResourceHealthInspectionsRequest): ListResourceHealthInspectionsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listResourceHealthInspectionsWithOptions(request, runtime);
-}
-
 model ListScriptsRequest {
   clusterId?: string(name='ClusterId', description='集群ID。
 
@@ -9656,7 +9471,7 @@ async function listScripts(request: ListScriptsRequest): ListScriptsResponse {
 
 model ListTagResourcesRequest {
   maxResults?: int32(name='MaxResults', description='The number of maximum number of records to obtain at a time.', example='20'),
-  nextToken?: string(name='NextToken', description='Marks the current position to start reading. If this field is empty, the data is read from the beginning.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results. If NextToken is empty, the query starts from the beginning.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   regionId?: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou'),
@@ -10349,7 +10164,7 @@ This parameter is required.', example='c-e6a9d46e9267****'),
   description?: string(name='Description', description='The description.', example='更新YARN内存配置。'),
   nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-869471354ecd****'),
   nodeId?: string(name='NodeId', description='The node ID.', example='i-bp1cudc25w2bfwl5****'),
-  refreshConfig?: boolean(name='RefreshConfig', description='Specifies whether to refresh the configurations.', example='true'),
+  refreshConfig?: boolean(name='RefreshConfig', description='Specifies whether to refresh the configurations. Default value: True.', example='true'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
