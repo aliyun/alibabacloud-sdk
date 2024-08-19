@@ -2538,23 +2538,36 @@ async function createExpressConnectTrafficQosRule(request: CreateExpressConnectT
 }
 
 model CreateFailoverTestJobRequest {
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
-  description?: string(name='Description', example='test', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  jobDuration: int32(name='JobDuration', example='60', minimum=1, maximum=4320, position='Query'),
-  jobType: string(name='JobType', example='StartNow', position='Query'),
-  name?: string(name='Name', example='test', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+
+> If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  description?: string(name='Description', description='The description of the failover test.
+
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
+  dryRun?: boolean(name='DryRun', description='If you set the value to true, the system performs only a dry run without actually performing the actual request. If you set the value to false, the system performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false', position='Query'),
+  jobDuration: int32(name='JobDuration', description='The duration of the failover test. Unit: minutes. Valid values: **1 to 4320**.', example='60', minimum=1, maximum=4320, position='Query'),
+  jobType: string(name='JobType', description='The type of the failover test. Valid values:
+
+*   **StartNow**
+*   **StartLater**', example='StartNow', position='Query'),
+  name?: string(name='Name', description='The name of the failover test.
+
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  resourceId: [ string ](name='ResourceId', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the failover test.
+
+You can call the [DescribeRegions](~~36063~~) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The IDs of failover test resources. You can add at most 16 resources.', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  resourceType: string(name='ResourceType', example='PHYSICALCONNECTION', position='Query'),
+  resourceType: string(name='ResourceType', description='The resource type of the failover test. Set the value to **PHYSICALCONNECTION**.', example='PHYSICALCONNECTION', position='Query'),
 }
 
 model CreateFailoverTestJobResponseBody = {
-  jobId?: string(name='JobId', example='ftj-xxxxxxxxx'),
-  requestId?: string(name='RequestId', example='C44F62BE-9CE7-4277-B117-69243F3988BF'),
+  jobId?: string(name='JobId', description='The ID of the failover test.', example='ftj-xxxxxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C44F62BE-9CE7-4277-B117-69243F3988BF'),
 }
 
 model CreateFailoverTestJobResponse = {
@@ -2563,6 +2576,17 @@ model CreateFailoverTestJobResponse = {
   body?: CreateFailoverTestJobResponseBody(name='body'),
 }
 
+/**
+  * You cannot create a failover test in the following scenarios:
+  * *   You have created a failover test in the region and its type is StartNow.
+  * *   The Express Connect circuit or hosted connection has pending orders or overdue payments.
+  * *   A failover test is already performed on the Express Connect circuit or hosted connection.
+  * *   More than one hosted connection is created over the Express Connect circuit.
+  * *   More than one cross-account VBR is created on the Express Connect circuit.
+  * *   No VBR is associated with the hosted connection.
+  * *   The VLAN ID of the hosted connection is set to 0.
+  *
+ */
 async function createFailoverTestJob(request: CreateFailoverTestJobRequest): CreateFailoverTestJobResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateFailoverTestJob', 'POST', '/', 'json', false, 'json', request);
@@ -18423,6 +18447,49 @@ async function listVpcGatewayEndpoints(request: ListVpcGatewayEndpointsRequest):
   return @handler.do('RPC', 'ListVpcGatewayEndpoints', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListVpcPublishedRouteEntriesRequest {
+  destinationCidrBlock?: string(name='DestinationCidrBlock', example='47.100.XX.XX/16', position='Query'),
+  maxResults?: int32(name='MaxResults', example='50', maximum=500, position='Query'),
+  nextToken?: string(name='NextToken', example='FFmyTO70tTpLG6I3FmYAXGKPd****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  routeTableId: string(name='RouteTableId', example='vtb-bp145q7glnuzd****', position='Query'),
+  targetInstanceId?: string(name='TargetInstanceId', example='ecr-dhw2xsds5****', position='Query'),
+  targetType: string(name='TargetType', example='ECR', position='Query'),
+}
+
+model ListVpcPublishedRouteEntriesResponseBody = {
+  nextToken?: string(name='NextToken', example='FFmyTO70tTpLG6I3FmYAXGKPd****'),
+  requestId?: string(name='RequestId', example='1D0971B2-A35A-42C1-A44C-E91360C36C0B'),
+  routeEntries?: [ 
+    {
+      destinationCidrBlock?: string(name='DestinationCidrBlock', example='10.0.0.0/24'),
+      routeEntryId?: string(name='RouteEntryId', example='rte-bp1mnnr2al0naomnpv****'),
+      routePublishTargets?: [ 
+        {
+          publishStatus?: string(name='PublishStatus', example='Published'),
+          publishTargetType?: string(name='PublishTargetType', example='ECR'),
+        }
+      ](name='RoutePublishTargets'),
+      routeTableId?: string(name='RouteTableId', example='vtb-2ze3jgygk9bmsj23s****'),
+    }
+  ](name='RouteEntries'),
+}
+
+model ListVpcPublishedRouteEntriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListVpcPublishedRouteEntriesResponseBody(name='body'),
+}
+
+async function listVpcPublishedRouteEntries(request: ListVpcPublishedRouteEntriesRequest): ListVpcPublishedRouteEntriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListVpcPublishedRouteEntries', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListVpnCertificateAssociationsRequest {
   certificateId?: [ string ](name='CertificateId', description='The list of certificate IDs.
 
@@ -21920,6 +21987,38 @@ async function openTrafficMirrorService(request: OpenTrafficMirrorServiceRequest
   return @handler.do('RPC', 'OpenTrafficMirrorService', 'POST', '/', 'json', false, 'json', request);
 }
 
+model PublishVpcRouteEntriesRequest {
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  routeEntries?: [ 
+    {
+      destinationCidrBlock: string(name='DestinationCidrBlock', example='121.41.165.123/32'),
+      routeTableId: string(name='RouteTableId', example='vtb-2ze3jgygk9bmsj23s****'),
+    }
+  ](name='RouteEntries', position='Query'),
+  targetInstanceId: string(name='TargetInstanceId', example='ecr-dhw2xsds5****', position='Query'),
+  targetType: string(name='TargetType', example='ECR', position='Query'),
+}
+
+model PublishVpcRouteEntriesResponseBody = {
+  requestId?: string(name='RequestId', example='980960B0-2969-40BF-8542-EBB34FD358AB'),
+}
+
+model PublishVpcRouteEntriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishVpcRouteEntriesResponseBody(name='body'),
+}
+
+async function publishVpcRouteEntries(request: PublishVpcRouteEntriesRequest): PublishVpcRouteEntriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PublishVpcRouteEntries', 'POST', '/', 'json', false, 'json', request);
+}
+
 model PublishVpnRouteEntryRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
@@ -23963,5 +24062,37 @@ model VpcDescribeVpcNatGatewayNetworkInterfaceQuotaResponse = {
 async function vpcDescribeVpcNatGatewayNetworkInterfaceQuota(request: VpcDescribeVpcNatGatewayNetworkInterfaceQuotaRequest): VpcDescribeVpcNatGatewayNetworkInterfaceQuotaResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'VpcDescribeVpcNatGatewayNetworkInterfaceQuota', 'POST', '/', 'json', false, 'json', request);
+}
+
+model WithdrawVpcPublishedRouteEntriesRequest {
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  routeEntries?: [ 
+    {
+      destinationCidrBlock: string(name='DestinationCidrBlock', example='10.0.0.0/24'),
+      routeTableId: string(name='RouteTableId', example='vtb-bp145q7glnuzd****'),
+    }
+  ](name='RouteEntries', position='Query'),
+  targetInstanceId: string(name='TargetInstanceId', example='ecr-dhw2xsds5****', position='Query'),
+  targetType: string(name='TargetType', example='ECR', position='Query'),
+}
+
+model WithdrawVpcPublishedRouteEntriesResponseBody = {
+  requestId?: string(name='RequestId', example='0ED8D006-F706-4D23-88ED-E11ED28DCAC0'),
+}
+
+model WithdrawVpcPublishedRouteEntriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WithdrawVpcPublishedRouteEntriesResponseBody(name='body'),
+}
+
+async function withdrawVpcPublishedRouteEntries(request: WithdrawVpcPublishedRouteEntriesRequest): WithdrawVpcPublishedRouteEntriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'WithdrawVpcPublishedRouteEntries', 'POST', '/', 'json', false, 'json', request);
 }
 
