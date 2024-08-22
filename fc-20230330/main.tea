@@ -180,6 +180,7 @@ model CustomContainerConfig {
   healthCheckConfig?: CustomHealthCheckConfig(name='healthCheckConfig'),
   image?: string(name='image', example='registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo/helloworld:v1'),
   port?: int32(name='port', example='9000'),
+  registryConfig?: RegistryConfig(name='registryConfig'),
   resolvedImageUri?: string(name='resolvedImageUri', example='stand-sh-registry-vpc.cn-shanghai.cr.aliyuncs.com/fc-demo2/springboot-helloworld@sha256:68d1****0d64d6'),
 }
 
@@ -616,6 +617,28 @@ model RegexRule {
   replacement?: string(name='replacement', description='This parameter is required.', example='/api/v2/$1'),
 }
 
+model RegistryAuthConfig {
+  password?: string(name='password', example='abc***'),
+  userName?: string(name='userName', example='admin'),
+}
+
+model RegistryCertConfig {
+  insecure?: boolean(name='insecure'),
+  rootCaCertBase64?: string(name='rootCaCertBase64', example='cm9vdF9jYV9jZXJ0'),
+}
+
+model RegistryConfig {
+  authConfig?: RegistryAuthConfig(name='authConfig'),
+  certConfig?: RegistryCertConfig(name='certConfig'),
+  networkConfig?: RegistryNetworkConfig(name='networkConfig'),
+}
+
+model RegistryNetworkConfig {
+  securityGroupId?: string(name='securityGroupId', example='sg-xxxxxxxxxxxxxx'),
+  vSwitchId?: string(name='vSwitchId', example='vsw-xxxxxxxxxxxxxx'),
+  vpcId?: string(name='vpcId', example='vpc-xxxxxxxxxxxxxx'),
+}
+
 model Resource {
   resouceType?: string(name='resouceType', example='ALIYUN::FC::FUNCTION'),
   resourceArn?: string(name='resourceArn', example='acs:fc:cn-shanghai:****:functions/demo'),
@@ -666,11 +689,12 @@ model SLSTriggerLogConfig {
 }
 
 model ScheduledAction {
-  endTime?: string(name='endTime', example='2024-03-10T10:10:10Z'),
+  endTime?: string(name='endTime', example='2024-03-10T10:10:10'),
   name?: string(name='name', description='This parameter is required.', example='test_1'),
   scheduleExpression?: string(name='scheduleExpression', description='This parameter is required.', example='cron(0 0 22 * * *)'),
-  startTime?: string(name='startTime', example='2023-03-10T10:10:10Z'),
+  startTime?: string(name='startTime', example='2023-03-10T10:10:10'),
   target?: long(name='target', description='This parameter is required.', example='50'),
+  timeZone?: string(name='timeZone', example='Asia/Shanghai'),
 }
 
 model SourceConfig {
@@ -772,13 +796,14 @@ model TagResourcesInput {
 }
 
 model TargetTrackingPolicy {
-  endTime?: string(name='endTime', example='2024-03-10T10:10:10Z'),
+  endTime?: string(name='endTime', example='2024-03-10T10:10:10'),
   maxCapacity?: long(name='maxCapacity', description='This parameter is required.', example='10'),
   metricTarget?: float(name='metricTarget', description='This parameter is required.', example='0.6'),
   metricType?: string(name='metricType', description='This parameter is required.', example='CPUUtilization'),
   minCapacity?: long(name='minCapacity', description='This parameter is required.', example='1'),
   name?: string(name='name', description='This parameter is required.', example='test_1'),
-  startTime?: string(name='startTime', example='2023-03-10T10:10:10Z'),
+  startTime?: string(name='startTime', example='2023-03-10T10:10:10'),
+  timeZone?: string(name='timeZone', example='Asia/Shanghai'),
 }
 
 model TimerTriggerConfig {
@@ -943,7 +968,9 @@ model CreateCustomDomainResponse = {
 }
 
 /**
- * @summary 创建自定义域名。
+ * @summary Creates a custom domain name.
+ *
+ * @description If you wish to access applications or functions created in Function Compute via a fixed domain name in a production environment, or if you need to address the forced download behavior when accessing HTTP triggers, you can achieve this by binding a custom domain to your application or function.
  *
  * @param request CreateCustomDomainRequest
  * @param headers map
@@ -971,7 +998,9 @@ async function createCustomDomainWithOptions(request: CreateCustomDomainRequest,
 }
 
 /**
- * @summary 创建自定义域名。
+ * @summary Creates a custom domain name.
+ *
+ * @description If you wish to access applications or functions created in Function Compute via a fixed domain name in a production environment, or if you need to address the forced download behavior when accessing HTTP triggers, you can achieve this by binding a custom domain to your application or function.
  *
  * @param request CreateCustomDomainRequest
  * @return CreateCustomDomainResponse
@@ -996,6 +1025,8 @@ model CreateFunctionResponse = {
 
 /**
  * @summary Creates a function.
+ *
+ * @description In Function Compute, a function serves as the smallest unit of resource scheduling and execution, typically referring to a piece of code written by users that can execute independently in response to specific events or requests.
  *
  * @param request CreateFunctionRequest
  * @param headers map
@@ -1024,6 +1055,8 @@ async function createFunctionWithOptions(request: CreateFunctionRequest, headers
 
 /**
  * @summary Creates a function.
+ *
+ * @description In Function Compute, a function serves as the smallest unit of resource scheduling and execution, typically referring to a piece of code written by users that can execute independently in response to specific events or requests.
  *
  * @param request CreateFunctionRequest
  * @return CreateFunctionResponse
@@ -1723,7 +1756,7 @@ async function getAsyncInvokeConfig(functionName: string, request: GetAsyncInvok
 }
 
 model GetAsyncTaskRequest {
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
 }
 
 model GetAsyncTaskResponse = {
@@ -2154,7 +2187,9 @@ async function getTrigger(functionName: string, triggerName: string): GetTrigger
 
 model InvokeFunctionHeaders {
   commonHeaders?: map[string]string,
-  xFcAsyncTaskId?: string(name='x-fc-async-task-id', example='test-id'),
+  xFcAsyncTaskId?: string(name='x-fc-async-task-id', description='The ID of the asynchronous task. You must enable the asynchronous task feature in advance.
+
+>  If you use an SDK to invoke a function, we recommend that you specify a business-related ID to facilitate subsequent operations. For example, a video processing function can use video file names as invocation IDs. This way, you can easily check whether a video is successfully processed or terminated before it is processed. The ID can start only with letters or underscores. An ID can contain *letters, digits (0 - 9), underscores*, and hyphens (-). It can be up to 128 characters in length. If you do not specify the ID of the asynchronous invocation, the system automatically generates an ID.', example='test-id'),
   xFcInvocationType?: string(name='x-fc-invocation-type', description='The type of function invocation. Valid values: Sync and Async.', example='Sync'),
   xFcLogType?: string(name='x-fc-log-type', description='The log type of function invocation. Valid values: None and Tail.', example='Tail'),
 }
@@ -2380,13 +2415,13 @@ model ListAsyncTasksRequest {
   limit?: int32(name='limit', description='The number of asynchronous tasks to return. Valid values: [1,100]. Default value: 50.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='MTIzNCNhYmM='),
   prefix?: string(name='prefix', description='The ID prefix of asynchronous tasks. If this parameter is specified, a list of asynchronous tasks whose IDs match the prefix is returned.', example='job-'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
   sortOrderByTime?: string(name='sortOrderByTime', description='The order in which the returned asynchronous tasks are sorted.
 
 *   asc: in ascending order.
 *   desc: in descending order.', example='asc'),
-  startedTimeBegin?: long(name='startedTimeBegin', description='The start time of the period in which the asynchronous tasks are launched.', example='1640966400000'),
-  startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period in which the asynchronous tasks are launched.', example='1640966400000'),
+  startedTimeBegin?: long(name='startedTimeBegin', description='The start time of the period during which the asynchronous tasks are initiated.', example='1640966400000'),
+  startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period during which the asynchronous tasks are initiated.', example='1640966400000'),
   status?: string(name='status', description='The state of asynchronous tasks. The following items list the states of an asynchronous task:
 
 *   Enqueued: The asynchronous invocation is enqueued and is waiting to be executed.
@@ -2665,6 +2700,7 @@ async function listFunctionVersions(functionName: string, request: ListFunctionV
 }
 
 model ListFunctionsRequest {
+  fcVersion?: string(name='fcVersion', example='v3'),
   limit?: int32(name='limit', description='The number of functions to return. The minimum value is 1 and the maximum value is 100.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func'),
@@ -2687,6 +2723,9 @@ model ListFunctionsResponse = {
 async function listFunctionsWithOptions(request: ListFunctionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFunctionsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.fcVersion)) {
+    query['fcVersion'] = request.fcVersion;
+  }
   if (!Util.isUnset(request.limit)) {
     query['limit'] = request.limit;
   }
@@ -3241,7 +3280,7 @@ async function publishFunctionVersion(functionName: string, request: PublishFunc
 }
 
 model PutAsyncInvokeConfigRequest {
-  body?: PutAsyncInvokeConfigInput(name='body', description='The configurations of asynchronous function invocation.
+  body?: PutAsyncInvokeConfigInput(name='body', description='The asynchronous invocation configurations.
 
 This parameter is required.'),
   qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
@@ -3352,8 +3391,8 @@ async function putConcurrencyConfig(functionName: string, request: PutConcurrenc
 }
 
 model PutLayerACLRequest {
-  acl?: string(name='acl', example='1'),
-  public?: string(name='public', description='Specifies whether the layer is a public layer. Valid values: true and false.', example='true', deprecated=true),
+  acl?: string(name='acl', description='Specify the access permission of the layer. A value of 1 indicates public and a value of 0 indicates private. The default value is 0.', example='1'),
+  public?: string(name='public', description='Specify whether the layer is a public layer. Valid values: true and false.', example='true', deprecated=true),
 }
 
 model PutLayerACLResponse = {
@@ -3469,7 +3508,7 @@ async function putProvisionConfig(functionName: string, request: PutProvisionCon
 }
 
 model StopAsyncTaskRequest {
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
 }
 
 model StopAsyncTaskResponse = {
@@ -3536,6 +3575,8 @@ model TagResourcesResponse = {
 /**
  * @summary Adds tags to a resource.
  *
+ * @description Tags are used to identify resources. Tags allow you to categorize, search for, and aggregate resources that have the same characteristics from different dimensions. This facilitates resource management. For more information, see [Tag overview](https://help.aliyun.com/document_detail/156983.html).
+ *
  * @param request TagResourcesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -3563,6 +3604,8 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, headers: ma
 
 /**
  * @summary Adds tags to a resource.
+ *
+ * @description Tags are used to identify resources. Tags allow you to categorize, search for, and aggregate resources that have the same characteristics from different dimensions. This facilitates resource management. For more information, see [Tag overview](https://help.aliyun.com/document_detail/156983.html).
  *
  * @param request TagResourcesRequest
  * @return TagResourcesResponse

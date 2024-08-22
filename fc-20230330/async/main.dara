@@ -182,6 +182,7 @@ model CustomContainerConfig {
   healthCheckConfig?: CustomHealthCheckConfig(name='healthCheckConfig'),
   image?: string(name='image', example='registry-vpc.cn-hangzhou.aliyuncs.com/fc-demo/helloworld:v1'),
   port?: int32(name='port', example='9000'),
+  registryConfig?: RegistryConfig(name='registryConfig'),
   resolvedImageUri?: string(name='resolvedImageUri', example='stand-sh-registry-vpc.cn-shanghai.cr.aliyuncs.com/fc-demo2/springboot-helloworld@sha256:68d1****0d64d6'),
 }
 
@@ -618,6 +619,28 @@ model RegexRule {
   replacement: string(name='replacement', example='/api/v2/$1', maxLength=256),
 }
 
+model RegistryAuthConfig {
+  password?: string(name='password', example='abc***'),
+  userName?: string(name='userName', example='admin'),
+}
+
+model RegistryCertConfig {
+  insecure?: boolean(name='insecure'),
+  rootCaCertBase64?: string(name='rootCaCertBase64', example='cm9vdF9jYV9jZXJ0'),
+}
+
+model RegistryConfig {
+  authConfig?: RegistryAuthConfig(name='authConfig'),
+  certConfig?: RegistryCertConfig(name='certConfig'),
+  networkConfig?: RegistryNetworkConfig(name='networkConfig'),
+}
+
+model RegistryNetworkConfig {
+  securityGroupId?: string(name='securityGroupId', example='sg-xxxxxxxxxxxxxx'),
+  vSwitchId?: string(name='vSwitchId', example='vsw-xxxxxxxxxxxxxx'),
+  vpcId?: string(name='vpcId', example='vpc-xxxxxxxxxxxxxx'),
+}
+
 model Resource {
   resouceType?: string(name='resouceType', example='ALIYUN::FC::FUNCTION'),
   resourceArn?: string(name='resourceArn', example='acs:fc:cn-shanghai:****:functions/demo'),
@@ -668,11 +691,12 @@ model SLSTriggerLogConfig {
 }
 
 model ScheduledAction {
-  endTime?: string(name='endTime', example='2024-03-10T10:10:10Z'),
+  endTime?: string(name='endTime', example='2024-03-10T10:10:10'),
   name: string(name='name', example='test_1'),
   scheduleExpression: string(name='scheduleExpression', example='cron(0 0 22 * * *)'),
-  startTime?: string(name='startTime', example='2023-03-10T10:10:10Z'),
+  startTime?: string(name='startTime', example='2023-03-10T10:10:10'),
   target: long(name='target', example='50'),
+  timeZone?: string(name='timeZone', example='Asia/Shanghai'),
 }
 
 model SourceConfig {
@@ -774,13 +798,14 @@ model TagResourcesInput {
 }
 
 model TargetTrackingPolicy {
-  endTime?: string(name='endTime', example='2024-03-10T10:10:10Z'),
+  endTime?: string(name='endTime', example='2024-03-10T10:10:10'),
   maxCapacity: long(name='maxCapacity', example='10'),
   metricTarget: float(name='metricTarget', example='0.6'),
   metricType: string(name='metricType', example='CPUUtilization'),
   minCapacity: long(name='minCapacity', example='1'),
   name: string(name='name', example='test_1'),
-  startTime?: string(name='startTime', example='2023-03-10T10:10:10Z'),
+  startTime?: string(name='startTime', example='2023-03-10T10:10:10'),
+  timeZone?: string(name='timeZone', example='Asia/Shanghai'),
 }
 
 model TimerTriggerConfig {
@@ -906,6 +931,10 @@ model CreateCustomDomainResponse = {
   body?: CustomDomain  
 }
 
+/**
+  * If you wish to access applications or functions created in Function Compute via a fixed domain name in a production environment, or if you need to address the forced download behavior when accessing HTTP triggers, you can achieve this by binding a custom domain to your application or function.
+  *
+ */
 async function createCustomDomain(request: CreateCustomDomainRequest): CreateCustomDomainResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCustomDomain', 'POST', '/2023-03-30/custom-domains', 'json', false, 'json', request);
@@ -921,6 +950,10 @@ model CreateFunctionResponse = {
   body?: Function  
 }
 
+/**
+  * In Function Compute, a function serves as the smallest unit of resource scheduling and execution, typically referring to a piece of code written by users that can execute independently in response to specific events or requests.
+  *
+ */
 async function createFunction(request: CreateFunctionRequest): CreateFunctionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateFunction', 'POST', '/2023-03-30/functions', 'json', false, 'json', request);
@@ -1154,8 +1187,8 @@ async function getAsyncInvokeConfig(request: GetAsyncInvokeConfigRequest): GetAs
 
 model GetAsyncTaskRequest {
   functionName: string(name='functionName', description='The function name.', example='my-func', position='Path'),
-  taskId: string(name='taskId', description='The asynchronous task ID.', example='e026ae92-61e5-472f-b32d-1c9e3c4e****', position='Path'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST', position='Query'),
+  taskId: string(name='taskId', description='The ID of the asynchronous task.', example='e026ae92-61e5-472f-b32d-1c9e3c4e****', position='Path'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
 }
 
 model GetAsyncTaskResponse = {
@@ -1298,7 +1331,9 @@ model InvokeFunctionRequest {
   functionName: string(name='functionName', description='The function name.', example='my-func', position='Path'),
   body?: readable(name='body', description='The request parameters of function invocation.', example='event', position='Body'),
   qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
-  xFcAsyncTaskId?: string(name='x-fc-async-task-id', example='test-id', position='Header'),
+  xFcAsyncTaskId?: string(name='x-fc-async-task-id', description='The ID of the asynchronous task. You must enable the asynchronous task feature in advance.
+
+>  If you use an SDK to invoke a function, we recommend that you specify a business-related ID to facilitate subsequent operations. For example, a video processing function can use video file names as invocation IDs. This way, you can easily check whether a video is successfully processed or terminated before it is processed. The ID can start only with letters or underscores. An ID can contain *letters, digits (0 - 9), underscores*, and hyphens (-). It can be up to 128 characters in length. If you do not specify the ID of the asynchronous invocation, the system automatically generates an ID.', example='test-id', position='Header'),
   xFcInvocationType?: string(name='x-fc-invocation-type', description='The type of function invocation. Valid values: Sync and Async.', example='Sync', position='Header'),
   xFcLogType?: string(name='x-fc-log-type', description='The log type of function invocation. Valid values: None and Tail.', example='Tail', position='Header'),
 }
@@ -1370,13 +1405,13 @@ model ListAsyncTasksRequest {
   limit?: int32(name='limit', description='The number of asynchronous tasks to return. Valid values: \\[1,100]. Default value: 50.', example='10', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='MTIzNCNhYmM=', position='Query'),
   prefix?: string(name='prefix', description='The ID prefix of asynchronous tasks. If this parameter is specified, a list of asynchronous tasks whose IDs match the prefix is returned.', example='job-', position='Query'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST', position='Query'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
   sortOrderByTime?: string(name='sortOrderByTime', description='The order in which the returned asynchronous tasks are sorted.
 
 *   asc: in ascending order.
 *   desc: in descending order.', example='asc', position='Query'),
-  startedTimeBegin?: long(name='startedTimeBegin', description='The start time of the period in which the asynchronous tasks are launched.', example='1640966400000', position='Query'),
-  startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period in which the asynchronous tasks are launched.', example='1640966400000', position='Query'),
+  startedTimeBegin?: long(name='startedTimeBegin', description='The start time of the period during which the asynchronous tasks are initiated.', example='1640966400000', position='Query'),
+  startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period during which the asynchronous tasks are initiated.', example='1640966400000', position='Query'),
   status?: string(name='status', description='The state of asynchronous tasks. The following items list the states of an asynchronous task:
 
 *   Enqueued: The asynchronous invocation is enqueued and is waiting to be executed.
@@ -1454,6 +1489,7 @@ async function listFunctionVersions(request: ListFunctionVersionsRequest): ListF
 }
 
 model ListFunctionsRequest {
+  fcVersion?: string(name='fcVersion', example='v3', position='Query'),
   limit?: int32(name='limit', description='The number of functions to return. The minimum value is 1 and the maximum value is 100.', example='10', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM=', position='Query'),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func', position='Query'),
@@ -1621,7 +1657,7 @@ async function publishFunctionVersion(request: PublishFunctionVersionRequest): P
 
 model PutAsyncInvokeConfigRequest {
   functionName: string(name='functionName', description='The function name.', example='my-func', position='Path'),
-  body: PutAsyncInvokeConfigInput(name='body', description='The configurations of asynchronous function invocation.', position='Body'),
+  body: PutAsyncInvokeConfigInput(name='body', description='The asynchronous invocation configurations.', position='Body'),
   qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
 }
 
@@ -1654,8 +1690,8 @@ async function putConcurrencyConfig(request: PutConcurrencyConfigRequest): PutCo
 
 model PutLayerACLRequest {
   layerName: string(name='layerName', description='The layer name.', example='my-layer', position='Path'),
-  acl?: string(name='acl', example='1', position='Query'),
-  public?: string(name='public', description='Specifies whether the layer is a public layer. Valid values: true and false.', example='true', deprecated='true', position='Query'),
+  acl?: string(name='acl', description='Specify the access permission of the layer. A value of 1 indicates public and a value of 0 indicates private. The default value is 0.', example='1', position='Query'),
+  public?: string(name='public', description='Specify whether the layer is a public layer. Valid values: true and false.', example='true', deprecated='true', position='Query'),
 }
 
 model PutLayerACLResponse = {
@@ -1687,8 +1723,8 @@ async function putProvisionConfig(request: PutProvisionConfigRequest): PutProvis
 
 model StopAsyncTaskRequest {
   functionName: string(name='functionName', description='The function name.', example='my-func', position='Path'),
-  taskId: string(name='taskId', description='The asynchronous task ID.', example='e026ae92-61e5-472f-b32d-1c9e3c4e****', position='Path'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST', position='Query'),
+  taskId: string(name='taskId', description='The ID of the asynchronous task.', example='e026ae92-61e5-472f-b32d-1c9e3c4e****', position='Path'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
 }
 
 model StopAsyncTaskResponse = {
@@ -1710,6 +1746,10 @@ model TagResourcesResponse = {
   statusCode?: int32(name='statusCode'),
 }
 
+/**
+  * Tags are used to identify resources. Tags allow you to categorize, search for, and aggregate resources that have the same characteristics from different dimensions. This facilitates resource management. For more information, see [Tag overview](~~156983~~).
+  *
+ */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'TagResources', 'POST', '/2023-03-30/tags-v2', 'none', false, 'json', request);
