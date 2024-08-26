@@ -18,6 +18,19 @@ init(config: OpenApi.Config){
   @endpointRule = '';
   }
 
+model AIAssistantSession {
+  clientId?: string(name='client_id'),
+  createdAt?: long(name='created_at'),
+  customLabels?: [ string ](name='custom_labels'),
+  domainId?: string(name='domain_id'),
+  expiredAt?: long(name='expired_at'),
+  name?: string(name='name'),
+  sessionId?: string(name='session_id'),
+  status?: string(name='status'),
+  updatedAt?: long(name='updated_at'),
+  userId?: string(name='user_id'),
+}
+
 model AccountAccessTokenResponse {
   accessToken?: string(name='access_token'),
   avatar?: string(name='avatar'),
@@ -815,11 +828,14 @@ model JWTPayload {
 model KnowledgeFile {
   creatorId?: string(name='creator_id'),
   driveId?: string(name='drive_id'),
+  driveName?: string(name='drive_name'),
   fileCategory?: string(name='file_category'),
   fileCreatedAt?: long(name='file_created_at'),
   fileCreatorId?: string(name='file_creator_id'),
   fileId?: string(name='file_id'),
   fileImageTime?: long(name='file_image_time'),
+  fileLastModifierId?: string(name='file_last_modifier_id'),
+  fileLastModifierType?: string(name='file_last_modifier_type'),
   fileName?: string(name='file_name'),
   fileNamePath?: string(name='file_name_path'),
   fileSize?: long(name='file_size'),
@@ -1251,6 +1267,7 @@ model VideoPreviewPlayInfo {
       url?: string(name='url'),
     }
   ](name='live_transcoding_task_list'),
+  masterUrl?: string(name='master_url'),
   meta?: {
     duration?: double(name='duration'),
     height?: long(name='height'),
@@ -5798,18 +5815,16 @@ This parameter is required.', example='live_transcoding'),
 This parameter is required.', example='9520943DC264'),
   getMasterUrl?: boolean(name='get_master_url'),
   getWithoutUrl?: boolean(name='get_without_url', description='Specifies whether not to query the playback URL. If you set this parameter to true, only transcoding metadata is returned. The video is not transcoded in the TS format, and the playback URL is not returned. If you set this parameter to false, the playback URL is returned. If the video has not been transcoded by using the template specified by template_id, the transcoding process is triggered. You are charged for the value-added service fees generated for transcoding.', example='true'),
+  reTranscode?: boolean(name='re_transcode'),
   shareId?: string(name='share_id', description='The share ID. If you want to manage a file by using a sharing link, carry the `x-share-token` header in the request and specify share_id. In this case, `drive_id` is invalid. Otherwise, use an `AccessKey pair` or `access token` for authentication and specify `drive_id`. You must specify at least either `share_id` or `drive_id`.', example='7JQX1FswpQ8'),
   templateId?: string(name='template_id', description='The ID of the definition template. If you leave this parameter empty, all definition templates are available.', example='264_480p'),
   urlExpireSec?: long(name='url_expire_sec', description='The validity period of the video preview. Unit: seconds. Default value: 900. Maximum value: 14400.', example='3600'),
 }
 
 model GetVideoPreviewPlayInfoResponseBody = {
-  code?: string(name='code', example='VideoPreviewWaitAndRetry'),
   domainId?: string(name='domain_id', description='The domain ID.', example='bj1'),
   driveId?: string(name='drive_id', description='The drive ID.', example='1'),
   fileId?: string(name='file_id', description='The file ID.', example='fileid1'),
-  masterUrl?: string(name='master_url'),
-  message?: string(name='message', example='media is transcoding, please wait and retry.'),
   shareId?: string(name='share_id', description='The share ID.', example='7JQX1FswpQ8'),
   videoPreviewPlayInfo?: VideoPreviewPlayInfo(name='video_preview_play_info', description='The information about video playback.'),
 }
@@ -5847,6 +5862,9 @@ async function getVideoPreviewPlayInfoWithOptions(request: GetVideoPreviewPlayIn
   }
   if (!Util.isUnset(request.getWithoutUrl)) {
     body['get_without_url'] = request.getWithoutUrl;
+  }
+  if (!Util.isUnset(request.reTranscode)) {
+    body['re_transcode'] = request.reTranscode;
   }
   if (!Util.isUnset(request.shareId)) {
     body['share_id'] = request.shareId;
@@ -6142,13 +6160,6 @@ model InvestigateFileRequest {
       fileId?: string(name='file_id', description='This parameter is required.', example='9520943DC264'),
     }
   ](name='drive_file_ids', description='This parameter is required.'),
-  policy?: {
-    firstProductName?: string(name='first_product_name'),
-    mteeCode?: string(name='mtee_code'),
-    provider?: string(name='provider'),
-  }(name='policy'),
-  recursive?: boolean(name='recursive'),
-  userData?: string(name='user_data'),
 }
 
 model InvestigateFileResponse = {
@@ -6169,15 +6180,6 @@ async function investigateFileWithOptions(request: InvestigateFileRequest, heade
   var body : map[string]any = {};
   if (!Util.isUnset(request.driveFileIds)) {
     body['drive_file_ids'] = request.driveFileIds;
-  }
-  if (!Util.isUnset(request.policy)) {
-    body['policy'] = request.policy;
-  }
-  if (!Util.isUnset(request.recursive)) {
-    body['recursive'] = request.recursive;
-  }
-  if (!Util.isUnset(request.userData)) {
-    body['user_data'] = request.userData;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
