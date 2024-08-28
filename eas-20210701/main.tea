@@ -209,6 +209,12 @@ model Service {
 }
 
 model CloneServiceRequest {
+  labels?: map[string]string(name='Labels'),
+  body?: string(name='body', description='The request body. For more information, see [CreateService](https://help.aliyun.com/document_detail/412086.html).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }'),
+}
+
+model CloneServiceShrinkRequest {
+  labelsShrink?: string(name='Labels'),
   body?: string(name='body', description='The request body. For more information, see [CreateService](https://help.aliyun.com/document_detail/412086.html).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }'),
 }
 
@@ -230,15 +236,26 @@ model CloneServiceResponse = {
 /**
  * @summary Clones a service.
  *
- * @param request CloneServiceRequest
+ * @param tmpReq CloneServiceRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return CloneServiceResponse
  */
-async function cloneServiceWithOptions(ClusterId: string, ServiceName: string, request: CloneServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CloneServiceResponse {
-  Util.validateModel(request);
+async function cloneServiceWithOptions(ClusterId: string, ServiceName: string, tmpReq: CloneServiceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CloneServiceResponse {
+  Util.validateModel(tmpReq);
+  var request = new CloneServiceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.labels)) {
+    request.labelsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labels, 'Labels', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.labelsShrink)) {
+    query['Labels'] = request.labelsShrink;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = request.body,
   };
   var params = new OpenApi.Params{
@@ -312,6 +329,86 @@ async function commitService(ClusterId: string, ServiceName: string): CommitServ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return commitServiceWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+model CreateAclPolicyRequest {
+  aclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='AclPolicyList'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model CreateAclPolicyShrinkRequest {
+  aclPolicyListShrink?: string(name='AclPolicyList'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model CreateAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully add acl policy for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAclPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建网关访问权限ACL Policy
+ *
+ * @param tmpReq CreateAclPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAclPolicyResponse
+ */
+async function createAclPolicyWithOptions(ClusterId: string, GatewayId: string, tmpReq: CreateAclPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAclPolicyResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAclPolicyShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.aclPolicyList)) {
+    request.aclPolicyListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.aclPolicyList, 'AclPolicyList', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aclPolicyListShrink)) {
+    query['AclPolicyList'] = request.aclPolicyListShrink;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAclPolicy',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/acl_policy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建网关访问权限ACL Policy
+ *
+ * @param request CreateAclPolicyRequest
+ * @return CreateAclPolicyResponse
+ */
+async function createAclPolicy(ClusterId: string, GatewayId: string, request: CreateAclPolicyRequest): CreateAclPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAclPolicyWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model CreateAppServiceRequest {
@@ -537,6 +634,7 @@ Valid values:
 
 This parameter is required.', example='ecs.c6.4xlarge'),
   name?: string(name='Name', description='The private gateway alias.', example='mygateway1'),
+  replicas?: int32(name='Replicas'),
 }
 
 model CreateGatewayResponseBody = {
@@ -579,6 +677,9 @@ async function createGatewayWithOptions(request: CreateGatewayRequest, headers: 
   }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.replicas)) {
+    body['Replicas'] = request.replicas;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1490,6 +1591,86 @@ async function createServiceMirror(ClusterId: string, ServiceName: string, reque
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model DeleteAclPolicyRequest {
+  aclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='AclPolicyList'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model DeleteAclPolicyShrinkRequest {
+  aclPolicyListShrink?: string(name='AclPolicyList'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model DeleteAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully delete acl policy for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAclPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 移除网关acl policy entry
+ *
+ * @param tmpReq DeleteAclPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAclPolicyResponse
+ */
+async function deleteAclPolicyWithOptions(ClusterId: string, GatewayId: string, tmpReq: DeleteAclPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAclPolicyResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteAclPolicyShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.aclPolicyList)) {
+    request.aclPolicyListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.aclPolicyList, 'AclPolicyList', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.aclPolicyListShrink)) {
+    query['AclPolicyList'] = request.aclPolicyListShrink;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteAclPolicy',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/acl_policy`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 移除网关acl policy entry
+ *
+ * @param request DeleteAclPolicyRequest
+ * @return DeleteAclPolicyResponse
+ */
+async function deleteAclPolicy(ClusterId: string, GatewayId: string, request: DeleteAclPolicyRequest): DeleteAclPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteAclPolicyWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model DeleteBenchmarkTaskResponseBody = {
@@ -2430,57 +2611,17 @@ async function describeBenchmarkTaskReport(ClusterId: string, TaskName: string, 
 }
 
 model DescribeGatewayResponseBody = {
-  callerUid?: string(name='CallerUid', description='The UID of the account that is used to create the private gateway.', example='20123*******'),
   createTime?: string(name='CreateTime', description='The time when the private gateway was created. The time is displayed in UTC.', example='2020-05-19T14:19:42Z'),
   externalClusterId?: string(name='ExternalClusterId', description='The ID of the self-managed cluster.', example='c935eadf284c14c2da57a2a13ad6******'),
   gatewayId?: string(name='GatewayId', description='The ID of the private gateway.', example='gw-1uhcqmsc7x22******'),
   gatewayName?: string(name='GatewayName', description='The private gateway alias.', example='mygateway1'),
   instanceType?: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge'),
-  internetAclPolicyList?: [ 
-    {
-      comment?: string(name='Comment', description='The description.', example='test'),
-      entry?: string(name='Entry', description='The Classless Inter-Domain Routing (CIDR) block that is allowed to access the private gateway.', example='192.168.1.1/32'),
-      status?: string(name='Status', description='The state of the private gateway.
-
-Valid values:
-
-*   Creating
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   Running
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->', example='Running'),
-    }
-  ](name='InternetAclPolicyList', description='The Internet access control policies.'),
   internetDomain?: string(name='InternetDomain', description='The public endpoint.', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
   internetEnabled?: boolean(name='InternetEnabled', description='Indicates whether Internet access is enabled.', example='true'),
+  internetStatus?: string(name='InternetStatus'),
   intranetDomain?: string(name='IntranetDomain', description='The internal endpoint.', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
-  intranetEnabled?: boolean(name='IntranetEnabled', description='Indicates whether internal network access is enabled.', example='true'),
-  intranetLinkedVpcList?: [ 
-    {
-      ip?: string(name='Ip', description='The IP address.', example='192.168.10.11'),
-      securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-2ze4pgstgszvgq******'),
-      status?: string(name='Status', description='The state of the private gateway. Valid values:
-
-*   Creating
-*   Running', example='Running'),
-      vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1txzxsdck43pp******'),
-      vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-bp1g11zvka6zr3i******'),
-    }
-  ](name='IntranetLinkedVpcList', description='The internal endpoints.'),
-  parentUid?: string(name='ParentUid', description='The user ID (UID) of the Alibaba Cloud account that is used to create the private gateway.', example='11234*******'),
-  region?: string(name='Region', description='The region ID of the private gateway.
-
-This parameter is required.', example='cn-hangzhou'),
+  isDefault?: boolean(name='IsDefault'),
+  replicas?: int32(name='Replicas'),
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   status?: string(name='Status', description='The state of the private gateway.', example='PrivateGatewayRunning'),
   updateTime?: string(name='UpdateTime', description='The time when the private gateway was updated. The time is displayed in UTC.', example='2021-02-24T11:52:17Z'),
@@ -3278,7 +3419,7 @@ async function describeServiceMirror(ClusterId: string, ServiceName: string): De
 }
 
 model DescribeSpotDiscountHistoryRequest {
-  instanceType?: string(name='InstanceType', description='The type of the Elastic Compute Service (ECS) instance.
+  instanceType?: string(name='InstanceType', description='The type of the Elastic Algorithm Service (EAS) instance.
 
 This parameter is required.', example='ecs.c6.4xlarge'),
   isProtect?: boolean(name='IsProtect', description='Specifies whether the preemptible instance has a protection period. During the 1-hour protection period of the preemptible instance, the preemptible instance will not be released.', example='false'),
@@ -3411,6 +3552,83 @@ async function developService(ClusterId: string, ServiceName: string, request: D
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return developServiceWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model ListAclPolicyRequest {
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+}
+
+model ListAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  internetAclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='InternetAclPolicyList'),
+  intranetVpcAclPolicyList?: [ 
+    {
+      intranetAclPolicyList?: [ 
+        {
+          comment?: string(name='Comment', example='Test Entry'),
+          entry?: string(name='Entry', example='192.168.XX.XX/24'),
+        }
+      ](name='IntranetAclPolicyList'),
+      vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+    }
+  ](name='IntranetVpcAclPolicyList'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model ListAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAclPolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询网关所有ACL Policy
+ *
+ * @param request ListAclPolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAclPolicyResponse
+ */
+async function listAclPolicyWithOptions(ClusterId: string, GatewayId: string, request: ListAclPolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAclPolicyResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAclPolicy',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/acl_policy`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询网关所有ACL Policy
+ *
+ * @param request ListAclPolicyRequest
+ * @return ListAclPolicyResponse
+ */
+async function listAclPolicy(ClusterId: string, GatewayId: string, request: ListAclPolicyRequest): ListAclPolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAclPolicyWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model ListBenchmarkTaskRequest {
@@ -3572,6 +3790,95 @@ async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchma
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listBenchmarkTaskWithOptions(request, headers, runtime);
+}
+
+model ListGatewayRequest {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  gatewayName?: string(name='GatewayName', example='mygateway1'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
+}
+
+model ListGatewayResponseBody = {
+  gateways?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2020-05-19T14:19:42Z'),
+      gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+      gatewayName?: string(name='GatewayName', example='mygateway1'),
+      instanceType?: string(name='InstanceType', example='2c4g'),
+      internetDomain?: string(name='InternetDomain', example='gw-1uhcqmsc7x22******-1801786532******.cn-wulanchabu.pai-eas.aliyuncs.com'),
+      internetEnabled?: boolean(name='InternetEnabled', example='true'),
+      intranetDomain?: string(name='IntranetDomain', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-wulanchabu.pai-eas.aliyuncs.com'),
+      isDefault?: boolean(name='IsDefault', example='true'),
+      replicas?: int32(name='Replicas', example='2'),
+      status?: string(name='Status', example='Running'),
+      updateTime?: string(name='UpdateTime', example='2021-02-24T11:52:17Z'),
+    }
+  ](name='Gateways'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  totalCount?: long(name='TotalCount', example='5'),
+}
+
+model ListGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary 列举gateway
+ *
+ * @param request ListGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayResponse
+ */
+async function listGatewayWithOptions(request: ListGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.gatewayId)) {
+    query['GatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.gatewayName)) {
+    query['GatewayName'] = request.gatewayName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGateway',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列举gateway
+ *
+ * @param request ListGatewayRequest
+ * @return ListGatewayResponse
+ */
+async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayWithOptions(request, headers, runtime);
 }
 
 model ListGatewayIntranetLinkedVpcResponseBody = {
@@ -4102,6 +4409,8 @@ model ListResourceServicesResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ListResourceServices is deprecated
+ *
  * @summary Queries a list of services that are deployed in the dedicated resource group.
  *
  * @param request ListResourceServicesRequest
@@ -4109,6 +4418,7 @@ model ListResourceServicesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListResourceServicesResponse
  */
+// Deprecated
 async function listResourceServicesWithOptions(ClusterId: string, ResourceId: string, request: ListResourceServicesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListResourceServicesResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -4138,11 +4448,14 @@ async function listResourceServicesWithOptions(ClusterId: string, ResourceId: st
 }
 
 /**
+ * @deprecated OpenAPI ListResourceServices is deprecated
+ *
  * @summary Queries a list of services that are deployed in the dedicated resource group.
  *
  * @param request ListResourceServicesRequest
  * @return ListResourceServicesResponse
  */
+// Deprecated
 async function listResourceServices(ClusterId: string, ResourceId: string, request: ListResourceServicesRequest): ListResourceServicesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -4603,6 +4916,7 @@ async function listServiceVersions(ClusterId: string, ServiceName: string, reque
 
 model ListServicesRequest {
   filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo'),
+  gateway?: string(name='Gateway'),
   groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](https://help.aliyun.com/document_detail/412109.html).', example='foo'),
   label?: map[string]string(name='Label', description='The tag that is used to filter services.'),
   order?: string(name='Order', description='The sorting order. Valid values:
@@ -4809,6 +5123,7 @@ Valid values:
 
 model ListServicesShrinkRequest {
   filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo'),
+  gateway?: string(name='Gateway'),
   groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](https://help.aliyun.com/document_detail/412109.html).', example='foo'),
   labelShrink?: string(name='Label', description='The tag that is used to filter services.'),
   order?: string(name='Order', description='The sorting order. Valid values:
@@ -5047,6 +5362,9 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
   var query : map[string]any = {};
   if (!Util.isUnset(request.filter)) {
     query['Filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.gateway)) {
+    query['Gateway'] = request.gateway;
   }
   if (!Util.isUnset(request.groupName)) {
     query['GroupName'] = request.groupName;
@@ -5612,7 +5930,9 @@ Valid values:
     <!-- -->', example='false'),
   enableIntranet?: boolean(name='EnableIntranet', description='Specifies whether to enable internal network access. Default value: true.', example='true'),
   instanceType?: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge'),
+  isDefault?: boolean(name='IsDefault'),
   name?: string(name='Name', description='The private gateway alias.', example='mygateway1'),
+  replicas?: int32(name='Replicas'),
 }
 
 model UpdateGatewayResponseBody = {
@@ -5647,8 +5967,14 @@ async function updateGatewayWithOptions(GatewayId: string, ClusterId: string, re
   if (!Util.isUnset(request.instanceType)) {
     body['InstanceType'] = request.instanceType;
   }
+  if (!Util.isUnset(request.isDefault)) {
+    body['IsDefault'] = request.isDefault;
+  }
   if (!Util.isUnset(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.replicas)) {
+    body['Replicas'] = request.replicas;
   }
 
   var req = new OpenApi.OpenApiRequest{ 

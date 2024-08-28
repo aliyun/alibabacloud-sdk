@@ -211,6 +211,7 @@ model Service {
 model CloneServiceRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.', example='cn-hangzhou', position='Path'),
   serviceName: string(name='ServiceName', description='The service name. For more information about how to query the service name, see [ListServices](~~412109~~).', example='foo', position='Path'),
+  labels?: map[string]string(name='Labels', shrink='json', position='Query'),
   body?: string(name='body', description='The request body. For more information, see [CreateService](~~412086~~).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }', position='Body'),
 }
 
@@ -253,6 +254,35 @@ model CommitServiceResponse = {
 async function commitService(request: CommitServiceRequest): CommitServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CommitService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/commit', 'json', false, 'json', request);
+}
+
+model CreateAclPolicyRequest {
+  clusterId: string(name='ClusterId', example='cn-wulanchabu', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  aclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='AclPolicyList', shrink='json', position='Query'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****', position='Query'),
+}
+
+model CreateAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully add acl policy for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model CreateAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAclPolicyResponseBody(name='body'),
+}
+
+async function createAclPolicy(request: CreateAclPolicyRequest): CreateAclPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAclPolicy', 'POST', '/api/v2/gateways/{ClusterId}/{GatewayId}/acl_policy', 'json', false, 'json', request);
 }
 
 model CreateAppServiceRequest {
@@ -369,6 +399,7 @@ Valid values:
   enableIntranet?: boolean(name='EnableIntranet', description='Specifies whether to enable internal network access. Default value: true.', example='true', position='Body'),
   instanceType: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge', position='Body'),
   name?: string(name='Name', description='The private gateway alias.', example='mygateway1', position='Body'),
+  replicas?: int32(name='Replicas', position='Body'),
 }
 
 model CreateGatewayResponseBody = {
@@ -766,6 +797,35 @@ model CreateServiceMirrorResponse = {
 async function createServiceMirror(request: CreateServiceMirrorRequest): CreateServiceMirrorResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateServiceMirror', 'POST', '/api/v2/services/{ClusterId}/{ServiceName}/mirror', 'json', false, 'json', request);
+}
+
+model DeleteAclPolicyRequest {
+  clusterId: string(name='ClusterId', example='cn-wulanchabu', position='Path'),
+  gatewayId: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  aclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='AclPolicyList', shrink='json', position='Query'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****', position='Query'),
+}
+
+model DeleteAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully delete acl policy for gateway'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAclPolicyResponseBody(name='body'),
+}
+
+async function deleteAclPolicy(request: DeleteAclPolicyRequest): DeleteAclPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteAclPolicy', 'DELETE', '/api/v2/gateways/{ClusterId}/{GatewayId}/acl_policy', 'json', false, 'json', request);
 }
 
 model DeleteBenchmarkTaskRequest {
@@ -1234,55 +1294,17 @@ model DescribeGatewayRequest {
 }
 
 model DescribeGatewayResponseBody = {
-  callerUid?: string(name='CallerUid', description='The UID of the account that is used to create the private gateway.', example='20123*******'),
   createTime?: string(name='CreateTime', description='The time when the private gateway was created. The time is displayed in UTC.', example='2020-05-19T14:19:42Z'),
   externalClusterId?: string(name='ExternalClusterId', description='The ID of the self-managed cluster.', example='c935eadf284c14c2da57a2a13ad6******'),
   gatewayId?: string(name='GatewayId', description='The ID of the private gateway.', example='gw-1uhcqmsc7x22******'),
   gatewayName?: string(name='GatewayName', description='The private gateway alias.', example='mygateway1'),
   instanceType?: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge'),
-  internetAclPolicyList?: [ 
-    {
-      comment?: string(name='Comment', description='The description.', example='test'),
-      entry?: string(name='Entry', description='The Classless Inter-Domain Routing (CIDR) block that is allowed to access the private gateway.', example='192.168.1.1/32'),
-      status?: string(name='Status', description='The state of the private gateway.
-
-Valid values:
-
-*   Creating
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   Running
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->', example='Running'),
-    }
-  ](name='InternetAclPolicyList', description='The Internet access control policies.'),
   internetDomain?: string(name='InternetDomain', description='The public endpoint.', example='gw-1uhcqmsc7x22******-1801786532******.cn-hangzhou.pai-eas.aliyuncs.com'),
   internetEnabled?: boolean(name='InternetEnabled', description='Indicates whether Internet access is enabled.', example='true'),
+  internetStatus?: string(name='InternetStatus'),
   intranetDomain?: string(name='IntranetDomain', description='The internal endpoint.', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-hangzhou.pai-eas.aliyuncs.com'),
-  intranetEnabled?: boolean(name='IntranetEnabled', description='Indicates whether internal network access is enabled.', example='true'),
-  intranetLinkedVpcList?: [ 
-    {
-      ip?: string(name='Ip', description='The IP address.', example='192.168.10.11'),
-      securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-2ze4pgstgszvgq******'),
-      status?: string(name='Status', description='The state of the private gateway. Valid values:
-
-*   Creating
-*   Running', example='Running'),
-      vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1txzxsdck43pp******'),
-      vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-bp1g11zvka6zr3i******'),
-    }
-  ](name='IntranetLinkedVpcList', description='The internal endpoints.'),
-  parentUid?: string(name='ParentUid', description='The user ID (UID) of the Alibaba Cloud account that is used to create the private gateway.', example='11234*******'),
-  region: string(name='Region', description='The region ID of the private gateway.', example='cn-hangzhou'),
+  isDefault?: boolean(name='IsDefault'),
+  replicas?: int32(name='Replicas'),
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
   status?: string(name='Status', description='The state of the private gateway.', example='PrivateGatewayRunning'),
   updateTime?: string(name='UpdateTime', description='The time when the private gateway was updated. The time is displayed in UTC.', example='2021-02-24T11:52:17Z'),
@@ -1675,7 +1697,7 @@ async function describeServiceMirror(request: DescribeServiceMirrorRequest): Des
 }
 
 model DescribeSpotDiscountHistoryRequest {
-  instanceType: string(name='InstanceType', description='The type of the Elastic Compute Service (ECS) instance.', example='ecs.c6.4xlarge', position='Query'),
+  instanceType: string(name='InstanceType', description='The type of the Elastic Algorithm Service (EAS) instance.', example='ecs.c6.4xlarge', position='Query'),
   isProtect?: boolean(name='IsProtect', description='Specifies whether the preemptible instance has a protection period. During the 1-hour protection period of the preemptible instance, the preemptible instance will not be released.', example='false', position='Query'),
 }
 
@@ -1725,6 +1747,45 @@ model DevelopServiceResponse = {
 async function developService(request: DevelopServiceRequest): DevelopServiceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DevelopService', 'PUT', '/api/v2/services/{ClusterId}/{ServiceName}/develop', 'json', false, 'json', request);
+}
+
+model ListAclPolicyRequest {
+  clusterId?: string(name='ClusterId', example='cn-wulanchabu', position='Path'),
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Path'),
+  vpcId?: string(name='VpcId', example='vpc-uf66uio7md****', position='Query'),
+}
+
+model ListAclPolicyResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  internetAclPolicyList?: [ 
+    {
+      comment?: string(name='Comment', example='default'),
+      entry?: string(name='Entry', example='10.23.XX.XX/32'),
+    }
+  ](name='InternetAclPolicyList'),
+  intranetVpcAclPolicyList?: [ 
+    {
+      intranetAclPolicyList?: [ 
+        {
+          comment?: string(name='Comment', example='Test Entry'),
+          entry?: string(name='Entry', example='192.168.XX.XX/24'),
+        }
+      ](name='IntranetAclPolicyList'),
+      vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+    }
+  ](name='IntranetVpcAclPolicyList'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model ListAclPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAclPolicyResponseBody(name='body'),
+}
+
+async function listAclPolicy(request: ListAclPolicyRequest): ListAclPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListAclPolicy', 'GET', '/api/v2/gateways/{ClusterId}/{GatewayId}/acl_policy', 'json', false, 'json', request);
 }
 
 model ListBenchmarkTaskRequest {
@@ -1837,6 +1898,46 @@ model ListBenchmarkTaskResponse = {
 async function listBenchmarkTask(request: ListBenchmarkTaskRequest): ListBenchmarkTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListBenchmarkTask', 'GET', '/api/v2/benchmark-tasks', 'json', false, 'json', request);
+}
+
+model ListGatewayRequest {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******', position='Query'),
+  gatewayName?: string(name='GatewayName', example='mygateway1', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='100', position='Query'),
+}
+
+model ListGatewayResponseBody = {
+  gateways?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2020-05-19T14:19:42Z'),
+      gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+      gatewayName?: string(name='GatewayName', example='mygateway1'),
+      instanceType?: string(name='InstanceType', example='2c4g'),
+      internetDomain?: string(name='InternetDomain', example='gw-1uhcqmsc7x22******-1801786532******.cn-wulanchabu.pai-eas.aliyuncs.com'),
+      internetEnabled?: boolean(name='InternetEnabled', example='true'),
+      intranetDomain?: string(name='IntranetDomain', example='gw-1uhcqmsc7x22******-1801786532******-vpc.cn-wulanchabu.pai-eas.aliyuncs.com'),
+      isDefault?: boolean(name='IsDefault', example='true'),
+      replicas?: int32(name='Replicas', example='2'),
+      status?: string(name='Status', example='Running'),
+      updateTime?: string(name='UpdateTime', example='2021-02-24T11:52:17Z'),
+    }
+  ](name='Gateways'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='100'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+  totalCount?: long(name='TotalCount', example='5'),
+}
+
+model ListGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayResponseBody(name='body'),
+}
+
+async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListGateway', 'GET', '/api/v2/gateways', 'json', false, 'json', request);
 }
 
 model ListGatewayIntranetLinkedVpcRequest {
@@ -2188,6 +2289,11 @@ model ListResourceServicesResponse = {
   body?: ListResourceServicesResponseBody(name='body'),
 }
 
+/**
+  * @deprecated
+  *
+ */
+// Deprecated
 async function listResourceServices(request: ListResourceServicesRequest): ListResourceServicesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListResourceServices', 'GET', '/api/v2/resources/{ClusterId}/{ResourceId}/services', 'json', false, 'json', request);
@@ -2455,6 +2561,7 @@ async function listServiceVersions(request: ListServiceVersionsRequest): ListSer
 
 model ListServicesRequest {
   filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo', position='Query'),
+  gateway?: string(name='Gateway', position='Query'),
   groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](~~412109~~).', example='foo', position='Query'),
   label?: map[string]string(name='Label', description='The tag that is used to filter services.', shrink='json', position='Query'),
   order?: string(name='Order', description='The sorting order. Valid values:
@@ -2910,7 +3017,9 @@ Valid values:
     <!-- -->', example='false', position='Body'),
   enableIntranet?: boolean(name='EnableIntranet', description='Specifies whether to enable internal network access. Default value: true.', example='true', position='Body'),
   instanceType?: string(name='InstanceType', description='The instance type used for the private gateway.', example='ecs.c6.4xlarge', position='Body'),
+  isDefault?: boolean(name='IsDefault', position='Body'),
   name?: string(name='Name', description='The private gateway alias.', example='mygateway1', position='Body'),
+  replicas?: int32(name='Replicas', position='Body'),
 }
 
 model UpdateGatewayResponseBody = {
