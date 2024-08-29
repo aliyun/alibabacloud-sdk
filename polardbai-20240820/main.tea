@@ -1,0 +1,112 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('polardbai', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model OpenApiModelsPredictCmd {
+}
+
+model PredictSseRequest {
+  dbName?: string(name='dbName', example='db_test'),
+  input?: string(name='input'),
+  instanceName?: string(name='instanceName', example='pc-2ze454l20me07****'),
+  modelClass?: string(name='modelClass', example='_polar4ai_tongyi'),
+  parameters?: map[string]any(name='parameters', example='{"basic_index_name":"index_table"}'),
+}
+
+model PredictSseResponseBody = {
+  data?: any(name='data'),
+  errCode?: string(name='errCode', example='ER_ILLEGAL_MODEL_CLASS'),
+  errMessage?: string(name='errMessage', example='Illegal model class.'),
+  requestId?: string(name='requestId', description='Id of the request', example='983863E2-****-1D15-A4AE-3468CD75383D'),
+  success?: boolean(name='success', example='true'),
+}
+
+model PredictSseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PredictSseResponseBody(name='body'),
+}
+
+/**
+ * @summary 模型推理（在线，离线）
+ *
+ * @param request PredictSseRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PredictSseResponse
+ */
+async function predictSseWithOptions(request: PredictSseRequest, headers: map[string]string, runtime: Util.RuntimeOptions): PredictSseResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.dbName)) {
+    body['dbName'] = request.dbName;
+  }
+  if (!Util.isUnset(request.input)) {
+    body['input'] = request.input;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    body['instanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.modelClass)) {
+    body['modelClass'] = request.modelClass;
+  }
+  if (!Util.isUnset(request.parameters)) {
+    body['parameters'] = request.parameters;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PredictSse',
+    version = '2024-08-20',
+    protocol = 'HTTPS',
+    pathname = `/v1/openapi/models/predictSse`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 模型推理（在线，离线）
+ *
+ * @param request PredictSseRequest
+ * @return PredictSseResponse
+ */
+async function predictSse(request: PredictSseRequest): PredictSseResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return predictSseWithOptions(request, headers, runtime);
+}
+
