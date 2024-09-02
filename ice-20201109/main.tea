@@ -87,6 +87,37 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AIAgentRuntimeConfig {
+  avatarChat3D?: {
+    agentUserId?: string(name='AgentUserId'),
+    authToken?: string(name='AuthToken'),
+    channelId?: string(name='ChannelId'),
+  }(name='AvatarChat3D'),
+  voiceChat?: {
+    agentUserId?: string(name='AgentUserId'),
+    authToken?: string(name='AuthToken'),
+    channelId?: string(name='ChannelId'),
+  }(name='VoiceChat'),
+}
+
+model AIAgentTemplateConfig {
+  avatarChat3D?: {
+    avatarId?: string(name='AvatarId'),
+    enableVoiceInterrupt?: boolean(name='EnableVoiceInterrupt'),
+    gracefulShutdown?: boolean(name='GracefulShutdown'),
+    greeting?: string(name='Greeting'),
+    voiceId?: string(name='VoiceId'),
+    volume?: long(name='Volume'),
+  }(name='AvatarChat3D'),
+  voiceChat?: {
+    enableVoiceInterrupt?: boolean(name='EnableVoiceInterrupt'),
+    gracefulShutdown?: boolean(name='GracefulShutdown'),
+    greeting?: string(name='Greeting'),
+    voiceId?: string(name='VoiceId'),
+    volume?: long(name='Volume'),
+  }(name='VoiceChat'),
+}
+
 model AddCategoryRequest {
   cateName?: string(name='CateName', description='This parameter is required.'),
   parentId?: long(name='ParentId', example='5'),
@@ -3226,6 +3257,68 @@ async function deleteTemplate(request: DeleteTemplateRequest): DeleteTemplateRes
   return deleteTemplateWithOptions(request, runtime);
 }
 
+model DescribeAIAgentInstanceRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+}
+
+model DescribeAIAgentInstanceResponseBody = {
+  instance?: {
+    callLogUrl?: string(name='CallLogUrl', example='https://example.com/call_logs/12345'),
+    runtimeConfig?: AIAgentRuntimeConfig(name='RuntimeConfig', example='{"VoiceChat":{"AgentUserId":"voice_agent_001","ChannelId":"voice_channel_001","AuthToken":"your_voice_chat_auth_token"}}'),
+    status?: string(name='Status', example='Finished'),
+    templateConfig?: AIAgentTemplateConfig(name='TemplateConfig', example='{"VoiceChat": {"AppId": "your_voice_chat_app_id"}}'),
+    userData?: string(name='UserData', example='{"Email":"johndoe@example.com","Preferences":{"Language":"en"}}'),
+  }(name='Instance'),
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model DescribeAIAgentInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeAIAgentInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询实例
+ *
+ * @param request DescribeAIAgentInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeAIAgentInstanceResponse
+ */
+async function describeAIAgentInstanceWithOptions(request: DescribeAIAgentInstanceRequest, runtime: Util.RuntimeOptions): DescribeAIAgentInstanceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeAIAgentInstance',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询实例
+ *
+ * @param request DescribeAIAgentInstanceRequest
+ * @return DescribeAIAgentInstanceResponse
+ */
+async function describeAIAgentInstance(request: DescribeAIAgentInstanceRequest): DescribeAIAgentInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeAIAgentInstanceWithOptions(request, runtime);
+}
+
 model DescribeMeterImsEditUsageRequest {
   endTs?: long(name='EndTs', description='This parameter is required.', example='1656995036'),
   interval?: long(name='Interval', description='This parameter is required.', example='86400'),
@@ -3581,6 +3674,65 @@ async function describeMeterImsSummary(request: DescribeMeterImsSummaryRequest):
   return describeMeterImsSummaryWithOptions(request, runtime);
 }
 
+model DescribeNotifyConfigRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+}
+
+model DescribeNotifyConfigResponseBody = {
+  callbackUrl?: string(name='CallbackUrl', example='http://customer.com/callback'),
+  enableNotify?: boolean(name='EnableNotify', example='true'),
+  eventTypes?: string(name='EventTypes', example='agent_start,agent_stop,error'),
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+  token?: string(name='Token', example='eyJhcHBpZCI6ICIxMjM0MTIzNxxxxx'),
+}
+
+model DescribeNotifyConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeNotifyConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 描述回调配置
+ *
+ * @param request DescribeNotifyConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeNotifyConfigResponse
+ */
+async function describeNotifyConfigWithOptions(request: DescribeNotifyConfigRequest, runtime: Util.RuntimeOptions): DescribeNotifyConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.AIAgentId)) {
+    query['AIAgentId'] = request.AIAgentId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeNotifyConfig',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 描述回调配置
+ *
+ * @param request DescribeNotifyConfigRequest
+ * @return DescribeNotifyConfigResponse
+ */
+async function describeNotifyConfig(request: DescribeNotifyConfigRequest): DescribeNotifyConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeNotifyConfigWithOptions(request, runtime);
+}
+
 model DescribePlayListRequest {
   beginTs?: string(name='BeginTs', description='This parameter is required.', example='1676170500011'),
   endTs?: string(name='EndTs', description='This parameter is required.', example='1682474405173'),
@@ -3930,6 +4082,90 @@ async function dropSearchLibWithOptions(request: DropSearchLibRequest, runtime: 
 async function dropSearchLib(request: DropSearchLibRequest): DropSearchLibResponse {
   var runtime = new Util.RuntimeOptions{};
   return dropSearchLibWithOptions(request, runtime);
+}
+
+model GenerateAIAgentCallRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  expire?: long(name='Expire', example='3600'),
+  templateConfig?: AIAgentTemplateConfig(name='TemplateConfig'),
+  userId?: string(name='UserId', example='877ae632caae49b1afc81c2e8194ffb4'),
+}
+
+model GenerateAIAgentCallShrinkRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  expire?: long(name='Expire', example='3600'),
+  templateConfigShrink?: string(name='TemplateConfig'),
+  userId?: string(name='UserId', example='877ae632caae49b1afc81c2e8194ffb4'),
+}
+
+model GenerateAIAgentCallResponseBody = {
+  AIAgentUserId?: string(name='AIAgentUserId', example='877ae632caae49b1afc81c2e8194ffb4'),
+  channelId?: string(name='ChannelId', example='70f22d5784194938a7e387052f2b3208'),
+  instanceId?: string(name='InstanceId', example='39f8e0bc005e4f309379701645f4****'),
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+  token?: string(name='Token', example='eyJhcHBpZCI6ICIxMjM0MTIzNxxxxx'),
+  userId?: string(name='UserId', example='user123'),
+}
+
+model GenerateAIAgentCallResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateAIAgentCallResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建一个智能体实例，返回智能体所在的频道、频道内名称以及进入频道所需的token。
+ *
+ * @param tmpReq GenerateAIAgentCallRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GenerateAIAgentCallResponse
+ */
+async function generateAIAgentCallWithOptions(tmpReq: GenerateAIAgentCallRequest, runtime: Util.RuntimeOptions): GenerateAIAgentCallResponse {
+  Util.validateModel(tmpReq);
+  var request = new GenerateAIAgentCallShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.templateConfig)) {
+    request.templateConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.templateConfig, 'TemplateConfig', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.AIAgentId)) {
+    query['AIAgentId'] = request.AIAgentId;
+  }
+  if (!Util.isUnset(request.expire)) {
+    query['Expire'] = request.expire;
+  }
+  if (!Util.isUnset(request.templateConfigShrink)) {
+    query['TemplateConfig'] = request.templateConfigShrink;
+  }
+  if (!Util.isUnset(request.userId)) {
+    query['UserId'] = request.userId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenerateAIAgentCall',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建一个智能体实例，返回智能体所在的频道、频道内名称以及进入频道所需的token。
+ *
+ * @param request GenerateAIAgentCallRequest
+ * @return GenerateAIAgentCallResponse
+ */
+async function generateAIAgentCall(request: GenerateAIAgentCallRequest): GenerateAIAgentCallResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return generateAIAgentCallWithOptions(request, runtime);
 }
 
 model GenerateKMSDataKeyResponseBody = {
@@ -7793,6 +8029,86 @@ async function insertMediaToSearchLibWithOptions(request: InsertMediaToSearchLib
 async function insertMediaToSearchLib(request: InsertMediaToSearchLibRequest): InsertMediaToSearchLibResponse {
   var runtime = new Util.RuntimeOptions{};
   return insertMediaToSearchLibWithOptions(request, runtime);
+}
+
+model ListAIAgentInstanceRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4***'),
+  endTime?: string(name='EndTime', example='2023-01-02T00:00:00Z'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  startTime?: string(name='StartTime', example='2023-01-01T00:00:00Z'),
+}
+
+model ListAIAgentInstanceResponseBody = {
+  instances?: [ 
+    {
+      callLogUrl?: string(name='CallLogUrl', example='https://example.com/call_logs/12345.json'),
+      runtimeConfig?: AIAgentRuntimeConfig(name='RuntimeConfig', example='{"VoiceChat":{"AgentUserId":"voice_agent_001","ChannelId":"voice_channel_001","AuthToken":"your_voice_chat_auth_token"}}'),
+      status?: string(name='Status', example='Finished'),
+      templateConfig?: AIAgentTemplateConfig(name='TemplateConfig', example='{"VoiceChat": {"VoiceId": "zhixiaoxia"}}'),
+      userData?: string(name='UserData', example='{"Email":"johndoe@example.com","Preferences":{"Language":"en"}}'),
+    }
+  ](name='Instances'),
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model ListAIAgentInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAIAgentInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出实例
+ *
+ * @param request ListAIAgentInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAIAgentInstanceResponse
+ */
+async function listAIAgentInstanceWithOptions(request: ListAIAgentInstanceRequest, runtime: Util.RuntimeOptions): ListAIAgentInstanceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.AIAgentId)) {
+    query['AIAgentId'] = request.AIAgentId;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAIAgentInstance',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出实例
+ *
+ * @param request ListAIAgentInstanceRequest
+ * @return ListAIAgentInstanceResponse
+ */
+async function listAIAgentInstance(request: ListAIAgentInstanceRequest): ListAIAgentInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAIAgentInstanceWithOptions(request, runtime);
 }
 
 model ListAllPublicMediaTagsRequest {
@@ -13081,6 +13397,69 @@ async function searchPublicMediaInfo(request: SearchPublicMediaInfoRequest): Sea
   return searchPublicMediaInfoWithOptions(request, runtime);
 }
 
+model SendAIAgentSpeechRequest {
+  enableInterrupt?: boolean(name='EnableInterrupt', example='true'),
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  text?: string(name='Text', description='This parameter is required.'),
+}
+
+model SendAIAgentSpeechResponseBody = {
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model SendAIAgentSpeechResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendAIAgentSpeechResponseBody(name='body'),
+}
+
+/**
+ * @summary 用来立即让某个智能体实例播报指定的文本。
+ *
+ * @param request SendAIAgentSpeechRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SendAIAgentSpeechResponse
+ */
+async function sendAIAgentSpeechWithOptions(request: SendAIAgentSpeechRequest, runtime: Util.RuntimeOptions): SendAIAgentSpeechResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.enableInterrupt)) {
+    query['EnableInterrupt'] = request.enableInterrupt;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.text)) {
+    query['Text'] = request.text;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SendAIAgentSpeech',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用来立即让某个智能体实例播报指定的文本。
+ *
+ * @param request SendAIAgentSpeechRequest
+ * @return SendAIAgentSpeechResponse
+ */
+async function sendAIAgentSpeech(request: SendAIAgentSpeechRequest): SendAIAgentSpeechResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return sendAIAgentSpeechWithOptions(request, runtime);
+}
+
 model SendLiveSnapshotJobCommandRequest {
   command?: string(name='Command', description='This parameter is required.', example='start'),
   jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
@@ -13459,6 +13838,160 @@ async function setEventCallback(request: SetEventCallbackRequest): SetEventCallb
   return setEventCallbackWithOptions(request, runtime);
 }
 
+model SetNotifyConfigRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  callbackUrl?: string(name='CallbackUrl', example='http://customer.com/callback'),
+  enableNotify?: boolean(name='EnableNotify', description='This parameter is required.', example='true'),
+  eventTypes?: string(name='EventTypes', example='agent_start,agent_stop,error'),
+  token?: string(name='Token', example='eyJhcHBpZCI6ICIxMjM0MTIzNxxxxx'),
+}
+
+model SetNotifyConfigResponseBody = {
+  requestId?: string(name='RequestId', example='771A1414-27BF-53E6-AB73-EFCB*****ACF'),
+}
+
+model SetNotifyConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetNotifyConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新回调配置
+ *
+ * @param request SetNotifyConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SetNotifyConfigResponse
+ */
+async function setNotifyConfigWithOptions(request: SetNotifyConfigRequest, runtime: Util.RuntimeOptions): SetNotifyConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.AIAgentId)) {
+    query['AIAgentId'] = request.AIAgentId;
+  }
+  if (!Util.isUnset(request.callbackUrl)) {
+    query['CallbackUrl'] = request.callbackUrl;
+  }
+  if (!Util.isUnset(request.enableNotify)) {
+    query['EnableNotify'] = request.enableNotify;
+  }
+  if (!Util.isUnset(request.eventTypes)) {
+    query['EventTypes'] = request.eventTypes;
+  }
+  if (!Util.isUnset(request.token)) {
+    query['Token'] = request.token;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'SetNotifyConfig',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新回调配置
+ *
+ * @param request SetNotifyConfigRequest
+ * @return SetNotifyConfigResponse
+ */
+async function setNotifyConfig(request: SetNotifyConfigRequest): SetNotifyConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return setNotifyConfigWithOptions(request, runtime);
+}
+
+model StartAIAgentInstanceRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  runtimeConfig?: AIAgentRuntimeConfig(name='RuntimeConfig', description='This parameter is required.'),
+  templateConfig?: AIAgentTemplateConfig(name='TemplateConfig'),
+  userData?: string(name='UserData', example='{"Email":"johndoe@example.com","Preferences":{"Language":"en"}}'),
+}
+
+model StartAIAgentInstanceShrinkRequest {
+  AIAgentId?: string(name='AIAgentId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  runtimeConfigShrink?: string(name='RuntimeConfig', description='This parameter is required.'),
+  templateConfigShrink?: string(name='TemplateConfig'),
+  userData?: string(name='UserData', example='{"Email":"johndoe@example.com","Preferences":{"Language":"en"}}'),
+}
+
+model StartAIAgentInstanceResponseBody = {
+  instanceId?: string(name='InstanceId', example='39f8e0bc005e4f309379701645f4****'),
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model StartAIAgentInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartAIAgentInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 启动一个智能体实例，并加入通话。
+ *
+ * @param tmpReq StartAIAgentInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartAIAgentInstanceResponse
+ */
+async function startAIAgentInstanceWithOptions(tmpReq: StartAIAgentInstanceRequest, runtime: Util.RuntimeOptions): StartAIAgentInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new StartAIAgentInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.runtimeConfig)) {
+    request.runtimeConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.runtimeConfig, 'RuntimeConfig', 'json');
+  }
+  if (!Util.isUnset(tmpReq.templateConfig)) {
+    request.templateConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.templateConfig, 'TemplateConfig', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.AIAgentId)) {
+    query['AIAgentId'] = request.AIAgentId;
+  }
+  if (!Util.isUnset(request.runtimeConfigShrink)) {
+    query['RuntimeConfig'] = request.runtimeConfigShrink;
+  }
+  if (!Util.isUnset(request.templateConfigShrink)) {
+    query['TemplateConfig'] = request.templateConfigShrink;
+  }
+  if (!Util.isUnset(request.userData)) {
+    query['UserData'] = request.userData;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StartAIAgentInstance',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 启动一个智能体实例，并加入通话。
+ *
+ * @param request StartAIAgentInstanceRequest
+ * @return StartAIAgentInstanceResponse
+ */
+async function startAIAgentInstance(request: StartAIAgentInstanceRequest): StartAIAgentInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return startAIAgentInstanceWithOptions(request, runtime);
+}
+
 model StartRtcRobotInstanceRequest {
   authToken?: string(name='AuthToken', description='This parameter is required.', example='**********'),
   channelId?: string(name='ChannelId', description='This parameter is required.', example='testId'),
@@ -13618,6 +14151,61 @@ async function startWorkflowWithOptions(request: StartWorkflowRequest, runtime: 
 async function startWorkflow(request: StartWorkflowRequest): StartWorkflowResponse {
   var runtime = new Util.RuntimeOptions{};
   return startWorkflowWithOptions(request, runtime);
+}
+
+model StopAIAgentInstanceRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+}
+
+model StopAIAgentInstanceResponseBody = {
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model StopAIAgentInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopAIAgentInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 停止一个智能体实例。
+ *
+ * @param request StopAIAgentInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopAIAgentInstanceResponse
+ */
+async function stopAIAgentInstanceWithOptions(request: StopAIAgentInstanceRequest, runtime: Util.RuntimeOptions): StopAIAgentInstanceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopAIAgentInstance',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 停止一个智能体实例。
+ *
+ * @param request StopAIAgentInstanceRequest
+ * @return StopAIAgentInstanceResponse
+ */
+async function stopAIAgentInstance(request: StopAIAgentInstanceRequest): StopAIAgentInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return stopAIAgentInstanceWithOptions(request, runtime);
 }
 
 model StopRtcRobotInstanceRequest {
@@ -16843,6 +17431,75 @@ async function submitVideoTranslationJobWithOptions(request: SubmitVideoTranslat
 async function submitVideoTranslationJob(request: SubmitVideoTranslationJobRequest): SubmitVideoTranslationJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return submitVideoTranslationJobWithOptions(request, runtime);
+}
+
+model UpdateAIAgentInstanceRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  templateConfig?: AIAgentTemplateConfig(name='TemplateConfig'),
+}
+
+model UpdateAIAgentInstanceShrinkRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='39f8e0bc005e4f309379701645f4****'),
+  templateConfigShrink?: string(name='TemplateConfig'),
+}
+
+model UpdateAIAgentInstanceResponseBody = {
+  requestId?: string(name='RequestId', example='7B117AF5-2A16-412C-B127-FA6175ED1AD0'),
+}
+
+model UpdateAIAgentInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAIAgentInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改实例的配置
+ *
+ * @param tmpReq UpdateAIAgentInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAIAgentInstanceResponse
+ */
+async function updateAIAgentInstanceWithOptions(tmpReq: UpdateAIAgentInstanceRequest, runtime: Util.RuntimeOptions): UpdateAIAgentInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateAIAgentInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.templateConfig)) {
+    request.templateConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.templateConfig, 'TemplateConfig', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.templateConfigShrink)) {
+    query['TemplateConfig'] = request.templateConfigShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateAIAgentInstance',
+    version = '2020-11-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改实例的配置
+ *
+ * @param request UpdateAIAgentInstanceRequest
+ * @return UpdateAIAgentInstanceResponse
+ */
+async function updateAIAgentInstance(request: UpdateAIAgentInstanceRequest): UpdateAIAgentInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateAIAgentInstanceWithOptions(request, runtime);
 }
 
 model UpdateAvatarTrainingJobRequest {
