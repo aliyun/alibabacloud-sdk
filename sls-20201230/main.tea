@@ -169,6 +169,27 @@ model Histogram {
   to?: int32(name='to'),
 }
 
+model IndexJsonKey {
+  alias?: string(name='alias', example='myAlias'),
+  caseSensitive?: boolean(name='caseSensitive', example='true'),
+  chn?: boolean(name='chn', example='true'),
+  docValue?: boolean(name='doc_value', example='true'),
+  token?: [ string ](name='token'),
+  type?: string(name='type', description='This parameter is required.', example='text'),
+}
+
+model IndexKey {
+  alias?: string(name='alias', example='myAlias'),
+  caseSensitive?: boolean(name='caseSensitive', example='true'),
+  chn?: boolean(name='chn', example='true'),
+  docValue?: boolean(name='doc_value', example='true'),
+  indexAll?: boolean(name='index_all', example='true'),
+  jsonKeys?: map[string]IndexJsonKey(name='json_keys'),
+  maxDepth?: long(name='max_depth'),
+  token?: [ string ](name='token'),
+  type?: string(name='type', description='This parameter is required.', example='text'),
+}
+
 model IngestProcessor {
   configuration?: IngestProcessorConfiguration(name='configuration', description='This parameter is required.'),
   createTime?: long(name='createTime', example='1717171200'),
@@ -556,8 +577,7 @@ model ExternalStore {
 }
 
 model Index {
-  keys?: map[string]IndexKeysValue(name='keys'),
-  lastModifyTime?: long(name='lastModifyTime', example='1622186280'),
+  keys?: map[string]IndexKey(name='keys'),
   line?: {
     caseSensitive?: boolean(name='caseSensitive', example='true'),
     chn?: boolean(name='chn', example='true'),
@@ -569,7 +589,6 @@ model Index {
   logReduceBlackList?: [ string ](name='log_reduce_black_list'),
   logReduceWhiteList?: [ string ](name='log_reduce_white_list'),
   maxTextLen?: int32(name='max_text_len', example='2048'),
-  ttl?: int32(name='ttl', description='This parameter is required.', example='30'),
 }
 
 model Logging {
@@ -655,34 +674,6 @@ model MLDataParamPredictionsValue = {
   annotatedBy?: string(name='annotatedBy', example='xxx'),
   updateTime?: long(name='updateTime', example='1694761550'),
   results?: [ map[string]string ](name='results'),
-}
-
-model IndexKeysValue = {
-  chn?: boolean(name='chn', example='true'),
-  caseSensitive?: boolean(name='caseSensitive', example='true'),
-  token?: [ string ](name='token'),
-  alias?: string(name='alias', example='myAlias'),
-  type?: string(name='type', description='This parameter is required.', example='text'),
-  docValue?: boolean(name='doc_value', example='true'),
-}
-
-model KeysValue = {
-  caseSensitive?: boolean(name='caseSensitive', description='Specifies whether to enable case sensitivity. This parameter is required only when **type** is set to **text**. Valid values:
-
-*   true
-*   false (default)', example='false'),
-  chn?: boolean(name='chn', description='Specifies whether to include Chinese characters. This parameter is required only when **type** is set to **text**. Valid values:
-
-*   true
-*   false (default)', example='false'),
-  type?: string(name='type', description='The data type of the field value. Valid values: text, json, double, and long.
-
-This parameter is required.', example='text'),
-  alias?: string(name='alias', description='The alias of the field.', example='myAlias'),
-  token?: [ string ](name='token', description='The delimiters that are used to split text.'),
-  docValue?: boolean(name='doc_value', description='Specifies whether to turn on Enable Analytics for the field.', example='false'),
-  vectorIndex?: string(name='vector_index'),
-  embedding?: string(name='embedding'),
 }
 
 model ApplyConfigToMachineGroupResponse = {
@@ -1631,27 +1622,7 @@ async function createETL(project: string, request: CreateETLRequest): CreateETLR
 }
 
 model CreateIndexRequest {
-  keys?: map[string]KeysValue(name='keys', description='The configuration of field indexes. A field index is a key-value pair in which the key specifies the name of the field and the value specifies the index configuration of the field. You must specify this parameter, the line parameter, or both parameters. For more information, see Example.'),
-  line?: {
-    caseSensitive?: boolean(name='caseSensitive', description='Specifies whether to enable case sensitivity. Valid values:
-
-*   true
-*   false (default)', example='false'),
-    chn?: boolean(name='chn', description='Specifies whether to include Chinese characters. Valid values:
-
-*   true
-*   false (default)', example='false'),
-    excludeKeys?: [ string ](name='exclude_keys', description='The excluded fields. You cannot specify both include_keys and exclude_keys.'),
-    includeKeys?: [ string ](name='include_keys', description='The included fields. You cannot specify both include_keys and exclude_keys.'),
-    token?: [ string ](name='token', description='The delimiters. You can specify a delimiter to delimit the content of a field value. For more information about delimiters, see Example.
-
-This parameter is required.'),
-  }(name='line', description='The configuration of full-text indexes. You must specify this parameter, the keys parameter, or both parameters. For more information, see Example.'),
-  logReduce?: boolean(name='log_reduce', description='Specifies whether to turn on LogReduce. After you turn on LogReduce, either the whitelist or blacklist takes effect.', example='false'),
-  logReduceBlackList?: [ string ](name='log_reduce_black_list', description='The fields in the blacklist that you want to use to cluster logs.'),
-  logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='The fields in the whitelist that you want to use to cluster logs.'),
-  maxTextLen?: int32(name='max_text_len', description='The maximum length of a field value that can be retained. Default value: 2048. Unit: bytes. The default value is equal to 2 KB. You can change the value of max_text_len. Valid values: 64 to 16384.', example='2048'),
-  ttl?: int32(name='ttl', description='The retention period of logs. Unit: days. Valid values: 7, 30, and 90.', example='30'),
+  body?: Index(name='body', description='The request body.'),
 }
 
 model CreateIndexResponse = {
@@ -1673,33 +1644,10 @@ async function createIndexWithOptions(project: string, logstore: string, request
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.keys)) {
-    body['keys'] = request.keys;
-  }
-  if (!Util.isUnset(request.line)) {
-    body['line'] = request.line;
-  }
-  if (!Util.isUnset(request.logReduce)) {
-    body['log_reduce'] = request.logReduce;
-  }
-  if (!Util.isUnset(request.logReduceBlackList)) {
-    body['log_reduce_black_list'] = request.logReduceBlackList;
-  }
-  if (!Util.isUnset(request.logReduceWhiteList)) {
-    body['log_reduce_white_list'] = request.logReduceWhiteList;
-  }
-  if (!Util.isUnset(request.maxTextLen)) {
-    body['max_text_len'] = request.maxTextLen;
-  }
-  if (!Util.isUnset(request.ttl)) {
-    body['ttl'] = request.ttl;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.body),
   };
   var params = new OpenApi.Params{
     action = 'CreateIndex',
@@ -5682,7 +5630,7 @@ async function getHistograms(project: string, logstore: string, request: GetHist
 
 model GetIndexResponseBody = {
   indexMode?: string(name='index_mode', description='The type of the index.', example='v2'),
-  keys?: map[string]KeysValue(name='keys', description='The configurations of field indexes. A field index is in the key-value format in which the key specifies the name of the field and the value specifies the index configuration of the field.'),
+  keys?: map[string]IndexKey(name='keys', description='The configurations of field indexes. A field index is in the key-value format in which the key specifies the name of the field and the value specifies the index configuration of the field.'),
   lastModifyTime?: long(name='lastModifyTime', description='The time when the index configurations were last updated. The value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1524155379'),
   line?: {
     caseSensitive?: boolean(name='caseSensitive', description='Indicates whether case sensitivity is enabled. Valid values:
@@ -5695,14 +5643,18 @@ model GetIndexResponseBody = {
 *   false', example='false'),
     excludeKeys?: [ string ](name='exclude_keys', description='The excluded fields.'),
     includeKeys?: [ string ](name='include_keys', description='The included fields.'),
-    token?: [ string ](name='token', description='The delimiters.'),
+    token?: [ string ](name='token', description='The delimiters.
+
+This parameter is required.'),
   }(name='line', description='The configurations of full-text indexes.'),
   logReduce?: boolean(name='log_reduce', description='Indicates whether the log clustering feature is enabled.', example='false'),
   logReduceBlackList?: [ string ](name='log_reduce_black_list', description='The fields in the blacklist that are used to cluster logs. This parameter is valid only if the log clustering feature is enabled.'),
   logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='The fields in the whitelist that are used to cluster logs. This parameter is valid only if the log clustering feature is enabled.'),
   maxTextLen?: int32(name='max_text_len', description='The maximum length of a field value that can be retained. Default value: 2048. Unit: bytes. The default value is equal to 2 KB. You can change the value of the max_text_len parameter. Valid values: 64 to 16384. Unit: bytes.', example='2048'),
   storage?: string(name='storage', description='The storage type. The value is fixed as pg.', example='pg'),
-  ttl?: int32(name='ttl', description='The lifecycle of the index file. Valid values: 7, 30, and 90. Unit: day.', example='30'),
+  ttl?: int32(name='ttl', description='The lifecycle of the index file. Valid values: 7, 30, and 90. Unit: day.
+
+This parameter is required.', example='30'),
 }
 
 model GetIndexResponse = {
@@ -6387,7 +6339,7 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
 }
 
 model GetMetricStoreResponseBody = {
-  autoSplit?: boolean(name='autoSplit'),
+  autoSplit?: boolean(name='autoSplit', example='true'),
   createTime?: long(name='createTime', example='1698933894'),
   lastModifyTime?: long(name='lastModifyTime', example='1712023974'),
   maxSplitShard?: int32(name='maxSplitShard', example='64'),
@@ -9563,74 +9515,6 @@ async function putWebtracking(project: string, logstoreName: string, request: Pu
   return putWebtrackingWithOptions(project, logstoreName, request, headers, runtime);
 }
 
-model QueryMLServiceResultsRequest {
-  allowBuiltin?: boolean(name='allowBuiltin'),
-  body?: MLServiceAnalysisParam(name='body'),
-}
-
-model QueryMLServiceResultsResponseBody = {
-  data?: [ map[string]string ](name='data'),
-  status?: map[string]string(name='status'),
-}
-
-model QueryMLServiceResultsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: QueryMLServiceResultsResponseBody(name='body'),
-}
-
-/**
- * @deprecated OpenAPI QueryMLServiceResults is deprecated
- *
- * @summary queryMLServiceResults
- *
- * @param request QueryMLServiceResultsRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return QueryMLServiceResultsResponse
- */
-// Deprecated
-async function queryMLServiceResultsWithOptions(serviceName: string, request: QueryMLServiceResultsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): QueryMLServiceResultsResponse {
-  Util.validateModel(request);
-  var query : map[string]any = {};
-  if (!Util.isUnset(request.allowBuiltin)) {
-    query['allowBuiltin'] = request.allowBuiltin;
-  }
-
-  var req = new OpenApi.OpenApiRequest{ 
-    headers = headers,
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(request.body),
-  };
-  var params = new OpenApi.Params{
-    action = 'QueryMLServiceResults',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/ml/service/${serviceName}/analysis`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @deprecated OpenAPI QueryMLServiceResults is deprecated
- *
- * @summary queryMLServiceResults
- *
- * @param request QueryMLServiceResultsRequest
- * @return QueryMLServiceResultsResponse
- */
-// Deprecated
-async function queryMLServiceResults(serviceName: string, request: QueryMLServiceResultsRequest): QueryMLServiceResultsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  var headers : map[string]string = {};
-  return queryMLServiceResultsWithOptions(serviceName, request, headers, runtime);
-}
-
 model RefreshTokenRequest {
   accessTokenExpirationTime?: long(name='accessTokenExpirationTime', example='600'),
   ticket?: string(name='ticket', example='eyJ***************.eyJ******************.KUT****************'),
@@ -10847,33 +10731,7 @@ async function updateETL(project: string, etlName: string, request: UpdateETLReq
 }
 
 model UpdateIndexRequest {
-  keys?: map[string]KeysValue(name='keys', description='The configuration of field indexes. A field index is a key-value pair in which the key specifies the name of the field and the value specifies the index configuration of the field.'),
-  line?: {
-    caseSensitive?: boolean(name='caseSensitive', description='Specifies whether to enable case sensitivity. Valid values:
-
-*   true
-*   false
-
-This parameter is required.', example='true'),
-    chn?: boolean(name='chn', description='Specifies whether to include Chinese characters. Valid values:
-
-*   true
-*   false
-
-This parameter is required.', example='false'),
-    excludeKeys?: [ string ](name='exclude_keys', description='The excluded fields. You cannot specify both include_keys and exclude_keys.'),
-    includeKeys?: [ string ](name='include_keys', description='The included fields. You cannot specify both include_keys and exclude_keys.'),
-    token?: [ string ](name='token', description='The delimiters that are used to split text.
-
-This parameter is required.'),
-  }(name='line', description='The configuration of full-text indexes.'),
-  logReduce?: boolean(name='log_reduce', description='Specifies whether to turn on LogReduce. If you turn on LogReduce, only one of `log_reduce_white_list` and `log_reduce_black_list` takes effect.', example='false'),
-  logReduceBlackList?: [ string ](name='log_reduce_black_list', description='The fields in the blacklist that you want to use to cluster logs.'),
-  logReduceWhiteList?: [ string ](name='log_reduce_white_list', description='The fields in the whitelist that you want to use to cluster logs.'),
-  maxTextLen?: int32(name='max_text_len', description='The maximum length of a field value that can be retained.', example='2048'),
-  ttl?: int32(name='ttl', description='The retention period of data. Unit: days. Valid values: 7, 30, and 90.
-
-This parameter is required.', example='30'),
+  body?: Index(name='body', description='The request body.'),
 }
 
 model UpdateIndexResponse = {
@@ -10896,33 +10754,10 @@ async function updateIndexWithOptions(project: string, logstore: string, request
   Util.validateModel(request);
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.keys)) {
-    body['keys'] = request.keys;
-  }
-  if (!Util.isUnset(request.line)) {
-    body['line'] = request.line;
-  }
-  if (!Util.isUnset(request.logReduce)) {
-    body['log_reduce'] = request.logReduce;
-  }
-  if (!Util.isUnset(request.logReduceBlackList)) {
-    body['log_reduce_black_list'] = request.logReduceBlackList;
-  }
-  if (!Util.isUnset(request.logReduceWhiteList)) {
-    body['log_reduce_white_list'] = request.logReduceWhiteList;
-  }
-  if (!Util.isUnset(request.maxTextLen)) {
-    body['max_text_len'] = request.maxTextLen;
-  }
-  if (!Util.isUnset(request.ttl)) {
-    body['ttl'] = request.ttl;
-  }
-
   var req = new OpenApi.OpenApiRequest{ 
     hostMap = hostMap,
     headers = headers,
-    body = OpenApiUtil.parseToMap(body),
+    body = OpenApiUtil.parseToMap(request.body),
   };
   var params = new OpenApi.Params{
     action = 'UpdateIndex',
