@@ -116,6 +116,55 @@ async function cancelSubscriptionBill(request: CancelSubscriptionBillRequest): C
   return @handler.do('RPC', 'CancelSubscriptionBill', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateCouponTemplateRequest {
+  acceptLanguage: string(name='AcceptLanguage', example='zh-CN', position='Query'),
+  applicableProducts: string(name='ApplicableProducts', example='All Products', position='Query'),
+  costBearer: string(name='CostBearer', example='Partner', position='Query'),
+  couponDescription?: string(name='CouponDescription', maxLength=100111, position='Query'),
+  expireddate?: string(name='Expireddate', example='2024-08-26', position='Query'),
+  limitPerPerson: string(name='LimitPerPerson', example='Unlimited', position='Query'),
+  productType?: [ string ](name='ProductType', shrink='json', position='Query'),
+  purchaseType?: string(name='PurchaseType', example='ALL', position='Query'),
+  reasonForApplication: string(name='ReasonForApplication', maxLength=10011, position='Query'),
+  templateName: string(name='TemplateName', maxLength=3011, position='Query'),
+  vailddate?: string(name='Vailddate', example='2024-08-26', position='Query'),
+  vaildperioddays?: string(name='Vaildperioddays', example='1', position='Query'),
+  validUntil: string(name='ValidUntil', example='Validity Duration', position='Query'),
+  value: string(name='Value', example='1', position='Query'),
+}
+
+model CreateCouponTemplateResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    applicableProducts?: string(name='ApplicableProducts', example='Custom'),
+    costBearer?: string(name='CostBearer', example='Partner'),
+    couponTemplateID?: long(name='CouponTemplateID', example='111111'),
+    createTime?: string(name='CreateTime', example='2024-04-02 16:15:31'),
+    expireddate?: string(name='Expireddate', example='2024-01-01'),
+    productType?: [ string ](name='ProductType'),
+    status?: string(name='Status', example='APPROVED'),
+    templateName?: string(name='TemplateName'),
+    vailddate?: string(name='Vailddate', example='2024-01-01'),
+    vaildperioddays?: string(name='Vaildperioddays', example='1'),
+    validUntil?: string(name='ValidUntil', example='Validity Duration'),
+    value?: string(name='Value', example='1'),
+  }(name='Data'),
+  message?: string(name='Message', example='200'),
+  requestId?: string(name='RequestId', description='Id of the request', example='2103a30617045934095083027d88c5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateCouponTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCouponTemplateResponseBody(name='body'),
+}
+
+async function createCouponTemplate(request: CreateCouponTemplateRequest): CreateCouponTemplateResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCouponTemplate', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateCustomerRequest {
   customerName: string(name='CustomerName', description='Customer\\"s name.', example='DoorBell Marketing', position='Query'),
   customerSource: string(name='CustomerSource', description='The source/channel that allow client to connected with us. Please enumerate with Customer Source.', example='website', position='Query'),
@@ -365,57 +414,58 @@ async function exportCustomerQuotaRecord(request: ExportCustomerQuotaRecordReque
 }
 
 model GetAccountInfoRequest {
-  currentPage: int32(name='CurrentPage', description='Pagination, current page.', example='1', position='Query'),
-  pageSize: int32(name='PageSize', description='Pagination, record number on each page, maximum 20.', example='10 (Value <= 20)', minimum=1, maximum=20, position='Query'),
-  uid?: long(name='Uid', description='Account UID of Distribution Customer. This parameter and the UserType parameter must have one filled. If this parameter is empty, then check all Distribution Customer accounts of the selected UserType.', example='1215848086704806', position='Query'),
-  userType?: string(name='UserType', description='Distribution Customer\\"s Account Type:
-- 1 End User
-- 2 Enterprise
-- 3 T2 Partner', example='1', position='Query'),
+  currentPage: int32(name='CurrentPage', description='Message', example='1', position='Query'),
+  pageSize: int32(name='PageSize', description='Success', example='10', minimum=1, maximum=20, position='Query'),
+  uid?: long(name='Uid', description='10 (Value <= 20)', example='1215848086704806', position='Query'),
+  userType?: string(name='UserType', description='Result Code - Error Code. Value Range:
+- 200 OK
+- 1109 System Error
+- 3029: Invalid UID
+- 3062: UID and UserType are both empty.
+- 3063: UserType value out of range.', example='1', position='Query'),
 }
 
 model GetAccountInfoResponseBody = {
   accountInfoList?: {
     accountInfo?: [ 
     {
-      accountNickname?: string(name='AccountNickname', description='The name of Sub Account:
+      accountNickname?: string(name='AccountNickname', description='The E-mail of Distribution Customer.', example='Description of Distribution Customer.'),
+      aliyunId?: string(name='AliyunId', description='Account CID of Distribution Customer.', example='1234@qq.com'),
+      associationSuccessTime?: string(name='AssociationSuccessTime', description='XXX Technology LTD.', example='2021-01-01'),
+      cid?: long(name='Cid', description='customer\\"s CID', example='61479572'),
+      customerBd?: string(name='CustomerBd', description='customer manager', example='abc'),
+      delayAmount?: string(name='DelayAmount', description='The account have Shutdown-delay Privilege, After Shutdown-delay Credit is ran out, Alibaba Cloud will take over resources and keep the instance for 15 days. In addition, the instance will be released if Sub Account failed to pay the bill within these 15 days.', example='600'),
+      delayStatus?: string(name='DelayStatus', description='Partner\\"s Shutdown Policy Management for Sub Account.
+1: delayStop. The account have Shutdown-delay Privilege, After Shutdown-delay Credit is ran out, Alibaba Cloud will take over resources and keep the instance for 15 days. In addition, the instance will be released if Sub Account failed to pay the bill within these 15 days.
+2: noStop. Partner will manually manage Shutdown Status for Sub Account. Meanwhile, System would not manage the resource\\"s life-circle of Sub Account.
+3: immediatelyStop. Once valid quota of Sub Account falls below 0 and be identified as defaulting account, it will trigger the instance shutdown immediately.', example='noStop'),
+      email?: string(name='Email', description='Sub Account', example='1234@qq.com'),
+      mobile?: string(name='Mobile', description='Account UID of Distribution Customer.', example='13641588680'),
+      newBuyStatus?: string(name='NewBuyStatus', description='Purchase Forbidden：Ban the new purchase action
+normal：Normal--End Use can issue Cloud Resource order immediately.', example='Normal'),
+      remark?: string(name='Remark', description='Valid mobile number of Distribution Customer.', example='Alibaba Cloud Login name of Distribution Customer.'),
+      subAccountType?: int32(name='SubAccountType', description='The name of Sub Account:
 1.	Use the official name of Company, if Sub Account is an enterprise.
-2.	Use the official name of Partner, if Sub Account is a T2 reseller.', example='XXX Technology LTD.'),
-      aliyunId?: string(name='AliyunId', description='Alibaba Cloud Login name of Distribution Customer.', example='1234@qq.com'),
-      associationSuccessTime?: string(name='AssociationSuccessTime', description='The time that Distribution Customer successfully associated with Distributor.', example='2021-01-01'),
-      cid?: long(name='Cid', description='Account CID of Distribution Customer.', example='61479572'),
-      customerBd?: string(name='CustomerBd'),
-      delayAmount?: string(name='DelayAmount'),
-      delayStatus?: string(name='DelayStatus'),
-      email?: string(name='Email', description='The E-mail of Distribution Customer.', example='1234@qq.com'),
-      mobile?: string(name='Mobile', description='Valid mobile number of Distribution Customer.', example='13641588680'),
-      newBuyStatus?: string(name='NewBuyStatus'),
-      remark?: string(name='Remark', description='Description of Distribution Customer.', example='Sub Account'),
-      subAccountType?: int32(name='SubAccountType', description='Account Type:
+2.	Use the official name of Partner, if Sub Account is a T2 reseller.', example='1'),
+      uid?: long(name='Uid', description='Request ID, the unique request identifier generated by Alibaba Cloud.', example='1415740779475837'),
+    }
+  ](name='AccountInfo')
+  }(name='AccountInfoList', description='Account Type:
 - 1 Agency\\"s End User
 - 2 Reseller\\"s End User
 - 3 Enterprise
 - 4 T2 Agency Partner
 - 5 T2 Reseller Partner
-- 6 T2 Agency+Reseller Partner', example='1'),
-      uid?: long(name='Uid', description='Account UID of Distribution Customer.', example='1415740779475837'),
-    }
-  ](name='AccountInfo')
-  }(name='AccountInfoList', description='List of Account Information'),
-  code?: string(name='Code', description='Result Code - Error Code. Value Range:
-- 200 OK
-- 1109 System Error
-- 3029: Invalid UID
-- 3062: UID and UserType are both empty.
-- 3063: UserType value out of range.', example='200'),
-  message?: string(name='Message', description='Message', example='Success'),
+- 6 T2 Agency+Reseller Partner'),
+  code?: string(name='Code', description='Candidate Value: True/False, which indicates whether the current API call itself is successful. It does not guarantee the success of subsequent business operations.', example='200'),
+  message?: string(name='Message', description='message', example='Pagination Information'),
   pageInfo?: {
-    page?: int32(name='Page', description='Pagination, current page.', example='1'),
-    pageSize?: int32(name='PageSize', description='Pagination, record number on each page.', example='10'),
-    total?: int32(name='Total', description='Pagination, page volume in total.', example='12'),
-  }(name='PageInfo', description='Pagination Information'),
-  requestId?: string(name='RequestId', description='Request ID, the unique request identifier generated by Alibaba Cloud.', example='9C14ADFE-DF0A-54D4-8BD5-45D0839246B4'),
-  success?: boolean(name='Success', description='Candidate Value: True/False, which indicates whether the current API call itself is successful. It does not guarantee the success of subsequent business operations.', example='true'),
+    page?: int32(name='Page', description='Account Information', example='1'),
+    pageSize?: int32(name='PageSize', description='Pagination, current page.', example='10'),
+    total?: int32(name='Total', description='List of Account Information', example='12'),
+  }(name='PageInfo', description='Pagination, page volume in total.'),
+  requestId?: string(name='RequestId', description='Request id, a unique identifier generated by Alibaba cloud for the request.', example='9C14ADFE-DF0A-54D4-8BD5-45D0839246B4'),
+  success?: boolean(name='Success', description='Pagination, record number on each page.', example='true'),
 }
 
 model GetAccountInfoResponse = {
@@ -427,6 +477,33 @@ model GetAccountInfoResponse = {
 async function getAccountInfo(request: GetAccountInfoRequest): GetAccountInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetAccountInfo', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetCoupondeductProductCodeRequest {
+  acceptLanguage: string(name='AcceptLanguage', example='zh-CN', position='Query'),
+}
+
+model GetCoupondeductProductCodeResponseBody = {
+  code?: string(name='Code', example='code'),
+  data?: [ 
+    {
+      productType?: any(name='ProductType', example='code1'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', description='Id of the request', example='210e876f16704666020714468dab35'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetCoupondeductProductCodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCoupondeductProductCodeResponseBody(name='body'),
+}
+
+async function getCoupondeductProductCode(request: GetCoupondeductProductCodeRequest): GetCoupondeductProductCodeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCoupondeductProductCode', 'GET', '/', 'json', false, 'json', request);
 }
 
 model GetCreditInfoRequest {
@@ -470,6 +547,62 @@ model GetCreditInfoResponse = {
 async function getCreditInfo(request: GetCreditInfoRequest): GetCreditInfoResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetCreditInfo', 'GET', '/', 'json', false, 'json', request);
+}
+
+model GetCustomerOrdersRequest {
+  customerAccount?: string(name='CustomerAccount', example='test_123', position='Query'),
+  customerManager?: string(name='CustomerManager', example='myBd', position='Query'),
+  customerUid?: long(name='CustomerUid', example='123456', position='Query'),
+  endDate: string(name='EndDate', example='2024-08-23 00:00:00', position='Query'),
+  orderId?: long(name='OrderId', example='209335720330622', position='Query'),
+  orderSource?: int32(name='OrderSource', example='0', position='Query'),
+  orderStatus?: int32(name='OrderStatus', example='3', position='Query'),
+  orderType?: string(name='OrderType', example='RENEW', position='Query'),
+  pageNo: int32(name='PageNo', example='1', minimum=1, maximum=500, position='Query'),
+  pageSize: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
+  productType?: string(name='ProductType', example='vm_intl', position='Query'),
+  startDate: string(name='StartDate', example='2024-08-13 00:00:00', position='Query'),
+  timeType: int32(name='TimeType', example='2', position='Query'),
+}
+
+model GetCustomerOrdersResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: [ 
+    {
+      customerAccount?: string(name='CustomerAccount', example='test_123'),
+      customerManager?: string(name='CustomerManager', example='myBd'),
+      customerNo?: long(name='CustomerNo', example='123456'),
+      orderId?: long(name='OrderId', example='236414227150922'),
+      orderSource?: string(name='OrderSource', example='0'),
+      orderStatus?: int32(name='OrderStatus', example='3'),
+      orderType?: string(name='OrderType', example='BUY'),
+      originalCost?: double(name='OriginalCost', example='3.92'),
+      paymentMethod?: string(name='PaymentMethod', example='3:32'),
+      paymentTime?: string(name='PaymentTime', example='2024-08-13 13:02:02'),
+      pretaxCost?: double(name='PretaxCost', example='3.92'),
+      productDetail?: string(name='ProductDetail', example='oss'),
+      productType?: string(name='ProductType', example='snapshot'),
+      timeToOrder?: string(name='TimeToOrder', example='2024-08-13 13:02:02'),
+    }
+  ](name='Data'),
+  message?: string(name='Message'),
+  msg?: string(name='Msg'),
+  pageNo?: int32(name='PageNo', example='1'),
+  pageSize?: int32(name='PageSize', example='1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='23309219-4A34-589D-A3E0-9B2A3BFFD24F'),
+  success?: boolean(name='Success', example='true'),
+  total?: int32(name='Total', example='100'),
+}
+
+model GetCustomerOrdersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCustomerOrdersResponseBody(name='body'),
+}
+
+async function getCustomerOrders(request: GetCustomerOrdersRequest): GetCustomerOrdersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCustomerOrders', 'GET', '/', 'json', false, 'json', request);
 }
 
 model GetDailyBillRequest {
@@ -734,6 +867,35 @@ async function inviteSubAccount(request: InviteSubAccountRequest): InviteSubAcco
   return @handler.do('RPC', 'InviteSubAccount', 'POST', '/', 'json', false, 'json', request);
 }
 
+model IssueCouponForCustomerRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN', position='Query'),
+  couponTemplateId: long(name='CouponTemplateId', example='5075915', position='Query'),
+  uidlist: string(name='Uidlist', example='111,2222', position='Query'),
+}
+
+model IssueCouponForCustomerResponseBody = {
+  code?: string(name='Code', example='code'),
+  message?: string(name='Message', example='200'),
+  requestId?: string(name='RequestId', description='Id of the request', example='9C14ADFE-DF0A-54D4-8BD5-45D0839246B4'),
+  success?: boolean(name='Success', example='true'),
+  data?: {
+    couponTemplateId?: long(name='CouponTemplateId', example='5075915'),
+    createTime?: string(name='CreateTime', example='2024-03-05 18:24:07'),
+    uidlist?: string(name='Uidlist', example='111,2222'),
+  }(name='data'),
+}
+
+model IssueCouponForCustomerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: IssueCouponForCustomerResponseBody(name='body'),
+}
+
+async function issueCouponForCustomer(request: IssueCouponForCustomerRequest): IssueCouponForCustomerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'IssueCouponForCustomer', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListCountriesRequest {
 }
 
@@ -883,23 +1045,21 @@ async function resendEmail(request: ResendEmailRequest): ResendEmailResponse {
 }
 
 model SetAccountInfoRequest {
-  accountNickname?: string(name='AccountNickname', description='Sub Account Nickname. 
-* Use the official name of Company, if Sub Account is an enterprise.
-* Use the official name of Partner, if Sub Account is a T2 reseller.', example='my account', position='Query'),
-  customerBd?: string(name='CustomerBd', position='Query'),
-  remark?: string(name='Remark', description='Description of Sub Account.', example='test account', position='Query'),
-  uid: long(name='Uid', description='The UID of Sub Account.', example='1133166938931507', position='Query'),
-}
-
-model SetAccountInfoResponseBody = {
-  code?: string(name='Code', description='Result Code:
+  accountNickname?: string(name='AccountNickname', description='Result Code:
 *   200 OK
 *   1109 System error
 *   3030 Sub Account Nickname exceeds maximum length,  maximum length 150 bytes.
-*   3031 Remark exceeds maximum length,  maximum length 3000 bytes.', example='200'),
-  message?: string(name='Message', description='Message information', example='success'),
-  requestId?: string(name='RequestId', description='Request ID, Alibaba Cloud will track errors with this.', example='9C14ADFE-DF0A-54D4-8BD5-45D0839246B4'),
-  success?: boolean(name='Success', description='Candidate Value: True/False, which indicates whether the current API call itself is successful. It does not guarantee the success of subsequent business operations.', example='true'),
+*   3031 Remark exceeds maximum length,  maximum length 3000 bytes.', example='Message information', position='Query'),
+  customerBd?: string(name='CustomerBd', description='Customer manager（limited 50 character）', example='abc', position='Query'),
+  remark?: string(name='Remark', description='success', example='Candidate Value: True/False, which indicates whether the current API call itself is successful. It does not guarantee the success of subsequent business operations.', position='Query'),
+  uid: long(name='Uid', description='Request ID, Alibaba Cloud will track errors with this.', example='1133166938931507', position='Query'),
+}
+
+model SetAccountInfoResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId', example='9C14ADFE-DF0A-54D4-8BD5-45D0839246B4'),
+  success?: boolean(name='Success', example='true'),
 }
 
 model SetAccountInfoResponse = {
