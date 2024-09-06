@@ -18004,6 +18004,7 @@ async function listCdsFiles(request: ListCdsFilesRequest): ListCdsFilesResponse 
 }
 
 model ListDirectoryUsersRequest {
+  assignedInfo?: string(name='AssignedInfo'),
   directoryId?: string(name='DirectoryId', description='The ID of the AD directory.
 
 This parameter is required.', example='cn-hangzhou+dir-jedbpr4sl9l37****'),
@@ -18018,6 +18019,7 @@ Default value: 10.', example='10'),
   regionId?: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
+  sortType?: string(name='SortType'),
 }
 
 model ListDirectoryUsersResponseBody = {
@@ -18025,6 +18027,7 @@ model ListDirectoryUsersResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   users?: [ 
     {
+      assignedDesktopNumber?: int32(name='AssignedDesktopNumber'),
       displayName?: string(name='DisplayName', description='The display name of the user.', example='Alice'),
       endUser?: string(name='EndUser', description='The name of the user.', example='Alice'),
     }
@@ -18049,6 +18052,9 @@ model ListDirectoryUsersResponse = {
 async function listDirectoryUsersWithOptions(request: ListDirectoryUsersRequest, runtime: Util.RuntimeOptions): ListDirectoryUsersResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.assignedInfo)) {
+    query['AssignedInfo'] = request.assignedInfo;
+  }
   if (!Util.isUnset(request.directoryId)) {
     query['DirectoryId'] = request.directoryId;
   }
@@ -18066,6 +18072,9 @@ async function listDirectoryUsersWithOptions(request: ListDirectoryUsersRequest,
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.sortType)) {
+    query['SortType'] = request.sortType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -23262,11 +23271,18 @@ async function rebootDesktops(request: RebootDesktopsRequest): RebootDesktopsRes
 }
 
 model RebuildDesktopsRequest {
-  desktopId?: [ string ](name='DesktopId', description='The IDs of the cloud computers. You can specify 1 to 20 IDs.
+  desktopId?: [ string ](name='DesktopId', description='The cloud computer IDs. You can specify the IDs of 1 to 20 cloud computers.
 
 This parameter is required.', example='ecd-gx2x1dhsmucyy****'),
   imageId?: string(name='ImageId', description='The ID of the new image.', example='m-84mztzatmlnys****'),
-  language?: string(name='Language'),
+  language?: string(name='Language', description='The OS language. Only system images are supported, and Linux cloud computers support only English.
+
+Valid values:
+
+*   en-US: English
+*   zh-HK: Traditional Chinese (Hong Kong, China)
+*   zh-CN: Simplified Chinese
+*   ja-JP: Japanese', example='en-US'),
   operateType?: string(name='OperateType', description='The operation type on the data disk.
 
 >  This parameter is empty by default regardless of whether data disks are attached to the cloud computer.
@@ -23285,7 +23301,7 @@ This parameter is required.', example='ecd-gx2x1dhsmucyy****'),
 
         *   If you set the OperateType parameter to `replace`, the data in the data disks of the cloud computer is replaced.
         *   If you leave the OperateType parameter empty, the data in the data disks of the cloud computer is cleared.', example='replace'),
-  regionId?: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the most recent region list.
+  regionId?: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~DescribeRegions~~) operation to query the regions supported by Elastic Desktop Service (EDS).
 
 This parameter is required.', example='cn-hangzhou'),
 }
@@ -23310,12 +23326,12 @@ model RebuildDesktopsResponse = {
 /**
  * @summary Recreates cloud computers.
  *
- * @description Before you change the image of a cloud computer, take note of the following limits:
+ * @description Take note of the following limits when you change an image:
  * *   You can select an image whose OS is different from the OS of the original image. The image change feature is not supported in the following regions: China (Hong Kong), Australia (Sydney), Singapore, and Japan (Tokyo).
- * *   GPU images and non-GPU images cannot be exchanged. Graphical cloud computers can only use GPU-accelerated images. Non-graphical cloud computers can only use non-GPU-accelerated images.
- * After the image is changed, the system uses the new image to initialize the system disk of the cloud computer. This has the following impacts:
- * *   Data in the system disk of the original cloud computer is cleared. Snapshots that are created based on the system disk of the original cloud computer can no longer be used. The system automatically deletes the snapshots.
- * *   If the OS of the image is changed, the data in the data disks of the original cloud computer is cleared, and the snapshots that are created based on the data disks of the original cloud computer can no longer be used. The system automatically deletes the snapshots. If the OS of the image is not changed, the data in the data disks of the original cloud computer is retained, and the snapshots that are created based on the data disks of the original cloud computer can still be used.
+ * *   GPU images and non-GPU images cannot be exchanged. Graphic-based cloud computers can only use GPU-accelerated images. The other cloud computers can only use non-GPU-accelerated images.
+ * After the image of a cloud computer is changed, the system uses the new image to initialize the system disk of the cloud computer. This has the following impacts:
+ * *   Data in the system disk of the original cloud computer is cleared. Snapshots that are created based on the system disk of the original cloud computer become unavailable. The system automatically deletes the snapshots.
+ * *   If the OS of the image is changed, the data in the data disk of the original cloud computer is cleared, and the snapshots that are created based on the data disk of the original cloud computer can no longer be used. The system automatically deletes the snapshots. If the OS of the image is not changed, the data in the data disk of the original cloud computer is retained, and the snapshots that are created based on the data disk of the original cloud computer can still be used.
  *
  * @param request RebuildDesktopsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23359,12 +23375,12 @@ async function rebuildDesktopsWithOptions(request: RebuildDesktopsRequest, runti
 /**
  * @summary Recreates cloud computers.
  *
- * @description Before you change the image of a cloud computer, take note of the following limits:
+ * @description Take note of the following limits when you change an image:
  * *   You can select an image whose OS is different from the OS of the original image. The image change feature is not supported in the following regions: China (Hong Kong), Australia (Sydney), Singapore, and Japan (Tokyo).
- * *   GPU images and non-GPU images cannot be exchanged. Graphical cloud computers can only use GPU-accelerated images. Non-graphical cloud computers can only use non-GPU-accelerated images.
- * After the image is changed, the system uses the new image to initialize the system disk of the cloud computer. This has the following impacts:
- * *   Data in the system disk of the original cloud computer is cleared. Snapshots that are created based on the system disk of the original cloud computer can no longer be used. The system automatically deletes the snapshots.
- * *   If the OS of the image is changed, the data in the data disks of the original cloud computer is cleared, and the snapshots that are created based on the data disks of the original cloud computer can no longer be used. The system automatically deletes the snapshots. If the OS of the image is not changed, the data in the data disks of the original cloud computer is retained, and the snapshots that are created based on the data disks of the original cloud computer can still be used.
+ * *   GPU images and non-GPU images cannot be exchanged. Graphic-based cloud computers can only use GPU-accelerated images. The other cloud computers can only use non-GPU-accelerated images.
+ * After the image of a cloud computer is changed, the system uses the new image to initialize the system disk of the cloud computer. This has the following impacts:
+ * *   Data in the system disk of the original cloud computer is cleared. Snapshots that are created based on the system disk of the original cloud computer become unavailable. The system automatically deletes the snapshots.
+ * *   If the OS of the image is changed, the data in the data disk of the original cloud computer is cleared, and the snapshots that are created based on the data disk of the original cloud computer can no longer be used. The system automatically deletes the snapshots. If the OS of the image is not changed, the data in the data disk of the original cloud computer is retained, and the snapshots that are created based on the data disk of the original cloud computer can still be used.
  *
  * @param request RebuildDesktopsRequest
  * @return RebuildDesktopsResponse
