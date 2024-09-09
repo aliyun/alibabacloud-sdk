@@ -2280,6 +2280,7 @@ This parameter is required.', example='Test123456'),
 *   **Sysadmin**: system admin account. The account type is available only for ApsaraDB RDS for SQL Server instances.
 
 Before you create a system admin account, check whether the instance meets all prerequisites. For more information, see [Create a system admin account](https://help.aliyun.com/document_detail/170736.html).', example='Normal'),
+  checkPolicy?: boolean(name='CheckPolicy'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.
 
 This parameter is required.', example='rm-uf6wjk5xxxxxxx'),
@@ -2332,6 +2333,9 @@ async function createAccountWithOptions(request: CreateAccountRequest, runtime: 
   }
   if (!Util.isUnset(request.accountType)) {
     query['AccountType'] = request.accountType;
+  }
+  if (!Util.isUnset(request.checkPolicy)) {
+    query['CheckPolicy'] = request.checkPolicy;
   }
   if (!Util.isUnset(request.DBInstanceId)) {
     query['DBInstanceId'] = request.DBInstanceId;
@@ -4833,7 +4837,10 @@ This parameter is required.', example='Intranet'),
 
 This parameter is required.', example='20'),
   DBInstanceStorageType?: string(name='DBInstanceStorageType', description='The storage type of the destination instance. Only the local SSD storage type is supported. Default value: **local_ssd**.', example='local_ssd'),
-  encryptionKey?: string(name='EncryptionKey'),
+  encryptionKey?: string(name='EncryptionKey', description='User-defined key ID for cloud disk encryption. Passing this parameter means turning on cloud disk encryption (it cannot be turned off after turning it on), and RoleARN needs to be passed in. You can view the key ID in the key management service console, or create a new key. For more information, see [Creating a Key](https://help.aliyun.com/document_detail/181610.html).
+
+> - This parameter is only applicable to RDS SQL Server instances.
+> - You can also not pass this parameter and only need to pass in RoleARN, which means setting the cloud disk encryption type of the instance to the RDS managed service key (Default Service CMK).', example='749c1df7-****-****-****-****'),
   engine?: string(name='Engine', description='The database engine of the destination instance. Valid values:
 
 *   **MySQL**
@@ -4886,7 +4893,9 @@ This parameter is required.', example='cn-hangzhou'),
 *   **BackupTime**: restores data to a point in time. If you use this value, you must also specify **RestoreTime**, **SourceRegion**, and **SourceDBInstanceName**.
 
 This parameter is required.', example='BackupSet'),
-  roleARN?: string(name='RoleARN'),
+  roleARN?: string(name='RoleARN', description='The global resource descriptor (ARN) of the RDS cloud service account authorized by the primary account to access the KMS permission. You can view the ARN information through the [CheckCloudResourceAuthorized](https://next.api.aliyun.com/document/Rds/2014-08-15/CheckCloudResourceAuthorized) API.
+
+> This parameter is only available for RDS SQL Server instances.', example='acs:ram::1406****:role/aliyunrdsinstanceencryptiondefaultrole'),
   securityIPList?: string(name='SecurityIPList', description='The IP address whitelist of the destination instance. If you want to add more than one entry to the IP address whitelist, separate the entries with commas (,). Each entry must be unique. You can add a maximum of 1,000 entries. For more information, see [Configure an IP address whitelist for an ApsaraDB RDS for MySQL instance](https://help.aliyun.com/document_detail/43185.html). The entries in the IP address whitelist must be in one of the following formats:
 
 *   IP address. Example: 10.23.12.24.
@@ -9726,6 +9735,7 @@ model DescribeAccountsResponseBody = {
 *   **f**: The account does not have the RLS permissions.
 
 >  This parameter is returned only for instances that run PostgreSQL.', example='f'),
+      checkPolicy?: boolean(name='CheckPolicy'),
       createDB?: string(name='CreateDB', description='Indicates whether the account has the permissions to create databases. Valid values:
 
 *   **t**: The account has the permissions to create databases.
@@ -9754,6 +9764,7 @@ model DescribeAccountsResponseBody = {
         }
       ](name='DatabasePrivilege')
       }(name='DatabasePrivileges', description='The details about the permissions that are granted to the account.'),
+      passwordExpireTime?: string(name='PasswordExpireTime'),
       privExceeded?: string(name='PrivExceeded', description='Indicates whether the number of databases that are managed by the account exceeds the upper limit. Valid values:
 
 *   **1**: The number of databases that are managed by the account exceeds the upper limit.
@@ -11250,7 +11261,9 @@ model DescribeBackupPolicyResponseBody = {
 *   **0**: The instance does not support snapshot backups.
 
 >  This parameter is returned only when the instance runs SQL Server.', example='1'),
-  supportsHighFrequencyBackup?: long(name='SupportsHighFrequencyBackup'),
+  supportsHighFrequencyBackup?: long(name='SupportsHighFrequencyBackup', description='Whether to support 5-minute log backup of SQL Server.
+- 0 : Not Support
+- 1 : Support', example='0'),
 }
 
 model DescribeBackupPolicyResponse = {
@@ -13379,8 +13392,8 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 *   **true**
 *   **false**', example='true'),
-      disasterRecoveryInfo?: string(name='DisasterRecoveryInfo'),
-      disasterRecoveryInstances?: string(name='DisasterRecoveryInstances'),
+      disasterRecoveryInfo?: string(name='DisasterRecoveryInfo', description='Disaster recovery source instance information.', example='{"replicatorAccount": "******","sourcePort":******,"sourceAddress": "pgm-2ze******","sourceCategory": "aliyunRDS","sourceInstanceRegionId": "cn-******","replicatorPassword": "******","sourceInstanceName": "pgm-2ze******"}'),
+      disasterRecoveryInstances?: string(name='DisasterRecoveryInstances', description='All disaster recovery instances of the current instance.', example='[{"regionId":"cn-******","insName":"pgm-2ze******"},{"regionId":"cn-******","insName":"pgm-2ze******"}]'),
       engine?: string(name='Engine', description='The database engine of the instance. Valid values:
 
 *   **MySQL**
@@ -13392,7 +13405,9 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 >  Pay-as-you-go instances never expire.', example='2019-03-27T16:00:00Z'),
       extra?: {
-        accountSecurityPolicy?: string(name='AccountSecurityPolicy'),
+        accountSecurityPolicy?: string(name='AccountSecurityPolicy', description='Instance account group policy.
+- MaximumPasswordAge: Maximum usage time
+- MinimumPasswordAge: Minimum usage time', example='{"MaximumPasswordAge": 42,"MinimumPasswordAge": 30}'),
         DBInstanceIds?: {
           DBInstanceId?: [ string ](name='DBInstanceId')
         }(name='DBInstanceIds', description='The instance IDs.'),
@@ -19268,7 +19283,7 @@ async function describeHistoryTasks(request: DescribeHistoryTasksRequest): Descr
 
 model DescribeHistoryTasksStatRequest {
   fromExecTime?: int32(name='FromExecTime', description='The minimum execution duration of a task. This parameter is used to filter tasks whose execution duration is longer than the minimum execution duration. Unit: seconds. The default value is 0, which indicates that no limit is imposed.', example='0'),
-  fromStartTime?: string(name='FromStartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*t*HH:mm:ss*z format. The time must be in UTC.
+  fromStartTime?: string(name='FromStartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format. The time must be in UTC.
 
 This parameter is required.', example='2023-05-08T07:04:17Z'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-2ze704f*****'),
@@ -19294,7 +19309,7 @@ Separate multiple statuses with commas (,). By default, this parameter is left e
   taskId?: string(name='TaskId', description='The task ID.', example='12221'),
   taskType?: string(name='TaskType', description='The task type.', example='all'),
   toExecTime?: int32(name='ToExecTime', description='The maximum execution duration of a task. This parameter is used to filter tasks whose execution duration is shorter than or equal to the maximum execution duration. Unit: seconds. The default value is 0, which indicates that no limit is imposed.', example='0'),
-  toStartTime?: string(name='ToStartTime', description='The end of the time range to query. Only tasks that have a start time earlier than or equal to the time specified by this parameter are queried. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+  toStartTime?: string(name='ToStartTime', description='The end of the time range to query. Only tasks that have a start time earlier than or equal to the time specified by this parameter are queried. Specify the time in the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format. The time must be in UTC.
 
 This parameter is required.', example='2023-02-24T10:01:37Z'),
 }
@@ -19324,7 +19339,7 @@ model DescribeHistoryTasksStatResponse = {
 }
 
 /**
- * @summary 任务中心任务统计
+ * @summary Collects tasks in the task center.
  *
  * @param request DescribeHistoryTasksStatRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -19393,7 +19408,7 @@ async function describeHistoryTasksStatWithOptions(request: DescribeHistoryTasks
 }
 
 /**
- * @summary 任务中心任务统计
+ * @summary Collects tasks in the task center.
  *
  * @param request DescribeHistoryTasksStatRequest
  * @return DescribeHistoryTasksStatResponse
@@ -22112,7 +22127,9 @@ model DescribePostgresExtensionsResponseBody = {
 *   **0**: The extension is displayed by default.
 *   **1**: The extension is preferentially displayed.', example='0'),
       requires?: string(name='Requires', description='The extensions on which the current extension depends when it is installed.', example='{dblink,plpgsql}'),
-      uid?: string(name='Uid'),
+      uid?: string(name='Uid', description='Alibaba Cloud account ID.
+
+> Only exclusive plug-ins (plug-ins written by users) will return this parameter. Each Alibaba Cloud account only displays its own exclusive plug-ins.', example='181578148294****'),
     }
   ](name='InstalledExtensions', description='The list of extensions that are installed on the specified database.'),
   overview?: map[string]any(name='Overview', description='The overview of the extension.', example='None'),
@@ -22127,7 +22144,9 @@ model DescribePostgresExtensionsResponseBody = {
       owner?: string(name='Owner', description='The user of the extension.', example='test_user'),
       priority?: string(name='Priority', description='The priority of the extension.', example='0'),
       requires?: string(name='Requires', description='The extensions on which the current extension depends when it is installed.', example='{dblink,plpgsql}'),
-      uid?: string(name='Uid'),
+      uid?: string(name='Uid', description='Alibaba Cloud account ID.
+
+> Only exclusive plug-ins (plug-ins written by users) will return this parameter. Each Alibaba Cloud account only displays its own exclusive plug-ins.', example='181578148294****'),
     }
   ](name='UninstalledExtensions', description='The list of extensions that are not installed on the specified database.'),
 }
@@ -22883,6 +22902,7 @@ model DescribeRCInstanceAttributeResponseBody = {
   internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn'),
   internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
   ioOptimized?: string(name='IoOptimized'),
+  keyPairName?: string(name='KeyPairName'),
   memory?: int32(name='Memory'),
   operationLocks?: {
     lockReason?: [ 
@@ -26080,7 +26100,7 @@ model DescribeVSwitchesResponseBody = {
 
 This parameter is required.', example='1'),
       cidrBlock?: string(name='CidrBlock', description='The CIDR block of the vSwitch.', example='172.16.0.0/24'),
-      description?: string(name='Description', description='The description of the vSwitch.', example='VSwitchDescription'),
+      description?: string(name='Description', description='The description of the vSwitch.', example='vSwitchDescription'),
       isDefault?: boolean(name='IsDefault', description='Indicates whether the vSwitch is the default vSwitch. Valid values:
 
 *   **true**
@@ -26093,7 +26113,7 @@ This parameter is required.', example='1'),
       vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1pnaz94xc**********'),
       vSwitchName?: string(name='VSwitchName', description='The vSwitch name.', example='test'),
     }
-  ](name='VSwitchs', description='The information about the vSwitch.'),
+  ](name='VSwitchs', description='Details of the vSwitches.'),
 }
 
 model DescribeVSwitchesResponse = {
@@ -26103,7 +26123,7 @@ model DescribeVSwitchesResponse = {
 }
 
 /**
- * @summary Queries the details of VSwitch that are available in a virtual private cloud (VPC).
+ * @summary Queries the details of vSwitch that are available in a virtual private cloud (VPC).
  *
  * @description ### Supported database engines
  * *   MySQL
@@ -26172,7 +26192,7 @@ async function describeVSwitchesWithOptions(request: DescribeVSwitchesRequest, r
 }
 
 /**
- * @summary Queries the details of VSwitch that are available in a virtual private cloud (VPC).
+ * @summary Queries the details of vSwitch that are available in a virtual private cloud (VPC).
  *
  * @description ### Supported database engines
  * *   MySQL
@@ -31335,6 +31355,7 @@ async function modifyDBInstanceSecurityGroupRule(request: ModifyDBInstanceSecuri
 }
 
 model ModifyDBInstanceSpecRequest {
+  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade'),
   autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to use vouchers to offset fees. Valid values:
 
 *   **true**
@@ -31470,6 +31491,7 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 
 >  For more information about minor engine versions, see [Release notes for AliPG](https://help.aliyun.com/document_detail/126002.html).', example='rds_postgres_1200_20200830'),
   usedTime?: long(name='UsedTime', description='The ID of the order.', example='3'),
+  vSwitchId?: string(name='VSwitchId'),
   zoneId?: string(name='ZoneId', description='The RDS edition of the instance. Valid values:
 
 *   **Basic**: RDS Basic Edition.
@@ -31478,9 +31500,11 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 *   **Finance**: RDS Enterprise Edition. This edition is available only on the China site (aliyun.com).
 
 > If you set **EngineVersion** to an SQL Server version number, you must also specify this parameter.', example='cn-hangzhou-b'),
+  zoneIdSlave1?: string(name='ZoneIdSlave1'),
 }
 
 model ModifyDBInstanceSpecShrinkRequest {
+  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade'),
   autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to use vouchers to offset fees. Valid values:
 
 *   **true**
@@ -31579,6 +31603,7 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 
 >  For more information about minor engine versions, see [Release notes for AliPG](https://help.aliyun.com/document_detail/126002.html).', example='rds_postgres_1200_20200830'),
   usedTime?: long(name='UsedTime', description='The ID of the order.', example='3'),
+  vSwitchId?: string(name='VSwitchId'),
   zoneId?: string(name='ZoneId', description='The RDS edition of the instance. Valid values:
 
 *   **Basic**: RDS Basic Edition.
@@ -31587,6 +31612,7 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 *   **Finance**: RDS Enterprise Edition. This edition is available only on the China site (aliyun.com).
 
 > If you set **EngineVersion** to an SQL Server version number, you must also specify this parameter.', example='cn-hangzhou-b'),
+  zoneIdSlave1?: string(name='ZoneIdSlave1'),
 }
 
 model ModifyDBInstanceSpecResponseBody = {
@@ -31628,6 +31654,9 @@ async function modifyDBInstanceSpecWithOptions(tmpReq: ModifyDBInstanceSpecReque
     request.serverlessConfigurationShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.serverlessConfiguration, 'ServerlessConfiguration', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.allowMajorVersionUpgrade)) {
+    query['AllowMajorVersionUpgrade'] = request.allowMajorVersionUpgrade;
+  }
   if (!Util.isUnset(request.autoUseCoupon)) {
     query['AutoUseCoupon'] = request.autoUseCoupon;
   }
@@ -31700,8 +31729,14 @@ async function modifyDBInstanceSpecWithOptions(tmpReq: ModifyDBInstanceSpecReque
   if (!Util.isUnset(request.usedTime)) {
     query['UsedTime'] = request.usedTime;
   }
+  if (!Util.isUnset(request.vSwitchId)) {
+    query['VSwitchId'] = request.vSwitchId;
+  }
   if (!Util.isUnset(request.zoneId)) {
     query['ZoneId'] = request.zoneId;
+  }
+  if (!Util.isUnset(request.zoneIdSlave1)) {
+    query['ZoneIdSlave1'] = request.zoneIdSlave1;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -37854,6 +37889,7 @@ model RunRCInstancesRequest {
   ](name='DataDisk'),
   deploymentSetId?: string(name='DeploymentSetId'),
   description?: string(name='Description'),
+  dryRun?: boolean(name='DryRun'),
   imageId?: string(name='ImageId'),
   instanceChargeType?: string(name='InstanceChargeType'),
   instanceName?: string(name='InstanceName'),
@@ -37884,6 +37920,7 @@ model RunRCInstancesShrinkRequest {
   dataDiskShrink?: string(name='DataDisk'),
   deploymentSetId?: string(name='DeploymentSetId'),
   description?: string(name='Description'),
+  dryRun?: boolean(name='DryRun'),
   imageId?: string(name='ImageId'),
   instanceChargeType?: string(name='InstanceChargeType'),
   instanceName?: string(name='InstanceName'),
@@ -37955,6 +37992,9 @@ async function runRCInstancesWithOptions(tmpReq: RunRCInstancesRequest, runtime:
   }
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    query['DryRun'] = request.dryRun;
   }
   if (!Util.isUnset(request.imageId)) {
     query['ImageId'] = request.imageId;
