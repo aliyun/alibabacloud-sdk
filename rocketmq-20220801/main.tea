@@ -28,6 +28,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model DataTopicLagMapValue = {
+  readyCount?: long(name='readyCount', example='1'),
+  inflightCount?: long(name='inflightCount', example='1'),
+  deliveryDuration?: long(name='deliveryDuration', example='12'),
+}
+
 model ChangeResourceGroupRequest {
   regionId?: string(name='regionId', description='The ID of the region in which the instance resides.
 
@@ -275,9 +281,9 @@ This parameter is required.'),
 >  After an ApsaraMQ for RocketMQ instance is created, you cannot change the vSwitch with which the instance is associated. If you want to change the vSwitch with which the instance is associated, you must release the instance and purchase a new instance.', example='vsw-uf6gwtbn6etadpv*******', deprecated=true),
       vSwitches?: [ 
         {
-          vSwitchId?: string(name='vSwitchId'),
+          vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated.', example='vsw-uf6gwtbn6etadpv*******'),
         }
-      ](name='vSwitches'),
+      ](name='vSwitches', description='The vSwitches.'),
       vpcId?: string(name='vpcId', description='The ID of the VPC in which you want to deploy the instance.
 
 >  After an ApsaraMQ for RocketMQ instance is created, you cannot change the VPC in which the instance is deployed. If you want to change the VPC in which the instance is deployed, you must release the instance and create a new instance.
@@ -486,6 +492,227 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
   return createInstanceWithOptions(request, headers, runtime);
 }
 
+model CreateInstanceAccountRequest {
+  password?: string(name='password', description='This parameter is required.', example='xxx'),
+  username?: string(name='username', description='This parameter is required.', example='xxx'),
+}
+
+model CreateInstanceAccountResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='3AE0999C-8DBA-5CEE-8D9A-BE8D4A90DF8D'),
+  success?: boolean(name='success', example='true'),
+}
+
+model CreateInstanceAccountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInstanceAccountResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建访问控制acl用户
+ *
+ * @param request CreateInstanceAccountRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInstanceAccountResponse
+ */
+async function createInstanceAccountWithOptions(instanceId: string, request: CreateInstanceAccountRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceAccountResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.password)) {
+    body['password'] = request.password;
+  }
+  if (!Util.isUnset(request.username)) {
+    body['username'] = request.username;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateInstanceAccount',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/accounts`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建访问控制acl用户
+ *
+ * @param request CreateInstanceAccountRequest
+ * @return CreateInstanceAccountResponse
+ */
+async function createInstanceAccount(instanceId: string, request: CreateInstanceAccountRequest): CreateInstanceAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceAccountWithOptions(instanceId, request, headers, runtime);
+}
+
+model CreateInstanceAclRequest {
+  actions?: string(name='actions', description='This parameter is required.', example='Pub'),
+  decision?: string(name='decision', description='This parameter is required.', example='Allow'),
+  ipWhitelists?: [ string ](name='ipWhitelists'),
+  resourceName?: string(name='resourceName', description='This parameter is required.', example='test'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='Topic'),
+}
+
+model CreateInstanceAclResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='C7E8AE3A-219B-52EE-BE32-4036F5F88833'),
+  success?: boolean(name='success', example='true'),
+}
+
+model CreateInstanceAclResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInstanceAclResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建访问控制acl数据
+ *
+ * @param request CreateInstanceAclRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInstanceAclResponse
+ */
+async function createInstanceAclWithOptions(instanceId: string, username: string, request: CreateInstanceAclRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceAclResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.actions)) {
+    body['actions'] = request.actions;
+  }
+  if (!Util.isUnset(request.decision)) {
+    body['decision'] = request.decision;
+  }
+  if (!Util.isUnset(request.ipWhitelists)) {
+    body['ipWhitelists'] = request.ipWhitelists;
+  }
+  if (!Util.isUnset(request.resourceName)) {
+    body['resourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    body['resourceType'] = request.resourceType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateInstanceAcl',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/acl/account/${OpenApiUtil.getEncodeParam(username)}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建访问控制acl数据
+ *
+ * @param request CreateInstanceAclRequest
+ * @return CreateInstanceAclResponse
+ */
+async function createInstanceAcl(instanceId: string, username: string, request: CreateInstanceAclRequest): CreateInstanceAclResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceAclWithOptions(instanceId, username, request, headers, runtime);
+}
+
+model CreateInstanceIpWhitelistRequest {
+  ipWhitelists?: [ string ](name='ipWhitelists', description='This parameter is required.'),
+}
+
+model CreateInstanceIpWhitelistResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='400'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='A07B41BD-6DD3-5349-9E76-00303DF04BBE'),
+  success?: boolean(name='success', example='true'),
+}
+
+model CreateInstanceIpWhitelistResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateInstanceIpWhitelistResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建访问控制ip白名单
+ *
+ * @param request CreateInstanceIpWhitelistRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInstanceIpWhitelistResponse
+ */
+async function createInstanceIpWhitelistWithOptions(instanceId: string, request: CreateInstanceIpWhitelistRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceIpWhitelistResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.ipWhitelists)) {
+    body['ipWhitelists'] = request.ipWhitelists;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateInstanceIpWhitelist',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/ip/whitelist`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建访问控制ip白名单
+ *
+ * @param request CreateInstanceIpWhitelistRequest
+ * @return CreateInstanceIpWhitelistResponse
+ */
+async function createInstanceIpWhitelist(instanceId: string, request: CreateInstanceIpWhitelistRequest): CreateInstanceIpWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createInstanceIpWhitelistWithOptions(instanceId, request, headers, runtime);
+}
+
 model CreateTopicRequest {
   messageType?: string(name='messageType', description='The type of messages in the topic that you want to create.
 
@@ -624,6 +851,81 @@ async function deleteConsumerGroup(instanceId: string, consumerGroupId: string):
   return deleteConsumerGroupWithOptions(instanceId, consumerGroupId, headers, runtime);
 }
 
+model DeleteConsumerGroupSubscriptionRequest {
+  filterExpression?: string(name='filterExpression', description='This parameter is required.'),
+  filterType?: string(name='filterType', description='This parameter is required.'),
+  topicName?: string(name='topicName', description='This parameter is required.', example='topic_test'),
+}
+
+model DeleteConsumerGroupSubscriptionResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail'),
+  code?: string(name='code', example='200'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='723CDA5C-E25C-5EAF-9601-08C286DF8A4D'),
+  success?: boolean(name='success', example='true'),
+}
+
+model DeleteConsumerGroupSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteConsumerGroupSubscriptionResponseBody(name='body'),
+}
+
+/**
+ * @summary 取消消费组订阅关系
+ *
+ * @param request DeleteConsumerGroupSubscriptionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteConsumerGroupSubscriptionResponse
+ */
+async function deleteConsumerGroupSubscriptionWithOptions(instanceId: string, consumerGroupId: string, request: DeleteConsumerGroupSubscriptionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteConsumerGroupSubscriptionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.filterExpression)) {
+    query['filterExpression'] = request.filterExpression;
+  }
+  if (!Util.isUnset(request.filterType)) {
+    query['filterType'] = request.filterType;
+  }
+  if (!Util.isUnset(request.topicName)) {
+    query['topicName'] = request.topicName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteConsumerGroupSubscription',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/consumerGroups/${OpenApiUtil.getEncodeParam(consumerGroupId)}/subscriptions`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 取消消费组订阅关系
+ *
+ * @param request DeleteConsumerGroupSubscriptionRequest
+ * @return DeleteConsumerGroupSubscriptionResponse
+ */
+async function deleteConsumerGroupSubscription(instanceId: string, consumerGroupId: string, request: DeleteConsumerGroupSubscriptionRequest): DeleteConsumerGroupSubscriptionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteConsumerGroupSubscriptionWithOptions(instanceId, consumerGroupId, request, headers, runtime);
+}
+
 model DeleteInstanceResponseBody = {
   code?: string(name='code', description='The error code returned if the call failed.', example='MissingInstanceId'),
   data?: boolean(name='data', description='The returned result.', example='true'),
@@ -683,6 +985,198 @@ async function deleteInstance(instanceId: string): DeleteInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteInstanceWithOptions(instanceId, headers, runtime);
+}
+
+model DeleteInstanceAccountResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='Instance.NotFound'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='157DF7D4-53FB-58C6-BEBC-A9400E7EF68A'),
+  success?: boolean(name='success', example='true'),
+}
+
+model DeleteInstanceAccountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstanceAccountResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除访问控制acl用户
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstanceAccountResponse
+ */
+async function deleteInstanceAccountWithOptions(instanceId: string, username: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceAccountResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteInstanceAccount',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/accounts/${OpenApiUtil.getEncodeParam(username)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除访问控制acl用户
+ *
+ * @return DeleteInstanceAccountResponse
+ */
+async function deleteInstanceAccount(instanceId: string, username: string): DeleteInstanceAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceAccountWithOptions(instanceId, username, headers, runtime);
+}
+
+model DeleteInstanceAclRequest {
+  resourceName?: string(name='resourceName', description='This parameter is required.', example='test'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='Topic'),
+}
+
+model DeleteInstanceAclResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='7358418D-83BD-507A-8079-611C63E05674'),
+  success?: boolean(name='success', example='true'),
+}
+
+model DeleteInstanceAclResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstanceAclResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除访问控制acl数据
+ *
+ * @param request DeleteInstanceAclRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstanceAclResponse
+ */
+async function deleteInstanceAclWithOptions(instanceId: string, username: string, request: DeleteInstanceAclRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceAclResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.resourceName)) {
+    query['resourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteInstanceAcl',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/acl/account/${OpenApiUtil.getEncodeParam(username)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除访问控制acl数据
+ *
+ * @param request DeleteInstanceAclRequest
+ * @return DeleteInstanceAclResponse
+ */
+async function deleteInstanceAcl(instanceId: string, username: string, request: DeleteInstanceAclRequest): DeleteInstanceAclResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceAclWithOptions(instanceId, username, request, headers, runtime);
+}
+
+model DeleteInstanceIpWhitelistRequest {
+  ipWhitelist?: string(name='ipWhitelist', description='This parameter is required.', example='0.0.0.0/0'),
+}
+
+model DeleteInstanceIpWhitelistResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='16425867-C948-5A0C-9A24-5259727BE727'),
+  success?: boolean(name='success', example='true'),
+}
+
+model DeleteInstanceIpWhitelistResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstanceIpWhitelistResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除访问控制ip白名单
+ *
+ * @param request DeleteInstanceIpWhitelistRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstanceIpWhitelistResponse
+ */
+async function deleteInstanceIpWhitelistWithOptions(instanceId: string, request: DeleteInstanceIpWhitelistRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceIpWhitelistResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.ipWhitelist)) {
+    query['ipWhitelist'] = request.ipWhitelist;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteInstanceIpWhitelist',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/ip/whitelist`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除访问控制ip白名单
+ *
+ * @param request DeleteInstanceIpWhitelistRequest
+ * @return DeleteInstanceIpWhitelistResponse
+ */
+async function deleteInstanceIpWhitelist(instanceId: string, request: DeleteInstanceIpWhitelistRequest): DeleteInstanceIpWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstanceIpWhitelistWithOptions(instanceId, request, headers, runtime);
 }
 
 model DeleteTopicResponseBody = {
@@ -901,6 +1395,219 @@ async function getConsumerGroup(instanceId: string, consumerGroupId: string): Ge
   return getConsumerGroupWithOptions(instanceId, consumerGroupId, headers, runtime);
 }
 
+model GetConsumerGroupLagResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
+    createTime?: string(name='createTime', example='2022-08-01 20:05:50'),
+    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    topicLagMap?: map[string]DataTopicLagMapValue(name='topicLagMap'),
+    totalLag?: {
+      deliveryDuration?: long(name='deliveryDuration', example='12'),
+      inflightCount?: long(name='inflightCount', example='1'),
+      readyCount?: long(name='readyCount', example='1'),
+    }(name='totalLag'),
+    updateTime?: string(name='updateTime', example='2022-08-01 20:05:50'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='F5764C40-FB8C-53AE-B95D-96AB3D0E9375'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetConsumerGroupLagResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConsumerGroupLagResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询消费者组堆积信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetConsumerGroupLagResponse
+ */
+async function getConsumerGroupLagWithOptions(instanceId: string, consumerGroupId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetConsumerGroupLagResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetConsumerGroupLag',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/consumerGroups/${OpenApiUtil.getEncodeParam(consumerGroupId)}/lag`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询消费者组堆积信息
+ *
+ * @return GetConsumerGroupLagResponse
+ */
+async function getConsumerGroupLag(instanceId: string, consumerGroupId: string): GetConsumerGroupLagResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getConsumerGroupLagWithOptions(instanceId, consumerGroupId, headers, runtime);
+}
+
+model GetConsumerGroupSubscriptionResponseBody = {
+  code?: string(name='code', example='Instance.NotFound'),
+  data?: [ 
+    {
+      connectionDTO?: {
+        clientId?: string(name='clientId', example='192.168.50.191@19908#-2093249153#1534215565#40385215750900'),
+        egressIp?: string(name='egressIp', example='xx.xx.xx.xx'),
+        hostname?: string(name='hostname', example='nginx'),
+        language?: string(name='language', example='zh'),
+        messageModel?: string(name='messageModel', example='BROADCASTING'),
+        version?: string(name='version', example='1.0.0'),
+      }(name='connectionDTO'),
+      subscriptionDTO?: {
+        consumerGroupId?: string(name='consumerGroupId', example='GID_inspector_group'),
+        filterExpression?: string(name='filterExpression', example='*'),
+        filterExpressionType?: string(name='filterExpressionType', example='UNSPECIFIED'),
+        messageModel?: string(name='messageModel', example='BROADCASTING'),
+        subscriptionStatus?: string(name='subscriptionStatus', example='ONLINE'),
+        topicName?: string(name='topicName', example='Topic_normal_inspector'),
+      }(name='subscriptionDTO'),
+    }
+  ](name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='157DF7D4-53FB-58C6-BEBC-A9400E7EF68A'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetConsumerGroupSubscriptionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConsumerGroupSubscriptionResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询消费组订阅关系列表客户端分布
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetConsumerGroupSubscriptionResponse
+ */
+async function getConsumerGroupSubscriptionWithOptions(instanceId: string, consumerGroupId: string, topicName: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetConsumerGroupSubscriptionResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetConsumerGroupSubscription',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/consumerGroups/${OpenApiUtil.getEncodeParam(consumerGroupId)}/subscriptions/${OpenApiUtil.getEncodeParam(topicName)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询消费组订阅关系列表客户端分布
+ *
+ * @return GetConsumerGroupSubscriptionResponse
+ */
+async function getConsumerGroupSubscription(instanceId: string, consumerGroupId: string, topicName: string): GetConsumerGroupSubscriptionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getConsumerGroupSubscriptionWithOptions(instanceId, consumerGroupId, topicName, headers, runtime);
+}
+
+model GetConsumerStackRequest {
+  clientId?: string(name='clientId', description='This parameter is required.', example='172.26.76.48@Lqd7dImlp9KJ5V84'),
+}
+
+model GetConsumerStackResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
+    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    stacks?: [ 
+      {
+        thread?: string(name='thread', example='123'),
+        tracks?: [ string ](name='tracks'),
+      }
+    ](name='stacks'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='30F2CBC7-F69D-5D78-9661-0254C9E1FBFA'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetConsumerStackResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConsumerStackResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询消费者堆栈信息
+ *
+ * @param request GetConsumerStackRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetConsumerStackResponse
+ */
+async function getConsumerStackWithOptions(instanceId: string, consumerGroupId: string, request: GetConsumerStackRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetConsumerStackResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetConsumerStack',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/consumerGroups/${OpenApiUtil.getEncodeParam(consumerGroupId)}/stack`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询消费者堆栈信息
+ *
+ * @param request GetConsumerStackRequest
+ * @return GetConsumerStackResponse
+ */
+async function getConsumerStack(instanceId: string, consumerGroupId: string, request: GetConsumerStackRequest): GetConsumerStackResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getConsumerStackWithOptions(instanceId, consumerGroupId, request, headers, runtime);
+}
+
 model GetInstanceResponseBody = {
   code?: string(name='code', description='The error code returned if the call failed.', example='MissingInstanceId'),
   data?: {
@@ -1047,10 +1754,10 @@ By default, ApsaraMQ for RocketMQ instances are accessed in virtual private clo
         vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated.', example='vsw-uf6gwtbn6etadpvz7****', deprecated=true),
         vSwitches?: [ 
           {
-            vSwitchId?: string(name='vSwitchId'),
-            zoneId?: string(name='zoneId'),
+            vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-uf6gwtbn6etadpvz7****'),
+            zoneId?: string(name='zoneId', description='The zone ID.', example='cn-hangzhou'),
           }
-        ](name='vSwitches'),
+        ](name='vSwitches', description='The vSwitches.'),
         vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated.', example='vpc-uf6of9452b2pba82c****'),
       }(name='vpcInfo', description='The virtual private cloud (VPC) information.'),
     }(name='networkInfo', description='The network information.'),
@@ -1196,6 +1903,145 @@ async function getInstance(instanceId: string): GetInstanceResponse {
   return getInstanceWithOptions(instanceId, headers, runtime);
 }
 
+model GetInstanceAccountRequest {
+  username?: string(name='username'),
+}
+
+model GetInstanceAccountResponseBody = {
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    password?: string(name='password', example='*************'),
+    username?: string(name='username', example='xxx'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='ConsumerGroupId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='B5C59E80-FCFC-5796-ABE4-D39EAAE578E4'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetInstanceAccountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetInstanceAccountResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取实例账号
+ *
+ * @param request GetInstanceAccountRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetInstanceAccountResponse
+ */
+async function getInstanceAccountWithOptions(instanceId: string, request: GetInstanceAccountRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceAccountResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.username)) {
+    query['username'] = request.username;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetInstanceAccount',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/account`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取实例账号
+ *
+ * @param request GetInstanceAccountRequest
+ * @return GetInstanceAccountResponse
+ */
+async function getInstanceAccount(instanceId: string, request: GetInstanceAccountRequest): GetInstanceAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getInstanceAccountWithOptions(instanceId, request, headers, runtime);
+}
+
+model GetMessageDetailResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    body?: string(name='body', example='{}'),
+    bodySize?: int32(name='bodySize', example='123'),
+    bornHost?: string(name='bornHost', example='xxx.xx.xxx.xx'),
+    bornTime?: string(name='bornTime', example='2023-03-22 12:17:08'),
+    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+    messageGroup?: string(name='messageGroup', example='xx'),
+    messageId?: string(name='messageId', example='01BE87E485F0C7808C04543CAF00000001'),
+    messageKeys?: [ string ](name='messageKeys'),
+    messageTag?: string(name='messageTag', example='xx'),
+    messageType?: string(name='messageType', example='NORMAL'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    storeHost?: string(name='storeHost', example='xxx.xx.xxx.xx'),
+    storeTime?: string(name='storeTime', example='2023-03-22 12:17:08'),
+    systemProperties?: map[string]string(name='systemProperties'),
+    topicName?: string(name='topicName', example='topic_test'),
+    userProperties?: map[string]string(name='userProperties'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='FAEBD71F-E839-52F9-BD7B-8F1290525841'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetMessageDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetMessageDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary 消息详情
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMessageDetailResponse
+ */
+async function getMessageDetailWithOptions(instanceId: string, topicName: string, messageId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetMessageDetailResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetMessageDetail',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/messages/${OpenApiUtil.getEncodeParam(messageId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 消息详情
+ *
+ * @return GetMessageDetailResponse
+ */
+async function getMessageDetail(instanceId: string, topicName: string, messageId: string): GetMessageDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMessageDetailWithOptions(instanceId, topicName, messageId, headers, runtime);
+}
+
 model GetTopicResponseBody = {
   code?: string(name='code', description='The error code.', example='Topic.NotFound'),
   data?: {
@@ -1270,22 +2116,151 @@ async function getTopic(instanceId: string, topicName: string): GetTopicResponse
   return getTopicWithOptions(instanceId, topicName, headers, runtime);
 }
 
+model GetTraceResponseBody = {
+  code?: string(name='code', example='InvalidConsumerGroupId'),
+  data?: {
+    brokerInfo?: {
+      delayStatus?: string(name='delayStatus', example='SUCCESS'),
+      operations?: [ 
+        {
+          operateTime?: string(name='operateTime', example='2023-03-22 12:17:08'),
+          operateType?: string(name='operateType', example='ADD'),
+        }
+      ](name='operations'),
+      presetDelayTime?: string(name='presetDelayTime', example='2023-03-22 12:17:08'),
+    }(name='brokerInfo'),
+    consumerInfos?: [ 
+      {
+        consumeStatus?: string(name='consumeStatus', example='SUCCESS'),
+        consumerGroupId?: string(name='consumerGroupId', example='GID_inspector_group'),
+        deadLetterInfo?: {
+          messageId?: string(name='messageId', example='7F000001001F7A4F0F29463F0376047D'),
+          toDlqTime?: string(name='toDlqTime', example='2023-03-22 12:17:08'),
+          topicName?: string(name='topicName', example='Register_Sync'),
+        }(name='deadLetterInfo'),
+        deadMessage?: boolean(name='deadMessage', example='true'),
+        records?: [ 
+          {
+            clientHost?: string(name='clientHost', example='xx.xx.xx.xx'),
+            consumeStatus?: string(name='consumeStatus', example='SUCCESS'),
+            fifoEnable?: boolean(name='fifoEnable', example='true'),
+            operations?: [ 
+              {
+                deadMessage?: boolean(name='deadMessage', example='true'),
+                invisibleTime?: long(name='invisibleTime', example='100'),
+                operateTime?: string(name='operateTime', example='2023-03-22 12:17:08'),
+                operateType?: string(name='operateType', example='ADD'),
+              }
+            ](name='operations'),
+            popCk?: string(name='popCk', description='POP_CK', example='123'),
+            userName?: string(name='userName', example='test'),
+          }
+        ](name='records'),
+      }
+    ](name='consumerInfos'),
+    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+    messageInfo?: {
+      body?: string(name='body', example='{}'),
+      bornHost?: string(name='bornHost', example='x.x.x.x'),
+      bornTime?: string(name='bornTime', example='2023-03-22 12:17:08'),
+      instanceId?: string(name='instanceId', example='rmq-cn-u0t2ygjq505'),
+      messageGroup?: string(name='messageGroup', example='xx'),
+      messageId?: string(name='messageId', example='0A79275A00207A4F0F2916C92F9A0B94'),
+      messageKeys?: [ string ](name='messageKeys'),
+      messageTag?: string(name='messageTag', example='xx'),
+      messageType?: string(name='messageType', example='NORMAL'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+      setted?: boolean(name='setted', example='true'),
+      storeHost?: string(name='storeHost', example='x.x.x.x'),
+      storeTime?: string(name='storeTime', example='2023-03-22 12:17:08'),
+      topicName?: string(name='topicName', example='Topic_normal_inspector'),
+      transactionId?: string(name='transactionId', example='xx'),
+      userProperties?: map[string]string(name='userProperties'),
+    }(name='messageInfo'),
+    producerInfo?: {
+      records?: [ 
+        {
+          arriveTime?: string(name='arriveTime', example='2023-03-22 12:17:08'),
+          clientHost?: string(name='clientHost', example='xx.xx.xx.xx'),
+          dlqOriginMessageId?: string(name='dlqOriginMessageId', example='0A79275A00207A4F0F2916C92F9A0B94'),
+          dlqOriginTopic?: string(name='dlqOriginTopic', example='test_topic'),
+          messageSource?: string(name='messageSource', example='CONSOLE'),
+          produceDuration?: long(name='produceDuration', example='100'),
+          produceStatus?: string(name='produceStatus', example='SUCCESS'),
+          produceTime?: string(name='produceTime', example='2023-03-22 12:17:08'),
+          userName?: string(name='userName', example='xxx'),
+        }
+      ](name='records'),
+    }(name='producerInfo'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    topicName?: string(name='topicName', example='topic_test'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='7779A8FC-1BCD-5A1D-A603-C4A9BD8ADC49'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 轨迹查询
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTraceResponse
+ */
+async function getTraceWithOptions(instanceId: string, topicName: string, messageId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetTraceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTrace',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/traces/${OpenApiUtil.getEncodeParam(messageId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 轨迹查询
+ *
+ * @return GetTraceResponse
+ */
+async function getTrace(instanceId: string, topicName: string, messageId: string): GetTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTraceWithOptions(instanceId, topicName, messageId, headers, runtime);
+}
+
 model ListAvailableZonesResponseBody = {
-  code?: string(name='code', example='Topic.NotFound'),
+  code?: string(name='code', description='The error code returned if the call failed.', example='Topic.NotFound'),
   data?: [ 
     {
-      createTime?: string(name='createTime', example='2022-08-01 20:05:50'),
-      updateTime?: string(name='updateTime', example='2022-08-01 20:05:50'),
-      zoneId?: string(name='zoneId', example='cn-qingdao-b'),
-      zoneName?: string(name='zoneName', example='ha-cn-t9b30w902vm_qrs'),
+      createTime?: string(name='createTime', description='The time when the zone was created.', example='2022-08-01 20:05:50'),
+      updateTime?: string(name='updateTime', description='The time when the zone was last updated.', example='2022-08-01 20:05:50'),
+      zoneId?: string(name='zoneId', description='The ID of the current zone.', example='cn-qingdao-b'),
+      zoneName?: string(name='zoneName', description='The name of the current zone.', example='ha-cn-t9b30w902vm_qrs'),
     }
-  ](name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
-  requestId?: string(name='requestId', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', example='true'),
+  ](name='data', description='The result data that is returned.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', description='The ID of the request. Each request has a unique ID. You can use this ID to troubleshoot issues.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model ListAvailableZonesResponse = {
@@ -1331,28 +2306,30 @@ async function listAvailableZones(): ListAvailableZonesResponse {
 }
 
 model ListConsumerConnectionsResponseBody = {
-  code?: string(name='code', example='MissingPageNumber'),
+  code?: string(name='code', description='The returned error code.', example='MissingPageNumber'),
   data?: {
     connections?: [ 
       {
-        clientId?: string(name='clientId', example='172.17.135.197@17392#1936705963#551717232#9873695589062458'),
-        egressIp?: string(name='egressIp', example='xx.xx.xx.xx'),
-        hostname?: string(name='hostname', example='vos'),
-        language?: string(name='language', example='java'),
-        messageModel?: string(name='messageModel', example='BROADCASTING'),
-        version?: string(name='version', example='1.0'),
+        clientId?: string(name='clientId', description='The ID of the client.', example='172.17.135.197@17392#1936705963#551717232#9873695589062458'),
+        egressIp?: string(name='egressIp', description='Host IP/Public IP', example='xx.xx.xx.xx'),
+        hostname?: string(name='hostname', description='The `hostname` of the cloud-native box.', example='vos'),
+        language?: string(name='language', description='The language of the client.', example='java'),
+        messageModel?: string(name='messageModel', description='Consumption Mode
+- BROADCASTING
+- CLUSTERING', example='BROADCASTING'),
+        version?: string(name='version', description='The version of the client.', example='1.0'),
       }
-    ](name='connections'),
-    consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
-    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
-    regionId?: string(name='regionId', example='cn-hangzhou'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The instance cannot be found.'),
-  requestId?: string(name='requestId', example='A3620115-6F1F-5CFB-AA3F-BBD4853B2EC4'),
-  success?: boolean(name='success', example='true'),
+    ](name='connections', description='The client connection list'),
+    consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='CID-TEST'),
+    instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
+    regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', description='The ID of the request. Each request has a unique ID. You can use this ID to troubleshoot issues.', example='A3620115-6F1F-5CFB-AA3F-BBD4853B2EC4'),
+  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model ListConsumerConnectionsResponse = {
@@ -1398,25 +2375,37 @@ async function listConsumerConnections(instanceId: string, consumerGroupId: stri
 }
 
 model ListConsumerGroupSubscriptionsResponseBody = {
-  code?: string(name='code', description='The returned error code.', example='MissingInstanceId'),
+  code?: string(name='code', description='The error code.', example='MissingInstanceId'),
   data?: [ 
     {
-      consistency?: boolean(name='consistency'),
-      consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='CID-TEST'),
+      consistency?: boolean(name='consistency', description='Indicates whether message consumption is consistent. Valid values:
+
+*   false: Unconsumed messages exist in the consumer group.
+*   true: No unconsumed message exists in the consumer group.', example='true'),
+      consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='CID-TEST'),
       filterExpression?: string(name='filterExpression', description='The filter expression.', example='*'),
-      filterExpressionType?: string(name='filterExpressionType', description='The type of the filter expression. Valid values: SQL, TAG, and UNSPECIFIED.', example='SQL'),
-      messageModel?: string(name='messageModel', description='The consumption mode. Valid values: BROADCASTING and CLUSTERING.', example='BROADCASTING'),
-      subscriptionStatus?: string(name='subscriptionStatus', description='The subscription status. Valid values: ONLINE and OFFLINE.', example='ONLINE'),
+      filterExpressionType?: string(name='filterExpressionType', description='The type of the filter expression. Valid values:
+
+*   SQL: filters messages by using SQL expressions.
+*   TAG: filters messages by using tags.', example='SQL'),
+      messageModel?: string(name='messageModel', description='The consumption mode of the consumer group. Valid values:
+
+*   BROADCASTING: broadcasting consumption
+*   CLUSTERING: clustering consumption', example='BROADCASTING'),
+      subscriptionStatus?: string(name='subscriptionStatus', description='The subscription status. Valid values:
+
+*   ONLINE: The consumer group is online. If the consumer group contains multiple consumers, this value is returned as long as one of the consumers is online.
+*   OFFLINE: The consumer group is offline. If the consumer group contains multiple consumers, this value is returned only if all consumers are offline.', example='ONLINE'),
       topicCreated?: boolean(name='topicCreated', description='Indicates whether the topic is created.', example='true'),
       topicName?: string(name='topicName', description='The topic to which the consumer group subscribes.', example='topic_test'),
     }
   ](name='data', description='The returned data.'),
-  dynamicCode?: string(name='dynamicCode', description='The returned dynamic error code.', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', description='The returned dynamic error message.', example='InstanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The returned HTTP status code.', example='200'),
-  message?: string(name='message', description='The returned error message.', example='Parameter instanceId is mandatory for this action .'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='Parameter instanceId is mandatory for this action .'),
   requestId?: string(name='requestId', description='The request ID.', example='5F4D9D5F-625B-59FF-BD4F-DA8284575DB4'),
-  success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListConsumerGroupSubscriptionsResponse = {
@@ -1426,7 +2415,7 @@ model ListConsumerGroupSubscriptionsResponse = {
 }
 
 /**
- * @summary Queries the subscriptions of a consumer group.
+ * @summary Queries the subscriptions of a specific consumer group.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1451,7 +2440,7 @@ async function listConsumerGroupSubscriptionsWithOptions(instanceId: string, con
 }
 
 /**
- * @summary Queries the subscriptions of a consumer group.
+ * @summary Queries the subscriptions of a specific consumer group.
  *
  * @return ListConsumerGroupSubscriptionsResponse
  */
@@ -1588,37 +2577,317 @@ async function listConsumerGroups(instanceId: string, request: ListConsumerGroup
   return listConsumerGroupsWithOptions(instanceId, request, headers, runtime);
 }
 
+model ListInstanceAccountRequest {
+  accountStatus?: string(name='accountStatus', example='ENABLE'),
+  accountType?: string(name='accountType', example='CUSTOMER'),
+  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+  username?: string(name='username', example='test'),
+}
+
+model ListInstanceAccountResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    list?: [ 
+      {
+        accountStatus?: string(name='accountStatus', example='ENABLE'),
+        accountType?: string(name='accountType', example='CUSTOMER'),
+        instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
+        username?: string(name='username', example='test'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='10'),
+    totalCount?: long(name='totalCount', example='24'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='C115601B-8736-5BBF-AC99-7FEAE1245A80'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListInstanceAccountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstanceAccountResponseBody(name='body'),
+}
+
+/**
+ * @summary 访问控制acl用户列表
+ *
+ * @param request ListInstanceAccountRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstanceAccountResponse
+ */
+async function listInstanceAccountWithOptions(instanceId: string, request: ListInstanceAccountRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceAccountResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.accountStatus)) {
+    query['accountStatus'] = request.accountStatus;
+  }
+  if (!Util.isUnset(request.accountType)) {
+    query['accountType'] = request.accountType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.username)) {
+    query['username'] = request.username;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListInstanceAccount',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/accounts`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 访问控制acl用户列表
+ *
+ * @param request ListInstanceAccountRequest
+ * @return ListInstanceAccountResponse
+ */
+async function listInstanceAccount(instanceId: string, request: ListInstanceAccountRequest): ListInstanceAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstanceAccountWithOptions(instanceId, request, headers, runtime);
+}
+
+model ListInstanceAclRequest {
+  filter?: string(name='filter', example='CID-TEST'),
+  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+}
+
+model ListInstanceAclResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    list?: [ 
+      {
+        aclType?: string(name='aclType', example='APACHE'),
+        actions?: [ string ](name='actions'),
+        decision?: string(name='decision', example='Allow'),
+        instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+        ipWhitelists?: [ string ](name='ipWhitelists'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
+        resourceName?: string(name='resourceName', example='test'),
+        resourceType?: string(name='resourceType', example='Topic'),
+        username?: string(name='username', example='test'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='10'),
+    totalCount?: long(name='totalCount', example='24'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='DA4D2F89-E2C8-5F04-936B-60D55B055FA7'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListInstanceAclResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstanceAclResponseBody(name='body'),
+}
+
+/**
+ * @summary 访问控制acl数据列表
+ *
+ * @param request ListInstanceAclRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstanceAclResponse
+ */
+async function listInstanceAclWithOptions(instanceId: string, request: ListInstanceAclRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceAclResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.filter)) {
+    query['filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListInstanceAcl',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/acl`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 访问控制acl数据列表
+ *
+ * @param request ListInstanceAclRequest
+ * @return ListInstanceAclResponse
+ */
+async function listInstanceAcl(instanceId: string, request: ListInstanceAclRequest): ListInstanceAclResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstanceAclWithOptions(instanceId, request, headers, runtime);
+}
+
+model ListInstanceIpWhitelistRequest {
+  ipWhitelist?: string(name='ipWhitelist', example='0.0.0.0/0'),
+  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+}
+
+model ListInstanceIpWhitelistResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='Instance.NotFound'),
+  data?: {
+    list?: [ string ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='10'),
+    totalCount?: long(name='totalCount', example='5'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='7358418D-83BD-507A-8079-611C63E05674'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListInstanceIpWhitelistResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListInstanceIpWhitelistResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询访问控制ip白名单列表
+ *
+ * @param request ListInstanceIpWhitelistRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstanceIpWhitelistResponse
+ */
+async function listInstanceIpWhitelistWithOptions(instanceId: string, request: ListInstanceIpWhitelistRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstanceIpWhitelistResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.ipWhitelist)) {
+    query['ipWhitelist'] = request.ipWhitelist;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListInstanceIpWhitelist',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/ip/whitelist`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询访问控制ip白名单列表
+ *
+ * @param request ListInstanceIpWhitelistRequest
+ * @return ListInstanceIpWhitelistResponse
+ */
+async function listInstanceIpWhitelist(instanceId: string, request: ListInstanceIpWhitelistRequest): ListInstanceIpWhitelistResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listInstanceIpWhitelistWithOptions(instanceId, request, headers, runtime);
+}
+
 model ListInstancesRequest {
   filter?: string(name='filter', description='The filter condition that is used to query instances. If you do not configure this parameter, all instances are queried.', example='rmq-cn-7e22ody****'),
-  pageNumber?: int32(name='pageNumber', description='The number of the page to return.
+  pageNumber?: int32(name='pageNumber', description='The page number.
 
 Valid values: 1 to 100000000.
 
-If the value that you specify for this parameter is less than 1, the system uses 1 as the value. If the value that you specify for this parameter is greater than 100000000, the system uses 100000000 as the value.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries returned on each page.
+If you set this parameter to a value smaller than 1, the system uses 1 as the value. If you set this parameter to a value greater than 100000000, the system uses 100000000 as the value.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.
 
-Valid values: 10 to 200.
+Value values: 10 to 200.
 
-If the value that you specify for this parameter is less than 10, the system uses 10 as the value. If the value that you specify for this parameter is greater than 200, the system uses 200 as the value.', example='10'),
+If you set this parameter to a value smaller than 10, the system uses 10 as the value. If you set this parameter to a value greater than 200, the system uses 200 as the value.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmx7caj******'),
-  seriesCodes?: [ string ](name='seriesCodes'),
+  seriesCodes?: [ string ](name='seriesCodes', description='The primary edition of the instance.
+
+Valid values:
+
+*   standard: Standard Edition
+*   ultimate: Enterprise Platinum Edition
+*   professional: Professional Edition'),
   tags?: string(name='tags', description='The tags that are used to filter instances.', example='[{"key": "rmq-test", "value": "test"}]'),
 }
 
 model ListInstancesShrinkRequest {
   filter?: string(name='filter', description='The filter condition that is used to query instances. If you do not configure this parameter, all instances are queried.', example='rmq-cn-7e22ody****'),
-  pageNumber?: int32(name='pageNumber', description='The number of the page to return.
+  pageNumber?: int32(name='pageNumber', description='The page number.
 
 Valid values: 1 to 100000000.
 
-If the value that you specify for this parameter is less than 1, the system uses 1 as the value. If the value that you specify for this parameter is greater than 100000000, the system uses 100000000 as the value.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries returned on each page.
+If you set this parameter to a value smaller than 1, the system uses 1 as the value. If you set this parameter to a value greater than 100000000, the system uses 100000000 as the value.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.
 
-Valid values: 10 to 200.
+Value values: 10 to 200.
 
-If the value that you specify for this parameter is less than 10, the system uses 10 as the value. If the value that you specify for this parameter is greater than 200, the system uses 200 as the value.', example='10'),
+If you set this parameter to a value smaller than 10, the system uses 10 as the value. If you set this parameter to a value greater than 200, the system uses 200 as the value.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmx7caj******'),
-  seriesCodesShrink?: string(name='seriesCodes'),
+  seriesCodesShrink?: string(name='seriesCodes', description='The primary edition of the instance.
+
+Valid values:
+
+*   standard: Standard Edition
+*   ultimate: Enterprise Platinum Edition
+*   professional: Professional Edition'),
   tags?: string(name='tags', description='The tags that are used to filter instances.', example='[{"key": "rmq-test", "value": "test"}]'),
 }
 
@@ -1628,7 +2897,7 @@ model ListInstancesResponseBody = {
     list?: [ 
       {
         commodityCode?: string(name='commodityCode', description='The commodity code of the instance. The commodity code of ApsaraMQ for RocketMQ 5.0 instances has a similar format to ons_rmqsub_public_cn.', example='ons_rmqsub_public_cn'),
-        createTime?: string(name='createTime', description='The time when the instance was created.', example='2022-08-01 00:00:00'),
+        createTime?: string(name='createTime', description='The time when the version of the instance was updated.', example='2022-08-01 00:00:00'),
         expireTime?: string(name='expireTime', description='The time when the instance expires.', example='2022-09-01 00:00:00'),
         groupCount?: long(name='groupCount', description='The number of consumer groups that are created on the instance.', example='10'),
         instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
@@ -1640,8 +2909,13 @@ Valid values:
 *   PayAsYouGo
 *   Subscription', example='Subscription'),
         productInfo?: {
-          traceOn?: boolean(name='traceOn', description='Whether to enable tracking capability. Non-serverless instances are enabled by default, and serverless instances are optional for users.', example='true'),
-        }(name='productInfo', description='The product information of instance.'),
+          traceOn?: boolean(name='traceOn', description='Indicates whether the message trace feature is enabled. Valid values:
+
+*   true
+*   false
+
+This parameter is not in use. By default, the message trace feature is enabled for ApsaraMQ for RocketMQ instances, regardless of whether this parameter is configured.', example='true'),
+        }(name='productInfo', description='The product information.'),
         regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
         releaseTime?: string(name='releaseTime', description='The time when the instance was released.', example='2022-09-07 00:00:00'),
         remark?: string(name='remark', description='The instance description.', example='This is remark for instance.'),
@@ -1654,7 +2928,7 @@ Valid values:
 *   ultimate: Enterprise Platinum Edition
 *   professional: Professional Edition', example='standard'),
         serviceCode?: string(name='serviceCode', description='The code of the service to which the instance belongs. The service code of ApsaraMQ for RocketMQ is rmq.', example='rmq'),
-        startTime?: string(name='startTime', description='The time when the instance was started.', example='2022-08-01 00:00:00'),
+        startTime?: string(name='startTime', description='The time when the instance was created.', example='2022-08-01 00:00:00'),
         status?: string(name='status', description='The instance status.
 
 Valid values:
@@ -1680,7 +2954,7 @@ Valid values:
         updateTime?: string(name='updateTime', description='The time when the instance was last modified.', example='2022-08-02 00:00:00'),
         userId?: string(name='userId', description='The ID of the user who owns the instance.', example='6W0xz2uPfiwp****'),
       }
-    ](name='list', description='The paginated data.'),
+    ](name='list', description='The pagination information.'),
     pageNumber?: long(name='pageNumber', description='The page number of the returned page.', example='1'),
     pageSize?: long(name='pageSize', description='The number of entries returned on each page.', example='10'),
     totalCount?: long(name='totalCount', description='The total number of returned entries.', example='100'),
@@ -1700,7 +2974,7 @@ model ListInstancesResponse = {
 }
 
 /**
- * @summary Queries instances.
+ * @summary Queries all ApsaraMQ for RocketMQ instances in a specific region.
  *
  * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
  *
@@ -1755,7 +3029,7 @@ async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: m
 }
 
 /**
- * @summary Queries instances.
+ * @summary Queries all ApsaraMQ for RocketMQ instances in a specific region.
  *
  * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
  *
@@ -1768,30 +3042,144 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
   return listInstancesWithOptions(request, headers, runtime);
 }
 
-model ListRegionsResponseBody = {
-  code?: string(name='code', example='MissingPageNumber'),
-  data?: [ 
-    {
-      createTime?: string(name='createTime', example='2022-08-01 20:05:50'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      regionName?: string(name='regionName'),
-      supportRocketmqV4?: boolean(name='supportRocketmqV4', example='true'),
-      supportRocketmqV5?: boolean(name='supportRocketmqV5', example='true'),
-      tags?: [ 
-        {
-          tagCode?: string(name='tagCode', example='xx'),
-          tagValue?: any(name='tagValue', example='xx'),
-        }
-      ](name='tags'),
-      updateTime?: string(name='updateTime', example='2022-08-01 20:05:50'),
-    }
-  ](name='data'),
-  dynamicCode?: string(name='dynamicCode', example='ConsumerGroupId'),
+model ListMessagesRequest {
+  endTime?: string(name='endTime'),
+  messageId?: string(name='messageId', example='7F00000100207A4F0F294A938F7807AE'),
+  messageKey?: string(name='messageKey', example='XSCBillResult'),
+  pageNumber?: int32(name='pageNumber'),
+  pageSize?: int32(name='pageSize'),
+  scrollId?: string(name='scrollId'),
+  startTime?: string(name='startTime'),
+}
+
+model ListMessagesResponseBody = {
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: {
+    list?: [ 
+      {
+        body?: string(name='body', example='{}'),
+        bodySize?: int32(name='bodySize', example='100'),
+        bornHost?: string(name='bornHost', example='xx.xx.xx.xx'),
+        bornTime?: string(name='bornTime', example='2023-03-22 12:17:08'),
+        instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+        messageGroup?: string(name='messageGroup', example='xx'),
+        messageId?: string(name='messageId', example='7F000001000114B4340C5ABF94500079'),
+        messageKeys?: [ string ](name='messageKeys'),
+        messageTag?: string(name='messageTag', example='xx'),
+        messageType?: string(name='messageType', example='NORMAL'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
+        storeHost?: string(name='storeHost', example='xx.xx.xx.xx'),
+        storeTime?: string(name='storeTime', example='2023-03-22 12:17:08'),
+        topicName?: string(name='topicName', example='topic_test'),
+        userProperties?: map[string]string(name='userProperties'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='50'),
+    scrollId?: string(name='scrollId'),
+    totalCount?: long(name='totalCount', example='0'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
   dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
   httpStatusCode?: int32(name='httpStatusCode', example='200'),
   message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
-  requestId?: string(name='requestId', example='0B962390-D84B-5D44-8C11-79DF40299D41'),
+  requestId?: string(name='requestId', example='A3531B6A-5A88-52BD-B3C4-A024C3D0AA2E'),
   success?: boolean(name='success', example='true'),
+}
+
+model ListMessagesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMessagesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询消息列表
+ *
+ * @param request ListMessagesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMessagesResponse
+ */
+async function listMessagesWithOptions(instanceId: string, topicName: string, request: ListMessagesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMessagesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.messageId)) {
+    query['messageId'] = request.messageId;
+  }
+  if (!Util.isUnset(request.messageKey)) {
+    query['messageKey'] = request.messageKey;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.scrollId)) {
+    query['scrollId'] = request.scrollId;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMessages',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/messages`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询消息列表
+ *
+ * @param request ListMessagesRequest
+ * @return ListMessagesResponse
+ */
+async function listMessages(instanceId: string, topicName: string, request: ListMessagesRequest): ListMessagesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMessagesWithOptions(instanceId, topicName, request, headers, runtime);
+}
+
+model ListRegionsResponseBody = {
+  code?: string(name='code', description='The error code.', example='MissingPageNumber'),
+  data?: [ 
+    {
+      createTime?: string(name='createTime', description='The time when the ApsaraMQ for RocketMQ instance was created.', example='2022-08-01 20:05:50'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      regionName?: string(name='regionName', description='The region name.', example='hangzhou'),
+      supportRocketmqV4?: boolean(name='supportRocketmqV4', description='Indicates whether ApsaraMQ for RocketMQ V4 is activated.', example='true'),
+      supportRocketmqV5?: boolean(name='supportRocketmqV5', description='Indicates whether ApsaraMQ for RocketMQ V5 is activated.', example='true'),
+      tags?: [ 
+        {
+          tagCode?: string(name='tagCode', description='The tag code.', example='xx'),
+          tagValue?: any(name='tagValue', description='The tag value.', example='xx'),
+        }
+      ](name='tags', description='The region tags.'),
+      updateTime?: string(name='updateTime', description='The time when the ApsaraMQ for RocketMQ instance was last modified.', example='2022-08-01 20:05:50'),
+    }
+  ](name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='ConsumerGroupId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B962390-D84B-5D44-8C11-79DF40299D41'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListRegionsResponse = {
@@ -1801,7 +3189,7 @@ model ListRegionsResponse = {
 }
 
 /**
- * @summary 查询region列表
+ * @summary Queries regions in which ApsaraMQ for RocketMQ is available.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1826,7 +3214,7 @@ async function listRegionsWithOptions(headers: map[string]string, runtime: Util.
 }
 
 /**
- * @summary 查询region列表
+ * @summary Queries regions in which ApsaraMQ for RocketMQ is available.
  *
  * @return ListRegionsResponse
  */
@@ -1836,25 +3224,128 @@ async function listRegions(): ListRegionsResponse {
   return listRegionsWithOptions(headers, runtime);
 }
 
-model ListTopicSubscriptionsResponseBody = {
-  code?: string(name='code', example='MissingInstanceId'),
-  data?: [ 
-    {
-      consistency?: string(name='consistency'),
-      consumerGroupId?: string(name='consumerGroupId', example='CID-TEST'),
-      filterExpression?: string(name='filterExpression', example='*'),
-      filterExpressionType?: string(name='filterExpressionType', example='SQL'),
-      messageModel?: string(name='messageModel', example='BROADCASTING'),
-      subscriptionStatus?: string(name='subscriptionStatus', example='ONLINE'),
-      topicName?: string(name='topicName', example='topic_test'),
-    }
-  ](name='data'),
-  dynamicCode?: string(name='dynamicCode', example='Topic'),
+model ListTagResourcesRequest {
+  nextToken?: string(name='nextToken', example='d09e2b63e1b12d905b7080ff70'),
+  regionId?: string(name='regionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='resourceGroupId'),
+  resourceId?: string(name='resourceId', example='rmq-cn-lbj34bb2r0i'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='instance'),
+  tag?: string(name='tag', example='[{"key": "rmq-test", "value": "test"}]'),
+}
+
+model ListTagResourcesResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    nextToken?: string(name='nextToken', example='d09e2b63e1b12d905b7080ff70'),
+    requestId?: string(name='requestId', example='F00C6A70-C782-5DD6-9D11-0CFC710100C7'),
+    tagResources?: [ 
+      {
+        aliUid?: long(name='aliUid', example='1876441048322426'),
+        category?: string(name='category', example='custom'),
+        resourceId?: string(name='resourceId', example='rmq-cn-pe334n08h08'),
+        resourceType?: string(name='resourceType', example='instance'),
+        scope?: string(name='scope', example='public'),
+        tagKey?: string(name='tagKey', example='key'),
+        tagValue?: string(name='tagValue', example='value'),
+      }
+    ](name='tagResources'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
   dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
   httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The instance cannot be found.'),
-  requestId?: string(name='requestId', example='92A9BE4E-B794-50C8-979C-0456E4D32943'),
+  message?: string(name='message', example='The topic already exists.'),
+  requestId?: string(name='requestId', example='F00C6A70-C782-5DD6-9D11-0CFC710100C7'),
   success?: boolean(name='success', example='true'),
+}
+
+model ListTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询可见的资源标签关系
+ *
+ * @param request ListTagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTagResourcesResponse
+ */
+async function listTagResourcesWithOptions(request: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['resourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['tag'] = request.tag;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTagResources',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/resourceTag/list`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询可见的资源标签关系
+ *
+ * @param request ListTagResourcesRequest
+ * @return ListTagResourcesResponse
+ */
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTagResourcesWithOptions(request, headers, runtime);
+}
+
+model ListTopicSubscriptionsResponseBody = {
+  code?: string(name='code', description='The error code.', example='MissingInstanceId'),
+  data?: [ 
+    {
+      consistency?: string(name='consistency', description='Indicates whether message consumption is consistent. Valid values:
+
+*   false: Unconsumed messages exist in the consumer group.
+*   true: No unconsumed message exists in the consumer group.', example='true'),
+      consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='CID-TEST'),
+      filterExpression?: string(name='filterExpression', description='The filter expression.', example='*'),
+      filterExpressionType?: string(name='filterExpressionType', description='The type of the filter expression. Valid values: SQL, TAG, and UNSPECIFIED. The value SQL indicates that messages are filtered by using SQL expressions. The value TAG indicates that messages are filtered by using tags. The value UNSPECIFIED indicates that no filter expression type is specified.', example='SQL'),
+      messageModel?: string(name='messageModel', description='The consumption mode. Valid values: BROADCASTING and CLUSTERING.', example='BROADCASTING'),
+      subscriptionStatus?: string(name='subscriptionStatus', description='The subscription status. Valid values: ONLINE and OFFLINE.', example='ONLINE'),
+      topicName?: string(name='topicName', description='The topic name.', example='topic_test'),
+    }
+  ](name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='Topic'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', description='The request ID.', example='92A9BE4E-B794-50C8-979C-0456E4D32943'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListTopicSubscriptionsResponse = {
@@ -1864,7 +3355,7 @@ model ListTopicSubscriptionsResponse = {
 }
 
 /**
- * @summary 查询主题订阅关系列表
+ * @summary Queries the subscriptions of a specific topic.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1889,7 +3380,7 @@ async function listTopicSubscriptionsWithOptions(instanceId: string, topicName: 
 }
 
 /**
- * @summary 查询主题订阅关系列表
+ * @summary Queries the subscriptions of a specific topic.
  *
  * @return ListTopicSubscriptionsResponse
  */
@@ -2085,6 +3576,111 @@ async function listTopics(instanceId: string, request: ListTopicsRequest): ListT
   return listTopicsWithOptions(instanceId, request, headers, runtime);
 }
 
+model ListTracesRequest {
+  endTime?: string(name='endTime', example='2023-05-19 10:10:09'),
+  messageId?: string(name='messageId', example='0100163E0EC1F1965C04C7906700000000'),
+  messageKey?: string(name='messageKey', example='order_ceating'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  queryType?: string(name='queryType', example='MESSAGE_ID'),
+  startTime?: string(name='startTime', example='2023-05-10 10:42:11'),
+}
+
+model ListTracesResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    list?: [ 
+      {
+        bornTime?: string(name='bornTime', example='2023-03-22 12:17:08'),
+        instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
+        messageId?: string(name='messageId', example='7F00000100207A4F0F294A938F7807AE'),
+        messageKeys?: [ string ](name='messageKeys'),
+        messageTag?: string(name='messageTag', example='xx'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
+        topicName?: string(name='topicName', example='topic_test'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='10'),
+    totalCount?: long(name='totalCount', example='1'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', description='Id of the request', example='EDFF77E1-1ED1-5389-B6A8-651D9433BBE5'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListTracesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTracesResponseBody(name='body'),
+}
+
+/**
+ * @summary 轨迹消息列表
+ *
+ * @param request ListTracesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTracesResponse
+ */
+async function listTracesWithOptions(instanceId: string, topicName: string, request: ListTracesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTracesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.messageId)) {
+    query['messageId'] = request.messageId;
+  }
+  if (!Util.isUnset(request.messageKey)) {
+    query['messageKey'] = request.messageKey;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.queryType)) {
+    query['queryType'] = request.queryType;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTraces',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/traces`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 轨迹消息列表
+ *
+ * @param request ListTracesRequest
+ * @return ListTracesResponse
+ */
+async function listTraces(instanceId: string, topicName: string, request: ListTracesRequest): ListTracesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTracesWithOptions(instanceId, topicName, request, headers, runtime);
+}
+
 model ResetConsumeOffsetRequest {
   resetTime?: string(name='resetTime', description='The time when the consumer offset is reset.', example='2023-03-22 12:17:08'),
   resetType?: string(name='resetType', description='The method that is used to reset the consumer offset. Valid values: LATEST_OFFSET and SPECIFIED_TIME.', example='LATEST_OFFSET'),
@@ -2152,6 +3748,166 @@ async function resetConsumeOffset(instanceId: string, consumerGroupId: string, t
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return resetConsumeOffsetWithOptions(instanceId, consumerGroupId, topicName, request, headers, runtime);
+}
+
+model TagResourcesRequest {
+  regionId?: string(name='regionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceId?: string(name='resourceId', description='This parameter is required.', example='rmq-cn-pe3355cs707'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='instance'),
+  tag?: string(name='tag', description='This parameter is required.', example='[{"key": "rmq-test", "value": "test"}]'),
+}
+
+model TagResourcesResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='0B962390-D84B-5D44-8C11-79DF40299D41'),
+  success?: boolean(name='success', example='true'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 用户创建标签资源关系（用户标签）
+ *
+ * @param request TagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TagResourcesResponse
+ */
+async function tagResourcesWithOptions(request: TagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TagResourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['resourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['tag'] = request.tag;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'TagResources',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/resourceTag/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用户创建标签资源关系（用户标签）
+ *
+ * @param request TagResourcesRequest
+ * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return tagResourcesWithOptions(request, headers, runtime);
+}
+
+model UntagResourcesRequest {
+  all?: boolean(name='all', example='true'),
+  regionId?: string(name='regionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceId?: string(name='resourceId', description='This parameter is required.', example='rmq-cn-pe3355cs707'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='instance'),
+  tagKey?: string(name='tagKey', example='["key1", "key2"]'),
+}
+
+model UntagResourcesResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter deliveryOrderType is invalid.'),
+  requestId?: string(name='requestId', example='A07B41BD-6DD3-5349-9E76-00303DF04BBE'),
+  success?: boolean(name='success', example='true'),
+}
+
+model UntagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UntagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 用户删除标签资源关系
+ *
+ * @param request UntagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UntagResourcesResponse
+ */
+async function untagResourcesWithOptions(request: UntagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UntagResourcesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.all)) {
+    query['all'] = request.all;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['resourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['resourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tagKey)) {
+    query['tagKey'] = request.tagKey;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UntagResources',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/resourceTag/delete`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用户删除标签资源关系
+ *
+ * @param request UntagResourcesRequest
+ * @return UntagResourcesResponse
+ */
+async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return untagResourcesWithOptions(request, headers, runtime);
 }
 
 model UpdateConsumerGroupRequest {
@@ -2261,7 +4017,7 @@ model UpdateInstanceRequest {
 Indicates whether the authentication-free in VPCs feature is enabled.
 Valid values:
 - true
-- false'),
+- false', example='false'),
   }(name='aclInfo', description='The access control list for the instance.'),
   instanceName?: string(name='instanceName', description='The updated name of the instance.', example='test_instance'),
   networkInfo?: {
@@ -2379,6 +4135,160 @@ async function updateInstance(instanceId: string, request: UpdateInstanceRequest
   return updateInstanceWithOptions(instanceId, request, headers, runtime);
 }
 
+model UpdateInstanceAccountRequest {
+  accountStatus?: string(name='accountStatus', example='ENABLE'),
+  password?: string(name='password', example='test'),
+}
+
+model UpdateInstanceAccountResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='Instance.NotFound'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', example='true'),
+}
+
+model UpdateInstanceAccountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInstanceAccountResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改访问控制acl用户
+ *
+ * @param request UpdateInstanceAccountRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstanceAccountResponse
+ */
+async function updateInstanceAccountWithOptions(instanceId: string, username: string, request: UpdateInstanceAccountRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceAccountResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.accountStatus)) {
+    query['accountStatus'] = request.accountStatus;
+  }
+  if (!Util.isUnset(request.password)) {
+    query['password'] = request.password;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateInstanceAccount',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/accounts/${OpenApiUtil.getEncodeParam(username)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改访问控制acl用户
+ *
+ * @param request UpdateInstanceAccountRequest
+ * @return UpdateInstanceAccountResponse
+ */
+async function updateInstanceAccount(instanceId: string, username: string, request: UpdateInstanceAccountRequest): UpdateInstanceAccountResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceAccountWithOptions(instanceId, username, request, headers, runtime);
+}
+
+model UpdateInstanceAclRequest {
+  actions?: string(name='actions', example='Pub'),
+  decision?: string(name='decision', example='Allow'),
+  ipWhitelists?: [ string ](name='ipWhitelists'),
+  resourceName?: string(name='resourceName', description='This parameter is required.', example='test'),
+  resourceType?: string(name='resourceType', description='This parameter is required.', example='Topic'),
+}
+
+model UpdateInstanceAclResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail', example='xxx'),
+  code?: string(name='code', example='MissingInstanceId'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='C115601B-8736-5BBF-AC99-7FEAE1245A80'),
+  success?: boolean(name='success', example='true'),
+}
+
+model UpdateInstanceAclResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInstanceAclResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除访问控制acl数据
+ *
+ * @param request UpdateInstanceAclRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstanceAclResponse
+ */
+async function updateInstanceAclWithOptions(instanceId: string, username: string, request: UpdateInstanceAclRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceAclResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.actions)) {
+    body['actions'] = request.actions;
+  }
+  if (!Util.isUnset(request.decision)) {
+    body['decision'] = request.decision;
+  }
+  if (!Util.isUnset(request.ipWhitelists)) {
+    body['ipWhitelists'] = request.ipWhitelists;
+  }
+  if (!Util.isUnset(request.resourceName)) {
+    body['resourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    body['resourceType'] = request.resourceType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateInstanceAcl',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/acl/account/${OpenApiUtil.getEncodeParam(username)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除访问控制acl数据
+ *
+ * @param request UpdateInstanceAclRequest
+ * @return UpdateInstanceAclResponse
+ */
+async function updateInstanceAcl(instanceId: string, username: string, request: UpdateInstanceAclRequest): UpdateInstanceAclResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceAclWithOptions(instanceId, username, request, headers, runtime);
+}
+
 model UpdateTopicRequest {
   remark?: string(name='remark', description='The new remarks on the topic.', example='This is the remark for test.'),
 }
@@ -2443,5 +4353,149 @@ async function updateTopic(instanceId: string, topicName: string, request: Updat
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateTopicWithOptions(instanceId, topicName, request, headers, runtime);
+}
+
+model VerifyConsumeMessageRequest {
+  clientId?: string(name='clientId', description='This parameter is required.', example='zeekr-settlement-server-dc555456f-v2lcg@1@1@qfvorazqns'),
+  consumerGroupId?: string(name='consumerGroupId', description='This parameter is required.', example='TEST_FINANCE_STOCK_OUT_GROUP'),
+}
+
+model VerifyConsumeMessageResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: boolean(name='data', example='true'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', example='5304143F-AB0E-5AB4-A227-7C5489216FD5'),
+  success?: boolean(name='success', example='true'),
+}
+
+model VerifyConsumeMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: VerifyConsumeMessageResponseBody(name='body'),
+}
+
+/**
+ * @summary 消费验证
+ *
+ * @param request VerifyConsumeMessageRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return VerifyConsumeMessageResponse
+ */
+async function verifyConsumeMessageWithOptions(instanceId: string, topicName: string, messageId: string, request: VerifyConsumeMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): VerifyConsumeMessageResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientId)) {
+    query['clientId'] = request.clientId;
+  }
+  if (!Util.isUnset(request.consumerGroupId)) {
+    query['consumerGroupId'] = request.consumerGroupId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'VerifyConsumeMessage',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/messages/${OpenApiUtil.getEncodeParam(messageId)}/action/verifyConsume`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 消费验证
+ *
+ * @param request VerifyConsumeMessageRequest
+ * @return VerifyConsumeMessageResponse
+ */
+async function verifyConsumeMessage(instanceId: string, topicName: string, messageId: string, request: VerifyConsumeMessageRequest): VerifyConsumeMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return verifyConsumeMessageWithOptions(instanceId, topicName, messageId, request, headers, runtime);
+}
+
+model VerifySendMessageRequest {
+  message?: string(name='message', example='successful'),
+  messageKey?: string(name='messageKey', example='xx'),
+  messageTag?: string(name='messageTag', example='xx'),
+}
+
+model VerifySendMessageResponseBody = {
+  code?: string(name='code', example='InvalidConsumerGroupId'),
+  data?: string(name='data', example='0A64228900207A4F0F2931A4E0D40BE5'),
+  dynamicCode?: string(name='dynamicCode', example='ConsumerGroupId'),
+  dynamicMessage?: string(name='dynamicMessage', example='consumerGroupId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', example='3BD2C19B-66DE-59C7-B2F6-FD1BE21DC8C1'),
+  success?: boolean(name='success', example='true'),
+}
+
+model VerifySendMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: VerifySendMessageResponseBody(name='body'),
+}
+
+/**
+ * @summary 发送消息
+ *
+ * @param request VerifySendMessageRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return VerifySendMessageResponse
+ */
+async function verifySendMessageWithOptions(instanceId: string, topicName: string, request: VerifySendMessageRequest, headers: map[string]string, runtime: Util.RuntimeOptions): VerifySendMessageResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.message)) {
+    body['message'] = request.message;
+  }
+  if (!Util.isUnset(request.messageKey)) {
+    body['messageKey'] = request.messageKey;
+  }
+  if (!Util.isUnset(request.messageTag)) {
+    body['messageTag'] = request.messageTag;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'VerifySendMessage',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/instances/${OpenApiUtil.getEncodeParam(instanceId)}/topics/${OpenApiUtil.getEncodeParam(topicName)}/messages`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发送消息
+ *
+ * @param request VerifySendMessageRequest
+ * @return VerifySendMessageResponse
+ */
+async function verifySendMessage(instanceId: string, topicName: string, request: VerifySendMessageRequest): VerifySendMessageResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return verifySendMessageWithOptions(instanceId, topicName, request, headers, runtime);
 }
 
