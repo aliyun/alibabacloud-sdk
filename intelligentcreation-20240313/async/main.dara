@@ -158,6 +158,7 @@ model TextTaskCreateCmd {
   point?: string(name='point', example='超强续航'),
   referenceTag?: ReferenceTag(name='referenceTag'),
   relatedRagIds?: [ long ](name='relatedRagIds', example='1'),
+  streamApi?: boolean(name='streamApi', example='true'),
   style: string(name='style'),
   target?: string(name='target'),
   textModeType: string(name='textModeType'),
@@ -192,6 +193,7 @@ model UploadInfo {
 
 model VoiceModelResponse {
   resourceTypeDesc?: string(name='resourceTypeDesc'),
+  ttsVersion?: int32(name='ttsVersion'),
   useScene?: string(name='useScene'),
   voiceDesc?: string(name='voiceDesc'),
   voiceGender?: string(name='voiceGender'),
@@ -317,6 +319,39 @@ model CreateIllustrationTaskResponse = {
 async function createIllustrationTask(request: CreateIllustrationTaskRequest): CreateIllustrationTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateIllustrationTask', 'POST', '/yic/yic-console/openService/v1/texts/{textId}/illustrationTasks', 'json', false, 'json', request);
+}
+
+model CreateRealisticPortraitRequest {
+  ages?: [ int32 ](name='ages', position='Body'),
+  cloth?: int32(name='cloth', example='1', position='Body'),
+  color?: int32(name='color', example='1', position='Body'),
+  custom?: string(name='custom', example='11', position='Body'),
+  face?: [ int32 ](name='face', position='Body'),
+  figure?: int32(name='figure', example='1', position='Body'),
+  gender?: int32(name='gender', example='1', position='Body'),
+  hairColor?: int32(name='hairColor', example='1', position='Body'),
+  hairstyle?: int32(name='hairstyle', example='1', position='Body'),
+  height?: int32(name='height', example='500', position='Body'),
+  imageUrl?: string(name='imageUrl', position='Body'),
+  numbers?: int32(name='numbers', example='4', position='Body'),
+  ratio?: string(name='ratio', example='1:1', position='Body'),
+  width?: int32(name='width', example='500', position='Body'),
+}
+
+model CreateRealisticPortraitResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='D5798660-1531-5D12-9C20-16FEE9D22351'),
+  taskId?: string(name='taskId', example='313123123'),
+}
+
+model CreateRealisticPortraitResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRealisticPortraitResponseBody(name='body'),
+}
+
+async function createRealisticPortrait(request: CreateRealisticPortraitRequest): CreateRealisticPortraitResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateRealisticPortrait', 'POST', '/yic/yic-console/openService/v1/images/portrait/realistic', 'json', false, 'json', request);
 }
 
 model CreateTextTaskRequest {
@@ -620,6 +655,69 @@ async function queryAvatarResource(request: QueryAvatarResourceRequest): QueryAv
   return @handler.do('RESTFUL', 'QueryAvatarResource', 'GET', '/yic/yic-console/openService/v1/avatar/project/queryResource', 'json', false, 'json', request);
 }
 
+model QueryTextStreamRequest {
+  textId?: long(name='textId', example='70305', position='Path'),
+}
+
+model QueryTextStreamResponseBody = {
+  end?: boolean(name='end', example='false'),
+  index?: int32(name='index', example='1'),
+  message?: string(name='message', description='Id of the request', example='None'),
+  type?: int32(name='type', example='1'),
+}
+
+model QueryTextStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: QueryTextStreamResponseBody(name='body'),
+}
+
+async function queryTextStream(request: QueryTextStreamRequest): QueryTextStreamResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'QueryTextStream', 'GET', '/yic/yic-console/openService/v1/stream/queryTextStream/{textId}', 'json', false, 'json', request);
+}
+
+function queryTextStreamWithResponseIterable(request: QueryTextStreamRequest): iterator[QueryTextStreamResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'QueryTextStream', 'GET', '/yic/yic-console/openService/v1/stream/queryTextStream/{textId}', 'json', false, 'json', request);
+}
+
+model SelectImageTaskRequest {
+  taskId?: string(name='taskId', example='313123123', position='Path'),
+}
+
+model SelectImageTaskResponseBody = {
+  errorMessage?: string(name='errorMessage', example='Failed to proxy flink ui request, message: An error occurred: Invalid UUID string: jobsn'),
+  failed?: string(name='failed', example='1'),
+  generationSource?: string(name='generationSource', example='PLATFORM'),
+  gmtCreate?: string(name='gmtCreate', example='1'),
+  imageInfos?: [ 
+    {
+      customImageUrl?: string(name='customImageUrl', example='www.ali.com'),
+      gmtCreate?: string(name='gmtCreate', example='1'),
+      imageH?: string(name='imageH', example='500'),
+      imageW?: string(name='imageW', example='500'),
+    }
+  ](name='imageInfos'),
+  requestId?: string(name='requestId', description='Id of the request', example='0E8B1746-AE35-5C4B-A3A8-345B274AE32C'),
+  scene?: string(name='scene', example='1'),
+  status?: string(name='status', example='Successed'),
+  subtaskProcessing?: string(name='subtaskProcessing', example='1'),
+  success?: string(name='success', example='1'),
+  total?: string(name='total', example='10'),
+}
+
+model SelectImageTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SelectImageTaskResponseBody(name='body'),
+}
+
+async function selectImageTask(request: SelectImageTaskRequest): SelectImageTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SelectImageTask', 'GET', '/yic/yic-console/openService/v1/images/portrait/select/{taskId}', 'json', false, 'json', request);
+}
+
 model SelectResourceRequest {
   idempotentId?: string(name='idempotentId', example='1111', position='Query'),
 }
@@ -681,6 +779,8 @@ model StartAvatarSessionResponseBody = {
   channelToken?: string(name='channelToken'),
   requestId?: string(name='requestId', example='0E8B1746-AE35-5C4B-A3A8-345B274AE32C'),
   sessionId?: string(name='sessionId', example='121dlsga4o7golrl1hoja'),
+  token?: string(name='token'),
+  webSocketUrl?: string(name='webSocketUrl'),
 }
 
 model StartAvatarSessionResponse = {
@@ -747,6 +847,7 @@ model SubmitProjectTaskRequest {
             format?: string(name='format', example='video/mp4'),
             id?: string(name='id', example='38863'),
             url?: string(name='url', example='https://meeting.dingtalk.com/j/1COFppy0POR'),
+            volume?: int32(name='volume'),
           }(name='material'),
           positionX?: int32(name='positionX', example='11'),
           positionY?: int32(name='positionY', example='22'),
@@ -795,5 +896,30 @@ model SubmitProjectTaskResponse = {
 async function submitProjectTask(request: SubmitProjectTaskRequest): SubmitProjectTaskResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'SubmitProjectTask', 'POST', '/yic/yic-console/openService/v1/digitalHuman/project/submitProjectTask', 'json', false, 'json', request);
+}
+
+model TransferPortraitStyleRequest {
+  height?: int32(name='height', example='500', position='Body'),
+  imageUrl?: string(name='imageUrl', example='WWW', position='Body'),
+  numbers?: int32(name='numbers', example='4', position='Body'),
+  redrawAmplitude?: int32(name='redrawAmplitude', example='1', position='Body'),
+  style?: int32(name='style', example='1', position='Body'),
+  width?: int32(name='width', example='500', position='Body'),
+}
+
+model TransferPortraitStyleResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='725E87CD-F2DE-5FC4-8A09-2EBDFBF26DAA'),
+  taskId?: string(name='taskId', example='313123123'),
+}
+
+model TransferPortraitStyleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TransferPortraitStyleResponseBody(name='body'),
+}
+
+async function transferPortraitStyle(request: TransferPortraitStyleRequest): TransferPortraitStyleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'TransferPortraitStyle', 'POST', '/yic/yic-console/openService/v1/images/portrait/transferPortraitStyle', 'json', false, 'json', request);
 }
 
