@@ -426,6 +426,100 @@ async function createCluster(request: CreateClusterRequest): CreateClusterRespon
   return createClusterWithOptions(request, runtime);
 }
 
+model CreateJobRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-FYUr32****'),
+  jobName?: string(name='JobName', example='TestJob'),
+  jobSpec?: {
+    arrayRequest?: string(name='ArrayRequest', example='1-5:2'),
+    commandLine?: string(name='CommandLine', description='This parameter is required.', example='/home/xxx/test.job'),
+    jobQueue?: string(name='JobQueue', example='comp'),
+    postCmdLine?: string(name='PostCmdLine', example='/bin/sleep 10'),
+    priority?: string(name='Priority', example='1'),
+    resources?: {
+      cores?: int32(name='Cores', example='2'),
+      gpus?: int32(name='Gpus', example='1'),
+      memory?: string(name='Memory', example='4gb'),
+      nodes?: int32(name='Nodes', example='2'),
+    }(name='Resources'),
+    runasUser?: string(name='RunasUser', example='testuser'),
+    runasUserPassword?: string(name='RunasUserPassword', example='xxx'),
+    stderrPath?: string(name='StderrPath', example='/home/xxx/job.err'),
+    stdoutPath?: string(name='StdoutPath', example='/home/xxx/job.out'),
+    variables?: string(name='Variables', example='[{"Name":"x", "Value":"y"}]'),
+    wallTime?: string(name='WallTime', example='360:48:50'),
+  }(name='JobSpec'),
+}
+
+model CreateJobShrinkRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-FYUr32****'),
+  jobName?: string(name='JobName', example='TestJob'),
+  jobSpecShrink?: string(name='JobSpec'),
+}
+
+model CreateJobResponseBody = {
+  jobId?: string(name='JobId', example='Submitted batch job 10\\\\n'),
+  requestId?: string(name='RequestId', example='A0A38A38-1565-555E-B597-E48A2E******'),
+  success?: string(name='Success', example='true'),
+}
+
+model CreateJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建作业
+ *
+ * @param tmpReq CreateJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateJobResponse
+ */
+async function createJobWithOptions(tmpReq: CreateJobRequest, runtime: Util.RuntimeOptions): CreateJobResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateJobShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.jobSpec)) {
+    request.jobSpecShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobSpec, 'JobSpec', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobName)) {
+    query['JobName'] = request.jobName;
+  }
+  if (!Util.isUnset(request.jobSpecShrink)) {
+    query['JobSpec'] = request.jobSpecShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateJob',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建作业
+ *
+ * @param request CreateJobRequest
+ * @return CreateJobResponse
+ */
+async function createJob(request: CreateJobRequest): CreateJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createJobWithOptions(request, runtime);
+}
+
 model CreateNodesRequest {
   clusterId?: string(name='ClusterId', example='ehpc-hz-FYUr32****'),
   computeNode?: NodeTemplate(name='ComputeNode'),
@@ -1565,6 +1659,179 @@ async function getCommonLogDetail(request: GetCommonLogDetailRequest): GetCommon
   return getCommonLogDetailWithOptions(request, runtime);
 }
 
+model GetJobRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-FYUr32****'),
+  jobId?: string(name='JobId', description='This parameter is required.', example='1.manager'),
+}
+
+model GetJobResponseBody = {
+  jobInfo?: {
+    arrayJobId?: string(name='ArrayJobId', example='1'),
+    arrayJobSubId?: string(name='ArrayJobSubId', example='3'),
+    arrayRequest?: string(name='ArrayRequest', example='1-5:2'),
+    commandLine?: string(name='CommandLine', example='/home/huangsf/ehpc/job_meta.pbs'),
+    createTime?: string(name='CreateTime', example='2024-08-16T10:52:48'),
+    errorLog?: string(name='ErrorLog', example='/home/xxx/STDIN.e1'),
+    extraInfo?: string(name='ExtraInfo', example='{}'),
+    jobId?: string(name='JobId', example='1.manager'),
+    jobName?: string(name='JobName', example='testJob'),
+    jobQueue?: string(name='JobQueue', example='workq'),
+    lastModifyTime?: string(name='LastModifyTime', example='2024-08-16T10:52:48'),
+    nodeList?: string(name='NodeList', example='compute000'),
+    outputLog?: string(name='OutputLog', example='/home/xxx/STDIN.o1'),
+    priority?: string(name='Priority', example='0'),
+    resources?: {
+      cores?: string(name='Cores', example='2'),
+      gpus?: string(name='Gpus', example='1'),
+      memory?: string(name='Memory', example='1gb'),
+      nodes?: string(name='Nodes', example='1'),
+    }(name='Resources'),
+    resourcesUsed?: {
+      cores?: string(name='Cores', example='2'),
+      memory?: string(name='Memory', example='512mb'),
+      nodes?: string(name='Nodes', example='2'),
+    }(name='ResourcesUsed'),
+    runasUser?: string(name='RunasUser', example='testuser'),
+    startTime?: string(name='StartTime', example='2024-08-16T10:52:48'),
+    state?: string(name='State', example='Running'),
+    variables?: [ 
+      {
+        name?: string(name='Name', example='ProxyIP'),
+        value?: string(name='Value', example='10.x.x.x'),
+      }
+    ](name='Variables'),
+  }(name='JobInfo'),
+  requestId?: string(name='RequestId', example='04F0****-1335-****-A1D7-6C044FE7****'),
+  success?: string(name='Success', example='true'),
+}
+
+model GetJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取作业详情
+ *
+ * @param request GetJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetJobResponse
+ */
+async function getJobWithOptions(request: GetJobRequest, runtime: Util.RuntimeOptions): GetJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetJob',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取作业详情
+ *
+ * @param request GetJobRequest
+ * @return GetJobResponse
+ */
+async function getJob(request: GetJobRequest): GetJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobWithOptions(request, runtime);
+}
+
+model GetJobLogRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-jeJki6****'),
+  jobId?: string(name='JobId', description='This parameter is required.', example='1.manager'),
+  logType?: string(name='LogType', example='stdout'),
+  offset?: string(name='Offset', example='0'),
+  size?: string(name='Size', example='20480'),
+}
+
+model GetJobLogResponseBody = {
+  jobId?: string(name='JobId', example='1.manager'),
+  requestId?: string(name='RequestId', example='B745C159-3155-4B94-95D0-4B73D4D2****'),
+  stderrLog?: string(name='StderrLog', example='aG9zdG5hbWU='),
+  stderrLogSize?: string(name='StderrLogSize', example='0'),
+  stdoutLog?: string(name='StdoutLog', example='aG9zdG5hbWU='),
+  stdoutLogSize?: string(name='StdoutLogSize', example='4096'),
+  success?: string(name='Success', example='true'),
+}
+
+model GetJobLogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobLogResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取作业日志输出
+ *
+ * @param request GetJobLogRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetJobLogResponse
+ */
+async function getJobLogWithOptions(request: GetJobLogRequest, runtime: Util.RuntimeOptions): GetJobLogResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.logType)) {
+    query['LogType'] = request.logType;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['Offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.size)) {
+    query['Size'] = request.size;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetJobLog',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取作业日志输出
+ *
+ * @param request GetJobLogRequest
+ * @return GetJobLogResponse
+ */
+async function getJobLog(request: GetJobLogRequest): GetJobLogResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobLogWithOptions(request, runtime);
+}
+
 model GetQueueRequest {
   clusterId?: string(name='ClusterId', example='ehpc-hz-FYUr32****'),
   queueName?: string(name='QueueName', example='comp'),
@@ -2531,6 +2798,130 @@ async function listInstalledSoftwares(request: ListInstalledSoftwaresRequest): L
   return listInstalledSoftwaresWithOptions(request, runtime);
 }
 
+model ListJobsRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-csbua72***'),
+  jobFilter?: {
+    createTimeEnd?: string(name='CreateTimeEnd', example='1724123085'),
+    createTimeStart?: string(name='CreateTimeStart', example='1724122486'),
+    jobName?: string(name='JobName', example='testjob'),
+    jobStatus?: string(name='JobStatus', example='all'),
+    nodes?: [ string ](name='Nodes'),
+    queues?: [ string ](name='Queues'),
+    sortBy?: {
+      executeOrder?: string(name='ExecuteOrder', example='asc'),
+      pendOrder?: string(name='PendOrder', example='desc'),
+      submitOrder?: string(name='SubmitOrder', example='asc'),
+    }(name='SortBy'),
+    users?: [ string ](name='Users'),
+  }(name='JobFilter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+}
+
+model ListJobsShrinkRequest {
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='ehpc-hz-csbua72***'),
+  jobFilterShrink?: string(name='JobFilter'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+}
+
+model ListJobsResponseBody = {
+  jobs?: [ 
+    {
+      jobName?: string(name='JobName', example='testjob'),
+      jobSpec?: {
+        arrayJobId?: string(name='ArrayJobId'),
+        arrayJobSubId?: string(name='ArrayJobSubId'),
+        arrayRequest?: string(name='ArrayRequest', example='1-5:2'),
+        comment?: string(name='Comment', example='jobDescription'),
+        id?: string(name='Id', example='12'),
+        jobQueue?: string(name='JobQueue', example='comp'),
+        lastModifyTime?: string(name='LastModifyTime', example='1724123085'),
+        nodeList?: string(name='NodeList', example='compute[002,005,003]'),
+        priority?: string(name='Priority', example='0'),
+        resources?: {
+          cores?: string(name='Cores', example='6'),
+          gpus?: string(name='Gpus', example='0'),
+          memory?: string(name='Memory', example='1536MB'),
+          nodes?: string(name='Nodes', example='3'),
+        }(name='Resources'),
+        runasUser?: string(name='RunasUser', example='testuser1'),
+        state?: string(name='State', example='Running'),
+        stderrPath?: string(name='StderrPath', example='./Temp'),
+        stdoutPath?: string(name='StdoutPath', example='./Temp'),
+        submitTime?: string(name='SubmitTime', example='1724122486'),
+        variables?: string(name='Variables', example='{"PBS_O_SHELL":"/bin/bash", 	"PBS_O_HOST":"manager", 	"PBS_O_SYSTEM":"Linux", 	"PBS_O_LANG":"en_US.UTF-8", 	"PBS_O_QUEUE":"workq"}'),
+      }(name='JobSpec'),
+    }
+  ](name='Jobs'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='EABFBD93-58BE-53F3-BBFE-8654BB2E****'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='10'),
+}
+
+model ListJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询作业列表
+ *
+ * @param tmpReq ListJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListJobsResponse
+ */
+async function listJobsWithOptions(tmpReq: ListJobsRequest, runtime: Util.RuntimeOptions): ListJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.jobFilter)) {
+    request.jobFilterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobFilter, 'JobFilter', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobFilterShrink)) {
+    query['JobFilter'] = request.jobFilterShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListJobs',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询作业列表
+ *
+ * @param request ListJobsRequest
+ * @return ListJobsResponse
+ */
+async function listJobs(request: ListJobsRequest): ListJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listJobsWithOptions(request, runtime);
+}
+
 model ListNodesRequest {
   clusterId?: string(name='ClusterId', example='ehpc-hz-FYUr32****'),
   hostnames?: [ string ](name='Hostnames'),
@@ -2980,7 +3371,7 @@ Pages start from page 1.
 Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50.
 
-Default value: 10.', example='10'),
+Default value: 10', example='10'),
 }
 
 model ListUsersResponseBody = {
@@ -3047,6 +3438,87 @@ async function listUsersWithOptions(request: ListUsersRequest, runtime: Util.Run
 async function listUsers(request: ListUsersRequest): ListUsersResponse {
   var runtime = new Util.RuntimeOptions{};
   return listUsersWithOptions(request, runtime);
+}
+
+model StopJobsRequest {
+  clusterId?: string(name='ClusterId', description='The cluster ID.
+
+You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.html) operation to query the cluster ID.
+
+This parameter is required.', example='ehpc-hz-FYUr32****'),
+  jobIds?: [ string ](name='JobIds', description='The IDs of the jobs that you want to stop.'),
+}
+
+model StopJobsShrinkRequest {
+  clusterId?: string(name='ClusterId', description='The cluster ID.
+
+You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.html) operation to query the cluster ID.
+
+This parameter is required.', example='ehpc-hz-FYUr32****'),
+  jobIdsShrink?: string(name='JobIds', description='The IDs of the jobs that you want to stop.'),
+}
+
+model StopJobsResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='F8868A00-6757-5542-BDD6-E1040D94****'),
+  success?: string(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true: The request was successful.
+*   false: The request failed.', example='true'),
+}
+
+model StopJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopJobsResponseBody(name='body'),
+}
+
+/**
+ * @summary Stops jobs in a cluster.
+ *
+ * @param tmpReq StopJobsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopJobsResponse
+ */
+async function stopJobsWithOptions(tmpReq: StopJobsRequest, runtime: Util.RuntimeOptions): StopJobsResponse {
+  Util.validateModel(tmpReq);
+  var request = new StopJobsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.jobIds)) {
+    request.jobIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.jobIds, 'JobIds', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobIdsShrink)) {
+    query['JobIds'] = request.jobIdsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'StopJobs',
+    version = '2024-07-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stops jobs in a cluster.
+ *
+ * @param request StopJobsRequest
+ * @return StopJobsResponse
+ */
+async function stopJobs(request: StopJobsRequest): StopJobsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return stopJobsWithOptions(request, runtime);
 }
 
 model UnInstallAddonRequest {
