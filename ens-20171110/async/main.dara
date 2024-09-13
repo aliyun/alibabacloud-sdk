@@ -102,6 +102,15 @@ model SecurityGroupRule {
   priority?: int32(name='priority', minimum=1, maximum=100),
 }
 
+model TagsInParams {
+  tag?: [ 
+    {
+      key: string(name='Key', example='test-key'),
+      value?: string(name='Value', example='test-key-value'),
+    }
+  ](name='Tag'),
+}
+
 model TcpConfig {
   establishedTimeout?: int32(name='EstablishedTimeout', minimum=10, maximum=900),
   persistenceTimeout?: int32(name='PersistenceTimeout', minimum=0, maximum=3600),
@@ -269,7 +278,7 @@ async function addNetworkInterfaceToInstance(request: AddNetworkInterfaceToInsta
 
 model AddSnatIpForSnatEntryRequest {
   snatEntryId: string(name='SnatEntryId', description='The ID of the SNAT entry.', example='snat-5xkzf89dndkzh8yg9stzqz9m4', position='Query'),
-  snatIp: string(name='SnatIp', description='The EIP that you want to add to the SNAT entry.', example='219.152.82.144', position='Query'),
+  snatIp: string(name='SnatIp', description='The EIP specified in the SNAT entry.', example='219.152.82.144', position='Query'),
 }
 
 model AddSnatIpForSnatEntryResponseBody = {
@@ -342,6 +351,27 @@ model AssociateEnsEipAddressResponse = {
 async function associateEnsEipAddress(request: AssociateEnsEipAddressRequest): AssociateEnsEipAddressResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'AssociateEnsEipAddress', 'POST', '/', 'json', false, 'json', request);
+}
+
+model AssociateHaVipRequest {
+  haVipId: string(name='HaVipId', example='havip-5p14t****', position='Query'),
+  instanceId: string(name='InstanceId', example='i-50c4****', position='Query'),
+  instanceType?: string(name='InstanceType', example='EnsInstance', position='Query'),
+}
+
+model AssociateHaVipResponseBody = {
+  requestId?: string(name='RequestId', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+}
+
+model AssociateHaVipResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AssociateHaVipResponseBody(name='body'),
+}
+
+async function associateHaVip(request: AssociateHaVipRequest): AssociateHaVipResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AssociateHaVip', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AttachDiskRequest {
@@ -557,7 +587,7 @@ async function copySDG(request: CopySDGRequest): CopySDGResponse {
 }
 
 model CopySnapshotRequest {
-  destinationRegionIds: [ string ](name='DestinationRegionIds', description='The destination nodes.', shrink='json', position='Query'),
+  destinationRegionIds: [ string ](name='DestinationRegionIds', description='The IDs of destination nodes.', shrink='json', position='Query'),
   destinationSnapshotDescription?: string(name='DestinationSnapshotDescription', description='The description of the snapshot. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='testDescription', position='Query'),
   destinationSnapshotName?: string(name='DestinationSnapshotName', description='The name of the snapshot. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).', example='testSnapshotName', position='Query'),
   snapshotId: string(name='SnapshotId', description='The ID of the source snapshot.', example='sp-bp1c0doj0taqyzzl****', position='Query'),
@@ -567,10 +597,10 @@ model CopySnapshotResponseBody = {
   allocationId?: [ 
     {
       ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-chengdu-telecom-4'),
-      instanceId?: [ string ](name='InstanceId', description='An array of instance IDs.'),
+      instanceId?: [ string ](name='InstanceId', description='The IDs of the instances.'),
     }
   ](name='AllocationId', description='The list of created snapshots.'),
-  bizStatusCode?: string(name='BizStatusCode', description='Success status code.
+  bizStatusCode?: string(name='BizStatusCode', description='The success status code.
 
 *   **PartSuccess**: partially succeeded.
 *   **AllSuccess**: all succeeded.', example='AllSuccess'),
@@ -782,16 +812,16 @@ async function createDisk(request: CreateDiskRequest): CreateDiskResponse {
 }
 
 model CreateEipInstanceRequest {
-  bandwidth?: long(name='Bandwidth', description='The peak bandwidth of the EIP. Default value: 5. Valid values: 5 to 10000. Unit: Mbit/s.', example='5', minimum=5, maximum=10000, position='Query'),
+  bandwidth?: long(name='Bandwidth', description='The maximum bandwidth of the EIP. Default value: 5. Valid values: 5 to 10000. Unit: Mbit/s.', example='5', minimum=5, maximum=10000, position='Query'),
   description?: string(name='Description', description='The description of the EIP.', example='yourDescription', position='Query'),
   ensRegionId: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-suzhou-telecom', position='Query'),
   instanceChargeType: string(name='InstanceChargeType', description='The billing method of the EIP. Set the value to **PostPaid**.', example='PostPaid', position='Query'),
   internetChargeType: string(name='InternetChargeType', description='The metering method of the EIP. Set the value to **95BandwidthByMonth**.', example='95BandwidthByMonth', position='Query'),
   isp?: string(name='Isp', description='The Internet service provider. Valid values:
 
-*   **cmcc**: China Mobile
-*   **unicom**: China Unicom
-*   **telecom**: China Telecom', example='cmcc', position='Query'),
+*   **cmcc**: China Mobile.
+*   **unicom**: China Unicom.
+*   **telecom**: China Telecom.', example='cmcc', position='Query'),
   name?: string(name='Name', description='The name of the EIP.', example='EIP1', position='Query'),
 }
 
@@ -953,13 +983,16 @@ model CreateFileSystemRequest {
 
 *   PrePaid: subscription. This billing method is not supported.
 *   PostPaid: pay-as-you-go.', example='PostPaid'),
-      ensRegionId: string(name='EnsRegionId', description='The ID of the node.', example='cn-suzhou-telecom'),
-      fileSystemName: string(name='FileSystemName', description='The name of the file system.', example='nasFile'),
-      mountTargetDomain: string(name='MountTargetDomain', description='The name of the mount target.', example='nasMount'),
+      ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-suzhou-telecom'),
+      fileSystemName: string(name='FileSystemName', description='The name of the file system. The name must be 1 to 80 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).', example='nasFile'),
+      mountTargetDomain: string(name='MountTargetDomain', description='The name of the mount target. The name must be 1 to 80 characters in length and can contain letters, digits, hyphens (-), and underscores (\\_).', example='nasMount'),
       networkId: string(name='NetworkId', description='The ID of the VPC.', example='vpc-xxx'),
-      orderType: string(name='OrderType', description='The type of the order.', example='BUY'),
+      orderType: string(name='OrderType', description='The type of the order. Set the value to BUY.', example='BUY'),
       protocolType: string(name='ProtocolType', description='The storage protocol. Valid values: nsf and smb.', example='nfs'),
-      storgeType: string(name='StorgeType', description='The type of the storage. Set the value to capacity.', example='capacity'),
+      storgeType: string(name='StorgeType', description='The storage type. Valid values:
+
+*   Capacity.
+*   Performance.', example='capacity'),
     }
   ](name='OrderDetails', description='The information about the orders.', shrink='json', position='Query'),
 }
@@ -991,7 +1024,7 @@ model CreateForwardEntryRequest {
 
 *   Valid values: 1 to 65535.
 *   To specify a port range, separate the first port and the last port with a forward slash (/), such as 10/20.
-*   If you set ExternalPort to a port range, you must also set InternalPort to a port range, and the number of ports specified must be the same for both parameters. For example, if you set ExternalPort to 10/20, you can set InternalPort to 80/90.', example='22', position='Query'),
+*   If you set ExternalPort to a port range, you must also set InternalPort to a port range. The number of ports in the port ranges must be the same. For example, if you set ExternalPort to 10/20, you can set InternalPort to 80/90.', example='22', position='Query'),
   forwardEntryName?: string(name='ForwardEntryName', description='The name of the DNAT entry. The name must be 2 to 128 characters in length. The name cannot start with `http://` or `https://`.', example='test0', maxLength=128, position='Query'),
   healthCheckPort?: int32(name='HealthCheckPort', description='The probe port. The port must be within the internal port range. By default, this parameter is left empty.', example='80', minimum=1, maximum=65535, position='Query'),
   internalIp: string(name='InternalIp', description='The private IP address of the instance that uses the DNAT entry for Internet communication.', example='10.0.0.13', position='Query'),
@@ -1234,9 +1267,10 @@ async function createLoadBalancer(request: CreateLoadBalancerRequest): CreateLoa
 }
 
 model CreateLoadBalancerHTTPListenerRequest {
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  backendServerPort?: int32(name='BackendServerPort', description='负载均衡实例后端服务器使用的端口，取值：**1**~**65535**。', example='8080', minimum=1, maximum=65535, position='Query'),
+  description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
->  The value cannot start with `http://` or `https://`.', example='监听说明', minLength=1, maxLength=80, position='Query'),
+>  The value cannot start with `http://` or `https://`.', example='Monitoring instructions', minLength=1, maxLength=80, position='Query'),
   forwardPort?: int32(name='ForwardPort', description='The listener port that is used to redirect HTTP requests to HTTPS.', example='0', minimum=0, maximum=65535, position='Query'),
   healthCheck: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
 
@@ -1265,7 +1299,7 @@ model CreateLoadBalancerHTTPListenerRequest {
 *   **get**
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='head', position='Query'),
-  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
@@ -1273,16 +1307,16 @@ model CreateLoadBalancerHTTPListenerRequest {
 
 > 
 
-*   This parameter takes effect only if you set HealthCheck to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that you want to use for health checks. The URI must be **1** to **80** characters in length.
+*   If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
 
 > 
 
-*   The URL must start with `/` and contain characters other than `/`.
+*   A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).
 
-*   This parameter takes effect only if you set HealthCheck to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
+*   This parameter takes effect only if the HealthCheck parameter is set to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**. Default value: **3**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
@@ -1293,7 +1327,9 @@ model CreateLoadBalancerHTTPListenerRequest {
 
 *   **on**
 *   **off** (default)', example='off', position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port that is used by Edge Load Balancer (ELB) to receive requests and forward the requests to backend servers. Valid values: **1** to **65535**.
+
+>  We recommend that you use port 80 for HTTP.', example='8080', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5s7crik3yo3bp03gqrbp5****', position='Query'),
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of a request. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
@@ -1336,6 +1372,7 @@ async function createLoadBalancerHTTPListener(request: CreateLoadBalancerHTTPLis
 }
 
 model CreateLoadBalancerHTTPSListenerRequest {
+  backendServerPort?: int32(name='BackendServerPort', description='The listening port that is used by the backend instances. Valid values: 1 to 65535.', example='8080', minimum=1, maximum=65535, position='Query'),
   cookie?: string(name='Cookie', description='The cookie that is configured on the server. The cookie must be **1** to **200** characters in length and contain only ASCII characters and digits.
 
 >  This parameter is required if you set StickySession to on and StickySessionType to server.', example='example', position='Query'),
@@ -1344,7 +1381,7 @@ model CreateLoadBalancerHTTPSListenerRequest {
 >  This parameter is required if you set StickySession to on and StickySessionType to insert.', example='100', minimum=1, maximum=86400, position='Query'),
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
 
->  The value cannot start with `http://` or `https://`.', example='监听说明', minLength=1, maxLength=80, position='Query'),
+>  The value cannot start with `http://` or `https://`.', example='https_80', minLength=1, maxLength=80, position='Query'),
   forwardPort?: int32(name='ForwardPort', description='The listener port that is used to redirect HTTP requests to HTTPS.', example='0', minimum=1, maximum=65535, position='Query'),
   healthCheck: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
 
@@ -1381,14 +1418,12 @@ model CreateLoadBalancerHTTPSListenerRequest {
 
 > 
 
-*   This parameter takes effect only if you set HealthCheck to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that you want to use for health checks. The URI must be **1** to **80** characters in length.
+*   If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
 
-> 
-
-*   The URL must start with a forward slash (`/`) and contain characters other than forward slashes (`/`).', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
+>  A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**. Default value: **3**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
@@ -1399,7 +1434,9 @@ model CreateLoadBalancerHTTPSListenerRequest {
 
 *   **on**
 *   **off** (default)', example='off', position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listening port that is used by Edge Load Balancer (ELB) to receive requests and forward the requests to backend servers. Valid values: **1** to **65535**.
+
+>  We recommend that you use port 443 for HTTPS.', example='8080', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5s8w63yydi59w7klaikam****', position='Query'),
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
@@ -1412,7 +1449,7 @@ model CreateLoadBalancerHTTPSListenerRequest {
 *   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
 *   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
 *   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
-  serverCertificateId: string(name='ServerCertificateId', description='The ID of the server certificate.', example='6027667', position='Query'),
+  serverCertificateId: string(name='ServerCertificateId', description='The ID of the server certificate.', example='60276**', position='Query'),
   stickySessionType?: string(name='StickySessionType', description='The method that is used to handle a cookie. Valid values:
 
 *   **insert**: inserts a cookie. ELB inserts a session cookie (SERVERID) into the first HTTP or HTTPS response that is sent to a client. Subsequent requests to ELB carry this cookie, and ELB determines the destination servers of the requests based on the cookies.
@@ -1445,8 +1482,8 @@ async function createLoadBalancerHTTPSListener(request: CreateLoadBalancerHTTPSL
 }
 
 model CreateLoadBalancerTCPListenerRequest {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend ELB server of the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
   eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
@@ -1455,13 +1492,13 @@ model CreateLoadBalancerTCPListenerRequest {
 *   **off** (default)', example='on', position='Query'),
   establishedTimeout?: int32(name='EstablishedTimeout', description='The timeout period of a connection. Valid values: **10** to **900**. Default value: **900**. Unit: seconds.', example='500', minimum=10, maximum=900, position='Query'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If you leave this parameter empty, the port specified for BackendServerPort is used for health checks.', example='8080', minimum=1, maximum=65535, position='Query'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
->  If the value that you specified for HealthCheckConnectTimeout is smaller than the value of HealthCheckInterval, HealthCheckConnectTimeout becomes invalid and the timeout period that you specified for HealthCheckInterval is used.', example='100', minimum=1, maximum=300, position='Query'),
+>  If the value of the HealthCheckConnectTimeout parameter is smaller than that of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckConnectTimeout parameter is ignored and the period of time specified by the HealthCheckInterval parameter is used as the timeout period.', example='100', minimum=1, maximum=300, position='Query'),
   healthCheckDomain?: string(name='HealthCheckDomain', description='The domain name that you want to use for health checks.', example='www.aliyundoc.com', minLength=1, maxLength=80, position='Query'),
   healthCheckHttpCode?: string(name='HealthCheckHttpCode', description='The HTTP status codes for a successful health check. Valid values:
 
@@ -1478,7 +1515,7 @@ model CreateLoadBalancerTCPListenerRequest {
 
 >  The URL must start with `/` and contain characters other than `/`.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**. Default value: **3**.', example='4', minimum=2, maximum=10, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port that is used by Edge Load Balancer (ELB) to receive requests and forward the requests to backend servers. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5ovkn1piwqmoqrfjdyhq4****', position='Query'),
   persistenceTimeout?: int32(name='PersistenceTimeout', description='The timeout period of session persistence.
 
@@ -1517,36 +1554,39 @@ async function createLoadBalancerTCPListener(request: CreateLoadBalancerTCPListe
 }
 
 model CreateLoadBalancerUDPListenerRequest {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend ELB server of the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
-  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable elastic IP address (EIP) pass-through. Valid values:
+  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
 
 *   **on**
 *   **off** (default)', example='on', position='Query'),
+  establishedTimeout?: int32(name='EstablishedTimeout', example='500', minimum=10, maximum=900, position='Query'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If you leave this parameter empty, the port specified by BackendServerPort is used for health checks.', example='8080', minimum=1, maximum=65535, position='Query'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period for a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
->  If the value that you specified for HealthCheckConnectTimeout is smaller than the value of HealthCheckInterval, HealthCheckConnectTimeout becomes invalid and the timeout period that you specified for HealthCheckInterval is used.', example='100', minimum=1, maximum=300, position='Query'),
+>  If the value of the HealthCheckConnectTimeout parameter is smaller than that of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckConnectTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='100', minimum=1, maximum=300, position='Query'),
   healthCheckExp?: string(name='HealthCheckExp', description='The response string for UDP listener health checks. The string can be up to 64 characters in length and can contain only letters and digits.', example='ok', maxLength=64, position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Default value: **2**. Unit: seconds.', example='3', minimum=1, maximum=50, position='Query'),
   healthCheckReq?: string(name='HealthCheckReq', description='The request string for UDP listener health checks. The string can be up to 64 characters in length and can contain only letters and digits.', example='hello', maxLength=64, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**. Default value: **3**.', example='4', minimum=2, maximum=10, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
-  loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5q73cv04zeyh43lh74lp4****', position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  listenerPort: int32(name='ListenerPort', description='The listener port that is used by Edge Load Balancer (ELB) to receive requests and forward the requests to backend servers. Valid values: **1** to **65535**.
 
-*   **wrr** (default): Backend servers with higher weights receive more requests than backend servers with lower weights.
+>  You cannot specify ports 250, 4789, or 4790 for UDP listeners. They are system reserved ports.', example='80', minimum=1, maximum=65535, position='Query'),
+  loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5q73cv04zeyh43lh74lp4****', position='Query'),
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
+
+*   **wrr**: Backend servers with higher weights receive more requests than backend servers with lower weights. This is the default value.
 *   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: Consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: Consistent hashing based on Quick UDP Internet Connection (QUIC) IDs. Requests that contain the same QUIC ID are scheduled to the same backend server.
+*   **iqch**: Consistent hashing based on three specific bytes of iQUIC CID. Requests with the same second, third, and forth bytes are scheduled to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**. Default value: **3**.', example='4', minimum=2, maximum=10, position='Query'),
 }
 
@@ -1739,7 +1779,7 @@ async function createNetworkAclEntry(request: CreateNetworkAclEntryRequest): Cre
 model CreateSDGRequest {
   description?: string(name='Description', description='The description of the SDG.
 
->  We recommend that you specify this parameter in details for subsequent queries.', position='Query'),
+>  We recommend that you specify this parameter in details for subsequent queries.', example='Testing SDGs', position='Query'),
   fromSDGId?: string(name='FromSDGId', description='The ID of the SDG from which you want to create an SDG.
 
 > 
@@ -1747,8 +1787,9 @@ model CreateSDGRequest {
 *   The first time you create an SDG, the **FromSDGId** parameter is empty.
 
 *   If the value of the **FromSDGId** parameter is invalid or does not correspond to an original disk, an error is reported.
+
 *   If the value of the **FromSDGId** parameter is not empty, you have created an SDG, and the operation is performed on the existing SDG.', example='sdg-xxxxx', position='Query'),
-  instanceId: string(name='InstanceId', description='The ID of the device.', example='aic-xxxx', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the AIC instance. You can call the [DescribeARMServerInstances](~~DescribeARMServerInstances~~) operation to query the ID.', example='aic-xxxx', position='Query'),
   size?: string(name='Size', description='The maximum capacity of the SDG. Unit: GB.
 
 > 
@@ -1757,10 +1798,7 @@ model CreateSDGRequest {
 
 *   The first time that you create an SDG, the **Size** parameter is required.
 
-*   When the amount of data increases, you can pass a new **Size** parameter for resizing.
-
-    *   If the value of the **Size** parameter is not empty and is greater than the value of the **Size** parameter of the original SDG, the original disk corresponding to the SDG is scaled out to the size that is specified by the current **Size** parameter.
-    *   If the value of the **Size** parameter is not empty, or the value of the **Size** parameter is smaller than the value of the **Size** parameter of the original SDG, no operation is performed.', example='20', position='Query'),
+*   When the amount of data increases, you can pass a new **Size** parameter for resizing. If the value of the new **Size** parameter is greater than the value of the old **Size** parameter, the disk size of the SDG is increased to the size that is specified by the new **Size** parameter. If the value of the new **Size** parameter is empty or smaller than that of the old **Size** parameter, no operation is performed.', example='20', position='Query'),
 }
 
 model CreateSDGResponseBody = {
@@ -1775,8 +1813,11 @@ model CreateSDGResponse = {
 }
 
 /**
-  * ## [](#)
-  * After you create an SDG, you must call the [SaveSDG](~~608126~~) operation to save the SDG. Otherwise, the SDG is unavailable.
+  * A SDG can be regarded as a data partition image of a virtual device. You can save a data partition of a virtual device as an SDG. A created SDG can be deployed in data partitions of other virtual devices to achieve rapid data distribution and application. The procedure for calling SDG-related API operations:
+  * *   Call the [CreateSDG](~~CreateSDG~~) operation to create an SDG, which is bound to AIC Instance A (InstanceId). After you create the SDG, a blank cloud disk (also known as an original cloud disk) is attached to Device A (InstanceId).
+  * *   Install applications on and deliver files to AIC Instance A (InstanceId).
+  * *   Call the [SaveSDG](~~SaveSDG~~) operation to save the data disk of AIC instance A as SDG A.
+  * *   Call the [DeploySDG](~~DeploySDG~~) operation to deploy SDG A to AIC Instance B. This operattion is executed asynchronously. You can call the [DescribeARMServerInstances](~~DescribeARMServerInstances~~) operation to query the status of AIC Instance B. If the status of AIC Instance B changes to success, AIC insance B is available, and AIC Instances A and B have the same applications running.
   *
  */
 async function createSDG(request: CreateSDGRequest): CreateSDGResponse {
@@ -1810,14 +1851,14 @@ model CreateSnapshotRequest {
 
 By default, this parameter is left empty.', example='testDescription', position='Query'),
   diskId: string(name='DiskId', description='The ID of the cloud disk.', example='d-bp1s5fnvk4gn2tws0****', position='Query'),
-  ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-shenzhen-3', position='Query'),
+  ensRegionId: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-shenzhen-3', position='Query'),
   snapshotName?: string(name='SnapshotName', description='The name of the snapshot. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).', example='testSnapshotName', position='Query'),
 }
 
 model CreateSnapshotResponseBody = {
   orderId?: string(name='OrderId', description='The ID of the order.', example='21969183547****'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  snapShotId?: [ string ](name='SnapShotId', description='The ID of the snapshot.', example='s-bp17441ohwka0yuh****'),
+  snapShotId?: [ string ](name='SnapShotId', description='The IDs of the snapshots.', example='s-bp17441ohwka0yuh****'),
 }
 
 model CreateSnapshotResponse = {
@@ -1906,6 +1947,41 @@ async function createStorageGateway(request: CreateStorageGatewayRequest): Creat
   return @handler.do('RPC', 'CreateStorageGateway', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateStorageVolumeRequest {
+  authPassword?: string(name='AuthPassword', description='The password of the CHAP protocol.', example='Password', position='Query'),
+  authProtocol?: string(name='AuthProtocol', description='The authentication protocol. Set the value to **CHAP**.', example='CHAP', position='Query'),
+  authUser?: string(name='AuthUser', description='The username of the CHAP protocol.', example='User', position='Query'),
+  description?: string(name='Description', description='The description of the volume. The description must be 2 to 128 characters in length. The description cannot start with `http://` or `https://`.', example='testDescription', position='Query'),
+  ensRegionId: string(name='EnsRegionId', description='The ID of the node.', example='cn-shenzhen-3', position='Query'),
+  gatewayId: string(name='GatewayId', description='The ID of the gateway.', example='sgw-****', position='Query'),
+  isAuth?: string(name='IsAuth', description='Specifies whether to enable authentication. Valid values:
+
+*   **1**: enable authentication.
+*   **0** (default): disable authentication.', example='0', position='Query'),
+  isEnable?: string(name='IsEnable', description='Specifies whether to enable the volume. Valid values:
+
+*   **1** (default): enable the volume.
+*   **0**: disable the volume.', example='1', position='Query'),
+  storageId: string(name='StorageId', description='The ID of the storage medium.', example='si-****', position='Query'),
+  volumeName?: string(name='VolumeName', description='The name of the volume. The name must be 2 to 128 characters in length. The name cannot start with `http://` or `https://`. The name can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).', example='testVolumeName', position='Query'),
+}
+
+model CreateStorageVolumeResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='7030AB96-57CF-1C68-9FEE-D60E547FD79C'),
+  volumeId?: [ string ](name='VolumeId', description='An array of volume IDs.'),
+}
+
+model CreateStorageVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateStorageVolumeResponseBody(name='body'),
+}
+
+async function createStorageVolume(request: CreateStorageVolumeRequest): CreateStorageVolumeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateStorageVolume', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateVSwitchRequest {
   cidrBlock: string(name='CidrBlock', description='The CIDR block of the vSwitch. Take note of the following limits:
 
@@ -1922,7 +1998,7 @@ The description must be 2 to 256 characters in length. It must start with a lett
 *   The name must be 2 to 128 characters in length.
 *   The name must start with a letter and cannot start with http:// or https://. It can contain letters, digits, colons (:), underscores (\\_), and hyphens (-).
 
-Default value: null.', position='Query'),
+Default value: null.', example='test', position='Query'),
 }
 
 model CreateVSwitchResponseBody = {
@@ -2157,7 +2233,7 @@ async function deleteEpnInstance(request: DeleteEpnInstanceRequest): DeleteEpnIn
 }
 
 model DeleteFileSystemRequest {
-  ensRegionId: string(name='EnsRegionId', description='The ID of the node.', example='cn-chengdu-telecom-4', position='Query'),
+  ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-chengdu-telecom-4', position='Query'),
   fileSystemId: string(name='FileSystemId', description='The ID of the file system that you want to delete.', example='e42640****', position='Query'),
 }
 
@@ -2284,7 +2360,7 @@ async function deleteLoadBalancerListener(request: DeleteLoadBalancerListenerReq
 }
 
 model DeleteMountTargetRequest {
-  ensRegionId: string(name='EnsRegionId', description='The ID of the region.', example='cn-beijing-cmcc', position='Query'),
+  ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-cmcc', position='Query'),
   fileSystemId: string(name='FileSystemId', description='The ID of the file system.', example='c50f8*****', position='Query'),
   mountTargetName: string(name='MountTargetName', description='The name of the mount target.', example='TestMountPath', position='Query'),
 }
@@ -2405,26 +2481,29 @@ async function deleteObject(request: DeleteObjectRequest): DeleteObjectResponse 
 }
 
 model DeleteSDGRequest {
-  SDGId: [ string ](name='SDGId', description='IDs of SDGs that you want to delete. You can delete a maximum of 10 SDGs at a time.', shrink='json', position='Query'),
+  SDGId: [ string ](name='SDGId', description='The IDs of the SDGs that you want to delete.', shrink='json', position='Query'),
 }
 
 model DeleteSDGResponseBody = {
   data?: {
-    message?: string(name='Message'),
+    message?: string(name='Message', description='The response message. Success is returned for a successful request.', example='success'),
     result?: {
-      failedCount?: long(name='FailedCount'),
+      failedCount?: long(name='FailedCount', description='The number of failed tasks.', example='0'),
       failedItems?: [ 
         {
-          errMessage?: string(name='ErrMessage'),
+          errMessage?: string(name='ErrMessage', description='The error message.', example='sdg not found'),
           item?: {
-            sdgId?: string(name='SdgId'),
-          }(name='Item'),
+            sdgId?: string(name='SdgId', description='The ID of the shared data group (SDG).', example='sdg-dfet5vvvgy'),
+          }(name='Item', description='Description'),
         }
-      ](name='FailedItems'),
-      successCount?: long(name='SuccessCount'),
-    }(name='Result'),
-    success?: boolean(name='Success'),
-  }(name='Data'),
+      ](name='FailedItems', description='Details about the failed tasks.'),
+      successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
+    }(name='Result', description='The execution result of the synchronization request.'),
+    success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
+
+*   true: All tasks are successful.
+*   false: Failed tasks exist.', example='true'),
+  }(name='Data', description='The returned data object.'),
   requestId?: string(name='RequestId', description='The request ID.', example='86A6D421-A0C7-4C01-8648-47377CA6A2CE'),
 }
 
@@ -2435,7 +2514,6 @@ model DeleteSDGResponse = {
 }
 
 /**
-  * ## [](#)
   * If all the SDGs corresponding to the original disk are deleted, the original disk is automatically cleared.
   *
  */
@@ -2544,6 +2622,25 @@ async function deleteStorageGateway(request: DeleteStorageGatewayRequest): Delet
   return @handler.do('RPC', 'DeleteStorageGateway', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DeleteStorageVolumeRequest {
+  volumeId: string(name='VolumeId', description='The ID of the volume.', example='sv-***', position='Query'),
+}
+
+model DeleteStorageVolumeResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='853D6E71-E087-1557-B65C-32BFBEE5CD97'),
+}
+
+model DeleteStorageVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteStorageVolumeResponseBody(name='body'),
+}
+
+async function deleteStorageVolume(request: DeleteStorageVolumeRequest): DeleteStorageVolumeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteStorageVolume', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DeleteVSwitchRequest {
   vSwitchId: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5m9xhl****', position='Query'),
 }
@@ -2568,27 +2665,32 @@ async function deleteVSwitch(request: DeleteVSwitchRequest): DeleteVSwitchRespon
 }
 
 model DeployInstanceSDGRequest {
-  deploymentType?: string(name='DeploymentType', example='shared', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', shrink='json', position='Query'),
-  SDGId: string(name='SDGId', example='sdg-xxxx', position='Query'),
+  deploymentType?: string(name='DeploymentType', description='The deployment type of the SDG. Valid values:
+
+*   shared: shared read/write splitting deployment. The content of the SDG is read-only, and data updates are written to the local storage of the instance.', example='shared', position='Query'),
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the instances. The value is a JSON array that consists of up to 100 IDs.', shrink='json', position='Query'),
+  SDGId: string(name='SDGId', description='The ID of the SDG.', example='sdg-xxxx', position='Query'),
 }
 
 model DeployInstanceSDGResponseBody = {
   data?: {
-    message?: string(name='Message', example='success'),
+    message?: string(name='Message', description='The response message. Success is returned for a successful request.', example='success'),
     result?: {
-      failedCount?: long(name='FailedCount', example='0'),
+      failedCount?: long(name='FailedCount', description='The number of failed tasks.', example='0'),
       failedItems?: [ 
         {
-          errMessage?: string(name='ErrMessage', example='sdg not found'),
-          instanceId?: string(name='InstanceId', example='aic-xxxxx-0'),
+          errMessage?: string(name='ErrMessage', description='The error message that is returned.', example='sdg not found'),
+          instanceId?: string(name='InstanceId', description='The ID of the instance.', example='aic-xxxxx-0'),
         }
-      ](name='FailedItems'),
-      successCount?: long(name='SuccessCount', example='1'),
-    }(name='Result'),
-    success?: boolean(name='Success', example='true'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
+      ](name='FailedItems', description='Details about the failed tasks.'),
+      successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
+    }(name='Result', description='The execution result of the synchronization request.'),
+    success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
+
+*   true: All tasks are successful.
+*   false: Failed tasks exist.', example='true'),
+  }(name='Data', description='The returned data object.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
 }
 
 model DeployInstanceSDGResponse = {
@@ -2644,7 +2746,7 @@ async function deploySDG(request: DeploySDGRequest): DeploySDGResponse {
 }
 
 model DescribeAICImagesRequest {
-  description?: string(name='Description', description='The description of the image.', position='Query'),
+  description?: string(name='Description', description='The description of the image.', example='Test operation of console', position='Query'),
   imageId?: string(name='ImageId', description='The image ID of the AIC instance.', example='m-ad0ddaddc2d54adeaa09b7c0f1e****', position='Query'),
   imageType?: string(name='ImageType', description='The type of the image. Valid values:
 
@@ -2666,7 +2768,7 @@ model DescribeAICImagesResponseBody = {
   images?: [ 
     {
       creationTime?: string(name='CreationTime', description='The time when the image was created.', example='2022-09-22 10:54:34'),
-      description?: string(name='Description', description='The description of the image.'),
+      description?: string(name='Description', description='The description of the image.', example='Test operation of console'),
       imageId?: string(name='ImageId', description='The image ID of the AIC instance.', example='m-ad0ddaddc2d54adeaa09b7c0f1e****'),
       imageUrl?: string(name='ImageUrl', description='The URL of the AIC image repository.', example='****.alibaba-inc.com/aic/socimage:test'),
       status?: string(name='Status', description='The status of the image. **Available** is returned for this parameter. Available indicates that the image is available.', example='available'),
@@ -2731,7 +2833,7 @@ model DescribeARMServerInstancesResponseBody = {
           latestAction?: string(name='LatestAction', description='The operation that was most recently performed.', example='ServerCreate'),
           name?: string(name='Name', description='The name of the container.', example='AIC-Name'),
           networkAttributes?: {
-            ipAddress?: string(name='IpAddress', description='The IP address of the AIC instance.', example='192.168.1.1'),
+            ipAddress?: string(name='IpAddress', description='The IP address of the AIC instance.', example='192.168.XX.XX'),
             networkId?: string(name='NetworkId', description='The network ID of the AIC instance.', example='n-*****'),
             vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the AIC instance.', example='vsw-****'),
           }(name='NetworkAttributes', description='The network attributes of the AIC instance.'),
@@ -2816,7 +2918,211 @@ Default value: National.', example='National', position='Query'),
 }
 
 model DescribeApplicationResponseBody = {
-  application?: string(name='Application', description='The returned application information.'),
+  application?: string(name='Application', description='The returned application information.', example='{
+    "AppMetaData":{
+        "AppId":"b0b27670-87d5-4c40-9ea8-adeeec2986ce",
+        "AppName":"asp-yz",
+        "ClusterName":"poc",
+        "AppStableVersion":"0825",
+        "AppType":"Scheduler",
+        "Description":"Daily testing CPU environment",
+        "CreateTime":"2020-08-25 16:36:16"
+    },
+    "AppStatus":{
+        "Phase":"RUNNING",
+        "StatusDescrip":"{\\"status\\":\\"UPDATE_SUCCESS\\",\\"step\\":\\"DONE\\",\\"descrip\\":\\"delVersion success\\",\\"start_time\\":\\"2021-08-18 14:46:45\\"}",
+        "UpdateTime":"2021-08-18 14:46:45"
+    },
+    "ResourceAttribute":{
+        "ResourceType":"Ens",
+        "ResourceAgent":"Linux",
+        "InstanceSpec":"ens.sn1.large",
+        "SystemDiskSize":40,
+        "DataDiskSize":0,
+        "BandwithOut":10,
+        "SchedulingStrategy":"Disperse",
+        "AreaLevel":"RegionId",
+        "IpType":"PublicIP"
+    },
+    "WorkloadAttribute":[
+        {
+            "Name":"andorid",
+            "PodCount":7,
+            "ServiceConfig":{
+                "PortsBindConfig":{
+                    "NetServiceContainer":"aspserver-android",
+                    "Ports":[
+                        {
+                            "Protocol":"TCP",
+                            "BindType":"PassThrough",
+                            "StartNodePorts":"5000-5000",
+                            "ContainerPorts":"5000-5000"
+                        },
+                        {
+                            "Protocol":"UDP",
+                            "BindType":"PassThrough",
+                            "StartNodePorts":"4001-4010",
+                            "ContainerPorts":"4001-4010"
+                        }
+                    ]
+                },
+                "ServiceContainerName":"android"
+            }
+        },
+        {
+            "Name":"aic-manager",
+            "PodCount":1,
+            "ServiceConfig":null
+        }
+    ],
+    "DetailStat":{
+        "Level":"Small",
+        "InstanceTotalCount":1,
+        "InstanceRunningCount":0,
+        "PodCountStat":[
+            {
+                "Name":"andorid",
+                "RunningCount":7,
+                "ProducedCount":7,
+                "Devices":null
+            },
+            {
+                "Name":"aic-manager",
+                "RunningCount":1,
+                "ProducedCount":1,
+                "Devices":null
+            }
+        ],
+        "AppVersionStat":[
+            {
+                "AppVersion":"08102",
+                "Descrip":"White Screen Test 2",
+                "CreateTime":"2021-08-10 11:20:04",
+                "InstanceTotalCount":1,
+                "InstanceRunningCount":0,
+                "PodCountStat":[
+                    {
+                        "Name":"andorid",
+                        "RunningCount":7,
+                        "ProducedCount":7,
+                        "Devices":null
+                    },
+                    {
+                        "Name":"aic-manager",
+                        "RunningCount":1,
+                        "ProducedCount":1,
+                        "Devices":null
+                    }
+                ],
+                "DistrictStat":[
+                    {
+                        "AreaCode":"310100",
+                        "AreaName":"East China,,",
+                        "RegionCode":"310100",
+                        "RegionName":"",
+                        "IspCode":"telecom",
+                        "RegionIds":[
+                            "cn-shanghai-telecom-2"
+                        ],
+                        "InstanceTotalCount":1,
+                        "InstanceRunningCount":0,
+                        "PodCountStat":[
+                            {
+                                "Name":"andorid",
+                                "RunningCount":7,
+                                "ProducedCount":7,
+                                "Devices":null
+                            },
+                            {
+                                "Name":"aic-manager",
+                                "RunningCount":1,
+                                "ProducedCount":1,
+                                "Devices":null
+                            }
+                        ],
+                        "InstanceStat":[
+                            {
+                                "InstanceId":"i-xxxxxxx",
+                                "PublicIps":[
+                                    {
+                                        "PublicIp":"101.227.7.12",
+                                        "Isp":"telecom"
+                                    }
+                                ],
+                                "InternalIps":[
+                                    {
+                                        "Ip":"10.0.1.4"
+                                    }
+                                ],
+                                "RegionId":"cn-shanghai-telecom-2",
+                                "NcName":"",
+                                "InstanceStatus":"",
+                                "CreateTime":"2020-09-12 22:33:08",
+                                "PodCountStat":[
+                                    {
+                                        "Name":"andorid",
+                                        "RunningCount":7,
+                                        "ProducedCount":7,
+                                        "Devices":[
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-0",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-1",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-2",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-3",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-4",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-5",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            },
+                                            {
+                                                "Name":"asp-yz-andorid-08102-zjzmcyaw-6",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "Name":"aic-manager",
+                                        "RunningCount":1,
+                                        "ProducedCount":1,
+                                        "Devices":[
+                                            {
+                                                "Name":"asp-yz-aic-manager-08102-zjzmcyaw-0",
+                                                "Status":"Running",
+                                                "Ports":null
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "AppVersionDescrip":""
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
@@ -2829,61 +3135,6 @@ model DescribeApplicationResponse = {
 async function describeApplication(request: DescribeApplicationRequest): DescribeApplicationResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeApplication', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeApplicationResourceSummaryRequest {
-  level?: string(name='Level', description='The region level. The value must be of the enumerated data type. Valid values:
-
-*   **National** (default): Chinese mainland
-*   **Big**: area
-*   **Middle**: province
-*   **Small**: city
-*   **RegionId**: edge node', example='National', position='Query'),
-  resourceType?: string(name='ResourceType', description='The resource type.
-
-Valid value:
-
-*   Ens', example='BareMetal-Arm', position='Query'),
-}
-
-model DescribeApplicationResourceSummaryResponseBody = {
-  applicationResource?: string(name='ApplicationResource', description='The statistical information about the resource quota and usage in different regions.', example='{
-    "Level":"RegionId",
-    "Summary":[
-        {
-            "InstanceType":"ens.a6e.large",
-            "SystemDiskMaxSize":20480,
-            "DataDiskMaxSize":0,
-            "BandwidthOutLimit":100,
-            "InstanceTotalMaxCount":0,
-            "InstanceTotalCount":4,
-            "InstanceCountStat":[
-                {
-                    "AreaCode":"330100",
-                    "AreaName":"",
-                    "IspCode":"cmcc",
-                    "RegionIds":[
-                        "cn-hangzhou-cmcc-7"
-                    ],
-                    "InstanceMaxCount":0,
-                    "InstanceCount":4
-                }
-            ]
-        }
-    ]
-}'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='50373E71-7710-4620-8AAB-133CCE49451C'),
-}
-
-model DescribeApplicationResourceSummaryResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeApplicationResourceSummaryResponseBody(name='body'),
-}
-
-async function describeApplicationResourceSummary(request: DescribeApplicationResourceSummaryRequest): DescribeApplicationResourceSummaryResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeApplicationResourceSummary', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeAvailableResourceRequest {
@@ -2943,12 +3194,12 @@ model DescribeAvailableResourceInfoResponseBody = {
     {
       bandwidthTypes?: {
         bandwidthType?: [ string ](name='BandwidthType')
-      }(name='BandwidthTypes'),
+      }(name='BandwidthTypes', description='Bandwidth billing method.'),
       dataDiskMaxSize?: int32(name='DataDiskMaxSize', description='The maximum capacity of a data disk. Unit: GB.', example='200'),
       dataDiskMinSize?: int32(name='DataDiskMinSize', description='The minimum data disk size. Unit: GiB.', example='100'),
       ensRegionIds?: {
         ensRegionId?: [ string ](name='EnsRegionId')
-      }(name='EnsRegionIds'),
+      }(name='EnsRegionIds', description='node ID'),
       ensRegionIdsExtends?: {
         ensRegionId?: [ 
         {
@@ -2956,8 +3207,8 @@ model DescribeAvailableResourceInfoResponseBody = {
           enName?: string(name='EnName', description='The name. This parameter is empty by default.', example='EnName'),
           ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-chengdu-telecom-4'),
           isp?: string(name='Isp', description='The information about the Internet service provider (ISP).', example='unicom'),
-          name?: string(name='Name', description='The name of the edge node.'),
-          province?: string(name='Province', description='The province.'),
+          name?: string(name='Name', description='The name of the edge node.', example='Taizhou Telecom, China Unicom, and China Mobile'),
+          province?: string(name='Province', description='The province.', example='Zhejiang Province'),
         }
       ](name='EnsRegionId')
       }(name='EnsRegionIdsExtends', description='The supplementary information about the edge nodes.'),
@@ -2966,7 +3217,7 @@ model DescribeAvailableResourceInfoResponseBody = {
       }(name='InstanceSpeces'),
       isp?: {
         isp?: [ string ](name='Isp')
-      }(name='Isp'),
+      }(name='Isp', description='Operator'),
       systemDiskMaxSize?: int32(name='SystemDiskMaxSize', description='The maximum size of the system disk. Unit: GiB.', example='100'),
       systemDiskMinSize?: int32(name='SystemDiskMinSize', description='The minimum capacity of a system disk. Unit: GB.', example='20'),
     }
@@ -2989,7 +3240,7 @@ model DescribeBandWithdChargeTypeRequest {
 }
 
 model DescribeBandWithdChargeTypeResponseBody = {
-  bandWithTypeInfo?: string(name='BandWithTypeInfo', description='The information about the metering method.'),
+  bandWithTypeInfo?: string(name='BandWithTypeInfo', description='The information about the metering method.', example='{ "BandWidthName": "Monthly peak bandwidth of 95", 			"BandWidthType": "95BandwidthByMonth" 		}'),
   chargeContractType?: string(name='ChargeContractType', description='The metering type.
 
 *   ChargeByUnified: unified metering.
@@ -3072,7 +3323,7 @@ model DescribeCloudDiskAvailableResourceInfoResponseBody = {
       diskMaxSize?: long(name='DiskMaxSize', description='The maximum size of the disk. Unit: GiB.', example='80'),
       diskMinSize?: long(name='DiskMinSize', description='The minimum size of the disk size. Unit: GiB.', example='20'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-cmcc'),
-      ensRegionName?: string(name='EnsRegionName', description='The name of the task node.'),
+      ensRegionName?: string(name='EnsRegionName', description='The name of the task node.', example='Beijing Mobile'),
     }
   ](name='SupportResource')
   }(name='SupportResources', description='The specifications of resources that you can purchase.'),
@@ -3175,7 +3426,7 @@ model DescribeDataDistResultResponseBody = {
             {
               instanceId?: string(name='InstanceId', description='The ID of the instance', example='i-5qzje8f5un1wmi341m2yetaxv'),
               startTime?: string(name='StartTime', description='The start time of the distribution. The time is displayed in UTC.', example='2021-11-19T07:24:52Z'),
-              statusDescrip?: string(name='StatusDescrip', description='The description of the distribution status.'),
+              statusDescrip?: string(name='StatusDescrip', description='The description of the distribution status.', example='SUCCESS'),
               updateTime?: string(name='UpdateTime', description='The time when the distribution status was last updated. The time is displayed in UTC.', example='2021-10-11T02:38:19Z'),
             }
           ](name='Instance')
@@ -3321,7 +3572,7 @@ model DescribeDeviceServiceResponseBody = {
 *   Scheduler', example='Common'),
     clusterName?: string(name='ClusterName', description='The name of the application cluster.', example='poc'),
     createTime?: string(name='CreateTime', description='The time when the application was created.', example='2022-03-03T03:42:11'),
-    description?: string(name='Description', description='The description of the application.'),
+    description?: string(name='Description', description='The description of the application.', example='test application'),
   }(name='AppMetaData', description='The basic properties of the application.'),
   appStatus?: {
     phase?: string(name='Phase', description='The status of the application. The value is of the enumeration type. Valid values:
@@ -3338,7 +3589,7 @@ Four final states:
 *   UPDATE_FAILED
 *   DELETE_FAILED
 *   RUNNING', example='CREATING'),
-    statusDescrip?: string(name='StatusDescrip', description='The description of the application status.'),
+    statusDescrip?: string(name='StatusDescrip', description='The description of the application status.', example='Creating in progress'),
     updateTime?: string(name='UpdateTime', description='The time when the status was last updated.', example='2021-01-26T05:04Z'),
   }(name='AppStatus', description='The status information of the application.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='3A535110-3EE3-5EC5-B1ED-10B7067A1FC8'),
@@ -3360,7 +3611,7 @@ Four final states:
     {
       appVersion?: string(name='AppVersion', description='The version of the application.', example='v1'),
       areaCode?: string(name='AreaCode', description='The area code.', example='410800'),
-      areaName?: string(name='AreaName', description='The region name.'),
+      areaName?: string(name='AreaName', description='The region name.', example='Jiaozuo City, Henan Province, Central China'),
       createTime?: string(name='CreateTime', description='The time when the application was created.', example='2019-10-02T08:26Z'),
       deviceInfos?: [ 
         {
@@ -3393,7 +3644,7 @@ Four final states:
       ](name='PublicIps', description='The public IP addresses.'),
       regionCode?: string(name='RegionCode', description='The ID of the region.', example='cn-jiaozuo-2'),
       regionId?: string(name='RegionId', description='The ID of the ENS node.', example='cn-jiaozuo-2'),
-      regionName?: string(name='RegionName', description='The name of the region.'),
+      regionName?: string(name='RegionName', description='The name of the region.', example='China Jiaozuo-2'),
     }
   ](name='ResourceInfos', description='The information about the instances.'),
 }
@@ -3481,7 +3732,7 @@ model DescribeDisksResponseBody = {
       encryptedKeyId?: string(name='EncryptedKeyId', description='The ID of the Key Management Service (KMS) key that is used for the cloud disk.', example='05467897a-4262-4802-b8cb-00d3fb40****'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-guangzhou-10'),
       instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5t77rb0yoz79m28ku60sx****'),
-      instanceName?: string(name='InstanceName', description='The name of the instance.'),
+      instanceName?: string(name='InstanceName', description='The name of the instance.', example='Edge Prod Environment Streaming Machine -1063'),
       portable?: boolean(name='Portable', description='Indicates whether the cloud disk or local disk is removable. Valid values:
 
 *   true: The disk is removable. A removable disk can independently exist and can be attached to or detached from an instance within the same zone.
@@ -3525,34 +3776,6 @@ model DescribeDisksResponse = {
 async function describeDisks(request: DescribeDisksRequest): DescribeDisksResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeDisks', 'POST', '/', 'json', false, 'json', request);
-}
-
-model DescribeEipAddressesRequest {
-  eips?: string(name='Eips', description='The information about the EIPs.', example='[\\"eip-5rd9i3pftfgbavl4y1b7hm4a3\\"]', position='Query'),
-  ensRegionId: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-nanjing-cmcc', position='Query'),
-}
-
-model DescribeEipAddressesResponseBody = {
-  eipAddresses?: {
-    eipAddress?: [ 
-    {
-      eip?: string(name='Eip', description='The information about an EIP.', example='203.107.XX.XX'),
-      instanceIdInternetIp?: string(name='InstanceIdInternetIp', description='The public IP address of the ENS instance.', example='203.107.XX.XX'),
-    }
-  ](name='EipAddress')
-  }(name='EipAddresses', description='Details of the EIPs.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='CCFD3F24-44AF-5508-B18D-5100BFC68602'),
-}
-
-model DescribeEipAddressesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DescribeEipAddressesResponseBody(name='body'),
-}
-
-async function describeEipAddresses(request: DescribeEipAddressesRequest): DescribeEipAddressesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeEipAddresses', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeElbAvailableResourceInfoRequest {
@@ -3747,7 +3970,7 @@ model DescribeEnsNetDistrictResponseBody = {
 *   **Big**: area
 *   **Middle**: province
 *   **Small**: city', example='Big'),
-      netDistrictName?: string(name='NetDistrictName', description='The name of the region.'),
+      netDistrictName?: string(name='NetDistrictName', description='The name of the region.', example='southwest China'),
     }
   ](name='EnsNetDistrict')
   }(name='EnsNetDistricts', description='The information about the regions.'),
@@ -3812,7 +4035,7 @@ model DescribeEnsNetSaleDistrictResponseBody = {
   ensNetDistricts?: {
     ensNetDistrict?: [ 
     {
-      ensRegionIdCount?: string(name='EnsRegionIdCount', description='The information about the ISP.'),
+      ensRegionIdCount?: string(name='EnsRegionIdCount', description='The information about the ISP.', example='{                         "count":2,                         "name":"telecommunication",                         "code":"telecom",                         "country":"cn"                     }'),
       instanceCount?: string(name='InstanceCount', description='The information about the instance.', example='{                         "count":2,                         "code":"multiCarrier"                     }'),
       netDistrictCode?: string(name='NetDistrictCode', description='The region code.', example='100101'),
       netDistrictEnName?: string(name='NetDistrictEnName', description='The name of the region.', example='northEast'),
@@ -3822,7 +4045,7 @@ model DescribeEnsNetSaleDistrictResponseBody = {
 *   **Big**: area
 *   **Middle**: province
 *   **Small**: city', example='Big'),
-      netDistrictName?: string(name='NetDistrictName', description='The Chinese name of the region.'),
+      netDistrictName?: string(name='NetDistrictName', description='The Chinese name of the region.', example='Northeast China'),
     }
   ](name='EnsNetDistrict')
   }(name='EnsNetDistricts', description='The information about the ISPs in the area.'),
@@ -3892,7 +4115,7 @@ model DescribeEnsRegionIdResourceResponseBody = {
       areaCode?: string(name='AreaCode', description='The code of the region.', example='300100'),
       bizDate?: string(name='BizDate', description='The date when the transaction was processed.', example='2019-10-30'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-hangzhou-telecom'),
-      ensRegionIdName?: string(name='EnsRegionIdName', description='The name of the node.'),
+      ensRegionIdName?: string(name='EnsRegionIdName', description='The name of the node.', example='Nanjing Mobile'),
       instanceCount?: int32(name='InstanceCount', description='The number of instances.', example='10'),
       internetBandwidth?: long(name='InternetBandwidth', description='The public bandwidth of the instance. Unit: Bits/s.', example='100'),
       isp?: string(name='Isp', description='The ISP. Valid values:
@@ -3940,8 +4163,8 @@ model DescribeEnsRegionsResponseBody = {
       area?: string(name='Area', description='The code of the region.', example='NorthEastChina'),
       enName?: string(name='EnName', description='The name of the node.', example='NorthChina'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-dalian-unicom'),
-      name?: string(name='Name', description='The name of the node.'),
-      province?: string(name='Province', description='The province where the node is deployed.'),
+      name?: string(name='Name', description='The name of the node.', example='Dalian Unicom'),
+      province?: string(name='Province', description='The province where the node is deployed.', example='Liaoning Province'),
     }
   ](name='EnsRegions')
   }(name='EnsRegions', description='The information about the regions.'),
@@ -3984,7 +4207,7 @@ model DescribeEnsResourceUsageResponseBody = {
       storageSum?: long(name='StorageSum', description='The total disk size.', example='5000'),
     }
   ](name='EnsResourceUsage', description='The resource usage data.'),
-  requestId?: string(name='RequestId', description='The request ID.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E	 Request ID.'),
 }
 
 model DescribeEnsResourceUsageResponse = {
@@ -4021,7 +4244,7 @@ model DescribeEnsRouteEntryListResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   routeEntrys?: [ 
     {
-      description?: string(name='Description', description='Enter a description for the route.'),
+      description?: string(name='Description', description='Enter a description for the route.', example='test'),
       destinationCidrBlock?: string(name='DestinationCidrBlock', description='The destination CIDR block of the route.', example='101.0.45.0/24'),
       nextHops?: [ 
         {
@@ -4460,13 +4683,13 @@ model DescribeEpnMeasurementDataResponseBody = {
         bandWidthFeeData?: [ 
         {
           costCode?: string(name='CostCode', description='The code of the billable item.', example='cn-cmcc-1'),
-          costName?: string(name='CostName', description='The name of the billable item.'),
+          costName?: string(name='CostName', description='The name of the billable item.', example='Beijing, Shanghai, and Guangzhou Mobile'),
           costType?: string(name='CostType', description='Metering method
 
 *   SpeedUp: bandwidth of intelligent acceleration
 *   IntranetConnection: internal bandwidth', example='SpeedUp'),
           costVal?: int32(name='CostVal', description='The value of the billable item.', example='16486'),
-          ispLine?: string(name='IspLine', description='This parameter is unavailable.'),
+          ispLine?: string(name='IspLine', description='This parameter is unavailable.', example='This parameter is not currently in use.'),
         }
       ](name='BandWidthFeeData')
       }(name='BandWidthFeeDatas', description='The bandwidth data returned.'),
@@ -4577,7 +4800,7 @@ model DescribeFileSystemsRequest {
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='c50f8*****', position='Query'),
   fileSystemName?: string(name='FileSystemName', description='The name of the file system.', example='FileSystem1', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page **1**. Default value: **1**.', example='1', minimum=1, maximum=100, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. The maximum value is **100**. Default value: **10**.', example='10', minimum=1, maximum=100, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **100**. Default value: **10**.', example='10', minimum=1, maximum=100, position='Query'),
 }
 
 model DescribeFileSystemsResponseBody = {
@@ -4704,6 +4927,64 @@ async function describeForwardTableEntries(request: DescribeForwardTableEntriesR
   return @handler.do('RPC', 'DescribeForwardTableEntries', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeHaVipsRequest {
+  ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc', position='Query'),
+  haVipAddress?: string(name='HaVipAddress', example='10.5.XX.XX', position='Query'),
+  haVipId?: string(name='HaVipId', example='havip-5p14t****', position='Query'),
+  name?: string(name='Name', example='test', position='Query'),
+  networkId?: string(name='NetworkId', example='n-57gqcdfvx6n****', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='10', position='Query'),
+  status?: string(name='Status', example='Available', position='Query'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-5****', position='Query'),
+}
+
+model DescribeHaVipsResponseBody = {
+  haVips?: [ 
+    {
+      associatedEipAddresses?: [ 
+        {
+          eip?: string(name='Eip', example='47.XX.XX.40'),
+          eipId?: string(name='EipId', example='eip-5p1wz****'),
+        }
+      ](name='AssociatedEipAddresses'),
+      associatedInstances?: [ 
+        {
+          creationTime?: string(name='CreationTime', example='2023-01-05T07:09:28Z'),
+          instanceId?: string(name='InstanceId', example='i-51p****'),
+          instanceType?: string(name='InstanceType', example='EnsInstance'),
+          ipAddress?: string(name='IpAddress', example='192.XX.XX.9'),
+          status?: string(name='Status', example='InUse'),
+        }
+      ](name='AssociatedInstances'),
+      creationTime?: string(name='CreationTime', example='2023-03-29T11:17:38Z'),
+      description?: string(name='Description', example='test'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-guiyang-14'),
+      haVipId?: string(name='HaVipId', example='havip-52y28****'),
+      ipAddress?: string(name='IpAddress', example='192.XX.XX.5'),
+      name?: string(name='Name', example='test'),
+      networkId?: string(name='NetworkId', example='n-5wtkyrk****'),
+      status?: string(name='Status', example='Available'),
+      vSwitchId?: string(name='VSwitchId', example='vsw-5yc8d****'),
+    }
+  ](name='HaVips'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  totalCount?: string(name='TotalCount', example='49'),
+}
+
+model DescribeHaVipsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeHaVipsResponseBody(name='body'),
+}
+
+async function describeHaVips(request: DescribeHaVipsRequest): DescribeHaVipsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeHaVips', 'GET', '/', 'json', false, 'json', request);
+}
+
 model DescribeImageInfosRequest {
   osType?: string(name='OsType', description='The operating system (OS). You can specify only one OS in a request. If you do not specify a value for this parameter, images for all supported OSs are queried. Valid values:
 
@@ -4793,7 +5074,7 @@ Default value: **1**.', example='1', position='Query'),
 
 Default value: **10**.', example='50', position='Query'),
   snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='mock-clone_snapshot_id', position='Query'),
-  status?: string(name='Status', description='This parameter is unavailable.', position='Query'),
+  status?: string(name='Status', description='This parameter is unavailable.', example='This parameter is not currently in use.', position='Query'),
 }
 
 model DescribeImagesResponseBody = {
@@ -4887,7 +5168,7 @@ model DescribeInstanceMonitorDataResponseBody = {
     {
       CPU?: string(name='CPU', description='The vCPU usage of the instance, which is raw data. For example, a value of 0.02 indicates that the usage is 2%.', example='0.02'),
       instanceId?: string(name='InstanceId', description='The ID of the instance.', example='yourInstance ID'),
-      memory?: string(name='Memory', description='This parameter is not yet supported.'),
+      memory?: string(name='Memory', description='This parameter is not yet supported.', example='Not currently supported'),
     }
   ](name='InstanceMonitorData')
   }(name='MonitorData', description='The set of InstanceMonitorDataType data.'),
@@ -4917,7 +5198,7 @@ model DescribeInstanceSpecResponseBody = {
     instanceSpec?: [ 
     {
       core?: string(name='Core', description='The number of CPU cores.', example='1'),
-      displayName?: string(name='DisplayName', description='The display name of the instance type.'),
+      displayName?: string(name='DisplayName', description='The display name of the instance type.', example='Computational 1C2G'),
       instanceType?: string(name='InstanceType', description='The type of the instance.', example='ens.sn1.stiny'),
       memory?: string(name='Memory', description='The memory size. Unit: MB.', example='2048'),
     }
@@ -4947,7 +5228,7 @@ model DescribeInstanceTypesResponseBody = {
     instanceType?: [ 
     {
       cpuCoreCount?: int32(name='CpuCoreCount', description='The number of vCPUs.', example='2'),
-      instanceTypeId?: string(name='InstanceTypeId', description='This parameter is unavailable.'),
+      instanceTypeId?: string(name='InstanceTypeId', description='This parameter is unavailable.', example='This parameter is not needed temporarily.'),
       instanceTypeName?: string(name='InstanceTypeName', description='The name of the instance type.', example='ens.xxx.small'),
       memorySize?: int32(name='MemorySize', description='The memory size. Unit: MB.', example='8192'),
     }
@@ -5022,10 +5303,10 @@ Default value: **10**.', example='10', position='Query'),
 *   Expired', example='Running', position='Query'),
   tags?: [ 
     {
-      key?: string(name='Key', description='The tag key. Valid values: 1 to 20.', example='tag'),
-      value?: string(name='Value', description='The tag value. Valid values: 1 to 20.', example='2'),
+      key?: string(name='Key', description='The key of the tag that are to add to the instance. Valid values: 1 to 20.', example='tag'),
+      value?: string(name='Value', description='The tag value of the instance. Valid values: 1 to 20.', example='2'),
     }
-  ](name='Tags', description='The tags that are added to the resource.', shrink='json', position='Query'),
+  ](name='Tags', description='The tags that are added to the resource. This operation does not return tag information. You can call this operation in combination with the tag-related operations.', shrink='json', position='Query'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-2zeh0r1pabwtg6wcs****', position='Query'),
 }
 
@@ -5048,6 +5329,8 @@ model DescribeInstancesResponseBody = {
           diskId?: string(name='DiskId', description='The ID of the disk.', example='d-5ip4c2dhmas0vjd5u1r****'),
           diskName?: string(name='DiskName', description='The name of the disk.', example='DiskName'),
           diskSize?: int32(name='DiskSize', description='The size of the disk. Unit: GiB.', example='100'),
+          encryptKeyId?: string(name='EncryptKeyId'),
+          encrypted?: boolean(name='Encrypted'),
           size?: int32(name='Size', description='The size of the disk. Unit: MiB.', example='51200'),
           deviceType?: string(name='device_type', description='The extended field of the disk category. Valid values:
 
@@ -5094,6 +5377,7 @@ model DescribeInstancesResponseBody = {
 *   arm_bmi: Arm-based computing instance.', example='x86_vm'),
       internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn', description='The maximum outbound bandwidth. Unit: Mbit/s.', example='40'),
       internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The minimum inbound bandwidth. Unit: Mbit/s.', example='100'),
+      keyPairName?: string(name='KeyPairName'),
       memory?: int32(name='Memory', description='The memory size. Unit: MB.', example='2048'),
       networkAttributes?: {
         networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****'),
@@ -5127,7 +5411,7 @@ model DescribeInstancesResponseBody = {
       securityGroupIds?: {
         securityGroupId?: [ string ](name='SecurityGroupId')
       }(name='SecurityGroupIds', description='The IDs of the security groups.'),
-      specName?: string(name='SpecName', description='The code of the instance type.', example='ens.sn1.stiny'),
+      specName?: string(name='SpecName', description='The instance type.', example='ens.sn1.stiny'),
       spotStrategy?: string(name='SpotStrategy', description='The bidding policy of the preemptible instance.', example='NoSpot'),
       status?: string(name='Status', description='The status of the instance. Valid values:
 
@@ -5237,18 +5521,18 @@ model DescribeLoadBalancerAttributeRequest {
 }
 
 model DescribeLoadBalancerAttributeResponseBody = {
-  address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='192.168.0.1'),
+  address?: string(name='Address', description='The IP address that the Edge Load Balancer (ELB) instance uses to provide services.', example='192.168XX.XX'),
   addressIPVersion?: string(name='AddressIPVersion', description='The IP version of the ELB instance. Valid values: ipv4 and ipv6.', example='ipv4'),
   backendServers?: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.5'),
+      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.XX.XX'),
       port?: string(name='Port', description='The port that is used by the backend server.', example='0'),
       serverId?: string(name='ServerId', description='The ID of the backend server.', example='i-5vb5h5njxiuhn48a****'),
-      type?: string(name='Type', description='The type of the backend server.', example='ens'),
+      type?: string(name='Type', description='The type of backend server.', example='ens'),
       weight?: int32(name='Weight', description='The weight of the backend server.', example='100'),
     }
-  ](name='BackendServers', description='The backend servers.'),
-  bandwidth?: int32(name='Bandwidth', description='The maximum bandwidth of the elastic IP address (EIP). Default value: 5. Valid values: **5** to **10000**. Unit: Mbit/s.', example='2000'),
+  ](name='BackendServers', description='The list of backend servers.'),
+  bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the ELB. The default value is -1, which indicates that the bandwidth is unlimited.', example='-1'),
   createTime?: string(name='CreateTime', description='The time when the ELB instance was created. The time is displayed in UTC.', example='2019-05-21T12:22:00Z'),
   endTime?: string(name='EndTime', description='The time when the ELB instance was disabled.', example='2020-05-21T12:22:00Z'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-chengdu-telecom'),
@@ -5259,7 +5543,7 @@ model DescribeLoadBalancerAttributeResponseBody = {
       forwardPort?: int32(name='ForwardPort', description='The destination listening port to which requests are forwarded.', example='0'),
       listenerForward?: string(name='ListenerForward', description='Indicates whether the listener is enabled.', example='off'),
       listenerPort?: int32(name='ListenerPort', description='The listener port of the instance.', example='8080'),
-      listenerProtocol?: string(name='ListenerProtocol', description='The listener protocol.', example='tcp'),
+      listenerProtocol?: string(name='ListenerProtocol', description='The listener protocol of the instance.', example='tcp'),
     }
   ](name='ListenerPortsAndProtocols', description='The frontend ports and protocols that are used by the ELB instance.'),
   loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5rcvo1n1t3hykfhhjwjgqp****'),
@@ -5285,9 +5569,8 @@ model DescribeLoadBalancerAttributeResponse = {
 }
 
 /**
-  * > 
-  * *   You can call this operation up to 100 times per second per account.
-  * *   You can call this operation up to 10 times per second per user.
+  * *   You can call this operation up to 100 times per second.
+  * *   You can call this operation up to 10 times per second per account.
   *
  */
 async function describeLoadBalancerAttribute(request: DescribeLoadBalancerAttributeRequest): DescribeLoadBalancerAttributeResponse {
@@ -5296,16 +5579,13 @@ async function describeLoadBalancerAttribute(request: DescribeLoadBalancerAttrib
 }
 
 model DescribeLoadBalancerHTTPListenerAttributeRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1 to 65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port that you want to query. Valid values: **1 to 65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5snthcyu1x10g7tywj7iu****', position='Query'),
 }
 
 model DescribeLoadBalancerHTTPListenerAttributeResponseBody = {
-  bandwidth?: int32(name='Bandwidth', description='The maximum bandwidth of the EIP.
-
-*   Default value: 5.
-*   Valid values: **5** to **10000**.
-*   Unit: Mbit/s.', example='50'),
+  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB) instance. The default value is -1, which indicates that the bandwidth is not limited.', example='-1'),
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='abc'),
@@ -5337,18 +5617,24 @@ model DescribeLoadBalancerHTTPListenerAttributeResponseBody = {
 *   **get**: requests the specified part of the page and returns the entity body.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='head'),
-  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
->*   This parameter is returned only if you set HealthCheck to on.
->*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='10'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that is used for health checks. The URI must be **1** to **80** characters in length.
+> 
 
->*   The URL must start with a forward slash (`/`) and contain characters other than forward slashes (`/`).
->*   This parameter is returned only if you set HealthCheck to on.', example='/checkpreload.htm'),
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
+
+*   If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.', example='10'),
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
+
+> 
+
+*   A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).
+
+*   This parameter takes effect only if the HealthCheck parameter is set to on.', example='/checkpreload.htm'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='3'),
@@ -5359,7 +5645,7 @@ model DescribeLoadBalancerHTTPListenerAttributeResponseBody = {
 
 *   **on**: HTTP-to-HTTPS redirection is enabled.
 *   **off** (default)', example='off'),
-  listenerPort?: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  listenerPort?: int32(name='ListenerPort', description='The listener port.', example='80'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
@@ -5383,10 +5669,10 @@ model DescribeLoadBalancerHTTPListenerAttributeResponseBody = {
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='3'),
-  xForwardedFor?: string(name='XForwardedFor', description='Specifies whether to use the X-Forwarded-For header to obtain the real IP address of the client. Valid values:
+  xForwardedFor?: string(name='XForwardedFor', description='Indicates whether the X-Forwarded-For header is used to obtain the real IP address of the client. Valid values:
 
-*   **on**
-*   **off** (default)', example='on'),
+*   **on** (default)
+*   **off**', example='on'),
 }
 
 model DescribeLoadBalancerHTTPListenerAttributeResponse = {
@@ -5406,16 +5692,13 @@ async function describeLoadBalancerHTTPListenerAttribute(request: DescribeLoadBa
 }
 
 model DescribeLoadBalancerHTTPSListenerAttributeRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listening port that you want to query. Valid values: **1** to **65535**.', example='443', minimum=0, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5qoxu2rsr0ytanpn4r3i****', position='Query'),
 }
 
 model DescribeLoadBalancerHTTPSListenerAttributeResponseBody = {
-  bandwidth?: int32(name='Bandwidth', description='The maximum bandwidth of the EIP.
-
-*   Default value: 5.
-*   Valid values: **5** to **10000**.
-*   Unit: Mbit/s.', example='50'),
+  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB). The default value is -1, which indicates that the bandwidth is not limited.', example='50'),
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.', example='abc'),
   forwardPort?: int32(name='ForwardPort', description='The listener port that is used to redirect HTTP requests to HTTPS.', example='0'),
   healthCheck?: string(name='HealthCheck', description='Indicates whether the health check feature is enabled. Valid values:
@@ -5445,7 +5728,7 @@ model DescribeLoadBalancerHTTPSListenerAttributeResponseBody = {
 *   **get**: requests the specified part of the page and returns the entity body.
 
 >  This parameter is returned only if the HealthCheck parameter is set to on.', example='head'),
-  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
@@ -5453,9 +5736,9 @@ model DescribeLoadBalancerHTTPSListenerAttributeResponseBody = {
 
 > 
 
-*   This parameter is returned only if the HealthCheck parameter is set to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='5'),
+*   If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.', example='5'),
   healthCheckURI?: string(name='HealthCheckURI', description='The URI that is used for health checks. The URI must be **1** to **80** characters in length.
 
 *   The URL must start with `/` and contain characters other than `/`.
@@ -5483,7 +5766,7 @@ model DescribeLoadBalancerHTTPSListenerAttributeResponseBody = {
 *   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
 *   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
 *   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr'),
-  serverCertificateId?: string(name='ServerCertificateId', description='The ID of the server certificate.', example='6027667'),
+  serverCertificateId?: string(name='ServerCertificateId', description='The ID of the server certificate.', example='60276**'),
   status?: string(name='Status', description='The status of the listener. Valid values:
 
 *   **Running**
@@ -5642,28 +5925,25 @@ async function describeLoadBalancerTCPListenerAttribute(request: DescribeLoadBal
 }
 
 model DescribeLoadBalancerUDPListenerAttributeRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.', example='80', minimum=0, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listening port that you want to query. Valid values: **1** to **65535**.', example='80', minimum=0, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5pzipr2fszqtl2xf64uy5****', position='Query'),
 }
 
 model DescribeLoadBalancerUDPListenerAttributeResponseBody = {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
-  bandwidth?: int32(name='Bandwidth', description='The maximum bandwidth of the elastic IP address (EIP).
-
-*   Default value: 5.
-*   Valid values: **5** to **10000**.
-*   Unit: Mbit/s.', example='5'),
-  description?: string(name='Description', description='The description of the listener.', example='example'),
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend ELB server of the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB) instance. The default value is -1, which indicates that the bandwidth is not limited.', example='5'),
+  description?: string(name='Description', description='The name of the listener.', example='example'),
   eipTransmit?: string(name='EipTransmit', description='Indicates whether EIP pass-through is enabled. Valid values:
 
 *   **on**
 *   **off** (default)', example='on'),
+  establishedTimeout?: int32(name='EstablishedTimeout', description='The timeout period of a connection. Valid values: **10** to **900**. Unit: seconds.', example='500'),
   healthCheck?: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
 
 *   **on**
 *   **off**', example='on'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If you leave this parameter empty, the port specified by BackendServerPort is used for health checks.', example='8000'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period for a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
@@ -5671,9 +5951,9 @@ model DescribeLoadBalancerUDPListenerAttributeResponseBody = {
 
 > 
 
-*   This parameter takes effect only if you set HealthCheck to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckConnectTimeout parameter is smaller than that of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckConnectTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='100'),
+*   If the value of the HealthCheckTimeout property is smaller than the value of the HealthCheckInterval property, the timeout period specified by the HealthCheckTimeout property becomes invalid and the value of the HealthCheckInterval property is used as the timeout period.', example='100'),
   healthCheckExp?: string(name='HealthCheckExp', description='The response string for UDP listener health checks. The string can be up to 64 characters in length and can contain only letters and digits.', example='ok'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Unit: seconds.
 
@@ -5682,7 +5962,7 @@ model DescribeLoadBalancerUDPListenerAttributeResponseBody = {
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='4'),
-  listenerPort?: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance.', example='80'),
+  listenerPort?: int32(name='ListenerPort', description='The listener port.', example='80'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='5D7597CF-1630-54EC-A945-624A33F2E7E8'),
   scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
 
@@ -5721,13 +6001,13 @@ async function describeLoadBalancerUDPListenerAttribute(request: DescribeLoadBal
 }
 
 model DescribeLoadBalancersRequest {
-  address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='10.0.0.8', position='Query'),
+  address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='10.0.XX.XX', position='Query'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-guangzhou-10', position='Query'),
   loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5q73cv04zeyh43lh74lp4****', position='Query'),
   loadBalancerName?: string(name='LoadBalancerName', description='The name of the ELB instance.', example='example', minLength=2, maxLength=128, position='Query'),
-  loadBalancerStatus?: string(name='LoadBalancerStatus', description='The status of the ELB instance. Valid values:
+  loadBalancerStatus?: string(name='LoadBalancerStatus', description='The status of the listener for the ELB instance. Valid values:
 
-*   **Active** (default): The listener for the instance can forward the received traffic based on the rule.
+*   **Active**: The listener for the instance can forward the received traffic based on forwarding rules.
 *   **InActive**: The listener for the instance does not forward the received traffic.', example='InActive', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5s9ayrxsd9hszrlt5fgv2****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
@@ -5740,15 +6020,15 @@ model DescribeLoadBalancersResponseBody = {
   loadBalancers?: {
     loadBalancer?: [ 
     {
-      address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='10.10.10.10'),
-      addressIPVersion?: string(name='AddressIPVersion', description='The version of the IP address. Valid values: ipv4 and ipv6.', example='ipv4'),
+      address?: string(name='Address', description='The IP address that the ELB instance uses to provide services.', example='10.10.XX.XX'),
+      addressIPVersion?: string(name='AddressIPVersion', description='The IP version. Valid values: ipv4 and ipv6.', example='ipv4'),
       createTime?: string(name='CreateTime', description='The time when the ELB instance was created. The time is displayed in UTC.', example='2021-05-06T11:13:41Z'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-wuhan-telecom'),
       loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5snthcyu1x10g7tywj7iu****'),
       loadBalancerName?: string(name='LoadBalancerName', description='The name of the ELB instance.', example='example'),
-      loadBalancerStatus?: string(name='LoadBalancerStatus', description='The status of the ELB instance. Valid values:
+      loadBalancerStatus?: string(name='LoadBalancerStatus', description='The status of the listener for the ELB instance. Valid values:
 
-*   **Active** (default): The listener for the instance can forward the received traffic based on the rule.
+*   **Active**: The listener for the instance can forward the received traffic based on forwarding rules.
 *   **InActive**: The listener for the instance does not forward the received traffic.', example='InActive'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5rz0rj1caexauilpsjx0w****'),
       payType?: string(name='PayType', description='The billing method. Valid values:
@@ -5758,11 +6038,11 @@ model DescribeLoadBalancersResponseBody = {
       vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5rllcjb3ol6duzjdnbm1om****'),
     }
   ](name='LoadBalancer')
-  }(name='LoadBalancers', description='The returned ELB instances.'),
+  }(name='LoadBalancers', description='An array of ELB instances.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Valid values: **10** to **100**.', example='100'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='6'),
+  totalCount?: int32(name='TotalCount', description='The number of entries returned.', example='6'),
 }
 
 model DescribeLoadBalancersResponse = {
@@ -5794,7 +6074,7 @@ model DescribeMeasurementDataResponseBody = {
         bandWidthFeeData?: [ 
         {
           costCode?: string(name='CostCode', description='The code of the bandwidth plan.', example='cn-cmcc-1'),
-          costName?: string(name='CostName', description='The name of the bandwidth plan.'),
+          costName?: string(name='CostName', description='The name of the bandwidth plan.', example='Beijing, Shanghai, and Guangzhou Mobile'),
           costVal?: int32(name='CostVal', description='The bandwidth consumption. Unit: bit/second.', example='16486'),
         }
       ](name='BandWidthFeeData')
@@ -6206,6 +6486,7 @@ async function describeNetworkAttribute(request: DescribeNetworkAttributeRequest
 model DescribeNetworkInterfacesRequest {
   ensRegionId?: string(name='EnsRegionId', description='The region ID of the instance.', example='cn-tianjin-cmcc', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5t7z99n32gplriv', position='Query'),
+  ipv6Address?: [ string ](name='Ipv6Address', shrink='simple', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****', position='Query'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-58z57orgmt6d1****', position='Query'),
   networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI.', example='test-01', maxLength=128, position='Query'),
@@ -6239,6 +6520,13 @@ model DescribeNetworkInterfacesResponseBody = {
       description?: string(name='Description', description='The description of ENI.', example='test-description'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='id-jakarta-1'),
       instanceId?: string(name='InstanceId', description='The ID of the instance to which the ENI is bound.', example='i-5siavnr3'),
+      ipv6Sets?: {
+        ipv6Set?: [ 
+        {
+          ipv6Address?: string(name='Ipv6Address'),
+        }
+      ](name='Ipv6Set')
+      }(name='Ipv6Sets'),
       macAddress?: string(name='MacAddress', description='The MAC address of the ENI.', example='00:16:3e:08:60:0a'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5w0qd03adw****'),
       networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-uf686a5'),
@@ -6347,22 +6635,22 @@ async function describeNetworks(request: DescribeNetworksRequest): DescribeNetwo
 }
 
 model DescribePrePaidInstanceStockRequest {
-  dataDiskSize: int32(name='DataDiskSize', description='The ID of the datadisk.', example='20', position='Query'),
+  dataDiskSize: int32(name='DataDiskSize', description='The size of the data disk. Unit: GB.', example='20', position='Query'),
   ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-suzhou-telecom', position='Query'),
-  instanceSpec: string(name='InstanceSpec', description='The size of the system disk. Unit: GB.', example='ens.sn1.stiny', position='Query'),
-  systemDiskSize: int32(name='SystemDiskSize', description='The ID of the systemdisk', example='100', minimum=20, position='Query'),
+  instanceSpec: string(name='InstanceSpec', description='The specification of the instance.', example='ens.sn1.stiny', position='Query'),
+  systemDiskSize: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GB.', example='100', minimum=20, position='Query'),
 }
 
 model DescribePrePaidInstanceStockResponseBody = {
   avaliableCount?: int32(name='AvaliableCount', description='The number of resources that you can purchase.', example='84'),
-  cores?: int32(name='Cores', description='The number of vCPUs.', example='1'),
+  cores?: int32(name='Cores', description='The number of CPU cores.', example='1'),
   dataDiskSize?: int32(name='DataDiskSize', description='The size of the data disk.', example='20'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-suzhou-telecom'),
-  instanceSpec?: string(name='InstanceSpec', description='The instance type.', example='ens.sn1.stiny'),
+  instanceSpec?: string(name='InstanceSpec', description='The specification of the instance.', example='ens.sn1.stiny'),
   memory?: int32(name='Memory', description='The memory size. Unit: GB.', example='2048'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='007833C8-E819-4122-B636-0D48D7BF6DFB'),
-  resourceGap?: string(name='ResourceGap', description='The reasons for resource scarcity', example='StockNotEnough'),
-  systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GB.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='007833C8-E819-4122-B636-0D48D7BF6DFB'),
+  resourceGap?: string(name='ResourceGap', description='The reason why resources are insufficient.', example='StockNotEnough'),
+  systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk.', example='20'),
 }
 
 model DescribePrePaidInstanceStockResponse = {
@@ -6445,7 +6733,7 @@ model DescribeRegionIspsResponseBody = {
   isps?: [ 
     {
       code?: string(name='Code', description='The code of the ISP.', example='cmcc'),
-      name?: string(name='Name', description='The name of the ISP.'),
+      name?: string(name='Name', description='The name of the ISP.', example='move'),
     }
   ](name='Isps', description='The list of ISPs.'),
   requestId?: string(name='RequestId', description='The request ID.', example='DC90CC7E-23B6-5A90-9097-A17CE4A161C4'),
@@ -6811,46 +7099,59 @@ async function describeResourceTimeline(request: DescribeResourceTimelineRequest
 }
 
 model DescribeSDGRequest {
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
-  SDGIds?: [ string ](name='SDGIds', shrink='json', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+Default value: 10', example='10', minimum=1, maximum=100, position='Query'),
+  SDGIds?: [ string ](name='SDGIds', description='The IDs of SDGs that you want to query. By default, all SDGs are queried.', shrink='json', position='Query'),
 }
 
 model DescribeSDGResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
   SDGs?: [ 
     {
       avaliableRegionIds?: [ 
         {
-          creationTime?: string(name='CreationTime', example='2023-02-27 15:13:26'),
-          regionId?: string(name='RegionId', example='cn-hangzhou-26'),
-          snapshotId?: string(name='SnapshotId', example='sp-517qu0tgznrg622he7nf4wd7n'),
-          status?: string(name='Status', example='success'),
+          creationTime?: string(name='CreationTime', description='The time when the SDG was created on the node.', example='2023-02-27 15:13:26'),
+          regionId?: string(name='RegionId', description='The ID of the node.', example='cn-hangzhou-26'),
+          snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='sp-517qu0tgznrg622he7nf4wd7n'),
+          status?: string(name='Status', description='The status of the SDG on the node. Valid values:
+
+*   **sdg_making**
+*   **sdg_saving**
+*   **sdg_copying**
+*   **failed**
+*   **success**', example='success'),
         }
-      ](name='AvaliableRegionIds'),
-      creationInstanceId?: string(name='CreationInstanceId', example='aic-5x20dyeos****'),
-      creationRegionId?: string(name='CreationRegionId', example='cn-hangzhou-26'),
-      creationTime?: string(name='CreationTime', example='2023-02-27 15:07:21'),
-      description?: string(name='Description'),
-      parentSDGId?: string(name='ParentSDGId', example='sdg-xxxxx'),
+      ](name='AvaliableRegionIds', description='SDGs that have snapshots.'),
+      creationInstanceId?: string(name='CreationInstanceId', description='The ID of the instance on which the SDG is created.', example='aic-5x20dyeos****'),
+      creationRegionId?: string(name='CreationRegionId', description='The ID of the node on which the SDG is created.', example='cn-hangzhou-26'),
+      creationTime?: string(name='CreationTime', description='The time when the first SDG in the node was created.', example='2023-02-27 15:07:21'),
+      description?: string(name='Description', description='The description of the SDG.', example='Testing SDGs'),
+      parentSDGId?: string(name='ParentSDGId', description='The ID of the source SDG from which you want to create an SDG. The value of this parameter is the value of the **FromSDGId** parameter that you need to specify when you call the [CreateSDG](~~608128~~) operation.', example='sdg-xxxxx'),
       preloadInfos?: [ 
         {
-          creationTime?: string(name='CreationTime', example='2023-02-16T06:18:40Z'),
-          namespace?: string(name='Namespace', example='test-20000'),
-          redundantNum?: int32(name='RedundantNum', example='2'),
-          regionId?: string(name='RegionId', example='cn-hangzhou'),
-          updateTime?: string(name='UpdateTime', example='2021-01-22T08:17Z'),
+          creationTime?: string(name='CreationTime', description='The time when the SDG was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-02-16T06:18:40Z'),
+          namespace?: string(name='Namespace', description='The namespace.', example='test-20000'),
+          redundantNum?: int32(name='RedundantNum', description='The number of redundant replicas to quickly respond to shared mounts.', example='2'),
+          regionId?: string(name='RegionId', description='The ID of the node.', example='cn-hangzhou'),
+          updateTime?: string(name='UpdateTime', description='The time when the status was last updated.', example='2021-01-22T08:17Z'),
         }
-      ](name='PreloadInfos'),
-      SDGId?: string(name='SDGId', example='sdg-30e1fdba7196bc****'),
-      size?: long(name='Size', example='20'),
-      status?: string(name='Status', example='success'),
-      updateTime?: string(name='UpdateTime', example='2023-02-27 16:04:39'),
+      ](name='PreloadInfos', description='The preload information.'),
+      SDGId?: string(name='SDGId', description='The ID of the SDG.', example='sdg-30e1fdba7196bc****'),
+      size?: long(name='Size', description='The size of the SDG. Unit: GB.', example='20'),
+      status?: string(name='Status', description='The status of the SDG creation. Valid values:
+
+*   **sdg_making**
+*   **sdg_saving**
+*   **failed**
+*   **success**', example='success'),
+      updateTime?: string(name='UpdateTime', description='The time when the SDG was last updated.', example='2023-02-27 16:04:39'),
     }
-  ](name='SDGs'),
-  totalCount?: int32(name='TotalCount', example='49'),
+  ](name='SDGs', description='The information about the SDGs.'),
+  totalCount?: int32(name='TotalCount', description='The total number of returned entries.', example='49'),
 }
 
 model DescribeSDGResponse = {
@@ -6865,74 +7166,33 @@ async function describeSDG(request: DescribeSDGRequest): DescribeSDGResponse {
 }
 
 model DescribeSDGDeploymentStatusRequest {
-  pageNumber?: string(name='PageNumber', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1', position='Query'),
-  pageSize?: string(name='PageSize', description='The number of entries returned per page.', example='10', position='Query'),
+  deploymentType?: string(name='DeploymentType', position='Query'),
+  instanceIds?: [ string ](name='InstanceIds', shrink='json', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page **1**. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', minimum=1, maximum=100, position='Query'),
+  regionIds?: [ string ](name='RegionIds', shrink='json', position='Query'),
   SDGId: string(name='SDGId', description='The ID of the SDG.', example='sdg-xxxx', position='Query'),
+  status?: string(name='Status', position='Query'),
 }
 
 model DescribeSDGDeploymentStatusResponseBody = {
   deploymentStatus?: [ 
     {
-      instanceId?: string(name='InstanceId', description='The ID of the instance', example='aic-xxxx'),
+      instanceId?: string(name='InstanceId', description='The ID of the AIC instance.', example='aic-xxxx'),
       mountType?: string(name='MountType', description='The deployment type.
 
 Valid values:
 
-*   overlay
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    read/write splitting
-
-    <!-- -->
-
-    .
-
-*   common
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    common deployment
-
-    <!-- -->
-
-    .', example='overlay'),
-      regionId?: string(name='RegionId', description='The ID of the node.', example='cn-hangzhou'),
-      status?: string(name='Status', description='The deployment status of the SDG.
+*   overlay: read/write splitting.
+*   common: common deployment.', example='overlay'),
+      regionId?: string(name='RegionId', description='The ID of the edge node.', example='cn-hangzhou'),
+      status?: string(name='Status', description='the deployment status of the shared data group SDG.
 
 Valid values:
 
 *   sdg_deploying
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
 *   success
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->
-
-*   failed
-
-    <!-- -->
-
-    <!-- -->
-
-    <!-- -->', example='success'),
+*   failed', example='success'),
       updateTime?: string(name='UpdateTime', description='The time when the status was last updated.', example='2023-02-17T02:44:31Z'),
     }
   ](name='DeploymentStatus', description='The deployment information of the SDG.'),
@@ -6950,13 +7210,11 @@ model DescribeSDGDeploymentStatusResponse = {
 
 async function describeSDGDeploymentStatus(request: DescribeSDGDeploymentStatusRequest): DescribeSDGDeploymentStatusResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DescribeSDGDeploymentStatus', 'GET', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'DescribeSDGDeploymentStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeSDGsRequest {
-  instanceIds?: [ string ](name='InstanceIds', description='The IDs of instances that you want to query. By default, all instances are queried.
-
->  If you specify the **SDGIds** and **InstanceIds** parameters at the same time, the query result is the intersection of the two conditions.', shrink='json', position='Query'),
+  instanceIds?: [ string ](name='InstanceIds', description='The AIC instance ID to be queried.', shrink='json', position='Query'),
   SDGIds?: [ string ](name='SDGIds', description='The IDs of SDGs that you want to query. By default, all SDGs are queried.', shrink='json', position='Query'),
 }
 
@@ -6967,7 +7225,7 @@ model DescribeSDGsResponseBody = {
       avaliableRegionIds?: [ 
         {
           creationTime?: string(name='CreationTime', description='The time when the SDG was created on the node.', example='2023-02-27 15:13:26'),
-          regionId?: string(name='RegionId', description='The ID of the node.', example='cn-hangzhou-26'),
+          regionId?: string(name='RegionId', description='The ID of the edge node.', example='cn-hangzhou-26'),
           snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='mock-clone_snapshot_id'),
           status?: string(name='Status', description='The status of the SDG on the node. Valid values:
 
@@ -6996,7 +7254,7 @@ model DescribeSDGsResponseBody = {
 *   **success**', example='sdg_deploying'),
         }
       ](name='DeployedInstanceIds', description='The deployment information.'),
-      description?: string(name='Description', description='The description of the SDG.'),
+      description?: string(name='Description', description='The description of the SDG.', example='Testing SDGs'),
       parentSDGId?: string(name='ParentSDGId', description='The ID of the source SDG from which you want to create an SDG. The value of this parameter is the value of the **FromSDGId** parameter that you need to specify when you call the [CreateSDG](~~608128~~) operation.', example='sdg-xxxxx'),
       SDGId?: string(name='SDGId', description='The ID of the SDG.', example='sdg-30e1fdba7196bc****'),
       size?: long(name='Size', description='The size of the SDG. Unit: GB.', example='20'),
@@ -7127,10 +7385,11 @@ model DescribeSelfImagesResponseBody = {
       imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_a****'),
       imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
 
-*   **system**: public images
-*   **self**: your custom images', example='system'),
+*   **others**: a custom image that is shared by other Alibaba Cloud accounts.
+*   **self**: your own custom image.', example='system'),
       imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='20'),
-      instanceId?: string(name='InstanceId', description='The instance ID.', example='i-5iqczfxps7csjrxeca****'),
+      imageStorageSize?: string(name='ImageStorageSize'),
+      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5iqczfxps7csjrxeca****'),
       osVersion?: string(name='OsVersion', description='The operating system version.', example='7.2'),
       platform?: string(name='Platform', description='The platform.
 
@@ -7140,7 +7399,7 @@ model DescribeSelfImagesResponseBody = {
 *   debian
 *   rhel
 *   windows', example='centos'),
-      snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='sp-5yt3bdedxzdz6t6uuw****'),
+      snapshotId?: string(name='SnapshotId', description='The snapshot ID.', example='sp-5yt3bdedxzdz6t6uuw****'),
       status?: string(name='Status', description='The state of the image.
 
 *   Creating.
@@ -7169,15 +7428,15 @@ async function describeSelfImages(request: DescribeSelfImagesRequest): DescribeS
 }
 
 model DescribeServcieScheduleRequest {
-  appId: string(name='AppId', description='The ID of the application.', example='474bdef0-d149-4695-abfb-52912d9143f0', position='Query'),
+  appId: string(name='AppId', description='The ID of the application.', example='474bdef0-d149-4695-abfb-52912d91****', position='Query'),
   podConfigName?: string(name='PodConfigName', description='This parameter does not take effect.', example='android', position='Query'),
-  uuid: string(name='Uuid', description='The UUID of the device.', example='hdm_f022bf160dc69e2d8eb421e508eb9170', position='Query'),
+  uuid: string(name='Uuid', description='The unique ID of the device.', example='hdm_f022bf160dc69e2d8eb421e508eb****', position='Query'),
 }
 
 model DescribeServcieScheduleResponseBody = {
   index?: int32(name='Index', description='The index number of the scheduled virtual device (pod).', example='2'),
-  instanceId?: string(name='InstanceId', description='The ID of the scheduled instance.', example='i-5myukg7hnpbto7m024002w8qd'),
-  instanceIp?: string(name='InstanceIp', description='The IP address of the scheduled instance.', example='120.26.79.96'),
+  instanceId?: string(name='InstanceId', description='The ID of the scheduled instance.', example='i-5myukg7hnpbto7m024002****'),
+  instanceIp?: string(name='InstanceIp', description='The ID of the scheduled instance.', example='120.26.XX.XX'),
   instancePort?: int32(name='InstancePort', description='The start port of the scheduled instance.', example='3306'),
   podAbstractInfo?: {
     containerService?: boolean(name='ContainerService', description='The name of the container service.', example='android'),
@@ -7374,6 +7633,91 @@ model DescribeSnatTableEntriesResponse = {
 async function describeSnatTableEntries(request: DescribeSnatTableEntriesRequest): DescribeSnatTableEntriesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeSnatTableEntries', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DescribeStorageGatewayRequest {
+  ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc', position='Query'),
+  gatewayId?: string(name='GatewayId', example='sgw-****', position='Query'),
+  gatewayType?: string(name='GatewayType', example='1', position='Query'),
+  pageNumber?: string(name='PageNumber', example='1', position='Query'),
+  pageSize?: string(name='PageSize', example='10', position='Query'),
+  vpcId?: string(name='VpcId', example='n-***', position='Query'),
+}
+
+model DescribeStorageGatewayResponseBody = {
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6666C5A5-75ED-422E-A022-7121FA18C968'),
+  storageGateways?: [ 
+    {
+      cidrBlock?: string(name='CidrBlock', example='192.168.2.0/24'),
+      creationTime?: string(name='CreationTime', example='2024-05-14T03:07:47Z'),
+      description?: string(name='Description', example='testDescription'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc'),
+      serviceIp?: string(name='ServiceIp', example='*.*.*.*'),
+      status?: string(name='Status', example='available'),
+      storageGatewayId?: string(name='StorageGatewayId', example='sgw-***'),
+      storageGatewayName?: string(name='StorageGatewayName', example='testGateway'),
+      storageGatewayType?: int32(name='StorageGatewayType', example='1'),
+      vpcId?: string(name='VpcId', example='n-***'),
+    }
+  ](name='StorageGateways'),
+  totalCount?: int32(name='TotalCount', example='16'),
+}
+
+model DescribeStorageGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeStorageGatewayResponseBody(name='body'),
+}
+
+async function describeStorageGateway(request: DescribeStorageGatewayRequest): DescribeStorageGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeStorageGateway', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeStorageVolumeRequest {
+  ensRegionId?: string(name='EnsRegionId', example='cn-shenzhen-3', position='Query'),
+  gatewayId?: string(name='GatewayId', example='sgw-****', position='Query'),
+  isEnable?: int32(name='IsEnable', example='1', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  storageId?: string(name='StorageId', example='d-***', position='Query'),
+  volumeId?: string(name='VolumeId', example='sv-***', position='Query'),
+}
+
+model DescribeStorageVolumeResponseBody = {
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  storageVolumes?: [ 
+    {
+      authProtocol?: string(name='AuthProtocol', example='CHAP'),
+      creationTime?: string(name='CreationTime', example='2024-03-14T09:35:32Z'),
+      description?: string(name='Description', example='testDescription'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-shenzhen-3'),
+      isAuth?: int32(name='IsAuth', example='0'),
+      isEnable?: int32(name='IsEnable', example='1'),
+      status?: string(name='Status', example='available'),
+      storageGatewayId?: string(name='StorageGatewayId', example='sgw-***'),
+      storageId?: string(name='StorageId', example='d-***'),
+      storageVolumeId?: string(name='StorageVolumeId', example='sv-***'),
+      storageVolumeName?: string(name='StorageVolumeName', example='testVolumeName'),
+      targetName?: string(name='TargetName', example='iqn.*.*.*:*'),
+    }
+  ](name='StorageVolumes'),
+  totalCount?: string(name='TotalCount', example='15'),
+}
+
+model DescribeStorageVolumeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeStorageVolumeResponseBody(name='body'),
+}
+
+async function describeStorageVolume(request: DescribeStorageVolumeRequest): DescribeStorageVolumeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeStorageVolume', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeUserBandWidthDataRequest {
@@ -8135,28 +8479,38 @@ async function listObjects(request: ListObjectsRequest): ListObjectsResponse {
 }
 
 model ListTagResourcesRequest {
-  nextToken?: string(name='NextToken', example='153ba0bbb2be03f84eb48b699f0a4123', position='Query'),
-  resourceId?: [ string ](name='ResourceId', position='Query'),
-  resourceType: string(name='ResourceType', example='instance', position='Query'),
+  nextToken?: string(name='NextToken', description='The token of the first page to query.', example='153ba0bbb2be03f84eb48b699f0a4123', position='Query'),
+  resourceId?: [ string ](name='ResourceId', description='The IDs of resources. Valid values of N: 1 to 50.', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. Valid values:
+
+*   instance', example='instance', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', example='team'),
-      value?: string(name='Value', example='tagValue'),
+      key?: string(name='Key', description='The key of tag N of the instance. Valid values of N: **1** to **20**.
+
+*   The key cannot start with `aliyun`, `acs:`, `http://`, or `https://`.
+*   The key must be up to 64 characters in length.
+*   The tag key cannot be an empty string.', example='team'),
+      value?: string(name='Value', description='The value of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
+
+*   Valid values of N: 1 to 20.
+*   The value of this parameter can be an empty string.
+*   The tag key can be up to 128 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.', example='tagValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tags.', position='Query'),
 }
 
 model ListTagResourcesResponseBody = {
-  nextToken?: string(name='NextToken', example='abcfeg368547ccdef'),
-  requestId?: string(name='RequestId', example='C78D9B61-69D8-5655-A312-A15DA5EA5D5E'),
+  nextToken?: string(name='NextToken', description='The token of the first page to query.', example='abcfeg368547ccdef'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C78D9B61-69D8-5655-A312-A15DA5EA5D5E'),
   tagResources?: [ 
     {
-      resourceId?: string(name='ResourceId', example='i-5zy93g7z1hnkdmav84joxyzgn'),
-      resourceType?: string(name='ResourceType', example='instance'),
-      tagKey?: string(name='TagKey', example='test_tag_key-2'),
-      tagValue?: string(name='TagValue', example='CLUSTER'),
+      resourceId?: string(name='ResourceId', description='The ID of the associated resources.', example='i-5zy93g7z1hnkdmav84joxyzgn'),
+      resourceType?: string(name='ResourceType', description='The type of the resource.', example='instance'),
+      tagKey?: string(name='TagKey', description='The tag key of the instance.', example='test_tag_key-2'),
+      tagValue?: string(name='TagValue', description='The tag value.', example='CLUSTER'),
     }
-  ](name='TagResources'),
+  ](name='TagResources', description='The tags that are added to specified one or more resources.'),
 }
 
 model ListTagResourcesResponse = {
@@ -8222,7 +8576,7 @@ async function modifyEpnInstance(request: ModifyEpnInstanceRequest): ModifyEpnIn
 
 model ModifyFileSystemRequest {
   description: string(name='Description', description='The description of the file system.', example='fileSystemTest', position='Query'),
-  ensRegionId: string(name='EnsRegionId', description='The ID of the region.', example='cn-beijing-cmcc', position='Query'),
+  ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-cmcc', position='Query'),
   fileSystemId: string(name='FileSystemId', description='The ID of the file system.', example='c50f8*****', position='Query'),
 }
 
@@ -8262,9 +8616,29 @@ async function modifyForwardEntry(request: ModifyForwardEntryRequest): ModifyFor
   return @handler.do('RPC', 'ModifyForwardEntry', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyHaVipAttributeRequest {
+  haVipId: string(name='HaVipId', example='havip-52y28****', position='Query'),
+  name?: string(name='Name', example='test', minLength=1, maxLength=128, position='Query'),
+}
+
+model ModifyHaVipAttributeResponseBody = {
+  requestId?: string(name='RequestId', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+}
+
+model ModifyHaVipAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyHaVipAttributeResponseBody(name='body'),
+}
+
+async function modifyHaVipAttribute(request: ModifyHaVipAttributeRequest): ModifyHaVipAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyHaVipAttribute', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyImageAttributeRequest {
   imageId: string(name='ImageId', description='The ID of the image.', example='m-5t4xwkfkbs0uxv0kymdb6uip7', position='Query'),
-  imageName: string(name='ImageName', description='The name of the image.', position='Query'),
+  imageName: string(name='ImageName', description='The name of the image.', example='Image Name', position='Query'),
 }
 
 model ModifyImageAttributeResponseBody = {
@@ -8376,7 +8750,7 @@ true: enables auto-payment. Make sure that your account has sufficient balance.
 false (default): does not enable auto-payment. The order is generated but not paid.', example='false', position='Query'),
   autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal when you change the billing method from pay-as-you-go to subscription. Valid values:
 
-true
+true: enables auto-renewal for the instance.
 
 false', example='false', position='Query'),
   includeDataDisks?: boolean(name='IncludeDataDisks', description='Specifies whether to change the billing method of all data disks that are created with the instance to subscription when you change the billing method of the instance from pay-as-you-go to subscription. Valid values:
@@ -8395,17 +8769,11 @@ PostPaid (default)', example='PostPaid', position='Query'),
 If the PeriodUnit parameter is set to Day, Period can only be set to 3.
 
 If PeriodUnit is Month, Period can be set to 1 to 9 or 12.', example='1', position='Query'),
-  periodUnit?: string(name='PeriodUnit', description='The unit of the subscription duration. This parameter is required if you set the InstanceChargeType parameter to PrePaid. Examples:
+  periodUnit?: string(name='PeriodUnit', description='The unit of the subscription duration. This parameter is required if you set the InstanceChargeType parameter to PrePaid. Valid values:
 
 Month
 
-Day
-
-Valid values:
-
-*   Year
-*   Month
-*   Day', example='Month', position='Query'),
+Day', example='Month', position='Query'),
 }
 
 model ModifyInstanceChargeTypeResponseBody = {
@@ -8595,28 +8963,31 @@ async function modifyVSwitchAttribute(request: ModifyVSwitchAttributeRequest): M
 }
 
 model PreloadRegionSDGRequest {
-  destinationRegionIds: [ string ](name='DestinationRegionIds', shrink='json', position='Query'),
-  namespaces?: [ string ](name='Namespaces', shrink='json', position='Query'),
-  redundantNum: int32(name='RedundantNum', example='2', minimum=1, maximum=5, position='Query'),
-  SDGId: string(name='SDGId', example='sdg-xxxx', position='Query'),
+  destinationRegionIds: [ string ](name='DestinationRegionIds', description='The IDs of the destination nodes.', shrink='json', position='Query'),
+  namespaces?: [ string ](name='Namespaces', description='The namespaces.', shrink='json', position='Query'),
+  redundantNum: int32(name='RedundantNum', description='The number of redundant replicas to support rapid deployment.', example='2', minimum=1, maximum=5, position='Query'),
+  SDGId: string(name='SDGId', description='The ID of the SDG for which data is preloaded.', example='sdg-xxxx', position='Query'),
 }
 
 model PreloadRegionSDGResponseBody = {
   data?: {
-    message?: string(name='Message', example='success'),
+    message?: string(name='Message', description='The message returned.', example='success'),
     result?: {
-      failedCount?: long(name='FailedCount', example='0'),
+      failedCount?: long(name='FailedCount', description='The number of failed tasks.', example='0'),
       failedItems?: [ 
         {
-          destinationRegionId?: string(name='DestinationRegionId', example='cn-hangzhou-xxx'),
-          errorMessage?: string(name='ErrorMessage', example='region not found'),
+          destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination node.', example='cn-hangzhou-xxx'),
+          errorMessage?: string(name='ErrorMessage', description='The error message that is returned.', example='region not found'),
         }
-      ](name='FailedItems'),
-      successCount?: long(name='SuccessCount', example='1'),
-    }(name='Result'),
-    success?: boolean(name='Success', example='true'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+      ](name='FailedItems', description='Details about failed tasks.'),
+      successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
+    }(name='Result', description='The execution result of the synchronization request.'),
+    success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
+
+*   true: All tasks are successful.
+*   false: Failed tasks exist.', example='true'),
+  }(name='Data', description='The returned data object.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model PreloadRegionSDGResponse = {
@@ -8628,6 +8999,28 @@ model PreloadRegionSDGResponse = {
 async function preloadRegionSDG(request: PreloadRegionSDGRequest): PreloadRegionSDGResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'PreloadRegionSDG', 'POST', '/', 'json', false, 'json', request);
+}
+
+model PrepareUploadRequest {
+  bucketName: string(name='BucketName', description='The name of the bucket.', example='test', position='Query'),
+  clientIp?: string(name='ClientIp', description='The specified IP address. This parameter is applicable to scenarios where the user IP address is inconsistent with the operation calling IP address, such as the scenario where the server obtains authorization and sends the authorization to the client.', example='180.166.XX.XXX', position='Query'),
+}
+
+model PrepareUploadResponseBody = {
+  bucketName?: string(name='BucketName', description='The name of the bucket. This parameter is available only when the OSS SDK is used.', example='test-xxxxxx'),
+  endpoint?: string(name='Endpoint', description='The endpoint. This parameter is available only when the OSS SDK is used.', example='eos.aliyuncs.com'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6666C5A5-75ED-422E-A022-7121FA18C968'),
+}
+
+model PrepareUploadResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PrepareUploadResponseBody(name='body'),
+}
+
+async function prepareUpload(request: PrepareUploadRequest): PrepareUploadResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PrepareUpload', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PushApplicationDataRequest {
@@ -8648,7 +9041,7 @@ model PushApplicationDataResponseBody = {
 *   100: The push operation has been performed and the file is pushed.
 *   200: The push operation has been performed and the file is being pushed to specific file servers.
 *   300: The push operation failed. You must trigger the push operation again. The ResultDescrip parameter indicates the error description.', example='100'),
-      resultDescrip?: string(name='ResultDescrip', description='The description of the push status.'),
+      resultDescrip?: string(name='ResultDescrip', description='The description of the push status.', example='success'),
       version?: string(name='Version', description='The version number of the data file.', example='standard'),
     }
   ](name='PushResult')
@@ -8668,20 +9061,22 @@ async function pushApplicationData(request: PushApplicationDataRequest): PushApp
 }
 
 model PutBucketRequest {
-  bucketAcl?: string(name='BucketAcl', description='The access control list (ACL) of the bucket.
+  bucketAcl?: string(name='BucketAcl', description='The access control list (ACL) of the bucket. Valid values:
 
 *   **private** (default)
 *   **public-read-write**
 *   **public-read**', example='private', position='Body'),
   bucketName: string(name='BucketName', description='The name of the bucket. This parameter can contain 3 to 50 characters in length and can contain only lowercase letters, digits, and hyphens (-). The name cannot start or end with a hyphen (-).', example='test', position='Body'),
   comment?: string(name='Comment', description='The remarks. The remarks are 0 to 128 characters in length.', example='numb', position='Body'),
-  dispatchScope?: string(name='DispatchScope', description='Scheduling Scope, this parameter is only effective for globally scheduled Buckets.
+  dispatchScope?: string(name='DispatchScope', description='The scheduling scope. This parameter takes effect only when the value of the LogicalBucketType parameter is standard. Valid values:
 
-- domestic
+*   **domestic**: Chinese mainland.
+*   **oversea**: outside the Chinese mainland.', example='domestic', position='Body'),
+  ensRegionId?: string(name='EnsRegionId', description='The region ID of the node. This parameter is required if the value of the LogicalBucketType parameter is sink.', example='cn-beijing-15', position='Body'),
+  logicalBucketType?: string(name='LogicalBucketType', description='The type of the bucket. Valid values:
 
-- oversea', example='domestic', position='Body'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the region where the node is located. If this parameter is not specified, the node is the global default node.', example='cn-beijing-15', position='Body'),
-  logicalBucketType?: string(name='LogicalBucketType', description='Single-node storage. Set the value to sink.', example='sink', position='Body'),
+*   **sink**: single-node bucket.
+*   **standard**: bucket for global scheduling.', example='sink', position='Body'),
 }
 
 model PutBucketResponseBody = {
@@ -8753,6 +9148,7 @@ Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. Th
 
 model PutBucketLifecycleResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='62373E71-5521-4620-8AAB-133CCE49357A'),
+  ruleId?: string(name='RuleId'),
 }
 
 model PutBucketLifecycleResponse = {
@@ -8814,7 +9210,7 @@ async function rebootAICInstance(request: RebootAICInstanceRequest): RebootAICIn
 }
 
 model RebootARMServerInstanceRequest {
-  serverId?: string(name='ServerId', description='The ID of the server.', example='cas-instance****', position='Query'),
+  serverId?: string(name='ServerId', description='The ID of the server.', example='yourInstance ID', position='Query'),
 }
 
 model RebootARMServerInstanceResponseBody = {
@@ -9052,7 +9448,7 @@ async function releasePrePaidInstance(request: ReleasePrePaidInstanceRequest): R
 model RemoveBackendServersRequest {
   backendServers: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.1'),
+      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.XXX.X.X'),
       port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0', minimum=0, maximum=65535),
       serverId: string(name='ServerId', description='The instance ID of the backend server.', example='i-5uf68ts0fqexe1a4n****'),
       type?: string(name='Type', description='The type of the backend server. Valid values:
@@ -9069,7 +9465,7 @@ model RemoveBackendServersResponseBody = {
   backendServers?: {
     backendServer?: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.1'),
+      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.1XX.X.X'),
       port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0'),
       serverId?: string(name='ServerId', description='The instance ID of the backend server.', example='i-5vb5h5njxiuhn48a****'),
       type?: string(name='Type', description='The type of the backend server. Valid values:
@@ -9102,26 +9498,29 @@ async function removeBackendServers(request: RemoveBackendServersRequest): Remov
 }
 
 model RemoveInstanceSDGRequest {
-  instanceIds: [ string ](name='InstanceIds', shrink='json', position='Query'),
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the instances. The value is a JSON array that consists of up to 100 IDs.', shrink='json', position='Query'),
 }
 
 model RemoveInstanceSDGResponseBody = {
-  code?: int32(name='Code', example='0'),
+  code?: int32(name='Code', description='The returned service code. 0 indicates that the request was successful.', example='0'),
   data?: {
-    message?: string(name='Message', example='success'),
+    message?: string(name='Message', description='The response message. Success is returned for a successful request.', example='success'),
     result?: {
-      failedCount?: long(name='FailedCount', example='0'),
+      failedCount?: long(name='FailedCount', description='The number of failed tasks.', example='0'),
       failedItems?: [ 
         {
-          errMessage?: string(name='ErrMessage', example='sdg not found'),
-          instanceId?: string(name='InstanceId', example='aic-xxxxx-0'),
+          errMessage?: string(name='ErrMessage', description='The error message that is returned.', example='sdg not found'),
+          instanceId?: string(name='InstanceId', description='The ID of the instance.', example='aic-xxxxx-0'),
         }
-      ](name='FailedItems'),
-      successCount?: long(name='SuccessCount', example='1'),
-    }(name='Result'),
-    success?: boolean(name='Success', example='true'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
+      ](name='FailedItems', description='Details about the failed tasks.'),
+      successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
+    }(name='Result', description='The execution result of the synchronization request.'),
+    success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
+
+*   **true**: All tasks are successful.
+*   **false**: Failed tasks exist.', example='true'),
+  }(name='Data', description='The returned data object.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
 }
 
 model RemoveInstanceSDGResponse = {
@@ -9141,7 +9540,7 @@ model RemovePublicIpsFromEpnInstanceRequest {
 }
 
 model RemovePublicIpsFromEpnInstanceResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E	 Request ID.'),
 }
 
 model RemovePublicIpsFromEpnInstanceResponse = {
@@ -9195,7 +9594,10 @@ async function removeVSwitchesFromEpnInstance(request: RemoveVSwitchesFromEpnIns
 }
 
 model RenewARMServerInstanceRequest {
-  autoRenew?: boolean(name='AutoRenew', example='true', position='Query'),
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the subscription. Valid values:
+
+*   true
+*   false (default)', example='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance that you want to renew.', example='yourInstance ID', position='Query'),
   period: int32(name='Period', description='The renewal period. By default, instances are renewed on a monthly basis. Valid values: 1, 2, 3, 4, 5, 6, 7, 8, 9, and 12.', example='1', position='Query'),
   periodUnit: string(name='PeriodUnit', description='The unit of the renewal period. Valid values:
@@ -9221,20 +9623,7 @@ async function renewARMServerInstance(request: RenewARMServerInstanceRequest): R
 
 model RenewInstanceRequest {
   instanceId: string(name='InstanceId', description='The ID of the instance.', example='i-56789acfmxazb4p****', position='Query'),
-  period: long(name='Period', description='The renewal duration of the subscription instance.
-
-Valid values:
-
-*   1
-*   2
-*   3
-*   4
-*   5
-*   6
-*   7
-*   8
-*   9
-*   12', example='1', position='Query'),
+  period: long(name='Period', description='The renewal duration of the subscription instance.', example='1', position='Query'),
 }
 
 model RenewInstanceResponseBody = {
@@ -9543,7 +9932,7 @@ async function revokeSecurityGroupEgress(request: RevokeSecurityGroupEgressReque
 }
 
 model RollbackApplicationRequest {
-  appId: string(name='AppId', description='The ID of the application.', example='474bdef0-d149-4695-abfb-52912d9143f0', position='Query'),
+  appId: string(name='AppId', description='The ID of the application.', example='474bdef0-d149-4695-abfb-52912d91****', position='Query'),
   fromAppVersion: string(name='FromAppVersion', description='The current version number.', example='v2-1', position='Query'),
   timeout?: int32(name='Timeout', description='The timeout period of the asynchronous rollback operation. Unit: seconds. Default value: 300.', example='1800', position='Query'),
   toAppVersion?: string(name='ToAppVersion', description='The target version number. By default, the system automatically rolls back the container version to the previous version.', example='v2', position='Query'),
@@ -9572,15 +9961,15 @@ model RunInstancesRequest {
 *   The specified time must be at least one hour later than the current time.', example='2023-06-28T14:38:52Z', position='Query'),
   autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
 
-*   **true**
-*   **false** (default)
+*   **true**.
+*   **false** (default).
 
 >  This parameter is not available when InstanceChargeType is set to PostPaid.', example='true', position='Query'),
   autoUseCoupon?: string(name='AutoUseCoupon', description='Specifies whether to use coupons. Default value: true.', example='true', position='Query'),
   billingCycle?: string(name='BillingCycle', description='The billing cycle of computing resources of the instance. Only pay-as-you-go instances are supported. Valid values:
 
-*   **Day**
-*   **Month**', example='Day', position='Query'),
+*   **Day**.
+*   **Month**.', example='Day', position='Query'),
   carrier?: string(name='Carrier', description='The Internet service provider (ISP).
 
 >  This parameter is not available if ScheduleAreaLevel is set to Region and is required if ScheduleAreaLevel is set to other values.', example='telecom', position='Query'),
@@ -9592,19 +9981,19 @@ model RunInstancesRequest {
 *   **cloud_ssd**: all-flash disk.
 *   **local_hdd**: local HDD.
 *   **local_ssd**: local SSD.', example='cloud_efficiency'),
-      encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk. Valid values:
+      encrypted?: boolean(name='Encrypted', description='Indicates whether the cloud disk is encrypted. Valid values:
 
-*   true
-*   false (default)', example='false'),
+*   true.
+*   false (default).', example='false'),
       KMSKeyId?: string(name='KMSKeyId', description='The ID of the Key Management Service (KMS) key that is used for the disk. Valid values:
 
-*   true
-*   false (default)
+*   true.
+*   false (default).
 
 >  If you set the Encrypted parameter to true, the default service key is used when the KMSKeyId parameter is empty.', example='false'),
       size?: long(name='Size', description='The size of a data disk. Unit: GiB.', example='20'),
     }
-  ](name='DataDisk', description='The specifications of the data disk.', shrink='json', position='Query'),
+  ](name='DataDisk', description='The specifications of data disks.', shrink='json', position='Query'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the node.
 
 >  This parameter is required if ScheduleAreaLevel is set to Region and is not available if ScheduleAreaLevel is set to other values.', example='cn-foshan-telecom', position='Query'),
@@ -9631,9 +10020,9 @@ The default value of this parameter is the value of the InstanceId parameter.', 
   internetMaxBandwidthOut: long(name='InternetMaxBandwidthOut', description='The maximum public bandwidth. If the value of this parameter is greater than 0, a public IP address is assigned to the instance.', example='1', position='Query'),
   ipType?: string(name='IpType', description='The type of the IP address. Valid values:
 
-*   **ipv4** (default)
-*   **ipv6**
-*   **ipv4Andipv6**', example='ipv4', position='Query'),
+*   **ipv4** (default).
+*   **ipv6**.
+*   **ipv4Andipv6**.', example='ipv4', position='Query'),
   keyPairName?: string(name='KeyPairName', description='The name of the key pair.
 
 >  You need to specify at least one of **Password**, **KeyPairName**, and **PasswordInherit**.', example='wx2-jumpserver', position='Query'),
@@ -9656,10 +10045,10 @@ The default value of this parameter is the value of the InstanceId parameter.', 
 
 *   If **PeriodUnit** is set to **Day**, **Period** can only be set to **3**.
 *   If **PeriodUnit** is **Month**, **Period** can be set to **1 to 9** or **12**.', example='1-9,12', position='Query'),
-  periodUnit?: string(name='PeriodUnit', description='The unit of the subscription duration. Valid values:
+  periodUnit?: string(name='PeriodUnit', description='The unit of the subscription period. Valid values:
 
-*   **Month** (default)
-*   **Day**', example='Month', position='Query'),
+*   **Month** (default).
+*   **Day**.', example='Month', position='Query'),
   privateIpAddress?: string(name='PrivateIpAddress', description='The private IP address.
 
 >  This parameter is available only if ScheduleAreaLevel is set to Region and cannot be configured if ScheduleAreaLevel is set to other values. Otherwise, an error occurs. If you specify a private IP address, the number of instances must be 1. The private IP address takes effect only when the private IP address and the vSwitch ID are not empty.', example='10.0.0.120', position='Query'),
@@ -9681,6 +10070,7 @@ The default value of this parameter is the value of the InstanceId parameter.', 
 
 >  If ScheduleAreaLevel is set to Region, set this parameter to **Concentrate**. If ScheduleAreaLevel is set to other values, set this parameter to Concentrate or Disperse based on your business requirements.', example='concentrate', position='Query'),
   securityId?: string(name='SecurityId', description='The ID of security group.', example='sg-test', position='Query'),
+  spotDuration?: int32(name='SpotDuration', position='Query'),
   spotStrategy?: string(name='SpotStrategy', description='The bidding policy for the pay-as-you-go instance. This parameter is valid only when the `InstanceChargeType` parameter is set to `PostPaid`. Valid values:
 
 *   NoSpot: The instance is created as a regular pay-as-you-go instance.
@@ -9848,9 +10238,9 @@ async function setBackendServers(request: SetBackendServersRequest): SetBackendS
 }
 
 model SetLoadBalancerHTTPListenerAttributeRequest {
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
->  The value cannot start with `http://` or `https://`.', example='监听说明', minLength=1, maxLength=80, position='Query'),
+>  The value cannot start with `http://` or `https://`.', example='http_8080', minLength=1, maxLength=80, position='Query'),
   healthCheck?: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
 
 *   **on**
@@ -9872,7 +10262,7 @@ model SetLoadBalancerHTTPListenerAttributeRequest {
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Unit: seconds.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='2', minimum=1, maximum=50, position='Query'),
-  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP request method for health checks. Examples:
+  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP request method for health checks. Valid values:
 
 *   **head**
 *   **get**
@@ -9884,24 +10274,30 @@ model SetLoadBalancerHTTPListenerAttributeRequest {
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
-> *   This parameter takes effect only if you set HealthCheck to on.
->*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that is used for health checks. The URI must be **1** to **80** characters in length.
+> 
 
-> *   The URL must start with a forward slash (`/`) and contain characters other than forward slashes (`/`).
->*   This parameter takes effect only if you set HealthCheck to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
+
+*   If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.', example='5', minimum=1, maximum=300, position='Query'),
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
+
+> 
+
+*   A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).
+
+*   This parameter takes effect only if the HealthCheck parameter is set to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Default value: 15. Valid values: **1** to **60**. Unit: seconds.
 
 >  If no request is received within the specified timeout period, ELB closes the connection. When another request is received, CLB establishes a new connection.', example='15', minimum=1, maximum=60, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port whose attributes are to be modified. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5snthcyu1x10g7tywj7iu****', position='Query'),
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
 >  If no response is received from the backend server within the specified timeout period, ELB returns an HTTP 504 error code to the client.', example='60', minimum=1, maximum=180, position='Query'),
-  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Examples:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr**: Backend servers with higher weights receive more requests than those with lower weights.
 *   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
@@ -9914,8 +10310,8 @@ model SetLoadBalancerHTTPListenerAttributeRequest {
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
   xForwardedFor?: string(name='XForwardedFor', description='Specifies whether to use the X-Forwarded-For header to obtain the real IP address of the client. Valid values:
 
-*   **on**
-*   **off** (default)', example='on', position='Query'),
+*   **on** (default)
+*   **off**', example='on', position='Query'),
 }
 
 model SetLoadBalancerHTTPListenerAttributeResponseBody = {
@@ -9939,9 +10335,9 @@ async function setLoadBalancerHTTPListenerAttribute(request: SetLoadBalancerHTTP
 }
 
 model SetLoadBalancerHTTPSListenerAttributeRequest {
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
->  The value cannot start with `http://` or `https://`.', example='监听说明', minLength=1, maxLength=80, position='Query'),
+>  The value cannot start with `http://` or `https://`.', example='Monitoring instructions', minLength=1, maxLength=80, position='Query'),
   healthCheck?: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
 
 *   **on**
@@ -9969,7 +10365,7 @@ model SetLoadBalancerHTTPSListenerAttributeRequest {
 *   **get**: requests the specified part of the page and returns the entity body.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='get', position='Query'),
-  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If the backend ENS does not respond within the specified time, the health check fails.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
@@ -9977,23 +10373,23 @@ model SetLoadBalancerHTTPSListenerAttributeRequest {
 
 > 
 
-*   This parameter takes effect only if you set HealthCheck to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckTimeout parameter is smaller than the value of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='9', minimum=1, maximum=300, position='Query'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that you want to use for health checks. The URI must be **1** to **80** characters in length.
+*   If the value of the HealthCheckTimeout property is smaller than the value of the HealthCheckInterval property, the timeout period specified by the HealthCheckTimeout property becomes invalid and the value of the HealthCheckInterval property is used as the timeout period.', example='9', minimum=1, maximum=300, position='Query'),
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
 
 > 
 
-*   The URL must start with a forward slash (`/`) and contain characters other than forward slashes (`/`).
+*   A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).
 
-*   This parameter takes effect only if you set HealthCheck to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
+*   This parameter takes effect only if the HealthCheck parameter is set to on.', example='/checkpreload.htm', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Default value: 15. Valid values: **1** to **60**. Unit: seconds.
 
 >  If no request is received within the specified timeout period, ELB closes the connection. When another request is received, ELB establishes a new connection.', example='15', minimum=1, maximum=60, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='10002', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port whose attributes are to be modified. Valid values: **1** to **65535**.', example='10002', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5snthcyu1x10g7tywj7iu****', position='Query'),
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
@@ -10034,9 +10430,9 @@ async function setLoadBalancerHTTPSListenerAttribute(request: SetLoadBalancerHTT
 
 model SetLoadBalancerStatusRequest {
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5t18quoohsrc3xkf86spmnu77', position='Query'),
-  loadBalancerStatus: string(name='LoadBalancerStatus', description='The status of the ELB instance. Valid values:
+  loadBalancerStatus: string(name='LoadBalancerStatus', description='The status of the listener after the modification. Valid values:
 
-*   **Active** (default): The listener for the instance can forward the received traffic based on the rule.
+*   **Active**: The listener for the instance can forward the received traffic based on forwarding rules.
 *   **InActive**: The listener for the instance does not forward the received traffic.', example='Active', position='Query'),
 }
 
@@ -10070,13 +10466,13 @@ model SetLoadBalancerTCPListenerAttributeRequest {
 *   **off** (default)', example='on', position='Query'),
   establishedTimeout?: int32(name='EstablishedTimeout', description='The timeout period of a connection. Valid values: **10** to **900**. Unit: seconds.', example='500', minimum=10, maximum=900, position='Query'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If you leave this parameter empty, the port specified by BackendServerPort is used for health checks.', example='8000', minimum=1, maximum=65535, position='Query'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period for a health check response. If the value of HealthCheckTimeout is smaller than the value of HealthCheckInterval, the timeout period specified by HealthCheckTimeout becomes invalid, and the value of HealthCheckInterval is used as the timeout period.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
->  If the value that you specified for HealthCheckConnectTimeout is smaller than the value of HealthCheckInterval, HealthCheckConnectTimeout becomes invalid and the timeout period that you specified for HealthCheckInterval is used.', example='100', minimum=1, maximum=300, position='Query'),
+>  If the value of the HealthCheckConnectTimeout parameter is smaller than that of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckConnectTimeout parameter is ignored and the period of time specified by the HealthCheckInterval parameter is used as the timeout period.', example='100', minimum=1, maximum=300, position='Query'),
   healthCheckDomain?: string(name='HealthCheckDomain', description='The domain name that you want to use for health checks.', example='www.aliyundoc.com', minLength=1, maxLength=80, position='Query'),
   healthCheckHttpCode?: string(name='HealthCheckHttpCode', description='The HTTP status code for a successful health check. Valid values:
 
@@ -10093,7 +10489,7 @@ model SetLoadBalancerTCPListenerAttributeRequest {
 
 >  The URL must start with `/` and contain characters other than `/`.', example='/aliyundoc/index.html', minLength=1, maxLength=80, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.', example='4', minimum=2, maximum=10, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port whose attributes are to be modified. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5snthcyu1x10g7tywj7iu****', position='Query'),
   persistenceTimeout?: int32(name='PersistenceTimeout', description='The timeout period of session persistence.
 
@@ -10132,26 +10528,27 @@ async function setLoadBalancerTCPListenerAttribute(request: SetLoadBalancerTCPLi
 }
 
 model SetLoadBalancerUDPListenerAttributeRequest {
-  description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
+  description?: string(name='Description', description='The name of the listener. The valuemust be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
   eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
 
 *   **on**
 *   **off** (default)', example='on', position='Query'),
+  establishedTimeout?: int32(name='EstablishedTimeout', description='The timeout period of a connection. Valid values: **10** to **900**. Default value: **900**. Unit: seconds.', example='500', minimum=10, maximum=900, position='Query'),
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If you leave this parameter empty, the port specified for BackendServerPort is used for health checks.', example='8080', minimum=1, maximum=65535, position='Query'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If the backend ENS does not respond within the specified time, the health check fails.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
 *   Unit: seconds.
 
->  If the value that you specified for HealthCheckConnectTimeout is smaller than the value of HealthCheckInterval, HealthCheckConnectTimeout becomes invalid and the timeout period that you specified for HealthCheckInterval is used.', example='100', minimum=1, maximum=300, position='Query'),
+>  If the value of the HealthCheckTimeout property is smaller than the value of the HealthCheckInterval property, the timeout period specified by the HealthCheckTimeout property becomes invalid and the value of the HealthCheckInterval property is used as the timeout period.', example='100', minimum=1, maximum=300, position='Query'),
   healthCheckExp?: string(name='HealthCheckExp', description='The response string for UDP listener health checks. The string can be up to 64 characters in length and can contain only letters and digits.', example='ok', maxLength=64, position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Unit: seconds.', example='5', minimum=1, maximum=50, position='Query'),
   healthCheckReq?: string(name='HealthCheckReq', description='The request string for UDP listener health checks. The string can be up to 64 characters in length and can contain only letters and digits.', example='hello', maxLength=64, position='Query'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.', example='4', minimum=2, maximum=10, position='Query'),
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port whose attributes are to be modified. Valid values: **1** to **65535**.', example='80', minimum=1, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.', example='lb-5pzipr2fszqtl2xf64uy5****', position='Query'),
   scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
 
@@ -10175,9 +10572,8 @@ model SetLoadBalancerUDPListenerAttributeResponse = {
 }
 
 /**
-  * > 
-  * *   You can call this operation up to 100 times per second per account.
-  * *   You can call this operation up to 10 times per second per user.
+  * *   You can call this operation up to 100 times per second.
+  * *   You can call this operation up to 10 times per second per account.
   *
  */
 async function setLoadBalancerUDPListenerAttribute(request: SetLoadBalancerUDPListenerAttributeRequest): SetLoadBalancerUDPListenerAttributeResponse {
@@ -10252,15 +10648,7 @@ async function startInstances(request: StartInstancesRequest): StartInstancesRes
 }
 
 model StartLoadBalancerListenerRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.
-
-> 
-
-*   You cannot specify port 250, 4789, or 4790 for UDP listeners. The preceding ports are system reserved ports.
-
-*   We recommend that you use port 80 for HTTP.
-
-*   We recommend that you use port 443 for HTTPS.', example='8080', minimum=0, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port to be enabled. Valid values: **1** to **65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
   listenerProtocol?: string(name='ListenerProtocol', description='The frontend protocol that is used by the ELB instance. Valid values:
 
 *   tcp
@@ -10385,7 +10773,7 @@ async function stopInstances(request: StopInstancesRequest): StopInstancesRespon
 }
 
 model StopLoadBalancerListenerRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
+  listenerPort: int32(name='ListenerPort', description='The listener port that you want to disable. Valid values: **1** to **65535**.', example='8080', minimum=0, maximum=65535, position='Query'),
   listenerProtocol?: string(name='ListenerProtocol', description='The frontend protocol that is used by the ELB instance.
 
 >  This parameter is required if the same port is used by listeners that use different protocols.', example='tcp', position='Query'),
@@ -10433,18 +10821,22 @@ async function stopSnatIpForSnatEntry(request: StopSnatIpForSnatEntryRequest): S
 }
 
 model TagResourcesRequest {
-  resourceId: [ string ](name='ResourceId', position='Query'),
-  resourceType: string(name='ResourceType', example='instance', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The IDs of the resources. You can add up to 50 resource IDs in a call.', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of resource to query.
+
+Valid values:
+
+*   instance', example='instance', position='Query'),
   tag: [ 
     {
-      key: string(name='Key', example='team'),
-      value: string(name='Value', example='Deep'),
+      key: string(name='Key', description='The key of tag N that is added to the resource. Valid values of N: 1 to 20. The tag value cannot be an empty string. The tag value can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http:// or https://.', example='team'),
+      value: string(name='Value', description='The value of tag N that is added to the resource. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length. It cannot start with acs: or contain http:// or https://.', example='Deep'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tag that is bound to the instance.', position='Query'),
 }
 
 model TagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='C50C391C-533A-55D3-AC97-5D9333DE288F'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C50C391C-533A-55D3-AC97-5D9333DE288F'),
 }
 
 model TagResourcesResponse = {
@@ -10453,13 +10845,17 @@ model TagResourcesResponse = {
   body?: TagResourcesResponseBody(name='body'),
 }
 
+/**
+  * Before you add tags to a resource, Alibaba Cloud checks the number of existing tags on the resource. If the number exceeds the upper limit, an error message is returned. Only instance resources, such as virtual machines and bare machines, are supported.
+  *
+ */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UnAssociateEnsEipAddressRequest {
-  allocationId: string(name='AllocationId', description='The ID of the EIP.', example='eip-5sqa431nx3vee8heqxfxp4e4r', position='Query'),
+  allocationId: string(name='AllocationId', description='The ID of the EIP.', example='eip-5sqa431nx3vee8heqxfxp****', position='Query'),
 }
 
 model UnAssociateEnsEipAddressResponseBody = {
@@ -10478,12 +10874,12 @@ async function unAssociateEnsEipAddress(request: UnAssociateEnsEipAddressRequest
 }
 
 model UnassignPrivateIpAddressesRequest {
-  networkInterfaceId: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-f8z57orgmt6d144t20dw', position='Query'),
-  privateIpAddress: [ string ](name='PrivateIpAddress', description='The secondary private IP addresses that you want to unassign.', position='Query'),
+  networkInterfaceId: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-f8z57orgmt6d144t****', position='Query'),
+  privateIpAddress: [ string ](name='PrivateIpAddress', description='The secondary private IP addresses to unassign.', position='Query'),
 }
 
 model UnassignPrivateIpAddressesResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='1ECC937A-AE0E-4626-BE51-DED1D6D1C888'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1ECC937A-AE0E-4626-BE51-DED1D6D1C888'),
 }
 
 model UnassignPrivateIpAddressesResponse = {
@@ -10495,6 +10891,26 @@ model UnassignPrivateIpAddressesResponse = {
 async function unassignPrivateIpAddresses(request: UnassignPrivateIpAddressesRequest): UnassignPrivateIpAddressesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UnassignPrivateIpAddresses', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UnassociateHaVipRequest {
+  haVipId: string(name='HaVipId', example='havip-5p14t****', position='Query'),
+  instanceId: string(name='InstanceId', example='i-5ecpqvk****', position='Query'),
+}
+
+model UnassociateHaVipResponseBody = {
+  requestId?: string(name='RequestId', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+}
+
+model UnassociateHaVipResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnassociateHaVipResponseBody(name='body'),
+}
+
+async function unassociateHaVip(request: UnassociateHaVipRequest): UnassociateHaVipResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UnassociateHaVip', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UnassociateNetworkAclRequest {
@@ -10525,27 +10941,30 @@ async function unassociateNetworkAcl(request: UnassociateNetworkAclRequest): Una
 }
 
 model UnloadRegionSDGRequest {
-  destinationRegionIds: [ string ](name='DestinationRegionIds', shrink='json', position='Query'),
-  namespaces?: [ string ](name='Namespaces', shrink='json', position='Query'),
-  SDGId: string(name='SDGId', example='sdg-xxxx', position='Query'),
+  destinationRegionIds: [ string ](name='DestinationRegionIds', description='The destination nodes.', shrink='json', position='Query'),
+  namespaces?: [ string ](name='Namespaces', description='The namespaces.', shrink='json', position='Query'),
+  SDGId: string(name='SDGId', description='Deletes the shared data group (SDG) ID of the preloaded data.', example='sdg-xxxx', position='Query'),
 }
 
 model UnloadRegionSDGResponseBody = {
   data?: {
-    message?: string(name='Message', example='success'),
+    message?: string(name='Message', description='The response message. Success is returned for a successful request.', example='success'),
     result?: {
-      failedCount?: long(name='FailedCount', example='0'),
+      failedCount?: long(name='FailedCount', description='The number of failed tasks.', example='0'),
       failedItems?: [ 
         {
-          destinationRegionId?: string(name='DestinationRegionId', example='cn-hangzhou-xxx'),
-          errorMessage?: string(name='ErrorMessage', example='region not found'),
+          destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination node.', example='cn-hangzhou-xxx'),
+          errorMessage?: string(name='ErrorMessage', description='The error message that is returned.', example='region not found'),
         }
-      ](name='FailedItems'),
-      successCount?: long(name='SuccessCount', example='1'),
-    }(name='Result'),
-    success?: boolean(name='Success', example='true'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
+      ](name='FailedItems', description='Details about failed tasks.'),
+      successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
+    }(name='Result', description='The execution result of the synchronization request.'),
+    success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
+
+*   true: All tasks are successful.
+*   false: Failed tasks exist.', example='true'),
+  }(name='Data', description='The returned data object.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
 }
 
 model UnloadRegionSDGResponse = {
@@ -10560,14 +10979,23 @@ async function unloadRegionSDG(request: UnloadRegionSDGRequest): UnloadRegionSDG
 }
 
 model UntagResourcesRequest {
-  all?: boolean(name='All', example='true', position='Query'),
-  resourceId: [ string ](name='ResourceId', position='Query'),
-  resourceType: string(name='ResourceType', example='instance', position='Query'),
-  tagKey?: [ string ](name='TagKey', position='Query'),
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resource. This parameter takes effect only if you do not specify TagKey.N. Valid values:
+
+*   true
+*   false
+
+Default value: false.', example='true', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The resource IDs. You can specify up to 50 resource IDs.', position='Query'),
+  resourceType: string(name='ResourceType', description='The resource type.
+
+Valid values:
+
+*   instance', example='instance', position='Query'),
+  tagKey?: [ string ](name='TagKey', description='The keys of the tags. Valid values of N: 1 to 20.', position='Query'),
 }
 
 model UntagResourcesResponseBody = {
-  requestId?: string(name='RequestId', example='6AB7715D-8B97-5E81-854B-2429F8C7DEF2'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='6AB7715D-8B97-5E81-854B-2429F8C7DEF2'),
 }
 
 model UntagResourcesResponse = {
