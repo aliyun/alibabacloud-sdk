@@ -103,6 +103,14 @@ model AddFileRequest {
   categoryId?: string(name='CategoryId', description='This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405'),
   leaseId?: string(name='LeaseId', description='This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.1716698936847'),
   parser?: string(name='Parser', description='This parameter is required.', example='DASHSCOPE_DOCMIND'),
+  tags?: [ string ](name='Tags'),
+}
+
+model AddFileShrinkRequest {
+  categoryId?: string(name='CategoryId', description='This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405'),
+  leaseId?: string(name='LeaseId', description='This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.1716698936847'),
+  parser?: string(name='Parser', description='This parameter is required.', example='DASHSCOPE_DOCMIND'),
+  tagsShrink?: string(name='Tags'),
 }
 
 model AddFileResponseBody = {
@@ -126,13 +134,18 @@ model AddFileResponse = {
 /**
  * @summary 将临时上传的文档导入百炼数据中心，导入成功之后会自动触发文档解析。
  *
- * @param request AddFileRequest
+ * @param tmpReq AddFileRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return AddFileResponse
  */
-async function addFileWithOptions(WorkspaceId: string, request: AddFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddFileResponse {
-  Util.validateModel(request);
+async function addFileWithOptions(WorkspaceId: string, tmpReq: AddFileRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AddFileResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddFileShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'Tags', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.categoryId)) {
     body['CategoryId'] = request.categoryId;
@@ -142,6 +155,9 @@ async function addFileWithOptions(WorkspaceId: string, request: AddFileRequest, 
   }
   if (!Util.isUnset(request.parser)) {
     body['Parser'] = request.parser;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    body['Tags'] = request.tagsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1080,6 +1096,7 @@ model DescribeFileResponseBody = {
     parser?: string(name='Parser', example='DASHSCOPE_DOCMIND'),
     sizeInBytes?: long(name='SizeInBytes', example='1234'),
     status?: string(name='Status', example='PARSE_SUCCESS'),
+    tags?: [ string ](name='Tags'),
   }(name='Data'),
   message?: string(name='Message', example='Requests throttling triggered.'),
   requestId?: string(name='RequestId', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
@@ -1606,6 +1623,7 @@ model ListFileResponseBody = {
         parser?: string(name='Parser', example='DASHSCOPE_DOCMIND'),
         sizeInBytes?: long(name='SizeInBytes', example='512'),
         status?: string(name='Status', example='200'),
+        tags?: [ string ](name='Tags'),
       }
     ](name='FileList'),
     hasNext?: boolean(name='HasNext', example='true'),
