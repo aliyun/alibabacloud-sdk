@@ -674,6 +674,7 @@ You can call the DescribeBackups operation to query the backup set ID.
   DBInstanceClass?: string(name='DBInstanceClass', description='The instance type of the new instance. For information, see [Primary ApsaraDB RDS instance types](~~26312~~).
 
 > By default, the new instance uses the same instance type as the original primary instance.', example='mysql.n1.micro.1', position='Query'),
+  DBInstanceDescription?: string(name='DBInstanceDescription', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='rm-uf6wjk5xxxxxxxxxx', minLength=1, maxLength=65535, position='Query'),
   DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the new instance. Unit: GB. You can increase the storage capacity in increments of 5 GB. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~).
 
@@ -877,13 +878,13 @@ async function confirmNotify(request: ConfirmNotifyRequest): ConfirmNotifyRespon
 
 model CopyDatabaseRequest {
   DBInstanceName?: string(name='DBInstanceName', description='The instance name.', example='rm-uf6wjk5******', position='Query'),
-  dstDBName?: string(name='DstDBName', description='Destination database name.', example='db2***', position='Query'),
+  dstDBName?: string(name='DstDBName', description='The destination database name.', example='db2***', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  reserveAccount?: int32(name='ReserveAccount', description='Reserve account.', example='1', position='Query'),
+  reserveAccount?: int32(name='ReserveAccount', description='The reserved account.', example='1', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  srcDBName?: string(name='SrcDBName', description='Source database name.', example='db1***', position='Query'),
+  srcDBName?: string(name='SrcDBName', description='The source database name.', example='db1***', position='Query'),
 }
 
 model CopyDatabaseResponseBody = {
@@ -994,7 +995,13 @@ model CreateAccountRequest {
 *   **Sysadmin**: system admin account. The account type is available only for ApsaraDB RDS for SQL Server instances.
 
 Before you create a system admin account, check whether the instance meets all prerequisites. For more information, see [Create a system admin account](~~170736~~).', example='Normal', position='Query'),
-  checkPolicy?: boolean(name='CheckPolicy', position='Query'),
+  checkPolicy?: boolean(name='CheckPolicy', description='Specifies whether to use a password policy.
+
+> 
+
+*   This parameter is available only for ApsaraDB RDS for SQL Server instances that do not belong to the shared instance family and do not run SQL Server 2008 R2.
+
+*   Before you call this operation, you must configure a password policy for the account of your instance. For more information, see [Configure a password policy for the account of an ApsaraDB RDS for SQL Server instance](~~2848317~~).', example='true', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -1083,13 +1090,13 @@ model CreateBackupResponse = {
   * *   PostgreSQL
   * *   SQL Server
   * *   MariaDB
-  * ### [](#)Usage notes
-  * This operation uses the backup feature of ApsaraDB RDS to create a backup set. You can also use an operation of Database Backup (DBS) to create a backup set. For more information, see [List of operations by function of DBS](~~437245~~).
-  * ### [](#)Precautions
+  * ### [](#)Feature description
+  * This operation uses the backup feature of ApsaraDB RDS to create a backup set. You can also call an operation of Database Backup (DBS) to create a backup set. For more information, see [List of operations by function](~~2841997~~).
+  * ### [](#)Prerequisites
   * Before you call this operation, make sure that the following requirements are met:
   * *   The instance is in the Running state.
   * *   The instance does not have ongoing backup tasks.
-  * *   The number of backup files that are created per day for an instance cannot exceed 20.
+  * *   The number of backup sets that can be created for an instance per day cannot exceed 20.
   * ### [](#)References
   * *   [Use the data backup feature for an ApsaraDB RDS for MySQL instance](~~378074~~)
   * *   [Use the data backup feature for an ApsaraDB RDS for PostgreSQL instance](~~96772~~)
@@ -2735,18 +2742,33 @@ async function createPostgresExtensions(request: CreatePostgresExtensionsRequest
 }
 
 model CreateRCDeploymentSetRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
-  deploymentSetName?: string(name='DeploymentSetName', position='Query'),
-  description?: string(name='Description', position='Query'),
-  groupCount?: long(name='GroupCount', position='Query'),
-  onUnableToRedeployFailedInstance?: string(name='OnUnableToRedeployFailedInstance', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-  strategy?: string(name='Strategy', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
+  deploymentSetName?: string(name='DeploymentSetName', description='The deployment set name. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with `http://` or `https://`. The name can contain letters, digits, colons (.), underscores (\\_), and hyphens (-).', example='deployment_test', position='Query'),
+  description?: string(name='Description', description='The description of the deployment set. The value must be 2 to 256 characters in length and cannot start with http:// or https://.', example='test', position='Query'),
+  groupCount?: long(name='GroupCount', description='The number of groups in the deployment set. Valid values: 1 to 7.
+
+Default value: 3.
+
+>  This parameter takes effect only when `Strategy is set to AvailabilityGroup`.', example='3', position='Query'),
+  onUnableToRedeployFailedInstance?: string(name='OnUnableToRedeployFailedInstance', description='The emergency solution to use in the scenario in which instances in the deployment set cannot be evenly distributed to different zones due to resource insufficiency after the instances failover. Valid values:
+
+*   **CancelMembershipAndStart**: removes the instances from the deployment set and restarts the instances immediately after the failover is complete.
+*   **KeepStopped**: does not remove the instances from the deployment set and keeps the instances in the Stopped state.
+
+Default value: CancelMembershipAndStart.', example='CancelMembershipAndStart', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  strategy?: string(name='Strategy', description='The deployment strategy. Valid values:
+
+*   **Availability**: high-availability strategy
+*   **AvailabilityGroup**: high-availability group strategy
+*   **LowLatency**: low latency strategy
+
+Default value: Availability.', example='Availability', position='Query'),
 }
 
 model CreateRCDeploymentSetResponseBody = {
-  deploymentSetId?: string(name='DeploymentSetId'),
-  requestId?: string(name='RequestId'),
+  deploymentSetId?: string(name='DeploymentSetId', description='The deployment set ID.', example='ds-uf6c8qerk019bj1l****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8B993DA9-5272-5414-94E3-4CA8BA0146C2'),
 }
 
 model CreateRCDeploymentSetResponse = {
@@ -3194,11 +3216,8 @@ async function deleteBackup(request: DeleteBackupRequest): DeleteBackupResponse 
 model DeleteBackupFileRequest {
   backupId?: string(name='BackupId', description='The backup set ID. You can specify the IDs of up to 100 backup sets at a time. Separate the IDs with commas (,).
 
-> 
-
-*   If the instance runs SQL Server, only the ID of the backup set for an individual database is supported.
-
-*   You can call the DescribeBackups operation to query the backup set ID.', example='29304****', position='Query'),
+> *   If the instance runs SQL Server, only the ID of the backup set for an individual database is supported.
+> *   You can call the DescribeBackups operation to query the backup set ID.', example='29304****', position='Query'),
   backupTime?: string(name='BackupTime', description='Specifies whether to delete the backup sets that are generated before the specified point in time. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2011-06-11T16:00:00Z', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.', example='rm-bp6wjk5******', position='Query'),
   DBName?: string(name='DBName', description='The name of the database.', example='testdb', position='Query'),
@@ -3623,12 +3642,12 @@ async function deletePostgresExtensions(request: DeletePostgresExtensionsRequest
 }
 
 model DeleteRCDeploymentSetRequest {
-  deploymentSetId: string(name='DeploymentSetId', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
+  deploymentSetId: string(name='DeploymentSetId', description='The deployment set ID.', example='ds-uf6c8qerk019bj1l****', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model DeleteRCDeploymentSetResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8B993DA9-5272-5414-94E3-4CA8BA0146C2'),
 }
 
 model DeleteRCDeploymentSetResponse = {
@@ -3664,15 +3683,24 @@ async function deleteRCInstance(request: DeleteRCInstanceRequest): DeleteRCInsta
 }
 
 model DeleteRCInstancesRequest {
-  dryRun?: boolean(name='DryRun', position='Query'),
-  force?: boolean(name='Force', position='Query'),
-  instanceId: [ string ](name='InstanceId', shrink='json', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
-  terminateSubscription?: boolean(name='TerminateSubscription', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, service limits, and insufficient inventory errors.
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, the instance is created.', example='true', position='Query'),
+  force?: boolean(name='Force', description='Specifies whether to forcefully release a running instance. Valid values:
+
+*   **Yes**
+*   **No** (default)', example='Yes', position='Query'),
+  instanceId: [ string ](name='InstanceId', description='The details of the instance.', shrink='json', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou', position='Query'),
+  terminateSubscription?: boolean(name='TerminateSubscription', description='Specifies whether to release an expired subscription instance. Valid values:
+
+*   **true**
+*   **false** (default)', example='true', position='Query'),
 }
 
 model DeleteRCInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E9DD55F4-1A5F-48CA-BA57-DFB3CA8C4C34'),
 }
 
 model DeleteRCInstancesResponse = {
@@ -3681,6 +3709,10 @@ model DeleteRCInstancesResponse = {
   body?: DeleteRCInstancesResponseBody(name='body'),
 }
 
+/**
+  * After an instance is released, all physical resources used by the instance are recycled. Relevant data is erased and cannot be restored.
+  *
+ */
 async function deleteRCInstances(request: DeleteRCInstancesRequest): DeleteRCInstancesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteRCInstances', 'POST', '/', 'json', false, 'json', request);
@@ -3774,8 +3806,8 @@ You can use the client to generate the token, but you must make sure that the to
   slotName: string(name='SlotName', description='The name of the replication slot. You can call the DescribeSlots operation to query the name of the replication slot.', example='slot_test01', position='Query'),
   slotStatus: string(name='SlotStatus', description='The status of the replication slot. You can call the DescribeSlots operation to query the status of the replication slot. Valid values:
 
-*   ACTIVE
-*   INACTIVE', example='INACTIVE', position='Query'),
+*   **ACTIVE**
+*   **INACTIVE**', example='INACTIVE', position='Query'),
 }
 
 model DeleteSlotResponseBody = {
@@ -3983,7 +4015,7 @@ model DescribeAccountsRequest {
 
 >  This parameter is not supported for RDS instances that run SQL Server 2017 on RDS Cluster Edition.', example='rm-uf6wjk5*****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**. Pages start from page 1.', example='1', minimum=0, maximum=2147483647, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid value: **30 to 200**. Default value: **30**.', example='30', minimum=1, maximum=2147483647, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid value: **30 to 200**. Default value: **30**.', example='30', minimum=1, maximum=2147483647, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -4009,7 +4041,9 @@ model DescribeAccountsResponseBody = {
 *   **f**: The account does not have the RLS permissions.
 
 >  This parameter is returned only for instances that run PostgreSQL.', example='f'),
-      checkPolicy?: boolean(name='CheckPolicy'),
+      checkPolicy?: boolean(name='CheckPolicy', description='Indicates whether the password policy is applied.
+
+>  This parameter is returned only for instances that run SQL Server.', example='true'),
       createDB?: string(name='CreateDB', description='Indicates whether the account has the permissions to create databases. Valid values:
 
 *   **t**: The account has the permissions to create databases.
@@ -4038,7 +4072,9 @@ model DescribeAccountsResponseBody = {
         }
       ](name='DatabasePrivilege')
       }(name='DatabasePrivileges', description='The details about the permissions that are granted to the account.'),
-      passwordExpireTime?: string(name='PasswordExpireTime'),
+      passwordExpireTime?: string(name='PasswordExpireTime', description='The expiration time of the password.
+
+>  This parameter is returned only for instances that run SQL Server.', example='2024-10-21'),
       privExceeded?: string(name='PrivExceeded', description='Indicates whether the number of databases that are managed by the account exceeds the upper limit. Valid values:
 
 *   **1**: The number of databases that are managed by the account exceeds the upper limit.
@@ -4058,7 +4094,7 @@ model DescribeAccountsResponseBody = {
 >  This parameter is returned only for instances that run PostgreSQL.', example='2022-10-01T00:00:00Z'),
     }
   ](name='DBInstanceAccount')
-  }(name='Accounts', description='The details of the account.'),
+  }(name='Accounts', description='The information about the account.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   requestId?: string(name='RequestId', description='The request ID.', example='A2E94301-D07F-4457-9B49-6AA2BB388C85'),
   systemAdminAccountFirstActivationTime?: string(name='SystemAdminAccountFirstActivationTime', description='The first time when the system admin account was enabled. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.
@@ -4386,11 +4422,11 @@ model DescribeAvailableClassesRequest {
 
 *   **local_ssd**: local SSD. This is the recommended storage type.
 *   **cloud_ssd**: standard SSD.
-*   **cloud_essd**: enhanced SSDs (ESSDs) of performance level 1 (PL1)
-*   **cloud_essd2**: ESSDs of PL2
-*   **cloud_essd3**: ESSD of PL3
+*   **cloud_essd**: performance level 1 (PL1) Enterprise SSD (ESSD)
+*   **cloud_essd2**: PL2 ESSD
+*   **cloud_essd3**: PL3 ESSD
 
-> Serverless instances support only ESSDs of PL 1. For a serverless instance, you must set this parameter to **cloud_essd**.', example='local_ssd', position='Query'),
+>  Serverless instances use only PL1 ESSDs. If you want to create a serverless instance, you must set this parameter to **cloud_essd**.', example='local_ssd', position='Query'),
   engine: string(name='Engine', description='The database engine that is run by the instance. Valid values:
 
 * **MySQL**
@@ -4420,7 +4456,7 @@ model DescribeAvailableClassesRequest {
 *   **Serverless**: serverless
 
 > ApsaraDB RDS for MariaDB does not support serverless instances.', example='Prepaid', position='Query'),
-  orderType?: string(name='OrderType', description='The type of the order. Set the value to **BUY**', example='BUY', position='Query'),
+  orderType?: string(name='OrderType', description='The type of order. Set the value to **BUY**', example='BUY', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance. You can call the DescribeDBInstanceAttribute operation to query the region ID of the instance.', example='cn-hangzhou', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   zoneId: string(name='ZoneId', description='The zone ID of the instance. You can call the DescribeDBInstanceAttribute operation to query the zone ID of the instance.
@@ -5973,7 +6009,7 @@ model DescribeDBInstanceAttributeResponseBody = {
 *   **d**: dedicated instance family
 *   **h**: dedicated host instance family', example='s'),
       DBInstanceDescription?: string(name='DBInstanceDescription', description='The instance description.', example='The number of cores that are configured for the instance.'),
-      DBInstanceDiskUsed?: string(name='DBInstanceDiskUsed', description='The disk usage of the instance. Unit: MB.', example='300'),
+      DBInstanceDiskUsed?: string(name='DBInstanceDiskUsed', description='The disk usage of the instance. Unit: byte.', example='300'),
       DBInstanceId?: string(name='DBInstanceId', description='The instance ID.', example='rm-uf6wjk5*****'),
       DBInstanceMemory?: long(name='DBInstanceMemory', description='The memory capacity of the instance. Unit: MB.', example='4096'),
       DBInstanceNetType?: string(name='DBInstanceNetType', description='The type of the network over which the instance is connected. Valid values:
@@ -6000,7 +6036,7 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 *   **true**
 *   **false**', example='true'),
-      disasterRecoveryInfo?: string(name='DisasterRecoveryInfo', description='Disaster recovery source instance information.', example='{"replicatorAccount": "******","sourcePort":******,"sourceAddress": "pgm-2ze******","sourceCategory": "aliyunRDS","sourceInstanceRegionId": "cn-******","replicatorPassword": "******","sourceInstanceName": "pgm-2ze******"}'),
+      disasterRecoveryInfo?: string(name='DisasterRecoveryInfo', description='Disaster Recovery Instance Information', example='{"replicatorAccount": "******","sourcePort":******,"sourceAddress": "pgm-2ze******","sourceCategory": "aliyunRDS","sourceInstanceRegionId": "cn-******","replicatorPassword": "******","sourceInstanceName": "pgm-2ze******"}'),
       disasterRecoveryInstances?: string(name='DisasterRecoveryInstances', description='All disaster recovery instances of the current instance.', example='[{"regionId":"cn-******","insName":"pgm-2ze******"},{"regionId":"cn-******","insName":"pgm-2ze******"}]'),
       engine?: string(name='Engine', description='The database engine of the instance. Valid values:
 
@@ -6013,14 +6049,15 @@ model DescribeDBInstanceAttributeResponseBody = {
 
 >  Pay-as-you-go instances never expire.', example='2019-03-27T16:00:00Z'),
       extra?: {
-        accountSecurityPolicy?: string(name='AccountSecurityPolicy', description='Instance account group policy.
-- MaximumPasswordAge: Maximum usage time
-- MinimumPasswordAge: Minimum usage time', example='{"MaximumPasswordAge": 42,"MinimumPasswordAge": 30}'),
+        accountSecurityPolicy?: string(name='AccountSecurityPolicy', description='The group policy of the instance account.
+
+*   MaximumPasswordAge: maximum use time
+*   MinimumPasswordAge: minimum use time', example='{"MaximumPasswordAge": 42,"MinimumPasswordAge": 30}'),
         DBInstanceIds?: {
           DBInstanceId?: [ string ](name='DBInstanceId')
         }(name='DBInstanceIds', description='The instance IDs.'),
         recoveryModel?: string(name='RecoveryModel', description='The recovery model. Valid values: Simple and Full.', example='Simple'),
-      }(name='Extra', description='The extended information of the instance.'),
+      }(name='Extra', description='The extended information about the instance.'),
       generalGroupName?: string(name='GeneralGroupName', description='The name of the dedicated cluster to which the instance belongs. This parameter is returned only when the instance is created in an ApsaraDB MyBase cluster that runs MySQL on Standard Edition.', example='TestGroup'),
       guardDBInstanceId?: string(name='GuardDBInstanceId', description='The ID of the disaster recovery instance that is attached to the primary instance.', example='rm-uf64zsu*****'),
       IPType?: string(name='IPType', description='The IP address type. Only **IPv4 addresses** are supported.', example='IPv4'),
@@ -9101,18 +9138,18 @@ model DescribeHistoryTasksRequest {
   resourceOwnerAccount?: long(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
-  status?: string(name='Status', description='The status of the task. Valid values:
+  status?: string(name='Status', description='The task status. Valid values:
 
-*   Scheduled
-*   Running
-*   Succeed
-*   Failed
-*   Cancelling
-*   Canceled
-*   Waiting
+*   **Scheduled**
+*   **Running**
+*   **Succeed**
+*   **Failed**
+*   **Cancelling**
+*   **Canceled**
+*   **Waiting**
 
-Separate multiple states with commas (,). This parameter is empty by default, which indicates that tasks in all states are queried.', example='Scheduled', position='Query'),
-  taskId?: string(name='TaskId', description='The task ID. Separate multiple task IDs with commas (,). You can specify up to 30 task IDs. This parameter is empty by default, which indicates that you can specify an unlimited number of task IDs.', example='t-83br18hloy3faf****', position='Query'),
+Separate multiple values with commas (,). By default, this parameter is left empty, which indicates that tasks in all statuses are queried.', example='Scheduled', position='Query'),
+  taskId?: string(name='TaskId', description='The task ID. You can call the DescribeTasks operation to query the task ID. If multiple task IDs exist, separate them with commas (,). You can specify up to 30 task IDs. By default, this parameter is left empty, which indicates that all tasks are queried.', example='t-83br18hloy3faf****', position='Query'),
   taskType?: string(name='TaskType', description='The task type. Separate multiple task types with commas (,). You can specify up to 30 task types. This parameter is empty by default, which indicates that you can specify an unlimited number of task types.', example='autotest_dispatch_cases', position='Query'),
   toExecTime?: int32(name='ToExecTime', description='The maximum execution duration of a task. This parameter is used to filter tasks whose execution duration is shorter than or equal to the maximum execution duration. Unit: seconds. The default value is 0, which indicates that no limit is imposed.', example='0', position='Query'),
   toStartTime: string(name='ToStartTime', description='The end of the time range to query. Only tasks that have a start time earlier than or equal to the time specified by this parameter are queried. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2022-03-02T11:31:03Z', position='Query'),
@@ -9125,41 +9162,40 @@ model DescribeHistoryTasksResponseBody = {
 
       "steps": [
         {
-          "step_name": "exec_task", // The name of the step, which matches CurrentStepName.
-          "action_info": {    // The actions supported for this step.
-            "Waiting": [      // The status, which matches Status.
-              "modifySwitchTime" // The action. Multiple actions are supported.
-            ]
+          "step_name": "exec_task", // The name of the step, which matches CurrentStepName.      "action_info": {    // The actions supported for this step.        "Waiting": [      // The status, which matches Status.          "modifySwitchTime" // The action. Multiple actions are supported.        ]
           }
         },
         {
-          "step_name": "init_task", // The name of the step.
-          "action_info": {    // The actions supported for this step.
-            "Running": [      // The status.
-              "cancel",       // The action.
-              "pause"
+          "step_name": "init_task", // The name of the step.      "action_info": {    // The actions supported for this step.        "Running": [      // The status.          "cancel",       // The action.          "pause"
             ]
           }
         }
       ]
     }
 
-The system may support the following actions: retry cancel modifySwitchTime: changes the switching or restoration time.', example='{\\"steps\\":[{\\"action_info\\":{\\"Waiting\\":[\\"modifySwitchTime\\"]},\\"step_name\\":\\"exec_task\\"}]}'),
+The system may support the following actions:
+
+*   **retry**: retries the action.
+*   **cancel**: cancels the action.
+*   **modifySwitchTime**: changes the switching time or restoration time.', example='{\\"steps\\":[{\\"action_info\\":{\\"Waiting\\":[\\"modifySwitchTime\\"]},\\"step_name\\":\\"exec_task\\"}]}'),
       callerSource?: string(name='CallerSource', description='The ID of the user who made the request. If CallerSource is set to User, CallerUid indicates the unique ID (UID) of the user.', example='141345906006****'),
-      callerUid?: string(name='CallerUid', description='The request source. Valid values: System User', example='User'),
+      callerUid?: string(name='CallerUid', description='The source of the request. Valid values:
+
+*   **System**
+*   **User**', example='User'),
       currentStepName?: string(name='CurrentStepName', description='The name of the current step. If this parameter is left empty, the task is not started.', example='exec_task'),
       dbType?: string(name='DbType', description='The database type.', example='mysql'),
-      endTime?: string(name='EndTime', description='The end time of the task. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2022-02-03T12:06:17Z'),
-      instanceId?: string(name='InstanceId', description='The instance ID. Example: rm-xxx.', example='rm-uf62br2491p5l****'),
-      instanceName?: string(name='InstanceName', description='The instance name, which is a user-defined alias.', example='test'),
-      instanceType?: string(name='InstanceType', description='The type of the instance. Example: user instance.', example='Instance'),
-      product?: string(name='Product', description='The product. Example: rds.', example='rds'),
-      progress?: float(name='Progress', description='The task progress. Valid values: 0 to 100.', example='79.0'),
+      endTime?: string(name='EndTime', description='The end time of the task.', example='2022-02-03T12:06:17Z'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-uf62br2491p5l****'),
+      instanceName?: string(name='InstanceName', description='The instance name.', example='test'),
+      instanceType?: string(name='InstanceType', description='The instance category.', example='Instance'),
+      product?: string(name='Product', description='The service name.', example='rds'),
+      progress?: float(name='Progress', description='Indicates the task progress.', example='79.0'),
       reasonCode?: string(name='ReasonCode', description='The reason why the current task was initiated.', example='****'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
       remainTime?: int32(name='RemainTime', description='The estimated amount of time remaining to complete the task. Unit: seconds.', example='1000'),
-      startTime?: string(name='StartTime', description='The start time of the task. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ss format. The time is displayed in UTC.', example='2022-02-03T11:31:03Z'),
-      status?: string(name='Status', description='The status of the task.
+      startTime?: string(name='StartTime', description='The start time of the task.', example='2022-02-03T11:31:03Z'),
+      status?: string(name='Status', description='The task status. Valid values:
 
 *   Scheduled
 *   Running
@@ -9168,14 +9204,14 @@ The system may support the following actions: retry cancel modifySwitchTime: cha
 *   Cancelling
 *   Canceled
 *   Waiting', example='Running'),
-      taskDetail?: string(name='TaskDetail', description='The task details provided in the form of a JSON string. The JSON string can be customized and extended to include additional information about the task. The details vary based on the task type.', example='{\\"callerUid\\":\\"test\\"}'),
-      taskId?: string(name='TaskId', description='The task ID in the t-\\*\\*\\* format.', example='t-83br18hloy3faf****'),
-      taskType?: string(name='TaskType', description='The task type or name.', example='autotest_dispatch_cases'),
+      taskDetail?: string(name='TaskDetail', description='The task details.', example='{\\"callerUid\\":\\"test\\"}'),
+      taskId?: string(name='TaskId', description='The task ID.', example='t-83br18hloy3faf****'),
+      taskType?: string(name='TaskType', description='The task type.', example='autotest_dispatch_cases'),
       uid?: string(name='Uid', description='The ID of the user to which the resources belong.', example='141345906006****'),
     }
   ](name='Items', description='The tasks.'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: **10 to 100**. Default value: **10**.', example='10'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The unique ID of the request. If the request fails, provide this ID for technical support to troubleshoot the failure.', example='5CD61041-35F7-10F7-BE94-33A48B22****'),
   totalCount?: int32(name='TotalCount', description='The total number of tasks that meet these constraints without taking pagination into account.', example='2'),
 }
@@ -10589,9 +10625,9 @@ model DescribePostgresExtensionsResponseBody = {
 *   **0**: The extension is displayed by default.
 *   **1**: The extension is preferentially displayed.', example='0'),
       requires?: string(name='Requires', description='The extensions on which the current extension depends when it is installed.', example='{dblink,plpgsql}'),
-      uid?: string(name='Uid', description='Alibaba Cloud account ID.
+      uid?: string(name='Uid', description='The ID of the Alibaba Cloud account.
 
-> Only exclusive plug-ins (plug-ins written by users) will return this parameter. Each Alibaba Cloud account only displays its own exclusive plug-ins.', example='181578148294****'),
+>  This parameter is returned only for self-developed exclusive extensions. You can view exclusive extensions only within your Alibaba Cloud account.', example='181578148294****'),
     }
   ](name='InstalledExtensions', description='The list of extensions that are installed on the specified database.'),
   overview?: map[string]any(name='Overview', description='The overview of the extension.', example='None'),
@@ -10606,9 +10642,9 @@ model DescribePostgresExtensionsResponseBody = {
       owner?: string(name='Owner', description='The user of the extension.', example='test_user'),
       priority?: string(name='Priority', description='The priority of the extension.', example='0'),
       requires?: string(name='Requires', description='The extensions on which the current extension depends when it is installed.', example='{dblink,plpgsql}'),
-      uid?: string(name='Uid', description='Alibaba Cloud account ID.
+      uid?: string(name='Uid', description='The ID of the Alibaba Cloud account.
 
-> Only exclusive plug-ins (plug-ins written by users) will return this parameter. Each Alibaba Cloud account only displays its own exclusive plug-ins.', example='181578148294****'),
+>  This parameter is returned only for self-developed exclusive extensions. You can view exclusive extensions only within your Alibaba Cloud account.', example='181578148294****'),
     }
   ](name='UninstalledExtensions', description='The list of extensions that are not installed on the specified database.'),
 }
@@ -10833,12 +10869,25 @@ async function describeQuickSaleConfig(request: DescribeQuickSaleConfigRequest):
 }
 
 model DescribeRCDeploymentSetsRequest {
-  deploymentSetIds?: string(name='DeploymentSetIds', position='Query'),
-  deploymentSetName?: string(name='DeploymentSetName', position='Query'),
-  pageNumber?: int32(name='PageNumber', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-  strategy?: string(name='Strategy', position='Query'),
+  deploymentSetIds?: string(name='DeploymentSetIds', description='The IDs of the deployment sets. The value can be a JSON array that consists of deployment set IDs in the format of `["ds-xxxxxxxxx", "ds-yyyyyyyyy", ... "ds-zzzzzzzzz"]`. You can specify up to 100 deployment set IDs in each request. Separate the deployment set IDs with commas (,).', example='["ds-2zeeuw16zo2gr9e6****"]', position='Query'),
+  deploymentSetName?: string(name='DeploymentSetName', description='The deployment set name. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with `http://` or `https://`. The name can contain digits, letters, colons (:), underscores (\\_), and hyphens (-).', example='deployment_test', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.
+
+Pages start from page 1.
+
+Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+Maximum value: 50.
+
+Default value: 10.', example='10', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  strategy?: string(name='Strategy', description='The deployment strategy. Valid values:
+
+*   **Availability**: high availability strategy
+*   **AvailabilityGroup**: high availability group strategy
+
+Default value: Availability.', example='Availability', position='Query'),
 }
 
 model DescribeRCDeploymentSetsResponseBody = {
@@ -10848,33 +10897,35 @@ model DescribeRCDeploymentSetsResponseBody = {
       capacities?: {
         capacity?: [ 
         {
-          availableAmount?: int32(name='AvailableAmount'),
-          usedAmount?: int32(name='UsedAmount'),
-          zoneId?: string(name='ZoneId'),
+          availableAmount?: int32(name='AvailableAmount', description='The number of RDS Custom instances that reside in the zone and can be added to the deployment set.', example='18'),
+          usedAmount?: int32(name='UsedAmount', description='The number of RDS Custom instances that reside in the zone in the deployment set.', example='2'),
+          zoneId?: string(name='ZoneId', description='The zone ID. Only the IDs of the zones to which the existing RDS Custom instances in the deployment set belong are returned.', example='cn-hangzhou-j'),
         }
       ](name='Capacity')
-      }(name='Capacities'),
-      createTime?: string(name='CreateTime'),
-      deploymentSetDescription?: string(name='DeploymentSetDescription'),
-      deploymentSetId?: string(name='DeploymentSetId'),
-      deploymentSetName?: string(name='DeploymentSetName'),
-      deploymentStrategy?: string(name='DeploymentStrategy'),
-      domain?: string(name='Domain'),
-      granularity?: string(name='Granularity'),
-      groupCount?: int32(name='GroupCount'),
-      instanceAmount?: int32(name='InstanceAmount'),
+      }(name='Capacities', description='The details of the capacities of the deployment set. This parameter is valid only when the deployment set contains existing RDS Custom instances. The value contains the details of the capacities of the deployment set in different zones.'),
+      createTime?: string(name='CreateTime', description='The time when the deployment set was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2024-06-19T07:15:44Z'),
+      deploymentSetDescription?: string(name='DeploymentSetDescription', description='The deployment set description.', example='test'),
+      deploymentSetId?: string(name='DeploymentSetId', description='The deployment set ID.', example='ds-ob5n4rbgy****'),
+      deploymentSetName?: string(name='DeploymentSetName', description='The deployment set name.', example='deployment_test'),
+      deploymentStrategy?: string(name='DeploymentStrategy', description='The deployment strategy. The return value of this parameter is the value of the `Strategy` request parameter.', example='Availability'),
+      domain?: string(name='Domain', description='The deployment domain.', example='default'),
+      granularity?: string(name='Granularity', description='The deployment granularity.', example='None'),
+      groupCount?: int32(name='GroupCount', description='The number of groups in the deployment set.
+
+>  This parameter is valid only when the Strategy request parameter is set to AvailabilityGroup.', example='3'),
+      instanceAmount?: int32(name='InstanceAmount', description='The number of RDS Custom instances in the deployment set.', example='1'),
       instanceIds?: {
         instanceId?: [ string ](name='InstanceId')
-      }(name='InstanceIds'),
-      strategy?: string(name='Strategy'),
+      }(name='InstanceIds', description='The ID of the RDS Custom instance in the deployment set.'),
+      strategy?: string(name='Strategy', description='The deployment strategy.', example='LooseDispersion'),
     }
   ](name='DeploymentSet')
-  }(name='DeploymentSets'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  regionId?: string(name='RegionId'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  }(name='DeploymentSets', description='The details of the deployment set.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='39265F46-EC77-4036-8AC4-F035F32F6BE2'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model DescribeRCDeploymentSetsResponse = {
@@ -10889,36 +10940,56 @@ async function describeRCDeploymentSets(request: DescribeRCDeploymentSetsRequest
 }
 
 model DescribeRCImageListRequest {
-  architecture?: string(name='Architecture', position='Query'),
-  pageNumber?: int32(name='PageNumber', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-  type?: string(name='Type', position='Query'),
+  architecture?: string(name='Architecture', description='The image architecture. Valid values:
+
+*   x86\\_64
+*   arm64', example='x86_64', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  type?: string(name='Type', description='The image type. Set the value to **self**.', example='self', position='Query'),
 }
 
 model DescribeRCImageListResponseBody = {
   images?: [ 
     {
-      architecture?: string(name='Architecture'),
-      creationTime?: string(name='CreationTime'),
-      description?: string(name='Description'),
-      imageId?: string(name='ImageId'),
-      imageName?: string(name='ImageName'),
-      imageVersion?: string(name='ImageVersion'),
-      isPublic?: boolean(name='IsPublic'),
-      OSName?: string(name='OSName'),
-      OSNameEn?: string(name='OSNameEn'),
-      OSType?: string(name='OSType'),
-      size?: long(name='Size'),
-      status?: string(name='Status'),
-      usage?: string(name='Usage'),
+      architecture?: string(name='Architecture', description='The image architecture. Valid values:
+
+*   x86\\_64
+*   arm64', example='x86_64'),
+      creationTime?: string(name='CreationTime', description='The time when the image was created.', example='2024-04-25T02:17:40Z'),
+      description?: string(name='Description', description='The description of the image.', example='test'),
+      imageId?: string(name='ImageId', description='The image ID.', example='m-2oqiu973jwcxe****'),
+      imageName?: string(name='ImageName', description='The image name.', example='Created_from_i-2zeh17y17sz677x****'),
+      imageVersion?: string(name='ImageVersion', description='The image version.', example='2'),
+      isPublic?: boolean(name='IsPublic', description='Indicates whether the image is a public image. Public images include public images provided by Alibaba Cloud and custom images published as community images.
+
+*   **true**: The image is a public image.
+*   **false**: The image is not a public image.', example='false'),
+      OSName?: string(name='OSName', description='The display name of the operating system in Chinese.'),
+      OSNameEn?: string(name='OSNameEn', description='The display name of the operating system in English.', example='Alibaba Cloud Linux  2.1903 LTS 64 bit Quick Boot'),
+      OSType?: string(name='OSType', description='The type of the operating system. Valid values:
+
+*   **windows**
+*   **linux**', example='linux'),
+      size?: long(name='Size', description='The image size. Unit: GiB.', example='40'),
+      status?: string(name='Status', description='The image status. Valid values:
+
+*   **Unavailable**
+*   **Available**
+*   **Creating**
+*   **CreateFailed**', example='Available'),
+      usage?: string(name='Usage', description='Indicates whether the image is used by the RDS Custom instance. Valid values:
+
+*   **instance**: The image is used to create one or more RDS Custom instances.
+*   **none**: The image is not used to create RDS Custom instances.', example='instance'),
     }
-  ](name='Images'),
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
-  regionId?: string(name='RegionId'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  ](name='Images', description='The information about the images.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='5'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2553A660-E4EB-4AF4-A402-8AFF70A49143'),
+  totalCount?: int32(name='TotalCount', description='The total number of images.', example='2'),
 }
 
 model DescribeRCImageListResponse = {
@@ -10933,86 +11004,134 @@ async function describeRCImageList(request: DescribeRCImageListRequest): Describ
 }
 
 model DescribeRCInstanceAttributeRequest {
-  instanceId: string(name='InstanceId', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='rc-dh2jf9n6j4s14926****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model DescribeRCInstanceAttributeResponseBody = {
-  clusterId?: string(name='ClusterId'),
-  cpu?: int32(name='Cpu'),
-  creationTime?: string(name='CreationTime'),
-  creditSpecification?: string(name='CreditSpecification'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the instance belongs.
+
+>  This parameter will be deprecated. We recommend that you use other parameters to ensure compatibility.', example='None'),
+  cpu?: int32(name='Cpu', description='The number of CPU cores.', example='4'),
+  creationTime?: string(name='CreationTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time is displayed in UTC.', example='2024-04-22T06:52:23Z'),
+  creditSpecification?: string(name='CreditSpecification', description='The performance mode of the burstable instance.', example='None'),
   dataDisks?: {
     dataDisk?: [ 
     {
-      category?: string(name='Category'),
-      deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
-      performanceLevel?: string(name='PerformanceLevel'),
-      size?: long(name='Size'),
+      category?: string(name='Category', description='The category of the data disk.', example='cloud_essd'),
+      deleteWithInstance?: boolean(name='DeleteWithInstance', description='Indicates whether the data disk is released when the instance is released. Valid values:
+
+*   **true**: The data disk is released when the instance is released.
+*   **false**: The data disk is reserved when the instance is released.', example='true'),
+      encrypted?: string(name='Encrypted', description='Indicates whether the data disk is encrypted. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+      performanceLevel?: string(name='PerformanceLevel', description='The performance level of data disk. This parameter is available when the data disk is an Enterprise SSD (ESSD).', example='PL1'),
+      size?: long(name='Size', description='The size of the data disk. Unit: GiB.', example='40'),
     }
   ](name='DataDisk')
-  }(name='DataDisks'),
+  }(name='DataDisks', description='The details of the data disk.'),
   dedicatedHostAttribute?: {
-    dedicatedHostId?: string(name='DedicatedHostId'),
-    dedicatedHostName?: string(name='DedicatedHostName'),
-  }(name='DedicatedHostAttribute'),
-  deploymentSetId?: string(name='DeploymentSetId'),
-  description?: string(name='Description'),
-  diskType?: string(name='DiskType'),
-  ecsInstanceType?: string(name='EcsInstanceType'),
+    dedicatedHostId?: string(name='DedicatedHostId', description='The ID of the dedicated host.', example='None'),
+    dedicatedHostName?: string(name='DedicatedHostName', description='The name of the dedicated host.', example='None'),
+  }(name='DedicatedHostAttribute', description='The attributes of the dedicated hosts.'),
+  deploymentSetId?: string(name='DeploymentSetId', description='The ID of the deployment set.', example='ds-uf6c8qerk019bj1l****'),
+  description?: string(name='Description', description='The instance description.', example='test'),
+  diskType?: string(name='DiskType', description='The reserved parameter.', example='None'),
+  ecsInstanceType?: string(name='EcsInstanceType', description='The Elastic Compute Service (ECS) instance family.', example='ecs.g6.2xlarge'),
   eipAddress?: {
-    allocationId?: string(name='AllocationId'),
-    bandwidth?: int32(name='Bandwidth'),
-    internetChargeType?: string(name='InternetChargeType'),
-    ipAddress?: string(name='IpAddress'),
-  }(name='EipAddress'),
-  enableJumboFrame?: boolean(name='EnableJumboFrame'),
-  expiredTime?: string(name='ExpiredTime'),
-  hostName?: string(name='HostName'),
-  hostType?: string(name='HostType'),
-  imageId?: string(name='ImageId'),
+    allocationId?: string(name='AllocationId', description='The EIP ID.', example='eip-bp14k3rz6cbg6zxbe****'),
+    bandwidth?: int32(name='Bandwidth', description='The maximum Internet bandwidth of the EIP. Unit: Mbit/s.', example='5'),
+    internetChargeType?: string(name='InternetChargeType', description='The billing method of the Internet-facing instance. Valid values:
+
+*   **paybytraffic:** pay-by-data-transfer
+*   **paybybandwidth**: pay-by-bandwidth
+
+>  If the **pay-by-traffic** billing method is used for network usage, the maximum inbound and outbound bandwidths are used as the upper limits of bandwidths instead of guaranteed performance specifications. In scenarios in which demands exceed resource supplies, the maximum bandwidths may not be reached. If you want guaranteed bandwidths for your instance, use the **pay-by-bandwidth** billing method for network usage.', example='paybytraffic'),
+    ipAddress?: string(name='IpAddress', description='The EIP.', example='8.147.XXX.XXX'),
+  }(name='EipAddress', description='The elastic IP address (EIP) associated with the instance.'),
+  enableJumboFrame?: boolean(name='EnableJumboFrame', description='Indicates whether the Jumbo Frame feature is enabled for the instance. Valid values:
+
+*   **true**
+*   **false**', example='false'),
+  expiredTime?: string(name='ExpiredTime', description='The expiration time. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time is displayed in UTC.', example='2024-08-10T00:00:00Z'),
+  hostName?: string(name='HostName', description='The instance hostname.', example='iZ2zej1n3cin51rlmby****'),
+  hostType?: string(name='HostType', description='The storage type of the host. Valid values:
+
+*   **dhg_cloud_ssd**: ESSD
+*   **dhg_local_ssd**: local SSD', example='dhg_cloud_ssd'),
+  imageId?: string(name='ImageId', description='The image ID of the instance.', example='m-2oqiu973jwcxe****'),
   innerIpAddress?: {
     ipAddress?: [ string ](name='IpAddress')
-  }(name='InnerIpAddress'),
-  instanceId?: string(name='InstanceId'),
-  instanceName?: string(name='InstanceName'),
-  instanceNetworkType?: string(name='InstanceNetworkType'),
-  instanceType?: string(name='InstanceType'),
-  internetChargeType?: string(name='InternetChargeType'),
-  internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn'),
-  internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut'),
-  ioOptimized?: string(name='IoOptimized'),
-  keyPairName?: string(name='KeyPairName'),
-  memory?: int32(name='Memory'),
+  }(name='InnerIpAddress', description='The private IP addresses of the instance in the classic network.'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='rc-dh2jf9n6j4s14926****'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='test'),
+  instanceNetworkType?: string(name='InstanceNetworkType', description='The network type. Valid values:
+
+*   **classic**
+*   **vpc**', example='vpc'),
+  instanceType?: string(name='InstanceType', description='The instance type of the instance.', example='mysql.x4.xlarge.6cm'),
+  internetChargeType?: string(name='InternetChargeType', description='The billing method for network usage. Valid values:
+
+*   **PayByBandwidth**: pay-by-bandwidth
+*   **PayByTraffic**: pay-by-data-transfer
+
+>  If the **pay-by-traffic** billing method is used for network usage, the maximum inbound and outbound bandwidths are used as the upper limits of bandwidths instead of guaranteed performance specifications. In scenarios in which demands exceed resource supplies, the maximum bandwidths may not be reached. If you want guaranteed bandwidths for your instance, use the **pay-by-bandwidth** billing method for network usage.', example='PayByTraffic'),
+  internetMaxBandwidthIn?: int32(name='InternetMaxBandwidthIn', description='The maximum inbound bandwidth from the Internet. Unit: Mbit/s.', example='1'),
+  internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The maximum outbound bandwidth to the Internet. Unit: Mbit/s.', example='5'),
+  ioOptimized?: string(name='IoOptimized', description='Indicates whether the instance is I/O optimized.
+
+*   **optimized**: The instance is I/O optimized.
+*   **none**: The instance is not I/O optimized.', example='optimized'),
+  keyPairName?: string(name='KeyPairName', description='The name of the key pair.', example='test_01'),
+  memory?: int32(name='Memory', description='The memory capacity of the instance. Unit: MiB.', example='8192'),
   operationLocks?: {
     lockReason?: [ 
     {
-      lockReason?: string(name='LockReason'),
+      lockReason?: string(name='LockReason', description='The reason why the instance is locked. Valid values:
+
+*   **financial**: The instance is locked due to overdue payments.
+*   **security**: The instance is locked for security purposes.
+*   **recycling**: The instance is locked because the instance is a preemptible instance and pending to be released.
+*   **dedicatedhostfinancial**: The instance is locked due to overdue payments for the dedicated host.
+*   **refunded**: The instance is locked because a refund was made for the instance.', example='None'),
     }
   ](name='LockReason')
-  }(name='OperationLocks'),
+  }(name='OperationLocks', description='The reasons why the instance is locked.'),
   publicIpAddress?: {
     ipAddress?: [ string ](name='IpAddress')
-  }(name='PublicIpAddress'),
-  regionId?: string(name='RegionId'),
-  requestId?: string(name='RequestId'),
+  }(name='PublicIpAddress', description='The public IP address of the instance.'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EA2D4F34-01A7-46EB-A339-D80882135206'),
   securityGroupIds?: {
     securityGroupId?: [ string ](name='SecurityGroupId')
-  }(name='SecurityGroupIds'),
-  serialNumber?: string(name='SerialNumber'),
-  status?: string(name='Status'),
-  stoppedMode?: string(name='StoppedMode'),
-  vlanId?: string(name='VlanId'),
+  }(name='SecurityGroupIds', description='The security groups.'),
+  serialNumber?: string(name='SerialNumber', description='The serial number of the instance.', example='b076f6ff-46d1-4234-a608-4e951ed6****'),
+  status?: string(name='Status', description='The instance status. Valid values:
+
+*   **Pending**
+*   **Running**
+*   **Starting**
+*   **Stopping**
+*   **Stopped**', example='Running'),
+  stoppedMode?: string(name='StoppedMode', description='Indicates whether the billing of the instance continues after the instance is stopped. Valid values:
+
+*   **KeepCharging**: The billing of the instance continues after the instance is stopped, and resources are retained for the instance.
+*   **StopCharging**: The billing of the instance stops after the instance is stopped. After the instance is stopped, resources such as CPU cores, memory resources, and public IP address are released. The instance may be unable to restart if some required resources are out of stock in the current region.
+*   **Not-applicable**: The No Fees for Stopped Instances feature is not supported for the instance.', example='Not-applicable'),
+  vlanId?: string(name='VlanId', description='The virtual LAN (VLAN) ID of the instance.
+
+>  This parameter will be deprecated. We recommend that you use other parameters to ensure compatibility.', example='None'),
   vpcAttributes?: {
-    natIpAddress?: string(name='NatIpAddress'),
+    natIpAddress?: string(name='NatIpAddress', description='The network address translation (NAT) IP address of the instance. The NAT IP address is used by instances in different VPCs for communication.', example='None'),
     privateIpAddress?: {
       ipAddress?: [ string ](name='IpAddress')
-    }(name='PrivateIpAddress'),
-    vSwitchId?: string(name='VSwitchId'),
-    vpcId?: string(name='VpcId'),
-  }(name='VpcAttributes'),
-  zoneId?: string(name='ZoneId'),
+    }(name='PrivateIpAddress', description='The private IP addresses of the instance.'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-bp1nt15muovrc5qdj****'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-2zeu747v4765aw2id****'),
+  }(name='VpcAttributes', description='The virtual private cloud (VPC) attributes of the instance.'),
+  zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-b'),
 }
 
 model DescribeRCInstanceAttributeResponse = {
@@ -11027,32 +11146,48 @@ async function describeRCInstanceAttribute(request: DescribeRCInstanceAttributeR
 }
 
 model DescribeRCInstancesRequest {
-  instanceId?: string(name='InstanceId', position='Query'),
-  pageNumber?: int32(name='PageNumber', position='Query'),
-  pageSize?: int32(name='PageSize', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
-  vpcId?: string(name='VpcId', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-2ze704f*****', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.
+
+Page starts from page 1.
+
+Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+Maximum value: 100.
+
+Default value: 10.', example='10', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-uf6f7l4fg90****', position='Query'),
 }
 
 model DescribeRCInstancesResponseBody = {
-  pageNumber?: int32(name='PageNumber'),
-  pageSize?: int32(name='PageSize'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   RCInstances?: [ 
     {
-      clusterName?: string(name='ClusterName'),
-      dbType?: string(name='DbType'),
-      description?: string(name='Description'),
-      gmtCreated?: string(name='GmtCreated'),
-      hostIp?: string(name='HostIp'),
-      hostName?: string(name='HostName'),
-      instanceId?: string(name='InstanceId'),
-      regionId?: string(name='RegionId'),
-      status?: string(name='Status'),
-      vpcId?: string(name='VpcId'),
+      clusterName?: string(name='ClusterName', description='The cluster name.', example='testrdscustom'),
+      dbType?: string(name='DbType', description='The database type.', example='rds_custom'),
+      description?: string(name='Description', description='The instance description.', example='test'),
+      gmtCreated?: string(name='GmtCreated', description='The time when the task was created. The time is displayed in GMT.', example='2023-03-22 07:56:53.0'),
+      hostIp?: string(name='HostIp', description='The host IP address.', example='172.30.XXX.XXX'),
+      hostName?: string(name='HostName', description='The host name.', example='i-2zeaiz4g9u23f40m****'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-2ze704f*****'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      status?: string(name='Status', description='The instance status. Valid values:
+
+*   **Pending**
+*   **Running**
+*   **Starting**
+*   **Stopping**
+*   **Stopped**
+
+>  If the value returned for the DescribeRCInstances operation is different from the value that is returned for the **DescribeRCInstanceAttribute** operation, the value returned for the **DescribeRCInstanceAttribute** operation shall prevail.', example='Running'),
+      vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-uf6f7l4fg90****'),
     }
-  ](name='RCInstances'),
-  requestId?: string(name='RequestId'),
-  totalCount?: int32(name='TotalCount'),
+  ](name='RCInstances', description='The details of the instance.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E9DD55F4-1A5F-48CA-BA57-DFB3CA8C4C34'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model DescribeRCInstancesResponse = {
@@ -11067,25 +11202,40 @@ async function describeRCInstances(request: DescribeRCInstancesRequest): Describ
 }
 
 model DescribeRCMetricListRequest {
-  endTime?: string(name='EndTime', position='Query'),
-  express?: string(name='Express', position='Query'),
-  instanceId?: string(name='InstanceId', position='Query'),
-  length?: string(name='Length', position='Query'),
-  metricName: string(name='MetricName', position='Query'),
-  nextToken?: string(name='NextToken', position='Query'),
-  period?: string(name='Period', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
-  startTime?: string(name='StartTime', position='Query'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. The end time must be later than the start time. Example: `2024-08-06 10:15:00`.', example='2024-08-06 10:15:00', position='Query'),
+  express?: string(name='Express', description='The reserved parameter.', example='None', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='rc-dh2jf9n6j4s14926****', position='Query'),
+  length?: string(name='Length', description='The number of entries per page.
+
+Default value: 1000.
+
+>  The maximum value of the Length parameter in a request is 1440.', example='1000', position='Query'),
+  metricName: string(name='MetricName', description='The metric that you want to use. For more information, see [CloudMonitor metrics](javascript:void\\(0\\)).', example='CPUUtilization', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token.', example='6178f1825f9fb76ce0b5e8707e68181f', position='Query'),
+  period?: string(name='Period', description='The statistical period of the monitoring data.
+
+Set the value to 60 or an integer multiple of 60.
+
+Unit: seconds.
+
+Default value: 60.', example='60', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Example: `2024-08-06 10:05:00`.', example='2024-08-06 10:05:00', position='Query'),
 }
 
 model DescribeRCMetricListResponseBody = {
-  code?: string(name='Code'),
-  datapoints?: string(name='Datapoints'),
-  message?: string(name='Message'),
-  nextToken?: string(name='NextToken'),
-  period?: string(name='Period'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
+  code?: string(name='Code', description='The HTTP status code returned.', example='200'),
+  datapoints?: string(name='Datapoints', description='The monitoring data.', example='[{\\"timestamp\\":1722909960000,\\"instanceId\\":\\"rc-dh2jf9n6j4s14926****\\",\\"userId\\":\\"1695619988087373\\",\\"Minimum\\":0.097,\\"Maximum\\":0.097,\\"Average\\":0.097},{\\"timestamp\\":1722910020000,\\"instanceId\\":\\"rc-dh2jf9n6j4s14926****\\",\\"userId\\":\\"1695619988087373\\",\\"Minimum\\":0.093,\\"Maximum\\":0.093,\\"Average\\":0.093}]'),
+  message?: string(name='Message', description='The message that is returned for the request.
+
+>  If the request is successful, **Successful** is returned. If the request fails, an error message that contains information such as an error code is returned.', example='successful'),
+  nextToken?: string(name='NextToken', description='The pagination token.', example='6178f1825f9fb76ce0b5e8707e68181f'),
+  period?: string(name='Period', description='The statistical period of the monitoring data.', example='60'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EA2D4F34-01A7-46EB-A339-D80882135206'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   **true**
+*   **false**', example='true'),
 }
 
 model DescribeRCMetricListResponse = {
@@ -11380,8 +11530,8 @@ model DescribeReplicationLinkLogsRequest {
   DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.', example='pgm-bp1trqb4p1xd****', position='Query'),
   pageNumber?: long(name='PageNumber', description='The page number.', example='1', position='Query'),
   pageSize?: long(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
-  taskId?: long(name='TaskId', description='The ID of the task. You can call the **CreateReplicationLink** operation to create the task ID of the disaster recovery instance.', example='8413252', position='Query'),
-  taskName?: string(name='TaskName', description='The name of the task. You can call the **CreateReplicationLink** operation to create a disaster recovery instance. You can specify a task name in the request parameters of the call.', example='test01', position='Query'),
+  taskId?: long(name='TaskId', description='The task ID. You must set this parameter to the ID of the task that you create by calling the **CreateReplicationLink** operation for the disaster recovery instance.', example='8413252', position='Query'),
+  taskName?: string(name='TaskName', description='The task name. You must set this parameter to the name of the task that you create by calling the **CreateReplicationLink** operation for the disaster recovery instance.', example='test01', position='Query'),
   taskType: string(name='TaskType', description='The type of the task. Valid values:
 
 *   **create**: creates a synchronization link.
@@ -12575,10 +12725,10 @@ model DescribeVSwitchesRequest {
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
-  vpcId?: string(name='VpcId', description='The ID of the VPC to which the VSwitch belongs.
+  vpcId?: string(name='VpcId', description='The ID of the VPC to which the vSwitch belongs.
 
 > You must configure this parameter or **DedicatedHostGroupId**.', example='vpc-bp1opxu1zkhn**********', position='Query'),
-  zoneId?: string(name='ZoneId', description='The ID of the zone to which the VSwitch belongs. You can call the DescribeAvailableZones operation to query zone IDs. If you specify this parameter, the query results are filtered based on the value of this parameter and only the details of the VSwitch that is deployed in the specified zone are returned.', example='cn-hangzhou-i', position='Query'),
+  zoneId?: string(name='ZoneId', description='The ID of the zone to which the vSwitch belongs. You can call the DescribeAvailableZones operation to query zone IDs. If you specify this parameter, the query results are filtered based on the value of this parameter and only the details of the VSwitch that is deployed in the specified zone are returned.', example='cn-hangzhou-i', position='Query'),
 }
 
 model DescribeVSwitchesResponseBody = {
@@ -13124,6 +13274,7 @@ model ListClassesRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.
 
 >  If you set the **CommodityCode** parameter to the commodity code of read-only instances, you must specify this parameter.', example='rm-uf6wjk5xxxxxxx', position='Query'),
+  engine?: string(name='Engine', position='Query'),
   orderType: string(name='OrderType', description='The type of order that you want to query. Valid values:
 
 *   **BUY**: specifies the query orders that are used to purchase instances.
@@ -13159,6 +13310,8 @@ model ListClassesResponseBody = {
 
 > *   If you set **CommodityCode** to a value that indicates the pay-as-you-go billing method, the ReferencePrice parameter specifies the hourly fee that you must pay.
 > *   If you set **CommodityCode** to a value that indicates the subscription billing method, the ReferencePrice parameter specifies the monthly fee that you must pay.', example='2500'),
+      category?: string(name='category'),
+      storageType?: string(name='storageType'),
     }
   ](name='Items', description='The list of instance specifications.'),
   regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
@@ -13589,13 +13742,13 @@ async function modifyADInfo(request: ModifyADInfoRequest): ModifyADInfoResponse 
 }
 
 model ModifyAccountCheckPolicyRequest {
-  accountName: string(name='AccountName', example='DatabaseTest', position='Query'),
-  checkPolicy: boolean(name='CheckPolicy', example='true', position='Query'),
-  clientToken?: string(name='ClientToken', example='ETnLKlblzczshOTUbOC****', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', example='rm-uf6wjk5xxxxxxxxxx', position='Query'),
+  accountName: string(name='AccountName', description='The account username.', example='DatabaseTest', position='Query'),
+  checkPolicy: boolean(name='CheckPolicy', description='Specifies whether to apply the password policy', example='true', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters. If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='ETnLKlblzczshOTUbOC****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.', example='rm-uf6wjk5xxxxxxxxxx', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmy****', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. For more information about resource groups, see related documentation.', example='rg-acfmy****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
@@ -13610,6 +13763,11 @@ model ModifyAccountCheckPolicyResponse = {
   body?: ModifyAccountCheckPolicyResponseBody(name='body'),
 }
 
+/**
+  * ### [](#)Supported database engine
+  * *   SQL Server
+  *
+ */
 async function modifyAccountCheckPolicy(request: ModifyAccountCheckPolicyRequest): ModifyAccountCheckPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyAccountCheckPolicy', 'POST', '/', 'json', false, 'json', request);
@@ -13655,6 +13813,7 @@ model ModifyAccountMaskingPrivilegeRequest {
   expireTime?: string(name='ExpireTime', position='Query'),
   ownerId?: string(name='OwnerId', position='Query'),
   privilege: string(name='Privilege', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   userName: string(name='UserName', maxLength=1000, position='Query'),
@@ -13679,18 +13838,24 @@ async function modifyAccountMaskingPrivilege(request: ModifyAccountMaskingPrivil
 }
 
 model ModifyAccountSecurityPolicyRequest {
-  clientToken?: string(name='ClientToken', example='ETnLKlblzczshOTUbOCz****', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', example='rm-bp1ibu****', position='Query'),
-  groupPolicy: string(name='GroupPolicy', example='{"accountSecurityPolicy": {"MaximumPasswordAge": 30, "MinimumPasswordAge": 20}}', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCz****', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the [DescribeDBInstances](~~2628785~~) operation to query the instance ID.', example='rm-bp1ibu****', position='Query'),
+  groupPolicy: string(name='GroupPolicy', description='The custom password policy for the account of the ApsaraDB RDS for SQL Server instance. The following policies are supported:
+
+*   `{"account security policy": {"MaximumPasswordAge": Specify the maximum password age}}`: You can configure only the maximum password age. After the maximum password age is reached, you must change the password.
+*   `{"accountSecurityPolicy": {"MaximumPasswordAge": Specify the minimum password age}}`: You can configure only the minimum password age. During the specified period, you cannot change the password.
+*   `{"accountSecurityPolicy": {"MaximumPasswordAge": Specify the maximum password age, "MinimumPasswordAge": Specify the minimum password age}}`: You can configure the maximum and minimum password age at the same time.
+
+>  The minimum password age cannot be greater than the maximum password age. Valid values for the minimum password age: 0 to 998. Valid values for the maximum password age: 0 to 999.', example='{"accountSecurityPolicy": {"MaximumPasswordAge": 30, "MinimumPasswordAge": 20}}', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmy****', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model ModifyAccountSecurityPolicyResponseBody = {
-  requestId?: string(name='RequestId', example='F2911788-25E8-42E5-A3A3-1B38D263F01E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F2911788-25E8-42E5-A3A3-1B38D263F01E'),
 }
 
 model ModifyAccountSecurityPolicyResponse = {
@@ -13699,6 +13864,14 @@ model ModifyAccountSecurityPolicyResponse = {
   body?: ModifyAccountSecurityPolicyResponseBody(name='body'),
 }
 
+/**
+  * ### [](#)Supported database engine
+  * SQL Server
+  * ### [](#)References
+  * >  Before you call this operation, read the following topics and make sure that you fully understand the prerequisites and impacts of this operation.
+  * [Create a custom password policy for an account of an ApsaraDB RDS for SQL Server instance](~~95640~~)
+  *
+ */
 async function modifyAccountSecurityPolicy(request: ModifyAccountSecurityPolicyRequest): ModifyAccountSecurityPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyAccountSecurityPolicy', 'POST', '/', 'json', false, 'json', request);
@@ -14848,7 +15021,12 @@ async function modifyDBInstanceSecurityGroupRule(request: ModifyDBInstanceSecuri
 }
 
 model ModifyDBInstanceSpecRequest {
-  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade', position='Query'),
+  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade', description='Specifies whether to upgrade the major engine version of the instance. Valid values:
+
+*   **true**
+*   **false** (default)
+
+>When you upgrade the major engine version of an ApsaraDB RDS for SQL Server instance, set this parameter to true. When you upgrade the major engine version, you must also specify required parameters such as DBInstanceId, EngineVersion, DBInstanceClass, and Category, and optional parameters such as ZoneId, ZoneIdSlave1, and VSwitchId.', example='false', position='Query'),
   autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to use vouchers to offset fees. Valid values:
 
 *   **true**
@@ -14869,9 +15047,9 @@ model ModifyDBInstanceSpecRequest {
     *   **serverless_standard**: RDS High-availability Edition. This edition is available only for serverless instances that run MySQL and PostgreSQL.
     *   **serverless_ha**: RDS High-availability Edition for ApsaraDB RDS for SQL Server.
 
-    **
 
-    **Note** If you set the **EngineVersion** parameter to an SQL Server version number, you must also specify this parameter.', example='HighAvailability', position='Query'),
+
+> If you set the **EngineVersion** parameter to an SQL Server version number, you must also specify this parameter.', example='HighAvailability', position='Query'),
   coldDataEnabled?: boolean(name='ColdDataEnabled', description='A reserved parameter.', example='true', position='Query'),
   DBInstanceClass?: string(name='DBInstanceClass', description='The new instance type of the instance. For more information, see [Primary ApsaraDB RDS instance types](~~26312~~). You can also call the DescribeAvailableClasses operation to query the instance types that are supported by an instance.
 
@@ -14899,14 +15077,14 @@ If the instance runs PostgreSQL, you can upgrade the storage type of the instanc
 *   **Up** (default): upgrades a subscription instance, or upgrades or downgrades a pay-as-you-go instance.
 *   **Down**: downgrades a subscription instance.
 *   **TempUpgrade**: performs auto scaling on a subscription instance that runs SQL Server. This value is required for auto scaling.
-*   **Serverless**: modifies the auto scaling settings of a serverless instance. This value is required if you want to modify the auto scaling settings of a serverless instance.
+*   **Serverless**: modifies the auto scaling settings of a serverless instance.
 
->  If you specify only **DBInstanceStorageType**, you can leave Direction empty. For example, if you want to change only the storage type of the instance from standard SSD to ESSD, you do not need to specify Direction.', example='Up', position='Query'),
+>  If you specify only **DBInstanceStorageType**, you can leave Direction empty. For example, if you want to change only the storage type of the instance from standard SSD to Enterprise SSD (ESSD), you do not need to specify Direction.', example='Up', position='Query'),
   effectiveTime?: string(name='EffectiveTime', description='The effective time. Valid values:
 
 *   **Immediate** (default): The effective time immediately takes effect.
 *   **MaintainTime**: The effective time is within the maintenance window. For more information, see ModifyDBInstanceMaintainTime.
-*   **ScheduleTime**: The effective time takes effect at the point in time that you specify. The schedule time must be a specific point in time that is 12 hours later than the current time. In this case, EffectiveTime is calculated by using the following formula: EffectiveTime = ScheduleTime + SwitchTime.', example='MaintainTime', position='Query'),
+*   **ScheduleTime**: The effective time takes effect at the point in time that you specify. The value of ScheduleTime must be a specific point in time that is 12 hours later than the current time. In this case, The value of EffectiveTime is calculated by using the following formula: EffectiveTime = ScheduleTime + SwitchTime.', example='MaintainTime', position='Query'),
   engineVersion?: string(name='EngineVersion', description='The database engine version of the instance.
 
 *   Regular instance
@@ -14940,9 +15118,7 @@ If the instance runs PostgreSQL, you can upgrade the storage type of the instanc
 *   **true**
 *   **false** (default)
 
-> 
-
-*   This parameter is required only for serverless instances that run MySQL and PostgreSQL. After the automatic start and stop feature is enabled, if no connections to the instance are established within 10 minutes, the instance is suspended. After a connection to the instance is established, the instance is automatically resumed.', example='true'),
+> This parameter is required only for serverless instances that run MySQL and PostgreSQL. After the automatic start and stop feature is enabled, if no connections to the instance are established within 10 minutes, the instance is suspended. After a connection to the instance is established, the instance is automatically resumed.', example='true'),
     maxCapacity?: double(name='MaxCapacity', description='The maximum number of RDS Capacity Units (RCUs). Valid values:
 
 *   Serverless ApsaraDB RDS for MySQL instances: **1 to 32**
@@ -14966,11 +15142,8 @@ If the instance runs PostgreSQL, you can upgrade the storage type of the instanc
 *   **true**
 *   **false** (default)
 
-> 
-
-*   This parameter is required only for serverless instances that run MySQL and PostgreSQL. If you set this parameter to true, a service interruption that lasts 30 to 120 seconds occurs during forced scaling. Process with caution.
-
-*   The RCU scaling for a serverless instance immediately takes effect. In some cases, such as the execution of large transactions, the scaling does not immediately take effect. In this case, you can enable this feature to forcefully scale the RCUs of the instance.', example='false'),
+> *   This parameter is required only for serverless instances that run MySQL and PostgreSQL. If you set this parameter to true, a service interruption that lasts 30 to 120 seconds occurs during forced scaling. Process with caution.
+> *   The RCU scaling for a serverless instance immediately takes effect. In some cases, such as the execution of large transactions, the scaling does not immediately take effect. In this case, you can enable this feature to forcefully scale the RCUs of the instance.', example='false'),
   }(name='ServerlessConfiguration', description='The specifications that you want to change for a serverless instance.', shrink='json', position='Query'),
   sourceBiz?: string(name='SourceBiz', description='A deprecated parameter. You do not need to specify this parameter.', example='Specifies whether to enable the automatic suspension feature.', position='Query'),
   switchTime?: string(name='SwitchTime', description='The response parameters.', example='2019-07-10T13:15:12Z', position='Query'),
@@ -14982,7 +15155,12 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 
 >  For more information about minor engine versions, see [Release notes for AliPG](~~126002~~).', example='rds_postgres_1200_20200830', position='Query'),
   usedTime?: long(name='UsedTime', description='The ID of the order.', example='3', position='Query'),
-  vSwitchId?: string(name='VSwitchId', position='Query'),
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID. The vSwitch must belong to the zone that is specified by **ZoneId**.
+
+*   If you set **InstanceNetworkType** to **VPC**, you must also specify this parameter.
+*   If you specify ZoneSlaveId1, you must specify the IDs of two vSwitches for this parameter and separate the IDs with a comma (,).
+
+> When you upgrade the major engine version, if you want to specify a vSwitch or change the vSwitch for the RDS instance, you must also specify this parameter.', example='vsw-bp1oxflciovg9l7163lr7', position='Query'),
   zoneId?: string(name='ZoneId', description='The RDS edition of the instance. Valid values:
 
 *   **Basic**: RDS Basic Edition.
@@ -14991,7 +15169,9 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 *   **Finance**: RDS Enterprise Edition. This edition is available only on the China site (aliyun.com).
 
 > If you set **EngineVersion** to an SQL Server version number, you must also specify this parameter.', example='cn-hangzhou-b', position='Query'),
-  zoneIdSlave1?: string(name='ZoneIdSlave1', position='Query'),
+  zoneIdSlave1?: string(name='ZoneIdSlave1', description='The zone ID of the secondary instance. If you set this parameter to the same value as the **ZoneId** parameter, the single-zone deployment method is used. If you set this parameter to a different value from the **ZoneId** parameter, the multi-zone deployment method is used.
+
+> If you must specify a secondary zone or change the secondary zone to upgrade the major engine version of an ApsaraDB RDS for SQL Server instance, you must also specify this parameter.', example='cn-hangzhou-c', position='Query'),
 }
 
 model ModifyDBInstanceSpecResponseBody = {
@@ -15828,6 +16008,7 @@ model ModifyMaskingRulesRequest {
   enabled?: string(name='Enabled', position='Query'),
   maskingAlgo?: string(name='MaskingAlgo', position='Query'),
   ownerId?: string(name='OwnerId', position='Query'),
+  regionId?: string(name='RegionId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   ruleConfig?: {
@@ -16051,17 +16232,30 @@ async function modifyParameterGroup(request: ModifyParameterGroupRequest): Modif
 }
 
 model ModifyRCInstanceRequest {
-  autoPay?: boolean(name='AutoPay', position='Query'),
-  direction?: string(name='Direction', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  instanceId?: string(name='InstanceId', position='Query'),
-  instanceType?: string(name='InstanceType', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable the automatic payment feature. Valid values:
+
+*   **true** (default): enables the feature. You must make sure that your account balance is sufficient.
+*   **false**: disables the feature. An unpaid order is generated.
+
+>  If your account balance is insufficient, you can set AutoPay to false. In this case, an unpaid order is generated. You can complete the payment in the Expenses and Costs console.', example='true', position='Query'),
+  direction?: string(name='Direction', description='The type of the change that you want to perform on the instance. Valid values:
+
+>  This parameter is optional. The system can automatically determine whether the instance change is an upgrade or a downgrade. If you want to specify this parameter, take note of the following items:
+
+*   **Upgrade** (default): upgrades the instance type. Make sure that your account balance is sufficient.
+*   **Down**: downgrades the instance type. If the new instance type specified by InstanceType has lower specifications than the current instance type, set Direction to Down.', example='Up', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, service limits, and resource inventory.
+*   **false**: performs a dry run and performs the actual request. If the request passes the dry run, the operation is performed.', example='true', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-uf62br2491p5l****', position='Query'),
+  instanceType?: string(name='InstanceType', description='The new instance type. For more information about the instance types that are supported by RDS Custom instances, see [Instance types of RDS Custom instances](~~2844823~~).', example='mysql.i8.large.2cm', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hagnzhou', position='Query'),
 }
 
 model ModifyRCInstanceResponseBody = {
-  orderId?: long(name='OrderId'),
-  requestId?: string(name='RequestId'),
+  orderId?: long(name='OrderId', description='The order ID.', example='100789370230206'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6EF82B07-28D2-48D1-B5D6-7E78FED277C7'),
 }
 
 model ModifyRCInstanceResponse = {
@@ -16070,6 +16264,16 @@ model ModifyRCInstanceResponse = {
   body?: ModifyRCInstanceResponseBody(name='body'),
 }
 
+/**
+  * Before you call this operation, make sure that you are familiar with the billing methods, pricing, and refund rules of RDS Custom.
+  * Before you call this operation, take note of the following items:
+  * *   You cannot change the instance type of an expired instance. You can renew the instance and try again.
+  * *   When you downgrade the instance type of an instance, take note of the following items:
+  *     *   The instance must be in the Stopped state.
+  *     *   The price difference is refunded to the payment account you used. Vouchers that have been redeemed are not refundable.
+  * *   The operation is asynchronous. Wait 5 to 10 seconds for the instance type change to complete. Then, restart the instance by calling the RebootInstance operation or by using the console for the instance type change to take effect. If you restart only the operating system of the instance, the instance type change does not take effect. If the instance is in the Stopped state, you need only to start the instance. You do not need to restart the instance after it enters the Running state.
+  *
+ */
 async function modifyRCInstance(request: ModifyRCInstanceRequest): ModifyRCInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyRCInstance', 'POST', '/', 'json', false, 'json', request);
@@ -16394,7 +16598,7 @@ model ModifySecurityIpsRequest {
 
 Default value: **Cover**.', example='Cover', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  securityIPType?: string(name='SecurityIPType', description='The type of the IP addresses in the IP address whitelist. Set the value to IPv4. IPv6 is not supported.', example='IPv4', position='Query'),
+  securityIPType?: string(name='SecurityIPType', description='The IP address type. The value is fixed as IPv4.', example='IPv4', position='Query'),
   securityIps: string(name='SecurityIps', description='The IP addresses in an IP address whitelist. Separate multiple IP addresses with commas (,). Each IP address in the IP address whitelist must be unique. The entries in the IP address whitelist must be in one of the following formats:
 
 *   IP addresses, such as 10.23.XX.XX.
@@ -16778,14 +16982,22 @@ async function queryRecommendByCode(request: QueryRecommendByCodeRequest): Query
 }
 
 model RebootRCInstanceRequest {
-  dryRun?: boolean(name='DryRun', position='Query'),
-  forceStop?: boolean(name='ForceStop', position='Query'),
-  instanceId: string(name='InstanceId', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, service limits, and insufficient inventory errors. If the request passes the dry run, the DryRunOperation error code is returned. Otherwise, an error message is returned.
+*   **false**: performs a dry run and performs the actual request. If the request passes the dry run, the instance is restarted.
+
+Default value: false', example='false', position='Query'),
+  forceStop?: boolean(name='ForceStop', description='Specifies whether to forcefully stop the instance before you restart the instance Valid values:
+
+*   **true**: forcefully stops the instance. This operation is equivalent to the typical power-off operation. Cache data that is not written to storage devices on the instance is lost.
+*   **false** (default): normally stops the instance.', example='false', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='rc-m5sc1271fv344a1r****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model RebootRCInstanceResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3E36DB6E-AE3B-53B6-A703-85F883FD1B2C'),
 }
 
 model RebootRCInstanceResponse = {
@@ -17289,17 +17501,28 @@ async function resetAccountPassword(request: ResetAccountPasswordRequest): Reset
 }
 
 model ResizeRCInstanceDiskRequest {
-  autoPay?: boolean(name='AutoPay', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  instanceId?: string(name='InstanceId', position='Query'),
-  newSize?: long(name='NewSize', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
-  type?: string(name='Type', position='Query'),
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable the automatic payment feature for the instance. Valid values:
+
+*   **true** (default): enables the feature. Make sure that your account balance is sufficient.
+*   **false**: disables the feature. An unpaid order is generated.
+
+>  If your account balance is insufficient, you can set AutoPay to false. In this case, an unpaid order is generated. You can complete the payment in the Expenses and Costs console.', example='false', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, service limits, and insufficient inventory errors.
+*   **false**: performs a dry run and performs the actual request. If the request passes the dry run, the instance is created.', example='false', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-uf62br2491p5l****', position='Query'),
+  newSize?: long(name='NewSize', description='The new disk size. Unit: GiB.', example='100', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-hangzhou', position='Query'),
+  type?: string(name='Type', description='The method that you want to use to resize the disk. Valid values:
+
+*   **offline** (default): resizes disks offline. After you resize a disk offline, you must restart the instance for the resizing operation to take effect.
+*   **online**: resizes disks online. After you resize a disk online, the resizing operation takes effect immediately and you do not need to restart the instance.', example='online', position='Query'),
 }
 
 model ResizeRCInstanceDiskResponseBody = {
-  orderId?: long(name='OrderId'),
-  requestId?: string(name='RequestId'),
+  orderId?: long(name='OrderId', description='The order ID.', example='230546833080102'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1E43AAE0-BEE8-43DA-860D-EAF2AA0724DC'),
 }
 
 model ResizeRCInstanceDiskResponse = {
@@ -17529,50 +17752,50 @@ async function revokeOperatorPermission(request: RevokeOperatorPermissionRequest
 }
 
 model RunRCInstancesRequest {
-  amount: int32(name='Amount', minimum=1, maximum=10, position='Query'),
-  autoPay?: boolean(name='AutoPay', position='Query'),
-  autoRenew?: boolean(name='AutoRenew', position='Query'),
-  clientToken?: string(name='ClientToken', position='Query'),
+  amount: int32(name='Amount', example='1', minimum=1, maximum=10, position='Query'),
+  autoPay?: boolean(name='AutoPay', example='false', position='Query'),
+  autoRenew?: boolean(name='AutoRenew', example='false', position='Query'),
+  clientToken?: string(name='ClientToken', example='ETnLKlblzczshOTUbOCz****', position='Query'),
   dataDisk?: [ 
     {
-      category?: string(name='Category'),
-      deleteWithInstance?: boolean(name='DeleteWithInstance'),
-      encrypted?: string(name='Encrypted'),
-      performanceLevel?: string(name='PerformanceLevel'),
-      size?: int32(name='Size'),
+      category?: string(name='Category', example='local_ssd'),
+      deleteWithInstance?: boolean(name='DeleteWithInstance', example='null'),
+      encrypted?: string(name='Encrypted', example='false'),
+      performanceLevel?: string(name='PerformanceLevel', example='null'),
+      size?: int32(name='Size', example='10'),
     }
   ](name='DataDisk', shrink='json', position='Query'),
-  deploymentSetId?: string(name='DeploymentSetId', position='Query'),
-  description?: string(name='Description', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  imageId?: string(name='ImageId', position='Query'),
-  instanceChargeType?: string(name='InstanceChargeType', position='Query'),
-  instanceName?: string(name='InstanceName', position='Query'),
-  instanceType: string(name='InstanceType', position='Query'),
-  internetChargeType?: string(name='InternetChargeType', position='Query'),
-  internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', position='Query'),
-  ioOptimized?: string(name='IoOptimized', position='Query'),
-  keyPairName?: string(name='KeyPairName', position='Query'),
-  password?: string(name='Password', position='Query'),
-  period?: int32(name='Period', position='Query'),
-  periodUnit?: string(name='PeriodUnit', position='Query'),
-  regionId: string(name='RegionId', position='Query'),
-  securityEnhancementStrategy?: string(name='SecurityEnhancementStrategy', position='Query'),
-  securityGroupId?: string(name='SecurityGroupId', position='Query'),
+  deploymentSetId?: string(name='DeploymentSetId', example='ds-uf6670sipmph5j5b6ke4', position='Query'),
+  description?: string(name='Description', example='Instance_Description', position='Query'),
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  imageId?: string(name='ImageId', example='image-dsvjzw2ii8n4fvr6de', position='Query'),
+  instanceChargeType?: string(name='InstanceChargeType', example='Prepaid', position='Query'),
+  instanceName?: string(name='InstanceName', example='ceshi', position='Query'),
+  instanceType: string(name='InstanceType', example='mysql.i8.large.2cm', position='Query'),
+  internetChargeType?: string(name='InternetChargeType', example='null', position='Query'),
+  internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', example='null', position='Query'),
+  ioOptimized?: string(name='IoOptimized', example='null', position='Query'),
+  keyPairName?: string(name='KeyPairName', example='dell5502', position='Query'),
+  password?: string(name='Password', example='2F9e9@a69c!e18b569c8', position='Query'),
+  period?: int32(name='Period', example='1', position='Query'),
+  periodUnit?: string(name='PeriodUnit', example='Year', position='Query'),
+  regionId: string(name='RegionId', example='cn-beijing', position='Query'),
+  securityEnhancementStrategy?: string(name='SecurityEnhancementStrategy', example='null', position='Query'),
+  securityGroupId?: string(name='SecurityGroupId', example='sg-uf6av412xaxixuezol6w', position='Query'),
   systemDisk?: {
-    category?: string(name='Category'),
-    size?: string(name='Size'),
+    category?: string(name='Category', example='cloud_essd'),
+    size?: string(name='Size', example='20'),
   }(name='SystemDisk', shrink='json', position='Query'),
-  vSwitchId: string(name='VSwitchId', position='Query'),
-  zoneId?: string(name='ZoneId', position='Query'),
+  vSwitchId: string(name='VSwitchId', example='vsw-2vcd61ngm890sk****', position='Query'),
+  zoneId?: string(name='ZoneId', example='cn-beijing-f', position='Query'),
 }
 
 model RunRCInstancesResponseBody = {
   instanceIdSets?: {
     instanceIdSet?: [ string ](name='InstanceIdSet')
   }(name='InstanceIdSets'),
-  orderId?: string(name='OrderId'),
-  requestId?: string(name='RequestId'),
+  orderId?: string(name='OrderId', example='237850846720798'),
+  requestId?: string(name='RequestId', example='535BD857-E88F-5B4F-A18C-FAF59A74741F'),
 }
 
 model RunRCInstancesResponse = {
@@ -17652,12 +17875,12 @@ async function startDBInstance(request: StartDBInstanceRequest): StartDBInstance
 }
 
 model StartRCInstanceRequest {
-  instanceId: string(name='InstanceId', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='rc-l02u59b2kjfd2us0****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model StartRCInstanceResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8B993DA9-5272-5414-94E3-4CA8BA0146C2'),
 }
 
 model StartRCInstanceResponse = {
@@ -17707,13 +17930,16 @@ async function stopDBInstance(request: StopDBInstanceRequest): StopDBInstanceRes
 }
 
 model StopRCInstanceRequest {
-  forceStop?: boolean(name='ForceStop', position='Query'),
-  instanceId: string(name='InstanceId', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  forceStop?: boolean(name='ForceStop', description='Specifies whether to forcefully stop the instance. Valid values:
+
+*   **true**
+*   **false** (default)', example='false', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.', example='rc-m5sc1271fv344a1r****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model StopRCInstanceResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3E36DB6E-AE3B-53B6-A703-85F883FD1B2C'),
 }
 
 model StopRCInstanceResponse = {
@@ -17866,15 +18092,18 @@ async function switchDBInstanceVpc(request: SwitchDBInstanceVpcRequest): SwitchD
 }
 
 model SyncRCKeyPairRequest {
-  keyPairName?: string(name='KeyPairName', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  keyPairName?: string(name='KeyPairName', description='The name of the key pair.', example='customer_keypairs', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model SyncRCKeyPairResponseBody = {
   data?: {
-    isSyncInfo?: boolean(name='IsSyncInfo'),
-  }(name='Data'),
-  requestId?: string(name='RequestId'),
+    isSyncInfo?: boolean(name='IsSyncInfo', description='Indicates whether the synchronization succeeded. Valid values:
+
+*   **true**
+*   **false**', example='true'),
+  }(name='Data', description='The details of the result.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='60478CCB-95EA-5D06-8A51-CAC83A316E9A'),
 }
 
 model SyncRCKeyPairResponse = {
