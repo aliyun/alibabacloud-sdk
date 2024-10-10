@@ -3335,6 +3335,7 @@ model CreateImageComponentRequest {
   componentType?: string(name='ComponentType', description='The type of the image component. Only image build components are supported. Set the value to Build.
 
 Default value: Build.', example='Build', position='Query'),
+  componentVersion?: string(name='ComponentVersion', position='Query'),
   content?: string(name='Content', description='The content of the image component. The content consists of up to 127 commands.', example='RUN yum update -y', position='Query'),
   description?: string(name='Description', description='The description. The description must be 2 to 256 characters in length and cannot start with [http:// or https://](http://https://。).', example='This is description.', position='Query'),
   name?: string(name='Name', description='The component name. The name must be 2 to 128 characters in length. The name must start with a letter but cannot start with http:// or https://.[ ](http://https://。、、、（:）、（_）、（.）（-）。)The name can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
@@ -3411,6 +3412,7 @@ Default value: true.
 
 > If the intermediate instance cannot be started, the instance is released by default.', example='true', position='Query'),
   description?: string(name='Description', description='The description of the image template. The description must be 2 to 256 characters in length. It cannot start with `http://` or `https://`.', example='This is description.', position='Query'),
+  imageFamily?: string(name='ImageFamily', position='Query'),
   imageName?: string(name='ImageName', description='The prefix of the image name. The prefix must be 2 to 64 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
 The system generates the final complete image name that consists of the specified prefix and the ID of the build task (`ExecutionId`) in the format of `{ImageName}_{ExecutionId}`.', example='testImageName', position='Query'),
@@ -3428,6 +3430,7 @@ Default value: 0.', example='0', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
+  repairMode?: string(name='RepairMode', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-bp67acfmxazb4p****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
@@ -3440,6 +3443,7 @@ Default value: 40.', example='40', position='Query'),
       value?: string(name='Value', description='The value of tag N. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value must be 0 to 128 characters in length. It cannot start with `acs:` or contain `http://` or `https://`.', example='TestValue'),
     }
   ](name='Tag', description='The tags to add to the template.', position='Query'),
+  testContent?: string(name='TestContent', position='Query'),
   toRegionId?: [ string ](name='ToRegionId', description='The IDs of regions to which you want to distribute the image that is created based on the image template. You can specify up to 20 region IDs.
 
 If you do not specify this parameter, the image is created only in the current region.', example='cn-hangzhou', position='Query'),
@@ -10606,6 +10610,8 @@ async function describeHpcClusters(request: DescribeHpcClustersRequest): Describ
 
 model DescribeImageComponentsRequest {
   sourceRegionId?: string(name='SourceRegionId', position='Host'),
+  componentType?: string(name='ComponentType', position='Query'),
+  componentVersion?: string(name='ComponentVersion', position='Query'),
   imageComponentId?: [ string ](name='ImageComponentId', description='The IDs of image components. Valid values of N: 1 to 20.', example='ic-bp67acfmxazb4p****', position='Query'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries per page. Valid values: 1 to 500.
 
@@ -10626,6 +10632,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 >  Resources in the default resource group are displayed in the response regardless of how this parameter is set.', example='rg-bp67acfmxazb4p****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  systemType?: string(name='SystemType', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', description='The key of tag N. Valid values of N: 1 to 20.', example='TestKey'),
@@ -10639,6 +10646,7 @@ model DescribeImageComponentsResponseBody = {
     imageComponentSet?: [ 
     {
       componentType?: string(name='ComponentType', description='The type of the image component.', example='Build'),
+      componentVersion?: string(name='ComponentVersion'),
       content?: string(name='Content', description='The content of the image component.', example='RESTART'),
       creationTime?: string(name='CreationTime', description='The time when the image component was created.', example='2020-11-24T06:00:00Z'),
       description?: string(name='Description', description='The description of the image component.', example='This is description.'),
@@ -10648,6 +10656,15 @@ model DescribeImageComponentsResponseBody = {
 
 *   SELF: the custom component that you created.
 *   ALIYUN: the system component provided by Alibaba Cloud.', example='SELF'),
+      parameters?: {
+        parameter?: [ 
+        {
+          defaultValue?: string(name='DefaultValue'),
+          name?: string(name='Name'),
+          type?: string(name='Type'),
+        }
+      ](name='Parameter')
+      }(name='Parameters'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the image component belongs.', example='rg-bp67acfmxazb4p****'),
       systemType?: string(name='SystemType', description='The type of the operating system supported by the image component.', example='Linux'),
       tags?: {
@@ -10918,11 +10935,13 @@ model DescribeImagePipelinesResponseBody = {
       creationTime?: string(name='CreationTime', description='The time when the image template was created.', example='2020-11-24T06:00:00Z'),
       deleteInstanceOnFailure?: boolean(name='DeleteInstanceOnFailure', description='Indicates whether to release the intermediate instance when the image fails to be created.', example='true'),
       description?: string(name='Description', description='The description of the image template.', example='This is description.'),
+      imageFamily?: string(name='ImageFamily'),
       imageName?: string(name='ImageName', description='The name prefix of the image to be created based on the image template.', example='testImageName'),
       imagePipelineId?: string(name='ImagePipelineId', description='The ID of the image template.', example='ip-2ze5tsl5bp6nf2b3****'),
       instanceType?: string(name='InstanceType', description='The instance type.', example='ecs.g6.large'),
       internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The size of the outbound public bandwidth for the intermediate instance. Unit: Mbit/s.', example='0'),
       name?: string(name='Name', description='The name of the image template.', example='testImagePipeline'),
+      repairMode?: string(name='RepairMode'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-bp67acfmxazb4p****'),
       systemDiskSize?: int32(name='SystemDiskSize', description='The system disk size of the intermediate instance. Unit: GiB', example='40'),
       tags?: {
@@ -10933,6 +10952,7 @@ model DescribeImagePipelinesResponseBody = {
         }
       ](name='Tag')
       }(name='Tags', description='The tags of the image template.'),
+      testContent?: string(name='TestContent'),
       toRegionIds?: {
         toRegionId?: [ string ](name='ToRegionId')
       }(name='ToRegionIds', description='The IDs of regions to which to distribute the image that will be created based on the image template.'),
