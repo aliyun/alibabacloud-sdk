@@ -82,13 +82,18 @@ model DatasetLabel {
 }
 
 model Experiment {
+  accessibility?: string(name='Accessibility'),
   artifactUri?: string(name='ArtifactUri'),
   experimentId?: string(name='ExperimentId'),
   gmtCreateTime?: string(name='GmtCreateTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
-  labels?: [  map[string]any ](name='Labels'),
+  labels?: [
+    ExperimentLabel
+  ](name='Labels'),
+  latestRun?: Run(name='LatestRun'),
   name?: string(name='Name'),
   ownerId?: string(name='OwnerId'),
+  requestId?: string(name='RequestId'),
   tensorboardLogUri?: string(name='TensorboardLogUri'),
   userId?: string(name='UserId'),
   workspaceId?: string(name='WorkspaceId'),
@@ -161,21 +166,48 @@ model ModelVersion {
   versionName?: string(name='VersionName', example='1.0.0'),
 }
 
-model ServiceTemplate {
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-21T17:12:35Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-21T17:12:35Z'),
-  inferenceSpec?: map[string]any(name='InferenceSpec', example='{     "processor": "tensorflow_gpu_1.12" }'),
+model Run {
+  accessibility?: string(name='Accessibility'),
+  experimentId?: string(name='ExperimentId'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
   labels?: [
-    Label
+    RunLabel
   ](name='Labels'),
-  orderNumber?: long(name='OrderNumber', example='1'),
-  ownerId?: string(name='OwnerId', example='155770209****904'),
-  provider?: string(name='Provider', example='pai'),
-  serviceTemplateDescription?: string(name='ServiceTemplateDescription', example='这里是一个描述。'),
-  serviceTemplateDoc?: string(name='ServiceTemplateDoc', example='https://***.md'),
-  serviceTemplateId?: string(name='ServiceTemplateId', example='st-asdkjf**skdhh'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='foo'),
-  userId?: string(name='UserId', example='155770209****904'),
+  metrics?: [
+    RunMetric
+  ](name='Metrics'),
+  name?: string(name='Name'),
+  ownerId?: string(name='OwnerId'),
+  params?: [
+    RunParam
+  ](name='Params'),
+  requestId?: string(name='RequestId'),
+  runId?: string(name='RunId'),
+  sourceId?: string(name='SourceId'),
+  sourceType?: string(name='SourceType'),
+  userId?: string(name='UserId'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model RunLabel {
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  key?: string(name='Key', description='This parameter is required.'),
+  runId?: string(name='RunId'),
+  value?: string(name='Value', description='This parameter is required.'),
+}
+
+model RunMetric {
+  key?: string(name='Key', description='This parameter is required.'),
+  step?: long(name='Step'),
+  timestamp?: long(name='Timestamp'),
+  value?: float(name='Value', description='This parameter is required.'),
+}
+
+model RunParam {
+  key?: string(name='Key', description='This parameter is required.'),
+  value?: string(name='Value', description='This parameter is required.'),
 }
 
 model Trial {
@@ -675,6 +707,88 @@ async function createDatasetLabels(DatasetId: string, request: CreateDatasetLabe
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createDatasetLabelsWithOptions(DatasetId, request, headers, runtime);
+}
+
+model CreateExperimentRequest {
+  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  artifactUri?: string(name='ArtifactUri', description='Artifact的OSS存储路径', example='oss://test-bucket.oss-cn-hangzhou.aliyuncs.com/test'),
+  labels?: [
+    LabelInfo
+  ](name='Labels', description='标签'),
+  name?: string(name='Name', description='名称
+
+This parameter is required.', example='exp-test'),
+  workspaceId?: string(name='WorkspaceId', description='工作空间ID
+
+This parameter is required.', example='478**'),
+}
+
+model CreateExperimentResponseBody = {
+  experimentId?: string(name='ExperimentId'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model CreateExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExperimentResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建实验
+ *
+ * @param request CreateExperimentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExperimentResponse
+ */
+async function createExperimentWithOptions(request: CreateExperimentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateExperimentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.accessibility)) {
+    body['Accessibility'] = request.accessibility;
+  }
+  if (!Util.isUnset(request.artifactUri)) {
+    body['ArtifactUri'] = request.artifactUri;
+  }
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateExperiment',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建实验
+ *
+ * @param request CreateExperimentRequest
+ * @return CreateExperimentResponse
+ */
+async function createExperiment(request: CreateExperimentRequest): CreateExperimentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createExperimentWithOptions(request, headers, runtime);
 }
 
 model CreateMemberRequest {
@@ -1183,6 +1297,90 @@ async function createProductOrders(request: CreateProductOrdersRequest): CreateP
   return createProductOrdersWithOptions(request, headers, runtime);
 }
 
+model CreateRunRequest {
+  experimentId?: string(name='ExperimentId', description='This parameter is required.', example='exp-6thbb5xrbmp*****'),
+  labels?: [
+    Label
+  ](name='Labels'),
+  name?: string(name='Name', example='myName'),
+  params?: [
+    RunParam
+  ](name='Params'),
+  sourceId?: string(name='SourceId', example='job-jdnhf***fnrimv'),
+  sourceType?: string(name='SourceType', example='DLC'),
+}
+
+model CreateRunResponseBody = {
+  runId?: string(name='RunId', example='run-1meoz7VJd2C6f****'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model CreateRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建一次运行
+ *
+ * @param request CreateRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateRunResponse
+ */
+async function createRunWithOptions(request: CreateRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateRunResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.experimentId)) {
+    body['ExperimentId'] = request.experimentId;
+  }
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.params)) {
+    body['Params'] = request.params;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    body['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    body['SourceType'] = request.sourceType;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateRun',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建一次运行
+ *
+ * @param request CreateRunRequest
+ * @return CreateRunResponse
+ */
+async function createRun(request: CreateRunRequest): CreateRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createRunWithOptions(request, headers, runtime);
+}
+
 model CreateWorkspaceRequest {
   description?: string(name='Description', description='This parameter is required.', example='description'),
   displayName?: string(name='DisplayName', example='display name'),
@@ -1498,6 +1696,98 @@ async function deleteDatasetLabels(DatasetId: string, request: DeleteDatasetLabe
   return deleteDatasetLabelsWithOptions(DatasetId, request, headers, runtime);
 }
 
+model DeleteExperimentResponseBody = {
+  requestId?: string(name='RequestId', example='8D7B2E70-F770-505B-A672-09F1D8F2EC1E'),
+}
+
+model DeleteExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除实验
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentResponse
+ */
+async function deleteExperimentWithOptions(ExperimentId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteExperimentResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteExperiment',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(ExperimentId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除实验
+ *
+ * @return DeleteExperimentResponse
+ */
+async function deleteExperiment(ExperimentId: string): DeleteExperimentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteExperimentWithOptions(ExperimentId, headers, runtime);
+}
+
+model DeleteExperimentLabelResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model DeleteExperimentLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentLabelResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除实验标签
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentLabelResponse
+ */
+async function deleteExperimentLabelWithOptions(ExperimentId: string, Key: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteExperimentLabelResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteExperimentLabel',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(ExperimentId)}/labels/${OpenApiUtil.getEncodeParam(Key)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除实验标签
+ *
+ * @return DeleteExperimentLabelResponse
+ */
+async function deleteExperimentLabel(ExperimentId: string, Key: string): DeleteExperimentLabelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteExperimentLabelWithOptions(ExperimentId, Key, headers, runtime);
+}
+
 model DeleteMembersRequest {
   memberIds?: string(name='MemberIds', description='This parameter is required.', example='145883-21513926******88039,145883-2769726******87513'),
 }
@@ -1767,6 +2057,98 @@ async function deleteModelVersionLabels(ModelId: string, VersionName: string, re
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteModelVersionLabelsWithOptions(ModelId, VersionName, request, headers, runtime);
+}
+
+model DeleteRunResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model DeleteRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除Run
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteRunResponse
+ */
+async function deleteRunWithOptions(RunId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteRunResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteRun',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除Run
+ *
+ * @return DeleteRunResponse
+ */
+async function deleteRun(RunId: string): DeleteRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteRunWithOptions(RunId, headers, runtime);
+}
+
+model DeleteRunLabelResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model DeleteRunLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteRunLabelResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除Run标签
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteRunLabelResponse
+ */
+async function deleteRunLabelWithOptions(RunId: string, Key: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteRunLabelResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteRunLabel',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}/labels/${OpenApiUtil.getEncodeParam(Key)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除Run标签
+ *
+ * @return DeleteRunLabelResponse
+ */
+async function deleteRunLabel(RunId: string, Key: string): DeleteRunLabelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteRunLabelWithOptions(RunId, Key, headers, runtime);
 }
 
 model DeleteWorkspaceResponseBody = {
@@ -2102,6 +2484,61 @@ async function getDefaultWorkspace(request: GetDefaultWorkspaceRequest): GetDefa
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getDefaultWorkspaceWithOptions(request, headers, runtime);
+}
+
+model GetExperimentRequest {
+  verbose?: boolean(name='Verbose', example='false'),
+}
+
+model GetExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Experiment  
+}
+
+/**
+ * @summary 获取实验
+ *
+ * @param request GetExperimentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentResponse
+ */
+async function getExperimentWithOptions(ExperimentId: string, request: GetExperimentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetExperimentResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.verbose)) {
+    query['Verbose'] = request.verbose;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetExperiment',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(ExperimentId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取实验
+ *
+ * @param request GetExperimentRequest
+ * @return GetExperimentResponse
+ */
+async function getExperiment(ExperimentId: string, request: GetExperimentRequest): GetExperimentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getExperimentWithOptions(ExperimentId, request, headers, runtime);
 }
 
 model GetImageRequest {
@@ -2463,47 +2900,40 @@ async function getPermission(WorkspaceId: string, PermissionCode: string, reques
   return getPermissionWithOptions(WorkspaceId, PermissionCode, request, headers, runtime);
 }
 
-model GetServiceTemplateResponseBody = {
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-30T12:51:33.028Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-30T12:51:33.028Z'),
-  inferenceSpec?: map[string]any(name='InferenceSpec', example='{
-      "processor": "tensorflow_gpu_1.12"
-}'),
-  labels?: [
-    Label
-  ](name='Labels'),
-  ownerId?: string(name='OwnerId', example='1234567890******'),
-  provider?: string(name='Provider', example='pai'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceTemplateDescription?: string(name='ServiceTemplateDescription', example='stable diffusion 1.5'),
-  serviceTemplateDoc?: string(name='ServiceTemplateDoc', example='https://***.md'),
-  serviceTemplateId?: string(name='ServiceTemplateId', example='st-rbvg5wzlj****9ks92'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='stable_diffusion_aigc'),
-  userId?: string(name='UserId', example='1234567890******'),
+model GetRunRequest {
+  verbose?: boolean(name='Verbose', example='true'),
 }
 
-model GetServiceTemplateResponse = {
+model GetRunResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: GetServiceTemplateResponseBody(name='body'),
+  body?: Run  
 }
 
 /**
- * @summary 获取服务模版
+ * @summary 获取Run详情
  *
+ * @param request GetRunRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
- * @return GetServiceTemplateResponse
+ * @return GetRunResponse
  */
-async function getServiceTemplateWithOptions(ServiceTemplateId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetServiceTemplateResponse {
+async function getRunWithOptions(RunId: string, request: GetRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetRunResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.verbose)) {
+    query['Verbose'] = request.verbose;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
-    action = 'GetServiceTemplate',
+    action = 'GetRun',
     version = '2021-02-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/servicetemplates/${OpenApiUtil.getEncodeParam(ServiceTemplateId)}`,
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -2514,14 +2944,15 @@ async function getServiceTemplateWithOptions(ServiceTemplateId: string, headers:
 }
 
 /**
- * @summary 获取服务模版
+ * @summary 获取Run详情
  *
- * @return GetServiceTemplateResponse
+ * @param request GetRunRequest
+ * @return GetRunResponse
  */
-async function getServiceTemplate(ServiceTemplateId: string): GetServiceTemplateResponse {
+async function getRun(RunId: string, request: GetRunRequest): GetRunResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getServiceTemplateWithOptions(ServiceTemplateId, headers, runtime);
+  return getRunWithOptions(RunId, request, headers, runtime);
 }
 
 model GetWorkspaceRequest {
@@ -2791,6 +3222,136 @@ async function listDatasets(request: ListDatasetsRequest): ListDatasetsResponse 
   return listDatasetsWithOptions(request, headers, runtime);
 }
 
+model ListExperimentRequest {
+  labels?: string(name='Labels', example='is_evaluation:true'),
+  maxResults?: long(name='MaxResults', example='10'),
+  name?: string(name='Name', example='exp-test'),
+  options?: {
+    matchNameExactly?: string(name='match_name_exactly', example='true'),
+  }(name='Options'),
+  order?: string(name='Order', example='DESC'),
+  orderBy?: string(name='OrderBy', example='GmtCreateTime DESC,Name ASC'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  pageToken?: long(name='PageToken', example='0'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime'),
+  verbose?: boolean(name='Verbose', example='false'),
+  workspaceId?: string(name='WorkspaceId', example='151739'),
+}
+
+model ListExperimentShrinkRequest {
+  labels?: string(name='Labels', example='is_evaluation:true'),
+  maxResults?: long(name='MaxResults', example='10'),
+  name?: string(name='Name', example='exp-test'),
+  optionsShrink?: string(name='Options'),
+  order?: string(name='Order', example='DESC'),
+  orderBy?: string(name='OrderBy', example='GmtCreateTime DESC,Name ASC'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  pageToken?: long(name='PageToken', example='0'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime'),
+  verbose?: boolean(name='Verbose', example='false'),
+  workspaceId?: string(name='WorkspaceId', example='151739'),
+}
+
+model ListExperimentResponseBody = {
+  experiments?: [
+    Experiment
+  ](name='Experiments'),
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  totalCount?: long(name='TotalCount', example='5'),
+  requestId?: string(name='requestId', example='0C6835C5-A424-5AFB-ACC2-F1E3CA1ABF7C'),
+}
+
+model ListExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExperimentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取实验列表
+ *
+ * @param tmpReq ListExperimentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentResponse
+ */
+async function listExperimentWithOptions(tmpReq: ListExperimentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListExperimentResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListExperimentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.options)) {
+    request.optionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.options, 'Options', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.labels)) {
+    query['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.optionsShrink)) {
+    query['Options'] = request.optionsShrink;
+  }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    query['OrderBy'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.pageToken)) {
+    query['PageToken'] = request.pageToken;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.verbose)) {
+    query['Verbose'] = request.verbose;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListExperiment',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取实验列表
+ *
+ * @param request ListExperimentRequest
+ * @return ListExperimentResponse
+ */
+async function listExperiment(request: ListExperimentRequest): ListExperimentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listExperimentWithOptions(request, headers, runtime);
+}
+
 model ListImageLabelsRequest {
   imageId?: string(name='ImageId', example='image-4c62******53uor'),
   labelFilter?: string(name='LabelFilter', example='system.framework=XGBoost 1.6.0,system.official=true'),
@@ -2875,6 +3436,7 @@ async function listImageLabels(request: ListImageLabelsRequest): ListImageLabels
 
 model ListImagesRequest {
   accessibility?: string(name='Accessibility'),
+  imageUri?: string(name='ImageUri'),
   labels?: string(name='Labels', example='system.framework=XGBoost 1.6.0,system.official=true'),
   name?: string(name='Name', example='tensorflow_2.9'),
   order?: string(name='Order', example='DESC'),
@@ -2933,6 +3495,9 @@ async function listImagesWithOptions(request: ListImagesRequest, headers: map[st
   var query : map[string]any = {};
   if (!Util.isUnset(request.accessibility)) {
     query['Accessibility'] = request.accessibility;
+  }
+  if (!Util.isUnset(request.imageUri)) {
+    query['ImageUri'] = request.imageUri;
   }
   if (!Util.isUnset(request.labels)) {
     query['Labels'] = request.labels;
@@ -3665,65 +4230,45 @@ async function listResources(request: ListResourcesRequest): ListResourcesRespon
   return listResourcesWithOptions(request, headers, runtime);
 }
 
-model ListServiceTemplatesRequest {
-  label?: string(name='Label', example='aigc'),
-  order?: string(name='Order', example='DESC'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  provider?: string(name='Provider', example='pai'),
-  query?: string(name='Query', example='aigc'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='stable_diffusion_aigc'),
-  sortBy?: string(name='SortBy', example='GmtCreateTime'),
+model ListRunMetricsRequest {
+  key?: string(name='Key', description='This parameter is required.', example='loss'),
+  maxResults?: long(name='MaxResults', example='100'),
+  pageToken?: long(name='PageToken', example='0'),
 }
 
-model ListServiceTemplatesResponseBody = {
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceTemplates?: [
-    ServiceTemplate
-  ](name='ServiceTemplates'),
-  totalCount?: long(name='TotalCount', example='15'),
+model ListRunMetricsResponseBody = {
+  metrics?: [
+    RunMetric
+  ](name='Metrics'),
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
 }
 
-model ListServiceTemplatesResponse = {
+model ListRunMetricsResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: ListServiceTemplatesResponseBody(name='body'),
+  body?: ListRunMetricsResponseBody(name='body'),
 }
 
 /**
- * @summary 获取服务模版列表
+ * @summary 获取Run的指标记录列表
  *
- * @param request ListServiceTemplatesRequest
+ * @param request ListRunMetricsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
- * @return ListServiceTemplatesResponse
+ * @return ListRunMetricsResponse
  */
-async function listServiceTemplatesWithOptions(request: ListServiceTemplatesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListServiceTemplatesResponse {
+async function listRunMetricsWithOptions(RunId: string, request: ListRunMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListRunMetricsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
-  if (!Util.isUnset(request.label)) {
-    query['Label'] = request.label;
+  if (!Util.isUnset(request.key)) {
+    query['Key'] = request.key;
   }
-  if (!Util.isUnset(request.order)) {
-    query['Order'] = request.order;
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
   }
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.provider)) {
-    query['Provider'] = request.provider;
-  }
-  if (!Util.isUnset(request.query)) {
-    query['Query'] = request.query;
-  }
-  if (!Util.isUnset(request.serviceTemplateName)) {
-    query['ServiceTemplateName'] = request.serviceTemplateName;
-  }
-  if (!Util.isUnset(request.sortBy)) {
-    query['SortBy'] = request.sortBy;
+  if (!Util.isUnset(request.pageToken)) {
+    query['PageToken'] = request.pageToken;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3731,10 +4276,10 @@ async function listServiceTemplatesWithOptions(request: ListServiceTemplatesRequ
     query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
-    action = 'ListServiceTemplates',
+    action = 'ListRunMetrics',
     version = '2021-02-04',
     protocol = 'HTTPS',
-    pathname = `/api/v1/servicetemplates`,
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}/metrics`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -3745,15 +4290,135 @@ async function listServiceTemplatesWithOptions(request: ListServiceTemplatesRequ
 }
 
 /**
- * @summary 获取服务模版列表
+ * @summary 获取Run的指标记录列表
  *
- * @param request ListServiceTemplatesRequest
- * @return ListServiceTemplatesResponse
+ * @param request ListRunMetricsRequest
+ * @return ListRunMetricsResponse
  */
-async function listServiceTemplates(request: ListServiceTemplatesRequest): ListServiceTemplatesResponse {
+async function listRunMetrics(RunId: string, request: ListRunMetricsRequest): ListRunMetricsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return listServiceTemplatesWithOptions(request, headers, runtime);
+  return listRunMetricsWithOptions(RunId, request, headers, runtime);
+}
+
+model ListRunsRequest {
+  experimentId?: string(name='ExperimentId', example='exp-1zpfthdx******'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-30T12:51:33.028Z'),
+  labels?: string(name='Labels', example='is_evaluation:true'),
+  maxResults?: long(name='MaxResults', example='10'),
+  name?: string(name='Name', example='myName'),
+  order?: string(name='Order', example='DESC'),
+  orderBy?: string(name='OrderBy', example='GmtCreateTime DESC,Name ASC'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='10'),
+  pageToken?: long(name='PageToken', example='0'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime'),
+  sourceId?: string(name='SourceId', example='job-rbvg5wzlj****'),
+  sourceType?: string(name='SourceType', example='TrainingService'),
+  verbose?: boolean(name='Verbose', example='true'),
+  workspaceId?: string(name='WorkspaceId', example='22840'),
+}
+
+model ListRunsResponseBody = {
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  runs?: [
+    Run
+  ](name='Runs'),
+  totalCount?: long(name='TotalCount', example='1'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model ListRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRunsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取Run列表
+ *
+ * @param request ListRunsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListRunsResponse
+ */
+async function listRunsWithOptions(request: ListRunsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListRunsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.experimentId)) {
+    query['ExperimentId'] = request.experimentId;
+  }
+  if (!Util.isUnset(request.gmtCreateTime)) {
+    query['GmtCreateTime'] = request.gmtCreateTime;
+  }
+  if (!Util.isUnset(request.labels)) {
+    query['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    query['OrderBy'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.pageToken)) {
+    query['PageToken'] = request.pageToken;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!Util.isUnset(request.verbose)) {
+    query['Verbose'] = request.verbose;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    query['WorkspaceId'] = request.workspaceId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListRuns',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取Run列表
+ *
+ * @param request ListRunsRequest
+ * @return ListRunsResponse
+ */
+async function listRuns(request: ListRunsRequest): ListRunsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listRunsWithOptions(request, headers, runtime);
 }
 
 model ListWorkspaceUsersRequest {
@@ -3940,6 +4605,67 @@ async function listWorkspaces(request: ListWorkspacesRequest): ListWorkspacesRes
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listWorkspacesWithOptions(request, headers, runtime);
+}
+
+model LogRunMetricsRequest {
+  metrics?: [
+    RunMetric
+  ](name='Metrics'),
+}
+
+model LogRunMetricsResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model LogRunMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: LogRunMetricsResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量记录Run的指标
+ *
+ * @param request LogRunMetricsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return LogRunMetricsResponse
+ */
+async function logRunMetricsWithOptions(RunId: string, request: LogRunMetricsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): LogRunMetricsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.metrics)) {
+    body['Metrics'] = request.metrics;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'LogRunMetrics',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}/metrics/action/log`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量记录Run的指标
+ *
+ * @param request LogRunMetricsRequest
+ * @return LogRunMetricsResponse
+ */
+async function logRunMetrics(RunId: string, request: LogRunMetricsRequest): LogRunMetricsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return logRunMetricsWithOptions(RunId, request, headers, runtime);
 }
 
 model PublishCodeSourceResponseBody = {
@@ -4220,6 +4946,67 @@ async function removeMemberRole(WorkspaceId: string, MemberId: string, RoleName:
   return removeMemberRoleWithOptions(WorkspaceId, MemberId, RoleName, headers, runtime);
 }
 
+model SetExperimentLabelsRequest {
+  labels?: [
+    LabelInfo
+  ](name='Labels'),
+}
+
+model SetExperimentLabelsResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model SetExperimentLabelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetExperimentLabelsResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新实验标签
+ *
+ * @param request SetExperimentLabelsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SetExperimentLabelsResponse
+ */
+async function setExperimentLabelsWithOptions(ExperimentId: string, request: SetExperimentLabelsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SetExperimentLabelsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SetExperimentLabels',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(ExperimentId)}/labels`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新实验标签
+ *
+ * @param request SetExperimentLabelsRequest
+ * @return SetExperimentLabelsResponse
+ */
+async function setExperimentLabels(ExperimentId: string, request: SetExperimentLabelsRequest): SetExperimentLabelsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return setExperimentLabelsWithOptions(ExperimentId, request, headers, runtime);
+}
+
 model UpdateDatasetRequest {
   description?: string(name='Description'),
   name?: string(name='Name', example='myName'),
@@ -4346,6 +5133,69 @@ async function updateDefaultWorkspace(request: UpdateDefaultWorkspaceRequest): U
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateDefaultWorkspaceWithOptions(request, headers, runtime);
+}
+
+model UpdateExperimentRequest {
+  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  name?: string(name='Name', description='名称', example='myName'),
+}
+
+model UpdateExperimentResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model UpdateExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExperimentResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新实验
+ *
+ * @param request UpdateExperimentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExperimentResponse
+ */
+async function updateExperimentWithOptions(ExperimentId: string, request: UpdateExperimentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateExperimentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.accessibility)) {
+    body['Accessibility'] = request.accessibility;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateExperiment',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/experiments/${OpenApiUtil.getEncodeParam(ExperimentId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新实验
+ *
+ * @param request UpdateExperimentRequest
+ * @return UpdateExperimentResponse
+ */
+async function updateExperiment(ExperimentId: string, request: UpdateExperimentRequest): UpdateExperimentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateExperimentWithOptions(ExperimentId, request, headers, runtime);
 }
 
 model UpdateModelRequest {
@@ -4540,6 +5390,77 @@ async function updateModelVersion(ModelId: string, VersionName: string, request:
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateModelVersionWithOptions(ModelId, VersionName, request, headers, runtime);
+}
+
+model UpdateRunRequest {
+  labels?: [
+    Label
+  ](name='Labels'),
+  name?: string(name='Name', example='myName'),
+  params?: [
+    RunParam
+  ](name='Params'),
+}
+
+model UpdateRunResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model UpdateRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateRunResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新Run
+ *
+ * @param request UpdateRunRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateRunResponse
+ */
+async function updateRunWithOptions(RunId: string, request: UpdateRunRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateRunResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.params)) {
+    body['Params'] = request.params;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateRun',
+    version = '2021-02-04',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/runs/${OpenApiUtil.getEncodeParam(RunId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新Run
+ *
+ * @param request UpdateRunRequest
+ * @return UpdateRunResponse
+ */
+async function updateRun(RunId: string, request: UpdateRunRequest): UpdateRunResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateRunWithOptions(RunId, request, headers, runtime);
 }
 
 model UpdateWorkspaceRequest {

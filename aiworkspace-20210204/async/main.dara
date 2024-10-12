@@ -1,6 +1,6 @@
 /**
- *
- */
+  *
+  */
 import BaseClientBuilder;
 import TeaAsyncHandler;
 import TeaRequest;
@@ -84,13 +84,18 @@ model DatasetLabel {
 }
 
 model Experiment {
+  accessibility?: string(name='Accessibility'),
   artifactUri?: string(name='ArtifactUri'),
   experimentId?: string(name='ExperimentId'),
   gmtCreateTime?: string(name='GmtCreateTime'),
   gmtModifiedTime?: string(name='GmtModifiedTime'),
-  labels?: [  map[string]any ](name='Labels'),
+  labels?: [
+    ExperimentLabel
+  ](name='Labels'),
+  latestRun?: Run(name='LatestRun'),
   name?: string(name='Name'),
   ownerId?: string(name='OwnerId'),
+  requestId?: string(name='RequestId'),
   tensorboardLogUri?: string(name='TensorboardLogUri'),
   userId?: string(name='UserId'),
   workspaceId?: string(name='WorkspaceId'),
@@ -163,21 +168,48 @@ model ModelVersion {
   versionName?: string(name='VersionName', example='1.0.0'),
 }
 
-model ServiceTemplate {
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-21T17:12:35Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-21T17:12:35Z'),
-  inferenceSpec?: map[string]any(name='InferenceSpec', example='{     "processor": "tensorflow_gpu_1.12" }'),
+model Run {
+  accessibility?: string(name='Accessibility'),
+  experimentId?: string(name='ExperimentId'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
   labels?: [
-    Label
+    RunLabel
   ](name='Labels'),
-  orderNumber?: long(name='OrderNumber', example='1'),
-  ownerId?: string(name='OwnerId', example='155770209****904'),
-  provider?: string(name='Provider', example='pai'),
-  serviceTemplateDescription?: string(name='ServiceTemplateDescription', example='这里是一个描述。'),
-  serviceTemplateDoc?: string(name='ServiceTemplateDoc', example='https://***.md'),
-  serviceTemplateId?: string(name='ServiceTemplateId', example='st-asdkjf**skdhh'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='foo'),
-  userId?: string(name='UserId', example='155770209****904'),
+  metrics?: [
+    RunMetric
+  ](name='Metrics'),
+  name?: string(name='Name'),
+  ownerId?: string(name='OwnerId'),
+  params?: [
+    RunParam
+  ](name='Params'),
+  requestId?: string(name='RequestId'),
+  runId?: string(name='RunId'),
+  sourceId?: string(name='SourceId'),
+  sourceType?: string(name='SourceType'),
+  userId?: string(name='UserId'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
+model RunLabel {
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  key: string(name='Key', description='This parameter is required.'),
+  runId?: string(name='RunId'),
+  value: string(name='Value', description='This parameter is required.'),
+}
+
+model RunMetric {
+  key: string(name='Key', description='This parameter is required.'),
+  step?: long(name='Step'),
+  timestamp?: long(name='Timestamp'),
+  value: float(name='Value', description='This parameter is required.'),
+}
+
+model RunParam {
+  key: string(name='Key', description='This parameter is required.'),
+  value: string(name='Value', description='This parameter is required.'),
 }
 
 model Trial {
@@ -207,14 +239,14 @@ model AddImageRequest {
   accessibility?: string(name='Accessibility', example='PUBLIC', position='Body'),
   description?: string(name='Description', position='Body'),
   imageId?: string(name='ImageId', position='Body'),
-  imageUri: string(name='ImageUri', example='registry.cn-hangzhou.aliyuncs.com/pai-compression/nlp:gpu', position='Body'),
+  imageUri: string(name='ImageUri', description='This parameter is required.', example='registry.cn-hangzhou.aliyuncs.com/pai-compression/nlp:gpu', position='Body'),
   labels?: [ 
     {
       key?: string(name='Key', example='system.chipType'),
       value?: string(name='Value', example='GPU'),
     }
   ](name='Labels', position='Body'),
-  name: string(name='Name', example='nlp-compression', position='Body'),
+  name: string(name='Name', description='This parameter is required.', example='nlp-compression', position='Body'),
   size?: int32(name='Size', position='Body'),
   workspaceId?: string(name='WorkspaceId', example='15******45', position='Body'),
 }
@@ -230,19 +262,23 @@ model AddImageResponse = {
   body?: AddImageResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of AddImage  AddImageRequest
+  * @return AddImageResponse
+ */
 async function addImage(request: AddImageRequest): AddImageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AddImage', 'POST', '/api/v1/images', 'json', false, 'json', request);
 }
 
 model AddImageLabelsRequest {
-  imageId: string(name='ImageId', example='image-4c62******53uor', position='Path'),
+  imageId: string(name='ImageId', description='This parameter is required.', example='image-4c62******53uor', position='Path'),
   labels: [ 
     {
       key?: string(name='Key', example='system.chipType'),
       value?: string(name='Value', example='GPU'),
     }
-  ](name='Labels', position='Body'),
+  ](name='Labels', description='This parameter is required.', position='Body'),
 }
 
 model AddImageLabelsResponseBody = {
@@ -255,15 +291,19 @@ model AddImageLabelsResponse = {
   body?: AddImageLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of AddImageLabels  AddImageLabelsRequest
+  * @return AddImageLabelsResponse
+ */
 async function addImageLabels(request: AddImageLabelsRequest): AddImageLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AddImageLabels', 'POST', '/api/v1/images/{ImageId}/labels', 'json', false, 'json', request);
 }
 
 model AddMemberRoleRequest {
-  workspaceId: string(name='WorkspaceId', example='145883', position='Path'),
-  memberId: string(name='MemberId', example='145883-215139******688039', position='Path'),
-  roleName: string(name='RoleName', example='PAI.AlgoDeveloper', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='145883', position='Path'),
+  memberId: string(name='MemberId', description='This parameter is required.', example='145883-215139******688039', position='Path'),
+  roleName: string(name='RoleName', description='This parameter is required.', example='PAI.AlgoDeveloper', position='Path'),
 }
 
 model AddMemberRoleResponseBody = {
@@ -276,6 +316,10 @@ model AddMemberRoleResponse = {
   body?: AddMemberRoleResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of AddMemberRole  AddMemberRoleRequest
+  * @return AddMemberRoleResponse
+ */
 async function addMemberRole(request: AddMemberRoleRequest): AddMemberRoleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AddMemberRole', 'POST', '/api/v1/workspaces/{WorkspaceId}/members/{MemberId}/roles/{RoleName}', 'json', false, 'json', request);
@@ -288,9 +332,9 @@ model CreateCodeSourceRequest {
   codeRepoAccessToken?: string(name='CodeRepoAccessToken', example='***', position='Body'),
   codeRepoUserName?: string(name='CodeRepoUserName', example='use***', position='Body'),
   description?: string(name='Description', example='code source of dlc examples', position='Body'),
-  displayName: string(name='DisplayName', example='MyCodeSource1', position='Body'),
+  displayName: string(name='DisplayName', description='This parameter is required.', example='MyCodeSource1', position='Body'),
   mountPath?: string(name='MountPath', example='/root/code/code-source-1', position='Body'),
-  workspaceId: string(name='WorkspaceId', example='1234', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='1234', position='Body'),
 }
 
 model CreateCodeSourceResponseBody = {
@@ -304,6 +348,10 @@ model CreateCodeSourceResponse = {
   body?: CreateCodeSourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateCodeSource  CreateCodeSourceRequest
+  * @return CreateCodeSourceResponse
+ */
 async function createCodeSource(request: CreateCodeSourceRequest): CreateCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCodeSource', 'POST', '/api/v1/codesources', 'json', false, 'json', request);
@@ -311,22 +359,22 @@ async function createCodeSource(request: CreateCodeSourceRequest): CreateCodeSou
 
 model CreateDatasetRequest {
   accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
-  dataSourceType: string(name='DataSourceType', example='NAS', position='Body'),
+  dataSourceType: string(name='DataSourceType', description='This parameter is required.', example='NAS', position='Body'),
   dataType?: string(name='DataType', example='COMMON', position='Body'),
   description?: string(name='Description', position='Body'),
   labels?: [
     Label
   ](name='Labels', position='Body'),
-  name: string(name='Name', example='myName', position='Body'),
+  name: string(name='Name', description='This parameter is required.', example='myName', position='Body'),
   options?: string(name='Options', example='{
   "mountPath": "/mnt/data/"
 }', position='Body'),
-  property: string(name='Property', example='DIRECTORY', position='Body'),
+  property: string(name='Property', description='This parameter is required.', example='DIRECTORY', position='Body'),
   provider?: string(name='Provider', position='Body'),
   providerType?: string(name='ProviderType', example='Ecs', position='Body'),
   sourceId?: string(name='SourceId', example='jdnhf***fnrimv', position='Body'),
   sourceType?: string(name='SourceType', example='USER', position='Body'),
-  uri: string(name='Uri', example='nas://09f****f2.cn-hangzhou/', position='Body'),
+  uri: string(name='Uri', description='This parameter is required.', example='nas://09f****f2.cn-hangzhou/', position='Body'),
   userId?: string(name='UserId', example='29884000000186970', position='Body'),
   workspaceId?: string(name='WorkspaceId', example='478**', position='Body'),
 }
@@ -342,6 +390,10 @@ model CreateDatasetResponse = {
   body?: CreateDatasetResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateDataset  CreateDatasetRequest
+  * @return CreateDatasetResponse
+ */
 async function createDataset(request: CreateDatasetRequest): CreateDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateDataset', 'POST', '/api/v1/datasets', 'json', false, 'json', request);
@@ -364,19 +416,57 @@ model CreateDatasetLabelsResponse = {
   body?: CreateDatasetLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateDatasetLabels  CreateDatasetLabelsRequest
+  * @return CreateDatasetLabelsResponse
+ */
 async function createDatasetLabels(request: CreateDatasetLabelsRequest): CreateDatasetLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateDatasetLabels', 'POST', '/api/v1/datasets/{DatasetId}/labels', 'json', false, 'json', request);
 }
 
+model CreateExperimentRequest {
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  artifactUri?: string(name='ArtifactUri', description='Artifact的OSS存储路径', example='oss://test-bucket.oss-cn-hangzhou.aliyuncs.com/test', position='Body'),
+  labels?: [
+    LabelInfo
+  ](name='Labels', description='标签', position='Body'),
+  name: string(name='Name', description='名称
+
+This parameter is required.', example='exp-test', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='工作空间ID
+
+This parameter is required.', example='478**', position='Body'),
+}
+
+model CreateExperimentResponseBody = {
+  experimentId?: string(name='ExperimentId'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model CreateExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExperimentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateExperiment  CreateExperimentRequest
+  * @return CreateExperimentResponse
+ */
+async function createExperiment(request: CreateExperimentRequest): CreateExperimentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateExperiment', 'POST', '/api/v1/experiments', 'json', false, 'json', request);
+}
+
 model CreateMemberRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   members: [ 
     {
-      roles: [ string ](name='Roles'),
-      userId: string(name='UserId', example='21513926******88039'),
+      roles: [ string ](name='Roles', description='This parameter is required.'),
+      userId: string(name='UserId', description='This parameter is required.', example='21513926******88039'),
     }
-  ](name='Members', position='Body'),
+  ](name='Members', description='This parameter is required.', position='Body'),
 }
 
 model CreateMemberResponseBody = {
@@ -397,6 +487,10 @@ model CreateMemberResponse = {
   body?: CreateMemberResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateMember  CreateMemberRequest
+  * @return CreateMemberResponse
+ */
 async function createMember(request: CreateMemberRequest): CreateMemberResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateMember', 'POST', '/api/v1/workspaces/{WorkspaceId}/members', 'json', false, 'json', request);
@@ -411,7 +505,7 @@ model CreateModelRequest {
   ](name='Labels', position='Body'),
   modelDescription?: string(name='ModelDescription', position='Body'),
   modelDoc?: string(name='ModelDoc', example='https://*.md', position='Body'),
-  modelName: string(name='ModelName', position='Body'),
+  modelName: string(name='ModelName', description='This parameter is required.', position='Body'),
   modelType?: string(name='ModelType', example='Checkpoint', position='Body'),
   orderNumber?: long(name='OrderNumber', example='101', position='Body'),
   origin?: string(name='Origin', example='ModelScope', position='Body'),
@@ -430,13 +524,17 @@ model CreateModelResponse = {
   body?: CreateModelResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateModel  CreateModelRequest
+  * @return CreateModelResponse
+ */
 async function createModel(request: CreateModelRequest): CreateModelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateModel', 'POST', '/api/v1/models', 'json', false, 'json', request);
 }
 
 model CreateModelLabelsRequest {
-  modelId: string(name='ModelId', example='model-1dkasjfhds23dft', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-1dkasjfhds23dft', position='Path'),
   labels?: [
     Label
   ](name='Labels', position='Body'),
@@ -452,13 +550,17 @@ model CreateModelLabelsResponse = {
   body?: CreateModelLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateModelLabels  CreateModelLabelsRequest
+  * @return CreateModelLabelsResponse
+ */
 async function createModelLabels(request: CreateModelLabelsRequest): CreateModelLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateModelLabels', 'POST', '/api/v1/models/{ModelId}/labels', 'json', false, 'json', request);
 }
 
 model CreateModelVersionRequest {
-  modelId: string(name='ModelId', example='model-dfs1****5c', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-dfs1****5c', position='Path'),
   approvalStatus?: string(name='ApprovalStatus', example='Approved', position='Body'),
   compressionSpec?: map[string]any(name='CompressionSpec', example='{}', position='Body'),
   evaluationSpec?: map[string]any(name='EvaluationSpec', example='{}', position='Body'),
@@ -476,7 +578,7 @@ model CreateModelVersionRequest {
   sourceId?: string(name='SourceId', example='region=cn-shanghai,workspaceId=13**,kind=PipelineRun,id=run-sakdb****jdf', position='Body'),
   sourceType?: string(name='SourceType', example='PAIFlow', position='Body'),
   trainingSpec?: map[string]any(name='TrainingSpec', example='{}', position='Body'),
-  uri: string(name='Uri', example='oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/', position='Body'),
+  uri: string(name='Uri', description='This parameter is required.', example='oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/', position='Body'),
   versionDescription?: string(name='VersionDescription', position='Body'),
   versionName?: string(name='VersionName', example='0.1.0', position='Body'),
 }
@@ -492,14 +594,18 @@ model CreateModelVersionResponse = {
   body?: CreateModelVersionResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateModelVersion  CreateModelVersionRequest
+  * @return CreateModelVersionResponse
+ */
 async function createModelVersion(request: CreateModelVersionRequest): CreateModelVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateModelVersion', 'POST', '/api/v1/models/{ModelId}/versions', 'json', false, 'json', request);
 }
 
 model CreateModelVersionLabelsRequest {
-  modelId: string(name='ModelId', example='model-rbvg5wzljz****ks92', position='Path'),
-  versionName: string(name='VersionName', example='0.1.1', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5wzljz****ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='0.1.1', position='Path'),
   labels?: [
     Label
   ](name='Labels', position='Body'),
@@ -515,6 +621,10 @@ model CreateModelVersionLabelsResponse = {
   body?: CreateModelVersionLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateModelVersionLabels  CreateModelVersionLabelsRequest
+  * @return CreateModelVersionLabelsResponse
+ */
 async function createModelVersionLabels(request: CreateModelVersionLabelsRequest): CreateModelVersionLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateModelVersionLabels', 'POST', '/api/v1/models/{ModelId}/versions/{VersionName}/labels', 'json', false, 'json', request);
@@ -554,16 +664,53 @@ model CreateProductOrdersResponse = {
   body?: CreateProductOrdersResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateProductOrders  CreateProductOrdersRequest
+  * @return CreateProductOrdersResponse
+ */
 async function createProductOrders(request: CreateProductOrdersRequest): CreateProductOrdersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateProductOrders', 'POST', '/api/v1/productorders', 'json', false, 'json', request);
 }
 
+model CreateRunRequest {
+  experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-6thbb5xrbmp*****', position='Body'),
+  labels?: [
+    Label
+  ](name='Labels', position='Body'),
+  name?: string(name='Name', example='myName', position='Body'),
+  params?: [
+    RunParam
+  ](name='Params', position='Body'),
+  sourceId?: string(name='SourceId', example='job-jdnhf***fnrimv', position='Body'),
+  sourceType?: string(name='SourceType', example='DLC', position='Body'),
+}
+
+model CreateRunResponseBody = {
+  runId?: string(name='RunId', example='run-1meoz7VJd2C6f****'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model CreateRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateRun  CreateRunRequest
+  * @return CreateRunResponse
+ */
+async function createRun(request: CreateRunRequest): CreateRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateRun', 'POST', '/api/v1/runs', 'json', false, 'json', request);
+}
+
 model CreateWorkspaceRequest {
-  description: string(name='Description', example='description', position='Body'),
+  description: string(name='Description', description='This parameter is required.', example='description', position='Body'),
   displayName?: string(name='DisplayName', example='display name', position='Body'),
-  envTypes: [ string ](name='EnvTypes', position='Body'),
-  workspaceName: string(name='WorkspaceName', example='workspace_example', position='Body'),
+  envTypes: [ string ](name='EnvTypes', description='This parameter is required.', position='Body'),
+  workspaceName: string(name='WorkspaceName', description='This parameter is required.', example='workspace_example', position='Body'),
 }
 
 model CreateWorkspaceResponseBody = {
@@ -577,17 +724,21 @@ model CreateWorkspaceResponse = {
   body?: CreateWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateWorkspace  CreateWorkspaceRequest
+  * @return CreateWorkspaceResponse
+ */
 async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateWorkspace', 'POST', '/api/v1/workspaces', 'json', false, 'json', request);
 }
 
 model CreateWorkspaceResourceRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   option?: string(name='Option', example='CreateAndAttach', position='Body'),
   resources: [ 
     {
-      envType: string(name='EnvType', example='prod'),
+      envType: string(name='EnvType', description='This parameter is required.', example='prod'),
       groupName?: string(name='GroupName', example='groupName'),
       isDefault?: boolean(name='IsDefault', example='false'),
       labels?: [ 
@@ -596,18 +747,18 @@ model CreateWorkspaceResourceRequest {
           value?: string(name='Value'),
         }
       ](name='Labels'),
-      name: string(name='Name', example='ResourceName'),
+      name: string(name='Name', description='This parameter is required.', example='ResourceName'),
       productType?: string(name='ProductType', example='MaxCompute'),
       quotas?: [ 
         {
-          id: string(name='Id', example='232892******92912'),
+          id: string(name='Id', description='This parameter is required.', example='232892******92912'),
         }
       ](name='Quotas'),
       resourceType?: string(name='ResourceType'),
       spec?: map[string]any(name='Spec'),
-      workspaceId: string(name='WorkspaceId', example='123'),
+      workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123'),
     }
-  ](name='Resources', position='Body'),
+  ](name='Resources', description='This parameter is required.', position='Body'),
 }
 
 model CreateWorkspaceResourceResponseBody = {
@@ -626,13 +777,17 @@ model CreateWorkspaceResourceResponse = {
   body?: CreateWorkspaceResourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of CreateWorkspaceResource  CreateWorkspaceResourceRequest
+  * @return CreateWorkspaceResourceResponse
+ */
 async function createWorkspaceResource(request: CreateWorkspaceResourceRequest): CreateWorkspaceResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateWorkspaceResource', 'POST', '/api/v1/workspaces/{WorkspaceId}/resources', 'json', false, 'json', request);
 }
 
 model DeleteCodeSourceRequest {
-  codeSourceId: string(name='CodeSourceId', example='code-20210111103721-85qz78ia96lu', position='Path'),
+  codeSourceId: string(name='CodeSourceId', description='This parameter is required.', example='code-20210111103721-85qz78ia96lu', position='Path'),
 }
 
 model DeleteCodeSourceResponseBody = {
@@ -646,13 +801,17 @@ model DeleteCodeSourceResponse = {
   body?: DeleteCodeSourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteCodeSource  DeleteCodeSourceRequest
+  * @return DeleteCodeSourceResponse
+ */
 async function deleteCodeSource(request: DeleteCodeSourceRequest): DeleteCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteCodeSource', 'DELETE', '/api/v1/codesources/{CodeSourceId}', 'json', false, 'json', request);
 }
 
 model DeleteDatasetRequest {
-  datasetId: string(name='DatasetId', example='d-rbvg5wzlj****9ks92', position='Path'),
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wzlj****9ks92', position='Path'),
 }
 
 model DeleteDatasetResponseBody = {
@@ -665,6 +824,10 @@ model DeleteDatasetResponse = {
   body?: DeleteDatasetResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteDataset  DeleteDatasetRequest
+  * @return DeleteDatasetResponse
+ */
 async function deleteDataset(request: DeleteDatasetRequest): DeleteDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteDataset', 'DELETE', '/api/v1/datasets/{DatasetId}', 'json', false, 'json', request);
@@ -685,14 +848,65 @@ model DeleteDatasetLabelsResponse = {
   body?: DeleteDatasetLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteDatasetLabels  DeleteDatasetLabelsRequest
+  * @return DeleteDatasetLabelsResponse
+ */
 async function deleteDatasetLabels(request: DeleteDatasetLabelsRequest): DeleteDatasetLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteDatasetLabels', 'DELETE', '/api/v1/datasets/{DatasetId}/labels', 'json', false, 'json', request);
 }
 
+model DeleteExperimentRequest {
+  experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-1zpfthdx******', position='Path'),
+}
+
+model DeleteExperimentResponseBody = {
+  requestId?: string(name='RequestId', example='8D7B2E70-F770-505B-A672-09F1D8F2EC1E'),
+}
+
+model DeleteExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteExperiment  DeleteExperimentRequest
+  * @return DeleteExperimentResponse
+ */
+async function deleteExperiment(request: DeleteExperimentRequest): DeleteExperimentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteExperiment', 'DELETE', '/api/v1/experiments/{ExperimentId}', 'json', false, 'json', request);
+}
+
+model DeleteExperimentLabelRequest {
+  experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-1zpfthdx******', position='Path'),
+  key: string(name='Key', description='This parameter is required.', example='is_evaluate', position='Path'),
+}
+
+model DeleteExperimentLabelResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model DeleteExperimentLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteExperimentLabelResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteExperimentLabel  DeleteExperimentLabelRequest
+  * @return DeleteExperimentLabelResponse
+ */
+async function deleteExperimentLabel(request: DeleteExperimentLabelRequest): DeleteExperimentLabelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteExperimentLabel', 'DELETE', '/api/v1/experiments/{ExperimentId}/labels/{Key}', 'json', false, 'json', request);
+}
+
 model DeleteMembersRequest {
-  workspaceId: string(name='WorkspaceId', example='145883', position='Path'),
-  memberIds: string(name='MemberIds', example='145883-21513926******88039,145883-2769726******87513', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='145883', position='Path'),
+  memberIds: string(name='MemberIds', description='This parameter is required.', example='145883-21513926******88039,145883-2769726******87513', position='Query'),
 }
 
 model DeleteMembersResponseBody = {
@@ -707,13 +921,17 @@ model DeleteMembersResponse = {
   body?: DeleteMembersResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteMembers  DeleteMembersRequest
+  * @return DeleteMembersResponse
+ */
 async function deleteMembers(request: DeleteMembersRequest): DeleteMembersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteMembers', 'DELETE', '/api/v1/workspaces/{WorkspaceId}/members', 'json', false, 'json', request);
 }
 
 model DeleteModelRequest {
-  modelId: string(name='ModelId', example='model-rbvg5wzl****ks92', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5wzl****ks92', position='Path'),
 }
 
 model DeleteModelResponseBody = {
@@ -726,13 +944,17 @@ model DeleteModelResponse = {
   body?: DeleteModelResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteModel  DeleteModelRequest
+  * @return DeleteModelResponse
+ */
 async function deleteModel(request: DeleteModelRequest): DeleteModelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteModel', 'DELETE', '/api/v1/models/{ModelId}', 'json', false, 'json', request);
 }
 
 model DeleteModelLabelsRequest {
-  modelId: string(name='ModelId', example='model-d8dfd****sjfd', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-d8dfd****sjfd', position='Path'),
   labelKeys?: string(name='LabelKeys', example='key1,key2', position='Query'),
 }
 
@@ -746,14 +968,18 @@ model DeleteModelLabelsResponse = {
   body?: DeleteModelLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteModelLabels  DeleteModelLabelsRequest
+  * @return DeleteModelLabelsResponse
+ */
 async function deleteModelLabels(request: DeleteModelLabelsRequest): DeleteModelLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteModelLabels', 'DELETE', '/api/v1/models/{ModelId}/labels', 'json', false, 'json', request);
 }
 
 model DeleteModelVersionRequest {
-  modelId: string(name='ModelId', example='model-rbvg5wzljz****ks92', position='Path'),
-  versionName: string(name='VersionName', example='0.1.1', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5wzljz****ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='0.1.1', position='Path'),
 }
 
 model DeleteModelVersionResponseBody = {
@@ -766,14 +992,18 @@ model DeleteModelVersionResponse = {
   body?: DeleteModelVersionResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteModelVersion  DeleteModelVersionRequest
+  * @return DeleteModelVersionResponse
+ */
 async function deleteModelVersion(request: DeleteModelVersionRequest): DeleteModelVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteModelVersion', 'DELETE', '/api/v1/models/{ModelId}/versions/{VersionName}', 'json', false, 'json', request);
 }
 
 model DeleteModelVersionLabelsRequest {
-  modelId: string(name='ModelId', example='model-d8dfd****sjfd', position='Path'),
-  versionName: string(name='VersionName', example='0.1.1', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-d8dfd****sjfd', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='0.1.1', position='Path'),
   labelKeys?: string(name='LabelKeys', example='key1,key2', position='Query'),
 }
 
@@ -787,13 +1017,64 @@ model DeleteModelVersionLabelsResponse = {
   body?: DeleteModelVersionLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteModelVersionLabels  DeleteModelVersionLabelsRequest
+  * @return DeleteModelVersionLabelsResponse
+ */
 async function deleteModelVersionLabels(request: DeleteModelVersionLabelsRequest): DeleteModelVersionLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteModelVersionLabels', 'DELETE', '/api/v1/models/{ModelId}/versions/{VersionName}/labels', 'json', false, 'json', request);
 }
 
+model DeleteRunRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+}
+
+model DeleteRunResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model DeleteRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteRun  DeleteRunRequest
+  * @return DeleteRunResponse
+ */
+async function deleteRun(request: DeleteRunRequest): DeleteRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteRun', 'DELETE', '/api/v1/runs/{RunId}', 'json', false, 'json', request);
+}
+
+model DeleteRunLabelRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+  key: string(name='Key', description='This parameter is required.', example='is_evaluate', position='Path'),
+}
+
+model DeleteRunLabelResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model DeleteRunLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteRunLabelResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteRunLabel  DeleteRunLabelRequest
+  * @return DeleteRunLabelResponse
+ */
+async function deleteRunLabel(request: DeleteRunLabelRequest): DeleteRunLabelResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteRunLabel', 'DELETE', '/api/v1/runs/{RunId}/labels/{Key}', 'json', false, 'json', request);
+}
+
 model DeleteWorkspaceRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
 }
 
 model DeleteWorkspaceResponseBody = {
@@ -806,13 +1087,17 @@ model DeleteWorkspaceResponse = {
   body?: DeleteWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteWorkspace  DeleteWorkspaceRequest
+  * @return DeleteWorkspaceResponse
+ */
 async function deleteWorkspace(request: DeleteWorkspaceRequest): DeleteWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteWorkspace', 'DELETE', '/api/v1/workspaces/{WorkspaceId}', 'json', false, 'json', request);
 }
 
 model DeleteWorkspaceResourceRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   groupName?: string(name='GroupName', example='group', position='Query'),
   labels?: string(name='Labels', position='Query'),
   option?: string(name='Option', example='DetachAndDelete', position='Query'),
@@ -832,13 +1117,17 @@ model DeleteWorkspaceResourceResponse = {
   body?: DeleteWorkspaceResourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of DeleteWorkspaceResource  DeleteWorkspaceResourceRequest
+  * @return DeleteWorkspaceResourceResponse
+ */
 async function deleteWorkspaceResource(request: DeleteWorkspaceResourceRequest): DeleteWorkspaceResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteWorkspaceResource', 'DELETE', '/api/v1/workspaces/{WorkspaceId}/resources', 'json', false, 'json', request);
 }
 
 model GetCodeSourceRequest {
-  codeSourceId: string(name='CodeSourceId', example='code-202**********', position='Path'),
+  codeSourceId: string(name='CodeSourceId', description='This parameter is required.', example='code-202**********', position='Path'),
 }
 
 model GetCodeSourceResponseBody = {
@@ -865,13 +1154,17 @@ model GetCodeSourceResponse = {
   body?: GetCodeSourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetCodeSource  GetCodeSourceRequest
+  * @return GetCodeSourceResponse
+ */
 async function getCodeSource(request: GetCodeSourceRequest): GetCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetCodeSource', 'GET', '/api/v1/codesources/{CodeSourceId}', 'json', false, 'json', request);
 }
 
 model GetDatasetRequest {
-  datasetId: string(name='DatasetId', example='d-rbvg5wz****c9ks92', position='Path'),
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wz****c9ks92', position='Path'),
 }
 
 model GetDatasetResponseBody = {
@@ -907,6 +1200,10 @@ model GetDatasetResponse = {
   body?: GetDatasetResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetDataset  GetDatasetRequest
+  * @return GetDatasetResponse
+ */
 async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDataset', 'GET', '/api/v1/datasets/{DatasetId}', 'json', false, 'json', request);
@@ -947,13 +1244,37 @@ model GetDefaultWorkspaceResponse = {
   body?: GetDefaultWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetDefaultWorkspace  GetDefaultWorkspaceRequest
+  * @return GetDefaultWorkspaceResponse
+ */
 async function getDefaultWorkspace(request: GetDefaultWorkspaceRequest): GetDefaultWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDefaultWorkspace', 'GET', '/api/v1/defaultWorkspaces', 'json', false, 'json', request);
 }
 
+model GetExperimentRequest {
+  experimentId?: string(name='ExperimentId', example='exp-1zpfthdx******', position='Path'),
+  verbose?: boolean(name='Verbose', example='false', position='Query'),
+}
+
+model GetExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Experiment  
+}
+
+/**
+  * @param request  the request parameters of GetExperiment  GetExperimentRequest
+  * @return GetExperimentResponse
+ */
+async function getExperiment(request: GetExperimentRequest): GetExperimentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetExperiment', 'GET', '/api/v1/experiments/{ExperimentId}', 'json', false, 'json', request);
+}
+
 model GetImageRequest {
-  imageId: string(name='ImageId', example='image-4c62******53uor', position='Path'),
+  imageId: string(name='ImageId', description='This parameter is required.', example='image-4c62******53uor', position='Path'),
   verbose?: boolean(name='Verbose', example='false', position='Query'),
 }
 
@@ -983,13 +1304,17 @@ model GetImageResponse = {
   body?: GetImageResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetImage  GetImageRequest
+  * @return GetImageResponse
+ */
 async function getImage(request: GetImageRequest): GetImageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetImage', 'GET', '/api/v1/images/{ImageId}', 'json', false, 'json', request);
 }
 
 model GetMemberRequest {
-  workspaceId: string(name='WorkspaceId', example='145883', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='145883', position='Path'),
   memberId?: string(name='MemberId', position='Query'),
   userId?: string(name='UserId', example='21513926******88039', position='Query'),
 }
@@ -1010,13 +1335,17 @@ model GetMemberResponse = {
   body?: GetMemberResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetMember  GetMemberRequest
+  * @return GetMemberResponse
+ */
 async function getMember(request: GetMemberRequest): GetMemberResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetMember', 'GET', '/api/v1/workspaces/{WorkspaceId}/member', 'json', false, 'json', request);
 }
 
 model GetModelRequest {
-  modelId: string(name='ModelId', example='model-rbvg5****c9ks92', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5****c9ks92', position='Path'),
 }
 
 model GetModelResponseBody = {
@@ -1050,14 +1379,18 @@ model GetModelResponse = {
   body?: GetModelResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetModel  GetModelRequest
+  * @return GetModelResponse
+ */
 async function getModel(request: GetModelRequest): GetModelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetModel', 'GET', '/api/v1/models/{ModelId}', 'json', false, 'json', request);
 }
 
 model GetModelVersionRequest {
-  modelId: string(name='ModelId', example='model-rbvg5wzljz****ks92', position='Path'),
-  versionName: string(name='VersionName', example='1.0.1', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5wzljz****ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='1.0.1', position='Path'),
 }
 
 model GetModelVersionResponseBody = {
@@ -1082,7 +1415,7 @@ model GetModelVersionResponseBody = {
   sourceId?: string(name='SourceId', example='region=cn-shanghai,workspaceId=13**,kind=PipelineRun,id=run-sakdb****jdf'),
   sourceType?: string(name='SourceType', example='PAIFlow'),
   trainingSpec?: map[string]any(name='TrainingSpec', example='{}'),
-  uri?: string(name='Uri', example='oss://t***.cn-beijing.oss.aliyuncs.com/mod**/'),
+  uri?: string(name='Uri'),
   userId?: string(name='UserId', example='1234567890******'),
   versionDescription?: string(name='VersionDescription'),
   versionName?: string(name='VersionName', example='0.1.0'),
@@ -1094,14 +1427,18 @@ model GetModelVersionResponse = {
   body?: GetModelVersionResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetModelVersion  GetModelVersionRequest
+  * @return GetModelVersionResponse
+ */
 async function getModelVersion(request: GetModelVersionRequest): GetModelVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetModelVersion', 'GET', '/api/v1/models/{ModelId}/versions/{VersionName}', 'json', false, 'json', request);
 }
 
 model GetPermissionRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
-  permissionCode: string(name='PermissionCode', example='PaiDLC:GetTensorboard', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
+  permissionCode: string(name='PermissionCode', description='This parameter is required.', example='PaiDLC:GetTensorboard', position='Path'),
   accessibility?: string(name='Accessibility', example='PUBLIC', position='Query'),
   creator?: string(name='Creator', example='17915******4216', position='Query'),
   option?: string(name='Option', position='Query'),
@@ -1125,47 +1462,37 @@ model GetPermissionResponse = {
   body?: GetPermissionResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetPermission  GetPermissionRequest
+  * @return GetPermissionResponse
+ */
 async function getPermission(request: GetPermissionRequest): GetPermissionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetPermission', 'GET', '/api/v1/workspaces/{WorkspaceId}/permissions/{PermissionCode}', 'json', false, 'json', request);
 }
 
-model GetServiceTemplateRequest {
-  serviceTemplateId: string(name='ServiceTemplateId', example='st-rbvg5wzl****c9ks92', position='Path'),
+model GetRunRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+  verbose?: boolean(name='Verbose', example='true', position='Query'),
 }
 
-model GetServiceTemplateResponseBody = {
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-30T12:51:33.028Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-30T12:51:33.028Z'),
-  inferenceSpec?: map[string]any(name='InferenceSpec', example='{
-      "processor": "tensorflow_gpu_1.12"
-}'),
-  labels?: [
-    Label
-  ](name='Labels'),
-  ownerId?: string(name='OwnerId', example='1234567890******'),
-  provider?: string(name='Provider', example='pai'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceTemplateDescription?: string(name='ServiceTemplateDescription', example='stable diffusion 1.5'),
-  serviceTemplateDoc?: string(name='ServiceTemplateDoc', example='https://***.md'),
-  serviceTemplateId?: string(name='ServiceTemplateId', example='st-rbvg5wzlj****9ks92'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='stable_diffusion_aigc'),
-  userId?: string(name='UserId', example='1234567890******'),
-}
-
-model GetServiceTemplateResponse = {
+model GetRunResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: GetServiceTemplateResponseBody(name='body'),
+  body?: Run  
 }
 
-async function getServiceTemplate(request: GetServiceTemplateRequest): GetServiceTemplateResponse {
+/**
+  * @param request  the request parameters of GetRun  GetRunRequest
+  * @return GetRunResponse
+ */
+async function getRun(request: GetRunRequest): GetRunResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'GetServiceTemplate', 'GET', '/api/v1/servicetemplates/{ServiceTemplateId}', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'GetRun', 'GET', '/api/v1/runs/{RunId}', 'json', false, 'json', request);
 }
 
 model GetWorkspaceRequest {
-  workspaceId: string(name='WorkspaceId', example='12345', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='12345', position='Path'),
   verbose?: boolean(name='Verbose', example='true', position='Query'),
 }
 
@@ -1197,6 +1524,10 @@ model GetWorkspaceResponse = {
   body?: GetWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of GetWorkspace  GetWorkspaceRequest
+  * @return GetWorkspaceResponse
+ */
 async function getWorkspace(request: GetWorkspaceRequest): GetWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetWorkspace', 'GET', '/api/v1/workspaces/{WorkspaceId}', 'json', false, 'json', request);
@@ -1225,6 +1556,10 @@ model ListCodeSourcesResponse = {
   body?: ListCodeSourcesResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListCodeSources  ListCodeSourcesRequest
+  * @return ListCodeSourcesResponse
+ */
 async function listCodeSources(request: ListCodeSourcesRequest): ListCodeSourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListCodeSources', 'GET', '/api/v1/codesources', 'json', false, 'json', request);
@@ -1259,9 +1594,54 @@ model ListDatasetsResponse = {
   body?: ListDatasetsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListDatasets  ListDatasetsRequest
+  * @return ListDatasetsResponse
+ */
 async function listDatasets(request: ListDatasetsRequest): ListDatasetsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListDatasets', 'GET', '/api/v1/datasets', 'json', false, 'json', request);
+}
+
+model ListExperimentRequest {
+  labels?: string(name='Labels', example='is_evaluation:true', position='Query'),
+  maxResults?: long(name='MaxResults', example='10', position='Query'),
+  name?: string(name='Name', example='exp-test', position='Query'),
+  options?: {
+    matchNameExactly?: string(name='match_name_exactly', example='true'),
+  }(name='Options', shrink='json', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  orderBy?: string(name='OrderBy', example='GmtCreateTime DESC,Name ASC', position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  pageToken?: long(name='PageToken', example='0', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  verbose?: boolean(name='Verbose', example='false', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='151739', position='Query'),
+}
+
+model ListExperimentResponseBody = {
+  experiments?: [
+    Experiment
+  ](name='Experiments'),
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  totalCount?: long(name='TotalCount', example='5'),
+  requestId?: string(name='requestId', example='0C6835C5-A424-5AFB-ACC2-F1E3CA1ABF7C'),
+}
+
+model ListExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListExperimentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListExperiment  ListExperimentRequest
+  * @return ListExperimentResponse
+ */
+async function listExperiment(request: ListExperimentRequest): ListExperimentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListExperiment', 'GET', '/api/v1/experiments', 'json', false, 'json', request);
 }
 
 model ListImageLabelsRequest {
@@ -1289,6 +1669,10 @@ model ListImageLabelsResponse = {
   body?: ListImageLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListImageLabels  ListImageLabelsRequest
+  * @return ListImageLabelsResponse
+ */
 async function listImageLabels(request: ListImageLabelsRequest): ListImageLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListImageLabels', 'GET', '/api/v1/image/labels', 'json', false, 'json', request);
@@ -1296,6 +1680,7 @@ async function listImageLabels(request: ListImageLabelsRequest): ListImageLabels
 
 model ListImagesRequest {
   accessibility?: string(name='Accessibility', position='Query'),
+  imageUri?: string(name='ImageUri', position='Query'),
   labels?: string(name='Labels', example='system.framework=XGBoost 1.6.0,system.official=true', position='Query'),
   name?: string(name='Name', example='tensorflow_2.9', position='Query'),
   order?: string(name='Order', example='DESC', position='Query'),
@@ -1317,7 +1702,7 @@ model ListImagesResponseBody = {
       gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-21T17:12:35.232Z'),
       gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-21T17:12:35.232Z'),
       imageId?: string(name='ImageId', example='image-tzi7f9******s45t'),
-      imageUri?: string(name='ImageUri', example='registry-vpc.cn-shanghai.aliyuncs.com/******/pai:python_3.8.10-tensorflow_2.9.0'),
+      imageUri?: string(name='ImageUri'),
       labels?: [ 
         {
           key?: string(name='Key', example='system.chipType'),
@@ -1341,13 +1726,17 @@ model ListImagesResponse = {
   body?: ListImagesResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListImages  ListImagesRequest
+  * @return ListImagesResponse
+ */
 async function listImages(request: ListImagesRequest): ListImagesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListImages', 'GET', '/api/v1/images', 'json', false, 'json', request);
 }
 
 model ListMembersRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   memberName?: string(name='MemberName', example='zhangsan', position='Query'),
   pageNumber?: long(name='PageNumber', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='20', position='Query'),
@@ -1375,13 +1764,17 @@ model ListMembersResponse = {
   body?: ListMembersResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListMembers  ListMembersRequest
+  * @return ListMembersResponse
+ */
 async function listMembers(request: ListMembersRequest): ListMembersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListMembers', 'GET', '/api/v1/workspaces/{WorkspaceId}/members', 'json', false, 'json', request);
 }
 
 model ListModelVersionsRequest {
-  modelId: string(name='ModelId', example='model-dajbueh******', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-dajbueh******', position='Path'),
   approvalStatus?: string(name='ApprovalStatus', example='Approved', position='Query'),
   formatType?: string(name='FormatType', example='SavedModel', position='Query'),
   frameworkType?: string(name='FrameworkType', example='TensorFlow', position='Query'),
@@ -1409,6 +1802,10 @@ model ListModelVersionsResponse = {
   body?: ListModelVersionsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListModelVersions  ListModelVersionsRequest
+  * @return ListModelVersionsResponse
+ */
 async function listModelVersions(request: ListModelVersionsRequest): ListModelVersionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListModelVersions', 'GET', '/api/v1/models/{ModelId}/versions', 'json', false, 'json', request);
@@ -1445,13 +1842,17 @@ model ListModelsResponse = {
   body?: ListModelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListModels  ListModelsRequest
+  * @return ListModelsResponse
+ */
 async function listModels(request: ListModelsRequest): ListModelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListModels', 'GET', '/api/v1/models', 'json', false, 'json', request);
 }
 
 model ListPermissionsRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
 }
 
 model ListPermissionsResponseBody = {
@@ -1476,6 +1877,10 @@ model ListPermissionsResponse = {
   body?: ListPermissionsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListPermissions  ListPermissionsRequest
+  * @return ListPermissionsResponse
+ */
 async function listPermissions(request: ListPermissionsRequest): ListPermissionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListPermissions', 'GET', '/api/v1/workspaces/{WorkspaceId}/permissions', 'json', false, 'json', request);
@@ -1513,6 +1918,10 @@ model ListProductsResponse = {
   body?: ListProductsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListProducts  ListProductsRequest
+  * @return ListProductsResponse
+ */
 async function listProducts(request: ListProductsRequest): ListProductsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListProducts', 'GET', '/api/v1/products', 'json', false, 'json', request);
@@ -1550,6 +1959,10 @@ model ListQuotasResponse = {
   body?: ListQuotasResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListQuotas  ListQuotasRequest
+  * @return ListQuotasResponse
+ */
 async function listQuotas(request: ListQuotasRequest): ListQuotasResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListQuotas', 'GET', '/api/v1/quotas', 'json', false, 'json', request);
@@ -1626,39 +2039,85 @@ model ListResourcesResponse = {
   body?: ListResourcesResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListResources  ListResourcesRequest
+  * @return ListResourcesResponse
+ */
 async function listResources(request: ListResourcesRequest): ListResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListResources', 'GET', '/api/v1/resources', 'json', false, 'json', request);
 }
 
-model ListServiceTemplatesRequest {
-  label?: string(name='Label', example='aigc', position='Query'),
-  order?: string(name='Order', example='DESC', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
-  provider?: string(name='Provider', example='pai', position='Query'),
-  query?: string(name='Query', example='aigc', position='Query'),
-  serviceTemplateName?: string(name='ServiceTemplateName', example='stable_diffusion_aigc', position='Query'),
-  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+model ListRunMetricsRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+  key: string(name='Key', description='This parameter is required.', example='loss', position='Query'),
+  maxResults?: long(name='MaxResults', example='100', position='Query'),
+  pageToken?: long(name='PageToken', example='0', position='Query'),
 }
 
-model ListServiceTemplatesResponseBody = {
-  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
-  serviceTemplates?: [
-    ServiceTemplate
-  ](name='ServiceTemplates'),
-  totalCount?: long(name='TotalCount', example='15'),
+model ListRunMetricsResponseBody = {
+  metrics?: [
+    RunMetric
+  ](name='Metrics'),
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
 }
 
-model ListServiceTemplatesResponse = {
+model ListRunMetricsResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
-  body?: ListServiceTemplatesResponseBody(name='body'),
+  body?: ListRunMetricsResponseBody(name='body'),
 }
 
-async function listServiceTemplates(request: ListServiceTemplatesRequest): ListServiceTemplatesResponse {
+/**
+  * @param request  the request parameters of ListRunMetrics  ListRunMetricsRequest
+  * @return ListRunMetricsResponse
+ */
+async function listRunMetrics(request: ListRunMetricsRequest): ListRunMetricsResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RESTFUL', 'ListServiceTemplates', 'GET', '/api/v1/servicetemplates', 'json', false, 'json', request);
+  return @handler.do('RESTFUL', 'ListRunMetrics', 'GET', '/api/v1/runs/{RunId}/metrics', 'json', false, 'json', request);
+}
+
+model ListRunsRequest {
+  experimentId?: string(name='ExperimentId', example='exp-1zpfthdx******', position='Query'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-30T12:51:33.028Z', position='Query'),
+  labels?: string(name='Labels', example='is_evaluation:true', position='Query'),
+  maxResults?: long(name='MaxResults', example='10', position='Query'),
+  name?: string(name='Name', example='myName', position='Query'),
+  order?: string(name='Order', example='DESC', position='Query'),
+  orderBy?: string(name='OrderBy', example='GmtCreateTime DESC,Name ASC', position='Query'),
+  pageNumber?: long(name='PageNumber', example='1', position='Query'),
+  pageSize?: long(name='PageSize', example='10', position='Query'),
+  pageToken?: long(name='PageToken', example='0', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  sourceId?: string(name='SourceId', example='job-rbvg5wzlj****', position='Query'),
+  sourceType?: string(name='SourceType', example='TrainingService', position='Query'),
+  verbose?: boolean(name='Verbose', example='true', position='Query'),
+  workspaceId?: string(name='WorkspaceId', example='22840', position='Query'),
+}
+
+model ListRunsResponseBody = {
+  nextPageToken?: long(name='NextPageToken', example='0'),
+  runs?: [
+    Run
+  ](name='Runs'),
+  totalCount?: long(name='TotalCount', example='1'),
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model ListRunsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListRunsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListRuns  ListRunsRequest
+  * @return ListRunsResponse
+ */
+async function listRuns(request: ListRunsRequest): ListRunsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListRuns', 'GET', '/api/v1/runs', 'json', false, 'json', request);
 }
 
 model ListWorkspaceUsersRequest {
@@ -1683,6 +2142,10 @@ model ListWorkspaceUsersResponse = {
   body?: ListWorkspaceUsersResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListWorkspaceUsers  ListWorkspaceUsersRequest
+  * @return ListWorkspaceUsersResponse
+ */
 async function listWorkspaceUsers(request: ListWorkspaceUsersRequest): ListWorkspaceUsersResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListWorkspaceUsers', 'GET', '/api/v1/workspaces/{WorkspaceId}/users', 'json', false, 'json', request);
@@ -1733,13 +2196,43 @@ model ListWorkspacesResponse = {
   body?: ListWorkspacesResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of ListWorkspaces  ListWorkspacesRequest
+  * @return ListWorkspacesResponse
+ */
 async function listWorkspaces(request: ListWorkspacesRequest): ListWorkspacesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListWorkspaces', 'GET', '/api/v1/workspaces', 'json', false, 'json', request);
 }
 
+model LogRunMetricsRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+  metrics?: [
+    RunMetric
+  ](name='Metrics', position='Body'),
+}
+
+model LogRunMetricsResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model LogRunMetricsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: LogRunMetricsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of LogRunMetrics  LogRunMetricsRequest
+  * @return LogRunMetricsResponse
+ */
+async function logRunMetrics(request: LogRunMetricsRequest): LogRunMetricsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'LogRunMetrics', 'POST', '/api/v1/runs/{RunId}/metrics/action/log', 'json', false, 'json', request);
+}
+
 model PublishCodeSourceRequest {
-  codeSourceId: string(name='CodeSourceId', example='code-a797*******', position='Path'),
+  codeSourceId: string(name='CodeSourceId', description='This parameter is required.', example='code-a797*******', position='Path'),
 }
 
 model PublishCodeSourceResponseBody = {
@@ -1753,13 +2246,17 @@ model PublishCodeSourceResponse = {
   body?: PublishCodeSourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of PublishCodeSource  PublishCodeSourceRequest
+  * @return PublishCodeSourceResponse
+ */
 async function publishCodeSource(request: PublishCodeSourceRequest): PublishCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PublishCodeSource', 'PUT', '/api/v1/codesources/{CodeSourceId}/publish', 'json', false, 'json', request);
 }
 
 model PublishDatasetRequest {
-  datasetId: string(name='DatasetId', example='d-rbvg5w****c9ks92', position='Path'),
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5w****c9ks92', position='Path'),
 }
 
 model PublishDatasetResponseBody = {
@@ -1772,13 +2269,17 @@ model PublishDatasetResponse = {
   body?: PublishDatasetResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of PublishDataset  PublishDatasetRequest
+  * @return PublishDatasetResponse
+ */
 async function publishDataset(request: PublishDatasetRequest): PublishDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PublishDataset', 'PUT', '/api/v1/datasets/{DatasetId}/publish', 'json', false, 'json', request);
 }
 
 model PublishImageRequest {
-  imageId: string(name='ImageId', example='image-dk******fa', position='Path'),
+  imageId: string(name='ImageId', description='This parameter is required.', example='image-dk******fa', position='Path'),
 }
 
 model PublishImageResponseBody = {
@@ -1792,13 +2293,17 @@ model PublishImageResponse = {
   body?: PublishImageResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of PublishImage  PublishImageRequest
+  * @return PublishImageResponse
+ */
 async function publishImage(request: PublishImageRequest): PublishImageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PublishImage', 'PUT', '/api/v1/images/{ImageId}/publish', 'json', false, 'json', request);
 }
 
 model RemoveImageRequest {
-  imageId: string(name='ImageId', example='image-rbv******c9ks92', position='Path'),
+  imageId: string(name='ImageId', description='This parameter is required.', example='image-rbv******c9ks92', position='Path'),
 }
 
 model RemoveImageResponseBody = {
@@ -1811,14 +2316,18 @@ model RemoveImageResponse = {
   body?: RemoveImageResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of RemoveImage  RemoveImageRequest
+  * @return RemoveImageResponse
+ */
 async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RemoveImage', 'DELETE', '/api/v1/images/{ImageId}', 'json', false, 'json', request);
 }
 
 model RemoveImageLabelsRequest {
-  imageId: string(name='ImageId', example='image-d8df******dsjfd', position='Path'),
-  labelKey: string(name='LabelKey', example='key1', position='Path'),
+  imageId: string(name='ImageId', description='This parameter is required.', example='image-d8df******dsjfd', position='Path'),
+  labelKey: string(name='LabelKey', description='This parameter is required.', example='key1', position='Path'),
 }
 
 model RemoveImageLabelsResponseBody = {
@@ -1831,15 +2340,19 @@ model RemoveImageLabelsResponse = {
   body?: RemoveImageLabelsResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of RemoveImageLabels  RemoveImageLabelsRequest
+  * @return RemoveImageLabelsResponse
+ */
 async function removeImageLabels(request: RemoveImageLabelsRequest): RemoveImageLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RemoveImageLabels', 'DELETE', '/api/v1/images/{ImageId}/labels/{LabelKey}', 'json', false, 'json', request);
 }
 
 model RemoveMemberRoleRequest {
-  workspaceId: string(name='WorkspaceId', example='145883', position='Path'),
-  memberId: string(name='MemberId', example='145883-21513926******88039', position='Path'),
-  roleName: string(name='RoleName', example='PAI.AlgoDeveloper', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='145883', position='Path'),
+  memberId: string(name='MemberId', description='This parameter is required.', example='145883-21513926******88039', position='Path'),
+  roleName: string(name='RoleName', description='This parameter is required.', example='PAI.AlgoDeveloper', position='Path'),
 }
 
 model RemoveMemberRoleResponseBody = {
@@ -1852,13 +2365,43 @@ model RemoveMemberRoleResponse = {
   body?: RemoveMemberRoleResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of RemoveMemberRole  RemoveMemberRoleRequest
+  * @return RemoveMemberRoleResponse
+ */
 async function removeMemberRole(request: RemoveMemberRoleRequest): RemoveMemberRoleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RemoveMemberRole', 'DELETE', '/api/v1/workspaces/{WorkspaceId}/members/{MemberId}/roles/{RoleName}', 'json', false, 'json', request);
 }
 
+model SetExperimentLabelsRequest {
+  experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-1zpfthdx******', position='Path'),
+  labels?: [
+    LabelInfo
+  ](name='Labels', position='Body'),
+}
+
+model SetExperimentLabelsResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model SetExperimentLabelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetExperimentLabelsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SetExperimentLabels  SetExperimentLabelsRequest
+  * @return SetExperimentLabelsResponse
+ */
+async function setExperimentLabels(request: SetExperimentLabelsRequest): SetExperimentLabelsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SetExperimentLabels', 'POST', '/api/v1/experiments/{ExperimentId}/labels', 'json', false, 'json', request);
+}
+
 model UpdateDatasetRequest {
-  datasetId: string(name='DatasetId', example='d-rbvg5wz****c9ks92', position='Path'),
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wz****c9ks92', position='Path'),
   description?: string(name='Description', position='Body'),
   name?: string(name='Name', example='myName', position='Body'),
   options?: string(name='Options', example='{
@@ -1876,6 +2419,10 @@ model UpdateDatasetResponse = {
   body?: UpdateDatasetResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateDataset  UpdateDatasetRequest
+  * @return UpdateDatasetResponse
+ */
 async function updateDataset(request: UpdateDatasetRequest): UpdateDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateDataset', 'PUT', '/api/v1/datasets/{DatasetId}', 'json', false, 'json', request);
@@ -1895,13 +2442,42 @@ model UpdateDefaultWorkspaceResponse = {
   body?: UpdateDefaultWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateDefaultWorkspace  UpdateDefaultWorkspaceRequest
+  * @return UpdateDefaultWorkspaceResponse
+ */
 async function updateDefaultWorkspace(request: UpdateDefaultWorkspaceRequest): UpdateDefaultWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateDefaultWorkspace', 'PUT', '/api/v1/defaultWorkspaces', 'json', false, 'json', request);
 }
 
+model UpdateExperimentRequest {
+  experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-1zpfthdx******', position='Path'),
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  name?: string(name='Name', description='名称', example='myName', position='Body'),
+}
+
+model UpdateExperimentResponseBody = {
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model UpdateExperimentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateExperimentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateExperiment  UpdateExperimentRequest
+  * @return UpdateExperimentResponse
+ */
+async function updateExperiment(request: UpdateExperimentRequest): UpdateExperimentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateExperiment', 'PUT', '/api/v1/experiments/{ExperimentId}', 'json', false, 'json', request);
+}
+
 model UpdateModelRequest {
-  modelId: string(name='ModelId', example='model-rbvg5wz******ks92', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-rbvg5wz******ks92', position='Path'),
   accessibility?: string(name='Accessibility', example='PUBLIC', position='Body'),
   domain?: string(name='Domain', example='nlp', position='Body'),
   extraInfo?: map[string]any(name='ExtraInfo', position='Body'),
@@ -1924,14 +2500,18 @@ model UpdateModelResponse = {
   body?: UpdateModelResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateModel  UpdateModelRequest
+  * @return UpdateModelResponse
+ */
 async function updateModel(request: UpdateModelRequest): UpdateModelResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateModel', 'PUT', '/api/v1/models/{ModelId}', 'json', false, 'json', request);
 }
 
 model UpdateModelVersionRequest {
-  modelId: string(name='ModelId', example='model-dfs1****5c', position='Path'),
-  versionName: string(name='VersionName', example='0.1.0', position='Path'),
+  modelId: string(name='ModelId', description='This parameter is required.', example='model-dfs1****5c', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='0.1.0', position='Path'),
   approvalStatus?: string(name='ApprovalStatus', example='Approved', position='Body'),
   compressionSpec?: map[string]any(name='CompressionSpec', example='{}', position='Body'),
   evaluationSpec?: map[string]any(name='EvaluationSpec', example='{}', position='Body'),
@@ -1955,13 +2535,47 @@ model UpdateModelVersionResponse = {
   body?: UpdateModelVersionResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateModelVersion  UpdateModelVersionRequest
+  * @return UpdateModelVersionResponse
+ */
 async function updateModelVersion(request: UpdateModelVersionRequest): UpdateModelVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateModelVersion', 'PUT', '/api/v1/models/{ModelId}/versions/{VersionName}', 'json', false, 'json', request);
 }
 
+model UpdateRunRequest {
+  runId: string(name='RunId', description='This parameter is required.', example='run-1qJhzJ2YXgX****', position='Path'),
+  labels?: [
+    Label
+  ](name='Labels', position='Body'),
+  name?: string(name='Name', example='myName', position='Body'),
+  params?: [
+    RunParam
+  ](name='Params', position='Body'),
+}
+
+model UpdateRunResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='ADF6D849-*****-7E7030F0CE53'),
+}
+
+model UpdateRunResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateRunResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateRun  UpdateRunRequest
+  * @return UpdateRunResponse
+ */
+async function updateRun(request: UpdateRunRequest): UpdateRunResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateRun', 'PUT', '/api/v1/runs/{RunId}', 'json', false, 'json', request);
+}
+
 model UpdateWorkspaceRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   description?: string(name='Description', example='Description', position='Body'),
   displayName?: string(name='DisplayName', example='workspace-example', position='Body'),
 }
@@ -1976,13 +2590,17 @@ model UpdateWorkspaceResponse = {
   body?: UpdateWorkspaceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateWorkspace  UpdateWorkspaceRequest
+  * @return UpdateWorkspaceResponse
+ */
 async function updateWorkspace(request: UpdateWorkspaceRequest): UpdateWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateWorkspace', 'PUT', '/api/v1/workspaces/{WorkspaceId}', 'json', false, 'json', request);
 }
 
 model UpdateWorkspaceResourceRequest {
-  workspaceId: string(name='WorkspaceId', example='123', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='123', position='Path'),
   groupName?: string(name='GroupName', example='group-kjds******sd', position='Body'),
   isDefault?: boolean(name='IsDefault', example='true', position='Body'),
   labels?: [ 
@@ -2008,6 +2626,10 @@ model UpdateWorkspaceResourceResponse = {
   body?: UpdateWorkspaceResourceResponseBody(name='body'),
 }
 
+/**
+  * @param request  the request parameters of UpdateWorkspaceResource  UpdateWorkspaceResourceRequest
+  * @return UpdateWorkspaceResourceResponse
+ */
 async function updateWorkspaceResource(request: UpdateWorkspaceResourceRequest): UpdateWorkspaceResourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateWorkspaceResource', 'PUT', '/api/v1/workspaces/{WorkspaceId}/resources', 'json', false, 'json', request);
