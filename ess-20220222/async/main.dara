@@ -286,17 +286,19 @@ async function attachAlbServerGroups(request: AttachAlbServerGroupsRequest): Att
 }
 
 model AttachDBInstancesRequest {
-  attachMode?: string(name='AttachMode', description='The mode in which you want to attach the ApsaraDB RDS instance to the scaling group. Valid values:
+  attachMode?: string(name='AttachMode', description='The mode in which you want to attach the database to the scaling group. Valid values:
 
-*   SecurityIp: the SecurityIp mode. Auto Scaling automatically adds the private IP addresses of the scaled out instances to the IP address whitelist of the ApsaraDB RDS instance. You can select this mode only when you attach an ApsaraDB RDS instance to a scaling group.
-*   SecurityGroup: the security group mode. Auto Scaling adds the security group of the scaling configuration to the security group whitelist for registration and association.', example='SecurityIp', position='Query'),
+*   SecurityIp: adds the private IP addresses of scaled out ECS instances to the IP address whitelist of the database. Take note that you can choose this mode only when the database that you want to attach is an ApsaraDB RDS instance.
+*   SecurityGroup: adds the security group of the scaling configuration based on which ECS instances are created in the scaling group to the security group whitelist of the database for registration.
+
+Default value: SecurityIp.', example='SecurityIp', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must ensure that the value is unique among different requests.
 
 The token can only contain ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure the idempotence of a request](https://help.aliyun.com/document_detail/25965.html).', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
-  DBInstances: [ string ](name='DBInstances', description='The ID of the ApsaraDB RDS instance.
+  DBInstances: [ string ](name='DBInstances', description='The IDs of the ApsaraDB RDS instances that you want to attach to the scaling group.
 
 This parameter is required.', position='Query'),
-  forceAttach?: boolean(name='ForceAttach', description='Specifies whether to add the private IP addresses of all instances in the scaling group to the IP address whitelist of the ApsaraDB RDS instance. Valid values:
+  forceAttach?: boolean(name='ForceAttach', description='Specifies whether to add the private IP addresses of all ECS instances in the scaling group to the IP address whitelist of an ApsaraDB RDS instance when you attach the ApsaraDB RDS instance to the scaling group. Valid values:
 
 *   true
 *   false
@@ -310,9 +312,9 @@ Default value: false.', example='false', position='Query'),
 This parameter is required.', example='asg-bp1avr6ensitts3w****', position='Query'),
   type?: string(name='Type', description='The type of the database that you want to attach to the scaling group. Valid values:
 
-*   ApsaraDB RDS
-*   ApsaraDB for Redis
-*   ApsaraDB for MongoDB
+*   RDS
+*   Redis
+*   MongoDB
 
 Default value: RDS.', example='RDS', position='Query'),
 }
@@ -328,11 +330,13 @@ model AttachDBInstancesResponse = {
 }
 
 /**
-  * @description Before you associate an ApsaraDB RDS instance with a scaling group, make sure that the ApsaraDB RDS instance meets the following requirements:
-  * *   The ApsaraDB RDS instance and the scaling group must belong to the same Alibaba Cloud account.
-  * *   The ApsaraDB RDS instance must be unlocked. For more information about the lock policy, see [ApsaraDB RDS usage notes](https://help.aliyun.com/document_detail/41872.html).
-  * *   The ApsaraDB RDS instance must be in the Running state.
-  * After an ApsaraDB RDS instance is associated with the scaling group, the default IP address whitelist of the ApsaraDB RDS instance can contain no more than 1,000 IP addresses. For more information, see [Set the whitelist](https://help.aliyun.com/document_detail/43185.html).
+  * @description Before you attach an ApsaraDB RDS instance to a scaling group, make sure that the ApsaraDB RDS instance meets the following requirements:
+  * *   The ApsaraDB RDS instance and the scaling group belong to the same Alibaba Cloud account.
+  * *   The ApsaraDB RDS instance is unlocked. For information about the lock policy, see [ApsaraDB RDS usage notes](https://help.aliyun.com/document_detail/41872.html).
+  * *   The ApsaraDB RDS instance is in the Running state.
+  * *   The ApsaraDB RDS instance exists in the Alibaba Cloud account.
+  * *   If you reattach an ApsaraDB RDS instance to a scaling group, the total number of attached ApsaraDB RDS instances of the scaling group remains unchanged. But Auto Scaling adds the private IP addresses of all Elastic Compute Service (ECS) instances in the scaling group to the IP address whitelist of the ApsaraDB RDS instance.
+  * >  After you attach an ApsaraDB RDS instance to a scaling group, make sure that the number of IP addresses in the default whitelist of the ApsaraDB RDS instance is limited to 1,000. For information about IP address whitelists, see [Configure an IP address whitelist](https://help.aliyun.com/document_detail/96118.html).
   * @param request  the request parameters of AttachDBInstances  AttachDBInstancesRequest
   * @return AttachDBInstancesResponse
  */
@@ -611,15 +615,21 @@ async function attachVServerGroups(request: AttachVServerGroupsRequest): AttachV
 }
 
 model CancelInstanceRefreshRequest {
-  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='This parameter is required.', example='ir-aca123sf****', position='Query'),
+  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.
+
+This parameter is required.', example='ir-aca123sf****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  scalingGroupId: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp1igpak5ft1flyp****', position='Query'),
+  scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp1igpak5ft1flyp****', position='Query'),
 }
 
 model CancelInstanceRefreshResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model CancelInstanceRefreshResponse = {
@@ -629,6 +639,7 @@ model CancelInstanceRefreshResponse = {
 }
 
 /**
+  * @description *   You cannot call this operation to cancel instance refresh tasks that are being rolled back.
   * @param request  the request parameters of CancelInstanceRefresh  CancelInstanceRefreshRequest
   * @return CancelInstanceRefreshResponse
  */
@@ -1850,7 +1861,10 @@ This parameter is required.', example='asg-bp14wlu85wrpchm0****', position='Quer
 
 > If you specify SecurityGroupId, you cannot specify SecurityGroupIds.', position='Query'),
   securityOptions?: {
-    confidentialComputingMode?: string(name='ConfidentialComputingMode'),
+    confidentialComputingMode?: string(name='ConfidentialComputingMode', description='The confidential computing mode. Valid values:
+
+*   Enclave: An enclave-based confidential computing environment is built on the instance. For more information, see [Build a confidential computing environment by using Enclave](https://help.aliyun.com/document_detail/203433.html).
+*   TDX: A Trust Domain Extensions (TDX) confidential computing environment is built on the instance. For more information, see [Build a TDX confidential computing environment](https://help.aliyun.com/document_detail/479090.html).', example='TDX'),
   }(name='SecurityOptions', position='Query'),
   spotDuration?: int32(name='SpotDuration', description='The retention period of the preemptible instance. Unit: hours. Valid values: 0, 1, 2, 3, 4, 5, and 6.
 
@@ -1998,21 +2012,15 @@ Default value: ECS.', example='ECS', position='Query'),
   healthCheckType?: string(name='HealthCheckType', description='The health check mode of the scaling group. Valid values:
 
 *   NONE: Auto Scaling does not check the health status of instances.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   ECI: Auto Scaling checks the health status of elastic container instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of CLB instances are not supported as the health check basis for instances in the scaling group.
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB) instances are not supported as the health check basis for instances in the scaling group.
 
-Default value: ECS.', example='ECS', position='Query'),
-  healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check modes of the scaling group. Valid values:
+Default value: ECS.
 
-*   NONE: Auto Scaling does not check the health status of instances.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   ECI: Auto Scaling checks the health status of elastic container instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances based on the health check results of load balancers. The health check results of CLB instances are not supported as the health check basis for instances in the scaling group.
+>  If you want to enable instance health check and load balancer health check at the same time, we recommend that you specify `HealthCheckTypes`.', example='ECS', position='Query'),
+  healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check mode of the scaling group.
 
->  HealthCheckTypes has the same effect as `HealthCheckType`. You can select one of them to specify based on your business requirements. If you specify `HealthCheckType`, `HealthCheckTypes` is ignored. HealthCheckTypes is optional.
-
-Default value: ECS.', position='Query'),
+>  You can specify multiple values for this parameter to enable multiple health check options at the same time. If you specify `HealthCheckType`, this parameter is ignored.', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the ECS instance. When you create a scaling group, you can specify an existing ECS instance. Auto Scaling obtains the configurations of the ECS instance and automatically creates a scaling configuration from the obtained configurations.', example='i-28wt4****', position='Query'),
   launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template that provides instance configurations for Auto Scaling to create instances.', example='lt-m5e3ofjr1zn1aw7****', position='Query'),
   launchTemplateOverrides?: [ 
@@ -2198,7 +2206,7 @@ If you increase the weight for an ECS instance, the number of requests that are 
 Default value: priority.', example='lowestPrice', position='Query'),
   spotInstancePools?: int32(name='SpotInstancePools', description='The number of available instance types. Auto Scaling evenly creates preemptible instances of multiple instance types that are provided at the lowest cost in the scaling group. Valid values: 1 to 10.', example='5', position='Query'),
   spotInstanceRemedy?: boolean(name='SpotInstanceRemedy', description='Specifies whether to supplement preemptible instances. If you set this parameter to true, Auto Scaling creates an instance to replace a preemptible instance when Auto Scaling receives a system message which indicates that the preemptible instance is to be reclaimed.', example='true', position='Query'),
-  stopInstanceTimeout?: int32(name='StopInstanceTimeout', position='Query'),
+  stopInstanceTimeout?: int32(name='StopInstanceTimeout', example='60', position='Query'),
   syncAlarmRuleToCms?: boolean(name='SyncAlarmRuleToCms', description='> This parameter is unavailable.', example='false', position='Query'),
   tags?: [ 
     {
@@ -2302,7 +2310,7 @@ model CreateScalingRuleRequest {
   cooldown?: int32(name='Cooldown', description='The cooldown time of the scaling rule. This parameter is available only if you set the ScalingRuleType parameter to SimpleScalingRule. Valid values: 0 to 86400. Unit: seconds.
 
 By default, this parameter is left empty.', example='60', position='Query'),
-  disableScaleIn?: boolean(name='DisableScaleIn', description='Specifies whether to disable scale-in. This parameter is available only if you set the ScalingRuleType parameter to TargetTrackingScalingRule.
+  disableScaleIn?: boolean(name='DisableScaleIn', description='Specifies whether to disable scale-in. This parameter is available only if you set ScalingRuleType to TargetTrackingScalingRule.
 
 Default value: false.', example='false', position='Query'),
   estimatedInstanceWarmup?: int32(name='EstimatedInstanceWarmup', description='The warmup period of an instance. This parameter is available only if you set the ScalingRuleType parameter to TargetTrackingScalingRule or PredictiveScalingRule. Auto Scaling adds ECS instances that are in the warmup state to a scaling group but does not report monitoring data to CloudMonitor during the warmup period.
@@ -2330,7 +2338,7 @@ Default value: 300.', example='300', position='Query'),
   initialMaxSize?: int32(name='InitialMaxSize', description='The maximum number of ECS instances that can be contained in the scaling group. If you specify InitialMaxSize, you must specify `PredictiveValueBehavior`.
 
 The default value of this parameter is the value of MaxSize.', example='100', position='Query'),
-  metricName?: string(name='MetricName', description='The predefined metric of the scaling rule. If you set ScalingRuleType to TargetTrackingScalingRule or PredictiveScalingRule, you must specify this parameter.
+  metricName?: string(name='MetricName', description='The predefined metric that you want to monitor. If you set ScalingRuleType to TargetTrackingScalingRule or PredictiveScalingRule, you must specify this parameter.
 
 Valid values if you set ScalingRuleType to TargetTrackingScalingRule:
 
@@ -2338,7 +2346,7 @@ Valid values if you set ScalingRuleType to TargetTrackingScalingRule:
 *   MemoryUtilization (recommended): the memory usage.
 *   CpuUtilization: the average CPU utilization.
 *   IntranetTx: the outbound traffic over an internal network.
-*   IntranetRx: the inbound traffic over an internal network.
+*   IntranetRx: the average inbound traffic over an internal network.
 *   VpcInternetTx: the outbound traffic from a virtual private cloud (VPC) to the Internet.
 *   VpcInternetRx: the inbound traffic from the Internet to a VPC.
 *   LoadBalancerRealServerAverageQps:the queries per second (QPS) per Application Load Balancer (ALB) server group.
@@ -2346,10 +2354,10 @@ Valid values if you set ScalingRuleType to TargetTrackingScalingRule:
 Valid values if you set ScalingRuleType to PredictiveScalingRule:
 
 *   CpuUtilization: the average CPU utilization.
-*   IntranetRx: the inbound traffic over an internal network.
-*   IntranetTx: the outbound traffic over an internal network.
+*   IntranetRx: the average inbound traffic over an internal network.
+*   IntranetTx: the average outbound traffic over an internal network.
 
-For more information, see [Event-triggered tasks of the system monitoring type](https://www.alibabacloud.com/help/zh/auto-scaling/user-guide/event-triggered-tasks-of-the-system-monitoring-type).', example='CpuUtilization', position='Query'),
+For more information, see [Event-triggered tasks of the system monitoring type](https://help.aliyun.com/document_detail/74854.html).', example='CpuUtilization', position='Query'),
   metricType?: string(name='MetricType', position='Query'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances that must be scaled when the AdjustmentType parameter is set to PercentChangeInCapacity. This parameter takes effect only if you set the ScalingRuleType parameter to SimpleScalingRule or StepScalingRule.', example='1', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -2391,12 +2399,12 @@ The name of each scaling rule must be unique under the same account within a reg
 If you leave this parameter empty, the scaling rule ID is used.', example='scalingrule****', position='Query'),
   scalingRuleType?: string(name='ScalingRuleType', description='The type of the scaling rule. Valid values:
 
-*   SimpleScalingRule: a simple scaling rule. Once a simple scaling rule is executed, Auto Scaling adjusts the number of ECS instances or elastic container instances in the scaling group based on the values of AdjustmentType and AdjustmentValue.
-*   TargetTrackingScalingRule: a target tracking scaling rule. Once a target tracking scaling rule is executed, Auto Scaling dynamically calculates the number of ECS instances or elastic container instances to scale based on the predefined metric (MetricName) and attempts to maintain the metric value close to the specified target value (TargetValue).
-*   StepScalingRule: a step scaling rule. Once a step scaling rule is executed, Auto Scaling scales instances step by step based on the predefined thresholds and metric values.
-*   PredictiveScalingRule: a predictive scaling rule. Once a predictive scaling rule is executed, Auto Scaling analyzes the historical monitoring data based on the machine learning technology and predicts the trends of metric data. Auto Scaling also creates scheduled tasks to enable dynamic adjustment of the boundary values for the scaling group.
+*   SimpleScalingRule: a simple scaling rule. After you execute a simple scaling rule, Auto Scaling adjusts the number of ECS instances or elastic container instances in the scaling group based on the values of AdjustmentType and AdjustmentValue.
+*   TargetTrackingScalingRule: a target tracking scaling rule. After you execute a target tracking scaling rule, Auto Scaling dynamically calculates the number of ECS instances or elastic container instances to scale based on the predefined metric (MetricName) and attempts to maintain the metric value close to the expected value (TargetValue).
+*   StepScalingRule: a step scaling rule. After you execute a step scaling rule, Auto Scaling scales instances step by step based on the predefined thresholds and metric values.
+*   PredictiveScalingRule: uses machine learning to analyze historical monitoring data of the scaling group and predicts the future values of metrics. In addition, Auto Scaling automatically creates scheduled tasks to specify the value range for the scaling group.
 
-Default value: SimpleScalingRule.', example='SimpleScalingRule', position='Query'),
+Default value: SimpleScalingRule', example='SimpleScalingRule', position='Query'),
   stepAdjustments?: [ 
     {
       metricIntervalLowerBound?: float(name='MetricIntervalLowerBound', description='The lower limit specified in a step adjustment. This parameter is available only if you set the ScalingRuleType parameter to StepScalingRule. Valid values: -9.999999E18 to 9.999999E18.', example='1.0'),
@@ -2843,10 +2851,10 @@ model DescribeAlarmsRequest {
 *   system: system metrics of CloudMonitor
 *   custom: custom metrics that are reported to CloudMonitor.', example='true', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1.
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
 
 Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 50.
 
 Default value: 10.', example='10', maximum=50, position='Query'),
   regionId: string(name='RegionId', description='The region ID of the event-triggered task.
@@ -3833,42 +3841,112 @@ async function describeEciScalingConfigurations(request: DescribeEciScalingConfi
   return @handler.do('RPC', 'DescribeEciScalingConfigurations', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeElasticStrengthRequest {
+  instanceTypes?: [ string ](name='InstanceTypes', position='Query'),
+  priorityStrategy?: string(name='PriorityStrategy', example='NoSpot', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-qingdao', position='Query'),
+  scalingGroupId?: string(name='ScalingGroupId', example='asg-bp18p2yfxow2dloq****', position='Query'),
+  scalingGroupIds?: [ string ](name='ScalingGroupIds', position='Query'),
+  systemDiskCategories?: [ string ](name='SystemDiskCategories', position='Query'),
+}
+
+model DescribeElasticStrengthResponseBody = {
+  elasticStrengthModels?: [ 
+    {
+      resourcePools?: [ 
+        {
+          code?: string(name='Code', example='InstanceTypesOrDiskTypesNotSupported'),
+          instanceType?: string(name='InstanceType', example='ecs.r7.large'),
+          msg?: string(name='Msg', example='The instanceTypes or diskTypes are not supported.'),
+          strength?: double(name='Strength', example='0.6'),
+          vSwitchIds?: [ string ](name='VSwitchIds'),
+          zoneId?: string(name='ZoneId', example='cn-hangzhou-g'),
+        }
+      ](name='ResourcePools'),
+      scalingGroupId?: string(name='ScalingGroupId'),
+      totalStrength?: double(name='TotalStrength', example='1.5'),
+    }
+  ](name='ElasticStrengthModels'),
+  requestId?: string(name='RequestId', example='73469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  resourcePools?: [ 
+    {
+      code?: string(name='Code', example='IMG_NOT_SUPPORTED'),
+      instanceType?: string(name='InstanceType', example='ecs.c7t.xlarge'),
+      msg?: string(name='Msg', example='The instanceType does not support the image in the configuration.'),
+      strength?: double(name='Strength', example='0.6'),
+      vSwitchIds?: [ string ](name='VSwitchIds'),
+      zoneId?: string(name='ZoneId', example='cn-hangzhou-g'),
+    }
+  ](name='ResourcePools'),
+  totalStrength?: double(name='TotalStrength', example='1.5'),
+}
+
+model DescribeElasticStrengthResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeElasticStrengthResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeElasticStrength  DescribeElasticStrengthRequest
+  * @return DescribeElasticStrengthResponse
+ */
+async function describeElasticStrength(request: DescribeElasticStrengthRequest): DescribeElasticStrengthResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeElasticStrength', 'GET', '/', 'json', false, 'json', request);
+}
+
 model DescribeInstanceRefreshesRequest {
-  instanceRefreshTaskIds?: [ string ](name='InstanceRefreshTaskIds', position='Query'),
-  maxResults?: int32(name='MaxResults', example='10', maximum=50, position='Query'),
-  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f0a****', position='Query'),
+  instanceRefreshTaskIds?: [ string ](name='InstanceRefreshTaskIds', description='The IDs of the instance refresh tasks that you want to query.', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10', maximum=50, position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='caeba0bbb2be03f84eb48b699f0a****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group to which the instance refresh task belongs.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  scalingGroupId?: string(name='ScalingGroupId', example='asg-bp1ffogfdauy0jw0****', position='Query'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+>  When you call this operation, you must specify one of the following parameters: ScalingGroupId and InstanceRefreshTaskIds. You cannot specify both of them. If you specify neither of them, an error is reported.', example='asg-bp1ffogfdauy0jw0****', position='Query'),
 }
 
 model DescribeInstanceRefreshesResponseBody = {
   instanceRefreshTasks?: [ 
     {
       desiredConfiguration?: {
-        imageId?: string(name='ImageId', example='m-uf6g5noisr****'),
-        scalingConfigurationId?: string(name='ScalingConfigurationId', example='asc-wz91ibkhfor****'),
-      }(name='DesiredConfiguration'),
-      detail?: string(name='Detail', example='The task exceeded its maximum run time of one week. So the task failed.'),
-      endTime?: string(name='EndTime', example='2024-08-22T02:09:00Z'),
-      finishedUpdateCapacity?: int32(name='FinishedUpdateCapacity', example='10'),
-      instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', example='ir-1adfa123****'),
-      maxHealthyPercentage?: int32(name='MaxHealthyPercentage', example='120'),
-      minHealthyPercentage?: int32(name='MinHealthyPercentage', example='80'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      scalingGroupId?: string(name='ScalingGroupId', example='asg-bp16pbfcr8j9*****'),
-      startTime?: string(name='StartTime', example='2024-08-22T01:09:00Z'),
-      status?: string(name='Status', example='InProgress'),
-      totalNeedUpdateCapacity?: int32(name='TotalNeedUpdateCapacity', example='20'),
+        imageId?: string(name='ImageId', description='The ID of the image file that provides the image resource for Auto Scaling to create instances.', example='m-uf6g5noisr****'),
+        scalingConfigurationId?: string(name='ScalingConfigurationId', description='The ID of the scaling configuration.', example='asc-wz91ibkhfor****'),
+      }(name='DesiredConfiguration', description='The desired configurations of the instance refresh task.'),
+      detail?: string(name='Detail', description='The reason why the instance refresh task failed to be executed.', example='The task exceeded its maximum run time of one week. So the task failed.'),
+      endTime?: string(name='EndTime', description='The end time of the instance refresh task.', example='2024-08-22T02:09:00Z'),
+      finishedUpdateCapacity?: int32(name='FinishedUpdateCapacity', description='The refreshed number of instances in the scaling group.', example='10'),
+      instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.', example='ir-1adfa123****'),
+      maxHealthyPercentage?: int32(name='MaxHealthyPercentage', description='The ratio by which the number of instances in the scaling group can exceed the upper limit for the number of instances in the scaling group during instance refresh.', example='120'),
+      minHealthyPercentage?: int32(name='MinHealthyPercentage', description='The ratio of the number of instances that provide services to the total number of instances in the scaling group during instance refresh.', example='80'),
+      regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-hangzhou'),
+      scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp16pbfcr8j9*****'),
+      startTime?: string(name='StartTime', description='The start time of the instance refresh task.', example='2024-08-22T01:09:00Z'),
+      status?: string(name='Status', description='The status of the instance refresh task. Valid values:
+
+*   Pending: The instance refresh task is created and is waiting to be scheduled.
+*   InProgress: The instance refresh task is being executed.
+*   Paused: The instance refresh task is suspended.
+*   Failed: The instance refresh task failed to be executed.
+*   Successful: The instance refresh task is successful.
+*   Cancelling: The instance refresh task is being canceled.
+*   Cancelled: The instance refresh task is canceled.
+*   RollbackInProgress: The instance refresh task is being rolled back.
+*   RollbackSuccessful: The instance refresh task is rolled back.
+*   RollbackFailed: The instance refresh task fails to be rolled back.', example='InProgress'),
+      totalNeedUpdateCapacity?: int32(name='TotalNeedUpdateCapacity', description='The total number of instances whose configurations are refreshed.', example='20'),
     }
-  ](name='InstanceRefreshTasks'),
-  maxResults?: int32(name='MaxResults', example='50'),
-  nextToken?: string(name='NextToken', example='caeba0bbb2be03f84eb48b699f****'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
-  totalCount?: int32(name='TotalCount', example='100'),
+  ](name='InstanceRefreshTasks', description='The instance refresh tasks.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='50'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='caeba0bbb2be03f84eb48b699f****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  totalCount?: int32(name='TotalCount', description='The total number of instance refresh tasks.', example='100'),
 }
 
 model DescribeInstanceRefreshesResponse = {
@@ -4316,13 +4394,13 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 }
 
 model DescribeScalingActivitiesRequest {
-  instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', position='Query'),
+  instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', example='ir-a12ds234fasd*****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1.
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
 
 Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 50.
 
 Default value: 10.', example='10', maximum=50, position='Query'),
   regionId: string(name='RegionId', description='The region ID of the scaling group to which the scaling activity that you want to query belongs.
@@ -4332,10 +4410,10 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   scalingActivityIds?: [ string ](name='ScalingActivityIds', description='The IDs of the scaling activities that you want to query.
 
-> When you call this operation, you must specify one of the `ScalingGroupId` and `ScalingActivityId.N` parameters. Otherwise, an error is reported.', position='Query'),
+>  When you call this operation, you must specify one of the following parameters: `ScalingGroupId` and `ScalingActivityIds`. You cannot specify both of them at the same time. If you specify neither of them, an error is reported.', position='Query'),
   scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
 
-> When you call this operation, you must specify one of the `ScalingGroupId` and `ScalingActivityId.N` parameters. Otherwise, an error is reported.', example='asg-bp18p2yfxow2dloq****', position='Query'),
+>  When you call this operation, you must specify one of the following parameters: `ScalingGroupId` and `ScalingActivityIds`. You cannot specify both of them at the same time. If you specify neither of them, an error is reported.', example='asg-bp18p2yfxow2dloq****', position='Query'),
   statusCode?: string(name='StatusCode', description='The status of the scaling activity. Valid values:
 
 *   Successful: The scaling activity is successful.
@@ -4352,7 +4430,7 @@ model DescribeScalingActivitiesResponseBody = {
   scalingActivities?: [ 
     {
       activityMetadata?: string(name='ActivityMetadata', description='The metadata of the scaling activity.', example='{\\"goatscaler.io/managed\\":\\"true\\"}'),
-      attachedCapacity?: string(name='AttachedCapacity', description='The total number of instances that are manually added to the scaling group after the scaling activity was complete.', example='0'),
+      attachedCapacity?: string(name='AttachedCapacity', description='The total number of instances that are manually added to the scaling group after the scaling activity is complete.', example='0'),
       autoCreatedCapacity?: string(name='AutoCreatedCapacity', description='The total number of instances that are created by Auto Scaling after the scaling activity was complete.', example='2'),
       cause?: string(name='Cause', description='The reason why the scaling activity was triggered.', example='A user requests to execute scaling rule \\"asr-bp12tcnol686y1ik****\\", changing the Total Capacity from \\"1\\" to \\"2\\".'),
       createdCapacity?: int32(name='CreatedCapacity', description='The number of instances that are created during the scale-out event.', example='1'),
@@ -4364,9 +4442,9 @@ model DescribeScalingActivitiesResponseBody = {
       endTime?: string(name='EndTime', description='The time when the scaling activity was complete.', example='2020-09-10T09:54Z'),
       errorCode?: string(name='ErrorCode', description='The error code that is returned when the scaling activity failed.', example='OperationDenied.NoStock'),
       errorMessage?: string(name='ErrorMessage', description='The error message that is returned when the scaling activity failed.', example='The specified ECS resource is out of stock in this region. Please try again later.'),
-      instanceRefreshTaskId?: string(name='InstanceRefreshTaskId'),
+      instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', example='ir-asdf12adsxg*****'),
       lifecycleHookContext?: {
-        disableLifecycleHook?: boolean(name='DisableLifecycleHook', description='Indicates whether all lifecycle hooks are disabled. Valid values:
+        disableLifecycleHook?: boolean(name='DisableLifecycleHook', description='Indicates whether all lifecycle hooks are disabled when the scaling activity is triggered. Valid values:
 
 *   true
 *   false', example='false'),
@@ -4375,9 +4453,8 @@ model DescribeScalingActivitiesResponseBody = {
       progress?: int32(name='Progress', description='The execution progress of the scaling activity.', example='100'),
       scalingActivityId?: string(name='ScalingActivityId', description='The ID of the scaling activity.', example='asa-bp161xudmuxdzofe****'),
       scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp18p2yfxow2dloq****'),
-      scalingInstanceNumber?: int32(name='ScalingInstanceNumber', description='If you query a scale-out activity, the value of this parameter indicates the number of instances that are created or the number of instances that are started from the Economical Mode during the scale-out event.
-
-If you query a scale-in activity, the value of this parameter indicates the number of instances that are deleted or the number of instances that are stopped in the Economical Mode during the scale-in event.', example='1'),
+      scalingInstanceNumber?: int32(name='ScalingInstanceNumber', description='*   If you query a scale-out activity, the value of this parameter indicates the number of instances that are created or the number of instances that are started from Economical Mode.
+*   If you query a scale-in activity, the value of this parameter indicates the number of instances that are deleted or the number of instances that are stopped in Economical Mode.', example='1'),
       startTime?: string(name='StartTime', description='The time when the scaling activity was started.', example='2020-09-10T09:54Z'),
       startedCapacity?: int32(name='StartedCapacity', description='The number of instances that are started from the Economical Mode during the scale-out event.', example='1'),
       startedInstances?: [ string ](name='StartedInstances', description='The instances that are started from the Economical Mode during the scale-out event.'),
@@ -4392,18 +4469,18 @@ If you query a scale-in activity, the value of this parameter indicates the numb
       stoppedCapacity?: int32(name='StoppedCapacity', description='The number of instances that are stopped in the Economical Mode during the scale-in event.', example='1'),
       stoppedInstances?: [ string ](name='StoppedInstances', description='The instances that are stopped in the Economical Mode during the scale-in event.'),
       totalCapacity?: string(name='TotalCapacity', description='The total number of instances in the scaling group after the scaling activity was complete.', example='2'),
-      triggerSourceId?: string(name='TriggerSourceId', description='The ID of the trigger source of the scaling activity.
+      triggerSourceId?: string(name='TriggerSourceId', description='The ID of the trigger source of the scaling activity. Valid values:
 
-*   If TriggerSourceType is set to Cms, the ID of the trigger source is the ID of an event-triggered task.
-*   If TriggerSourceType is set to Api, the ID of the trigger source is the ID of an Alibaba Cloud account or a RAM user.
-*   If TriggerSourceType is set to Api, the ID of the trigger source is null.', example='2346366580*****'),
-      triggerSourceType?: string(name='TriggerSourceType', description='The type of the trigger source of the scaling activity.
+*   If the scaling activity is triggered by an event-triggered task, the ID of the trigger source is the ID of the event-triggered task.
+*   If the scaling activity is triggered by calling an API operation, the ID of the trigger source is the ID of the Alibaba Cloud account or Resource Access Management (RAM) user that you use to call the API operation.
+*   If the scaling activity is triggered by Auto Scaling, the ID of the trigger source is null.', example='2346366580*****'),
+      triggerSourceType?: string(name='TriggerSourceType', description='The type of the trigger source of the scaling activity. Valid values:
 
-*   Cms: triggered by an event-triggered task
-*   APIs: triggered by API calling
-*   Ess: triggered by a system task', example='Api'),
+*   Cms: The scaling activity is triggered by an event-triggered task.
+*   APIs: The scaling activity is triggered by calling an API operation.
+*   Ess: The scaling activity is triggered by Auto Scaling.', example='Api'),
     }
-  ](name='ScalingActivities', description='The information about the scaling activities.'),
+  ](name='ScalingActivities', description='The scaling activities.'),
   totalCount?: int32(name='TotalCount', description='The total number of scaling activities.', example='1'),
 }
 
@@ -4414,9 +4491,9 @@ model DescribeScalingActivitiesResponse = {
 }
 
 /**
-  * @description You can specify a scaling group ID to query all scaling activities in the scaling group.
-  * You can filter query results based on the status of scaling activities.
-  * You can query scaling activities that are executed in the previous 30 days.
+  * @description *   You can query all scaling activities in a scaling group by specifying ScalingGroupId.
+  * *   You can filter query results based on the status of scaling activities.
+  * *   You can query scaling activities within the last 30 days.
   * @param request  the request parameters of DescribeScalingActivities  DescribeScalingActivitiesRequest
   * @return DescribeScalingActivitiesResponse
  */
@@ -4722,8 +4799,11 @@ You can specify CPU and Memory to define the range of instance types. For exampl
       securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group to which the ECS instances belong. ECS instances that belong to the same security group can communicate with each other.', example='sg-bp18kz60mefs****'),
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to which the ECS instances belong. ECS instances that belong to the same security group can communicate with each other.'),
       securityOptions?: {
-        confidentialComputingMode?: string(name='ConfidentialComputingMode'),
-      }(name='SecurityOptions'),
+        confidentialComputingMode?: string(name='ConfidentialComputingMode', description='The confidential computing mode. Valid values:
+
+*   Enclave: An enclave-based confidential computing environment is built on the instance. For more information, see [Build a confidential computing environment by using Enclave](https://help.aliyun.com/document_detail/203433.html).
+*   TDX: A Trust Domain Extensions (TDX) confidential computing environment is built on the instance. For more information, see [Build a TDX confidential computing environment](https://help.aliyun.com/document_detail/479090.html).', example='TDX'),
+      }(name='SecurityOptions', description='The security options.'),
       spotDuration?: int32(name='SpotDuration', description='The protection period of the preemptible instances. Unit: hours.', example='1'),
       spotInterruptionBehavior?: string(name='SpotInterruptionBehavior', description='The interruption event of the preemptible instances.', example='Terminate'),
       spotPriceLimits?: [ 
@@ -4894,9 +4974,14 @@ metadata:
 *   ECI: elastic container instances', example='ECS'),
     healthCheckType?: string(name='HealthCheckType', description='The health check mode of the scaling group. Valid values:
 
-*   NONE: Auto Scaling does not perform health checks in the scaling group.
-*   ECS: Auto Scaling performs health checks on ECS instances in the scaling group.', example='ECS'),
-    healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check types.'),
+*   NONE: Auto Scaling does not perform health checks.
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB) instances are not supported as the health check basis for instances in the scaling group.', example='ECS'),
+    healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check mode of the scaling group. Valid values:
+
+*   NONE: Auto Scaling does not perform health checks.
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of CLB instances are not supported as the health check basis for instances in the scaling group.'),
     initCapacity?: int32(name='InitCapacity', description='The number of instances that are in the Initialized state and not added to the scaling group.', example='0'),
     isElasticStrengthInAlarm?: boolean(name='IsElasticStrengthInAlarm', description='>  This parameter is not available for use.', example='false'),
     launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template that is used by the scaling group.', example='lt-m5e3ofjr1zn1aw7****'),
@@ -5029,7 +5114,7 @@ Default value: false.', example='false'),
     vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the scaling group.', example='vsw-bp1whw2u46cn8zubm****'),
     vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of the vSwitches that are associated with the scaling group. If you specify VSwitchIds, VSwitchId is ignored.'),
     vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID of the scaling group.', example='vpc-wz9fcq97y1vqkd8bijcq6'),
-  }(name='ScalingGroup', description='The information about the scaling groups.'),
+  }(name='ScalingGroup', description='The scaling group.'),
 }
 
 model DescribeScalingGroupDetailResponse = {
@@ -5139,13 +5224,13 @@ model DescribeScalingGroupsResponseBody = {
       healthCheckType?: string(name='HealthCheckType', description='The health check mode of the scaling group. Valid values:
 
 *   NONE: Auto Scaling does not perform health checks.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB, formerly known as Server Load Balancer or SLB) instances are not used as the basis to perform health checks on the instances in the scaling group.', example='ECS'),
-      healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check modes of the scaling group. Valid values:
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB) instances are not supported as the health check basis for instances in the scaling group.', example='ECS'),
+      healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check mode of the scaling group. Valid values:
 
 *   NONE: Auto Scaling does not perform health checks.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of CLB instances are not used as the basis to perform health checks on the instances in the scaling group.'),
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of CLB instances are not supported as the health check basis for instances in the scaling group.'),
       initCapacity?: int32(name='InitCapacity', description='The number of instances that are initialized before they are added into the scaling group.', example='0'),
       isElasticStrengthInAlarm?: boolean(name='IsElasticStrengthInAlarm', description='>  This parameter is not available for use.', example='false'),
       launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template that is used by the scaling group.', example='lt-m5e3ofjr1zn1aw7****'),
@@ -5235,11 +5320,11 @@ For more information, see [RemoveInstances](https://help.aliyun.com/document_det
 *   lowestPrice: Auto Scaling selects instance types that have the most economical vCPU pricing to create the required number of preemptible instances.
 
 Default value: priority.', example='lowestPrice'),
-      spotCapacity?: int32(name='SpotCapacity', description='伸缩组中抢占式实例的数量。', example='0'),
+      spotCapacity?: int32(name='SpotCapacity', description='The number of preemptible instances in the scaling group.', example='0'),
       spotInstancePools?: int32(name='SpotInstancePools', description='The number of instance types in the scaling group. Auto Scaling evenly creates preemptible instances of multiple instance types that are provided at the lowest price across the zones of the scaling group. Valid values: 0 to 10.', example='5'),
       spotInstanceRemedy?: boolean(name='SpotInstanceRemedy', description='Indicates whether preemptible instances can be supplemented. If this parameter is set to true, Auto Scaling proactively creates instances to replace the preemptible instances for reclamation when Auto Scaling receives a system notification.', example='true'),
       standbyCapacity?: int32(name='StandbyCapacity', description='The number of ECS instances that are in the Standby state in the scaling group.', example='1'),
-      stopInstanceTimeout?: int32(name='StopInstanceTimeout'),
+      stopInstanceTimeout?: int32(name='StopInstanceTimeout', example='60'),
       stoppedCapacity?: int32(name='StoppedCapacity', description='The number of instances that was stopped in Economical Mode in the scaling group.', example='1'),
       suspendedProcesses?: [ string ](name='SuspendedProcesses', description='The processes that are suspended. If no process is suspended, null is returned. Valid values:
 
@@ -5432,10 +5517,10 @@ async function describeScalingInstances(request: DescribeScalingInstancesRequest
 model DescribeScalingRulesRequest {
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1.
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
 
 Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 50.
 
 Default value: 10.', example='50', maximum=50, position='Query'),
   regionId: string(name='RegionId', description='The region ID of the scaling group to which the scaling rules that you want to query belong.
@@ -5453,7 +5538,7 @@ This parameter is required.', example='cn-qingdao', position='Query'),
 *   TargetTrackingScalingRule: calculates the number of ECS instances that need to be scaled in a dynamic manner and maintains the value of a predefined metric close to the value of the TargetValue parameter.
 *   StepScalingRule: scales ECS instances in steps based on the specified thresholds and metric values.
 *   PredictiveScalingRule: uses machine learning to analyze historical monitoring data of the scaling group and predicts the future values of metrics. In addition, Auto Scaling automatically creates scheduled tasks to adjust the boundary values for the scaling group.', example='SimpleScalingRule', position='Query'),
-  showAlarmRules?: boolean(name='ShowAlarmRules', description='Specifies whether to return CloudMonitor event-triggered tasks associated with scaling rules. Valid values:
+  showAlarmRules?: boolean(name='ShowAlarmRules', description='Specifies whether to return the event-triggered tasks that are associated with the scaling rule. Valid values:
 
 *   true
 *   false
@@ -7573,7 +7658,7 @@ Default value: Standard.
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to which you want to assign the ENI.'),
     }
   ](name='NetworkInterfaces', description='The ENIs.', position='Query'),
-  override?: boolean(name='Override', description='Specifies whether to overwrite existing data. Valid values:
+  override?: boolean(name='Override', description='Specifies whether to override existing data. Valid values:
 
 *   true
 *   false', example='true', position='Query'),
@@ -7600,7 +7685,10 @@ The name of the scaling configuration must be unique in a region. If you do not 
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group with which ECS instances are associated. The ECS instances that are associated with the same security group can access each other.', example='sg-F876F****', position='Query'),
   securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups.', position='Query'),
   securityOptions?: {
-    confidentialComputingMode?: string(name='ConfidentialComputingMode'),
+    confidentialComputingMode?: string(name='ConfidentialComputingMode', description='The confidential computing mode. Valid values:
+
+*   Enclave: An enclave-based confidential computing environment is built on the instance. For more information, see [Build a confidential computing environment by using Enclave](https://help.aliyun.com/document_detail/203433.html).
+*   TDX: A Trust Domain Extensions (TDX) confidential computing environment is built on the instance. For more information, see [Build a TDX confidential computing environment](https://help.aliyun.com/document_detail/479090.html).', example='TDX'),
   }(name='SecurityOptions', position='Query'),
   spotDuration?: int32(name='SpotDuration', description='The protection period of preemptible instances. Unit: hours. Valid values:
 
@@ -7699,18 +7787,14 @@ During the cooldown period, Auto Scaling does not execute scaling activities tha
 *   false: disables deletion protection for the scaling group.', example='true', position='Query'),
   healthCheckType?: string(name='HealthCheckType', description='The health check mode of the scaling group. Valid values:
 
-*   NONE: Auto Scaling does not perform health checks.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   ECI: Auto Scaling checks the health status of elastic container instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB) instances are not supported as the health check basis for instances in the scaling group.
+*   NONE: Auto Scaling does not check the health status of instances.
+*   ECS: Auto Scaling checks the health status of instances in the scaling group. If you want to enable instance health check, you can set the value to ECS, regardless of whether the scaling group is of ECS type or Elastic Container Instance type.
+*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of Classic Load Balancer (CLB) instances are not supported as the health check basis for instances in the scaling group. Default value: ECS.
 
->  HealthCheckType has the same effect as `HealthCheckTypes`. You can select one of them to specify based on your business requirements. If you specify `HealthCheckTypes`, `HealthCheckType` is ignored. HealthCheckType is optional.', example='ECS', position='Query'),
-  healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check modes of the scaling group. Valid values:
+>  If you want to enable instance health check and load balancer health check at the same time, we recommend that you specify `HealthCheckTypes`.', example='ECS', position='Query'),
+  healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check mode of the scaling group.
 
-*   NONE: Auto Scaling does not perform health checks.
-*   ECS: Auto Scaling checks the health status of ECS instances in the scaling group.
-*   ECI: Auto Scaling checks the health status of elastic container instances in the scaling group.
-*   LOAD_BALANCER: Auto Scaling checks the health status of instances in the scaling group based on the health check results of load balancers. The health check results of CLB instances are not supported as the health check basis for instances in the scaling group.', position='Query'),
+>  You can specify multiple values for this parameter to enable multiple health check options at the same time. If you specify HealthCheckType, this parameter is ignored.', position='Query'),
   launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template that is used by Auto Scaling to create instances.', example='lt-m5e3ofjr1zn1aw7****', position='Query'),
   launchTemplateOverrides?: [ 
     {
@@ -7818,7 +7902,7 @@ Default value: priority.', example='lowestPrice', position='Query'),
 
 If you set the `MultiAZPolicy` parameter to `COMPOSABLE` Policy, the default value is 2.', example='5', position='Query'),
   spotInstanceRemedy?: boolean(name='SpotInstanceRemedy', description='Specifies whether to supplement preemptible instances. If this parameter is set to true, Auto Scaling creates an instance to replace a preemptible instance when Auto Scaling receives the system message that the preemptible instance is to be reclaimed.', example='true', position='Query'),
-  stopInstanceTimeout?: int32(name='StopInstanceTimeout', position='Query'),
+  stopInstanceTimeout?: int32(name='StopInstanceTimeout', example='60', position='Query'),
   vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of vSwitches.
 
 This parameter takes effect only when the network type of the scaling group is virtual private cloud (VPC). The specified vSwitches and the scaling group must reside in the same VPC.
@@ -7904,19 +7988,22 @@ Valid values: 0 to 86400. Unit: seconds.', example='60', position='Query'),
 
 Valid values if you create a target tracking scaling rule:
 
+*   CpuUtilizationAgent (recommended): the CPU utilization.
+*   MemoryUtilization (recommended): the memory usage.
 *   CpuUtilization: the average CPU utilization.
-*   IntranetTx: the outbound traffic over an internal network.
-*   IntranetRx: the inbound traffic over an internal network.
-*   VpcInternetTx: the outbound traffic from a virtual private cloud (VPC) to the Internet.
-*   VpcInternetRx: the inbound traffic from the Internet to a VPC.
-*   MemoryUtilization: the memory usage.
+*   IntranetTx: the average outbound traffic over an internal network.
+*   IntranetRx: the average inbound traffic over an internal network.
+*   VpcInternetTx: the average outbound traffic from a virtual private cloud (VPC) to the Internet.
+*   VpcInternetRx: the average inbound traffic from the Internet to a VPC.
 *   LoadBalancerRealServerAverageQps: the queries per second (QPS) per Application Load Balancer (ALB) server group.
 
 Valid values if you create a predictive scaling rule:
 
 *   CpuUtilization: the average CPU utilization.
-*   IntranetRx: the inbound traffic over an internal network.
-*   IntranetTx: the outbound traffic over an internal network.', example='CpuUtilization', position='Query'),
+*   IntranetRx: the average inbound traffic over an internal network.
+*   IntranetTx: the average outbound traffic over an internal network.
+
+For more information, see [Event-triggered tasks of the system monitoring type](https://help.aliyun.com/document_detail/74854.html).', example='CpuUtilization', position='Query'),
   metricType?: string(name='MetricType', position='Query'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances to scale. This parameter takes effect only if you create a simple scaling rule or step scaling rule and set `AdjustmentType` to `PercentChangeInCapacity`.', example='1', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -8169,7 +8256,7 @@ Default value: release.', example='release', position='Query'),
   scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
 
 This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
-  stopInstanceTimeout?: int32(name='StopInstanceTimeout', position='Query'),
+  stopInstanceTimeout?: int32(name='StopInstanceTimeout', example='60', position='Query'),
 }
 
 model RemoveInstancesResponseBody = {
@@ -8201,15 +8288,21 @@ async function removeInstances(request: RemoveInstancesRequest): RemoveInstances
 }
 
 model ResumeInstanceRefreshRequest {
-  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
+  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.
+
+This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  scalingGroupId: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
+  scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
 }
 
 model ResumeInstanceRefreshResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model ResumeInstanceRefreshResponse = {
@@ -8262,15 +8355,21 @@ async function resumeProcesses(request: ResumeProcessesRequest): ResumeProcesses
 }
 
 model RollbackInstanceRefreshRequest {
-  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
+  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.
+
+This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  scalingGroupId: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
+  scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
 }
 
 model RollbackInstanceRefreshResponseBody = {
-  requestId?: string(name='RequestId', example='B13527BF-1FBD-4334-A512-20F5E9D3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B13527BF-1FBD-4334-A512-20F5E9D3****'),
 }
 
 model RollbackInstanceRefreshResponse = {
@@ -8479,8 +8578,8 @@ model SetInstancesProtectionResponse = {
 /**
   * @description Once ECS instances enter the Protected state, they become subject to the following restrictions:
   * *   ECS instances will persist in the Protected state, unless you deliberately remove them from this state.
-  * *   Even in scenarios where automatic scale-in actions are initiated due to fluctuations in the number of ECS instances or the execution of event-triggered tasks, Auto Scaling does not remove ECS instances that are in the Protected state from their respective scaling groups. Only after being manually removed from their respective scaling groups can ECS instances that are in the Protected state be released. For more information, see [Remove an ECS instance](https://help.aliyun.com/document_detail/25955.html).
-  * *   ECS instances in the Protected state maintain their existing health status even when they undergo stopping or restarting processes.
+  * *   Even in scenarios where automatic scale-in actions are initiated due to fluctuations in the number of ECS instances or the execution of event-triggered tasks, Auto Scaling does not remove ECS instances that are in the Protected state from their respective scaling groups. Only after being manually removed from their respective scaling groups can ECS instances that are in the Protected state be released. For more information, see [Remove an ECS instance](https://help.aliyun.com/document_detail/459393.html).
+  * *   ECS instances in the Protected state maintain their health status even when they undergo stopping or restarting processes.
   * @param request  the request parameters of SetInstancesProtection  SetInstancesProtectionRequest
   * @return SetInstancesProtectionResponse
  */
@@ -8490,22 +8589,42 @@ async function setInstancesProtection(request: SetInstancesProtectionRequest): S
 }
 
 model StartInstanceRefreshRequest {
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see "How to ensure idempotence".', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   desiredConfiguration?: {
-    imageId?: string(name='ImageId', example='m-2ze8cqacj7opnf***'),
-    scalingConfigurationId?: string(name='ScalingConfigurationId', example='asc-2zed7lqn4ts4****'),
-  }(name='DesiredConfiguration', position='Query'),
-  maxHealthyPercentage?: int32(name='MaxHealthyPercentage', example='100', position='Query'),
-  minHealthyPercentage?: int32(name='MinHealthyPercentage', example='80', position='Query'),
+    imageId?: string(name='ImageId', description='The image ID.
+
+> 
+
+*   After the instance refresh task is complete, the active scaling configuration uses the image specified by this parameter.
+
+*   If the instance configuration source of the scaling group is a launch template, you cannot specify this parameter.', example='m-2ze8cqacj7opnf***'),
+    scalingConfigurationId?: string(name='ScalingConfigurationId', description='The ID of the scaling configuration.
+
+>  After the instance refresh task is complete, the scaling group uses the scaling configuration specified by this parameter.', example='asc-2zed7lqn4ts4****'),
+  }(name='DesiredConfiguration', description='The desired configurations of the instance refresh task.
+
+> 
+
+*   When you call this operation, you must specify one of the following parameters: ScalingConfigurationId and ImageId.
+
+*   Instances whose configurations match the desired configurations of the task are ignored during instance refresh.', position='Query'),
+  maxHealthyPercentage?: int32(name='MaxHealthyPercentage', description='The ratio of instances that can exceed the upper limit of the scaling group capacity to all instances in the scaling group during instance refresh. Valid values: 100 to 200. Default value: 120.
+
+>  If you set MinHealthyPercentage and MaxHealthyPercentage to 100, Auto Scaling refreshes the configurations of one instance each time the instance refresh task starts.', example='100', position='Query'),
+  minHealthyPercentage?: int32(name='MinHealthyPercentage', description='The ratio of instances that are in the In Service state to all instances in the scaling group during instance refresh. Valid values: 0 to 100. Default value: 80.', example='80', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  scalingGroupId: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
+  scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
 }
 
 model StartInstanceRefreshResponseBody = {
-  instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', example='ir-a12ds234fasd*****'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.', example='ir-a12ds234fasd*****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model StartInstanceRefreshResponse = {
@@ -8515,6 +8634,10 @@ model StartInstanceRefreshResponse = {
 }
 
 /**
+  * @description *   Only one instance refresh task can be executed at a time in a scaling group.
+  * *   Instance refresh tasks are currently supported only by scaling groups of the Elastic Compute Service (ECS) type and using **the priority policy**. Scaling groups that use the number of vCPUs as the method to calculate the group capacity or scaling groups whose instance reclaim mode is **Economical Mode** or **Forcibly Recycle** do not support instance refresh tasks.
+  * *   During the execution of an instance refresh task, scaling events can be complete as expected. Take note that instances that are scaled out use the desired configurations provided by the instance refresh task.
+  * *   Instance refresh tasks does not take effect on instances that are manually added and instances that are in the Standby and Protected states.
   * @param request  the request parameters of StartInstanceRefresh  StartInstanceRefreshRequest
   * @return StartInstanceRefreshResponse
  */
@@ -8524,15 +8647,21 @@ async function startInstanceRefresh(request: StartInstanceRefreshRequest): Start
 }
 
 model SuspendInstanceRefreshRequest {
-  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
+  instanceRefreshTaskId: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.
+
+This parameter is required.', example='ir-a12ds234fasd*****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  scalingGroupId: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
+  scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
 }
 
 model SuspendInstanceRefreshResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model SuspendInstanceRefreshResponse = {
@@ -8542,6 +8671,7 @@ model SuspendInstanceRefreshResponse = {
 }
 
 /**
+  * @description *   You cannot call this operation to suspend an instance refresh task that is being rolled back.
   * @param request  the request parameters of SuspendInstanceRefresh  SuspendInstanceRefreshRequest
   * @return SuspendInstanceRefreshResponse
  */
