@@ -416,6 +416,18 @@ model AuthorizeInstanceGroupRequest {
   authorizeUserIds?: [ string ](name='AuthorizeUserIds'),
   productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
   unAuthorizeUserIds?: [ string ](name='UnAuthorizeUserIds'),
+  userMeta?: {
+    adDomain?: string(name='AdDomain'),
+    type?: string(name='Type'),
+  }(name='UserMeta'),
+}
+
+model AuthorizeInstanceGroupShrinkRequest {
+  appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-9ciijz60n4xsv****'),
+  authorizeUserIds?: [ string ](name='AuthorizeUserIds'),
+  productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
+  unAuthorizeUserIds?: [ string ](name='UnAuthorizeUserIds'),
+  userMetaShrink?: string(name='UserMeta'),
 }
 
 model AuthorizeInstanceGroupResponseBody = {
@@ -431,12 +443,17 @@ model AuthorizeInstanceGroupResponse = {
 /**
  * @summary 授权用户
  *
- * @param request AuthorizeInstanceGroupRequest
+ * @param tmpReq AuthorizeInstanceGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return AuthorizeInstanceGroupResponse
  */
-async function authorizeInstanceGroupWithOptions(request: AuthorizeInstanceGroupRequest, runtime: Util.RuntimeOptions): AuthorizeInstanceGroupResponse {
-  Util.validateModel(request);
+async function authorizeInstanceGroupWithOptions(tmpReq: AuthorizeInstanceGroupRequest, runtime: Util.RuntimeOptions): AuthorizeInstanceGroupResponse {
+  Util.validateModel(tmpReq);
+  var request = new AuthorizeInstanceGroupShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.userMeta)) {
+    request.userMetaShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userMeta, 'UserMeta', 'json');
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.appInstanceGroupId)) {
     body['AppInstanceGroupId'] = request.appInstanceGroupId;
@@ -450,6 +467,9 @@ async function authorizeInstanceGroupWithOptions(request: AuthorizeInstanceGroup
   }
   if (!Util.isUnset(request.unAuthorizeUserIds)) {
     bodyFlat['UnAuthorizeUserIds'] = request.unAuthorizeUserIds;
+  }
+  if (!Util.isUnset(request.userMetaShrink)) {
+    body['UserMeta'] = request.userMetaShrink;
   }
   body = {
     ...body,
@@ -725,7 +745,7 @@ async function createAccessPage(request: CreateAccessPageRequest): CreateAccessP
 
 model CreateAppInstanceGroupRequest {
   appCenterImageId?: string(name='AppCenterImageId', description='This parameter is required.', example='img-8z4nztpaqvay4****'),
-  appInstanceGroupName?: string(name='AppInstanceGroupName', description='This parameter is required.'),
+  appInstanceGroupName?: string(name='AppInstanceGroupName'),
   autoPay?: boolean(name='AutoPay', example='false'),
   autoRenew?: boolean(name='AutoRenew', example='false'),
   bizRegionId?: string(name='BizRegionId', description='This parameter is required.', example='cn-hangzhou'),
@@ -739,6 +759,7 @@ model CreateAppInstanceGroupRequest {
       }
     ](name='DomainRules'),
     ipExpireMinutes?: int32(name='IpExpireMinutes', example='60'),
+    officeSiteId?: string(name='OfficeSiteId'),
     routes?: [ 
       {
         destination?: string(name='Destination', example='139.196.XX.XX/32'),
@@ -746,6 +767,7 @@ model CreateAppInstanceGroupRequest {
       }
     ](name='Routes'),
     strategyType?: string(name='StrategyType', example='Shared'),
+    vSwitchIds?: [ string ](name='VSwitchIds'),
   }(name='Network'),
   nodePool?: {
     maxIdleAppInstanceAmount?: int32(name='MaxIdleAppInstanceAmount'),
@@ -810,7 +832,7 @@ model CreateAppInstanceGroupRequest {
 
 model CreateAppInstanceGroupShrinkRequest {
   appCenterImageId?: string(name='AppCenterImageId', description='This parameter is required.', example='img-8z4nztpaqvay4****'),
-  appInstanceGroupName?: string(name='AppInstanceGroupName', description='This parameter is required.'),
+  appInstanceGroupName?: string(name='AppInstanceGroupName'),
   autoPay?: boolean(name='AutoPay', example='false'),
   autoRenew?: boolean(name='AutoRenew', example='false'),
   bizRegionId?: string(name='BizRegionId', description='This parameter is required.', example='cn-hangzhou'),
@@ -1535,6 +1557,7 @@ model GetAppInstanceGroupResponseBody = {
         warmUp?: boolean(name='WarmUp', example='false'),
       }
     ](name='NodePool'),
+    officeSiteId?: string(name='OfficeSiteId'),
     osType?: string(name='OsType', example='Windows'),
     otaInfo?: {
       newOtaVersion?: string(name='NewOtaVersion', example='0.0.1-D-20220630.11****'),
@@ -2233,6 +2256,7 @@ model ListAppInstanceGroupRequest {
   appInstanceGroupName?: string(name='AppInstanceGroupName'),
   bizRegionId?: string(name='BizRegionId'),
   nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
+  officeSiteId?: string(name='OfficeSiteId'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
@@ -2299,6 +2323,7 @@ model ListAppInstanceGroupResponseBody = {
           warmUp?: boolean(name='WarmUp', example='false'),
         }
       ](name='NodePool'),
+      officeSiteId?: string(name='OfficeSiteId'),
       osType?: string(name='OsType', example='Windows'),
       otaInfo?: {
         newOtaVersion?: string(name='NewOtaVersion', example='0.0.1-D-20220630.11****'),
@@ -2356,6 +2381,9 @@ async function listAppInstanceGroupWithOptions(request: ListAppInstanceGroupRequ
   }
   if (!Util.isUnset(request.nodeInstanceType)) {
     query['NodeInstanceType'] = request.nodeInstanceType;
+  }
+  if (!Util.isUnset(request.officeSiteId)) {
+    query['OfficeSiteId'] = request.officeSiteId;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
@@ -2503,12 +2531,19 @@ async function listAppInstances(request: ListAppInstancesRequest): ListAppInstan
 
 model ListNodeInstanceTypeRequest {
   bizRegionId?: string(name='BizRegionId', description='资源所属的地域ID。关于支持的地域详情，请参见[使用限制](https://help.aliyun.com/document_detail/426036.html)。', example='cn-hangzhou'),
+  cpu?: float(name='Cpu'),
+  gpu?: float(name='Gpu'),
+  gpuMemory?: int32(name='GpuMemory'),
   language?: string(name='Language', description='语言类型。', example='zh-CN'),
+  memory?: int32(name='Memory'),
   nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
+  nodeInstanceTypeFamily?: string(name='NodeInstanceTypeFamily'),
+  orderBy?: string(name='OrderBy'),
   osType?: string(name='OsType', description='支持的操作系统类型。', example='Windows'),
   pageNumber?: int32(name='PageNumber', description='This parameter is required.', example='1'),
   pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
   productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
+  sortType?: string(name='SortType'),
 }
 
 model ListNodeInstanceTypeResponseBody = {
@@ -2555,11 +2590,29 @@ async function listNodeInstanceTypeWithOptions(request: ListNodeInstanceTypeRequ
   if (!Util.isUnset(request.bizRegionId)) {
     query['BizRegionId'] = request.bizRegionId;
   }
+  if (!Util.isUnset(request.cpu)) {
+    query['Cpu'] = request.cpu;
+  }
+  if (!Util.isUnset(request.gpu)) {
+    query['Gpu'] = request.gpu;
+  }
+  if (!Util.isUnset(request.gpuMemory)) {
+    query['GpuMemory'] = request.gpuMemory;
+  }
   if (!Util.isUnset(request.language)) {
     query['Language'] = request.language;
   }
+  if (!Util.isUnset(request.memory)) {
+    query['Memory'] = request.memory;
+  }
   if (!Util.isUnset(request.nodeInstanceType)) {
     query['NodeInstanceType'] = request.nodeInstanceType;
+  }
+  if (!Util.isUnset(request.nodeInstanceTypeFamily)) {
+    query['NodeInstanceTypeFamily'] = request.nodeInstanceTypeFamily;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    query['OrderBy'] = request.orderBy;
   }
   if (!Util.isUnset(request.osType)) {
     query['OsType'] = request.osType;
@@ -2572,6 +2625,9 @@ async function listNodeInstanceTypeWithOptions(request: ListNodeInstanceTypeRequ
   }
   if (!Util.isUnset(request.productType)) {
     query['ProductType'] = request.productType;
+  }
+  if (!Util.isUnset(request.sortType)) {
+    query['SortType'] = request.sortType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
