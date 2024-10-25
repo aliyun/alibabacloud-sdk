@@ -134,16 +134,16 @@ model AccosicateNetworkAclRequest {
 This parameter is required.', example='nacl-a2do9e413e0sp****'),
   resource?: [ 
     {
-      resourceId?: string(name='ResourceId', description='The ID of the resource with which you want to associate the network ACL.
+      resourceId?: string(name='ResourceId', description='The ID of the associated resource.
 
 This parameter is required.', example='n-5****'),
-      resourceType?: string(name='ResourceType', description='The type of resource with which you want to associate the network ACL. Set the value to **Network**.
+      resourceType?: string(name='ResourceType', description='The type of the associated resource. Set the value to **Network**.
 
-****
+Valid values of **N**: 0 to 29. You can associate a network ACL with at most 30 resources.
 
 This parameter is required.', example='Network'),
     }
-  ](name='Resource', description='The information about the resources with which you want to associate the network ACL.
+  ](name='Resource', description='The type of resource with which you want to associate the network ACL.
 
 This parameter is required.'),
 }
@@ -332,7 +332,7 @@ model AddDeviceInternetPortRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance. You can specify the ID of the server or container.
 
 This parameter is required.', example='i-5saiou41t6ude2ia56ri902ke'),
-  internalIp?: string(name='InternalIp', description='The internal IP address of the instance.
+  internalIp?: string(name='InternalIp', description='The private IP address of the simple application server.
 
 This parameter is required.', example='10.0.0.50'),
   internalPort?: string(name='InternalPort', description='The internal port number. Specify this parameter in the following format: first port/last port. Separate multiple port number groups with commas (,). Example: 1026/2001,2005/2005. This parameter is required if you set NatType to DNAT. If you set NatType to SNAT, the value of this parameter is invalid.', example='12022/12022'),
@@ -546,7 +546,7 @@ This parameter is required.', example='eni-uf6533jbifugr5fo2j1w'),
 model AssignPrivateIpAddressesResponseBody = {
   assignedPrivateIpAddressesSet?: {
     networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-uf620pb4d19ljnu4a64m'),
-    privateIpSet?: [ string ](name='PrivateIpSet', description='The secondary private IP addresses that are assigned to the ENI.'),
+    privateIpSet?: [ string ](name='PrivateIpSet', description='The assigned private IP addresses.'),
   }(name='AssignedPrivateIpAddressesSet', description='Details about the ENI and the secondary private IP addresses that are assigned to the ENI.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
@@ -602,19 +602,19 @@ async function assignPrivateIpAddresses(request: AssignPrivateIpAddressesRequest
 }
 
 model AssociateEnsEipAddressRequest {
-  allocationId?: string(name='AllocationId', description='The ID of the EIP.
+  allocationId?: string(name='AllocationId', description='The ID of the EIP that you want to associate.
 
 This parameter is required.', example='eip-5sc1sgcrsrwgwdvx44hru3p63'),
-  instanceId?: string(name='InstanceId', description='The ID of the cloud service with which you want to associate the EIP.
+  instanceId?: string(name='InstanceId', description='The ID of the cloud service with which the EIP is associated.
 
->  IDs of Edge Load Balancer (ELB) are supported.
+>  You can specify the ID of an Edge Load Balancer (ELB) instance ID.
 
 This parameter is required.', example='lb-5saivuir6b1mupxjfbhmk1xkb'),
   instanceType?: string(name='InstanceType', description='The type of instance with which you want to associate the EIP. Valid values:
 
 *   **Nat**: a NAT gateway.
 *   **SlbInstance**: an ELB instance.
-*   **NetworkInterface**: a secondary ENI.
+*   **NetworkInterface**: a secondary elastic network interface (ENI).
 *   **NatSlbInstance**: If you want to associate multiple EIPs to an ELB instance, you need to set the parameter to this value.
 *   **EnsInstance** (default): an ENS instance.', example='SlbInstance'),
   standby?: boolean(name='Standby', description='Specifies whether the EIP is a secondary EIP. Valid values:
@@ -891,6 +891,83 @@ async function attachEnsInstances(request: AttachEnsInstancesRequest): AttachEns
   return attachEnsInstancesWithOptions(request, runtime);
 }
 
+model AttachNetworkInterfaceRequest {
+  instanceId?: string(name='InstanceId', description='The ID of the instance
+
+This parameter is required.', example='i-5p67acfmxazb4p****'),
+  networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.
+
+This parameter is required.', example='eni-58z57orgmt6d1****'),
+}
+
+model AttachNetworkInterfaceResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model AttachNetworkInterfaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachNetworkInterfaceResponseBody(name='body'),
+}
+
+/**
+ * @summary Attaches an Elastic Network Interface (ENI) to an Edge Node Service (ECS) instance.
+ *
+ * @description When you call this operation, take note of the following limits:
+ * *   The ENI must be in the Available state.
+ * *   An ENI can be attached to only one instance that is the same zone and the same Virtual Private Cloud (VPC).
+ * *   The instance must be in the Stopped state.
+ * *   A maximum of 10 ENIs can be attached to an instance.
+ * *   This operation is an asynchronous operation. After you call this operation to attach an ENI, you can view the status of the ENI to check whether the ENI is attached.
+ *
+ * @param request AttachNetworkInterfaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AttachNetworkInterfaceResponse
+ */
+async function attachNetworkInterfaceWithOptions(request: AttachNetworkInterfaceRequest, runtime: Util.RuntimeOptions): AttachNetworkInterfaceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.networkInterfaceId)) {
+    query['NetworkInterfaceId'] = request.networkInterfaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AttachNetworkInterface',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Attaches an Elastic Network Interface (ENI) to an Edge Node Service (ECS) instance.
+ *
+ * @description When you call this operation, take note of the following limits:
+ * *   The ENI must be in the Available state.
+ * *   An ENI can be attached to only one instance that is the same zone and the same Virtual Private Cloud (VPC).
+ * *   The instance must be in the Stopped state.
+ * *   A maximum of 10 ENIs can be attached to an instance.
+ * *   This operation is an asynchronous operation. After you call this operation to attach an ENI, you can view the status of the ENI to check whether the ENI is attached.
+ *
+ * @param request AttachNetworkInterfaceRequest
+ * @return AttachNetworkInterfaceResponse
+ */
+async function attachNetworkInterface(request: AttachNetworkInterfaceRequest): AttachNetworkInterfaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return attachNetworkInterfaceWithOptions(request, runtime);
+}
+
 model AuthorizeSecurityGroupRequest {
   ipProtocol?: string(name='IpProtocol', description='The transport layer protocol. The values of this parameter are case-sensitive. Valid values:
 
@@ -915,7 +992,7 @@ Default value: accept.', example='accept'),
 *   When the IpProtocol parameter is set to all, the port number range is **-1/-1**, which indicates all ports.
 
 This parameter is required.', example='22/22'),
-  priority?: int32(name='Priority', description='The priority of the security group rule. Valid values: **1** to **100**.
+  priority?: int32(name='Priority', description='The priority of security group rule N. Valid values: **1** to **100**.
 
 Default value: **1**.', example='1'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.
@@ -1009,19 +1086,19 @@ model AuthorizeSecurityGroupEgressRequest {
 This parameter is empty by default.
 
 This parameter is required.', example='10.0.XX.XX/8'),
-  ipProtocol?: string(name='IpProtocol', description='The transport layer protocol. The values of this parameter are case-sensitive. Valid values:
+  ipProtocol?: string(name='IpProtocol', description='The transport layer protocol. The value of this parameter is case-sensitive. Valid values:
 
-*   tcp: TCP.
-*   udp: UDP.
-*   icmp: ICMP.
-*   gre: GRE.
+*   tcp
+*   udp
+*   icmp
+*   gre
 *   all: All protocols are supported.
 
 This parameter is required.', example='all'),
-  policy?: string(name='Policy', description='The action of security group rule N that determines whether to allow inbound access. Valid values:
+  policy?: string(name='Policy', description='The action of the security group rule. Valid values:
 
 *   accept: allows access. This is the default value.
-*   drop: denies access and returns no responses.', example='accept'),
+*   drop: denies access and does not return responses.', example='accept'),
   portRange?: string(name='PortRange', description='The range of destination ports that correspond to the transport layer protocol for security group rule N. Valid values:
 
 *   When the IpProtocol parameter is set to tcp or udp, the port number range is **1** to **65535**. The start port number and the end port number are separated by a forward slash (/). Correct example: **1/200**. Incorrect example: **200/1**.
@@ -1030,7 +1107,7 @@ This parameter is required.', example='all'),
 *   When the IpProtocol parameter is set to all, the port number range is **-1/-1**, which indicates all ports.
 
 This parameter is required.', example='22/22'),
-  priority?: int32(name='Priority', description='The priority of the security group rule. Valid values: **1 to 100**. Default value: **1**.', example='1'),
+  priority?: int32(name='Priority', description='The priority of security group rule N. Valid values: **1 to 100**. Default value: **1**.', example='1'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.
 
 This parameter is required.', example='sg-bp67acfmxazb4p****'),
@@ -1703,6 +1780,66 @@ async function createClassicNetwork(request: CreateClassicNetworkRequest): Creat
   return createClassicNetworkWithOptions(request, runtime);
 }
 
+model CreateClusterRequest {
+  clusterVersion?: string(name='ClusterVersion', example='1.18.8'),
+  name?: string(name='Name', example='mycluster-1'),
+}
+
+model CreateClusterResponseBody = {
+  clusterId?: string(name='ClusterId', example='c34b69b095f8241c5a91cc2252dceb976'),
+  requestId?: string(name='RequestId', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+}
+
+model CreateClusterResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateClusterResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建边缘容器集群
+ *
+ * @param request CreateClusterRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateClusterResponse
+ */
+async function createClusterWithOptions(request: CreateClusterRequest, runtime: Util.RuntimeOptions): CreateClusterResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterVersion)) {
+    query['ClusterVersion'] = request.clusterVersion;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateCluster',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建边缘容器集群
+ *
+ * @param request CreateClusterRequest
+ * @return CreateClusterResponse
+ */
+async function createCluster(request: CreateClusterRequest): CreateClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createClusterWithOptions(request, runtime);
+}
+
 model CreateDiskRequest {
   category?: string(name='Category', description='The category of the disk. Valid values:
 
@@ -1731,6 +1868,12 @@ The following limits apply to the **SnapshotId** and **Size** parameters:
 
 *   If the size of the snapshot specified by **SnapshotId** is greater than the specified **Size** value, the size of the created disk is equal to the specified snapshot size.
 *   If the size of the snapshot specified by **SnapshotId** is smaller than the specified **Size** value, the size of the created disk is equal to the specified **Size** value.', example='s-897654321****'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
 }
 
 model CreateDiskResponseBody = {
@@ -1781,6 +1924,9 @@ async function createDiskWithOptions(request: CreateDiskRequest, runtime: Util.R
   if (!Util.isUnset(request.snapshotId)) {
     query['SnapshotId'] = request.snapshotId;
   }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -1827,6 +1973,12 @@ This parameter is required.', example='95BandwidthByMonth'),
 *   **unicom**: China Unicom.
 *   **telecom**: China Telecom.', example='cmcc'),
   name?: string(name='Name', description='The name of the EIP.', example='EIP1'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
 }
 
 model CreateEipInstanceResponseBody = {
@@ -1873,6 +2025,9 @@ async function createEipInstanceWithOptions(request: CreateEipInstanceRequest, r
   }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -2272,7 +2427,7 @@ This parameter is required.', example='vpc-xxx'),
       orderType?: string(name='OrderType', description='The type of the order. Set the value to BUY.
 
 This parameter is required.', example='BUY'),
-      protocolType?: string(name='ProtocolType', description='The storage protocol. Valid values: nsf and smb.
+      protocolType?: string(name='ProtocolType', description='The storage protocol. Set the value to nfs.
 
 This parameter is required.', example='nfs'),
       storgeType?: string(name='StorgeType', description='The storage type. Valid values:
@@ -2573,11 +2728,11 @@ This parameter is required.', example='ens.se1.tiny'),
 
 *   **BandwidthByDay**: Pay by daily peak bandwidth.
 *   **95BandwidthByMonth**: Pay by monthly 95th percentile bandwidth.', example='95BandwidthByMonth'),
-  ipType?: string(name='IpType', description='The type of IP address. Valid values:
+  ipType?: string(name='IpType', description='The type of the IP address. Valid values:
 
-*   **ipv4**: IPv4. This is the default value.
-*   **ipv6**: IPv6.
-*   **ipv4Andipv6**: IPv4 and IPv6.', example='ipv4'),
+*   **ipv4** (default)
+*   **ipv6**
+*   **ipv4Andipv6**', example='ipv4'),
   keyPairName?: string(name='KeyPairName', description='The name of the key pair. You can specify only one name.', example='TestKeyPairName'),
   ownerId?: long(name='OwnerId'),
   password?: string(name='Password', description='The password of the instance.
@@ -2588,7 +2743,7 @@ The password must be 8 to 30 characters in length and contain at least three of 
 - **true**: The password preset in the image is used, and the **Password** parameter must be null. For secure access, make sure that the selected image has a password configured.
 
 - **false**: does not use the password preset in the image.', example='false'),
-  paymentType?: string(name='PaymentType', description='The billing method of the instance. The value is set to Subscription.', example='Subscription'),
+  paymentType?: string(name='PaymentType', description='The billing method of the instance. Set the value to Subscription.', example='Subscription'),
   period?: string(name='Period', description='The subscription period of the instance. Valid values: **1** to **9** and **12**. Unit: months.
 
 This parameter is required.', example='12'),
@@ -2600,7 +2755,7 @@ This parameter is required.', example='12'),
   quantity?: string(name='Quantity', description='The number of instances.
 
 This parameter is required.', example='1'),
-  uniqueSuffix?: boolean(name='UniqueSuffix', description='Specifies whether to automatically append sequential suffixes to the hostnames specified by the **HostName** parameter and instance names specified by the **InstanceName** parameter. The sequential numbers in the suffix range from **001** to **999**.
+  uniqueSuffix?: boolean(name='UniqueSuffix', description='Specifies whether to automatically append sequential suffixes to the hostnames specified by the **HostName** parameter and instance names specified by the **InstanceName** parameter. The sequential suffixes range from **001** to **999**.
 
 Examples: **LocalHost001** and **LocalHost002**, and **MyInstance001** and **MyInstance002**.
 
@@ -2890,7 +3045,7 @@ This parameter is required.', example='elb.s2.medium'),
   networkId?: string(name='NetworkId', description='The network ID of the created ELB instance.
 
 This parameter is required.', example='n-5sax03dh2eyagujgsn7z9****'),
-  payType?: string(name='PayType', description='The billing method of the instance. Valid value: PostPaid. PostPaid specifies the pay-as-you-go billing method.
+  payType?: string(name='PayType', description='The billing method of the cluster. Valid value: PostPaid. PostPaid specifies the pay-as-you-go billing method.
 
 This parameter is required.', example='PostPaid'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which the internal-facing ELB instance belongs.
@@ -3794,6 +3949,12 @@ This parameter is required.', example='cn-suzhou-telecom'),
   networkId?: string(name='NetworkId', description='The ID of the network.
 
 This parameter is required.', example='n-5qj7ykuxmjn7k96l090sp****'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.
 
 This parameter is required.', example='vsw-5savh5ngxh8sbj14bu7n****'),
@@ -3831,6 +3992,9 @@ async function createNatGatewayWithOptions(request: CreateNatGatewayRequest, run
   }
   if (!Util.isUnset(request.networkId)) {
     query['NetworkId'] = request.networkId;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
   }
   if (!Util.isUnset(request.vSwitchId)) {
     query['VSwitchId'] = request.vSwitchId;
@@ -3882,6 +4046,12 @@ This parameter is required.', example='cn-beijing-telecom'),
 *   The name must be 2 to 128 characters in length.
 *   The name must start with a letter but cannot start with http:// or https://.
 *   The name can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='abc'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
 }
 
 model CreateNetworkResponseBody = {
@@ -3919,6 +4089,9 @@ async function createNetworkWithOptions(request: CreateNetworkRequest, runtime: 
   }
   if (!Util.isUnset(request.networkName)) {
     query['NetworkName'] = request.networkName;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -4290,7 +4463,7 @@ By default, this parameter is left empty.', example='testDescription'),
   diskId?: string(name='DiskId', description='The ID of the cloud disk.
 
 This parameter is required.', example='d-bp1s5fnvk4gn2tws0****'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node. You can query the node ID by calling the [DescribeEnsRegions](~~DescribeEnsRegions~~) operation.
 
 This parameter is required.', example='cn-shenzhen-3'),
   snapshotName?: string(name='SnapshotName', description='The name of the snapshot. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='testSnapshotName'),
@@ -4359,6 +4532,7 @@ async function createSnapshot(request: CreateSnapshotRequest): CreateSnapshotRes
 }
 
 model CreateSnatEntryRequest {
+  idleTimeout?: int32(name='IdleTimeout'),
   natGatewayId?: string(name='NatGatewayId', description='The ID of the Network Address Translation (NAT) gateway.
 
 This parameter is required.', example='nat-5tawjw5j7sgd2deujxuk0****'),
@@ -4399,6 +4573,9 @@ model CreateSnatEntryResponse = {
 async function createSnatEntryWithOptions(request: CreateSnatEntryRequest, runtime: Util.RuntimeOptions): CreateSnatEntryResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.idleTimeout)) {
+    query['IdleTimeout'] = request.idleTimeout;
+  }
   if (!Util.isUnset(request.natGatewayId)) {
     query['NatGatewayId'] = request.natGatewayId;
   }
@@ -4665,6 +4842,12 @@ The description must be 2 to 256 characters in length. It must start with a lett
 
 This parameter is required.', example='cn-xian-unicom'),
   networkId?: string(name='NetworkId', description='The ID of the network to which the vSwitch that you want to create belongs.', example='n-257gqcdfvx6n****'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
   vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch. The name must meet the following requirements:
 
 *   The name must be 2 to 128 characters in length.
@@ -4705,6 +4888,9 @@ async function createVSwitchWithOptions(request: CreateVSwitchRequest, runtime: 
   }
   if (!Util.isUnset(request.networkId)) {
     query['NetworkId'] = request.networkId;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
   }
   if (!Util.isUnset(request.vSwitchName)) {
     query['VSwitchName'] = request.vSwitchName;
@@ -6534,9 +6720,7 @@ async function deleteVSwitch(request: DeleteVSwitchRequest): DeleteVSwitchRespon
 }
 
 model DeployInstanceSDGRequest {
-  deploymentType?: string(name='DeploymentType', description='The deployment type of the SDG. Valid values:
-
-*   shared: shared read/write splitting deployment. The content of the SDG is read-only, and data updates are written to the local storage of the instance.', example='shared'),
+  deploymentType?: string(name='DeploymentType', description='The deployment type of the SDG. shared: shared read/write splitting deployment. The content of the SDG is read-only, and data updates are written to the local storage of the instance.', example='shared'),
   instanceIds?: [ string ](name='InstanceIds', description='The IDs of the instances. The value is a JSON array that consists of up to 100 IDs.
 
 This parameter is required.'),
@@ -6546,9 +6730,7 @@ This parameter is required.', example='sdg-xxxx'),
 }
 
 model DeployInstanceSDGShrinkRequest {
-  deploymentType?: string(name='DeploymentType', description='The deployment type of the SDG. Valid values:
-
-*   shared: shared read/write splitting deployment. The content of the SDG is read-only, and data updates are written to the local storage of the instance.', example='shared'),
+  deploymentType?: string(name='DeploymentType', description='The deployment type of the SDG. shared: shared read/write splitting deployment. The content of the SDG is read-only, and data updates are written to the local storage of the instance.', example='shared'),
   instanceIdsShrink?: string(name='InstanceIds', description='The IDs of the instances. The value is a JSON array that consists of up to 100 IDs.
 
 This parameter is required.'),
@@ -7663,6 +7845,12 @@ async function describeCloudDiskAvailableResourceInfo(): DescribeCloudDiskAvaila
 
 model DescribeCloudDiskTypesRequest {
   ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-chongqing-cmcc'),
+  ensRegionIds?: [ string ](name='EnsRegionIds'),
+}
+
+model DescribeCloudDiskTypesShrinkRequest {
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-chongqing-cmcc'),
+  ensRegionIdsShrink?: string(name='EnsRegionIds'),
 }
 
 model DescribeCloudDiskTypesResponseBody = {
@@ -7691,12 +7879,17 @@ model DescribeCloudDiskTypesResponse = {
 /**
  * @summary Queries the specifications of resources that you can purchase when you create an instance.
  *
- * @param request DescribeCloudDiskTypesRequest
+ * @param tmpReq DescribeCloudDiskTypesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeCloudDiskTypesResponse
  */
-async function describeCloudDiskTypesWithOptions(request: DescribeCloudDiskTypesRequest, runtime: Util.RuntimeOptions): DescribeCloudDiskTypesResponse {
-  Util.validateModel(request);
+async function describeCloudDiskTypesWithOptions(tmpReq: DescribeCloudDiskTypesRequest, runtime: Util.RuntimeOptions): DescribeCloudDiskTypesResponse {
+  Util.validateModel(tmpReq);
+  var request = new DescribeCloudDiskTypesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.ensRegionIds)) {
+    request.ensRegionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ensRegionIds, 'EnsRegionIds', 'json');
+  }
   var query = OpenApiUtil.query(Util.toMap(request));
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -7724,6 +7917,143 @@ async function describeCloudDiskTypesWithOptions(request: DescribeCloudDiskTypes
 async function describeCloudDiskTypes(request: DescribeCloudDiskTypesRequest): DescribeCloudDiskTypesResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeCloudDiskTypesWithOptions(request, runtime);
+}
+
+model DescribeClusterRequest {
+  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
+}
+
+model DescribeClusterResponseBody = {
+  clusters?: [ 
+    {
+      clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
+      currentVersion?: string(name='CurrentVersion', example='1.18.8'),
+      name?: string(name='Name', example='vc-a622bb**'),
+      nextVersion?: string(name='NextVersion', example='1.20.8'),
+      status?: string(name='Status', example='healthy'),
+    }
+  ](name='Clusters'),
+  requestId?: string(name='RequestId', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+}
+
+model DescribeClusterResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeClusterResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询边缘容器集群
+ *
+ * @param request DescribeClusterRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeClusterResponse
+ */
+async function describeClusterWithOptions(request: DescribeClusterRequest, runtime: Util.RuntimeOptions): DescribeClusterResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeCluster',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询边缘容器集群
+ *
+ * @param request DescribeClusterRequest
+ * @return DescribeClusterResponse
+ */
+async function describeCluster(request: DescribeClusterRequest): DescribeClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeClusterWithOptions(request, runtime);
+}
+
+model DescribeClusterKubeConfigRequest {
+  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
+}
+
+model DescribeClusterKubeConfigResponseBody = {
+  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
+  kubeconfig?: string(name='Kubeconfig', example='apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data:***
+    server: https://****:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: "2580306074811*****"
+  name: 258*******
+kind: Config
+users:
+- name: "2580306074811*****"
+  user:
+    client-certificate-data:***
+    client-key-data: ***'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model DescribeClusterKubeConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeClusterKubeConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询边缘容器集群证书
+ *
+ * @param request DescribeClusterKubeConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeClusterKubeConfigResponse
+ */
+async function describeClusterKubeConfigWithOptions(request: DescribeClusterKubeConfigRequest, runtime: Util.RuntimeOptions): DescribeClusterKubeConfigResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeClusterKubeConfig',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询边缘容器集群证书
+ *
+ * @param request DescribeClusterKubeConfigRequest
+ * @return DescribeClusterKubeConfigResponse
+ */
+async function describeClusterKubeConfig(request: DescribeClusterKubeConfigRequest): DescribeClusterKubeConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeClusterKubeConfigWithOptions(request, runtime);
 }
 
 model DescribeCreatePrePaidInstanceResultRequest {
@@ -8262,6 +8592,79 @@ async function describeDeviceServiceWithOptions(request: DescribeDeviceServiceRe
 async function describeDeviceService(request: DescribeDeviceServiceRequest): DescribeDeviceServiceResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeDeviceServiceWithOptions(request, runtime);
+}
+
+model DescribeDiskIopsListRequest {
+  diskId?: string(name='DiskId', description='The ID of the disk. Format: d-\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*.
+
+This parameter is required.', example='d-5tzm9wnhzlhjzcbtxo465****'),
+  endTime?: string(name='EndTime', description='The beginning of the time range to query. Specify the time in the format of yyyy-MM-dd HH:mm:ss. The time range specified by the StartTime and EndTime parameters cannot exceed one day for a query.
+
+This parameter is required.', example='2023-12-14 23:59:59'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the format of yyyy-MM-dd HH:mm:ss.
+
+This parameter is required.', example='2023-12-14 00:00:00'),
+}
+
+model DescribeDiskIopsListResponseBody = {
+  diskIopsList?: [ 
+    {
+      bizTime?: string(name='BizTime', description='The business time . The time is displayed in the yyyy-MM-dd HH:mm:ss.', example='2023-12-14 00:00:00'),
+      diskId?: string(name='DiskId', description='The ID of the disk.', example='d-5tzm9wnhzlhjzcbtxo465****'),
+      readBytes?: long(name='ReadBytes', description='The read throughput. Unit: bytes.', example='10054'),
+      readLatency?: long(name='ReadLatency', description='The read latency. Unit: ms.', example='15646532'),
+      readOps?: long(name='ReadOps', description='The read IOPS.', example='4'),
+      regionId?: string(name='RegionId', description='The ID of the node.', example='cn-hangzhou-3'),
+      writeBytes?: long(name='WriteBytes', description='The write throughput. Unit: bytes.', example='0'),
+      writeLatency?: long(name='WriteLatency', description='The write latency. Unit: microseconds.', example='0'),
+      writeOps?: long(name='WriteOps', description='The write IOPS.', example='0'),
+    }
+  ](name='DiskIopsList', description='The IOPS monitoring data of the cloud disk.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A7814CAB-DB4E-140A-9D6F-7C8210C1DAC3'),
+}
+
+model DescribeDiskIopsListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDiskIopsListResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the disk IOPS monitoring data.
+ *
+ * @param request DescribeDiskIopsListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDiskIopsListResponse
+ */
+async function describeDiskIopsListWithOptions(request: DescribeDiskIopsListRequest, runtime: Util.RuntimeOptions): DescribeDiskIopsListResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDiskIopsList',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the disk IOPS monitoring data.
+ *
+ * @param request DescribeDiskIopsListRequest
+ * @return DescribeDiskIopsListResponse
+ */
+async function describeDiskIopsList(request: DescribeDiskIopsListRequest): DescribeDiskIopsListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDiskIopsListWithOptions(request, runtime);
 }
 
 model DescribeDisksRequest {
@@ -10766,6 +11169,16 @@ model DescribeImageInfosResponseBody = {
 *   bare_metal: x86 bare machine.
 *   pcfarm: heterogeneous computing.', example='ens_vm'),
       description?: string(name='Description', description='The description of the image.', example='centos_6_08_64_20G_alibase_2017****'),
+      diskDeviceMappings?: {
+        diskDeviceMapping?: [ 
+        {
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
+        }
+      ](name='DiskDeviceMapping')
+      }(name='DiskDeviceMappings'),
       imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_2017****'),
       imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='20'),
       imageVersion?: string(name='ImageVersion', description='The version of the image.', example='6.8'),
@@ -10929,6 +11342,16 @@ model DescribeImagesResponseBody = {
     {
       architecture?: string(name='Architecture', description='The architecture of the image. Example: **x86_64**.', example='x86_64'),
       creationTime?: string(name='CreationTime', description='The time when the image was created. The time follows the ISO 8601 standard.', example='2017-12-08T12:10:03Z'),
+      diskDeviceMappings?: {
+        diskDeviceMapping?: [ 
+        {
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
+        }
+      ](name='DiskDeviceMapping')
+      }(name='DiskDeviceMappings'),
       imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_alibase_2017****'),
       imageName?: string(name='ImageName', description='The name of the image.', example='Ubuntu_16.04'),
       imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
@@ -11088,6 +11511,83 @@ async function describeInstanceAutoRenewAttributeWithOptions(request: DescribeIn
 async function describeInstanceAutoRenewAttribute(request: DescribeInstanceAutoRenewAttributeRequest): DescribeInstanceAutoRenewAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeInstanceAutoRenewAttributeWithOptions(request, runtime);
+}
+
+model DescribeInstanceBandwidthDetailRequest {
+  endTime?: string(name='EndTime', description='This parameter is required.', example='2024-01-11 30:00:00'),
+  ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc'),
+  instanceId?: string(name='InstanceId', example='i-6ecpqvkicnchxccozrpxxxx'),
+  instanceType?: string(name='InstanceType', example='vm'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  serviceType?: string(name='ServiceType', example='vm'),
+  startTime?: string(name='StartTime', description='This parameter is required.', example='2024-01-11 00:00:00'),
+}
+
+model DescribeInstanceBandwidthDetailResponseBody = {
+  bandwidths?: [ 
+    {
+      aliUid?: long(name='AliUid', example='1972653484384661'),
+      bizTime?: string(name='BizTime', example='2024-01-11 00:00:00'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-yichang-2'),
+      flowType?: int32(name='FlowType', example='1'),
+      instanceId?: string(name='InstanceId', example='i-6ecpqvkicnchxccozrpxxxx'),
+      instanceType?: string(name='InstanceType', example='vm'),
+      ip?: string(name='Ip', example='203.107.***'),
+      isp?: string(name='Isp', example='cmcc'),
+      rxBw?: long(name='RxBw', example='43795230'),
+      serviceType?: string(name='ServiceType', example='vm'),
+      txBw?: long(name='TxBw', example='25415638'),
+    }
+  ](name='Bandwidths'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model DescribeInstanceBandwidthDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeInstanceBandwidthDetailResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询实例5分钟粒度带宽明细
+ *
+ * @param request DescribeInstanceBandwidthDetailRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeInstanceBandwidthDetailResponse
+ */
+async function describeInstanceBandwidthDetailWithOptions(request: DescribeInstanceBandwidthDetailRequest, runtime: Util.RuntimeOptions): DescribeInstanceBandwidthDetailResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeInstanceBandwidthDetail',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询实例5分钟粒度带宽明细
+ *
+ * @param request DescribeInstanceBandwidthDetailRequest
+ * @return DescribeInstanceBandwidthDetailResponse
+ */
+async function describeInstanceBandwidthDetail(request: DescribeInstanceBandwidthDetailRequest): DescribeInstanceBandwidthDetailResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeInstanceBandwidthDetailWithOptions(request, runtime);
 }
 
 model DescribeInstanceMonitorDataRequest {
@@ -11496,6 +11996,31 @@ model DescribeInstancesResponseBody = {
         }(name='PrivateIpAddress', description='Details of the private IP addresses.'),
         vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-2zeh0r1pabwtg6wcs****'),
       }(name='NetworkAttributes', description='Details of the network.'),
+      networkInterfaces?: {
+        networkInterfaces?: [ 
+        {
+          ipv6Sets?: {
+            ipv6Set?: [ 
+            {
+              ipv6Address?: string(name='Ipv6Address'),
+            }
+          ](name='Ipv6Set')
+          }(name='Ipv6Sets'),
+          macAddress?: string(name='MacAddress'),
+          networkInterfaceId?: string(name='NetworkInterfaceId'),
+          primaryIpAddress?: string(name='PrimaryIpAddress'),
+          privateIpSets?: {
+            privateIpSet?: [ 
+            {
+              primary?: boolean(name='Primary'),
+              privateIpAddress?: string(name='PrivateIpAddress'),
+            }
+          ](name='PrivateIpSet')
+          }(name='PrivateIpSets'),
+          type?: string(name='Type'),
+        }
+      ](name='NetworkInterfaces')
+      }(name='NetworkInterfaces'),
       OSName?: string(name='OSName', description='The name of the image.', example='centos 6.8 x86_64'),
       privateIpAddresses?: {
         privateIpAddress?: [ 
@@ -11557,7 +12082,9 @@ model DescribeInstancesResponseBody = {
           tagValue?: string(name='TagValue', description='The tag value.', example='value1'),
         }
       ](name='Tags')
-      }(name='Tags', description='The tags of the instance.'),
+      }(name='Tags', description='The tags of the instance.
+
+>  This operation does not return tag information. You can call this operation in combination with the tag-related operations.'),
     }
   ](name='Instance')
   }(name='Instances', description='The returned instance information. It is an array that consists of InstanceAttributesType data.'),
@@ -12172,6 +12699,167 @@ async function describeLoadBalancerHTTPSListenerAttributeWithOptions(request: De
 async function describeLoadBalancerHTTPSListenerAttribute(request: DescribeLoadBalancerHTTPSListenerAttributeRequest): DescribeLoadBalancerHTTPSListenerAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeLoadBalancerHTTPSListenerAttributeWithOptions(request, runtime);
+}
+
+model DescribeLoadBalancerListenMonitorRequest {
+  endTime?: string(name='EndTime', description='This parameter is required.', example='2024-01-30 08:00:00'),
+  loadBalancerId?: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5q73cv04zeyh43lh74lp4****'),
+  proto?: string(name='Proto', example='tcp'),
+  startTime?: string(name='StartTime', description='This parameter is required.', example='2024-01-15 16:00:00'),
+  VPort?: string(name='VPort', description='This parameter is required.', example='80'),
+}
+
+model DescribeLoadBalancerListenMonitorResponseBody = {
+  loadBalancerMonitorListenData?: [ 
+    {
+      actConns?: string(name='ActConns', example='80285'),
+      bizTime?: string(name='BizTime', example='2024-01-15 16:03:00'),
+      conns?: string(name='Conns', example='37150'),
+      dropConns?: string(name='DropConns', example='10'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-dongguan-9'),
+      inActConns?: string(name='InActConns', example='16322'),
+      inBytes?: string(name='InBytes', example='67532'),
+      inDropBytes?: string(name='InDropBytes', example='324'),
+      inDropPkts?: string(name='InDropPkts', example='27'),
+      inPkts?: string(name='InPkts', example='12'),
+      inValidRsNum?: string(name='InValidRsNum', example='0'),
+      loadBalancerId?: string(name='LoadBalancerId', example='lb-5q73cv04zeyh43lh74lp4****'),
+      outBytes?: string(name='OutBytes', example='5155487'),
+      outDropBytes?: string(name='OutDropBytes', example='0'),
+      outDropPkts?: string(name='OutDropPkts', example='76'),
+      outPkts?: string(name='OutPkts', example='34'),
+      proto?: string(name='Proto', example='tcp'),
+      VPort?: string(name='VPort', example='80'),
+      validRsNum?: string(name='ValidRsNum', example='2'),
+      vip?: string(name='Vip', example='10.8.*.*'),
+      vni?: string(name='Vni', example='53284'),
+    }
+  ](name='LoadBalancerMonitorListenData'),
+  requestId?: string(name='RequestId', description='Id of the request.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+}
+
+model DescribeLoadBalancerListenMonitorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeLoadBalancerListenMonitorResponseBody(name='body'),
+}
+
+/**
+ * @summary LB监听级监控数据查询
+ *
+ * @param request DescribeLoadBalancerListenMonitorRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeLoadBalancerListenMonitorResponse
+ */
+async function describeLoadBalancerListenMonitorWithOptions(request: DescribeLoadBalancerListenMonitorRequest, runtime: Util.RuntimeOptions): DescribeLoadBalancerListenMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeLoadBalancerListenMonitor',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary LB监听级监控数据查询
+ *
+ * @param request DescribeLoadBalancerListenMonitorRequest
+ * @return DescribeLoadBalancerListenMonitorResponse
+ */
+async function describeLoadBalancerListenMonitor(request: DescribeLoadBalancerListenMonitorRequest): DescribeLoadBalancerListenMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeLoadBalancerListenMonitorWithOptions(request, runtime);
+}
+
+model DescribeLoadBalancerListenersRequest {
+  loadBalancerId?: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5s7crik3yo3p5****'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+}
+
+model DescribeLoadBalancerListenersResponseBody = {
+  listeners?: {
+    listener?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2022-08-15T08:42:57Z'),
+      description?: string(name='Description', example='test'),
+      forwardPort?: string(name='ForwardPort', example='443'),
+      listenerForward?: string(name='ListenerForward', example='off'),
+      listenerPort?: string(name='ListenerPort', example='8080'),
+      loadBalancerId?: string(name='LoadBalancerId', example='lb-51a5fhou****'),
+      protocol?: string(name='Protocol', example='tcp'),
+      status?: string(name='Status', example='running'),
+    }
+  ](name='Listener')
+  }(name='Listeners'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+  totalCount?: int32(name='TotalCount', example='49'),
+}
+
+model DescribeLoadBalancerListenersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeLoadBalancerListenersResponseBody(name='body'),
+}
+
+/**
+ * @summary 调用DescribeLoadBalancerListeners查询负载均衡实例监听列表。
+ *
+ * @param request DescribeLoadBalancerListenersRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeLoadBalancerListenersResponse
+ */
+async function describeLoadBalancerListenersWithOptions(request: DescribeLoadBalancerListenersRequest, runtime: Util.RuntimeOptions): DescribeLoadBalancerListenersResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.loadBalancerId)) {
+    query['LoadBalancerId'] = request.loadBalancerId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeLoadBalancerListeners',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 调用DescribeLoadBalancerListeners查询负载均衡实例监听列表。
+ *
+ * @param request DescribeLoadBalancerListenersRequest
+ * @return DescribeLoadBalancerListenersResponse
+ */
+async function describeLoadBalancerListeners(request: DescribeLoadBalancerListenersRequest): DescribeLoadBalancerListenersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeLoadBalancerListenersWithOptions(request, runtime);
 }
 
 model DescribeLoadBalancerSpecRequest {
@@ -13257,8 +13945,8 @@ model DescribeNetworkInterfacesRequest {
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-58z57orgmt6d1****'),
   networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI.', example='test-01'),
-  pageNumber?: string(name='PageNumber', description='The number of the page to return. Pages start from page 1. Default value: 1.', example='1'),
-  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: 100. Default value: 10.', example='50'),
+  pageNumber?: string(name='PageNumber', description='The page number of the returned page. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: 100. Default value: 50.', example='50'),
   primaryIpAddress?: string(name='PrimaryIpAddress', description='The primary IP address of the ENI.', example='***'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group to which the secondary ENI belongs. To query the details of secondary ENIs based on the ID of a security group, specify this parameter.', example='sg-5p1fg655nh68xyz9i***'),
   status?: string(name='Status', description='The status of the ENI. Valid values:
@@ -13270,10 +13958,10 @@ model DescribeNetworkInterfacesRequest {
 *   Deleting: The ENI is being deleted.
 
 This parameter is empty by default, which indicates that ENIs in all states are queried.', example='Available'),
-  type?: string(name='Type', description='The type of the ENI. Valid values:
+  type?: string(name='Type', description='The type of the ENI. Valid Values:
 
-*   Primary
-*   Secondary
+*   Primary: primary ENI.
+*   Secondary: secondary ENI.
 
 This parameter is empty by default, which indicates that both primary and secondary ENIs are queried.', example='Secondary'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-12345'),
@@ -13286,8 +13974,8 @@ model DescribeNetworkInterfacesShrinkRequest {
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-58z57orgmt6d1****'),
   networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI.', example='test-01'),
-  pageNumber?: string(name='PageNumber', description='The number of the page to return. Pages start from page 1. Default value: 1.', example='1'),
-  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: 100. Default value: 10.', example='50'),
+  pageNumber?: string(name='PageNumber', description='The page number of the returned page. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: 100. Default value: 50.', example='50'),
   primaryIpAddress?: string(name='PrimaryIpAddress', description='The primary IP address of the ENI.', example='***'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group to which the secondary ENI belongs. To query the details of secondary ENIs based on the ID of a security group, specify this parameter.', example='sg-5p1fg655nh68xyz9i***'),
   status?: string(name='Status', description='The status of the ENI. Valid values:
@@ -13299,10 +13987,10 @@ model DescribeNetworkInterfacesShrinkRequest {
 *   Deleting: The ENI is being deleted.
 
 This parameter is empty by default, which indicates that ENIs in all states are queried.', example='Available'),
-  type?: string(name='Type', description='The type of the ENI. Valid values:
+  type?: string(name='Type', description='The type of the ENI. Valid Values:
 
-*   Primary
-*   Secondary
+*   Primary: primary ENI.
+*   Secondary: secondary ENI.
 
 This parameter is empty by default, which indicates that both primary and secondary ENIs are queried.', example='Secondary'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-12345'),
@@ -14681,6 +15369,107 @@ async function describeSDGs(request: DescribeSDGsRequest): DescribeSDGsResponse 
   return describeSDGsWithOptions(request, runtime);
 }
 
+model DescribeSecondaryPublicIpAddressesRequest {
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-hangzhou-44'),
+  isp?: string(name='Isp', description='The Internet service provider. Valid values:
+
+*   cmcc: China Mobile.
+*   unicom: China Unicom.
+*   telecom: China Telecom.', example='unicom'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: 1 to 100. Default value: 10.', example='50'),
+  secondaryPublicIpAddress?: string(name='SecondaryPublicIpAddress', description='The secondary IP address.', example='12.XXX.XXX.4'),
+  secondaryPublicIpId?: string(name='SecondaryPublicIpId', description='The ID of the secondary public IP address.', example='spi-5wys0pio93c9f9ukzj2f2fwyr'),
+}
+
+model DescribeSecondaryPublicIpAddressesResponseBody = {
+  pageNumber?: int32(name='PageNumber', description='The page number returned.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  secondaryPublicIpAddresses?: [ 
+    {
+      cidrMask?: int32(name='CidrMask', description='The subnet mask of the CIDR block.', example='24'),
+      creationTime?: string(name='CreationTime', description='The time when the secondary public IP address was created. The time is displayed in UTC.', example='2023-07-25T09:43:49Z'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-15'),
+      gateway?: string(name='Gateway', description='The gateway.', example='12.XXX.XXX.1'),
+      ipVersion?: string(name='IpVersion', description='The version of the IP address. Valid values:
+
+*   **ipv4**
+*   **ipv6**', example='ipv4'),
+      isp?: string(name='Isp', description='The Internet service provider. Valid values:
+
+*   cmcc: China Mobile.
+*   unicom: China Unicom.
+*   telecom: China Telecom.', example='telecom'),
+      secondaryPublicIpAddress?: string(name='SecondaryPublicIpAddress', description='The secondary public IP address.', example='12.XXX.XXX.4'),
+      secondaryPublicIpId?: string(name='SecondaryPublicIpId', description='The ID of the secondary public IP address.', example='spi-5wys0pio93c9f9ukzj2f2fwyr'),
+    }
+  ](name='SecondaryPublicIpAddresses', description='The array of returned secondary IP addresses.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='13'),
+}
+
+model DescribeSecondaryPublicIpAddressesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeSecondaryPublicIpAddressesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries created secondary public IP addresses.
+ *
+ * @param request DescribeSecondaryPublicIpAddressesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeSecondaryPublicIpAddressesResponse
+ */
+async function describeSecondaryPublicIpAddressesWithOptions(request: DescribeSecondaryPublicIpAddressesRequest, runtime: Util.RuntimeOptions): DescribeSecondaryPublicIpAddressesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ensRegionId)) {
+    query['EnsRegionId'] = request.ensRegionId;
+  }
+  if (!Util.isUnset(request.isp)) {
+    query['Isp'] = request.isp;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.secondaryPublicIpAddress)) {
+    query['SecondaryPublicIpAddress'] = request.secondaryPublicIpAddress;
+  }
+  if (!Util.isUnset(request.secondaryPublicIpId)) {
+    query['SecondaryPublicIpId'] = request.secondaryPublicIpId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeSecondaryPublicIpAddresses',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries created secondary public IP addresses.
+ *
+ * @param request DescribeSecondaryPublicIpAddressesRequest
+ * @return DescribeSecondaryPublicIpAddressesResponse
+ */
+async function describeSecondaryPublicIpAddresses(request: DescribeSecondaryPublicIpAddressesRequest): DescribeSecondaryPublicIpAddressesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeSecondaryPublicIpAddressesWithOptions(request, runtime);
+}
+
 model DescribeSecurityGroupAttributeRequest {
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.
 
@@ -14865,6 +15654,16 @@ model DescribeSelfImagesResponseBody = {
 *   x86_64', example='x86_64'),
       computeType?: string(name='ComputeType', description='Computing type. ens_vm/ens: x86 computing. bare_metal: x86 bare machine or x86 bare metal. arm_vm: ARM computing. arm_bare_metal: ARM bare machine or ARM bare metal. pcfarm: heterogeneous computing.', example='ens_vm'),
       creationTime?: string(name='CreationTime', description='The image creation time. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2017-12-08T12:10:03Z'),
+      diskDeviceMappings?: {
+        diskDeviceMapping?: [ 
+        {
+          format?: string(name='Format'),
+          size?: string(name='Size'),
+          type?: string(name='Type'),
+          imageId?: string(name='imageId'),
+        }
+      ](name='DiskDeviceMapping')
+      }(name='DiskDeviceMappings'),
       imageId?: string(name='ImageId', description='The ID of the image.', example='centos_6_08_64_20G_a****'),
       imageName?: string(name='ImageName', description='The name of the image.', example='centos_6_08_64_20G_a****'),
       imageOwnerAlias?: string(name='ImageOwnerAlias', description='The source of the image. Valid values:
@@ -14872,7 +15671,7 @@ model DescribeSelfImagesResponseBody = {
 *   **others**: a custom image that is shared by other Alibaba Cloud accounts.
 *   **self**: your own custom image.', example='system'),
       imageSize?: string(name='ImageSize', description='The size of the image. Unit: GiB.', example='20'),
-      imageStorageSize?: string(name='ImageStorageSize'),
+      imageStorageSize?: string(name='ImageStorageSize', description='The size of the image storage.', example='400'),
       instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5iqczfxps7csjrxeca****'),
       osVersion?: string(name='OsVersion', description='The operating system version.', example='7.2'),
       platform?: string(name='Platform', description='The platform.
@@ -15047,6 +15846,152 @@ async function describeServcieSchedule(request: DescribeServcieScheduleRequest):
   return describeServcieScheduleWithOptions(request, runtime);
 }
 
+model DescribeServerLoadBalancerListenMonitorRequest {
+  endTime?: string(name='EndTime', description='This parameter is required.', example='2024-05-16 16:00:00'),
+  loadBalancerId?: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5rcvo1n1t3hykfhhjwjgqp****'),
+  proto?: string(name='Proto', example='tcp'),
+  startTime?: string(name='StartTime', description='This parameter is required.', example='2024-05-16 15:00:00'),
+  VPort?: string(name='VPort', example='80'),
+}
+
+model DescribeServerLoadBalancerListenMonitorResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request。', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
+  serverLoadBalancerMonitorData?: [ 
+    {
+      acc?: int32(name='Acc', example='20'),
+      bizTime?: string(name='BizTime', example='2024-05-16 15:00:00'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-fuzhou-7'),
+      loadBalancerId?: string(name='LoadBalancerId', example='lb-5rcvo1n1t3hykfhhjwjgqp****'),
+      loadBalancerName?: string(name='LoadBalancerName', example='esk-edge-service-lb-8377****'),
+      loadBalancerSpec?: string(name='LoadBalancerSpec', example='elb.s2.medium'),
+      proto?: string(name='Proto', example='tcp'),
+      reqs2xx?: int32(name='Reqs2xx', example='10'),
+      reqs3xx?: int32(name='Reqs3xx', example='0'),
+      reqs4xx?: int32(name='Reqs4xx', example='0'),
+      reqs5xx?: int32(name='Reqs5xx', example='10'),
+      rtAvg?: int32(name='RtAvg', example='1037'),
+      vip?: string(name='Vip', example='10.0****'),
+      vni?: int32(name='Vni', example='52497'),
+      vport?: int32(name='Vport', example='80'),
+    }
+  ](name='ServerLoadBalancerMonitorData'),
+}
+
+model DescribeServerLoadBalancerListenMonitorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeServerLoadBalancerListenMonitorResponseBody(name='body'),
+}
+
+/**
+ * @summary ESLB实例监听级监控数据
+ *
+ * @param request DescribeServerLoadBalancerListenMonitorRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeServerLoadBalancerListenMonitorResponse
+ */
+async function describeServerLoadBalancerListenMonitorWithOptions(request: DescribeServerLoadBalancerListenMonitorRequest, runtime: Util.RuntimeOptions): DescribeServerLoadBalancerListenMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeServerLoadBalancerListenMonitor',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ESLB实例监听级监控数据
+ *
+ * @param request DescribeServerLoadBalancerListenMonitorRequest
+ * @return DescribeServerLoadBalancerListenMonitorResponse
+ */
+async function describeServerLoadBalancerListenMonitor(request: DescribeServerLoadBalancerListenMonitorRequest): DescribeServerLoadBalancerListenMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeServerLoadBalancerListenMonitorWithOptions(request, runtime);
+}
+
+model DescribeServerLoadBalancerMonitorRequest {
+  endTime?: string(name='EndTime', description='This parameter is required.', example='2024-09-15 17:00:00'),
+  loadBalancerId?: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5sc1s9zrui8lpb8u7cl4f****'),
+  startTime?: string(name='StartTime', description='This parameter is required.', example='2024-09-15 16:00:00'),
+}
+
+model DescribeServerLoadBalancerMonitorResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request。', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  serverLoadBalancerMonitorData?: [ 
+    {
+      acc?: int32(name='Acc', example='30'),
+      bizTime?: string(name='BizTime', example='2024-09-15 16:00:00'),
+      ensRegionId?: string(name='EnsRegionId', example='cn-wuxi-10'),
+      loadBalancerId?: string(name='LoadBalancerId', example='lb-5sc1s9zrui8lpb8u7cl4f****'),
+      loadBalancerName?: string(name='LoadBalancerName', example='esk-edge-service-lb-a34****'),
+      loadBalancerSpec?: string(name='LoadBalancerSpec', example='elb.s2.medium'),
+      reqs2xx?: int32(name='Reqs2xx', example='25'),
+      reqs3xx?: int32(name='Reqs3xx', example='0'),
+      reqs4xx?: int32(name='Reqs4xx', example='5'),
+      reqs5xx?: int32(name='Reqs5xx', example='0'),
+      rtAvg?: int32(name='RtAvg', example='1404'),
+      vip?: string(name='Vip', example='10.0****'),
+      vni?: int32(name='Vni', example='3018'),
+    }
+  ](name='ServerLoadBalancerMonitorData'),
+}
+
+model DescribeServerLoadBalancerMonitorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeServerLoadBalancerMonitorResponseBody(name='body'),
+}
+
+/**
+ * @summary ESLB实例请求监控数据
+ *
+ * @param request DescribeServerLoadBalancerMonitorRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeServerLoadBalancerMonitorResponse
+ */
+async function describeServerLoadBalancerMonitorWithOptions(request: DescribeServerLoadBalancerMonitorRequest, runtime: Util.RuntimeOptions): DescribeServerLoadBalancerMonitorResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeServerLoadBalancerMonitor',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ESLB实例请求监控数据
+ *
+ * @param request DescribeServerLoadBalancerMonitorRequest
+ * @return DescribeServerLoadBalancerMonitorResponse
+ */
+async function describeServerLoadBalancerMonitor(request: DescribeServerLoadBalancerMonitorRequest): DescribeServerLoadBalancerMonitorResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeServerLoadBalancerMonitorWithOptions(request, runtime);
+}
+
 model DescribeSnapshotsRequest {
   diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp67acfmxazb4p****'),
   ensRegionId?: string(name='EnsRegionId', description='The region ID of the disk. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent list of regions.', example='cn-hangzhou'),
@@ -15163,7 +16108,7 @@ This parameter is required.', example='snat-5tc08qfj5ecblfdn2rqr9****'),
 model DescribeSnatAttributeResponseBody = {
   creationTime?: string(name='CreationTime', description='The time when the entry was created. The time is displayed in UTC.', example='2020-04-26T15:38:27Z'),
   destCIDR?: string(name='DestCIDR', description='The destination CIDR block. The rule takes effect only on requests that access the destination CIDR block.', example='101.10. XX.XX/24'),
-  idleTimeout?: int32(name='IdleTimeout', description='Timeout period.', example='10'),
+  idleTimeout?: int32(name='IdleTimeout', description='The timeout period. Unit: seconds.', example='10'),
   natGatewayId?: string(name='NatGatewayId', description='The ID of the Network Address Translation (NAT) gateway.', example='nat-5t7nh1cfm6kxiszlttr38****'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   snatEntryId?: string(name='SnatEntryId', description='The ID of the SNAT entry.', example='snat-5tfi6f8gds82mjmlofeym****'),
@@ -15195,11 +16140,10 @@ model DescribeSnatAttributeResponseBody = {
 *   Pending: The SNAT entry is being created or modified.
 *   Available: The SNAT entry is available.
 *   Deleting: The SNAT entry is being deleted.', example='Available'),
-  type?: string(name='Type', description='The type of the NAT. Valid values: 
+  type?: string(name='Type', description='The type of the NAT.
 
-- Empty: symmetric NAT.
-
-- FullCone: full cone NAT.', example='FullCone'),
+*   Empty: symmetric NAT.
+*   FullCone: full cone NAT.', example='FullCone'),
 }
 
 model DescribeSnatAttributeResponse = {
@@ -15271,6 +16215,7 @@ model DescribeSnatTableEntriesResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   snatTableEntries?: [ 
     {
+      idleTimeout?: int32(name='IdleTimeout'),
       natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='nat-5t7nh1cfm6kxiszlttr38****'),
       snatEntryId?: string(name='SnatEntryId', description='The ID of the SNAT entry.', example='snat-5tfjp3537mi6iokl59g5c****'),
       snatEntryName?: string(name='SnatEntryName', description='The name of the SNAT entry.', example='test0'),
@@ -15289,7 +16234,7 @@ model DescribeSnatTableEntriesResponseBody = {
 *   Available: The SNAT entry is available.
 *   Deleting: The SNAT entry is being deleted.', example='Available'),
     }
-  ](name='SnatTableEntries', description='Details of SNAT entries.'),
+  ](name='SnatTableEntries', description='The details of the SNAT entries.'),
   totalCount?: int32(name='TotalCount', description='The number of SNAT entries that are returned.', example='7'),
 }
 
@@ -15338,33 +16283,40 @@ async function describeSnatTableEntries(request: DescribeSnatTableEntriesRequest
 }
 
 model DescribeStorageGatewayRequest {
-  ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc'),
-  gatewayId?: string(name='GatewayId', example='sgw-****'),
-  gatewayType?: string(name='GatewayType', example='1'),
-  pageNumber?: string(name='PageNumber', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
-  vpcId?: string(name='VpcId', example='n-***'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-beijing-cmcc'),
+  gatewayId?: string(name='GatewayId', description='The ID of the gateway.', example='sgw-****'),
+  gatewayType?: string(name='GatewayType', description='The type of the gateway. Set this parameter to **1**. **1** indicates iSCSI.', example='1'),
+  pageNumber?: string(name='PageNumber', description='The page number. Default value: 1.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
+  vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='n-***'),
 }
 
 model DescribeStorageGatewayResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.
+
+Default value: 10.', example='10'),
   requestId?: string(name='RequestId', description='Id of the request', example='6666C5A5-75ED-422E-A022-7121FA18C968'),
   storageGateways?: [ 
     {
-      cidrBlock?: string(name='CidrBlock', example='192.168.2.0/24'),
-      creationTime?: string(name='CreationTime', example='2024-05-14T03:07:47Z'),
-      description?: string(name='Description', example='testDescription'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc'),
-      serviceIp?: string(name='ServiceIp', example='*.*.*.*'),
-      status?: string(name='Status', example='available'),
-      storageGatewayId?: string(name='StorageGatewayId', example='sgw-***'),
-      storageGatewayName?: string(name='StorageGatewayName', example='testGateway'),
-      storageGatewayType?: int32(name='StorageGatewayType', example='1'),
-      vpcId?: string(name='VpcId', example='n-***'),
+      cidrBlock?: string(name='CidrBlock', description='The internal CIDR block.', example='192.168.2.0/24'),
+      creationTime?: string(name='CreationTime', description='The time when the storage gateway was created. The time is displayed in UTC.', example='2024-05-14T03:07:47Z'),
+      description?: string(name='Description', description='The description of the storage gateway.', example='testDescription'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-beijing-cmcc'),
+      serviceIp?: string(name='ServiceIp', description='The IP address of the service.', example='*.*.*.*'),
+      status?: string(name='Status', description='The status of the storage gateway. Valid values:
+
+*   creating
+*   available
+*   deleting
+*   deleted', example='available'),
+      storageGatewayId?: string(name='StorageGatewayId', description='The ID of the storage gateway.', example='sgw-***'),
+      storageGatewayName?: string(name='StorageGatewayName', description='The name of the storage gateway.', example='testGateway'),
+      storageGatewayType?: int32(name='StorageGatewayType', description='The type of the storage gateway. Default value: 1, which indicates iSCSI.', example='1'),
+      vpcId?: string(name='VpcId', description='The ID of the VPC.', example='n-***'),
     }
-  ](name='StorageGateways'),
-  totalCount?: int32(name='TotalCount', example='16'),
+  ](name='StorageGateways', description='The list information.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='16'),
 }
 
 model DescribeStorageGatewayResponse = {
@@ -15374,7 +16326,7 @@ model DescribeStorageGatewayResponse = {
 }
 
 /**
- * @summary 查询存储网关
+ * @summary Queries storage gateways.
  *
  * @param request DescribeStorageGatewayRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15419,7 +16371,7 @@ async function describeStorageGatewayWithOptions(request: DescribeStorageGateway
 }
 
 /**
- * @summary 查询存储网关
+ * @summary Queries storage gateways.
  *
  * @param request DescribeStorageGatewayRequest
  * @return DescribeStorageGatewayResponse
@@ -15430,36 +16382,50 @@ async function describeStorageGateway(request: DescribeStorageGatewayRequest): D
 }
 
 model DescribeStorageVolumeRequest {
-  ensRegionId?: string(name='EnsRegionId', example='cn-shenzhen-3'),
-  gatewayId?: string(name='GatewayId', example='sgw-****'),
-  isEnable?: int32(name='IsEnable', example='1'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  storageId?: string(name='StorageId', example='d-***'),
-  volumeId?: string(name='VolumeId', example='sv-***'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-shenzhen-3'),
+  gatewayId?: string(name='GatewayId', description='The ID of the gateway.', example='sgw-****'),
+  isEnable?: int32(name='IsEnable', description='Specifies whether to enable the volume. Valid values:
+
+*   **1** (default): enables the volume.
+*   **0**: disables the volume.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  storageId?: string(name='StorageId', description='The ID of the storage medium.', example='d-***'),
+  volumeId?: string(name='VolumeId', description='The ID of the volume.', example='sv-***'),
 }
 
 model DescribeStorageVolumeResponseBody = {
-  pageNumber?: string(name='PageNumber', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  pageNumber?: string(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
   storageVolumes?: [ 
     {
-      authProtocol?: string(name='AuthProtocol', example='CHAP'),
-      creationTime?: string(name='CreationTime', example='2024-03-14T09:35:32Z'),
-      description?: string(name='Description', example='testDescription'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-shenzhen-3'),
-      isAuth?: int32(name='IsAuth', example='0'),
-      isEnable?: int32(name='IsEnable', example='1'),
-      status?: string(name='Status', example='available'),
-      storageGatewayId?: string(name='StorageGatewayId', example='sgw-***'),
-      storageId?: string(name='StorageId', example='d-***'),
-      storageVolumeId?: string(name='StorageVolumeId', example='sv-***'),
-      storageVolumeName?: string(name='StorageVolumeName', example='testVolumeName'),
-      targetName?: string(name='TargetName', example='iqn.*.*.*:*'),
+      authProtocol?: string(name='AuthProtocol', description='The authentication protocol. The value is set to **CHAP**.', example='CHAP'),
+      creationTime?: string(name='CreationTime', description='The time when the volume was created. The time is displayed in UTC.', example='2024-03-14T09:35:32Z'),
+      description?: string(name='Description', description='The description of the volume.', example='testDescription'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the node.', example='cn-shenzhen-3'),
+      isAuth?: int32(name='IsAuth', description='Indicates whether authentication is enabled. Valid values:
+
+*   **1**: Authentication is enabled.
+*   **0** (default): Authentication is disabled.', example='0'),
+      isEnable?: int32(name='IsEnable', description='Indicates whether the volume is enabled. Valid values:
+
+*   **1** (default): The volume is enabled.
+*   **0**: The volume is disabled.', example='1'),
+      status?: string(name='Status', description='The status of the volume. Valid values:
+
+*   creating
+*   available
+*   deleting
+*   deleted', example='available'),
+      storageGatewayId?: string(name='StorageGatewayId', description='The ID of the storage gateway.', example='sgw-***'),
+      storageId?: string(name='StorageId', description='The ID of the storage medium.', example='d-***'),
+      storageVolumeId?: string(name='StorageVolumeId', description='The ID of the volume.', example='sv-***'),
+      storageVolumeName?: string(name='StorageVolumeName', description='The name of the volume.', example='testVolumeName'),
+      targetName?: string(name='TargetName', description='The destination of the volume.', example='iqn.*.*.*:*'),
     }
-  ](name='StorageVolumes'),
-  totalCount?: string(name='TotalCount', example='15'),
+  ](name='StorageVolumes', description='The list of returned results.'),
+  totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='15'),
 }
 
 model DescribeStorageVolumeResponse = {
@@ -15469,7 +16435,7 @@ model DescribeStorageVolumeResponse = {
 }
 
 /**
- * @summary 查询存储卷
+ * @summary Queries volumes.
  *
  * @param request DescribeStorageVolumeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15517,7 +16483,7 @@ async function describeStorageVolumeWithOptions(request: DescribeStorageVolumeRe
 }
 
 /**
- * @summary 查询存储卷
+ * @summary Queries volumes.
  *
  * @param request DescribeStorageVolumeRequest
  * @return DescribeStorageVolumeResponse
@@ -15797,6 +16763,75 @@ async function detachDiskWithOptions(request: DetachDiskRequest, runtime: Util.R
 async function detachDisk(request: DetachDiskRequest): DetachDiskResponse {
   var runtime = new Util.RuntimeOptions{};
   return detachDiskWithOptions(request, runtime);
+}
+
+model DetachNetworkInterfaceRequest {
+  networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.
+
+This parameter is required.', example='eni-58z57orgmt6d1****'),
+}
+
+model DetachNetworkInterfaceResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='BE1B8ECF-9507-4C78-B197-5DE9FED344AF'),
+}
+
+model DetachNetworkInterfaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetachNetworkInterfaceResponseBody(name='body'),
+}
+
+/**
+ * @summary Detach an elastic network interface (ENI) from an instance.
+ *
+ * @description Before you call this operation, take note of the following items:
+ * *   You cannot detach a primary ENI from an instance.
+ * *   The ENI must be in the InUse state.
+ * *   The instances are in the Stopped state.
+ * *   This operation is an asynchronous operation. After this operation is called to detach an ENI, you can check the state of the ENI to determine whether the ENI is detached.
+ *
+ * @param request DetachNetworkInterfaceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DetachNetworkInterfaceResponse
+ */
+async function detachNetworkInterfaceWithOptions(request: DetachNetworkInterfaceRequest, runtime: Util.RuntimeOptions): DetachNetworkInterfaceResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.networkInterfaceId)) {
+    query['NetworkInterfaceId'] = request.networkInterfaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetachNetworkInterface',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Detach an elastic network interface (ENI) from an instance.
+ *
+ * @description Before you call this operation, take note of the following items:
+ * *   You cannot detach a primary ENI from an instance.
+ * *   The ENI must be in the InUse state.
+ * *   The instances are in the Stopped state.
+ * *   This operation is an asynchronous operation. After this operation is called to detach an ENI, you can check the state of the ENI to determine whether the ENI is detached.
+ *
+ * @param request DetachNetworkInterfaceRequest
+ * @return DetachNetworkInterfaceResponse
+ */
+async function detachNetworkInterface(request: DetachNetworkInterfaceRequest): DetachNetworkInterfaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return detachNetworkInterfaceWithOptions(request, runtime);
 }
 
 model DistApplicationDataRequest {
@@ -16114,7 +17149,10 @@ model GetBucketAclResponse = {
  */
 async function getBucketAclWithOptions(request: GetBucketAclRequest, runtime: Util.RuntimeOptions): GetBucketAclResponse {
   Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
+  var query = {};
+  if (!Util.isUnset(request.bucketName)) {
+    query['BucketName'] = request.bucketName;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -16123,7 +17161,7 @@ async function getBucketAclWithOptions(request: GetBucketAclRequest, runtime: Ut
     version = '2017-11-10',
     protocol = 'HTTPS',
     pathname = '/',
-    method = 'GET',
+    method = 'POST',
     authType = 'AK',
     style = 'RPC',
     reqBodyType = 'formData',
@@ -17220,9 +18258,7 @@ async function listObjects(request: ListObjectsRequest): ListObjectsResponse {
 model ListTagResourcesRequest {
   nextToken?: string(name='NextToken', description='The token of the first page to query.', example='153ba0bbb2be03f84eb48b699f0a4123'),
   resourceId?: [ string ](name='ResourceId', description='The IDs of resources. Valid values of N: 1 to 50.'),
-  resourceType?: string(name='ResourceType', description='The type of the resource. Valid values:
-
-*   instance
+  resourceType?: string(name='ResourceType', description='The type of the resource. Set the value to instance.
 
 This parameter is required.', example='instance'),
   tag?: [ 
@@ -17249,7 +18285,7 @@ model ListTagResourcesResponseBody = {
       resourceId?: string(name='ResourceId', description='The ID of the associated resources.', example='i-5zy93g7z1hnkdmav84joxyzgn'),
       resourceType?: string(name='ResourceType', description='The type of the resource.', example='instance'),
       tagKey?: string(name='TagKey', description='The tag key of the instance.', example='test_tag_key-2'),
-      tagValue?: string(name='TagValue', description='The tag value.', example='CLUSTER'),
+      tagValue?: string(name='TagValue', description='The value of the tag.', example='CLUSTER'),
     }
   ](name='TagResources', description='The tags that are added to specified one or more resources.'),
 }
@@ -17589,12 +18625,14 @@ async function modifyForwardEntry(request: ModifyForwardEntryRequest): ModifyFor
 }
 
 model ModifyHaVipAttributeRequest {
-  haVipId?: string(name='HaVipId', description='This parameter is required.', example='havip-52y28****'),
-  name?: string(name='Name', example='test'),
+  haVipId?: string(name='HaVipId', description='The ID of the HAVIP that you want to modify.
+
+This parameter is required.', example='havip-52y28****'),
+  name?: string(name='Name', description='The name of the HAVIP. The name must be 1 to 128 characters in length and cannot start with http:// or https://.', example='test'),
 }
 
 model ModifyHaVipAttributeResponseBody = {
-  requestId?: string(name='RequestId', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
 }
 
 model ModifyHaVipAttributeResponse = {
@@ -17604,7 +18642,7 @@ model ModifyHaVipAttributeResponse = {
 }
 
 /**
- * @summary 调用ModifyHaVipAttribute接口更新高可用VIP的名称和描述。
+ * @summary Modifies the name of a high-availability virtual IP address (HAVIP).
  *
  * @param request ModifyHaVipAttributeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17637,7 +18675,7 @@ async function modifyHaVipAttributeWithOptions(request: ModifyHaVipAttributeRequ
 }
 
 /**
- * @summary 调用ModifyHaVipAttribute接口更新高可用VIP的名称和描述。
+ * @summary Modifies the name of a high-availability virtual IP address (HAVIP).
  *
  * @param request ModifyHaVipAttributeRequest
  * @return ModifyHaVipAttributeResponse
@@ -17944,6 +18982,61 @@ async function modifyInstanceAutoRenewAttribute(request: ModifyInstanceAutoRenew
   return modifyInstanceAutoRenewAttributeWithOptions(request, runtime);
 }
 
+model ModifyInstanceBootConfigurationRequest {
+  bootSet?: string(name='BootSet', example='legacy'),
+  bootType?: string(name='BootType', description='This parameter is required.', example='pxe'),
+  diskSet?: string(name='DiskSet', example='on'),
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='i-instance****'),
+}
+
+model ModifyInstanceBootConfigurationResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='6666C5A5-75ED-422E-A022-7121FA18C968'),
+}
+
+model ModifyInstanceBootConfigurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyInstanceBootConfigurationResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改启动配置，只支持异构实例(PCFarm裸金属)。
+ *
+ * @param request ModifyInstanceBootConfigurationRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyInstanceBootConfigurationResponse
+ */
+async function modifyInstanceBootConfigurationWithOptions(request: ModifyInstanceBootConfigurationRequest, runtime: Util.RuntimeOptions): ModifyInstanceBootConfigurationResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyInstanceBootConfiguration',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改启动配置，只支持异构实例(PCFarm裸金属)。
+ *
+ * @param request ModifyInstanceBootConfigurationRequest
+ * @return ModifyInstanceBootConfigurationResponse
+ */
+async function modifyInstanceBootConfiguration(request: ModifyInstanceBootConfigurationRequest): ModifyInstanceBootConfigurationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyInstanceBootConfigurationWithOptions(request, runtime);
+}
+
 model ModifyInstanceChargeTypeRequest {
   autoPay?: boolean(name='AutoPay', description='Specifies whether to enable auto-payment when you change the billing method from pay-as-you-go to subscription. Valid values:
 
@@ -18248,6 +19341,71 @@ async function modifyNetworkAttributeWithOptions(request: ModifyNetworkAttribute
 async function modifyNetworkAttribute(request: ModifyNetworkAttributeRequest): ModifyNetworkAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyNetworkAttributeWithOptions(request, runtime);
+}
+
+model ModifyNetworkInterfaceAttributeRequest {
+  description?: string(name='Description', description='The description. The description must be 1 to 256 characters in length and cannot start with http:// or https://.', example='testDescription'),
+  networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.
+
+This parameter is required.', example='eni-5f6533jbifugr5fo***'),
+  networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI. The name must be 1 to 128 characters in length, The name cannot start with http:// or https://.', example='test-01'),
+}
+
+model ModifyNetworkInterfaceAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model ModifyNetworkInterfaceAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyNetworkInterfaceAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the attributes of an elastic network interface (ENI), such as its name and description.
+ *
+ * @param request ModifyNetworkInterfaceAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyNetworkInterfaceAttributeResponse
+ */
+async function modifyNetworkInterfaceAttributeWithOptions(request: ModifyNetworkInterfaceAttributeRequest, runtime: Util.RuntimeOptions): ModifyNetworkInterfaceAttributeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.networkInterfaceId)) {
+    query['NetworkInterfaceId'] = request.networkInterfaceId;
+  }
+  if (!Util.isUnset(request.networkInterfaceName)) {
+    query['NetworkInterfaceName'] = request.networkInterfaceName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyNetworkInterfaceAttribute',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the attributes of an elastic network interface (ENI), such as its name and description.
+ *
+ * @param request ModifyNetworkInterfaceAttributeRequest
+ * @return ModifyNetworkInterfaceAttributeResponse
+ */
+async function modifyNetworkInterfaceAttribute(request: ModifyNetworkInterfaceAttributeRequest): ModifyNetworkInterfaceAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyNetworkInterfaceAttributeWithOptions(request, runtime);
 }
 
 model ModifyPrepayInstanceSpecRequest {
@@ -19864,14 +21022,14 @@ model RemoveBackendServersRequest {
   backendServers?: [ 
     {
       ip?: string(name='Ip', description='The IP address of the backend server.', example='192.XXX.X.X'),
-      port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='0'),
+      port?: int32(name='Port', description='The backend port that is used by the Edge Load Balancer (ELB) instance.', example='0'),
       serverId?: string(name='ServerId', description='The instance ID of the backend server.
 
 This parameter is required.', example='i-5uf68ts0fqexe1a4n****'),
-      type?: string(name='Type', description='The type of the backend server. Valid values:
+      type?: string(name='Type', description='The type of backend server. Valid values:
 
 *   **ens**: an Edge Node Service (ENS) instance.
-*   **eni**: an elastic network interface (ENI).', example='ens'),
+*   **eni**: an Elastic Network Interface (ENI).', example='ens'),
       weight?: int32(name='Weight', description='The weight of the backend server.', example='100'),
     }
   ](name='BackendServers', description='The list of backend servers that you want to remove. You can remove up to 20 backend servers at a time.
@@ -20013,7 +21171,7 @@ model RemoveInstanceSDGResponse = {
 }
 
 /**
- * @summary Removes a deployed shared data group (SDG) on compute instances.
+ * @summary Removes a shared data group (SDG) that is attached to the compute instance.
  *
  * @param tmpReq RemoveInstanceSDGRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20048,7 +21206,7 @@ async function removeInstanceSDGWithOptions(tmpReq: RemoveInstanceSDGRequest, ru
 }
 
 /**
- * @summary Removes a deployed shared data group (SDG) on compute instances.
+ * @summary Removes a shared data group (SDG) that is attached to the compute instance.
  *
  * @param request RemoveInstanceSDGRequest
  * @return RemoveInstanceSDGResponse
@@ -20250,10 +21408,10 @@ async function removeVSwitchesFromEpnInstance(request: RemoveVSwitchesFromEpnIns
 }
 
 model RenewARMServerInstanceRequest {
-  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the subscription. Valid values:
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the premium bandwidth plan. Valid values:
 
-*   true
-*   false (default)', example='true'),
+*   **true**.
+*   **false** (default).', example='true'),
   instanceId?: string(name='InstanceId', description='The ID of the instance that you want to renew.
 
 This parameter is required.', example='yourInstance ID'),
@@ -21274,7 +22432,7 @@ This parameter is required.', example='ens.sn1.small'),
   internetMaxBandwidthOut?: long(name='InternetMaxBandwidthOut', description='The maximum public bandwidth. If the value of this parameter is greater than 0, a public IP address is assigned to the instance.
 
 This parameter is required.', example='1'),
-  ipType?: string(name='IpType', description='The type of the IP address. Valid values:
+  ipType?: string(name='IpType', description='The type of the IP address. Examples:
 
 *   **ipv4** (default).
 *   **ipv6**.
@@ -21407,7 +22565,7 @@ This parameter is required.', example='ens.sn1.small'),
   internetMaxBandwidthOut?: long(name='InternetMaxBandwidthOut', description='The maximum public bandwidth. If the value of this parameter is greater than 0, a public IP address is assigned to the instance.
 
 This parameter is required.', example='1'),
-  ipType?: string(name='IpType', description='The type of the IP address. Valid values:
+  ipType?: string(name='IpType', description='The type of the IP address. Examples:
 
 *   **ipv4** (default).
 *   **ipv6**.
@@ -21495,7 +22653,7 @@ model RunInstancesResponse = {
 }
 
 /**
- * @summary Creates one or more pay-as-you-go or subscription Edge Node Service (ENS) instances.
+ * @summary Purchases instances.
  *
  * @param tmpReq RunInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -21641,7 +22799,7 @@ async function runInstancesWithOptions(tmpReq: RunInstancesRequest, runtime: Uti
 }
 
 /**
- * @summary Creates one or more pay-as-you-go or subscription Edge Node Service (ENS) instances.
+ * @summary Purchases instances.
  *
  * @param request RunInstancesRequest
  * @return RunInstancesResponse
@@ -23338,14 +24496,10 @@ async function stopSnatIpForSnatEntry(request: StopSnatIpForSnatEntryRequest): S
 }
 
 model TagResourcesRequest {
-  resourceId?: [ string ](name='ResourceId', description='The IDs of the resources. You can add up to 50 resource IDs in a call.
+  resourceId?: [ string ](name='ResourceId', description='The resource IDs. You can add up to 50 resource IDs in a call.
 
 This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='The type of resource to query.
-
-Valid values:
-
-*   instance
+  resourceType?: string(name='ResourceType', description='The type of resource. Set the value to instance.
 
 This parameter is required.', example='instance'),
   tag?: [ 
@@ -23363,7 +24517,7 @@ This parameter is required.'),
 }
 
 model TagResourcesResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C50C391C-533A-55D3-AC97-5D9333DE288F'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C50C391C-533A-55D3-AC97-5D9333DE288F'),
 }
 
 model TagResourcesResponse = {
@@ -23544,12 +24698,16 @@ async function unassignPrivateIpAddresses(request: UnassignPrivateIpAddressesReq
 }
 
 model UnassociateHaVipRequest {
-  haVipId?: string(name='HaVipId', description='This parameter is required.', example='havip-5p14t****'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='i-5ecpqvk****'),
+  haVipId?: string(name='HaVipId', description='The ID of the HAVIP that you want to disassociate.
+
+This parameter is required.', example='havip-5p14t****'),
+  instanceId?: string(name='InstanceId', description='The ID of the ENS instance or ENI that you want to disassociate from the HAVIP.
+
+This parameter is required.', example='i-5ecpqvk****'),
 }
 
 model UnassociateHaVipResponseBody = {
-  requestId?: string(name='RequestId', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model UnassociateHaVipResponse = {
@@ -23559,7 +24717,7 @@ model UnassociateHaVipResponse = {
 }
 
 /**
- * @summary 调用UnassociateHaVip接口将高可用VIP从云产品实例上解绑。
+ * @summary Disassociates a high-availability virtual IP address (HAVIP) from an Edge Node Service (ENS) instance or Elastic Network Interface (ENI).
  *
  * @param request UnassociateHaVipRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23592,7 +24750,7 @@ async function unassociateHaVipWithOptions(request: UnassociateHaVipRequest, run
 }
 
 /**
- * @summary 调用UnassociateHaVip接口将高可用VIP从云产品实例上解绑。
+ * @summary Disassociates a high-availability virtual IP address (HAVIP) from an Edge Node Service (ENS) instance or Elastic Network Interface (ENI).
  *
  * @param request UnassociateHaVipRequest
  * @return UnassociateHaVipResponse
@@ -23781,25 +24939,19 @@ async function unloadRegionSDG(request: UnloadRegionSDGRequest): UnloadRegionSDG
 model UntagResourcesRequest {
   all?: boolean(name='All', description='Specifies whether to remove all tags from the resource. This parameter takes effect only if you do not specify TagKey.N. Valid values:
 
-*   true
-*   false
-
-Default value: false.', example='true'),
+*   **true**
+*   **false** (default)', example='true'),
   resourceId?: [ string ](name='ResourceId', description='The resource IDs. You can specify up to 50 resource IDs.
 
 This parameter is required.'),
-  resourceType?: string(name='ResourceType', description='The resource type.
-
-Valid values:
-
-*   instance
+  resourceType?: string(name='ResourceType', description='The type of the resource.
 
 This parameter is required.', example='instance'),
   tagKey?: [ string ](name='TagKey', description='The keys of the tags. Valid values of N: 1 to 20.'),
 }
 
 model UntagResourcesResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='6AB7715D-8B97-5E81-854B-2429F8C7DEF2'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6AB7715D-8B97-5E81-854B-2429F8C7DEF2'),
 }
 
 model UntagResourcesResponse = {
