@@ -2,7 +2,6 @@
  *
  */
 import Util;
-import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -12,9 +11,6 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @productId = 'smc';
-  var gatewayClient = new GatewayClient();
-  @spi = gatewayClient;
   @endpointRule = 'central';
   
   checkConfig(config);
@@ -30,6 +26,81 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AssociateSourceServersRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  sourceId?: [ string ](name='SourceId', description='The IDs of migration sources. You can specify up to 50 IDs.
+
+This parameter is required.'),
+  workgroupId?: string(name='WorkgroupId', description='The ID of the workgroup.
+
+This parameter is required.', example='w-***'),
+}
+
+model AssociateSourceServersResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='C8B26B44-0189-443E-9816-D951F59623A9'),
+}
+
+model AssociateSourceServersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AssociateSourceServersResponseBody(name='body'),
+}
+
+/**
+ * @summary Associates multiple migration sources with a workgroup.
+ *
+ * @description A migration source can be associated with only one workgroup.
+ *
+ * @param request AssociateSourceServersRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AssociateSourceServersResponse
+ */
+async function associateSourceServersWithOptions(request: AssociateSourceServersRequest, runtime: Util.RuntimeOptions): AssociateSourceServersResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.workgroupId)) {
+    query['WorkgroupId'] = request.workgroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AssociateSourceServers',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Associates multiple migration sources with a workgroup.
+ *
+ * @description A migration source can be associated with only one workgroup.
+ *
+ * @param request AssociateSourceServersRequest
+ * @return AssociateSourceServersResponse
+ */
+async function associateSourceServers(request: AssociateSourceServersRequest): AssociateSourceServersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return associateSourceServersWithOptions(request, runtime);
 }
 
 model CreateAccessTokenRequest {
@@ -101,11 +172,7 @@ async function createAccessTokenWithOptions(request: CreateAccessTokenRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -122,28 +189,40 @@ async function createAccessToken(request: CreateAccessTokenRequest): CreateAcces
 }
 
 model CreateCrossZoneMigrationJobRequest {
-  autoPay?: boolean(name='AutoPay', example='false'),
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000'),
+  autoPay?: boolean(name='AutoPay', description='Specifies whether to enable automatic payment. Valid values:
+
+*   **true** (default): enables automatic payment. Make sure that you have sufficient balance within your account.
+*   **false**: disables automatic payment. In this case, you must manually pay for the instance. For more information, see [Renew a subscription instance](https://help.aliyun.com/document_detail/85052.html).', example='false'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-426655440000'),
   disk?: [ 
     {
-      category?: string(name='Category', example='cloud_essd'),
-      diskId?: string(name='DiskId', example='d-bp1eeplkn4j29wf7irpb'),
-      performanceLevel?: string(name='PerformanceLevel', example='PL0'),
+      category?: string(name='Category', description='The disk category. A value of cloud_essd that indicates enhanced SSD (ESSD).', example='cloud_essd'),
+      diskId?: string(name='DiskId', description='The disk ID.', example='d-bp1eeplkn4j29wf7irpb'),
+      performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD. Valid values:
+
+*   PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
+*   PL1: A single ESSD can deliver up to 50,000 random read/write IOPS.
+*   PL2: A single ESSD can deliver up to 100,000 random read/write IOPS.
+*   PL3: A single ESSD can deliver up to 1,000,000 random read/write IOPS.', example='PL0'),
     }
-  ](name='Disk'),
-  instanceId?: string(name='InstanceId', example='i-bp1ff25rzvnul6kr****'),
+  ](name='Disk', description='The disk information.'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='i-bp1ff25rzvnul6kr****'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmw3ty5y7****'),
+  regionId?: string(name='RegionId', description='The ID of the destination Alibaba Cloud region.
+
+For example, if you want to migrate the source server to the China (Hangzhou) region, set this parameter to `cn-hangzhou`. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmw3ty5y7****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  targetInstanceType?: string(name='TargetInstanceType', example='ecs.g7.large'),
-  targetVSwitchId?: string(name='TargetVSwitchId', example='vsw-bp1mxqnssl8nafltcx32e'),
-  targetZoneId?: string(name='TargetZoneId', example='cn-hangzhou-i'),
+  targetInstanceType?: string(name='TargetInstanceType', description='The type of the new instance.', example='ecs.g7.large'),
+  targetVSwitchId?: string(name='TargetVSwitchId', description='The vSwitch ID of the destination Elastic Compute Service (ECS) instance.', example='vsw-bp1mxqnssl8nafltcx32e'),
+  targetZoneId?: string(name='TargetZoneId', description='The ID of the destination zone.', example='cn-hangzhou-i'),
 }
 
 model CreateCrossZoneMigrationJobResponseBody = {
-  jobId?: string(name='JobId', example='j-bp17bclvg344jlyt****'),
-  requestId?: string(name='RequestId', example='A9DBD2F8-DE5A-5844-BA6F-957A996CBD78'),
+  jobId?: string(name='JobId', description='The ID of the migration job.', example='j-bp17bclvg344jlyt****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A9DBD2F8-DE5A-5844-BA6F-957A996CBD78'),
 }
 
 model CreateCrossZoneMigrationJobResponse = {
@@ -153,7 +232,7 @@ model CreateCrossZoneMigrationJobResponse = {
 }
 
 /**
- * @summary 创建跨可用区任务
+ * @summary Creates a cross-zone migration job.
  *
  * @param request CreateCrossZoneMigrationJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -209,15 +288,11 @@ async function createCrossZoneMigrationJobWithOptions(request: CreateCrossZoneMi
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 创建跨可用区任务
+ * @summary Creates a cross-zone migration job.
  *
  * @param request CreateCrossZoneMigrationJobRequest
  * @return CreateCrossZoneMigrationJobResponse
@@ -268,28 +343,28 @@ The description must be 2 to 128 characters in length, and can contain digits, c
   disks?: {
     data?: [ 
       {
-        diskId?: string(name='DiskId'),
+        diskId?: string(name='DiskId', example='d-2ze8hyowhdgd6ou2m5z6'),
         LVM?: boolean(name='LVM'),
         part?: [ 
           {
-            block?: boolean(name='Block'),
-            path?: string(name='Path'),
-            sizeBytes?: long(name='SizeBytes'),
+            block?: boolean(name='Block', example='true'),
+            path?: string(name='Path', example='/home/date'),
+            sizeBytes?: long(name='SizeBytes', example='21474836480'),
           }
         ](name='Part'),
-        size?: int32(name='Size'),
+        size?: int32(name='Size', example='80'),
       }
     ](name='Data'),
     system?: {
-      LVM?: boolean(name='LVM'),
+      LVM?: boolean(name='LVM', example='true'),
       part?: [ 
         {
-          block?: boolean(name='Block'),
-          path?: string(name='Path'),
-          sizeBytes?: long(name='SizeBytes'),
+          block?: boolean(name='Block', example='true'),
+          path?: string(name='Path', example='/boot'),
+          sizeBytes?: long(name='SizeBytes', example='254803968'),
         }
       ](name='Part'),
-      size?: int32(name='Size'),
+      size?: int32(name='Size', example='100'),
     }(name='System'),
   }(name='Disks'),
   frequency?: int32(name='Frequency', description='The interval at which SMC synchronizes incremental data to Alibaba Cloud. Unit: hour. Valid values: 1 to 168.
@@ -568,11 +643,7 @@ async function createReplicationJobWithOptions(request: CreateReplicationJobRequ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -592,6 +663,91 @@ async function createReplicationJobWithOptions(request: CreateReplicationJobRequ
 async function createReplicationJob(request: CreateReplicationJobRequest): CreateReplicationJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return createReplicationJobWithOptions(request, runtime);
+}
+
+model CreateWorkgroupRequest {
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25693.html).', example='123e4567-e89b-12d3-a456-426655440000'),
+  description?: string(name='Description', description='The description of the workgroup.
+
+The description must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='test'),
+  name?: string(name='Name', description='The name of the workgroup. The name must meet the following requirements:
+
+*   The name must be unique.
+*   The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='testWorkgroupName'),
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+}
+
+model CreateWorkgroupResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='C8B26B44-0189-443E-9816-D951F59623A9'),
+  workgroupId?: string(name='WorkgroupId', description='The workgroup ID.', example='w-***'),
+}
+
+model CreateWorkgroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateWorkgroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a workgroup. You can create a workgroup to manage the lifecycles of multiple migration tasks at a time. This is suitable for scenarios in which multiple servers are migrated.
+ *
+ * @description *   You can create up to 50 workgroups within an Alibaba Cloud account.
+ * *   A workgroup can be associated with a maximum of 50 migration sources.
+ * *   A migration source can be associated with only one workgroup.
+ *
+ * @param request CreateWorkgroupRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateWorkgroupResponse
+ */
+async function createWorkgroupWithOptions(request: CreateWorkgroupRequest, runtime: Util.RuntimeOptions): CreateWorkgroupResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateWorkgroup',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a workgroup. You can create a workgroup to manage the lifecycles of multiple migration tasks at a time. This is suitable for scenarios in which multiple servers are migrated.
+ *
+ * @description *   You can create up to 50 workgroups within an Alibaba Cloud account.
+ * *   A workgroup can be associated with a maximum of 50 migration sources.
+ * *   A migration source can be associated with only one workgroup.
+ *
+ * @param request CreateWorkgroupRequest
+ * @return CreateWorkgroupResponse
+ */
+async function createWorkgroup(request: CreateWorkgroupRequest): CreateWorkgroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createWorkgroupWithOptions(request, runtime);
 }
 
 model CutOverReplicationJobRequest {
@@ -658,11 +814,7 @@ async function cutOverReplicationJobWithOptions(request: CutOverReplicationJobRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -733,11 +885,7 @@ async function deleteAccessTokenWithOptions(request: DeleteAccessTokenRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -808,11 +956,7 @@ async function deleteReplicationJobWithOptions(request: DeleteReplicationJobRequ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -892,11 +1036,7 @@ async function deleteSourceServerWithOptions(request: DeleteSourceServerRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -912,6 +1052,75 @@ async function deleteSourceServerWithOptions(request: DeleteSourceServerRequest,
 async function deleteSourceServer(request: DeleteSourceServerRequest): DeleteSourceServerResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteSourceServerWithOptions(request, runtime);
+}
+
+model DeleteWorkgroupRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  workgroupId?: string(name='WorkgroupId', description='The workgroup ID.
+
+This parameter is required.', example='w-***'),
+}
+
+model DeleteWorkgroupResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='410E6073-66D0-45D3-AB3E-4DC3F5E4****'),
+}
+
+model DeleteWorkgroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteWorkgroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a workgroup.
+ *
+ * @description To delete a workgroup, you must delete or dissociate the migration source that is associated with the workgroup. For more information, see [DeleteSourceServer](https://help.aliyun.com/document_detail/2402124.html).
+ *
+ * @param request DeleteWorkgroupRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteWorkgroupResponse
+ */
+async function deleteWorkgroupWithOptions(request: DeleteWorkgroupRequest, runtime: Util.RuntimeOptions): DeleteWorkgroupResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.workgroupId)) {
+    query['WorkgroupId'] = request.workgroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteWorkgroup',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a workgroup.
+ *
+ * @description To delete a workgroup, you must delete or dissociate the migration source that is associated with the workgroup. For more information, see [DeleteSourceServer](https://help.aliyun.com/document_detail/2402124.html).
+ *
+ * @param request DeleteWorkgroupRequest
+ * @return DeleteWorkgroupResponse
+ */
+async function deleteWorkgroup(request: DeleteWorkgroupRequest): DeleteWorkgroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteWorkgroupWithOptions(request, runtime);
 }
 
 model DescribeReplicationJobsRequest {
@@ -1003,34 +1212,34 @@ model DescribeReplicationJobsResponseBody = {
         data?: {
           data?: [ 
           {
-            diskId?: string(name='DiskId'),
-            LVM?: boolean(name='LVM'),
+            diskId?: string(name='DiskId', example='d-2zeh4twm100qskw7z41z'),
+            LVM?: boolean(name='LVM', example='false'),
             parts?: {
               part?: [ 
               {
-                block?: boolean(name='Block'),
-                path?: string(name='Path'),
-                sizeBytes?: long(name='SizeBytes'),
+                block?: boolean(name='Block', example='false'),
+                path?: string(name='Path', example='/home/data'),
+                sizeBytes?: long(name='SizeBytes', example='21474836480'),
               }
             ](name='Part')
             }(name='Parts'),
-            size?: int32(name='Size'),
+            size?: int32(name='Size', example='22548578304'),
           }
         ](name='Data')
         }(name='Data'),
         system?: {
-          diskId?: string(name='DiskId'),
-          LVM?: boolean(name='LVM'),
+          diskId?: string(name='DiskId', example='d-2zeh4twm100qskw7z41z'),
+          LVM?: boolean(name='LVM', example='false'),
           parts?: {
             part?: [ 
             {
-              block?: boolean(name='Block'),
-              path?: string(name='Path'),
-              sizeBytes?: long(name='SizeBytes'),
+              block?: boolean(name='Block', example='true'),
+              path?: string(name='Path', example='/boot'),
+              sizeBytes?: long(name='SizeBytes', example='21474836480'),
             }
           ](name='Part')
           }(name='Parts'),
-          size?: int32(name='Size'),
+          size?: int32(name='Size', example='100'),
         }(name='System'),
       }(name='Disks'),
       endTime?: string(name='EndTime', description='The time when the migration job was complete. The time follows the [ISO 8601](https://help.aliyun.com/document_detail/25696.html) standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.
@@ -1219,11 +1428,7 @@ async function describeReplicationJobsWithOptions(request: DescribeReplicationJo
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1249,7 +1454,7 @@ Default value: null.', example='testSourceServerName'),
   ownerId?: long(name='OwnerId'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
 
-Default value: 1', example='1'),
+Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50.
 
 Default value: 10', example='10'),
@@ -1273,7 +1478,7 @@ The tag key cannot be an empty string. It can be up to 64 characters in length a
 The tag value can be an empty string. It can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
     }
   ](name='Tag', description='The tag.'),
-  workgroupId?: string(name='WorkgroupId'),
+  workgroupId?: string(name='WorkgroupId', description='工作组ID。', example='w-bp1ja22kdqphehlj****'),
 }
 
 model DescribeSourceServersResponseBody = {
@@ -1311,36 +1516,50 @@ model DescribeSourceServersResponseBody = {
         data?: {
           data?: [ 
           {
-            offset?: long(name='Offset'),
+            offset?: long(name='Offset', description='数据盘首个分区的起始偏移。单位：Byte。', example='1024'),
             parts?: {
               part?: [ 
               {
-                canBlock?: boolean(name='CanBlock'),
-                path?: string(name='Path'),
-                sizeBytes?: long(name='SizeBytes'),
-                type?: string(name='Type'),
+                canBlock?: boolean(name='CanBlock', description='数据盘分区是否开启块复制。可能值：
+
+- true：数据盘分区开启块复制。
+- false：数据盘分区不开启块复制。', example='false'),
+                path?: string(name='Path', description='数据盘分区路径。', example='/home/data'),
+                sizeBytes?: long(name='SizeBytes', description='数据盘分区大小。单位：Byte。', example='21474836480'),
+                type?: string(name='Type', description='数据盘分区类型。可能值：
+- Normal：普通分区。
+- System：系统分区。
+- Boot：启动分区。', example='Normal'),
               }
             ](name='Part')
-            }(name='Parts'),
-            size?: int32(name='Size'),
+            }(name='Parts', description='数据盘分区信息。'),
+            size?: int32(name='Size', description='迁移源的数据磁盘大小。单位：GiB。', example='80'),
           }
         ](name='Data')
-        }(name='Data'),
+        }(name='Data', description='数据盘信息列表。'),
         system?: {
-          offset?: long(name='Offset'),
+          offset?: long(name='Offset', description='系统盘首个分区的起始偏移。单位：Byte。', example='1024'),
           parts?: {
             part?: [ 
             {
-              canBlock?: boolean(name='CanBlock'),
-              path?: string(name='Path'),
-              sizeBytes?: long(name='SizeBytes'),
-              type?: string(name='Type'),
+              canBlock?: boolean(name='CanBlock', description='系统盘分区是否支持块复制。可能值：
+
+- true：系统盘分区支持块复制。
+- false：系统盘分区不支持块复制。', example='false'),
+              path?: string(name='Path', description='系统盘分区路径。', example='/home/data'),
+              sizeBytes?: long(name='SizeBytes', description='系统盘分区大小。单位：Byte。', example='21474836480'),
+              type?: string(name='Type', description='系统盘分区类型。可能值：
+- Normal：普通分区。
+- System：系统分区。
+- Boot：启动分区。', example='Normal'),
             }
           ](name='Part')
-          }(name='Parts'),
-          size?: int32(name='Size'),
-        }(name='System', nullable=false),
-      }(name='Disks', nullable=false),
+          }(name='Parts', description='系统盘分区信息。'),
+          size?: int32(name='Size', description='迁移源系统盘的大小，单位：GiB。取值范围为20~32768。
+
+>参数取值需要大于源服务器数据盘实际占用大小。例如，源数据盘大小为500 GiB，实际占用100 GiB，则该参数取值需大于100 GiB。', example='100'),
+        }(name='System', description='系统盘信息。', nullable=false),
+      }(name='Disks', description='磁盘信息。', nullable=false),
       errorCode?: string(name='ErrorCode', description='The error code of the migration source.', example='SourceServer.Offline'),
       heartbeatRate?: int32(name='HeartbeatRate', description='The interval at which heartbeats are sent from the SMC client. Unit: seconds.', example='30'),
       jobId?: string(name='JobId', description='The ID of the last migration job.', example='j-bp19vlwm0tyigbmj****'),
@@ -1390,7 +1609,7 @@ The tag key can be an empty string. It can be up to 64 characters in length and 
         }
       ](name='Tag')
       }(name='Tags', description='The information about the tags.'),
-      workgroupId?: string(name='WorkgroupId'),
+      workgroupId?: string(name='WorkgroupId', description='工作组ID。', example='w-bp1ja22kdqphehlj****'),
     }
   ](name='SourceServer')
   }(name='SourceServers', description='The information about migration sources.'),
@@ -1466,11 +1685,7 @@ async function describeSourceServersWithOptions(request: DescribeSourceServersRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1485,6 +1700,122 @@ async function describeSourceServersWithOptions(request: DescribeSourceServersRe
 async function describeSourceServers(request: DescribeSourceServersRequest): DescribeSourceServersResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeSourceServersWithOptions(request, runtime);
+}
+
+model DescribeWorkgroupsRequest {
+  name?: string(name='Name', description='The name of the workgroup.', example='test'),
+  ownerId?: long(name='OwnerId'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  status?: string(name='Status', description='The state of the workgroup. Valid values:
+
+*   NotStarted
+*   InProgress
+*   Cutover
+*   Completed', example='InProgress'),
+  workgroupId?: [ string ](name='WorkgroupId', description='The workgroup IDs. You can specify up to 50 workgroup IDs.'),
+}
+
+model DescribeWorkgroupsResponseBody = {
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2D69A58F-345C-4FDE-88E4-BF518948****'),
+  totalCount?: int32(name='TotalCount', description='The total number of workgroups.', example='1'),
+  workgroups?: {
+    workgroup?: [ 
+    {
+      description?: string(name='Description', description='The description of the workgroup.', example='test'),
+      name?: string(name='Name', description='The name of the workgroup.', example='testWorkgroupName'),
+      status?: string(name='Status', description='The state of the workgroup. Valid values:
+
+*   NotStarted
+*   InProgress
+*   Cutover
+*   Completed', example='InProgress'),
+      warnings?: {
+        warning?: [ 
+        {
+          sourceIds?: {
+            sourceId?: [ string ](name='SourceId')
+          }(name='SourceIds', description='The migration sources for which alerts are generated.'),
+          warningType?: string(name='WarningType', description='The type of the alert. Valid values:
+
+*   InError: A migration job failed.
+*   UnRelated: No migration job is created for a migration source.
+*   NotPassed: A migration job failed to pass the migration test.', example='InError'),
+        }
+      ](name='Warning')
+      }(name='Warnings', description='The alert information of the workgroup, which can contain multiple types of alerts.'),
+      workgroupId?: string(name='WorkgroupId', description='The workgroup ID.', example='w-***'),
+    }
+  ](name='Workgroup')
+  }(name='Workgroups', description='The queried workgroups.'),
+}
+
+model DescribeWorkgroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeWorkgroupsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the information about workgroups. After you create a workgroup, you can query the information about the workgroup, such as the name, description, and alert information.
+ *
+ * @param request DescribeWorkgroupsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeWorkgroupsResponse
+ */
+async function describeWorkgroupsWithOptions(request: DescribeWorkgroupsRequest, runtime: Util.RuntimeOptions): DescribeWorkgroupsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workgroupId)) {
+    query['WorkgroupId'] = request.workgroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeWorkgroups',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the information about workgroups. After you create a workgroup, you can query the information about the workgroup, such as the name, description, and alert information.
+ *
+ * @param request DescribeWorkgroupsRequest
+ * @return DescribeWorkgroupsResponse
+ */
+async function describeWorkgroups(request: DescribeWorkgroupsRequest): DescribeWorkgroupsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeWorkgroupsWithOptions(request, runtime);
 }
 
 model DisableAccessTokenRequest {
@@ -1540,11 +1871,7 @@ async function disableAccessTokenWithOptions(request: DisableAccessTokenRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1558,6 +1885,77 @@ async function disableAccessTokenWithOptions(request: DisableAccessTokenRequest,
 async function disableAccessToken(request: DisableAccessTokenRequest): DisableAccessTokenResponse {
   var runtime = new Util.RuntimeOptions{};
   return disableAccessTokenWithOptions(request, runtime);
+}
+
+model DisassociateSourceServersRequest {
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  sourceId?: [ string ](name='SourceId', description='The IDs of migration sources that you want to disassociate from the workgroup. You can specify up to 50 migration sources.
+
+This parameter is required.'),
+  workgroupId?: string(name='WorkgroupId', description='The ID of the workgroup.
+
+This parameter is required.', example='w-***'),
+}
+
+model DisassociateSourceServersResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='3E8B9ABB-289A-44E6-942D-8AA9E493****'),
+}
+
+model DisassociateSourceServersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisassociateSourceServersResponseBody(name='body'),
+}
+
+/**
+ * @summary Disassociates migration sources from a workgroup. If you do not need to use a workgroup to migrate migration sources, you can disassociate the migration sources from the workgroup.
+ *
+ * @param request DisassociateSourceServersRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisassociateSourceServersResponse
+ */
+async function disassociateSourceServersWithOptions(request: DisassociateSourceServersRequest, runtime: Util.RuntimeOptions): DisassociateSourceServersResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.sourceId)) {
+    query['SourceId'] = request.sourceId;
+  }
+  if (!Util.isUnset(request.workgroupId)) {
+    query['WorkgroupId'] = request.workgroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisassociateSourceServers',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Disassociates migration sources from a workgroup. If you do not need to use a workgroup to migrate migration sources, you can disassociate the migration sources from the workgroup.
+ *
+ * @param request DisassociateSourceServersRequest
+ * @return DisassociateSourceServersResponse
+ */
+async function disassociateSourceServers(request: DisassociateSourceServersRequest): DisassociateSourceServersResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return disassociateSourceServersWithOptions(request, runtime);
 }
 
 model ListAccessTokensRequest {
@@ -1652,11 +2050,7 @@ async function listAccessTokensWithOptions(request: ListAccessTokensRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1763,11 +2157,7 @@ async function listTagResourcesWithOptions(request: ListTagResourcesRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2023,11 +2413,7 @@ async function modifyReplicationJobAttributeWithOptions(request: ModifyReplicati
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2109,11 +2495,7 @@ async function modifySourceServerAttributeWithOptions(request: ModifySourceServe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2128,6 +2510,81 @@ async function modifySourceServerAttributeWithOptions(request: ModifySourceServe
 async function modifySourceServerAttribute(request: ModifySourceServerAttributeRequest): ModifySourceServerAttributeResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifySourceServerAttributeWithOptions(request, runtime);
+}
+
+model ModifyWorkgroupAttributeRequest {
+  description?: string(name='Description', description='The new description of the workgroup.
+
+The description must be 2 to 128 characters in length. It must start with a letter but cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='test'),
+  name?: string(name='Name', description='The new name of the workgroup. The name must be 2 to 128 characters in length. It must start with a letter but cannot start with http:// or https://. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='testMigrationTaskName'),
+  ownerId?: long(name='OwnerId'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  workgroupId?: string(name='WorkgroupId', description='The workgroup ID.
+
+This parameter is required.', example='w-***'),
+}
+
+model ModifyWorkgroupAttributeResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='3E8B9ABB-289A-44E6-942D-8AA9E493****'),
+}
+
+model ModifyWorkgroupAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyWorkgroupAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the name and description of a workgroup.
+ *
+ * @param request ModifyWorkgroupAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyWorkgroupAttributeResponse
+ */
+async function modifyWorkgroupAttributeWithOptions(request: ModifyWorkgroupAttributeRequest, runtime: Util.RuntimeOptions): ModifyWorkgroupAttributeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.description)) {
+    query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.workgroupId)) {
+    query['WorkgroupId'] = request.workgroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyWorkgroupAttribute',
+    version = '2019-06-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the name and description of a workgroup.
+ *
+ * @param request ModifyWorkgroupAttributeRequest
+ * @return ModifyWorkgroupAttributeResponse
+ */
+async function modifyWorkgroupAttribute(request: ModifyWorkgroupAttributeRequest): ModifyWorkgroupAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyWorkgroupAttributeWithOptions(request, runtime);
 }
 
 model StartReplicationJobRequest {
@@ -2184,11 +2641,7 @@ async function startReplicationJobWithOptions(request: StartReplicationJobReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2259,11 +2712,7 @@ async function stopReplicationJobWithOptions(request: StopReplicationJobRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2359,11 +2808,7 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: Ut
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2456,11 +2901,7 @@ async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
