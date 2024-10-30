@@ -60,27 +60,49 @@ model Dataset {
   dataSourceType?: string(name='DataSourceType', example='OSS URL'),
   dataType?: string(name='DataType', example='COMMON PIC TEXT VIDEO AUDIO'),
   datasetId?: string(name='DatasetId', example='d-c0h44g3wlwkj8o4348'),
-  description?: string(name='Description'),
-  gmtCreateTime?: string(name='GmtCreateTime'),
-  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  description?: string(name='Description', example='Animal images.'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-30T12:51:33.028Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-30T12:51:33.028Z'),
   labels?: [
     Label
   ](name='Labels'),
-  name?: string(name='Name'),
+  latestVersion?: DatasetVersion(name='LatestVersion'),
+  name?: string(name='Name', example='AnimalDataset'),
   options?: string(name='Options', example='jsonstring'),
-  ownerId?: string(name='OwnerId'),
+  ownerId?: string(name='OwnerId', example='1004110000006048'),
   property?: string(name='Property', example='FILE DIRECTORY TABULAR'),
   providerType?: string(name='ProviderType', example='Ecs'),
+  sourceDatasetId?: string(name='SourceDatasetId', example='d-bvfasdf4wxxj8o411'),
+  sourceDatasetVersion?: string(name='SourceDatasetVersion', example='v2'),
   sourceId?: string(name='SourceId', example='Source Id'),
   sourceType?: string(name='SourceType', example='USER ITAG  PAI_PUBLIC_DATASET'),
+  tagTemplateType?: string(name='TagTemplateType', example='text-classification'),
   uri?: string(name='Uri', example='oss://xxx'),
-  userId?: string(name='UserId'),
+  userId?: string(name='UserId', example='2004110000006048'),
   workspaceId?: string(name='WorkspaceId', example='Workspace Id'),
 }
 
 model DatasetLabel {
   key?: string(name='Key'),
   value?: string(name='Value'),
+}
+
+model DatasetVersion {
+  dataCount?: long(name='DataCount'),
+  dataSize?: long(name='DataSize'),
+  dataSourceType?: string(name='DataSourceType', example='OSS'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  labels?: [
+    Label
+  ](name='Labels'),
+  options?: string(name='Options'),
+  property?: string(name='Property', example='FILE'),
+  sourceId?: string(name='SourceId'),
+  sourceType?: string(name='SourceType'),
+  uri?: string(name='Uri', example='OSS://xxx'),
+  versionName?: string(name='VersionName', example='v1'),
 }
 
 model Experiment {
@@ -359,6 +381,8 @@ async function createCodeSource(request: CreateCodeSourceRequest): CreateCodeSou
 
 model CreateDatasetRequest {
   accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  dataCount?: long(name='DataCount', minimum=1, maximum=999999999999, position='Body'),
+  dataSize?: long(name='DataSize', minimum=1, maximum=999999999999, position='Body'),
   dataSourceType: string(name='DataSourceType', description='This parameter is required.', example='NAS', position='Body'),
   dataType?: string(name='DataType', example='COMMON', position='Body'),
   description?: string(name='Description', position='Body'),
@@ -372,10 +396,16 @@ model CreateDatasetRequest {
   property: string(name='Property', description='This parameter is required.', example='DIRECTORY', position='Body'),
   provider?: string(name='Provider', position='Body'),
   providerType?: string(name='ProviderType', example='Ecs', position='Body'),
+  sourceDatasetId?: string(name='SourceDatasetId', position='Body'),
+  sourceDatasetVersion?: string(name='SourceDatasetVersion', position='Body'),
   sourceId?: string(name='SourceId', example='jdnhf***fnrimv', position='Body'),
   sourceType?: string(name='SourceType', example='USER', position='Body'),
   uri: string(name='Uri', description='This parameter is required.', example='nas://09f****f2.cn-hangzhou/', position='Body'),
   userId?: string(name='UserId', example='29884000000186970', position='Body'),
+  versionDescription?: string(name='VersionDescription', position='Body'),
+  versionLabels?: [
+    Label
+  ](name='VersionLabels', position='Body'),
   workspaceId?: string(name='WorkspaceId', example='478**', position='Body'),
 }
 
@@ -423,6 +453,71 @@ model CreateDatasetLabelsResponse = {
 async function createDatasetLabels(request: CreateDatasetLabelsRequest): CreateDatasetLabelsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateDatasetLabels', 'POST', '/api/v1/datasets/{DatasetId}/labels', 'json', false, 'json', request);
+}
+
+model CreateDatasetVersionRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5*****jhc9ks92', position='Path'),
+  dataCount?: long(name='DataCount', example='300', position='Body'),
+  dataSize?: long(name='DataSize', example='19000', position='Body'),
+  dataSourceType: string(name='DataSourceType', description='This parameter is required.', example='OSS', position='Body'),
+  description?: string(name='Description', position='Body'),
+  labels?: [
+    Label
+  ](name='Labels', position='Body'),
+  options?: string(name='Options', example='{
+  "mountPath": "/mnt/data/"
+}', position='Body'),
+  property: string(name='Property', description='This parameter is required.', example='DIRECTORY', position='Body'),
+  sourceId?: string(name='SourceId', example='d-a0xbe5n03bhqof46ce', position='Body'),
+  sourceType?: string(name='SourceType', example='USER', position='Body'),
+  uri: string(name='Uri', description='This parameter is required.', example='oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/', position='Body'),
+}
+
+model CreateDatasetVersionResponseBody = {
+  requestId?: string(name='RequestId'),
+  versionName?: string(name='VersionName', example='v1'),
+}
+
+model CreateDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDatasetVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateDatasetVersion  CreateDatasetVersionRequest
+  * @return CreateDatasetVersionResponse
+ */
+async function createDatasetVersion(request: CreateDatasetVersionRequest): CreateDatasetVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateDatasetVersion', 'POST', '/api/v1/datasets/{DatasetId}/versions', 'json', false, 'json', request);
+}
+
+model CreateDatasetVersionLabelsRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wzlj****9ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='v1', position='Path'),
+  labels: [
+    Label
+  ](name='Labels', description='This parameter is required.', position='Body'),
+}
+
+model CreateDatasetVersionLabelsResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model CreateDatasetVersionLabelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDatasetVersionLabelsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateDatasetVersionLabels  CreateDatasetVersionLabelsRequest
+  * @return CreateDatasetVersionLabelsResponse
+ */
+async function createDatasetVersionLabels(request: CreateDatasetVersionLabelsRequest): CreateDatasetVersionLabelsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateDatasetVersionLabels', 'PUT', '/api/v1/datasets/{DatasetId}/versions/{VersionName}/labels', 'json', false, 'json', request);
 }
 
 model CreateExperimentRequest {
@@ -857,6 +952,55 @@ async function deleteDatasetLabels(request: DeleteDatasetLabelsRequest): DeleteD
   return @handler.do('RESTFUL', 'DeleteDatasetLabels', 'DELETE', '/api/v1/datasets/{DatasetId}/labels', 'json', false, 'json', request);
 }
 
+model DeleteDatasetVersionRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-lfd60v0p****ujtsdx', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='v2', position='Path'),
+}
+
+model DeleteDatasetVersionResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteDatasetVersion  DeleteDatasetVersionRequest
+  * @return DeleteDatasetVersionResponse
+ */
+async function deleteDatasetVersion(request: DeleteDatasetVersionRequest): DeleteDatasetVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteDatasetVersion', 'DELETE', '/api/v1/datasets/{DatasetId}/versions/{VersionName}', 'json', false, 'json', request);
+}
+
+model DeleteDatasetVersionLabelsRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5*****jhc9ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='v1', position='Path'),
+  keys: string(name='Keys', description='This parameter is required.', example='key1,key2', position='Query'),
+}
+
+model DeleteDatasetVersionLabelsResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model DeleteDatasetVersionLabelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetVersionLabelsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteDatasetVersionLabels  DeleteDatasetVersionLabelsRequest
+  * @return DeleteDatasetVersionLabelsResponse
+ */
+async function deleteDatasetVersionLabels(request: DeleteDatasetVersionLabelsRequest): DeleteDatasetVersionLabelsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteDatasetVersionLabels', 'DELETE', '/api/v1/datasets/{DatasetId}/versions/{VersionName}/labels', 'json', false, 'json', request);
+}
+
 model DeleteExperimentRequest {
   experimentId: string(name='ExperimentId', description='This parameter is required.', example='exp-1zpfthdx******', position='Path'),
 }
@@ -1178,6 +1322,7 @@ model GetDatasetResponseBody = {
   labels?: [
     Label
   ](name='Labels'),
+  latestVersion?: DatasetVersion(name='LatestVersion'),
   name?: string(name='Name', example='myName'),
   options?: string(name='Options', example='{
   "mountPath": "/mnt/data/"
@@ -1187,8 +1332,11 @@ model GetDatasetResponseBody = {
   provider?: string(name='Provider'),
   providerType?: string(name='ProviderType'),
   requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+  sourceDatasetId?: string(name='SourceDatasetId'),
+  sourceDatasetVersion?: string(name='SourceDatasetVersion'),
   sourceId?: string(name='SourceId', example='jdnhf***fnrimv'),
   sourceType?: string(name='SourceType', example='USER'),
+  tagTemplateType?: string(name='TagTemplateType'),
   uri?: string(name='Uri', example='nas://09f****f2.cn-hangzhou/'),
   userId?: string(name='UserId', example='2485765****023475'),
   workspaceId?: string(name='WorkspaceId', example='478**'),
@@ -1207,6 +1355,66 @@ model GetDatasetResponse = {
 async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetDataset', 'GET', '/api/v1/datasets/{DatasetId}', 'json', false, 'json', request);
+}
+
+model GetDatasetVersionRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-lfd60v0p****ujtsdx', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='v1', position='Path'),
+}
+
+model GetDatasetVersionResponseBody = {
+  dataCount?: long(name='DataCount', description='数据集的数据量'),
+  dataSize?: long(name='DataSize', description='数据集版本的数据大小。'),
+  dataSourceType: string(name='DataSourceType', description='数据源类型。支持以下取值：
+- OSS：阿里云对象存储（OSS）。
+- NAS：阿里云文件存储（NAS）。
+
+This parameter is required.'),
+  datasetId?: string(name='DatasetId', description='代表资源一级ID的资源属性字段'),
+  description?: string(name='Description', description='数据集版本的描述信息。'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='创建时间。'),
+  labels?: [
+    Label
+  ](name='Labels', description='代表资源标签的资源属性字段'),
+  options?: string(name='Options', description='扩展字段，JsonString类型。
+当DLC使用数据集时，可通过配置mountPath字段指定数据集默认挂载路径。'),
+  property: string(name='Property', description='数据集的属性。支持以下取值：
+- FILE：文件。
+- DIRECTORY：文件夹。
+
+This parameter is required.'),
+  requestId?: string(name='RequestId'),
+  sourceId?: string(name='SourceId', description='数据来源ID。'),
+  sourceType?: string(name='SourceType', description='数据来源类型，默认为USER。支持以下取值：
+- PAI-PUBLIC-DATASET：PAI公共数据集。
+- ITAG：iTAG模块标注结果生成的数据集。
+- USER：用户注册的数据集。'),
+  uri: string(name='Uri', description='Uri配置样例如下：
+- 数据源类型为OSS：`oss://bucket.endpoint/object`
+- 数据源类型为NAS：
+通用型NAS格式为：`nas://<nasfisid>.region/subpath/to/dir/`；
+CPFS1.0：`nas://<cpfs-fsid>.region/subpath/to/dir/`；
+CPFS2.0：`nas://<cpfs-fsid>.region/<protocolserviceid>/`。
+CPFS1.0和CPFS2.0根据fsid的格式来区分：CPFS1.0 格式为cpfs-<8位ascii字符>；CPFS2.0 格式为cpfs-<16为ascii字符>。
+
+This parameter is required.'),
+  versionName?: string(name='VersionName', description='代表资源名称的资源属性字段'),
+}
+
+model GetDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDatasetVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetDatasetVersion  GetDatasetVersionRequest
+  * @return GetDatasetVersionResponse
+ */
+async function getDatasetVersion(request: GetDatasetVersionRequest): GetDatasetVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDatasetVersion', 'GET', '/api/v1/datasets/{DatasetId}/versions/{VersionName}', 'json', false, 'json', request);
 }
 
 model GetDefaultWorkspaceRequest {
@@ -1565,6 +1773,45 @@ async function listCodeSources(request: ListCodeSourcesRequest): ListCodeSources
   return @handler.do('RESTFUL', 'ListCodeSources', 'GET', '/api/v1/codesources', 'json', false, 'json', request);
 }
 
+model ListDatasetVersionsRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wz****c9ks92', position='Path'),
+  dataSourcesTypes?: string(name='DataSourcesTypes', example='OSS', position='Query'),
+  labelKeys?: string(name='LabelKeys', example='key1,key2', position='Query'),
+  lableValues?: string(name='LableValues', example='value1,value2', position='Query'),
+  order?: string(name='Order', example='ASC', position='Query'),
+  pageNumber: int32(name='PageNumber', description='This parameter is required.', example='1', position='Query'),
+  pageSize: int32(name='PageSize', description='This parameter is required.', example='10', position='Query'),
+  properties?: string(name='Properties', example='DIRECTORY', position='Query'),
+  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
+  sourceId?: string(name='SourceId', example='d-a0xbe5n03bhqof46ce', position='Query'),
+  sourceTypes?: string(name='SourceTypes', example='USER', position='Query'),
+}
+
+model ListDatasetVersionsResponseBody = {
+  datasetVersions?: [
+    DatasetVersion
+  ](name='DatasetVersions'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount', example='5'),
+}
+
+model ListDatasetVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDatasetVersionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListDatasetVersions  ListDatasetVersionsRequest
+  * @return ListDatasetVersionsResponse
+ */
+async function listDatasetVersions(request: ListDatasetVersionsRequest): ListDatasetVersionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListDatasetVersions', 'GET', '/api/v1/datasets/{DatasetId}/versions', 'json', false, 'json', request);
+}
+
 model ListDatasetsRequest {
   dataSourceTypes?: string(name='DataSourceTypes', example='OSS', position='Query'),
   dataTypes?: string(name='DataTypes', example='COMMON,TEXT', position='Query'),
@@ -1575,6 +1822,7 @@ model ListDatasetsRequest {
   pageSize?: int32(name='PageSize', example='10', position='Query'),
   properties?: string(name='Properties', example='FILE', position='Query'),
   provider?: string(name='Provider', position='Query'),
+  sourceDatasetId?: string(name='SourceDatasetId', position='Query'),
   sourceId?: string(name='SourceId', example='d-rbvg5wzljzjhc9ks92', position='Query'),
   sourceTypes?: string(name='SourceTypes', example='USER,ITAG', position='Query'),
   workspaceId?: string(name='WorkspaceId', example='324**', position='Query'),
@@ -2426,6 +2674,36 @@ model UpdateDatasetResponse = {
 async function updateDataset(request: UpdateDatasetRequest): UpdateDatasetResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateDataset', 'PUT', '/api/v1/datasets/{DatasetId}', 'json', false, 'json', request);
+}
+
+model UpdateDatasetVersionRequest {
+  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5****jhc9ks92', position='Path'),
+  versionName: string(name='VersionName', description='This parameter is required.', example='v1', position='Path'),
+  dataCount?: long(name='DataCount', example='100', position='Body'),
+  dataSize?: long(name='DataSize', example='100000', position='Body'),
+  description?: string(name='Description', position='Body'),
+  options?: string(name='Options', example='{
+  "mountPath": "/mnt/data/"
+}', position='Body'),
+}
+
+model UpdateDatasetVersionResponseBody = {
+  requestId?: string(name='RequestId'),
+}
+
+model UpdateDatasetVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDatasetVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateDatasetVersion  UpdateDatasetVersionRequest
+  * @return UpdateDatasetVersionResponse
+ */
+async function updateDatasetVersion(request: UpdateDatasetVersionRequest): UpdateDatasetVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateDatasetVersion', 'PUT', '/api/v1/datasets/{DatasetId}/versions/{VersionName}', 'json', false, 'json', request);
 }
 
 model UpdateDefaultWorkspaceRequest {
