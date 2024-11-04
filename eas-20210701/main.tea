@@ -208,6 +208,93 @@ model Service {
   workspaceId?: string(name='WorkspaceId'),
 }
 
+model AttachGatewayDomainRequest {
+  customDomain?: {
+    certificateId?: string(name='CertificateId', description='The ID of the SSL certificate bound to the domain name. Obtain the certificate ID after you upload or purchase a certificate in the [Certificate Management Service](https://yundunnext.console.aliyun.com/?spm=5176.2020520163.console-base_help.2.4b3baJixaJixOc\\\\&p=cas) console.', example='1473**25'),
+    domain?: string(name='Domain', description='The custom domain name.
+
+This parameter is required.', example='test.com'),
+    type?: string(name='Type', description='The domain name type.
+
+Valid value:
+
+*   intranet: internal network.
+*   internet: public network.
+
+This parameter is required.', example='intranet'),
+  }(name='CustomDomain', description='The custom domain name information.
+
+This parameter is required.'),
+}
+
+model AttachGatewayDomainShrinkRequest {
+  customDomainShrink?: string(name='CustomDomain', description='The custom domain name information.
+
+This parameter is required.'),
+}
+
+model AttachGatewayDomainResponseBody = {
+  gatewayId?: string(name='GatewayId', description='The ID of the private gateway. To obtain the private gateway ID, see the GatewayId parameter in the response parameters of the [ListGateway](https://apiworkbench.aliyun-inc.com/document/eas/2021-07-01/ListGateway?spm=openapi-amp.newDocPublishment.0.0.765e281fL2IcjJ\\\\&ampEnv=online) operation.', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', description='The error message.', example='Successfully update custom endpoint for gateway gw-1uhcqmsc7x22******'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+}
+
+model AttachGatewayDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachGatewayDomainResponseBody(name='body'),
+}
+
+/**
+ * @summary Binds a custom domain name to a private gateway.
+ *
+ * @param tmpReq AttachGatewayDomainRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AttachGatewayDomainResponse
+ */
+async function attachGatewayDomainWithOptions(ClusterId: string, GatewayId: string, tmpReq: AttachGatewayDomainRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AttachGatewayDomainResponse {
+  Util.validateModel(tmpReq);
+  var request = new AttachGatewayDomainShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.customDomain)) {
+    request.customDomainShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customDomain, 'CustomDomain', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.customDomainShrink)) {
+    query['CustomDomain'] = request.customDomainShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AttachGatewayDomain',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/domain/attach`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Binds a custom domain name to a private gateway.
+ *
+ * @param request AttachGatewayDomainRequest
+ * @return AttachGatewayDomainResponse
+ */
+async function attachGatewayDomain(ClusterId: string, GatewayId: string, request: AttachGatewayDomainRequest): AttachGatewayDomainResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return attachGatewayDomainWithOptions(ClusterId, GatewayId, request, headers, runtime);
+}
+
 model CloneServiceRequest {
   labels?: map[string]string(name='Labels', description='The label of the service to be cloned.'),
   body?: string(name='body', description='The request body. For more information, see [CreateService](https://help.aliyun.com/document_detail/412086.html).', example='{   "name": "foo",   "model_path": "http://path/to/model.tar.gz",   "processor": "tensorflow_cpu",   "metadata": {     "instance": 2,     "memory": 7000,     "cpu": 4   } }'),
@@ -616,8 +703,14 @@ async function createBenchmarkTask(request: CreateBenchmarkTaskRequest): CreateB
 
 model CreateGatewayRequest {
   resourceName?: string(name='ResourceName', description='The resource group ID. To obtain a resource group ID, see the ResourceId field in the response of the [ListResources](https://help.aliyun.com/document_detail/412133.html) operation.', example='eas-r-4gt8twzwllfo******'),
-  autoRenewal?: boolean(name='AutoRenewal'),
-  chargeType?: string(name='ChargeType'),
+  autoRenewal?: boolean(name='AutoRenewal', description='Specifies whether to enable auto-renewal. Valid values:
+
+*   false (default)
+*   true'),
+  chargeType?: string(name='ChargeType', description='The billing method. Valid values:
+
+*   PrePaid: subscription.
+*   PostPaid: pay-as-you-go.', example='PostPaid'),
   enableInternet?: boolean(name='EnableInternet', description='Specifies whether to enable Internet access. Default value: false.
 
 Valid values:
@@ -656,7 +749,7 @@ model CreateGatewayResponse = {
 }
 
 /**
- * @summary Creates a private gateway. You can create a private gateway only in a self-managed resource group.
+ * @summary Creates a gateway.
  *
  * @param request CreateGatewayRequest
  * @param headers map
@@ -713,7 +806,7 @@ async function createGatewayWithOptions(request: CreateGatewayRequest, headers: 
 }
 
 /**
- * @summary Creates a private gateway. You can create a private gateway only in a self-managed resource group.
+ * @summary Creates a gateway.
  *
  * @param request CreateGatewayRequest
  * @return CreateGatewayResponse
@@ -787,6 +880,86 @@ async function createGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: stri
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, request, headers, runtime);
+}
+
+model CreateGatewayIntranetLinkedVpcPeerRequest {
+  peerVpcs?: [ 
+    {
+      region?: string(name='Region', example='cn-shanghai'),
+      vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+    }
+  ](name='PeerVpcs'),
+  vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+}
+
+model CreateGatewayIntranetLinkedVpcPeerShrinkRequest {
+  peerVpcsShrink?: string(name='PeerVpcs'),
+  vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+}
+
+model CreateGatewayIntranetLinkedVpcPeerResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully add intranet linked vpc Peer for gateway'),
+  requestId?: string(name='requestId', example='40325405-579C-4D82****'),
+}
+
+model CreateGatewayIntranetLinkedVpcPeerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateGatewayIntranetLinkedVpcPeerResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建网关内网访问端点跨VPC连接
+ *
+ * @param tmpReq CreateGatewayIntranetLinkedVpcPeerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateGatewayIntranetLinkedVpcPeerResponse
+ */
+async function createGatewayIntranetLinkedVpcPeerWithOptions(ClusterId: string, GatewayId: string, tmpReq: CreateGatewayIntranetLinkedVpcPeerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGatewayIntranetLinkedVpcPeerResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateGatewayIntranetLinkedVpcPeerShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.peerVpcs)) {
+    request.peerVpcsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.peerVpcs, 'PeerVpcs', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.peerVpcsShrink)) {
+    query['PeerVpcs'] = request.peerVpcsShrink;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateGatewayIntranetLinkedVpcPeer',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc_peer`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建网关内网访问端点跨VPC连接
+ *
+ * @param request CreateGatewayIntranetLinkedVpcPeerRequest
+ * @return CreateGatewayIntranetLinkedVpcPeerResponse
+ */
+async function createGatewayIntranetLinkedVpcPeer(ClusterId: string, GatewayId: string, request: CreateGatewayIntranetLinkedVpcPeerRequest): CreateGatewayIntranetLinkedVpcPeerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createGatewayIntranetLinkedVpcPeerWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model CreateResourceRequest {
@@ -1604,6 +1777,88 @@ async function createServiceMirror(ClusterId: string, ServiceName: string, reque
   return createServiceMirrorWithOptions(ClusterId, ServiceName, request, headers, runtime);
 }
 
+model CreateVirtualResourceRequest {
+  resources?: [ 
+    {
+      instanceType?: string(name='InstanceType', description='The instance type of the public resource group.
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='ecs.s6-c1m2.xlarge'),
+      priority?: int32(name='Priority', description='The priority of resource scheduling. A greater number specifies a higher priority.', example='6'),
+      quotaId?: string(name='QuotaId', description='Lingjun Resource Quota ID.
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='quota185lqxxxxxx'),
+      region?: string(name='Region', description='The region where the resource resides.', example='cn-hangzhou'),
+      resourceId?: string(name='ResourceId', description='The ID of the dedicated resource group. For information about how to query the ID of a dedicated resource group, see [ListResources](https://help.aliyun.com/document_detail/412133.html).
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='eas-r-g55ieatgg3buxxxxxx'),
+      spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum price of preemptible instances in a public resource group.
+
+>  If you do not set this value, preemptible instances are not used.', example='10.05'),
+    }
+  ](name='Resources', description='The list of resources in the virtual resource group.'),
+  virtualResourceName?: string(name='VirtualResourceName', description='The name of the virtual resource group. Default value: the ID of the virtual resource group.', example='MyVirtualResource'),
+}
+
+model CreateVirtualResourceResponseBody = {
+  message?: string(name='Message', description='The returned message.', example='Successfully created virtual resource eas-vr-npovr28onap1xxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82***'),
+  virtualResourceId?: string(name='VirtualResourceId', description='The ID of the virtual resource group.', example='eas-vr-npovr28onap1xxxxxx'),
+}
+
+model CreateVirtualResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateVirtualResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a virtual resource group.
+ *
+ * @param request CreateVirtualResourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateVirtualResourceResponse
+ */
+async function createVirtualResourceWithOptions(request: CreateVirtualResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateVirtualResourceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.resources)) {
+    body['Resources'] = request.resources;
+  }
+  if (!Util.isUnset(request.virtualResourceName)) {
+    body['VirtualResourceName'] = request.virtualResourceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateVirtualResource',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/virtualresources`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a virtual resource group.
+ *
+ * @param request CreateVirtualResourceRequest
+ * @return CreateVirtualResourceResponse
+ */
+async function createVirtualResource(request: CreateVirtualResourceRequest): CreateVirtualResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createVirtualResourceWithOptions(request, headers, runtime);
+}
+
 model DeleteAclPolicyRequest {
   aclPolicyList?: [ 
     {
@@ -1842,6 +2097,86 @@ async function deleteGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: stri
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, request, headers, runtime);
+}
+
+model DeleteGatewayIntranetLinkedVpcPeerRequest {
+  peerVpcs?: [ 
+    {
+      region?: string(name='Region', example='cn-shanghai'),
+      vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+    }
+  ](name='PeerVpcs'),
+  vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+}
+
+model DeleteGatewayIntranetLinkedVpcPeerShrinkRequest {
+  peerVpcsShrink?: string(name='PeerVpcs'),
+  vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+}
+
+model DeleteGatewayIntranetLinkedVpcPeerResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', example='Successfully delete intranet linked vpc Peer for gateway'),
+  requestId?: string(name='requestId', example='40325405-579C-4D82****'),
+}
+
+model DeleteGatewayIntranetLinkedVpcPeerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteGatewayIntranetLinkedVpcPeerResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除网关内网访问端点跨VPC连接
+ *
+ * @param tmpReq DeleteGatewayIntranetLinkedVpcPeerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteGatewayIntranetLinkedVpcPeerResponse
+ */
+async function deleteGatewayIntranetLinkedVpcPeerWithOptions(ClusterId: string, GatewayId: string, tmpReq: DeleteGatewayIntranetLinkedVpcPeerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteGatewayIntranetLinkedVpcPeerResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteGatewayIntranetLinkedVpcPeerShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.peerVpcs)) {
+    request.peerVpcsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.peerVpcs, 'PeerVpcs', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.peerVpcsShrink)) {
+    query['PeerVpcs'] = request.peerVpcsShrink;
+  }
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGatewayIntranetLinkedVpcPeer',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc_peer`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除网关内网访问端点跨VPC连接
+ *
+ * @param request DeleteGatewayIntranetLinkedVpcPeerRequest
+ * @return DeleteGatewayIntranetLinkedVpcPeerResponse
+ */
+async function deleteGatewayIntranetLinkedVpcPeer(ClusterId: string, GatewayId: string, request: DeleteGatewayIntranetLinkedVpcPeerRequest): DeleteGatewayIntranetLinkedVpcPeerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteGatewayIntranetLinkedVpcPeerWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model DeleteResourceResponseBody = {
@@ -2381,6 +2716,53 @@ async function deleteServiceMirror(ClusterId: string, ServiceName: string): Dele
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteServiceMirrorWithOptions(ClusterId, ServiceName, headers, runtime);
+}
+
+model DeleteVirtualResourceResponseBody = {
+  message?: string(name='Message', description='The information about the operation result.', example='Successfully deleted virtual resource eas-vr-npovr28onap1xxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82***'),
+}
+
+model DeleteVirtualResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteVirtualResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a virtual resource group that contains no resources or instances.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteVirtualResourceResponse
+ */
+async function deleteVirtualResourceWithOptions(ClusterId: string, VirtualResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteVirtualResourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteVirtualResource',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/virtualresources/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(VirtualResourceId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a virtual resource group that contains no resources or instances.
+ *
+ * @return DeleteVirtualResourceResponse
+ */
+async function deleteVirtualResource(ClusterId: string, VirtualResourceId: string): DeleteVirtualResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteVirtualResourceWithOptions(ClusterId, VirtualResourceId, headers, runtime);
 }
 
 model DescribeBenchmarkTaskResponseBody = {
@@ -3527,6 +3909,152 @@ async function describeSpotDiscountHistory(request: DescribeSpotDiscountHistoryR
   return describeSpotDiscountHistoryWithOptions(request, headers, runtime);
 }
 
+model DescribeVirtualResourceResponseBody = {
+  createTime?: string(name='CreateTime', description='The time when the virtual resource group was created.', example='2024-10-16T17:52:49Z'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+  resources?: [ 
+    {
+      instanceType?: string(name='InstanceType', description='The instance type of the public resource group.', example='ecs.s6-c1m2.xlarge'),
+      priority?: int32(name='Priority', description='The priority of resource scheduling. A greater number specifies a higher priority.', example='3'),
+      quotaId?: string(name='QuotaId', description='The instance type of the public resource group.', example='quota185lqxxxxxx'),
+      region?: string(name='Region', description='The region where the resource resides.', example='cn-hangzhou'),
+      resourceId?: string(name='ResourceId', description='The ID of the dedicated resource group.', example='eas-r-g55ieatgg3buxxxxxx'),
+      spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum price of preemptible instances in a public resource group.', example='10.05'),
+    }
+  ](name='Resources', description='The list of resources in the virtual resource group.'),
+  updateTime?: string(name='UpdateTime', description='The time when the virtual resource group was last updated.', example='2024-10-16T19:52:49Z'),
+  virtualResourceId?: string(name='VirtualResourceId', description='The ID of the virtual resource group.', example='eas-vr-npovr28onap1xxxxxx'),
+  virtualResourceName?: string(name='VirtualResourceName', description='The name of the virtual resource group.', example='MyVirtualResource'),
+}
+
+model DescribeVirtualResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeVirtualResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Views the details of a virtual resource group.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeVirtualResourceResponse
+ */
+async function describeVirtualResourceWithOptions(ClusterId: string, VirtualResourceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeVirtualResourceResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeVirtualResource',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/virtualresources/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(VirtualResourceId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Views the details of a virtual resource group.
+ *
+ * @return DescribeVirtualResourceResponse
+ */
+async function describeVirtualResource(ClusterId: string, VirtualResourceId: string): DescribeVirtualResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeVirtualResourceWithOptions(ClusterId, VirtualResourceId, headers, runtime);
+}
+
+model DetachGatewayDomainRequest {
+  customDomain?: {
+    domain?: string(name='Domain', description='The custom domain name.
+
+This parameter is required.', example='test.com'),
+    type?: string(name='Type', description='The domain name type.
+
+Valid value:
+
+*   intranet: internal network.
+*   internet: public network.
+
+This parameter is required.', example='intranet'),
+  }(name='CustomDomain', description='The custom domain name information.
+
+This parameter is required.'),
+}
+
+model DetachGatewayDomainShrinkRequest {
+  customDomainShrink?: string(name='CustomDomain', description='The custom domain name information.
+
+This parameter is required.'),
+}
+
+model DetachGatewayDomainResponseBody = {
+  gatewayId?: string(name='GatewayId', description='The ID of the private gateway. To obtain the private gateway ID, see the GatewayId parameter in the response parameters of the [ListGateway](https://apiworkbench.aliyun-inc.com/document/eas/2021-07-01/ListGateway?spm=openapi-amp.newDocPublishment.0.0.765e281fL2IcjJ\\\\&ampEnv=online) operation.', example='gw-1uhcqmsc7x22******'),
+  message?: string(name='Message', description='The message that is returned.', example='Successfully delete custom endpoint for gateway gw-1uhcqmsc7x22******'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+}
+
+model DetachGatewayDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetachGatewayDomainResponseBody(name='body'),
+}
+
+/**
+ * @summary Unbinds a custom domain name from a private gateway.
+ *
+ * @param tmpReq DetachGatewayDomainRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DetachGatewayDomainResponse
+ */
+async function detachGatewayDomainWithOptions(ClusterId: string, GatewayId: string, tmpReq: DetachGatewayDomainRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DetachGatewayDomainResponse {
+  Util.validateModel(tmpReq);
+  var request = new DetachGatewayDomainShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.customDomain)) {
+    request.customDomainShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.customDomain, 'CustomDomain', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.customDomainShrink)) {
+    query['CustomDomain'] = request.customDomainShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DetachGatewayDomain',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/domain/detach`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Unbinds a custom domain name from a private gateway.
+ *
+ * @param request DetachGatewayDomainRequest
+ * @return DetachGatewayDomainResponse
+ */
+async function detachGatewayDomain(ClusterId: string, GatewayId: string, request: DetachGatewayDomainRequest): DetachGatewayDomainResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return detachGatewayDomainWithOptions(ClusterId, GatewayId, request, headers, runtime);
+}
+
 model DevelopServiceRequest {
   exit?: string(name='Exit', description='Specifies whether to exit development mode. Valid values:
 
@@ -3837,13 +4365,16 @@ model ListGatewayRequest {
   gatewayName?: string(name='GatewayName', description='The private gateway alias.', example='mygateway1'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='100'),
-  resourceName?: string(name='ResourceName'),
+  resourceName?: string(name='ResourceName', description='The ID of the resource group. To obtain a resource group ID, see the ResourceId field in the response of the [ListResources](https://help.aliyun.com/document_detail/412133.html) operation.', example='eas-r-4gt8twzwllfo******'),
 }
 
 model ListGatewayResponseBody = {
   gateways?: [ 
     {
-      chargeType?: string(name='ChargeType'),
+      chargeType?: string(name='ChargeType', description='The billing method. Valid values:
+
+*   PrePaid: subscription.
+*   PostPaid: pay-as-you-go.', example='PostPaid'),
       createTime?: string(name='CreateTime', description='The time when the private gateway was created. The time is displayed in UTC.', example='2020-05-19T14:19:42Z'),
       gatewayId?: string(name='GatewayId', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
       gatewayName?: string(name='GatewayName', description='The private gateway alias.', example='mygateway1'),
@@ -3936,6 +4467,65 @@ async function listGateway(request: ListGatewayRequest): ListGatewayResponse {
   return listGatewayWithOptions(request, headers, runtime);
 }
 
+model ListGatewayDomainsResponseBody = {
+  customDomains?: [ 
+    {
+      certificateId?: string(name='CertificateId', description='The ID of the SSL certificate bound to the domain name. Obtain the certificate ID after you upload or purchase a certificate in the [Certificate Management Service](https://yundunnext.console.aliyun.com/?spm=5176.2020520163.console-base_help.2.4b3baJixaJixOc\\\\&p=cas) console.', example='1473**25'),
+      domain?: string(name='Domain', description='The custom domain name.', example='test.com'),
+      type?: string(name='Type', description='The domain name type.
+
+Valid value:
+
+*   intranet: internal network.
+*   internet: public network.', example='intranet'),
+    }
+  ](name='CustomDomains', description='The list of custom domain names.'),
+  message?: string(name='Message', description='The message that is returned.', example='Successfully get custom domains'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+}
+
+model ListGatewayDomainsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayDomainsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of custom domain names of a private gateway.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayDomainsResponse
+ */
+async function listGatewayDomainsWithOptions(ClusterId: string, GatewayId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayDomainsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayDomains',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/domains`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of custom domain names of a private gateway.
+ *
+ * @return ListGatewayDomainsResponse
+ */
+async function listGatewayDomains(ClusterId: string, GatewayId: string): ListGatewayDomainsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayDomainsWithOptions(ClusterId, GatewayId, headers, runtime);
+}
+
 model ListGatewayIntranetLinkedVpcResponseBody = {
   gatewayId?: string(name='GatewayId', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
   intranetLinkedVpcList?: [ 
@@ -4016,6 +4606,77 @@ async function listGatewayIntranetLinkedVpc(ClusterId: string, GatewayId: string
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listGatewayIntranetLinkedVpcWithOptions(ClusterId, GatewayId, headers, runtime);
+}
+
+model ListGatewayIntranetLinkedVpcPeerRequest {
+  vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+}
+
+model ListGatewayIntranetLinkedVpcPeerResponseBody = {
+  gatewayId?: string(name='GatewayId', example='gw-1uhcqmsc7x22******'),
+  peerVpcList?: [ 
+    {
+      peerVpcs?: [ 
+        {
+          region?: string(name='Region', example='cn-shanghai'),
+          vpcId?: string(name='VpcId', example='vpc-uf66uio7md****'),
+        }
+      ](name='PeerVpcs'),
+      vpcId?: string(name='VpcId', example='vpc-2zetuli9ws0qgjd******'),
+    }
+  ](name='PeerVpcList'),
+  requestId?: string(name='requestId', example='40325405-579C-4D82****'),
+}
+
+model ListGatewayIntranetLinkedVpcPeerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListGatewayIntranetLinkedVpcPeerResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取网关内网访问端点跨VPC连接列表
+ *
+ * @param request ListGatewayIntranetLinkedVpcPeerRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListGatewayIntranetLinkedVpcPeerResponse
+ */
+async function listGatewayIntranetLinkedVpcPeerWithOptions(ClusterId: string, GatewayId: string, request: ListGatewayIntranetLinkedVpcPeerRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListGatewayIntranetLinkedVpcPeerResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.vpcId)) {
+    query['VpcId'] = request.vpcId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListGatewayIntranetLinkedVpcPeer',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/gateways/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(GatewayId)}/intranet_endpoint_linked_vpc_peer`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取网关内网访问端点跨VPC连接列表
+ *
+ * @param request ListGatewayIntranetLinkedVpcPeerRequest
+ * @return ListGatewayIntranetLinkedVpcPeerResponse
+ */
+async function listGatewayIntranetLinkedVpcPeer(ClusterId: string, GatewayId: string, request: ListGatewayIntranetLinkedVpcPeerRequest): ListGatewayIntranetLinkedVpcPeerResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listGatewayIntranetLinkedVpcPeerWithOptions(ClusterId, GatewayId, request, headers, runtime);
 }
 
 model ListGroupsRequest {
@@ -5575,6 +6236,88 @@ async function listTenantAddons(): ListTenantAddonsResponse {
   return listTenantAddonsWithOptions(headers, runtime);
 }
 
+model ListVirtualResourceRequest {
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20'),
+  virtualResourceId?: string(name='VirtualResourceId', description='The ID of the virtual resource group.', example='eas-vr-npovr28onap1xxxxxx'),
+  virtualResourceName?: string(name='VirtualResourceName', description='The name of the virtual resource group.', example='MyVirtualResource'),
+}
+
+model ListVirtualResourceResponseBody = {
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='100'),
+  virtualResources?: [ 
+    {
+      createTime?: string(name='CreateTime', description='The time when the virtual resource group was created.', example='2024-10-16T17:52:49Z'),
+      updateTime?: string(name='UpdateTime', description='The time when the virtual resource group was last updated.', example='2024-10-16T19:52:49Z'),
+      virtualResourceId?: string(name='VirtualResourceId', description='The ID of the virtual resource group.', example='eas-vr-npovr28onap1xxxxxx'),
+      virtualResourceName?: string(name='VirtualResourceName', description='The name of the virtual resource group.', example='MyVirtualResource'),
+    }
+  ](name='VirtualResources', description='The list of virtual resource groups.'),
+}
+
+model ListVirtualResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListVirtualResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of virtual resource groups for the current user.
+ *
+ * @param request ListVirtualResourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListVirtualResourceResponse
+ */
+async function listVirtualResourceWithOptions(request: ListVirtualResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListVirtualResourceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.virtualResourceId)) {
+    query['VirtualResourceId'] = request.virtualResourceId;
+  }
+  if (!Util.isUnset(request.virtualResourceName)) {
+    query['VirtualResourceName'] = request.virtualResourceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListVirtualResource',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/virtualresources`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of virtual resource groups for the current user.
+ *
+ * @param request ListVirtualResourceRequest
+ * @return ListVirtualResourceResponse
+ */
+async function listVirtualResource(request: ListVirtualResourceRequest): ListVirtualResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listVirtualResourceWithOptions(request, headers, runtime);
+}
+
 model ReinstallTenantAddonResponseBody = {
   message?: string(name='Message', description='The returned message.', example='Addon prometheus_discovery is successfully reinstalled'),
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
@@ -5587,7 +6330,7 @@ model ReinstallTenantAddonResponse = {
 }
 
 /**
- * @summary Updates the information about a tenant plug-in.
+ * @summary Resets tenant configurations.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -5612,7 +6355,7 @@ async function reinstallTenantAddonWithOptions(ClusterId: string, TenantAddonNam
 }
 
 /**
- * @summary Updates the information about a tenant plug-in.
+ * @summary Resets tenant configurations.
  *
  * @return ReinstallTenantAddonResponse
  */
@@ -6976,5 +7719,88 @@ async function updateServiceVersion(ClusterId: string, ServiceName: string, requ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateServiceVersionWithOptions(ClusterId, ServiceName, request, headers, runtime);
+}
+
+model UpdateVirtualResourceRequest {
+  resources?: [ 
+    {
+      instanceType?: string(name='InstanceType', description='The instance type of the public resource group.
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='ecs.s6-c1m2.xlarge'),
+      priority?: int32(name='Priority', description='The priority of resource scheduling. A greater number specifies a higher priority.', example='6'),
+      quotaId?: string(name='QuotaId', description='The Lingjun resource quota ID.
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='quota185lqf994k6'),
+      region?: string(name='Region', description='The region where the resource resides.', example='cn-hangzhou'),
+      resourceId?: string(name='ResourceId', description='The ID of the dedicated resource group. For information about how to query the ID of a dedicated resource group, see [ListResources](https://help.aliyun.com/document_detail/412133.html).
+
+>  You must specify one and only one of the InstanceType, ResourceId, and QuotaId parameters.', example='eas-r-g55ieatgg3butwrn7a'),
+      spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum price of preemptible instances in a public resource group.
+
+>  If you do not specify this parameter, preemptible instances are not used.', example='10.05'),
+    }
+  ](name='Resources', description='The list of resources in the virtual resource group.
+
+>  If you specify this parameter, previous data are overwritten.'),
+  virtualResourceName?: string(name='VirtualResourceName', description='The new name for the virtual resource group.', example='NewMyVirtualResource'),
+}
+
+model UpdateVirtualResourceResponseBody = {
+  message?: string(name='Message', description='The returned message.', example='Successfully updated virtual resource eas-vr-npovr28onap1xxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
+}
+
+model UpdateVirtualResourceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateVirtualResourceResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the information about a virtual resource group.
+ *
+ * @param request UpdateVirtualResourceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateVirtualResourceResponse
+ */
+async function updateVirtualResourceWithOptions(ClusterId: string, VirtualResourceId: string, request: UpdateVirtualResourceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateVirtualResourceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.resources)) {
+    body['Resources'] = request.resources;
+  }
+  if (!Util.isUnset(request.virtualResourceName)) {
+    body['VirtualResourceName'] = request.virtualResourceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateVirtualResource',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/virtualresources/${OpenApiUtil.getEncodeParam(ClusterId)}/${OpenApiUtil.getEncodeParam(VirtualResourceId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the information about a virtual resource group.
+ *
+ * @param request UpdateVirtualResourceRequest
+ * @return UpdateVirtualResourceResponse
+ */
+async function updateVirtualResource(ClusterId: string, VirtualResourceId: string, request: UpdateVirtualResourceRequest): UpdateVirtualResourceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateVirtualResourceWithOptions(ClusterId, VirtualResourceId, request, headers, runtime);
 }
 
