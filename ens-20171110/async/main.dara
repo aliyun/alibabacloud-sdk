@@ -172,22 +172,22 @@ async function accosicateNetworkAcl(request: AccosicateNetworkAclRequest): Accos
 model AddBackendServersRequest {
   backendServers: [ 
     {
-      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.0.1'),
+      ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.X.X'),
       port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='3309', minimum=0, maximum=65535),
-      serverId: string(name='ServerId', description='The ID of the ENS instance.
+      serverId: string(name='ServerId', description='The ID of the backend server.
 
 This parameter is required.', example='i-5uf6dwyzch3wly790****'),
       type?: string(name='Type', description='The type of the backend server. Valid values:
 
-*   **ens**: ENS instance.
-*   **eni**: ENI.', example='ens'),
+*   **ens**: ENS instance
+*   **eni**: elastic network interface (ENI)', example='ens'),
       weight?: int32(name='Weight', description='The weight of the backend server. Default value: 100. Valid values: **0** to **100**.
 
 >  The value 0 indicates that requests are not forwarded to the backend server.', example='100', minimum=0, maximum=100),
     }
-  ](name='BackendServers', description='The list of backend servers that you want to add. You can add at most 20 backend servers.
+  ](name='BackendServers', description='The list of backend servers that you want to add to the Edge Load Balancer (ELB) instance. You can add up to 20 backend servers at a time.
 
->  Only ENS instances that are in the running state can be attached to the ELB instance as backend servers.
+>  Only Edge Node Service (ENS) instances that are in the running state can be added to the ELB instance as backend servers.
 
 This parameter is required.', shrink='json', position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.
@@ -412,13 +412,20 @@ async function associateEnsEipAddress(request: AssociateEnsEipAddressRequest): A
 }
 
 model AssociateHaVipRequest {
-  haVipId: string(name='HaVipId', description='This parameter is required.', example='havip-5p14t****', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='i-50c4****', position='Query'),
-  instanceType?: string(name='InstanceType', example='EnsInstance', position='Query'),
+  haVipId: string(name='HaVipId', description='The ID of the HAVIP.
+
+This parameter is required.', example='havip-5p14t****', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the instance.
+
+This parameter is required.', example='i-50c4****', position='Query'),
+  instanceType?: string(name='InstanceType', description='The type of the instance to be associated with the HAVIP. Valid values:
+
+*   EnsInstance (default): ENS instance.
+*   NetworkInterface: ENI. If you want to associate the HAVIP with an ENI, this parameter is required.', example='EnsInstance', position='Query'),
 }
 
 model AssociateHaVipResponseBody = {
-  requestId?: string(name='RequestId', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
 }
 
 model AssociateHaVipResponse = {
@@ -428,6 +435,15 @@ model AssociateHaVipResponse = {
 }
 
 /**
+  * @description When you call this operation to associate an HAVIP, take note of the following items:
+  * *   An HAVIP immediately takes effect after it is associated. You do not need to restart the ENS instance. However, you need to associate the HAVIP with the ENI of the ENS instance.
+  * *   The HAVIP and ENS instance must belong to the same vSwitch.
+  * *   The ENS instance must be in the Running or Stopped state.
+  * *   The HAVIP must be in the Available or InUse state.
+  * *   AssociateHaVip is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the DescribeHaVips operation to query the status of an HAVIP:
+  *     *   If the HAVIP is in the Associating state, the HAVIP is being associated.
+  *     <!---->
+  *     *   If the HAVIP is in the InUse state, the HAVIP is associated.
   * @param request  the request parameters of AssociateHaVip  AssociateHaVipRequest
   * @return AssociateHaVipResponse
  */
@@ -788,6 +804,7 @@ This parameter is required.', example='1', minimum=1, maximum=10, position='Quer
   ensRegionId: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.
 
 This parameter is required.', example='cn-guiyang-12', position='Query'),
+  environmentVar?: string(name='EnvironmentVar', position='Query'),
   frequency?: int32(name='Frequency', description='The refresh rate. Unit: Hz. Valid values: 30 and 60.', example='30', position='Query'),
   imageId: string(name='ImageId', description='The ID of the image.
 
@@ -955,13 +972,13 @@ async function createClassicNetwork(request: CreateClassicNetworkRequest): Creat
 }
 
 model CreateClusterRequest {
-  clusterVersion?: string(name='ClusterVersion', example='1.18.8', position='Query'),
-  name?: string(name='Name', example='mycluster-1', position='Query'),
+  clusterVersion?: string(name='ClusterVersion', description='The version of the cluster.', example='1.18.8', position='Query'),
+  name?: string(name='Name', description='The name of the cluster.', example='mycluster-1', position='Query'),
 }
 
 model CreateClusterResponseBody = {
-  clusterId?: string(name='ClusterId', example='c34b69b095f8241c5a91cc2252dceb976'),
-  requestId?: string(name='RequestId', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  clusterId?: string(name='ClusterId', description='The ID of the instance.', example='c34b69b095f8241c5a91cc2252dceb976'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model CreateClusterResponse = {
@@ -971,6 +988,8 @@ model CreateClusterResponse = {
 }
 
 /**
+  * @description *   You can call this operation up to 10 times per second per account.
+  * *   Creating a cluster is an asynchronous operation. After this operation returns the response, it takes 10 to 20 minutes to initialize the cluster. You can call the DescribeCluster operation to query the cluster status. After you create a cluster, you can call the DescribeClusterKubeConfig operation to obtain the cluster certificate.
   * @param request  the request parameters of CreateCluster  CreateClusterRequest
   * @return CreateClusterResponse
  */
@@ -2315,7 +2334,7 @@ async function createSnapshot(request: CreateSnapshotRequest): CreateSnapshotRes
 }
 
 model CreateSnatEntryRequest {
-  idleTimeout?: int32(name='IdleTimeout', minimum=1, maximum=86400, position='Query'),
+  idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Valid values: **1** to **86400**. Unit: seconds.', example='15', minimum=1, maximum=86400, position='Query'),
   natGatewayId: string(name='NatGatewayId', description='The ID of the Network Address Translation (NAT) gateway.
 
 This parameter is required.', example='nat-5tawjw5j7sgd2deujxuk0****', position='Query'),
@@ -4066,20 +4085,25 @@ async function describeCloudDiskTypes(request: DescribeCloudDiskTypesRequest): D
 }
 
 model DescribeClusterRequest {
-  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****', position='Query'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c8f0377146d104687ac562eef9403****', position='Query'),
 }
 
 model DescribeClusterResponseBody = {
   clusters?: [ 
     {
-      clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
-      currentVersion?: string(name='CurrentVersion', example='1.18.8'),
-      name?: string(name='Name', example='vc-a622bb**'),
-      nextVersion?: string(name='NextVersion', example='1.20.8'),
-      status?: string(name='Status', example='healthy'),
+      clusterId?: string(name='ClusterId', description='The cluster ID.', example='c8f0377146d104687ac562eef9403****'),
+      currentVersion?: string(name='CurrentVersion', description='The version of the cluster.', example='1.18.8'),
+      name?: string(name='Name', description='The cluster name.', example='vc-a622bb**'),
+      nextVersion?: string(name='NextVersion', description='The next version of the cluster.', example='1.20.8'),
+      status?: string(name='Status', description='The health status of the instance.
+
+Valid values:
+
+*   healthy
+*   unhealthy', example='healthy'),
     }
-  ](name='Clusters'),
-  requestId?: string(name='RequestId', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  ](name='Clusters', description='An array that consists of the information about clusters.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
 }
 
 model DescribeClusterResponse = {
@@ -4089,6 +4113,7 @@ model DescribeClusterResponse = {
 }
 
 /**
+  * @description *   You can call this operation up to 100 times per second per account.
   * @param request  the request parameters of DescribeCluster  DescribeClusterRequest
   * @return DescribeClusterResponse
  */
@@ -4098,12 +4123,12 @@ async function describeCluster(request: DescribeClusterRequest): DescribeCluster
 }
 
 model DescribeClusterKubeConfigRequest {
-  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****', position='Query'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c8f0377146d104687ac562eef9403****', position='Query'),
 }
 
 model DescribeClusterKubeConfigResponseBody = {
-  clusterId?: string(name='ClusterId', example='c8f0377146d104687ac562eef9403****'),
-  kubeconfig?: string(name='Kubeconfig', example='apiVersion: v1
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c8f0377146d104687ac562eef9403****'),
+  kubeconfig?: string(name='Kubeconfig', description='The cluster certificate.', example='apiVersion: v1
 clusters:
 - cluster:
     certificate-authority-data:***
@@ -4120,7 +4145,7 @@ users:
   user:
     client-certificate-data:***
     client-key-data: ***'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model DescribeClusterKubeConfigResponse = {
@@ -4130,6 +4155,7 @@ model DescribeClusterKubeConfigResponse = {
 }
 
 /**
+  * @description *   The maximum number of times that each user can call this operation per second is 100.
   * @param request  the request parameters of DescribeClusterKubeConfig  DescribeClusterKubeConfigRequest
   * @return DescribeClusterKubeConfigResponse
  */
@@ -5893,15 +5919,20 @@ async function describeForwardTableEntries(request: DescribeForwardTableEntriesR
 }
 
 model DescribeHaVipsRequest {
-  ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc', position='Query'),
-  haVipAddress?: string(name='HaVipAddress', example='10.5.XX.XX', position='Query'),
-  haVipId?: string(name='HaVipId', example='havip-5p14t****', position='Query'),
-  name?: string(name='Name', example='test', position='Query'),
-  networkId?: string(name='NetworkId', example='n-57gqcdfvx6n****', position='Query'),
-  pageNumber?: string(name='PageNumber', example='1', position='Query'),
-  pageSize?: string(name='PageSize', example='10', position='Query'),
-  status?: string(name='Status', example='Available', position='Query'),
-  vSwitchId?: string(name='VSwitchId', example='vsw-5****', position='Query'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the region.', example='cn-beijing-cmcc', position='Query'),
+  haVipAddress?: string(name='HaVipAddress', description='The IP address of the HAVIP.', example='10.5.XX.XX', position='Query'),
+  haVipId?: string(name='HaVipId', description='The ID of the HAVIP.', example='havip-5p14t****', position='Query'),
+  name?: string(name='Name', description='The name of the HAVIP.', example='test', position='Query'),
+  networkId?: string(name='NetworkId', description='The ID of the network.', example='n-57gqcdfvx6n****', position='Query'),
+  pageNumber?: string(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
+  status?: string(name='Status', description='The status of the HAVIP. Valid values:
+
+*   Creating
+*   Available
+*   InUse
+*   Deleting', example='Available', position='Query'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5****', position='Query'),
 }
 
 model DescribeHaVipsResponseBody = {
@@ -5909,34 +5940,46 @@ model DescribeHaVipsResponseBody = {
     {
       associatedEipAddresses?: [ 
         {
-          eip?: string(name='Eip', example='47.XX.XX.40'),
-          eipId?: string(name='EipId', example='eip-5p1wz****'),
+          eip?: string(name='Eip', description='The EIP.', example='47.XX.XX.40'),
+          eipId?: string(name='EipId', description='The ID of the EIP.', example='eip-5p1wz****'),
         }
-      ](name='AssociatedEipAddresses'),
+      ](name='AssociatedEipAddresses', description='The elastic IP addresses (EIPs) that are associated with the HAVIP.'),
       associatedInstances?: [ 
         {
-          creationTime?: string(name='CreationTime', example='2023-01-05T07:09:28Z'),
-          instanceId?: string(name='InstanceId', example='i-51p****'),
-          instanceType?: string(name='InstanceType', example='EnsInstance'),
-          ipAddress?: string(name='IpAddress', example='192.XX.XX.9'),
-          status?: string(name='Status', example='InUse'),
+          creationTime?: string(name='CreationTime', description='The time when the instance was created.', example='2023-01-05T07:09:28Z'),
+          instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-51p****'),
+          instanceType?: string(name='InstanceType', description='The type of the instance that is associated with the HAVIP. Valid values:
+
+*   EnsInstance: ENS instance
+*   NetworkInterface: elastic network interface (ENI)', example='EnsInstance'),
+          ipAddress?: string(name='IpAddress', description='The private IP address of the instance that is associated with the HAVIP. Valid values:', example='192.XX.XX.9'),
+          status?: string(name='Status', description='The association status of the HAVIP. Valid values:
+
+*   Associating
+*   InUse
+*   Unassociating', example='InUse'),
         }
-      ](name='AssociatedInstances'),
-      creationTime?: string(name='CreationTime', example='2023-03-29T11:17:38Z'),
-      description?: string(name='Description', example='test'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-guiyang-14'),
-      haVipId?: string(name='HaVipId', example='havip-52y28****'),
-      ipAddress?: string(name='IpAddress', example='192.XX.XX.5'),
-      name?: string(name='Name', example='test'),
-      networkId?: string(name='NetworkId', example='n-5wtkyrk****'),
-      status?: string(name='Status', example='Available'),
-      vSwitchId?: string(name='VSwitchId', example='vsw-5yc8d****'),
+      ](name='AssociatedInstances', description='The information about instances that are associated with the HAVIP.'),
+      creationTime?: string(name='CreationTime', description='The time when the HAVIP was created.', example='2023-03-29T11:17:38Z'),
+      description?: string(name='Description', description='The description of the HAVIP.', example='test'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the region.', example='cn-guiyang-14'),
+      haVipId?: string(name='HaVipId', description='The ID of the HAVIP.', example='havip-52y28****'),
+      ipAddress?: string(name='IpAddress', description='The IP address of the HAVIP.', example='192.XX.XX.5'),
+      name?: string(name='Name', description='The name of the HAVIP.', example='test'),
+      networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5wtkyrk****'),
+      status?: string(name='Status', description='The status of the HAVIP. Valid values:
+
+*   Creating
+*   Available
+*   InUse
+*   Deleting', example='Available'),
+      vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5yc8d****'),
     }
-  ](name='HaVips'),
-  pageNumber?: string(name='PageNumber', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
-  totalCount?: string(name='TotalCount', example='49'),
+  ](name='HaVips', description='Details of the HAVIPs.'),
+  pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='49'),
 }
 
 model DescribeHaVipsResponse = {
@@ -6916,39 +6959,47 @@ async function describeLoadBalancerHTTPSListenerAttribute(request: DescribeLoadB
 }
 
 model DescribeLoadBalancerListenMonitorRequest {
-  endTime: string(name='EndTime', description='This parameter is required.', example='2024-01-30 08:00:00', position='Query'),
-  loadBalancerId: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5q73cv04zeyh43lh74lp4****', position='Query'),
-  proto?: string(name='Proto', example='tcp', position='Query'),
-  startTime: string(name='StartTime', description='This parameter is required.', example='2024-01-15 16:00:00', position='Query'),
-  vPort: string(name='VPort', description='This parameter is required.', example='80', position='Query'),
+  endTime: string(name='EndTime', description='The end of the time range to query.
+
+This parameter is required.', example='2024-01-30 08:00:00', position='Query'),
+  loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
+
+This parameter is required.', example='lb-5q73cv04zeyh43lh74lp4****', position='Query'),
+  proto?: string(name='Proto', description='The network protocol, such as tcp or udp.', example='tcp', position='Query'),
+  startTime: string(name='StartTime', description='The beginning of the time range to query.
+
+This parameter is required.', example='2024-01-15 16:00:00', position='Query'),
+  vPort: string(name='VPort', description='The virtual IP address (VIP) port of the ELB instance.
+
+This parameter is required.', example='80', position='Query'),
 }
 
 model DescribeLoadBalancerListenMonitorResponseBody = {
   loadBalancerMonitorListenData?: [ 
     {
-      actConns?: string(name='ActConns', example='80285'),
-      bizTime?: string(name='BizTime', example='2024-01-15 16:03:00'),
-      conns?: string(name='Conns', example='37150'),
-      dropConns?: string(name='DropConns', example='10'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-dongguan-9'),
-      inActConns?: string(name='InActConns', example='16322'),
-      inBytes?: string(name='InBytes', example='67532'),
-      inDropBytes?: string(name='InDropBytes', example='324'),
-      inDropPkts?: string(name='InDropPkts', example='27'),
-      inPkts?: string(name='InPkts', example='12'),
-      inValidRsNum?: string(name='InValidRsNum', example='0'),
-      loadBalancerId?: string(name='LoadBalancerId', example='lb-5q73cv04zeyh43lh74lp4****'),
-      outBytes?: string(name='OutBytes', example='5155487'),
-      outDropBytes?: string(name='OutDropBytes', example='0'),
-      outDropPkts?: string(name='OutDropPkts', example='76'),
-      outPkts?: string(name='OutPkts', example='34'),
-      proto?: string(name='Proto', example='tcp'),
-      vPort?: string(name='VPort', example='80'),
-      validRsNum?: string(name='ValidRsNum', example='2'),
-      vip?: string(name='Vip', example='10.8.*.*'),
-      vni?: string(name='Vni', example='53284'),
+      actConns?: string(name='ActConns', description='The number of active connections.', example='80285'),
+      bizTime?: string(name='BizTime', description='The business time.', example='2024-01-15 16:03:00'),
+      conns?: string(name='Conns', description='The number of new connections.', example='37150'),
+      dropConns?: string(name='DropConns', description='The number of dropped connections.', example='10'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the node to which the ELB instance belongs.', example='cn-dongguan-9'),
+      inActConns?: string(name='InActConns', description='The number of inactive connections.', example='16322'),
+      inBytes?: string(name='InBytes', description='The inbound traffic.', example='67532'),
+      inDropBytes?: string(name='InDropBytes', description='The dropped inbound traffic.', example='324'),
+      inDropPkts?: string(name='InDropPkts', description='The number of dropped inbound packets.', example='27'),
+      inPkts?: string(name='InPkts', description='The number of inbound packets.', example='12'),
+      inValidRsNum?: string(name='InValidRsNum', description='The number of unavailable servers that are attached to the monitored ELB instance.', example='0'),
+      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5q73cv04zeyh43lh74lp4****'),
+      outBytes?: string(name='OutBytes', description='The outbound traffic.', example='5155487'),
+      outDropBytes?: string(name='OutDropBytes', description='The dropped outbound traffic.', example='0'),
+      outDropPkts?: string(name='OutDropPkts', description='The number of dropped outbound packets.', example='76'),
+      outPkts?: string(name='OutPkts', description='The number of outbound packets.', example='34'),
+      proto?: string(name='Proto', description='The network protocol.', example='tcp'),
+      vPort?: string(name='VPort', description='The VIP port of the ELB instance.', example='80'),
+      validRsNum?: string(name='ValidRsNum', description='The number of available servers that are attached to the monitored ELB instance.', example='2'),
+      vip?: string(name='Vip', description='The VIP of the instance.', example='10.8.*.*'),
+      vni?: string(name='Vni', description='The ID of the tunnel.', example='53284'),
     }
-  ](name='LoadBalancerMonitorListenData'),
+  ](name='LoadBalancerMonitorListenData', description='The TCP/UDP monitoring data of the ELB instance.'),
   requestId?: string(name='RequestId', description='Id of the request.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
@@ -6959,6 +7010,8 @@ model DescribeLoadBalancerListenMonitorResponse = {
 }
 
 /**
+  * @description *   You can call this operation up to 100 times per second per account.
+  * *   You can call this operation up to 10 times per second per user.
   * @param request  the request parameters of DescribeLoadBalancerListenMonitor  DescribeLoadBalancerListenMonitorRequest
   * @return DescribeLoadBalancerListenMonitorResponse
  */
@@ -6968,30 +7021,43 @@ async function describeLoadBalancerListenMonitor(request: DescribeLoadBalancerLi
 }
 
 model DescribeLoadBalancerListenersRequest {
-  loadBalancerId: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5s7crik3yo3p5****', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
+  loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
+
+This parameter is required.', example='lb-5s7crik3yo3p5****', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', minimum=1, maximum=100, position='Query'),
 }
 
 model DescribeLoadBalancerListenersResponseBody = {
   listeners?: {
     listener?: [ 
     {
-      createTime?: string(name='CreateTime', example='2022-08-15T08:42:57Z'),
-      description?: string(name='Description', example='test'),
-      forwardPort?: string(name='ForwardPort', example='443'),
-      listenerForward?: string(name='ListenerForward', example='off'),
-      listenerPort?: string(name='ListenerPort', example='8080'),
-      loadBalancerId?: string(name='LoadBalancerId', example='lb-51a5fhou****'),
-      protocol?: string(name='Protocol', example='tcp'),
-      status?: string(name='Status', example='running'),
+      createTime?: string(name='CreateTime', description='The timestamp when the listener was created.', example='2022-08-15T08:42:57Z'),
+      description?: string(name='Description', description='The description of the listener.', example='test'),
+      forwardPort?: string(name='ForwardPort', description='The listener port that is used for HTTP-to-HTTPS redirection.', example='443'),
+      listenerForward?: string(name='ListenerForward', description='Indicates whether HTTP-to-HTTPS redirection is enabled for the listener. Valid values:
+
+*   **on**
+*   **off**', example='off'),
+      listenerPort?: string(name='ListenerPort', description='The listening port.', example='8080'),
+      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-51a5fhou****'),
+      protocol?: string(name='Protocol', description='The network transmission protocol that is used by the listener.
+
+*   **tcp**
+*   **udp**
+*   **http**
+*   **https**', example='tcp'),
+      status?: string(name='Status', description='The status of the listener. Valid values:
+
+*   **running**
+*   **stopped**', example='running'),
     }
   ](name='Listener')
-  }(name='Listeners'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
-  totalCount?: int32(name='TotalCount', example='49'),
+  }(name='Listeners', description='The listeners of the ELB instance.'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='49'),
 }
 
 model DescribeLoadBalancerListenersResponse = {
@@ -7746,7 +7812,7 @@ async function describeNetworkAttribute(request: DescribeNetworkAttributeRequest
 model DescribeNetworkInterfacesRequest {
   ensRegionId?: string(name='EnsRegionId', description='The region ID of the instance.', example='cn-tianjin-cmcc', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5t7z99n32gplriv', position='Query'),
-  ipv6Address?: [ string ](name='Ipv6Address', shrink='simple', position='Query'),
+  ipv6Address?: [ string ](name='Ipv6Address', description='IPv6 addresses N of the ENI. You can specify multiple IPv6 addresses. Valid values of N: 1 to 100.', shrink='simple', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****', position='Query'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-58z57orgmt6d1****', position='Query'),
   networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI.', example='test-01', maxLength=128, position='Query'),
@@ -7763,7 +7829,7 @@ model DescribeNetworkInterfacesRequest {
 *   Deleting: The ENI is being deleted.
 
 This parameter is empty by default, which indicates that ENIs in all states are queried.', example='Available', position='Query'),
-  type?: string(name='Type', description='The type of the ENI. Valid Values:
+  type?: string(name='Type', description='The type of the ENI. Valid values:
 
 *   Primary: primary ENI.
 *   Secondary: secondary ENI.
@@ -7783,10 +7849,10 @@ model DescribeNetworkInterfacesResponseBody = {
       ipv6Sets?: {
         ipv6Set?: [ 
         {
-          ipv6Address?: string(name='Ipv6Address'),
+          ipv6Address?: string(name='Ipv6Address', description='The IPv6 address of the ENI.', example='2605:340:cdb1:XXXX:XXXX:XXXX:XXXX:e2d6'),
         }
       ](name='Ipv6Set')
-      }(name='Ipv6Sets'),
+      }(name='Ipv6Sets', description='The IPv6 addresses of the ENIs.'),
       macAddress?: string(name='MacAddress', description='The MAC address of the ENI.', example='00:16:3e:08:60:0a'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5w0qd03adw****'),
       networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-uf686a5'),
@@ -8879,34 +8945,40 @@ async function describeServcieSchedule(request: DescribeServcieScheduleRequest):
 }
 
 model DescribeServerLoadBalancerListenMonitorRequest {
-  endTime: string(name='EndTime', description='This parameter is required.', example='2024-05-16 16:00:00', position='Query'),
-  loadBalancerId: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5rcvo1n1t3hykfhhjwjgqp****', position='Query'),
-  proto?: string(name='Proto', example='tcp', position='Query'),
-  startTime: string(name='StartTime', description='This parameter is required.', example='2024-05-16 15:00:00', position='Query'),
-  vPort?: string(name='VPort', example='80', position='Query'),
+  endTime: string(name='EndTime', description='The end of the time range to query. The maximum range between StartTime and EndTime is 24 hours.
+
+This parameter is required.', example='2024-05-16 16:00:00', position='Query'),
+  loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
+
+This parameter is required.', example='lb-5rcvo1n1t3hykfhhjwjgqp****', position='Query'),
+  proto?: string(name='Proto', description='The request protocol, such as http, https, or tcp.', example='tcp', position='Query'),
+  startTime: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-ddTHH:mm:ssZ format.
+
+This parameter is required.', example='2024-05-16 15:00:00', position='Query'),
+  vPort?: string(name='VPort', description='The virtual IP address (VIP) port, such as 80, 8080, or 443.', example='80', position='Query'),
 }
 
 model DescribeServerLoadBalancerListenMonitorResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request。', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='125B04C7-3D0D-4245-AF96-14E3758E3F06'),
   serverLoadBalancerMonitorData?: [ 
     {
-      acc?: int32(name='Acc', example='20'),
-      bizTime?: string(name='BizTime', example='2024-05-16 15:00:00'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-fuzhou-7'),
-      loadBalancerId?: string(name='LoadBalancerId', example='lb-5rcvo1n1t3hykfhhjwjgqp****'),
-      loadBalancerName?: string(name='LoadBalancerName', example='esk-edge-service-lb-8377****'),
-      loadBalancerSpec?: string(name='LoadBalancerSpec', example='elb.s2.medium'),
-      proto?: string(name='Proto', example='tcp'),
-      reqs2xx?: int32(name='Reqs2xx', example='10'),
-      reqs3xx?: int32(name='Reqs3xx', example='0'),
-      reqs4xx?: int32(name='Reqs4xx', example='0'),
-      reqs5xx?: int32(name='Reqs5xx', example='10'),
-      rtAvg?: int32(name='RtAvg', example='1037'),
-      vip?: string(name='Vip', example='10.0****'),
-      vni?: int32(name='Vni', example='52497'),
-      vport?: int32(name='Vport', example='80'),
+      acc?: int32(name='Acc', description='The total number of requests.', example='20'),
+      bizTime?: string(name='BizTime', description='The business time of the log. Logs are collected every minute.', example='2024-05-16 15:00:00'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the node to which the ELB instance belongs.', example='cn-fuzhou-7'),
+      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5rcvo1n1t3hykfhhjwjgqp****'),
+      loadBalancerName?: string(name='LoadBalancerName', description='The name of the ELB instance.', example='esk-edge-service-lb-8377****'),
+      loadBalancerSpec?: string(name='LoadBalancerSpec', description='The specification of the ELB instance.', example='elb.s2.medium'),
+      proto?: string(name='Proto', description='The request protocol, such as http, https, or tcp.', example='tcp'),
+      reqs2xx?: int32(name='Reqs2xx', description='The number of requests with HTTP 2xx status code returned.', example='10'),
+      reqs3xx?: int32(name='Reqs3xx', description='The number of requests with HTTP 3xx status code returned.', example='0'),
+      reqs4xx?: int32(name='Reqs4xx', description='The number of requests with HTTP 4xx status code returned.', example='0'),
+      reqs5xx?: int32(name='Reqs5xx', description='The number of requests with HTTP 5xx status code returned.', example='10'),
+      rtAvg?: int32(name='RtAvg', description='The average response time. Unit: milliseconds.', example='1037'),
+      vip?: string(name='Vip', description='The VIP of the instance.', example='10.0****'),
+      vni?: int32(name='Vni', description='The ID of the tunnel.', example='52497'),
+      vport?: int32(name='Vport', description='The VIP port, such as 80, 8080, or 443.', example='80'),
     }
-  ](name='ServerLoadBalancerMonitorData'),
+  ](name='ServerLoadBalancerMonitorData', description='The array of the monitoring data.'),
 }
 
 model DescribeServerLoadBalancerListenMonitorResponse = {
@@ -8916,6 +8988,8 @@ model DescribeServerLoadBalancerListenMonitorResponse = {
 }
 
 /**
+  * @description *   You can call this operation up to 100 times per second per account.
+  * *   You can call this operation up to 10 times per second per user.
   * @param request  the request parameters of DescribeServerLoadBalancerListenMonitor  DescribeServerLoadBalancerListenMonitorRequest
   * @return DescribeServerLoadBalancerListenMonitorResponse
  */
@@ -8925,30 +8999,36 @@ async function describeServerLoadBalancerListenMonitor(request: DescribeServerLo
 }
 
 model DescribeServerLoadBalancerMonitorRequest {
-  endTime: string(name='EndTime', description='This parameter is required.', example='2024-09-15 17:00:00', position='Query'),
-  loadBalancerId: string(name='LoadBalancerId', description='This parameter is required.', example='lb-5sc1s9zrui8lpb8u7cl4f****', position='Query'),
-  startTime: string(name='StartTime', description='This parameter is required.', example='2024-09-15 16:00:00', position='Query'),
+  endTime: string(name='EndTime', description='The end of the time range to query. The maximum range between StartTime and EndTime is 24 hours.
+
+This parameter is required.', example='2024-09-15 17:00:00', position='Query'),
+  loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
+
+This parameter is required.', example='lb-5sc1s9zrui8lpb8u7cl4f****', position='Query'),
+  startTime: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-ddTHH:mm:ssZ format.
+
+This parameter is required.', example='2024-09-15 16:00:00', position='Query'),
 }
 
 model DescribeServerLoadBalancerMonitorResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request。', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='AAE90880-4970-4D81-A534-A6C0F3631F74'),
   serverLoadBalancerMonitorData?: [ 
     {
-      acc?: int32(name='Acc', example='30'),
-      bizTime?: string(name='BizTime', example='2024-09-15 16:00:00'),
-      ensRegionId?: string(name='EnsRegionId', example='cn-wuxi-10'),
-      loadBalancerId?: string(name='LoadBalancerId', example='lb-5sc1s9zrui8lpb8u7cl4f****'),
-      loadBalancerName?: string(name='LoadBalancerName', example='esk-edge-service-lb-a34****'),
-      loadBalancerSpec?: string(name='LoadBalancerSpec', example='elb.s2.medium'),
-      reqs2xx?: int32(name='Reqs2xx', example='25'),
-      reqs3xx?: int32(name='Reqs3xx', example='0'),
-      reqs4xx?: int32(name='Reqs4xx', example='5'),
-      reqs5xx?: int32(name='Reqs5xx', example='0'),
-      rtAvg?: int32(name='RtAvg', example='1404'),
-      vip?: string(name='Vip', example='10.0****'),
-      vni?: int32(name='Vni', example='3018'),
+      acc?: int32(name='Acc', description='The total number of requests.', example='30'),
+      bizTime?: string(name='BizTime', description='The business time of the log. Logs are collected every minute.', example='2024-09-15 16:00:00'),
+      ensRegionId?: string(name='EnsRegionId', description='The ID of the node to which the ELB instance belongs.', example='cn-wuxi-10'),
+      loadBalancerId?: string(name='LoadBalancerId', description='The ID of the ELB instance.', example='lb-5sc1s9zrui8lpb8u7cl4f****'),
+      loadBalancerName?: string(name='LoadBalancerName', description='The name of the ELB instance.', example='esk-edge-service-lb-a34****'),
+      loadBalancerSpec?: string(name='LoadBalancerSpec', description='The specification of the ELB instance.', example='elb.s2.medium'),
+      reqs2xx?: int32(name='Reqs2xx', description='The number of requests with HTTP 2xx status code returned.', example='25'),
+      reqs3xx?: int32(name='Reqs3xx', description='The number of requests with HTTP 3xx status code returned.', example='0'),
+      reqs4xx?: int32(name='Reqs4xx', description='The number of requests with HTTP 4xx status code returned.', example='5'),
+      reqs5xx?: int32(name='Reqs5xx', description='The number of requests with HTTP 5xx status code returned.', example='0'),
+      rtAvg?: int32(name='RtAvg', description='The average response time. Unit: milliseconds.', example='1404'),
+      vip?: string(name='Vip', description='The virtual IP address (VIP) of the instance.', example='10.0****'),
+      vni?: int32(name='Vni', description='The ID of the tunnel.', example='3018'),
     }
-  ](name='ServerLoadBalancerMonitorData'),
+  ](name='ServerLoadBalancerMonitorData', description='The array of the monitoring data.'),
 }
 
 model DescribeServerLoadBalancerMonitorResponse = {
@@ -8958,6 +9038,8 @@ model DescribeServerLoadBalancerMonitorResponse = {
 }
 
 /**
+  * @description *   You can call this operation up to 100 times per second per account.
+  * *   You can call this operation up to 10 times per second per user.
   * @param request  the request parameters of DescribeServerLoadBalancerMonitor  DescribeServerLoadBalancerMonitorRequest
   * @return DescribeServerLoadBalancerMonitorResponse
  */
@@ -9110,7 +9192,7 @@ model DescribeSnatTableEntriesResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   snatTableEntries?: [ 
     {
-      idleTimeout?: int32(name='IdleTimeout'),
+      idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Valid values: **1** to **86400**. Unit: seconds.', example='900'),
       natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='nat-5t7nh1cfm6kxiszlttr38****'),
       snatEntryId?: string(name='SnatEntryId', description='The ID of the SNAT entry.', example='snat-5tfjp3537mi6iokl59g5c****'),
       snatEntryName?: string(name='SnatEntryName', description='The name of the SNAT entry.', example='test0'),
@@ -9512,11 +9594,7 @@ This parameter is required.', example='m-5ragaz3s74b7go8ks7jp9****', position='Q
 
 This parameter is required.', example='whxyl****', position='Query'),
   OSSPrefix?: string(name='OSSPrefix', description='The prefix of the object as which you want to store the image in the OSS bucket. The prefix must be 1 to 30 characters in length and can contain digits and letters.', position='Query'),
-  OSSRegionId: string(name='OSSRegionId', description='The ID of the region.
-
-Valid values:
-
-*   cn-beijing
+  OSSRegionId: string(name='OSSRegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing', position='Query'),
   roleName?: string(name='RoleName', description='The name of the Resource Access Management (RAM) role.', example='AliyunMNSLoggingRole', position='Query'),
@@ -11825,9 +11903,9 @@ model ResetDiskResponse = {
 /**
   * @description When you call this operation, take note of the following items:
   * *   The disk must be in the In Use (In_Use) or Unattached (Available) state.
-  * *   The instance to which the disk is attached must be in the Stopped (Stopped) state. You can call the **StopInstance** operation to stop an instance.
-  * *   The snapshot specified by the SnapshotId parameter must be created from the disk specified by the DiskId parameter.
-  * *   When you call the **DescribeInstance** operation to query instance information, if the response contains `{"OperationLocks": {"LockReason" : "security"}}` for an instance, the instance is locked for security reasons and you cannot perform operations on the instance.
+  * *   The instance to which the disk is attached must be in the Stopped (Stopped) state. You can call the [StopInstance](~~StopInstance~~) operation to stop an instance.
+  * *   The specified snapshot must be created from the disk specified by the DiskId parameter.
+  * *   If the response contains `{"OperationLocks": {"LockReason" : "security"}}` when you query information about an ENS instance by calling the [DescribeInstances](~~DescribeInstances~~) operation, the instance is locked for security reasons and no operations are allowed on the instance.
   * @param request  the request parameters of ResetDisk  ResetDiskRequest
   * @return ResetDiskResponse
  */
@@ -11896,17 +11974,17 @@ async function restartDeviceInstance(request: RestartDeviceInstanceRequest): Res
 model RevokeSecurityGroupRequest {
   ipProtocol: string(name='IpProtocol', description='The transport layer protocol. The value of this parameter is case-sensitive. Valid values:
 
-*   tcp: TCP.
-*   udp: UDP.
-*   icmp: ICMP.
-*   gre: GRE.
+*   tcp
+*   udp
+*   icmp
+*   gre
 *   all: all protocols.
 
 This parameter is required.', example='all', position='Query'),
   policy?: string(name='Policy', description='The authorization policy. Valid values:
 
 *   accept: allows access. This is the default value.
-*   drop: denies access and returns no responses.', example='accept', position='Query'),
+*   drop: denies access and does not return responses.', example='accept', position='Query'),
   portRange: string(name='PortRange', description='The range of destination ports that correspond to the transport layer protocol for the security group rule. Valid values:
 
 *   When the IpProtocol parameter is set to tcp or udp, the port number range is **1** to **65535**. The start port number and the end port number are separated by a forward slash (/). Correct example: **1/200**. Incorrect example: **200/1**.
@@ -11915,7 +11993,7 @@ This parameter is required.', example='all', position='Query'),
 *   When the IpProtocol parameter is set to all, the port number range is **-1/-1**, which indicates all ports.
 
 This parameter is required.', example='22/22', position='Query'),
-  priority?: int32(name='Priority', description='The priority of security group rule N. Valid values: **1** to **100**. Default value: **1**.', example='1', minimum=1, maximum=100, position='Query'),
+  priority?: int32(name='Priority', description='The priority of the security group rule. Valid values: **1** to **100**. Default value: **1**.', example='1', minimum=1, maximum=100, position='Query'),
   securityGroupId: string(name='SecurityGroupId', description='The ID of the security group.
 
 This parameter is required.', example='sg-bp67acfmxazb4p****', position='Query'),
@@ -13034,7 +13112,7 @@ model TagResourcesRequest {
   resourceId: [ string ](name='ResourceId', description='The resource IDs. You can add up to 50 resource IDs in a call.
 
 This parameter is required.', position='Query'),
-  resourceType: string(name='ResourceType', description='The type of resource. Set the value to instance.
+  resourceType: string(name='ResourceType', description='The type of the resource. Set the value to instance.
 
 This parameter is required.', example='instance', position='Query'),
   tag: [ 
@@ -13246,6 +13324,15 @@ model UntagResourcesRequest {
 
 This parameter is required.', position='Query'),
   resourceType: string(name='ResourceType', description='The type of the resource.
+
+Valid values:
+
+*   instance
+*   eip
+*   disk
+*   network
+*   natgateway
+*   vswitch
 
 This parameter is required.', example='instance', position='Query'),
   tagKey?: [ string ](name='TagKey', description='The keys of the tags. Valid values of N: 1 to 20.', position='Query'),
