@@ -184,7 +184,7 @@ model CreateInstanceRequest {
     {
       datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
       mountPath?: string(name='MountPath', example='/mnt/data'),
-      optionType?: string(name='OptionType'),
+      optionType?: string(name='OptionType', deprecated=true),
       options?: string(name='Options'),
       uri?: string(name='Uri', example='oss://bucket.oss-cn-shanghai.aliyuncs.com/data/path/'),
     }
@@ -413,7 +413,7 @@ async function createInstanceShutdownTimer(InstanceId: string, request: CreateIn
 
 model CreateInstanceSnapshotRequest {
   excludePaths?: [ string ](name='ExcludePaths'),
-  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  imageUrl?: string(name='ImageUrl', description='This parameter is required.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
   labels?: [ 
     {
       key?: string(name='Key', example='stsTokenOwner'),
@@ -422,7 +422,7 @@ model CreateInstanceSnapshotRequest {
   ](name='Labels', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
   overwrite?: boolean(name='Overwrite'),
   snapshotDescription?: string(name='SnapshotDescription', example='training_data_env'),
-  snapshotName?: string(name='SnapshotName', example='training_data_env'),
+  snapshotName?: string(name='SnapshotName', description='This parameter is required.', example='training_data_env'),
 }
 
 model CreateInstanceSnapshotResponseBody = {
@@ -810,6 +810,10 @@ async function getIdleInstanceCuller(InstanceId: string): GetIdleInstanceCullerR
   return getIdleInstanceCullerWithOptions(InstanceId, headers, runtime);
 }
 
+model GetInstanceRequest {
+  token?: string(name='Token'),
+}
+
 model GetInstanceResponseBody = {
   acceleratorType?: string(name='AcceleratorType', example='CPU'),
   accessibility?: string(name='Accessibility', example='PRIVATE'),
@@ -946,13 +950,21 @@ model GetInstanceResponse = {
 /**
  * @summary 获取实例详情
  *
+ * @param request GetInstanceRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInstanceResponse
  */
-async function getInstanceWithOptions(InstanceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
+async function getInstanceWithOptions(InstanceId: string, request: GetInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.token)) {
+    query['Token'] = request.token;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetInstance',
@@ -971,18 +983,20 @@ async function getInstanceWithOptions(InstanceId: string, headers: map[string]st
 /**
  * @summary 获取实例详情
  *
+ * @param request GetInstanceRequest
  * @return GetInstanceResponse
  */
-async function getInstance(InstanceId: string): GetInstanceResponse {
+async function getInstance(InstanceId: string, request: GetInstanceRequest): GetInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getInstanceWithOptions(InstanceId, headers, runtime);
+  return getInstanceWithOptions(InstanceId, request, headers, runtime);
 }
 
 model GetInstanceEventsRequest {
   endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
   maxEventsNum?: int32(name='MaxEventsNum', example='2000'),
   startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
+  token?: string(name='Token'),
 }
 
 model GetInstanceEventsResponseBody = {
@@ -1018,6 +1032,9 @@ async function getInstanceEventsWithOptions(InstanceId: string, request: GetInst
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.token)) {
+    query['Token'] = request.token;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -1259,6 +1276,7 @@ model GetLifecycleRequest {
   order?: string(name='Order', example='DESC'),
   sessionNumber?: int32(name='SessionNumber', example='1'),
   startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
+  token?: string(name='Token'),
 }
 
 model GetLifecycleResponseBody = {
@@ -1306,6 +1324,9 @@ async function getLifecycleWithOptions(InstanceId: string, request: GetLifecycle
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.token)) {
+    query['Token'] = request.token;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2328,7 +2349,7 @@ model UpdateInstanceRequest {
     {
       datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
       mountPath?: string(name='MountPath', example='/mnt/data'),
-      optionType?: string(name='OptionType'),
+      optionType?: string(name='OptionType', deprecated=true),
       options?: string(name='Options'),
       uri?: string(name='Uri', example='oss://bucket.oss-cn-shanghai.aliyuncs.com/data/path/'),
     }
