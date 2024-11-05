@@ -385,6 +385,7 @@ model CheckRecoveryConditionRequest {
   destRegion?: string(name='DestRegion', description='The region of the backup set used for the cross-region backup and restoration.
 
 >  This parameter is required when you set the RestoreType parameter to 3.', example='cn-hangzhou'),
+  engineVersion?: string(name='EngineVersion'),
   instanceType?: string(name='InstanceType', description='The instance architecture. Valid values:
 
 *   replicate
@@ -450,6 +451,9 @@ async function checkRecoveryConditionWithOptions(request: CheckRecoveryCondition
   }
   if (!Util.isUnset(request.destRegion)) {
     query['DestRegion'] = request.destRegion;
+  }
+  if (!Util.isUnset(request.engineVersion)) {
+    query['EngineVersion'] = request.engineVersion;
   }
   if (!Util.isUnset(request.instanceType)) {
     query['InstanceType'] = request.instanceType;
@@ -738,7 +742,7 @@ This parameter is required.', example='10'),
 > When you call this operation to clone an instance, you can set this parameter to specify the database to clone. Otherwise, all databases of the instance are cloned.', example='mongodbtest'),
   encrypted?: boolean(name='Encrypted', description='Specifies whether to enable disk encryption.', example='true'),
   encryptionKey?: string(name='EncryptionKey', description='The ID of the custom key.', example='2axxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
-  engine?: string(name='Engine', description='The database engine of the instance. The value is fixed as **MongoDB**.', example='MongoDB'),
+  engine?: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.', example='MongoDB'),
   engineVersion?: string(name='EngineVersion', description='The version of the database engine. Valid values:
 
 *   **6.0**
@@ -800,7 +804,11 @@ This parameter is required.', example='cn-hangzhou'),
   restoreTime?: string(name='RestoreTime', description='The point in time to which the instance is restored, which must be within seven days. The time is displayed in the *yyyy-MM-dd*T*HH:mm:ss*Z format (UTC time).
 
 > When you call this operation to restore an instance to the specified time, this parameter is required. The **SrcDBInstanceId** parameter is also required.', example='2022-03-13T12:11:14Z'),
-  restoreType?: string(name='RestoreType'),
+  restoreType?: string(name='RestoreType', description='The backup restore type of the instance.
+- 0: restore an instance to the specified backup set.
+- 1:  restore an instance to the specified time.
+- 2: restore an  released instance to the specified backup set.
+- 3：restore an instance to the specified cross-regional backup set.', example='0'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The zone where the secondary node resides for multi-zone deployment. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G.
@@ -835,15 +843,13 @@ This parameter is required.', example='cn-hangzhou'),
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The ID of the source instance.
 
 > When you call this operation to clone an instance, this parameter is required. The **BackupId** or **RestoreTime** parameter is also required. When you call this operation to restore an instance from the recycle bin, this parameter is required. The **BackupId** or **RestoreTime** parameter is not required.', example='dds-bp1ee12ad351****'),
-  srcRegion?: string(name='SrcRegion'),
-  storageEngine?: string(name='StorageEngine', description='The storage engine of the instance. Default value: WiredTiger. Valid values:
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.
 
-*   **WiredTiger**
-*   **RocksDB**
-*   **TerarkDB**
+> -  This parameter is required when restore type is set to 2 or 3.', example='2'),
+  storageEngine?: string(name='StorageEngine', description='The storage engine of the instance. Set the value to **WiredTiger**.
 
->  *   When you call this operation to clone an instance or restore an instance from the recycle bin, set the value of this parameter to the storage engine of the source instance.
->  *   For more information about the limits on database versions and storage engines, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).', example='WiredTiger'),
+> * If you call this operation to clone an instance or restore an instance from the recycle bin, set this parameter to the storage engine of the source instance.
+> * For more information about the limits on database versions and storage engines of an instance, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).', example='WiredTiger'),
   storageType?: string(name='StorageType', description='The storage type of the instance. Valid values:
 
 *   **cloud_essd1** :ESSD PL1.
@@ -880,7 +886,7 @@ model CreateDBInstanceResponse = {
 /**
  * @summary Creates or clones an ApsaraDB for MongoDB replica set instance.
  *
- * @description Make sure that you fully understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail/mongodb_computeudr_dp_cn) of ApsaraDB for MongoDB before you call this operation.
+ * @description Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB before you call this operation.
  * For more information about the instance types of ApsaraDB for MongoDB instances, see [Instance types](https://www.alibabacloud.com/help/en/mongodb/product-overview/instance-types-1).
  * To create sharded cluster instances, you can call the [CreateShardingDBInstance](~~CreateShardingDBInstance~~) operation.
  *
@@ -1034,7 +1040,7 @@ async function createDBInstanceWithOptions(request: CreateDBInstanceRequest, run
 /**
  * @summary Creates or clones an ApsaraDB for MongoDB replica set instance.
  *
- * @description Make sure that you fully understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail/mongodb_computeudr_dp_cn) of ApsaraDB for MongoDB before you call this operation.
+ * @description Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB before you call this operation.
  * For more information about the instance types of ApsaraDB for MongoDB instances, see [Instance types](https://www.alibabacloud.com/help/en/mongodb/product-overview/instance-types-1).
  * To create sharded cluster instances, you can call the [CreateShardingDBInstance](~~CreateShardingDBInstance~~) operation.
  *
@@ -1473,13 +1479,15 @@ model CreateShardingDBInstanceRequest {
 *   **false** (default)
 
 > This parameter is available and optional if you set the value of **ChargeType** to **PrePaid**.', example='true'),
-  backupId?: string(name='BackupId'),
+  backupId?: string(name='BackupId', description='The ID of the backup set. 
+
+> When you call this operation to clone an instance based on the backup set, this parameter is required. The **SrcDBInstanceId** parameter is also required.', example='cb-xxx'),
   chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
 *   **PostPaid** (default): pay-as-you-go
 *   **PrePaid**: subscription
 
->  If you set this parameter to **PrePaid**, you must also specify the **Period** parameter.', example='PrePaid'),
+>  If this parameter is set to **PrePaid**, you must also configure the **Period** parameter.', example='PrePaid'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCz****'),
   configServer?: [ 
     {
@@ -1503,23 +1511,25 @@ This parameter is required.'),
 *   The name must start with a letter.
 *   It can contain digits, letters, underscores (_), and hyphens (-).
 *   It must be 2 to 256 characters in length.', example='test'),
-  destRegion?: string(name='DestRegion'),
-  encrypted?: boolean(name='Encrypted', description='Specifies whether to enable disk encryption.', example='true'),
+  destRegion?: string(name='DestRegion', description='The region of the backup set used for the cross-region backup and restoration.
+
+>  This parameter is required when you set the RestoreType parameter to 3.', example='cn-hangzhou'),
+  encrypted?: boolean(name='Encrypted', description='Indicates whether disk encryption is enabled.', example='true'),
   encryptionKey?: string(name='EncryptionKey', description='The ID of the custom key.', example='2axxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
   engine?: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.
 
 This parameter is required.', example='MongoDB'),
-  engineVersion?: string(name='EngineVersion', description='The version of the database engine. Valid values:
+  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values:
 
+*   **7.0**
 *   **6.0**
 *   **5.0**
 *   **4.4**
 *   **4.2**
 *   **4.0**
-*   **3.4**
 
-> *   For more information about the limits on database versions and storage engines, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).
-> *   If you call this operation to clone an instance, set the value of this parameter to the engine version of the source instance.
+> * For more information about the limits on database versions and storage engines, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).
+> * If you call this operation to clone an instance, set the value of this parameter to the database engine version of the source instance.
 
 This parameter is required.', example='4.4'),
   globalSecurityGroupIds?: string(name='GlobalSecurityGroupIds', description='The global IP address whitelist template of the instance. Separate multiple templates with commas (,). The template name must be globally unique.', example='g-qxieqf40xjst1ngp****'),
@@ -1559,7 +1569,9 @@ This parameter is required.', example='mdb.shard.2x.xlarge.d'),
   ](name='Mongos', description='The mongos nodes of the instance.
 
 This parameter is required.'),
-  networkType?: string(name='NetworkType', description='The network type of the instance. Set the value to VPC.', example='VPC'),
+  networkType?: string(name='NetworkType', description='The network type of the instance.
+
+Set the value to **VPC**.', example='VPC'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   period?: int32(name='Period', description='The subscription period of the instance. Unit: months.
@@ -1569,8 +1581,8 @@ Valid values: **1** to **9**, **12**, **24**, **36**, and **60**.
 > When you set the **ChargeType** parameter to **PrePaid**, this parameter is valid and required.', example='1'),
   protocolType?: string(name='ProtocolType', description='The access protocol type of the instance. Valid values:
 
-*   **mongodb**: the MongoDB protocol
-*   **dynamodb**: the DynamoDB protocol', example='mongodb'),
+*   **mongodb**
+*   **dynamodb**', example='mongodb'),
   provisionedIops?: long(name='ProvisionedIops', description='The provisioned IOPS of the instance:', example='1960'),
   regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/61933.html) operation to query the most recent region list.
 
@@ -1579,19 +1591,19 @@ This parameter is required.', example='cn-hangzhou'),
     {
       class?: string(name='Class', description='The instance type of the shard node. For more information, see [Sharded cluster instance types](https://help.aliyun.com/document_detail/311414.html).
 
-> *   **N** specifies the serial number of the shard node for which the instance type is specified. For example, **ReplicaSet.2.Class** specifies the instance type of the second shard node.
-> *   Valid values for **N**: **2** to **32**.
+> * **N** specifies the serial number of the shard node for which the instance type is specified. For example, **ReplicaSet.2.Class** specifies the instance type of the second shard node.
+> * Valid values of **N**: **2** to **32**.
 
 This parameter is required.', example='dds.shard.standard'),
-      readonlyReplicas?: int32(name='ReadonlyReplicas', description='The number of read-only nodes in shard node N.
+      readonlyReplicas?: int32(name='ReadonlyReplicas', description='The number of read-only nodes in the shard node.
 
-Valid values: **0**, 1, 2, 3, 4, and **5**. Default value: **0**.
+Valid values: **0**, **1, 2, 3, 4, and 5**. Default value: **0**.
 
->  **N** specifies the serial number of the shard node for which you want to set the number of read-only nodes. For example, **ReplicaSet.2.ReadonlyReplicas** specifies the number of read-only nodes in the second shard node.', example='0'),
-      storage?: int32(name='Storage', description='The storage space of the shard node. Unit: GB.
+>  **N** specifies the serial number of the shard node for which you want to set the number of read-only nodes. **ReplicaSet.2.ReadonlyReplicas** specifies the number of read-only nodes in the second shard node.', example='0'),
+      storage?: int32(name='Storage', description='The storage capacity of the shard node. Unit: GB.
 
-> *   The values that can be specified for this parameter vary based on the instance types. For more information, see [Sharded cluster instance types](https://help.aliyun.com/document_detail/311414.html).
-> *   **N** specifies the serial number of the shard node for which the storage space is specified. For example, **ReplicaSet.2.Storage** specifies the storage space of the second shard node.
+> * The values that can be specified for this parameter vary based on the instance types. For more information, see [Sharded cluster instance types](https://help.aliyun.com/document_detail/311414.html).
+> * **N** specifies the serial number of the shard node for which the storage space is specified. For example, **ReplicaSet.2.Storage** specifies the storage space of the second shard node.
 
 This parameter is required.', example='10'),
     }
@@ -1604,7 +1616,10 @@ This parameter is required.'),
   restoreTime?: string(name='RestoreTime', description='The point in time to restore the instance, which must be within seven days. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in Coordinated Universal Time (UTC).
 
 > This parameter is required only if you call this operation to clone an instance. If you specify this parameter, you must also specify **SrcDBInstanceId**.', example='2022-03-08T02:30:25Z'),
-  restoreType?: string(name='RestoreType'),
+  restoreType?: string(name='RestoreType', description='The backup restore type of the instance.
+- 1:  restore an instance to the specified time.
+- 2: restore an  released instance to the specified backup set.
+- 3：restore an instance to the specified cross-regional backup set.', example='1'),
   secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of secondary zone 1 for multi-zone deployment. Valid values:
 
 *   **cn-hangzhou-g**: Hangzhou Zone G
@@ -1640,11 +1655,13 @@ This parameter is required.'),
   srcDBInstanceId?: string(name='SrcDBInstanceId', description='The source instance ID.
 
 > This parameter is required only if you call this operation to clone an instance. If you specify this parameter, you must also specify **RestoreTime**.', example='dds-bp11483712c1****'),
-  srcRegion?: string(name='SrcRegion'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.
+
+> This parameter is required when restore type is set to 2 or 3.', example='cn-beijing'),
   storageEngine?: string(name='StorageEngine', description='The storage engine of the instance. Set the value to **WiredTiger**.
 
-> *   If you call this operation to clone an instance, set the value of this parameter to the storage engine of the source instance.
-> *   For more information about the limits on database versions and storage engines, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).', example='WiredTiger'),
+> * If you call this operation to clone an instance, set the value of this parameter to the storage engine of the source instance.
+> * For more information about the limits on database versions and storage engines, see [MongoDB versions and storage engines](https://help.aliyun.com/document_detail/61906.html).', example='WiredTiger'),
   storageType?: string(name='StorageType', description='The storage type of the instance. Valid values:
 
 *   **cloud_essd1**: ESSD PL1
@@ -1684,7 +1701,7 @@ model CreateShardingDBInstanceResponse = {
 /**
  * @summary Creates or clones an ApsaraDB for MongoDB sharded cluster instance.
  *
- * @description *   Make sure that you fully understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail) of ApsaraDB for MongoDB before you call this operation.
+ * @description *   Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB before you call this operation.
  * *   For more information about the instance types of ApsaraDB for MongoDB, see [Instance types](https://help.aliyun.com/document_detail/57141.html).
  * *   To create standalone instances and replica set instances, you can call the [CreateDBInstance](https://help.aliyun.com/document_detail/61763.html) operation.
  *
@@ -1829,7 +1846,7 @@ async function createShardingDBInstanceWithOptions(request: CreateShardingDBInst
 /**
  * @summary Creates or clones an ApsaraDB for MongoDB sharded cluster instance.
  *
- * @description *   Make sure that you fully understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail) of ApsaraDB for MongoDB before you call this operation.
+ * @description *   Make sure that you fully understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB before you call this operation.
  * *   For more information about the instance types of ApsaraDB for MongoDB, see [Instance types](https://help.aliyun.com/document_detail/57141.html).
  * *   To create standalone instances and replica set instances, you can call the [CreateDBInstance](https://help.aliyun.com/document_detail/61763.html) operation.
  *
@@ -3445,13 +3462,16 @@ model DescribeBackupPolicyRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
 This parameter is required.', example='dds-bp16cb162771****'),
-  instanceType?: string(name='InstanceType'),
+  instanceType?: string(name='InstanceType', description='The architecture of the instance. Valid values:
+
+*   **sharding**: sharded cluster instance
+*   **replicate**: replica set or standalone instance', example='sharding'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   securityToken?: string(name='SecurityToken'),
-  srcRegion?: string(name='SrcRegion'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.', example='cn-beijing'),
 }
 
 model DescribeBackupPolicyResponseBody = {
@@ -3468,18 +3488,41 @@ model DescribeBackupPolicyResponseBody = {
 *   **480**: every 8 hours.
 *   **720**: every 12 hours.', example='-1'),
   backupRetentionPeriod?: string(name='BackupRetentionPeriod', description='The retention period of the backup data. Unit: day.', example='30'),
-  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion'),
-  crossBackupPeriod?: string(name='CrossBackupPeriod'),
-  crossLogRetentionType?: string(name='CrossLogRetentionType'),
-  crossLogRetentionValue?: int32(name='CrossLogRetentionValue'),
-  crossRetentionType?: string(name='CrossRetentionType'),
-  crossRetentionValue?: int32(name='CrossRetentionValue'),
-  destRegion?: string(name='DestRegion'),
+  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion', description='The backup retention policy configured for the instance. Valid values:
+
+1.  0: All backup sets are immediately deleted when the instance is released.
+2.  1: Automatic backup is performed and the backup set is retained for a long period of time when the instance is released.
+3.  2: Automatic backup is performed and all backup sets are retained for a long period of time when the instance is released.
+
+For more information, see [Retain the backup files of an ApsaraDB for MongoDB instance for a long period of time](https://help.aliyun.com/document_detail/2779111.html).', example='0'),
+  crossBackupPeriod?: string(name='CrossBackupPeriod', description='The retention period of Cross-regional backup.
+Valid values:
+
+*   **Monday**
+*   **Tuesday**
+*   **Wednesday**
+*   **Thursday**
+*   **Friday**
+*   **Saturday**
+*   **Sunday**', example='Monday'),
+  crossLogRetentionType?: string(name='CrossLogRetentionType', description='The retention type of Cross-regional  log backup.
+
+- delay : retain the backup for a period of time.
+- never : retain the backup permanently.', example='delay'),
+  crossLogRetentionValue?: int32(name='CrossLogRetentionValue', description='The retention time of Cross-regional log backup.', example='7'),
+  crossRetentionType?: string(name='CrossRetentionType', description='The retention type of Cross-regional backup.
+
+- delay : retain the backup for a period of time.
+- never : retain the backup permanently.', example='delay'),
+  crossRetentionValue?: int32(name='CrossRetentionValue', description='The retention time of Cross-regional backup.', example='7'),
+  destRegion?: string(name='DestRegion', description='The region ID of the cross-regional backup..', example='cn-shenzhen'),
   enableBackupLog?: int32(name='EnableBackupLog', description='Indicates whether the log backup feature is enabled. Valid values:
 
 *   **0** (default): The log backup feature is disabled.
 *   **1**: The log backup feature is enabled.', example='1'),
-  enableCrossLogBackup?: int32(name='EnableCrossLogBackup'),
+  enableCrossLogBackup?: int32(name='EnableCrossLogBackup', description='Whether to turn on cross-regional log backup.
+- 1: turn on . Used for sharded cluster.
+- 0: turn off. Used for replicate set.', example='1'),
   highFrequencyBackupRetention?: string(name='HighFrequencyBackupRetention', description='The retention period of high-frequency backups. Unit: day.', example='1'),
   logBackupRetentionPeriod?: int32(name='LogBackupRetentionPeriod', description='The number of days for which log backups are retained. Valid values: 7 to 730.', example='7'),
   preferredBackupPeriod?: string(name='PreferredBackupPeriod', description='The day of a week on which to back up data. Valid values:
@@ -3492,13 +3535,13 @@ model DescribeBackupPolicyResponseBody = {
 *   **Saturday**
 *   **Sunday**', example='Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'),
   preferredBackupTime?: string(name='PreferredBackupTime', description='The time range during which the backup was created. The time follows the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time is displayed in UTC.', example='09:00Z-10:00Z'),
-  preferredNextBackupTime?: string(name='PreferredNextBackupTime'),
+  preferredNextBackupTime?: string(name='PreferredNextBackupTime', description='The time of next standard backup.', example='2024-06-19T19:11Z'),
   requestId?: string(name='RequestId', description='The request ID.', example='5A9464CA-F7DC-5434-90B1-DF7F197C****'),
   snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Valid values:
 
 *   **Flash**: single-digit second backup
 *   **Standard** (default): standard backup', example='Standard'),
-  srcRegion?: string(name='SrcRegion'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.', example='cn-hangzhou'),
 }
 
 model DescribeBackupPolicyResponse = {
@@ -3724,22 +3767,27 @@ If you set the **DBInstanceId** parameter to the ID of a sharded cluster instanc
 > If you set this parameter to the ID of a sharded cluster instance, you must also specify the **NodeId** parameter.
 
 This parameter is required.', example='dds-bp1a7009eb24****'),
-  destRegion?: string(name='DestRegion'),
+  destRegion?: string(name='DestRegion', description='The region ID of the Cross-regional backup.
+
+>  This parameter is required for the Cross-regional backup.', example='cn-hangzhou'),
   endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC. The end time must be later than the start time.', example='2022-01-14T13:00Z'),
   nodeId?: string(name='NodeId', description='The ID of the shard node in the sharded cluster instance.
 
 > This parameter takes effect only when you set the **DBInstanceId** parameter to the ID of a sharded cluster instance.', example='d-bp128a003436****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the page to return.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values:
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. The value must be a positive integer that does not exceed the maximum value of the INTEGER data type. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Valid values:
 
 *   **30** (default)
 *   **50**
 *   **100**', example='30'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  srcRegion?: string(name='SrcRegion'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.
+
+>- This parameter is required if you want to query the backup sets of a released instance.
+>-  This parameter is required if you want to query cross-region backups.', example='cn-beijing'),
   startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm*Z format. The time must be in UTC.', example='2022-01-13T13:00Z'),
 }
 
@@ -3753,7 +3801,7 @@ model DescribeBackupsResponseBody = {
       backupId?: string(name='BackupId', description='The ID of the backup set.', example='32102****'),
       backupIntranetDownloadURL?: string(name='BackupIntranetDownloadURL', description='The internal download URL of the backup set.
 
->  You can use the URL to download the specified backup set on an Elastic Compute Service (ECS) instance that is in the same Virtual Private Cloud (VPC) as the ApsaraDB for MongoDB instance.'),
+>  You can use the URL to download the specified backup set on an Elastic Compute Service (ECS) instance that is in the same virtual private cloud (VPC) as the ApsaraDB for MongoDB instance.'),
       backupJobId?: string(name='BackupJobId', description='The ID of the backup task.', example='1123xxxx'),
       backupMethod?: string(name='BackupMethod', description='The method that is used to generate the backup set. Valid values:
 
@@ -3762,10 +3810,10 @@ model DescribeBackupsResponseBody = {
 *   **Logical**', example='Physical'),
       backupMode?: string(name='BackupMode', description='The backup mode of the backup set. Valid values:
 
-*   **Automated**:
+*   **Automated**
 *   **Manual**', example='Automated'),
-      backupName?: string(name='BackupName'),
-      backupScale?: string(name='BackupScale'),
+      backupName?: string(name='BackupName', description='The name of the backup set (invalid now).', example='12345678.tar.gz'),
+      backupScale?: string(name='BackupScale', description='The scale of the backup set (invalid now).', example='DBInstance'),
       backupSize?: long(name='BackupSize', description='The size of the backup set. Unit: bytes.', example='6168576'),
       backupStartTime?: string(name='BackupStartTime', description='The start time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:56:17Z'),
       backupStatus?: string(name='BackupStatus', description='The status of the backup task. Valid values:
@@ -3776,7 +3824,10 @@ model DescribeBackupsResponseBody = {
 
 *   **FullBackup**
 *   **IncrementalBackup**', example='FullBackup'),
-      isAvail?: boolean(name='IsAvail'),
+      engineVersion?: string(name='EngineVersion'),
+      isAvail?: boolean(name='IsAvail', description='Availability of the backup set.
+- 0: unavailable
+- 1: available', example='1'),
     }
   ](name='Backup')
   }(name='Backups', description='The details of the backup set.'),
@@ -3950,6 +4001,7 @@ model DescribeClusterBackupsResponseBody = {
       clusterBackupSize?: string(name='ClusterBackupSize', description='The size of the cluster backup set. Unit: bytes.', example='107374182400'),
       clusterBackupStartTime?: string(name='ClusterBackupStartTime', description='The beginning of the time range within which the cluster backup is performed.', example='2023-10-16T19:33:20Z'),
       clusterBackupStatus?: string(name='ClusterBackupStatus', description='The status of the cluster backup set.', example='OK'),
+      engineVersion?: string(name='EngineVersion'),
       extraInfo?: {
         registryFromHistory?: string(name='RegistryFromHistory', description='Indicates whether the cluster backups are migrated from the historical backup sets. If the value of this parameter is **1**, the cluster backups are migrated from the historical backup sets.', example='1'),
       }(name='ExtraInfo', description='The additional information in the JSON format.'),
@@ -4132,11 +4184,11 @@ model DescribeDBInstanceAttributeRequest {
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
 This parameter is required.', example='dds-bp11483712c1****'),
-  engine?: string(name='Engine', description='The database engine of the instance. Set the value to **MongoDB**.', example='MongoDB'),
-  isDelete?: boolean(name='IsDelete', description='Specifies whether to delete the instance. Valid values:
+  engine?: string(name='Engine', description='The database engine. Set the value to **MongoDB**.', example='MongoDB'),
+  isDelete?: boolean(name='IsDelete', description='Specifies whether to query instances that are deleted. Valid values:
 
-- **false**: queries the details of running instances.
-- **true**: queries the details of deleted instances.', example='false'),
+*   **false**: queries instances that are running.
+*   **true**: queries instance that are deleted.', example='false'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. For more information, see [View the basic information of a resource group](https://help.aliyun.com/document_detail/151181.html).
@@ -4161,7 +4213,14 @@ model DescribeDBInstanceAttributeResponseBody = {
         configserverAttribute?: [ 
         {
           connectString?: string(name='ConnectString', description='The endpoint of the Configserver node.', example='dds-bp18b0934e7053e4-cs****.mongodb.rds.aliyuncs.com'),
-          lockMode?: string(name='LockMode'),
+          currentKernelVersion?: string(name='CurrentKernelVersion', description='The minor version of the current MongoDB kernel.', example='mongodb_20230613_4.0.25'),
+          lockMode?: string(name='LockMode', description='The lock status of the Configserver node. Valid values:
+
+*   **Unlock**: The instance is not locked.
+*   **ManualLock**: The instance is manually locked.
+*   **LockByExpiration**: The instance is automatically locked due to instance expiration.
+*   **LockByRestoration**: The instance is automatically locked before a rollback.
+*   **LockByDiskQuota**: The instance is automatically locked because its storage capacity is exhausted and the instance is inaccessible.', example='Unlock'),
           maxConnections?: int32(name='MaxConnections', description='The maximum number of connections to the Configserver node.', example='1000'),
           maxIOPS?: int32(name='MaxIOPS', description='The maximum IOPS of the Configserver node.', example='1000'),
           nodeClass?: string(name='NodeClass', description='The instance type of the Configserver node.', example='dds.cs.mid'),
@@ -4172,7 +4231,7 @@ model DescribeDBInstanceAttributeResponseBody = {
           status?: string(name='Status', description='The status of the Configserver node. For more information, see [Instance states](https://help.aliyun.com/document_detail/63870.html).', example='Running'),
         }
       ](name='ConfigserverAttribute')
-      }(name='ConfigserverList', description='The information of the Configserver nodes.
+      }(name='ConfigserverList', description='The details of the ConfigServer node.
 
 >  This parameter is returned if the instance is a sharded cluster instance.'),
       creationTime?: string(name='CreationTime', description='The time when the instance was created. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-02T07:43:59Z'),
@@ -4259,12 +4318,19 @@ model DescribeDBInstanceAttributeResponseBody = {
       maintainStartTime?: string(name='MaintainStartTime', description='The start time of the maintenance window. The time follows the ISO 8601 standard in the *HH:mm*Z format. The time is displayed in UTC.', example='18:00Z'),
       maxConnections?: int32(name='MaxConnections', description='The maximum number of connections to the instance.', example='500'),
       maxIOPS?: int32(name='MaxIOPS', description='The maximum IOPS of the instance.', example='1000'),
-      maxMBPS?: int32(name='MaxMBPS', description='实例的最大云盘吞吐量，单位MB/s。', example='350'),
+      maxMBPS?: int32(name='MaxMBPS', description='The maximum MBPS of the instance.', example='350'),
       mongosList?: {
         mongosAttribute?: [ 
         {
           connectSting?: string(name='ConnectSting', description='The endpoint of the mongos node.', example='s-bp1d8c262a15****.mongodb.rds.aliyuncs.com'),
-          lockMode?: string(name='LockMode'),
+          currentKernelVersion?: string(name='CurrentKernelVersion', description='The minor version of the current MongoDB kernel.', example='mongodb_20220518_4.0.21'),
+          lockMode?: string(name='LockMode', description='The lock status of the instance. Valid values:
+
+*   **Unlock**: The instance is not locked.
+*   **ManualLock**: The instance is manually locked.
+*   **LockByExpiration**: The instance is automatically locked due to instance expiration.
+*   **LockByRestoration**: The instance is automatically locked before a rollback.
+*   **LockByDiskQuota**: The instance is automatically locked because its storage capacity is exhausted and the instance is inaccessible.', example='Unlock'),
           maxConnections?: int32(name='MaxConnections', description='The maximum number of connections to the mongos node.', example='1000'),
           maxIOPS?: int32(name='MaxIOPS', description='The maximum IOPS of the mongos node.', example='800'),
           nodeClass?: string(name='NodeClass', description='The instance type of the mongos node.', example='dds.mongos.mid'),
@@ -4281,7 +4347,7 @@ model DescribeDBInstanceAttributeResponseBody = {
           vpcCloudInstanceId?: string(name='VpcCloudInstanceId', description='The ID of the mongos node.', example='s-bp1d8c262a158****'),
         }
       ](name='MongosAttribute')
-      }(name='MongosList', description='The information of the mongos nodes.
+      }(name='MongosList', description='The details of the mongos node.
 
 >  This parameter is returned if the instance is a sharded cluster instance.'),
       networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
@@ -4366,9 +4432,16 @@ model DescribeDBInstanceAttributeResponseBody = {
         shardAttribute?: [ 
         {
           connectString?: string(name='ConnectString', description='The endpoint of the shard node.', example='d-bp1af0680a9c6d3****.mongodb.rds.aliyuncs.com:****'),
-          lockMode?: string(name='LockMode'),
+          currentKernelVersion?: string(name='CurrentKernelVersion', description='The minor version of the current MongoDB kernel.', example='mongodb_20230613_4.0.25'),
+          lockMode?: string(name='LockMode', description='The lock status of the shard node. Valid values:
+
+*   **Unlock**: The instance is not locked.
+*   **ManualLock**: The instance is manually locked.
+*   **LockByExpiration**: The instance is automatically locked due to instance expiration.
+*   **LockByRestoration**: The instance is automatically locked before a rollback.
+*   **LockByDiskQuota**: The instance is automatically locked because its storage capacity is exhausted and the instance is inaccessible.', example='Unlock'),
           maxConnections?: int32(name='MaxConnections', description='The maximum number of connections to the shard node.', example='8000'),
-          maxDiskMbps?: string(name='MaxDiskMbps', description='shard节点的最大云盘吞吐量。', example='350'),
+          maxDiskMbps?: string(name='MaxDiskMbps', description='The maximum MBPS of the shard node.', example='350'),
           maxIOPS?: int32(name='MaxIOPS', description='The maximum IOPS of the shard node.', example='8000'),
           nodeClass?: string(name='NodeClass', description='The instance type of the shard node.', example='dds.shard.mid'),
           nodeDescription?: string(name='NodeDescription', description='The name of the shard node.', example='testshard'),
@@ -4379,7 +4452,7 @@ model DescribeDBInstanceAttributeResponseBody = {
           status?: string(name='Status', description='The status of the shard node. For more information, see [Instance states](https://help.aliyun.com/document_detail/63870.html).', example='Running'),
         }
       ](name='ShardAttribute')
-      }(name='ShardList', description='The information of the shard nodes.
+      }(name='ShardList', description='The details of the shard node.
 
 >  This parameter is returned if the instance is a sharded cluster instance.'),
       storageEngine?: string(name='StorageEngine', description='The storage engine of the instance.', example='WiredTiger'),
@@ -4416,7 +4489,7 @@ model DescribeDBInstanceAttributeResponseBody = {
       zoneId?: string(name='ZoneId', description='The ID of the zone in which the instance resides.', example='cn-hangzhou-b'),
     }
   ](name='DBInstance')
-  }(name='DBInstances', description='The information of the instance.'),
+  }(name='DBInstances', description='The instance details.'),
   requestId?: string(name='RequestId', description='The request ID.', example='A935A8EE-A6CC-53DE-98BA-20ABAA7E632B'),
 }
 
@@ -7815,6 +7888,7 @@ model DescribeReplicaSetRoleResponseBody = {
     {
       connectionDomain?: string(name='ConnectionDomain', description='The endpoint of the node.', example='dds-bpxxxxxxxx.mongodb.rds.aliyuncs.com'),
       connectionPort?: string(name='ConnectionPort', description='The port number that is used to connect to the node.', example='3717'),
+      connectionType?: string(name='ConnectionType', description='The connection type of the node.', example='SRV'),
       expiredTime?: string(name='ExpiredTime', description='The remaining duration of the classic network endpoint. Unit: seconds.', example='1209582'),
       networkType?: string(name='NetworkType', description='The network type of the instance. Valid values:
 
@@ -7893,6 +7967,106 @@ async function describeReplicaSetRoleWithOptions(request: DescribeReplicaSetRole
 async function describeReplicaSetRole(request: DescribeReplicaSetRoleRequest): DescribeReplicaSetRoleResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeReplicaSetRoleWithOptions(request, runtime);
+}
+
+model DescribeRestoreDBInstanceListRequest {
+  creationTimeAfter?: string(name='CreationTimeAfter', description='This parameter is required.', example='2024-07-24T14:00:00Z'),
+  DBInstanceId?: string(name='DBInstanceId', description='This parameter is required.', example='dds-bp114f14849d****'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='30'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+}
+
+model DescribeRestoreDBInstanceListResponseBody = {
+  DBInstances?: {
+    DBInstance?: [ 
+    {
+      creationTime?: string(name='CreationTime', example='2022-01-02T07:43:59Z'),
+      DBInstanceDescription?: string(name='DBInstanceDescription'),
+      DBInstanceId?: string(name='DBInstanceId', example='dds-bp12c5b040dc****'),
+      DBInstanceStatus?: string(name='DBInstanceStatus', example='Running'),
+      DBInstanceType?: string(name='DBInstanceType', example='replicate'),
+      engineVersion?: string(name='EngineVersion', example='4.2'),
+      hiddenZoneId?: string(name='HiddenZoneId', example='cn-hangzhou-h'),
+      isDeleted?: int32(name='IsDeleted', example='0'),
+      lockMode?: string(name='LockMode', example='Unlock'),
+      regionId?: string(name='RegionId', example='cn-hangzhou'),
+      secondaryZoneId?: string(name='SecondaryZoneId', example='cn-hangzhou-i'),
+      zoneId?: string(name='ZoneId', example='cn-hangzhou-g'),
+    }
+  ](name='DBInstance')
+  }(name='DBInstances'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='30'),
+  requestId?: string(name='RequestId', example='1AF0AD89-ED4F-44AD-B65F-BFC1D5Cxxxxx'),
+  totalCount?: int32(name='TotalCount', example='5'),
+}
+
+model DescribeRestoreDBInstanceListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRestoreDBInstanceListResponseBody(name='body'),
+}
+
+/**
+ * @param request DescribeRestoreDBInstanceListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeRestoreDBInstanceListResponse
+ */
+async function describeRestoreDBInstanceListWithOptions(request: DescribeRestoreDBInstanceListRequest, runtime: Util.RuntimeOptions): DescribeRestoreDBInstanceListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.creationTimeAfter)) {
+    query['CreationTimeAfter'] = request.creationTimeAfter;
+  }
+  if (!Util.isUnset(request.DBInstanceId)) {
+    query['DBInstanceId'] = request.DBInstanceId;
+  }
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeRestoreDBInstanceList',
+    version = '2015-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @param request DescribeRestoreDBInstanceListRequest
+ * @return DescribeRestoreDBInstanceListResponse
+ */
+async function describeRestoreDBInstanceList(request: DescribeRestoreDBInstanceListRequest): DescribeRestoreDBInstanceListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeRestoreDBInstanceListWithOptions(request, runtime);
 }
 
 model DescribeRoleZoneInfoRequest {
@@ -8368,6 +8542,7 @@ model DescribeShardingNetworkAddressResponseBody = {
   networkAddresses?: {
     networkAddress?: [ 
     {
+      connectionType?: string(name='ConnectionType'),
       expiredTime?: string(name='ExpiredTime', description='The remaining duration of the classic network endpoint. Unit: seconds.', example='2591963'),
       IPAddress?: string(name='IPAddress', description='The IP address of the instance.', example='10.140.xxx.xx'),
       networkAddress?: string(name='NetworkAddress', description='The connection string of the instance.', example='s-bpxxxxxxxx.mongodb.rds.aliyuncs.com'),
@@ -8387,6 +8562,7 @@ model DescribeShardingNetworkAddressResponseBody = {
 
 *   Primary
 *   Secondary', example='Primary'),
+      txtRecord?: string(name='TxtRecord'),
       VPCId?: string(name='VPCId', description='The VPC ID of the instance.
 
 >  This parameter is returned when the network type is **VPC**.', example='vpc-bpxxxxxxxx'),
@@ -9194,12 +9370,12 @@ This parameter is required.', example='dds-bp1ece71ff2f****'),
 *   **MaintainTime**: The instance is migrated to the destination zone during the maintenance window of the instance.
 
 Default value: **Immediately**.', example='Immediately'),
-  hiddenZoneId?: string(name='HiddenZoneId'),
+  hiddenZoneId?: string(name='HiddenZoneId', description='The ID of the destination hidden zone.', example='cn-shanghai-n'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  secondaryZoneId?: string(name='SecondaryZoneId'),
+  secondaryZoneId?: string(name='SecondaryZoneId', description='The ID of the destination secondary zone.', example='cn-hangzhou-h'),
   vswitch?: string(name='Vswitch', description='The ID of the vSwitch in the destination zone.
 
 > If the instance is deployed in a VPC, you must specify this parameter.', example='vsw-bp1buy0h9myt5i9e7****'),
@@ -9799,7 +9975,7 @@ async function modifyAuditPolicy(request: ModifyAuditPolicyRequest): ModifyAudit
 }
 
 model ModifyBackupPolicyRequest {
-  backupInterval?: string(name='BackupInterval', description='The frequency at which high-frequency backup is created. Valid values:
+  backupInterval?: string(name='BackupInterval', description='The frequency at which high-frequency backups are generated. Valid values:
 
 *   **-1**: High-frequency backup is disabled.
 *   **30**: High-frequency backups are generated every 30 minutes.
@@ -9813,9 +9989,9 @@ model ModifyBackupPolicyRequest {
 
 > 
 
-*   If the **SnapshotBackupType** parameter is set to **Standard**, this parameter is set to -1 and cannot be changed.
+*   If you set the **SnapshotBackupType** parameter to **Standard**, you must fix the value of this parameter to -1.
 
-*   High-frequency backup takes effect only when the **SnapshotBackupType** parameter is set to **Flash** and the value of this parameter is greater than 0.', example='-1'),
+*   High-frequency backup takes effect only when you set the **SnapshotBackupType** parameter to **Flash** and this parameter to a value greater than 0.', example='-1'),
   backupRetentionPeriod?: long(name='BackupRetentionPeriod', description='The retention period of full backups.
 
 > 
@@ -9823,24 +9999,68 @@ model ModifyBackupPolicyRequest {
 *   If your instance is created before September 10, 2021, backups are retained for seven days by default.
 
 *   If your instance is created after September 10, 2021, backups are retained for 30 days by default.', example='30'),
-  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion'),
-  crossBackupPeriod?: string(name='CrossBackupPeriod'),
-  crossBackupType?: string(name='CrossBackupType'),
-  crossLogRetentionType?: string(name='CrossLogRetentionType'),
-  crossLogRetentionValue?: int32(name='CrossLogRetentionValue'),
-  crossRetentionType?: string(name='CrossRetentionType'),
-  crossRetentionValue?: int32(name='CrossRetentionValue'),
+  backupRetentionPolicyOnClusterDeletion?: int32(name='BackupRetentionPolicyOnClusterDeletion', description='The backup retention policy configured for the instance. Valid values:
+
+1.  0: All backup sets are immediately deleted when the instance is released.
+2.  1: Automatic backup is performed and the backup set is retained for a long period of time when the instance is released.
+3.  2: Automatic backup is performed and all backup sets are retained for a long period of time when the instance is released.
+
+For more information, see [Retain the backup files of an ApsaraDB for MongoDB instance for a long period of time](https://help.aliyun.com/document_detail/4920562.html).', example='2'),
+  crossBackupPeriod?: string(name='CrossBackupPeriod', description='The retention period of Cross-regional backup.
+Valid values:
+
+*   **Monday**
+*   **Tuesday**
+*   **Wednesday**
+*   **Thursday**
+*   **Friday**
+*   **Saturday**
+*   **Sunday**
+
+**
+
+
+
+
+
+>- Separate multiple values with commas (,).
+>- When SnapshotBackupType  is set to standard, this value needs to be a subset of the PreferredBackupPeriod.', example='Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'),
+  crossBackupType?: string(name='CrossBackupType', description='The operation strategy of Cross-regional backup.
+- update
+- delete', example='update'),
+  crossLogRetentionType?: string(name='CrossLogRetentionType', description='The retention type of Cross-regional  log backup.
+
+- delay : retain the backup for a period of time.
+- never : retain the backup permanently.', example='delay'),
+  crossLogRetentionValue?: int32(name='CrossLogRetentionValue', description='The retention time of Cross-regional log backup, 3 - 1825 days.', example='3'),
+  crossRetentionType?: string(name='CrossRetentionType', description='The retention type of Cross-regional backup.
+
+- delay : retain the backup for a period of time.
+- never : retain the backup permanently.', example='delay'),
+  crossRetentionValue?: int32(name='CrossRetentionValue', description='The retention time of Cross-regional backup, 3 - 1825 days.
+> 
+> - Used and must be used when CrossRetentionType is delay.', example='7'),
   DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
 
 This parameter is required.', example='dds-bp16cb162771****'),
-  destRegion?: string(name='DestRegion'),
+  destRegion?: string(name='DestRegion', description='The region id of Cross-regional backup.
+> 
+> - Required for Cross-regional backup.', example='cn-hangzhou'),
   enableBackupLog?: long(name='EnableBackupLog', description='Specifies whether to enable the log backup feature. Valid values:
 
 *   **0** (default): The log backup feature is disabled.
 *   **1**: The log backup feature is enabled.', example='0'),
-  enableCrossLogBackup?: int32(name='EnableCrossLogBackup'),
-  highFrequencyBackupRetention?: long(name='HighFrequencyBackupRetention', description='The number of days for which high-frequency backups are retained. Before you use this parameter, make sure that you specify the BackupInterval parameter. By default, high-frequency backups are retained for one day.'),
-  instanceType?: string(name='InstanceType'),
+  enableCrossLogBackup?: int32(name='EnableCrossLogBackup', description='Whether to turn on cross-regional log backup.
+- 1：turn on . Used for sharded cluster.
+- 0: turn off. Used for replicate set.', example='1'),
+  highFrequencyBackupRetention?: long(name='HighFrequencyBackupRetention', description='The number of days for which high-frequency backups are retained. Before you use this parameter, make sure that you specify the BackupInterval parameter. By default, high-frequency backups are retained for one day.', example='1'),
+  instanceType?: string(name='InstanceType', description='The instance architecture. Valid values:
+
+*   replicate
+*   sharding
+
+> * This parameter is required  for Cross-regional backup.
+> * This parameter is required for backup recovery of deleted instances.', example='replicate'),
   logBackupRetentionPeriod?: long(name='LogBackupRetentionPeriod', description='The number of days for which log backups are retained. Default value: 7.
 
 Valid values: 7 to 730.', example='7'),
@@ -9856,6 +10076,10 @@ Valid values: 7 to 730.', example='7'),
 *   **Saturday**
 *   **Sunday**
 
+**
+
+**Notice**: To ensure data security, make sure that the system backs up data at least twice a week.
+
 >  Separate multiple values with commas (,).', example='Monday,Wednesday,Friday,Sunday'),
   preferredBackupTime?: string(name='PreferredBackupTime', description='The start time of the backup. Specify the time in the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time must be in UTC.
 
@@ -9866,7 +10090,11 @@ Valid values: 7 to 730.', example='7'),
 
 *   **Flash**: single-digit second backup
 *   **Standard** (default): standard backup', example='Standard'),
-  srcRegion?: string(name='SrcRegion'),
+  srcRegion?: string(name='SrcRegion', description='The region ID of the instance.
+
+> 
+> - Required for Cross-regional backup.
+> - Required for backup recovery of deleted instances.', example='cn-beijing'),
 }
 
 model ModifyBackupPolicyResponseBody = {
@@ -9881,6 +10109,8 @@ model ModifyBackupPolicyResponse = {
 
 /**
  * @summary Modifies a backup policy for an ApsaraDB for MongoDB instance.
+ *
+ * @description Cross-regional backup only supports  MongoDB sharded cluster instance and MongoDB replica set.
  *
  * @param request ModifyBackupPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9980,6 +10210,8 @@ async function modifyBackupPolicyWithOptions(request: ModifyBackupPolicyRequest,
 
 /**
  * @summary Modifies a backup policy for an ApsaraDB for MongoDB instance.
+ *
+ * @description Cross-regional backup only supports  MongoDB sharded cluster instance and MongoDB replica set.
  *
  * @param request ModifyBackupPolicyRequest
  * @return ModifyBackupPolicyResponse
@@ -12814,17 +13046,28 @@ async function restartDBInstance(request: RestartDBInstanceRequest): RestartDBIn
 }
 
 model RestartNodeRequest {
-  DBInstanceId?: string(name='DBInstanceId', description='This parameter is required.', example='dds-bpxxxxxxxx'),
-  nodeId?: string(name='NodeId', example='d-bp128a003436****'),
+  DBInstanceId?: string(name='DBInstanceId', description='The instance ID.
+
+>  If you set this parameter to the ID of a sharded cluster instance, you must also specify the **NodeId** parameter.
+
+This parameter is required.', example='dds-bpxxxxxxxx'),
+  nodeId?: string(name='NodeId', description='The ID of the shard, mongos, or ConfigServer node in a child instance of the sharded cluster instance.
+
+>  If you set the **DBInstanceId** parameter to the ID of a sharded cluster instance, you must specify this parameter.', example='d-bp128a003436****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  roleId?: string(name='RoleId', description='This parameter is required.', example='6025****'),
+  roleId?: string(name='RoleId', description='The role ID of the node.
+
+1.  You can call the [DescribeReplicaSetRole](https://help.aliyun.com/document_detail/468469.html) operation to query the role ID of a node in a replica set instance.
+2.  You can call the [DescribeRoleZoneInfo](https://help.aliyun.com/document_detail/468472.html) operation to query the role ID of a node in a sharded cluster instance.
+
+This parameter is required.', example='6025****'),
 }
 
 model RestartNodeResponseBody = {
-  requestId?: string(name='RequestId', example='ECBCA991-XXXX-XXXX-834C-B3E8007F33AA'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ECBCA991-XXXX-XXXX-834C-B3E8007F33AA'),
 }
 
 model RestartNodeResponse = {
@@ -12834,7 +13077,12 @@ model RestartNodeResponse = {
 }
 
 /**
- * @summary 重启副本集单个节点
+ * @summary Restarts a node in an ApsaraDB for MongoDB instance.
+ *
+ * @description You can call this operation to restart a node in a replica set instance or a child instance in a sharded cluster instance.
+ * >  When you call this operation, the instance must meet the following requirements:
+ * *   The instance is in the Running state.
+ * *   The instance is a replica set or sharded cluster instance of the standard edition.
  *
  * @param request RestartNodeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12882,7 +13130,12 @@ async function restartNodeWithOptions(request: RestartNodeRequest, runtime: Util
 }
 
 /**
- * @summary 重启副本集单个节点
+ * @summary Restarts a node in an ApsaraDB for MongoDB instance.
+ *
+ * @description You can call this operation to restart a node in a replica set instance or a child instance in a sharded cluster instance.
+ * >  When you call this operation, the instance must meet the following requirements:
+ * *   The instance is in the Running state.
+ * *   The instance is a replica set or sharded cluster instance of the standard edition.
  *
  * @param request RestartNodeRequest
  * @return RestartNodeResponse
@@ -13212,7 +13465,7 @@ model TransformInstanceChargeTypeRequest {
 *   **true**
 *   **false**
 
->  Default value: **true**.', example='true'),
+> Default value: **true**.', example='true'),
   autoRenew?: string(name='AutoRenew', description='Specifies whether to enable auto-renewal. Valid values:
 
 *   **true**
@@ -13222,36 +13475,30 @@ model TransformInstanceChargeTypeRequest {
   businessInfo?: string(name='BusinessInfo', description='The business information. This is an additional parameter.', example='{“ActivityId":"000000000"}'),
   chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
 
-*   **PrePaid**: subscription
-*   **PostPaid**: pay-as-you-go
+*   **PrePaid:** subscription.
+*   **PostPaid:** pay-as-you-go.
 
 This parameter is required.', example='PrePaid'),
-  couponNo?: string(name='CouponNo', description='Specifies whether to use coupons. Default value: null. Valid values:
-
-*   **default** or **null**: uses coupons.
-*   **youhuiquan_promotion_option_id_for_blank**: does not use coupons.', example='youhuiquan_promotion_option_id_for_blank'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance
+  couponNo?: string(name='CouponNo', description='The coupon code. Default value: `youhuiquan_promotion_option_id_for_blank`.', example='youhuiquan_promotion_option_id_for_blank'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance.
 
 This parameter is required.', example='dds-2ze55b3ec56c****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  period?: long(name='Period', description='The subscription duration. Valid values:
+  period?: long(name='Period', description='The subscription duration of the instance. Unit: months. Valid values: **1, 2, 3, 4, 5, 6, 7, 8, 9******, **12**, **24**, and **36**.', example='1'),
+  pricingCycle?: string(name='PricingCycle', description='实例付费时长单位
+取值说明：
+- **Month：** 月
+-  **Year：** 年
 
-*   If the PricingCycle parameter is set to Month, the valid values of this parameter range from **1** to **9**.
-*   If the PricingCycle parameter is set to Year, the valid values of this parameter are **1**, **2**, **3**, and **5**.', example='1'),
-  pricingCycle?: string(name='PricingCycle', description='The unit of the subscription duration. Valid values:
-
-*   **Month**
-*   **Year**
-
-Default value: Month.', example='Month'),
+默认值：Month', example='Month'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model TransformInstanceChargeTypeResponseBody = {
-  orderId?: string(name='OrderId', description='The ID of the order.', example='21084641369****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='D8F1D721-6439-4257-A89C-F1E8E9C9****'),
+  orderId?: string(name='OrderId', description='The order ID.', example='21084641369****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D8F1D721-6439-4257-A89C-F1E8E9C9****'),
 }
 
 model TransformInstanceChargeTypeResponse = {
@@ -13263,12 +13510,12 @@ model TransformInstanceChargeTypeResponse = {
 /**
  * @summary Changes the billing method of an instance from pay-as-you-go to subscription or from subscription to pay-as-you-go.
  *
- * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail) of ApsaraDB for MongoDB.
+ * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB
  * Before you call this API operation, make sure that the ApsaraDB for MongoDB instance meets the following requirements:
  * *   The instance is in the Running state.
  * *   Your instance has no unpaid billing method change orders.
  * *   The instance type is available for purchase. For more information about unavailable instance types, see [Instance types](https://help.aliyun.com/document_detail/57141.html).
- * > To change the billing method of an instance whose instance type is no longer available to purchase, call the [ModifyDBInstanceSpec](https://help.aliyun.com/document_detail/61816.html) or [ModifyNodeSpec](https://help.aliyun.com/document_detail/61923.html) operation to first change the instance type.
+ * > To change the billing method of an instance whose instance type is no longer available to purchase, call the [ModifyDBInstanceSpec](https://help.aliyun.com/document_detail/61816.html) or [ModifyNodeSpec](https://help.aliyun.com/document_detail/61923.html) operation to change the instance type first.
  *
  * @param request TransformInstanceChargeTypeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -13333,12 +13580,12 @@ async function transformInstanceChargeTypeWithOptions(request: TransformInstance
 /**
  * @summary Changes the billing method of an instance from pay-as-you-go to subscription or from subscription to pay-as-you-go.
  *
- * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://www.aliyun.com/price/product#/mongodb/detail) of ApsaraDB for MongoDB.
+ * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://www.alibabacloud.com/product/apsaradb-for-mongodb/pricing) of ApsaraDB for MongoDB
  * Before you call this API operation, make sure that the ApsaraDB for MongoDB instance meets the following requirements:
  * *   The instance is in the Running state.
  * *   Your instance has no unpaid billing method change orders.
  * *   The instance type is available for purchase. For more information about unavailable instance types, see [Instance types](https://help.aliyun.com/document_detail/57141.html).
- * > To change the billing method of an instance whose instance type is no longer available to purchase, call the [ModifyDBInstanceSpec](https://help.aliyun.com/document_detail/61816.html) or [ModifyNodeSpec](https://help.aliyun.com/document_detail/61923.html) operation to first change the instance type.
+ * > To change the billing method of an instance whose instance type is no longer available to purchase, call the [ModifyDBInstanceSpec](https://help.aliyun.com/document_detail/61816.html) or [ModifyNodeSpec](https://help.aliyun.com/document_detail/61923.html) operation to change the instance type first.
  *
  * @param request TransformInstanceChargeTypeRequest
  * @return TransformInstanceChargeTypeResponse
@@ -13599,6 +13846,7 @@ This parameter is required.', example='4.0'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  switchMode?: int32(name='SwitchMode'),
 }
 
 model UpgradeDBInstanceEngineVersionResponseBody = {
@@ -13644,6 +13892,9 @@ async function upgradeDBInstanceEngineVersionWithOptions(request: UpgradeDBInsta
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
   }
+  if (!Util.isUnset(request.switchMode)) {
+    query['SwitchMode'] = request.switchMode;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -13685,6 +13936,7 @@ This parameter is required.', example='dds-bp2235****'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  switchMode?: string(name='SwitchMode'),
 }
 
 model UpgradeDBInstanceKernelVersionResponseBody = {
@@ -13725,6 +13977,9 @@ async function upgradeDBInstanceKernelVersionWithOptions(request: UpgradeDBInsta
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.switchMode)) {
+    query['SwitchMode'] = request.switchMode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
