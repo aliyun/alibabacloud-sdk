@@ -862,6 +862,85 @@ async function listJobRuns(workspaceId: string, request: ListJobRunsRequest): Li
   return listJobRunsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListLogContentsRequest {
+  fileName?: string(name='fileName'),
+  length?: int32(name='length', example='9999'),
+  offset?: int32(name='offset', example='0'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model ListLogContentsResponseBody = {
+  listLogContent?: {
+    contents?: [ 
+      {
+        lineContent?: string(name='LineContent', example='spark pi is 3.14\\\\n'),
+      }
+    ](name='contents'),
+    totalLength?: long(name='totalLength', example='10'),
+  }(name='listLogContent'),
+  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model ListLogContentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListLogContentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取日志内容
+ *
+ * @param request ListLogContentsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListLogContentsResponse
+ */
+async function listLogContentsWithOptions(workspaceId: string, request: ListLogContentsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListLogContentsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['fileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.length)) {
+    query['length'] = request.length;
+  }
+  if (!Util.isUnset(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListLogContents',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/action/listLogContents`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取日志内容
+ *
+ * @param request ListLogContentsRequest
+ * @return ListLogContentsResponse
+ */
+async function listLogContents(workspaceId: string, request: ListLogContentsRequest): ListLogContentsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listLogContentsWithOptions(workspaceId, request, headers, runtime);
+}
+
 model ListReleaseVersionsRequest {
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
   releaseType?: string(name='releaseType', description='The type of the version.
@@ -965,7 +1044,13 @@ async function listReleaseVersions(request: ListReleaseVersionsRequest): ListRel
 }
 
 model ListSessionClustersRequest {
-  kind?: string(name='kind'),
+  kind?: string(name='kind', description='The session type.
+
+Valid values:
+
+*   NOTEBOOK
+*   THRIFT
+*   SQL', example='SQL'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   queueName?: string(name='queueName', description='The name of the queue.', example='root'),
@@ -985,34 +1070,40 @@ model ListSessionClustersResponseBody = {
           configItemKey?: string(name='configItemKey', description='The key of the configuration item.', example='spark.app.name'),
           configItemValue?: string(name='configItemValue', description='The value of the configuration item.', example='test_application'),
         }
-      ](name='applicationConfigs', description='The SQL Compute configurations, which are equivalent to the configurations of the Spark job.'),
+      ](name='applicationConfigs', description='The session configurations, which are equivalent to the configurations of the Spark job.'),
       autoStartConfiguration?: {
         enable?: boolean(name='enable', description='Indicates whether automatic startup is enabled.', example='true'),
       }(name='autoStartConfiguration', description='The automatic startup configurations.'),
       autoStopConfiguration?: {
         enable?: boolean(name='enable', description='Indicates whether automatic termination is enabled.', example='false'),
-        idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The SQL Compute is automatically terminated if the idle timeout period is exceeded.', example='45'),
-      }(name='autoStopConfiguration', description='The automatic termination configurations.'),
-      displayReleaseVersion?: string(name='displayReleaseVersion'),
+        idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='45'),
+      }(name='autoStopConfiguration', description='The configurations of automatic termination.'),
+      displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.'),
       domain?: string(name='domain'),
-      draftId?: string(name='draftId'),
-      fusion?: boolean(name='fusion'),
-      kind?: string(name='kind'),
-      name?: string(name='name', description='The name of the SQL Compute.', example='adhoc_query'),
-      queueName?: string(name='queueName', description='The name of the queue on which the SQL Compute runs.', example='dev_queue'),
-      releaseVersion?: string(name='releaseVersion'),
-      sessionClusterId?: string(name='sessionClusterId', description='The SQL Compute ID.', example='sc-123131'),
-      state?: string(name='state', description='The status of the SQL Compute.', example='Running'),
+      draftId?: string(name='draftId', description='The ID of the job that is associated with the session.', example='TSK-xxxxxxxxx'),
+      fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='false'),
+      kind?: string(name='kind', description='The session type.
+
+Valid values:
+
+*   NOTEBOOK
+*   THRIFT
+*   SQL', example='SQL'),
+      name?: string(name='name', description='The name of the session.', example='adhoc_query'),
+      queueName?: string(name='queueName', description='The name of the queue that is used to run the session.', example='dev_queue'),
+      releaseVersion?: string(name='releaseVersion', description='The version of EMR Serverless Spark.', example='esr-2.1'),
+      sessionClusterId?: string(name='sessionClusterId', description='The session ID.', example='sc-123131'),
+      state?: string(name='state', description='The status of the session.', example='Running'),
       stateChangeReason?: {
         code?: string(name='code', description='The status change code.', example='200'),
         message?: string(name='message', description='The status change message.', example='ok'),
-      }(name='stateChangeReason', description='The details of the last status change of the SQL Compute.'),
+      }(name='stateChangeReason', description='The details of the most recent status change of the session.'),
       userId?: string(name='userId', description='The user ID.', example='123131'),
       userName?: string(name='userName', description='The name of the user.', example='test_user'),
-      webUI?: string(name='webUI'),
+      webUI?: string(name='webUI', description='The Spark UI of the session.', example='http://spark-ui-xxxx'),
       workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-1234abcd'),
     }
-  ](name='sessionClusters', description='The SQL computes.'),
+  ](name='sessionClusters', description='The list of sessions.'),
   totalCount?: int32(name='totalCount', description='The total number of entries returned.', example='200'),
 }
 
@@ -1023,7 +1114,7 @@ model ListSessionClustersResponse = {
 }
 
 /**
- * @summary 查询run列表
+ * @summary Queries a list of sessions.
  *
  * @param request ListSessionClustersRequest
  * @param headers map
@@ -1071,7 +1162,7 @@ async function listSessionClustersWithOptions(workspaceId: string, request: List
 }
 
 /**
- * @summary 查询run列表
+ * @summary Queries a list of sessions.
  *
  * @param request ListSessionClustersRequest
  * @return ListSessionClustersResponse
@@ -1409,14 +1500,14 @@ async function startJobRun(workspaceId: string, request: StartJobRunRequest): St
 }
 
 model StartSessionClusterRequest {
-  queueName?: string(name='queueName', example='root_queue'),
-  sessionClusterId?: string(name='sessionClusterId', example='sc-xxxxxxxxxxx'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
+  queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
+  sessionClusterId?: string(name='sessionClusterId', description='The session ID.', example='sc-xxxxxxxxxxx'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model StartSessionClusterResponseBody = {
-  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  sessionClusterId?: string(name='sessionClusterId', description='Workspace Id。', example='w-******'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  sessionClusterId?: string(name='sessionClusterId', description='The workspace ID.', example='w-******'),
 }
 
 model StartSessionClusterResponse = {
@@ -1426,7 +1517,7 @@ model StartSessionClusterResponse = {
 }
 
 /**
- * @summary 启动session集群
+ * @summary Starts a session.
  *
  * @param request StartSessionClusterRequest
  * @param headers map
@@ -1468,7 +1559,7 @@ async function startSessionClusterWithOptions(workspaceId: string, request: Star
 }
 
 /**
- * @summary 启动session集群
+ * @summary Starts a session.
  *
  * @param request StartSessionClusterRequest
  * @return StartSessionClusterResponse
@@ -1480,14 +1571,14 @@ async function startSessionCluster(workspaceId: string, request: StartSessionClu
 }
 
 model StopSessionClusterRequest {
-  queueName?: string(name='queueName', example='root_queue'),
-  sessionClusterId?: string(name='sessionClusterId', example='sc-xxxxxxxxxxxx'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
+  queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
+  sessionClusterId?: string(name='sessionClusterId', description='The session ID.', example='sc-xxxxxxxxxxxx'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model StopSessionClusterResponseBody = {
-  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  sessionClusterId?: string(name='sessionClusterId', description='Workspace Id。', example='w-******'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  sessionClusterId?: string(name='sessionClusterId', description='The workspace ID.', example='w-******'),
 }
 
 model StopSessionClusterResponse = {
@@ -1497,7 +1588,7 @@ model StopSessionClusterResponse = {
 }
 
 /**
- * @summary 启动session集群
+ * @summary Stops a session.
  *
  * @param request StopSessionClusterRequest
  * @param headers map
@@ -1539,7 +1630,7 @@ async function stopSessionClusterWithOptions(workspaceId: string, request: StopS
 }
 
 /**
- * @summary 启动session集群
+ * @summary Stops a session.
  *
  * @param request StopSessionClusterRequest
  * @return StopSessionClusterResponse
