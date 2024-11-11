@@ -1,0 +1,87 @@
+/**
+  *
+  */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'DataAnalysisGBI';
+  @version = '2024-08-23';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model RunDataAnalysisRequest {
+  regionId?: string(name='regionId', position='Host'),
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-2v3934xtp49esw64', position='Path'),
+  generateSqlOnly?: boolean(name='generateSqlOnly', example='true', position='Body'),
+  query: string(name='query', description='This parameter is required.', position='Body'),
+  sessionId?: string(name='sessionId', example='sessionID', position='Body'),
+  specificationType?: string(name='specificationType', example='STANDARD_MIX', position='Body'),
+}
+
+model RunDataAnalysisResponseBody = {
+  data?: {
+    errorMessage?: string(name='errorMessage', example='Access was denied, message: No such namespace namespaces/tech-scp-chain7.'),
+    event?: string(name='event', example='rewrite'),
+    evidence?: string(name='evidence'),
+    requestId?: string(name='requestId', example='DA2578F7-88A5-5D6E-9305-33E724E97D60'),
+    rewrite?: string(name='rewrite'),
+    selector?: [ string ](name='selector'),
+    sessionId?: string(name='sessionId', example='sessionid1'),
+    sql?: string(name='sql', example='select p.product_id, p.product_name, sum(o.quantity) as total_sales from products p join orders o on p.product_id = o.product_id where o.order_date between \\"2022-10-22\\" and \\"2024-10-22\\" group by p.product_id, p.product_name having total_sales > 5'),
+    sqlData?: {
+      column?: [ string ](name='column'),
+      data?: [  map[string]any ](name='data'),
+    }(name='sqlData'),
+    sqlError?: string(name='sqlError', example='Can not issue data manipulation statements with executeQuery()'),
+    visualization?: {
+      data?: {
+        plotType?: string(name='plotType', example='bar'),
+        xAxis?: [ string ](name='xAxis'),
+        yAxis?: [ string ](name='yAxis'),
+      }(name='data'),
+      text?: string(name='text'),
+    }(name='visualization'),
+  }(name='data'),
+}
+
+model RunDataAnalysisResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunDataAnalysisResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RunDataAnalysis  RunDataAnalysisRequest
+  * @return RunDataAnalysisResponse
+ */
+async function runDataAnalysis(request: RunDataAnalysisRequest): RunDataAnalysisResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RunDataAnalysis', 'POST', '/{workspaceId}/gbi/runDataAnalysis', 'json', false, 'json', request);
+}
+
+function runDataAnalysisWithResponseIterable(request: RunDataAnalysisRequest): iterator[RunDataAnalysisResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'RunDataAnalysis', 'POST', '/{workspaceId}/gbi/runDataAnalysis', 'json', false, 'json', request);
+}
+
