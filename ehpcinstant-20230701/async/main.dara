@@ -79,6 +79,12 @@ model CreateJobRequest {
       enableExternalIpAddress?: boolean(name='EnableExternalIpAddress'),
       vswitch?: [ string ](name='Vswitch'),
     }(name='Network'),
+    tag?: [ 
+      {
+        key: string(name='Key', description='This parameter is required.'),
+        value?: string(name='Value'),
+      }
+    ](name='Tag'),
   }(name='DeploymentPolicy', shrink='json', position='Query'),
   jobDescription?: string(name='JobDescription', example='Demo', position='Query'),
   jobName: string(name='JobName', description='This parameter is required.', example='testjob', position='Query'),
@@ -435,8 +441,15 @@ model ListExecutorsResponseBody = {
         memory?: float(name='Memory'),
       }(name='Resource'),
       resourceType?: string(name='ResourceType'),
+      startTime?: string(name='StartTime'),
       status?: string(name='Status', example='Running'),
       statusReason?: string(name='StatusReason', example='Succeeded to release executor resource'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
       taskName?: string(name='TaskName', example='task0'),
       taskSustainable?: boolean(name='TaskSustainable'),
       vswitchId?: string(name='VswitchId'),
@@ -532,8 +545,15 @@ model ListJobExecutorsResponseBody = {
       externalIpAddress?: [ string ](name='ExternalIpAddress'),
       hostName?: [ string ](name='HostName'),
       ipAddress?: [ string ](name='IpAddress'),
+      startTime?: string(name='StartTime'),
       status?: string(name='Status', example='Running'),
       statusReason?: string(name='StatusReason', example='Creating executor'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
     }
   ](name='Executors'),
   jobId?: string(name='JobId', example='job-xxxx'),
@@ -587,6 +607,12 @@ model ListJobsResponseBody = {
       ownerUid?: string(name='OwnerUid', example='129**********'),
       startTime?: string(name='StartTime', example='2024-01-25 12:29:23'),
       status?: string(name='Status', example='Running'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
       taskCount?: int32(name='TaskCount', example='1'),
       taskSustainable?: boolean(name='TaskSustainable', example='true'),
     }
@@ -612,6 +638,49 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
   return @handler.do('RPC', 'ListJobs', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListTagResourcesRequest {
+  maxResult?: int32(name='MaxResult', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='1d2db86scXXXXXXXXXX', position='Query'),
+  resourceId?: [ string ](name='ResourceId', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='Job', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tag', position='Query'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='NextToken', example='1d2db86scXXXXXXXXXX'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+  tagResources?: {
+    tagResource?: [ 
+    {
+      resourceId?: string(name='ResourceId', example='job-xxxxxxxx'),
+      resourceType?: string(name='ResourceType', example='Job'),
+      tagKey?: string(name='TagKey', example='TestKey'),
+      tagValue?: string(name='TagValue', example='TestValue'),
+    }
+  ](name='TagResource')
+  }(name='TagResources'),
+}
+
+model ListTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTagResources  ListTagResourcesRequest
+  * @return ListTagResourcesResponse
+ */
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
 model RemoveImageRequest {
   imageId: string(name='ImageId', description='This parameter is required.', example='m-bp14wakr1rkxtb******', position='Query'),
   imageType?: string(name='ImageType', position='Query'),
@@ -635,5 +704,61 @@ model RemoveImageResponse = {
 async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RemoveImage', 'POST', '/', 'json', false, 'json', request);
+}
+
+model TagResourcesRequest {
+  resourceId: [ string ](name='ResourceId', description='This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='Job', position='Query'),
+  tag: [ 
+    {
+      key: string(name='Key', description='This parameter is required.', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tag', description='This parameter is required.', position='Query'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TagResources  TagResourcesRequest
+  * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='All', example='False', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='Job', position='Query'),
+  tagKey?: [ string ](name='TagKey', position='Query'),
+}
+
+model UnTagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model UnTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnTagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UnTagResources  UnTagResourcesRequest
+  * @return UnTagResourcesResponse
+ */
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UnTagResources', 'POST', '/', 'json', false, 'json', request);
 }
 

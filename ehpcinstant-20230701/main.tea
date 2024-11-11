@@ -141,6 +141,12 @@ model CreateJobRequest {
       enableExternalIpAddress?: boolean(name='EnableExternalIpAddress'),
       vswitch?: [ string ](name='Vswitch'),
     }(name='Network'),
+    tag?: [ 
+      {
+        key?: string(name='Key', description='This parameter is required.'),
+        value?: string(name='Value'),
+      }
+    ](name='Tag'),
   }(name='DeploymentPolicy'),
   jobDescription?: string(name='JobDescription', example='Demo'),
   jobName?: string(name='JobName', description='This parameter is required.', example='testjob'),
@@ -783,8 +789,15 @@ model ListExecutorsResponseBody = {
         memory?: float(name='Memory'),
       }(name='Resource'),
       resourceType?: string(name='ResourceType'),
+      startTime?: string(name='StartTime'),
       status?: string(name='Status', example='Running'),
       statusReason?: string(name='StatusReason', example='Succeeded to release executor resource'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
       taskName?: string(name='TaskName', example='task0'),
       taskSustainable?: boolean(name='TaskSustainable'),
       vswitchId?: string(name='VswitchId'),
@@ -987,8 +1000,15 @@ model ListJobExecutorsResponseBody = {
       externalIpAddress?: [ string ](name='ExternalIpAddress'),
       hostName?: [ string ](name='HostName'),
       ipAddress?: [ string ](name='IpAddress'),
+      startTime?: string(name='StartTime'),
       status?: string(name='Status', example='Running'),
       statusReason?: string(name='StatusReason', example='Creating executor'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
     }
   ](name='Executors'),
   jobId?: string(name='JobId', example='job-xxxx'),
@@ -1090,6 +1110,12 @@ model ListJobsResponseBody = {
       ownerUid?: string(name='OwnerUid', example='129**********'),
       startTime?: string(name='StartTime', example='2024-01-25 12:29:23'),
       status?: string(name='Status', example='Running'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey'),
+          tagValue?: string(name='TagValue'),
+        }
+      ](name='Tags'),
       taskCount?: int32(name='TaskCount', example='1'),
       taskSustainable?: boolean(name='TaskSustainable', example='true'),
     }
@@ -1164,6 +1190,93 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
   return listJobsWithOptions(request, runtime);
 }
 
+model ListTagResourcesRequest {
+  maxResult?: int32(name='MaxResult', example='20'),
+  nextToken?: string(name='NextToken', example='1d2db86scXXXXXXXXXX'),
+  resourceId?: [ string ](name='ResourceId'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.', example='Job'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tag'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='NextToken', example='1d2db86scXXXXXXXXXX'),
+  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+  tagResources?: {
+    tagResource?: [ 
+    {
+      resourceId?: string(name='ResourceId', example='job-xxxxxxxx'),
+      resourceType?: string(name='ResourceType', example='Job'),
+      tagKey?: string(name='TagKey', example='TestKey'),
+      tagValue?: string(name='TagValue', example='TestValue'),
+    }
+  ](name='TagResource')
+  }(name='TagResources'),
+}
+
+model ListTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询一个或多个资源已经绑定的标签列表
+ *
+ * @param request ListTagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTagResourcesResponse
+ */
+async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.maxResult)) {
+    query['MaxResult'] = request.maxResult;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTagResources',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询一个或多个资源已经绑定的标签列表
+ *
+ * @param request ListTagResourcesRequest
+ * @return ListTagResourcesResponse
+ */
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listTagResourcesWithOptions(request, runtime);
+}
+
 model RemoveImageRequest {
   imageId?: string(name='ImageId', description='This parameter is required.', example='m-bp14wakr1rkxtb******'),
   imageType?: string(name='ImageType'),
@@ -1222,5 +1335,140 @@ async function removeImageWithOptions(request: RemoveImageRequest, runtime: Util
 async function removeImage(request: RemoveImageRequest): RemoveImageResponse {
   var runtime = new Util.RuntimeOptions{};
   return removeImageWithOptions(request, runtime);
+}
+
+model TagResourcesRequest {
+  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.', example='Job'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='This parameter is required.', example='TestKey'),
+      value?: string(name='Value', example='TestValue'),
+    }
+  ](name='Tag', description='This parameter is required.'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 为指定的资源列表统一创建并绑定标签
+ *
+ * @param request TagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TagResourcesResponse
+ */
+async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: Util.RuntimeOptions): TagResourcesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'TagResources',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 为指定的资源列表统一创建并绑定标签
+ *
+ * @param request TagResourcesRequest
+ * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return tagResourcesWithOptions(request, runtime);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='All', example='False'),
+  resourceId?: [ string ](name='ResourceId', description='This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='This parameter is required.', example='Job'),
+  tagKey?: [ string ](name='TagKey'),
+}
+
+model UnTagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='896D338C-E4F4-41EC-A154-D605E5DE****'),
+}
+
+model UnTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnTagResourcesResponseBody(name='body'),
+}
+
+/**
+ * @summary 为指定的ECS资源列表统一解绑标签
+ *
+ * @param request UnTagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UnTagResourcesResponse
+ */
+async function unTagResourcesWithOptions(request: UnTagResourcesRequest, runtime: Util.RuntimeOptions): UnTagResourcesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.all)) {
+    query['All'] = request.all;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.tagKey)) {
+    query['TagKey'] = request.tagKey;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnTagResources',
+    version = '2023-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 为指定的ECS资源列表统一解绑标签
+ *
+ * @param request UnTagResourcesRequest
+ * @return UnTagResourcesResponse
+ */
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return unTagResourcesWithOptions(request, runtime);
 }
 
