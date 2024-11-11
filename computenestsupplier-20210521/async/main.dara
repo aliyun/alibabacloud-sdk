@@ -899,6 +899,13 @@ model GetServiceResponseBody = {
 *   INVISIBLE
 *   DISCOVERABLE', example='DISCOVERABLE'),
   serviceDocUrl?: string(name='ServiceDocUrl', description='The URL of the service documentation.', example='http://example1.com'),
+  serviceDocumentInfos?: [ 
+    {
+      documentUrl?: string(name='DocumentUrl'),
+      locale?: string(name='Locale'),
+      templateName?: string(name='TemplateName'),
+    }
+  ](name='ServiceDocumentInfos'),
   serviceId?: string(name='ServiceId', description='The service ID.', example='service-70a3b15bb62643xxxxxx'),
   serviceInfos?: [ 
     {
@@ -2468,11 +2475,29 @@ async function stopServiceInstance(request: StopServiceInstanceRequest): StopSer
 
 model UpdateArtifactRequest {
   artifactBuildProperty?: {
-    commandContent?: string(name='CommandContent'),
-    commandType?: string(name='CommandType'),
-    regionId?: string(name='RegionId'),
-    sourceImageId?: string(name='SourceImageId'),
-  }(name='ArtifactBuildProperty', shrink='json', position='Query'),
+    commandContent?: string(name='CommandContent', description='The command content.
+
+>  This parameter is available only if the deployment package is a ecs image type.', example='echo "start run command"'),
+    commandType?: string(name='CommandType', description='The command type. Valid values:
+
+*   RunBatScript: batch command, applicable to Windows instances.
+*   RunPowerShellScript: PowerShell command, applicable to Windows instances.
+*   RunShellScript: shell command, applicable to Linux instances.
+
+>  This parameter is available only if the deployment package is a ecs image type.', example='RunShellScript'),
+    regionId?: string(name='RegionId', description='The region ID where the source mirror image is located.
+
+>  This parameter is available only if the deployment package is a ecs image type.', example='cn-hangzhou'),
+    sourceImageId?: string(name='SourceImageId', description='The source image id. Supported Types:
+
+- Image ID: Pass the Image ID of the Ecs image directly.
+
+- OOS Common Parameter Name: Obtain the corresponding Image ID automatically by using the OOS common parameter name.
+
+>  This parameter is available only if the deployment package is a ecs image type.', example='Image ID：m-t4nhenrdc38pe4*****
+ubuntu_22_04_x64_20G_alibase_20240926.vhd
+OOS Common Parameter Name：aliyun/services/computenest/images/aliyun_3_2104_python_3_11'),
+  }(name='ArtifactBuildProperty', description='The build properties of the artifact, utilized for hosting and building the deployment package.', shrink='json', position='Query'),
   artifactId: string(name='ArtifactId', description='The ID of the deployment package.
 
 This parameter is required.', example='artifact-eea08d1e2d3a43aexxxx', position='Query'),
@@ -2514,7 +2539,7 @@ This parameter is required.', example='v1', position='Query'),
 }
 
 model UpdateArtifactResponseBody = {
-  artifactBuildProperty?: string(name='ArtifactBuildProperty'),
+  artifactBuildProperty?: string(name='ArtifactBuildProperty', description='The build properties of the artifact, utilized for hosting and building the deployment package.', example='"{\\"RegionId\\":\\"xxx\\", \\"SourceImageId\\":\\"xxx\\", \\"\\":\\"xxx\\", \\"CommandType\\":\\"xxx\\", \\"CommandContent\\":\\"xxx\\"}"'),
   artifactId?: string(name='ArtifactId', description='The ID of the deployment package.', example='artifact-eea08d1e2d3a43aexxxx'),
   artifactProperty?: string(name='ArtifactProperty', description='The properties of the deployment package.', example='{\\"CommodityCode\\":\\"cmjj0005xxxx\\",\\"CommodityVersion\\":\\"V2022xxxx\\"}'),
   artifactType?: string(name='ArtifactType', description='The type of the deployment package.', example='EcsImage'),
@@ -2554,100 +2579,95 @@ async function updateArtifact(request: UpdateArtifactRequest): UpdateArtifactRes
 }
 
 model UpdateServiceRequest {
-  alarmMetadata?: string(name='AlarmMetadata', description='The alert configurations of the service.
+  alarmMetadata?: string(name='AlarmMetadata', description='Is need to update the artifacts', example='{\\"CmsTemplateId\\":1162921,\\"TemplateUrl\\":\\"https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1760465342xxxxxx/template/c072ef50-6c03-4d9c-8f0e-d1c440xxxxxx.json\\"}', position='Query'),
+  approvalType?: string(name='ApprovalType', description='The service type. Valid values:
 
->  This parameter takes effect only when you specify an alert policy for **PolicyNames**.', example='{\\"CmsTemplateId\\":1162921,\\"TemplateUrl\\":\\"https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1760465342xxxxxx/template/c072ef50-6c03-4d9c-8f0e-d1c440xxxxxx.json\\"}', position='Query'),
-  approvalType?: string(name='ApprovalType', description='The approval type of the service usage application. Valid values:
-
-- Manual: The application is manually approved.
-- AutoPass: The application is automatically approved.', example='Manual', position='Query'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='788E7CP0EN9D51P', position='Query'),
+*   private: The service is a private service and is deployed within the account of a customer.
+*   managed: The service is a fully managed service and is deployed within the account of a service provider.
+*   operation: The service is a hosted O\\&M service.
+*   poc: The service is a trial service.', example='Manual', position='Query'),
+  clientToken?: string(name='ClientToken', description='The options for update the service.', example='788E7CP0EN9D51P', position='Query'),
   commodity?: {
     componentsMappings?: [ 
       {
-        mappings?: map[string]string(name='Mappings', description='This parameter is not publicly accessible.', example='This parameter is not publicly accessible.'),
-        templateName?: string(name='TemplateName', description='This parameter is not publicly accessible.', example='This parameter is not publicly accessible.'),
+        mappings?: map[string]string(name='Mappings', description='The language of the service. Valid values:
+
+*   zh-CN: Chinese
+*   en-US: English'),
+        templateName?: string(name='TemplateName', description='{ "Logstores": [ { "LogstoreName": "access-log", "LogPath": "/home/admin/app/logs", # This parameter is not required for containers. Configure the parameter in the YAML file. "FilePattern": "access.log\\*" # This parameter is not required for containers. Configure the parameter in the YAML file. } ] }', example='此参数不对外开放'),
       }
-    ](name='ComponentsMappings', description='This parameter is not publicly accessible.'),
+    ](name='ComponentsMappings', description='The ID of the entity.'),
     meteringEntityExtraInfos?: [ 
       {
-        entityId?: string(name='EntityId', description='The ID of the entity.', example='cmgj0006xxxx-Memory-1'),
-        metricName?: string(name='MetricName', description='Metric Name, filled in when Type is ComputeNestBill or ComputeNestPrometheus', example='VirtualCpu/ecs.InstanceType'),
-        promql?: string(name='Promql', description='Custom prometheus query', example='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
-        type?: string(name='Type', description='Type, value：
+        entityId?: string(name='EntityId', description='The description of the service.', example='cmgj0006xxxx-Memory-1'),
+        metricName?: string(name='MetricName', description='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)', example='VirtualCpu/ecs.InstanceType'),
+        promql?: string(name='Promql', description='The service details.', example='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
+        type?: string(name='Type', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Pay-As-You-Go Use)', example='Custom'),
+      }
+    ](name='MeteringEntityExtraInfos', description='This parameter is not publicly accessible.'),
+    meteringEntityMappings?: [ 
+      {
+        entityIds?: [ string ](name='EntityIds', description='计量项ID'),
+        specificationName?: string(name='SpecificationName', description='套餐名称', example='This parameter is not publicly accessible.'),
+        templateName?: string(name='TemplateName', description='模板名称', example='The service ID.'),
+      }
+    ](name='MeteringEntityMappings', description='The template name.'),
+    saasBoostConfig?: string(name='SaasBoostConfig', description='SaaS Boost配置信息', example='{}'),
+    specificationMappings?: [ 
+      {
+        specificationCode?: string(name='SpecificationCode', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='yuncode5767800001'),
+        specificationName?: string(name='SpecificationName', description='套餐名称', example='Type, value：
 
 * **Custom**
 * **ComputeNestBill**
 * **ComputeNestPrometheus**
-* **ComputeNestTime**', example='Custom'),
+* **ComputeNestTime**'),
+        templateName?: string(name='TemplateName', description='模板名称', example='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Subscription/Permanent Use)'),
       }
-    ](name='MeteringEntityExtraInfos', description='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)'),
-    meteringEntityMappings?: [ 
-      {
-        entityIds?: [ string ](name='EntityIds', description='The ID of the entity.'),
-        specificationName?: string(name='SpecificationName', description='The package name.', example='packageOne'),
-        templateName?: string(name='TemplateName', description='The template name.', example='TemplaceName'),
-      }
-    ](name='MeteringEntityMappings', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Pay-As-You-Go Use)'),
-    saasBoostConfig?: string(name='SaasBoostConfig', description='Saas boost config information', example='{}'),
-    specificationMappings?: [ 
-      {
-        specificationCode?: string(name='SpecificationCode', description='Specification code.', example='yuncode5767800001'),
-        specificationName?: string(name='SpecificationName', description='The package name.', example='packageOne'),
-        templateName?: string(name='TemplateName', description='The template name.', example='TemplaceName'),
-      }
-    ](name='SpecificationMappings', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Subscription/Permanent Use)'),
-  }(name='Commodity', description='Bind Commodity Information', shrink='json', position='Query'),
+    ](name='SpecificationMappings', description='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
+  }(name='Commodity', description='This parameter is not publicly accessible.', shrink='json', position='Query'),
   complianceMetadata?: {
     compliancePacks?: [ string ](name='CompliancePacks'),
   }(name='ComplianceMetadata', shrink='json', position='Query'),
-  deployMetadata?: string(name='DeployMetadata', description='The storage configurations of the service. The format in which the deployment information of a service is stored varies based on the deployment type of the service. In this case, the deployment information is stored in the JSON string format.', example='{\\"EstimateTime\\":null,\\"SupplierDeployMetadata\\":{\\"DeployTimeout\\":7200},\\"EnableVnc\\":false}', position='Query'),
-  deployType?: string(name='DeployType', description='The deployment type of the service. Valid values:
+  deployMetadata?: string(name='DeployMetadata', description='The policy name. The name can be up to 128 characters in length. Separate multiple names with commas (,). Only hosted O\\&M policies are supported.', example='{\\"EstimateTime\\":null,\\"SupplierDeployMetadata\\":{\\"DeployTimeout\\":7200},\\"EnableVnc\\":false}', position='Query'),
+  deployType?: string(name='DeployType', description='WB01286039', example='ros', position='Query'),
+  dryRun?: boolean(name='DryRun', position='Query'),
+  duration?: long(name='Duration', description='The deployment type of the service. Valid values:
 
 *   ros: The service is deployed by using Resource Orchestration Service (ROS).
 *   terraform: The service is deployed by using Terraform.
 *   spi: The service is deployed by calling a service provider interface (SPI).
 *   operation: The service is deployed by using a hosted O\\&M service.
 *   container: The service is deployed by using a container.
-*   pkg: The service is deployed by using a package.', example='ros', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  duration?: long(name='Duration', description='The duration for which hosted O\\&M is implemented. Unit: seconds.', example='259200', position='Query'),
-  isSupportOperated?: boolean(name='IsSupportOperated', description='Specifies whether to enable the hosted O\\&M feature for the service. Default value: false. Valid values:
-
-*   true
-*   false
-
->  This parameter is required if you set **ServiceType** to **private**.', example='false', position='Query'),
-  licenseMetadata?: string(name='LicenseMetadata', description='The license metadata.', example='{\\"RetentionDays\\":3}', position='Query'),
-  logMetadata?: string(name='LogMetadata', description='The logging configurations.', example='{ "Logstores": [ { "LogstoreName": "access-log", "LogPath": "/home/admin/app/logs", # This parameter is not required for containers. Configure the parameter in the YAML file. "FilePattern": "access.log\\*" # This parameter is not required for containers. Configure the parameter in the YAML file. } ] }', position='Query'),
-  operationMetadata?: string(name='OperationMetadata', description='The hosted O\\&M configurations.', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}', position='Query'),
-  policyNames?: string(name='PolicyNames', description='The policy name. The name can be up to 128 characters in length. Separate multiple names with commas (,). Only hosted O\\&M policies are supported.', example='policyName1, policyName2', position='Query'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Query'),
-  resellable?: boolean(name='Resellable', description='Specifies whether to support distribution. Valid values:
+*   pkg: The service is deployed by using a package.', example='259200', position='Query'),
+  isSupportOperated?: boolean(name='IsSupportOperated', description='The version name.', example='false', position='Query'),
+  licenseMetadata?: string(name='LicenseMetadata', description='The duration for which hosted O\\&M is implemented. Unit: seconds.', example='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)', position='Query'),
+  logMetadata?: string(name='LogMetadata', description='This parameter is not publicly accessible.', example='Specifies whether to support distribution. Valid values:
 
 *   false
-*   true', example='false', position='Query'),
-  serviceId: string(name='ServiceId', description='The service ID.
+*   true', position='Query'),
+  operationMetadata?: string(name='OperationMetadata', description='{\\"RetentionDays\\":3}', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}', position='Query'),
+  policyNames?: string(name='PolicyNames', description='The package name.', example='policyName1, policyName2', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  resellable?: boolean(name='Resellable', description='The alert configurations of the service.
+
+>  This parameter takes effect only when you specify an alert policy for **PolicyNames**.', example='false', position='Query'),
+  serviceId: string(name='ServiceId', description='TemplaceName
 
 This parameter is required.', example='service-1dda29c3eca648xxxxxx', position='Query'),
   serviceInfo?: [ 
     {
       agreements?: [ 
         {
-          name?: string(name='Name', description='Protocol name.', example='Name'),
-          url?: string(name='Url', description='Protocol url.', example='https://aliyun.com/xxxxxxxx.html'),
+          name?: string(name='Name', description='Saas boost config information', example='Name'),
+          url?: string(name='Url', description='VirtualCpu/ecs.InstanceType', example='https://aliyun.com/xxxxxxxx.html'),
         }
-      ](name='Agreements', description='Protocol document information about the service.'),
-      image?: string(name='Image', description='The URL of the service icon.', example='http://img.tidb.oss.url'),
-      locale?: string(name='Locale', description='The language of the service. Valid values:
-
-*   zh-CN: Chinese
-*   en-US: English', example='zh-CN'),
-      longDescriptionUrl?: string(name='LongDescriptionUrl', description='The URL of the detailed description of the service.', example='http://description.tidb.oss.url'),
-      name?: string(name='Name', description='The service name.', example='kodbox-fc'),
-      shortDescription?: string(name='ShortDescription', description='The description of the service.', example='B是A公司自主设计并研发的开源分布式的关系型数据库'),
+      ](name='Agreements', description='The ID of the entity.'),
+      image?: string(name='Image', description='packageOne', example='http://img.tidb.oss.url'),
+      locale?: string(name='Locale', description='Bind Commodity Information', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl', description='Protocol document information about the service.', example='http://description.tidb.oss.url'),
+      name?: string(name='Name', description='packageOne', example='Metric Name, filled in when Type is ComputeNestBill or ComputeNestPrometheus'),
+      shortDescription?: string(name='ShortDescription', description='The region ID.', example='The URL of the detailed description of the service.'),
       softwares?: [ 
         {
           name?: string(name='Name'),
@@ -2655,34 +2675,28 @@ This parameter is required.', example='service-1dda29c3eca648xxxxxx', position='
         }
       ](name='Softwares'),
     }
-  ](name='ServiceInfo', description='The service details.', position='Query'),
-  serviceType?: string(name='ServiceType', description='The service type. Valid values:
+  ](name='ServiceInfo', description='The ID of the entity.', position='Query'),
+  serviceType?: string(name='ServiceType', description='Custom prometheus query', example='private', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', description='The storage configurations of the service. The format in which the deployment information of a service is stored varies based on the deployment type of the service. In this case, the deployment information is stored in the JSON string format.', example='1', position='Query'),
+  shareType?: string(name='ShareType', description='共享类型。可能的值：
 
-*   private: The service is a private service and is deployed within the account of a customer.
-*   managed: The service is a fully managed service and is deployed within the account of a service provider.
-*   operation: The service is a hosted O\\&M service.
-*   poc: The service is a trial service.', example='private', position='Query'),
-  serviceVersion?: string(name='ServiceVersion', description='The service version.', example='1', position='Query'),
-  shareType?: string(name='ShareType', description='The permission type of the deployment URL. Valid values:
+- Public：公开的，正式部署和试用部署都不受限。
 
-- Public: All users can go to the URL to create a service instance or a trial service instance.
-- Restricted: Only users in the whitelist can go to the URL to create a service instance or a trial service instance.
-- OnlyFormalRestricted: Only users in the whitelist can go to the URL to create a service instance.
-- OnlyTrailRestricted: Only users in the whitelist can go to the URL to create a trial service instance.
-- Hidden: Users not in the whitelist cannot see the service details page when they go to the URL and cannot request deployment permissions.', example='Public', position='Query'),
-  tenantType?: string(name='TenantType', description='The type of the tenant. Valid values:
+- Restricted：受限的，正式部署和试用部署都受限。
 
-*   SingleTenant
-*   MultiTenant', example='SingleTenant', position='Query'),
-  trialDuration?: int32(name='TrialDuration', description='The trial duration. Unit: day. The maximum trial duration cannot exceed 30 days.', example='7', position='Query'),
+- OnlyFormalRestricted：仅正式部署受限。
+
+- OnlyTrailRestricted：仅试用部署受限。
+
+- Hidden：隐藏的，不可见且不可申请部署权限。', example='Public', position='Query'),
+  tenantType?: string(name='TenantType', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Pay-As-You-Go Use)', example='SingleTenant', position='Query'),
+  trialDuration?: int32(name='TrialDuration', description='This parameter is not publicly accessible.', example='7', position='Query'),
   updateOption?: {
-    updateArtifact?: boolean(name='UpdateArtifact', description='Is need to update the artifacts', example='true'),
-    updateFrom?: string(name='UpdateFrom', description='The options for update the service. Valid values:
-- CODE
-- PARAMETERS', example='PARAMETERS'),
-  }(name='UpdateOption', description='The options for update the service.', shrink='json', position='Query'),
+    updateArtifact?: boolean(name='UpdateArtifact', description='The service version.', example='true'),
+    updateFrom?: string(name='UpdateFrom', description='Protocol url.', example='PARAMETERS'),
+  }(name='UpdateOption', description='cmgj0006xxxx-Memory-1', shrink='json', position='Query'),
   upgradeMetadata?: string(name='UpgradeMetadata', description='The metadata about the upgrade.', example='{\\"Description\\":\\"xxx\\",\\"SupportRollback\\":true,\\"SupportUpgradeFromVersions\\":[],\\"UpgradeComponents\\":[\\"Configuration\\"]}', position='Query'),
-  versionName?: string(name='VersionName', description='The version name.', example='Draft', position='Query'),
+  versionName?: string(name='VersionName', description='TemplaceName', example='Draft', position='Query'),
 }
 
 model UpdateServiceResponseBody = {
@@ -2698,7 +2712,7 @@ model UpdateServiceResponseBody = {
       policy?: string(name='Policy'),
     }(name='RolePolicy'),
   }(name='DryRunResult'),
-  requestId?: string(name='RequestId', description='The request ID.', example='DF0F666F-FBBC-55C3-A368-C955DE7B4839'),
+  requestId?: string(name='RequestId', description='The hosted O\\&M configurations.', example='DF0F666F-FBBC-55C3-A368-C955DE7B4839'),
 }
 
 model UpdateServiceResponse = {
