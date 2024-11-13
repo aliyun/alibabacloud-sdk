@@ -62,6 +62,7 @@ model WafRuleConfig {
   action?: string(name='Action'),
   actions?: {
     bypass?: {
+      customRules?: [ long ](name='CustomRules'),
       regularRules?: [ long ](name='RegularRules'),
       regularTypes?: [ string ](name='RegularTypes'),
       skip?: string(name='Skip'),
@@ -251,6 +252,13 @@ async function activateClientCertificate(request: ActivateClientCertificateReque
 model BatchCreateRecordsRequest {
   recordList: [ 
     {
+      authConf?: {
+        accessKey?: string(name='AccessKey'),
+        authType?: string(name='AuthType'),
+        region?: string(name='Region'),
+        secretKey?: string(name='SecretKey'),
+        version?: string(name='Version'),
+      }(name='AuthConf'),
       bizName?: string(name='BizName', example='web'),
       data: {
         algorithm?: int32(name='Algorithm', example='0'),
@@ -1076,7 +1084,7 @@ model CreateScheduledPreloadExecutionsRequest {
     {
       endTime?: string(name='EndTime'),
       interval: int32(name='Interval', description='This parameter is required.', minimum=1),
-      sliceLen: int32(name='SliceLen', description='This parameter is required.', minimum=1, maximum=10),
+      sliceLen: int32(name='SliceLen', description='This parameter is required.', minimum=1, maximum=100),
       startTime?: string(name='StartTime'),
     }
   ](name='Executions', description='This parameter is required.', shrink='json', position='Body'),
@@ -2615,7 +2623,6 @@ model GetEdgeContainerAppVersionResponseBody = {
         isACRImage?: boolean(name='IsACRImage', example='false'),
         name?: string(name='Name', example='version01'),
         postStart?: string(name='PostStart', example='{\\"exec\\":{\\"command\\":[\\"touch\\",\\"/home/admin/checkpoststartV1\\"]}}'),
-        preStart?: string(name='PreStart', example='sh prestart.sh "echo hello world"'),
         preStop?: string(name='PreStop', example='sh prestop.sh "echo hello world"'),
         probeContent?: {
           command?: string(name='Command', example='sh test.sh'),
@@ -3884,7 +3891,6 @@ model ListEdgeContainerAppVersionsResponseBody = {
           image?: string(name='Image', example='nginx'),
           name?: string(name='Name', example='container1'),
           postStart?: string(name='PostStart', example='{\\"exec\\":{\\"command\\":[\\"bash\\",\\"-c\\",\\"cd /home/admin/'),
-          preStart?: string(name='PreStart', example='sh start.sh'),
           preStop?: string(name='PreStop', example='sh stop.sh'),
           probeContent?: {
             command?: string(name='Command', example='openresty -g  "daemon off;'),
@@ -4823,12 +4829,22 @@ model ListUserRatePlanInstancesResponseBody = {
   instanceInfo?: [ 
     {
       billingMode?: string(name='BillingMode', example='PREPAY'),
+      botInstanceLevel?: string(name='BotInstanceLevel'),
       coverages?: string(name='Coverages', example='domestic,overseas'),
       createTime?: string(name='CreateTime', example='YYYY-MM-DDThh:mm:ssZ'),
+      crossborderTraffic?: string(name='CrossborderTraffic'),
+      ddosBurstableDomesticProtection?: string(name='DdosBurstableDomesticProtection'),
+      ddosBurstableOverseasProtection?: string(name='DdosBurstableOverseasProtection'),
+      ddosInstanceLevel?: string(name='DdosInstanceLevel'),
       duration?: int32(name='Duration', example='3'),
+      edgeRoutineRquest?: string(name='EdgeRoutineRquest'),
+      edgeWafRequest?: string(name='EdgeWafRequest'),
       expireTime?: string(name='ExpireTime', example='YYYY-MM-DDThh:mm:ssZ'),
       instanceId?: string(name='InstanceId', example='sp-xcdn-96wblslz****'),
+      layer4Traffic?: string(name='Layer4Traffic'),
+      layer4TrafficIntl?: string(name='Layer4TrafficIntl'),
       planName?: string(name='PlanName', example='basic'),
+      planTraffic?: string(name='PlanTraffic'),
       planType?: string(name='PlanType', example='normal'),
       siteQuota?: string(name='SiteQuota', example='1'),
       sites?: [ 
@@ -4838,6 +4854,8 @@ model ListUserRatePlanInstancesResponseBody = {
           siteStatus?: string(name='SiteStatus', example='pending'),
         }
       ](name='Sites'),
+      smartRoutingRequest?: string(name='SmartRoutingRequest'),
+      staticRequest?: string(name='StaticRequest'),
       status?: string(name='Status', example='online'),
     }
   ](name='InstanceInfo'),
@@ -4869,10 +4887,10 @@ model ListWafManagedRulesRequest {
   language?: string(name='Language', example='zh', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='20', position='Query'),
+  protectionLevel?: int32(name='ProtectionLevel', position='Query'),
   queryArgs?: {
     action?: string(name='Action', example='deny'),
     idNameLike?: string(name='IdNameLike', example='example'),
-    protectionLevel?: int32(name='ProtectionLevel', example='1'),
     protectionLevels?: [ int32 ](name='ProtectionLevels'),
     status?: string(name='Status', example='on'),
   }(name='QueryArgs', shrink='json', position='Query'),
@@ -5064,6 +5082,7 @@ model ListWafTemplateRulesRequest {
   queryArgs?: {
     type?: string(name='Type', example='http_directory_traversal'),
   }(name='QueryArgs', shrink='json', position='Query'),
+  siteId?: long(name='SiteId', position='Query'),
 }
 
 model ListWafTemplateRulesResponseBody = {
@@ -5641,58 +5660,6 @@ model StopScheduledPreloadExecutionResponse = {
 async function stopScheduledPreloadExecution(request: StopScheduledPreloadExecutionRequest): StopScheduledPreloadExecutionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'StopScheduledPreloadExecution', 'POST', '/', 'json', false, 'json', request);
-}
-
-model TransformExpressionToMatchRequest {
-  expression?: string(name='Expression', example='http_bot', position='Body'),
-  phase?: string(name='Phase', example='http_bot', position='Body'),
-  siteId?: long(name='SiteId', example='1', position='Query'),
-}
-
-model TransformExpressionToMatchResponseBody = {
-  match?: WafRuleMatch(name='Match'),
-  requestId?: string(name='RequestId', description='Id of the request', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model TransformExpressionToMatchResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: TransformExpressionToMatchResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of TransformExpressionToMatch  TransformExpressionToMatchRequest
-  * @return TransformExpressionToMatchResponse
- */
-async function transformExpressionToMatch(request: TransformExpressionToMatchRequest): TransformExpressionToMatchResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'TransformExpressionToMatch', 'POST', '/', 'json', true, 'form', request);
-}
-
-model TransformMatchToExpressionRequest {
-  match?: WafRuleMatch(name='Match', example='http_bot', shrink='json', position='Body'),
-  phase?: string(name='Phase', example='http_bot', position='Body'),
-  siteId?: long(name='SiteId', example='1', position='Query'),
-}
-
-model TransformMatchToExpressionResponseBody = {
-  expression?: string(name='Expression'),
-  requestId?: string(name='RequestId', description='Id of the request', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model TransformMatchToExpressionResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: TransformMatchToExpressionResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of TransformMatchToExpression  TransformMatchToExpressionRequest
-  * @return TransformMatchToExpressionResponse
- */
-async function transformMatchToExpression(request: TransformMatchToExpressionRequest): TransformMatchToExpressionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'TransformMatchToExpression', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UntagResourcesRequest {
