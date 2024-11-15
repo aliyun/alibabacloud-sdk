@@ -92,8 +92,155 @@ model WeiboItem {
   username?: string(name='username', example='白鹿科技'),
 }
 
+model AiSearchRequest {
+  industry?: string(name='industry', example='finance'),
+  page?: int32(name='page', example='{\\\\"total_count\\\\": 6851, \\\\"page_number\\\\": 54, \\\\"page_size\\\\": 100}'),
+  query?: string(name='query', description='This parameter is required.'),
+  sessionId?: string(name='sessionId', example='17dc8bcd-f34a-46d1-a7a3-0fa3d1ce3824'),
+  timeRange?: string(name='timeRange', example='OneWeek'),
+}
+
+model AiSearchResponseBody = {
+  header?: {
+    event?: string(name='event', example='on_common_search_end'),
+    eventId?: string(name='eventId', example='988021f0-951a-43d0-ba4d-785359e7e7be'),
+    responseTime?: long(name='responseTime', example='1293'),
+  }(name='header'),
+  payload?: string(name='payload', example='{"header":{"eventId":"6f617de0-204f-406f-a9be-34779c06d498","event":"on_common_search_start","responseTime":120},"payload":"","requestId":"715d01a0-de7e-42c3-abca-b901fcd79b39"}'),
+  requestId?: string(name='requestId', description='Id of the request', example='ECB2144C-E277-5434-80E6-12D26678D364'),
+}
+
+model AiSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AiSearchResponseBody(name='body'),
+}
+
+/**
+ * @summary AI搜索流式接口
+ *
+ * @param request AiSearchRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AiSearchResponse
+ */
+async function aiSearchWithOptions(request: AiSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AiSearchResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.industry)) {
+    query['industry'] = request.industry;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!Util.isUnset(request.query)) {
+    query['query'] = request.query;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.timeRange)) {
+    query['timeRange'] = request.timeRange;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AiSearch',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v3/linkedRetrieval/commands/aiSearch`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary AI搜索流式接口
+ *
+ * @param request AiSearchRequest
+ * @return AiSearchResponse
+ */
+async function aiSearch(request: AiSearchRequest): AiSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return aiSearchWithOptions(request, headers, runtime);
+}
+
+model GenericAdvancedSearchRequest {
+  query?: string(name='query', description='This parameter is required.'),
+  sessionId?: string(name='sessionId', example='job-4065bee3-e7aa-49fc-aad2-a8e3a7fd6acd'),
+  timeRange?: string(name='timeRange', example='OneWeek'),
+}
+
+model GenericAdvancedSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenericSearchResult  
+}
+
+/**
+ * @summary 增强版通用搜索
+ *
+ * @param request GenericAdvancedSearchRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GenericAdvancedSearchResponse
+ */
+async function genericAdvancedSearchWithOptions(request: GenericAdvancedSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GenericAdvancedSearchResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.query)) {
+    query['query'] = request.query;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.timeRange)) {
+    query['timeRange'] = request.timeRange;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GenericAdvancedSearch',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v2/linkedRetrieval/commands/genericAdvancedSearch`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 增强版通用搜索
+ *
+ * @param request GenericAdvancedSearchRequest
+ * @return GenericAdvancedSearchResponse
+ */
+async function genericAdvancedSearch(request: GenericAdvancedSearchRequest): GenericAdvancedSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return genericAdvancedSearchWithOptions(request, headers, runtime);
+}
+
 model GenericSearchRequest {
-  query?: string(name='query'),
+  industry?: string(name='industry'),
+  page?: int32(name='page', example='1'),
+  query?: string(name='query', description='This parameter is required.'),
+  sessionId?: string(name='sessionId'),
   timeRange?: string(name='timeRange', example='OneWeek'),
 }
 
@@ -114,8 +261,17 @@ model GenericSearchResponse = {
 async function genericSearchWithOptions(request: GenericSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GenericSearchResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.industry)) {
+    query['industry'] = request.industry;
+  }
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
   if (!Util.isUnset(request.query)) {
     query['query'] = request.query;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
   }
   if (!Util.isUnset(request.timeRange)) {
     query['timeRange'] = request.timeRange;
