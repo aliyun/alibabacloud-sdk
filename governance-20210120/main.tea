@@ -2,7 +2,6 @@
  *
  */
 import Util;
-import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -12,9 +11,7 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @productId = 'governance';
-  var gatewayClient = new GatewayClient();
-  @spi = gatewayClient;
+  @signatureAlgorithm = 'v2';
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -35,23 +32,30 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 model BatchEnrollAccountsRequest {
   accounts?: [ 
     {
-      accountUid?: long(name='AccountUid', example='12868156179****'),
+      accountUid?: long(name='AccountUid', description='The account ID. This parameter is required.', example='12868156179****'),
     }
-  ](name='Accounts'),
-  baselineId?: string(name='BaselineId', example='afb-bp1durvn3lgqe28v****'),
+  ](name='Accounts', description='The resource accounts.'),
+  baselineId?: string(name='BaselineId', description='The baseline ID.
+
+If this parameter is left empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
   baselineItems?: [ 
     {
-      config?: string(name='Config', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
-      name?: string(name='Name', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      skip?: boolean(name='Skip', example='false'),
-      version?: string(name='Version', example='1.0'),
+      config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
+      skip?: boolean(name='Skip', description='Specifies whether to skip the baseline item. Valid values:
+
+*   false
+*   true', example='false'),
+      version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  ](name='BaselineItems', description='The baseline items.
+
+If this parameter is specified, the configurations of the baseline items are merged with the baseline applied to the specified account. The configurations of the same baseline items are subject to the configurations of this parameter. We recommend that you leave this parameter empty and configure the `BaselineId` parameter to specify an account baseline and apply the configurations of the account baseline to the account.'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model BatchEnrollAccountsResponseBody = {
-  requestId?: string(name='RequestId', example='16B208DD-86BD-5E7D-AC93-FFD44B6FBDF1'),
+  requestId?: string(name='RequestId', description='The request ID.', example='16B208DD-86BD-5E7D-AC93-FFD44B6FBDF1'),
 }
 
 model BatchEnrollAccountsResponse = {
@@ -61,7 +65,10 @@ model BatchEnrollAccountsResponse = {
 }
 
 /**
- * @summary 账号工厂批量注册账号
+ * @summary Applies an account baseline to multiple existing resource accounts at a time.
+ *
+ * @description You can call this operation to apply an account baseline to existing resource accounts.
+ * Accounts are enrolled in the account factory in asynchronous mode. After a resource account is created, an account baseline is applied to the account. You can call the [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html) operation to query the details of the account enrolled in the account factory and check whether the account baseline is applied to the account.
  *
  * @param request BatchEnrollAccountsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -96,15 +103,14 @@ async function batchEnrollAccountsWithOptions(request: BatchEnrollAccountsReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 账号工厂批量注册账号
+ * @summary Applies an account baseline to multiple existing resource accounts at a time.
+ *
+ * @description You can call this operation to apply an account baseline to existing resource accounts.
+ * Accounts are enrolled in the account factory in asynchronous mode. After a resource account is created, an account baseline is applied to the account. You can call the [GetEnrolledAccount](https://help.aliyun.com/document_detail/609062.html) operation to query the details of the account enrolled in the account factory and check whether the account baseline is applied to the account.
  *
  * @param request BatchEnrollAccountsRequest
  * @return BatchEnrollAccountsResponse
@@ -117,19 +123,21 @@ async function batchEnrollAccounts(request: BatchEnrollAccountsRequest): BatchEn
 model CreateAccountFactoryBaselineRequest {
   baselineItems?: [ 
     {
-      config?: string(name='Config', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
-      name?: string(name='Name', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      version?: string(name='Version', example='1.0'),
+      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
+      version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems'),
-  baselineName?: string(name='BaselineName'),
-  description?: string(name='Description'),
-  regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
+  ](name='BaselineItems', description='The baseline items.
+
+You can call the [ListAccountFactoryBaselineItems](~~ListAccountFactoryBaselineItems~~) operation to query a list of baseline items supported by the account factory in Cloud Governance Center.'),
+  baselineName?: string(name='BaselineName', description='The name of the baseline.', example='Default'),
+  description?: string(name='Description', description='The description of the baseline.', example='Default Baseline.'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model CreateAccountFactoryBaselineResponseBody = {
-  baselineId?: string(name='BaselineId'),
-  requestId?: string(name='RequestId', example='A5592E2E-0FC4-557C-B989-DF229B5EBE13'),
+  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1e6ixtiwupap8m****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A5592E2E-0FC4-557C-B989-DF229B5EBE13'),
 }
 
 model CreateAccountFactoryBaselineResponse = {
@@ -139,7 +147,7 @@ model CreateAccountFactoryBaselineResponse = {
 }
 
 /**
- * @summary 创建账号工厂基线
+ * @summary Creates a baseline of the account factory.
  *
  * @param request CreateAccountFactoryBaselineRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -174,15 +182,11 @@ async function createAccountFactoryBaselineWithOptions(request: CreateAccountFac
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 创建账号工厂基线
+ * @summary Creates a baseline of the account factory.
  *
  * @param request CreateAccountFactoryBaselineRequest
  * @return CreateAccountFactoryBaselineResponse
@@ -193,12 +197,12 @@ async function createAccountFactoryBaseline(request: CreateAccountFactoryBaselin
 }
 
 model DeleteAccountFactoryBaselineRequest {
-  baselineId?: string(name='BaselineId', example='afb-bp1durvn3lgqe28v****'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1durvn3lgqe28v****'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model DeleteAccountFactoryBaselineResponseBody = {
-  requestId?: string(name='RequestId', example='0F45D888-8C4D-55E5-ACA2-D1515159181D'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0F45D888-8C4D-55E5-ACA2-D1515159181D'),
 }
 
 model DeleteAccountFactoryBaselineResponse = {
@@ -208,7 +212,7 @@ model DeleteAccountFactoryBaselineResponse = {
 }
 
 /**
- * @summary 删除账号工厂基线
+ * @summary Deletes an account factory baseline.
  *
  * @param request DeleteAccountFactoryBaselineRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -237,15 +241,11 @@ async function deleteAccountFactoryBaselineWithOptions(request: DeleteAccountFac
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 删除账号工厂基线
+ * @summary Deletes an account factory baseline.
  *
  * @param request DeleteAccountFactoryBaselineRequest
  * @return DeleteAccountFactoryBaselineResponse
@@ -299,6 +299,59 @@ If this parameter is specified, the configurations of the baseline items are mer
 *   non_resell: The member is not an account for a reseller. The member is an account that is not associated with a reseller. You can directly use the account to purchase Alibaba Cloud resources. The member is used as its own billing account.
 
 > This parameter is available only for resellers at the international site (alibabacloud.com).', example='resell'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The tag key.', example='tagKey'),
+      value?: string(name='Value', description='The tag value.', example='tagValue'),
+    }
+  ](name='Tag', description='The tags. You can specify up to 20 tags.'),
+}
+
+model EnrollAccountShrinkRequest {
+  accountNamePrefix?: string(name='AccountNamePrefix', description='The prefix for the account name of the member.
+
+*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
+*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
+  accountUid?: long(name='AccountUid', description='The account ID.
+
+*   If the account baseline is applied to an account that is newly created, you do not need to configure this parameter.
+*   If the account baseline is applied to an existing account, you must configure this parameter.', example='12868156179****'),
+  baselineId?: string(name='BaselineId', description='The baseline ID.
+
+If this parameter is left empty, the default baseline is used.', example='afb-bp1durvn3lgqe28v****'),
+  baselineItems?: [ 
+    {
+      config?: string(name='Config', description='The configurations of the baseline item.', example='{\\\\"Notifications\\\\":[{\\\\"GroupKey\\\\":\\\\"account_msg\\\\",\\\\"Contacts\\\\":[{\\\\"Name\\\\":\\\\"aa\\\\"}],\\\\"PmsgStatus\\\\":1,\\\\"EmailStatus\\\\":1,\\\\"SmsStatus\\\\":1}]}'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
+      skip?: boolean(name='Skip', description='Specifies whether to skip the baseline item. Valid values:
+
+*   false: The baseline item is not skipped.
+*   true: The baseline item is skipped.', example='false'),
+      version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
+    }
+  ](name='BaselineItems', description='An array that contains baseline items.
+
+If this parameter is specified, the configurations of the baseline items are merged with the baseline of the specified account. The configurations of the same baseline items are subject to the configuration of this parameter. We recommend that you leave this parameter empty and configure the `BaselineId` parameter to specify an account baseline and apply the configuration of the account baseline to the account.'),
+  displayName?: string(name='DisplayName', description='The display name of the account.
+
+*   If the account baseline is applied to an account that is newly created, you must configure this parameter.
+*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='test-account'),
+  folderId?: string(name='FolderId', description='The ID of the parent folder.
+
+*   If the account baseline is applied to an account that is newly created, you need to specify a parent folder. If you do not configure this parameter, the account is created in the Root folder.
+*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='fd-5ESoku****'),
+  payerAccountUid?: long(name='PayerAccountUid', description='The ID of the billing account.
+
+*   If the account baseline is applied to an account that is newly created, you need to specify a billing account. If you do not configure this parameter, the self-pay settlement method is used for the account.
+*   If the account baseline is applied to an existing account, you do not need to configure this parameter.', example='19534534552****'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  resellAccountType?: string(name='ResellAccountType', description='The identity type of the member. Valid values:
+
+*   resell (default): The member is an account for a reseller. A relationship is automatically established between the member and the reseller. The management account of the resource directory must be used as the billing account of the member.
+*   non_resell: The member is not an account for a reseller. The member is an account that is not associated with a reseller. You can directly use the account to purchase Alibaba Cloud resources. The member is used as its own billing account.
+
+> This parameter is available only for resellers at the international site (alibabacloud.com).', example='resell'),
+  tagShrink?: string(name='Tag', description='The tags. You can specify up to 20 tags.'),
 }
 
 model EnrollAccountResponseBody = {
@@ -318,12 +371,17 @@ model EnrollAccountResponse = {
  * @description You can call this API operation to create a new account or manage an existing account and apply the account baseline to the account.
  * Accounts are created in asynchronous mode. After you create an account, you can apply the account baseline to the account. You can call the [GetEnrolledAccount API](~~GetEnrolledAccount~~) operation to view the details about the account to obtain the result of applying the account baseline to the account.
  *
- * @param request EnrollAccountRequest
+ * @param tmpReq EnrollAccountRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return EnrollAccountResponse
  */
-async function enrollAccountWithOptions(request: EnrollAccountRequest, runtime: Util.RuntimeOptions): EnrollAccountResponse {
-  Util.validateModel(request);
+async function enrollAccountWithOptions(tmpReq: EnrollAccountRequest, runtime: Util.RuntimeOptions): EnrollAccountResponse {
+  Util.validateModel(tmpReq);
+  var request = new EnrollAccountShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'Tag', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.accountNamePrefix)) {
     query['AccountNamePrefix'] = request.accountNamePrefix;
@@ -352,6 +410,9 @@ async function enrollAccountWithOptions(request: EnrollAccountRequest, runtime: 
   if (!Util.isUnset(request.resellAccountType)) {
     query['ResellAccountType'] = request.resellAccountType;
   }
+  if (!Util.isUnset(request.tagShrink)) {
+    query['Tag'] = request.tagShrink;
+  }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
@@ -366,11 +427,7 @@ async function enrollAccountWithOptions(request: EnrollAccountRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -450,11 +507,7 @@ async function getAccountFactoryBaselineWithOptions(request: GetAccountFactoryBa
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -521,6 +574,12 @@ model GetEnrolledAccountResponseBody = {
     displayName?: string(name='DisplayName', description='The display name of the account.', example='test-account'),
     folderId?: string(name='FolderId', description='The ID of the parent folder.', example='fd-5ESoku****'),
     payerAccountUid?: long(name='PayerAccountUid', description='The ID of the settlement account.', example='19534534552*****'),
+    tag?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tag'),
   }(name='Inputs', description='The input parameters that are used when the account was registered.'),
   masterAccountUid?: long(name='MasterAccountUid', description='The ID of the management account of the resource directory to which the account belongs.', example='19534534552*****'),
   payerAccountUid?: long(name='PayerAccountUid', description='The ID of the settlement account.', example='19534534552*****'),
@@ -583,11 +642,7 @@ async function getEnrolledAccountWithOptions(request: GetEnrolledAccountRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -602,12 +657,14 @@ async function getEnrolledAccount(request: GetEnrolledAccountRequest): GetEnroll
 }
 
 model ListAccountFactoryBaselineItemsRequest {
-  maxResults?: int32(name='MaxResults', example='10'),
-  names?: [ string ](name='Names'),
-  nextToken?: string(name='NextToken', example='AAAAACDGQdAEX3m42z3sQ+f3VTK2Xr2DzYbz/SAfc/zJRqod'),
-  regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
-  type?: string(name='Type', example='AccountFactory'),
-  versions?: [ string ](name='Versions'),
+  maxResults?: int32(name='MaxResults', description='The number of entries per page.
+
+Valid values: 1 to 100. Default value: 10', example='10'),
+  names?: [ string ](name='Names', description='The names of the baseline items.'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request.', example='AAAAACDGQdAEX3m42z3sQ+f3VTK2Xr2DzYbz/SAfc/zJRqod'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  type?: string(name='Type', description='The type of the baseline items.', example='AccountFactory'),
+  versions?: [ string ](name='Versions', description='The versions of the baseline items.'),
 }
 
 model ListAccountFactoryBaselineItemsResponseBody = {
@@ -615,19 +672,19 @@ model ListAccountFactoryBaselineItemsResponseBody = {
     {
       dependsOn?: [ 
         {
-          name?: string(name='Name', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-          type?: string(name='Type', example='AccountFactory'),
-          version?: string(name='Version', example='1.0'),
+          name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
+          type?: string(name='Type', description='The type of the baseline item.', example='AccountFactory'),
+          version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
         }
-      ](name='DependsOn'),
-      description?: string(name='Description', example='Notification.'),
-      name?: string(name='Name', example='ACS-BP_ACCOUNT_FACTORY_ACCOUNT_NOTIFICATION'),
-      type?: string(name='Type', example='AccountFactory'),
-      version?: string(name='Version', example='1.0'),
+      ](name='DependsOn', description='The dependency of the baseline item.'),
+      description?: string(name='Description', description='The description of the baseline item.', example='Notification.'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_ACCOUNT_NOTIFICATION'),
+      type?: string(name='Type', description='The type of the baseline item.', example='AccountFactory'),
+      version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems'),
-  nextToken?: string(name='NextToken', example='AAAAACDGQdAEX3m42z3sQ+f3VTK2Xr2DzYbz/SAfc/zJRqod'),
-  requestId?: string(name='RequestId', example='B40D73D8-76AC-5D3C-AC63-4FC8AFCE6671'),
+  ](name='BaselineItems', description='The baseline items.'),
+  nextToken?: string(name='NextToken', description='The returned value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results.', example='AAAAACDGQdAEX3m42z3sQ+f3VTK2Xr2DzYbz/SAfc/zJRqod'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B40D73D8-76AC-5D3C-AC63-4FC8AFCE6671'),
 }
 
 model ListAccountFactoryBaselineItemsResponse = {
@@ -637,7 +694,7 @@ model ListAccountFactoryBaselineItemsResponse = {
 }
 
 /**
- * @summary 获取账号工厂基线元素列表
+ * @summary Queries a list of baseline items that are supported by the account factory of Cloud Governance Center (CGC).
  *
  * @param request ListAccountFactoryBaselineItemsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -678,15 +735,11 @@ async function listAccountFactoryBaselineItemsWithOptions(request: ListAccountFa
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 获取账号工厂基线元素列表
+ * @summary Queries a list of baseline items that are supported by the account factory of Cloud Governance Center (CGC).
  *
  * @param request ListAccountFactoryBaselineItemsRequest
  * @return ListAccountFactoryBaselineItemsResponse
@@ -700,8 +753,10 @@ model ListAccountFactoryBaselinesRequest {
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return on each page.
 
 Valid values: 1 to 100. Default value: 10.', example='10'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
-  regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
+
+You do not need to specify this parameter for the first request.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListAccountFactoryBaselinesResponseBody = {
@@ -713,11 +768,11 @@ model ListAccountFactoryBaselinesResponseBody = {
       description?: string(name='Description', description='The description of the baseline.', example='Default baseline'),
       type?: string(name='Type', description='The type of the baseline. Valid values:
 
-*   System: default baseline
-*   Custom: custom baseline', example='Custom'),
+*   System: default baseline.
+*   Custom: custom baseline.', example='Custom'),
       updateTime?: string(name='UpdateTime', description='The time when the baseline was updated.', example='2022-12-29T07:08:40Z'),
     }
-  ](name='Baselines', description='An array that consists of baselines.'),
+  ](name='Baselines', description='The baselines.'),
   nextToken?: string(name='NextToken', description='The returned value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results.', example='AAAAALHWGpGoYCcYMxiFfmlhvh62Xr2DzYbz/SAfc*****'),
   requestId?: string(name='RequestId', description='The request ID.', example='3245E413-7CDD-5287-8988-6A94DE8A8369'),
 }
@@ -761,11 +816,7 @@ async function listAccountFactoryBaselinesWithOptions(request: ListAccountFactor
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -850,11 +901,7 @@ async function listEnrolledAccountsWithOptions(request: ListEnrolledAccountsRequ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -869,8 +916,11 @@ async function listEnrolledAccounts(request: ListEnrolledAccountsRequest): ListE
 }
 
 model ListEvaluationMetadataRequest {
-  language?: string(name='Language', example='zh'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  language?: string(name='Language', description='The language. The information is returned in the specified language. Valid values:
+
+*   en: English
+*   zh: Chinese', example='zh'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEvaluationMetadataResponseBody = {
@@ -878,52 +928,70 @@ model ListEvaluationMetadataResponseBody = {
     {
       metadata?: [ 
         {
-          category?: string(name='Category', example='Security'),
-          description?: string(name='Description'),
-          displayName?: string(name='DisplayName'),
-          id?: string(name='Id', example='pxgtda****'),
-          recommendationLevel?: string(name='RecommendationLevel', example='High'),
+          category?: string(name='Category', description='The category of the check item.', example='Security'),
+          description?: string(name='Description', description='The description of the check item.'),
+          displayName?: string(name='DisplayName', description='The display name of the check item.'),
+          id?: string(name='Id', description='The ID of the metadata.', example='pxgtda****'),
+          recommendationLevel?: string(name='RecommendationLevel', description='The governance level of the check item.', example='High'),
           remediationMetadata?: {
             remediation?: [ 
               {
                 actions?: [ 
                   {
-                    classification?: string(name='Classification', example='UnusedAccessKeyInRamUser'),
-                    costDescription?: string(name='CostDescription'),
-                    description?: string(name='Description'),
+                    classification?: string(name='Classification', description='The fixing method.
+
+>  This parameter is returned only if the value of `RemediationType` is `Analysis`.', example='UnusedAccessKeyInRamUser'),
+                    costDescription?: string(name='CostDescription', description='The fixing cost.'),
+                    description?: string(name='Description', description='The description of the fixing item.
+
+>  This parameter is returned only if the value of `RemediationType` is `Analysis`.'),
                     guidance?: [ 
                       {
-                        buttonName?: string(name='ButtonName'),
-                        buttonRef?: string(name='ButtonRef', example='https://ram.console.aliyun.com/users'),
-                        content?: string(name='Content'),
-                        title?: string(name='Title'),
+                        buttonName?: string(name='ButtonName', description='The display name of the fixing button.'),
+                        buttonRef?: string(name='ButtonRef', description='The navigation URL of the fixing button.', example='https://ram.console.aliyun.com/users'),
+                        content?: string(name='Content', description='The fixing procedure.'),
+                        title?: string(name='Title', description='The title of the fixing procedure.'),
                       }
-                    ](name='Guidance'),
-                    notice?: string(name='Notice'),
-                    suggestion?: string(name='Suggestion'),
+                    ](name='Guidance', description='The content of the fixing items.'),
+                    notice?: string(name='Notice', description='The usage notes of the fixing item.'),
+                    suggestion?: string(name='Suggestion', description='The fixing suggestion.
+
+>  This parameter is returned only if the value of `RemediationType` is `Analysis`.'),
                   }
-                ](name='Actions'),
-                remediationType?: string(name='RemediationType', example='Manual'),
+                ](name='Actions', description='The fixing operations.'),
+                remediationType?: string(name='RemediationType', description='The type of the fixing method. Valid values:
+
+*   Manual: manual fixing
+*   QuickFix: quick fixing
+*   Analysis: auxiliary decision-making', example='Manual'),
               }
-            ](name='Remediation'),
-          }(name='RemediationMetadata'),
+            ](name='Remediation', description='The fixing items.'),
+          }(name='RemediationMetadata', description='The metadata of the fixing task.'),
           resourceMetadata?: {
             resourcePropertyMetadata?: [ 
               {
-                displayName?: string(name='DisplayName'),
-                propertyName?: string(name='PropertyName', example='AkLastUsedTime'),
-                propertyType?: string(name='PropertyType', example='String'),
+                displayName?: string(name='DisplayName', description='The display name of the resource property.'),
+                propertyName?: string(name='PropertyName', description='The name of the resource property.', example='AkLastUsedTime'),
+                propertyType?: string(name='PropertyType', description='The type of the resource property.', example='String'),
               }
-            ](name='ResourcePropertyMetadata'),
-          }(name='ResourceMetadata'),
-          scope?: string(name='Scope', example='Account'),
-          stage?: string(name='Stage', example='Released'),
+            ](name='ResourcePropertyMetadata', description='The metadata of the resource properties.'),
+          }(name='ResourceMetadata', description='The metadata of the checked resources.'),
+          scope?: string(name='Scope', description='The scope of the check item. Valid values:
+
+*   Account: the check item in a single-account governance maturity check
+*   ResourceDirectory: the check item in a multi-account governance maturity check', example='Account'),
+          stage?: string(name='Stage', description='The status of the check item. Valid values:
+
+*   Released: The check item is released.
+*   Beta: The check item is pre-released.', example='Released'),
         }
-      ](name='Metadata'),
-      type?: string(name='Type', example='Metric'),
+      ](name='Metadata', description='The metadata objects of a specific metadata type.'),
+      type?: string(name='Type', description='The type of the metadata. Valid values:
+
+*   Metric: the check item', example='Metric'),
     }
-  ](name='EvaluationMetadata'),
-  requestId?: string(name='RequestId', example='16B208DD-86BD-5E7D-AC93-FFD44B6FBDF1'),
+  ](name='EvaluationMetadata', description='The metadata of a governance maturity check.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='16B208DD-86BD-5E7D-AC93-FFD44B6FBDF1'),
 }
 
 model ListEvaluationMetadataResponse = {
@@ -933,7 +1001,7 @@ model ListEvaluationMetadataResponse = {
 }
 
 /**
- * @summary 查看治理检测定义
+ * @summary Queries all available information about check items in a governance maturity check, including the name, ID, description, stage, resource metadata, and fixing guide.
  *
  * @param request ListEvaluationMetadataRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -962,15 +1030,11 @@ async function listEvaluationMetadataWithOptions(request: ListEvaluationMetadata
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 查看治理检测定义
+ * @summary Queries all available information about check items in a governance maturity check, including the name, ID, description, stage, resource metadata, and fixing guide.
  *
  * @param request ListEvaluationMetadataRequest
  * @return ListEvaluationMetadataResponse
@@ -981,33 +1045,41 @@ async function listEvaluationMetadata(request: ListEvaluationMetadataRequest): L
 }
 
 model ListEvaluationMetricDetailsRequest {
-  accountId?: long(name='AccountId', example='103144549568****'),
-  id?: string(name='Id', example='xfyve5****'),
-  maxResults?: int32(name='MaxResults', example='5'),
-  nextToken?: string(name='NextToken', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  accountId?: long(name='AccountId', description='The account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='103144549568****'),
+  id?: string(name='Id', description='The ID of the check item.
+
+You can call the [ListEvaluationMetadata](https://help.aliyun.com/document_detail/2841889.html) operation to query the ID of the check item.', example='xfyve5****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request. Default value: 5.', example='5'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEvaluationMetricDetailsResponseBody = {
-  nextToken?: string(name='NextToken', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
-  requestId?: string(name='RequestId', example='AC9BD94C-D20C-4D27-88D4-89E8D75C****'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='AAAAAGEaXR18y1rqykZHIqRuBejOqED4S3Xne33c7zbn****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='AC9BD94C-D20C-4D27-88D4-89E8D75C****'),
   resources?: [ 
     {
-      complianceType?: string(name='ComplianceType'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      resourceClassification?: string(name='ResourceClassification', example='RecentUnloginRamUser'),
-      resourceId?: string(name='ResourceId', example='26435103783237****'),
-      resourceName?: string(name='ResourceName'),
-      resourceOwnerId?: long(name='ResourceOwnerId', example='176618589410****'),
+      complianceType?: string(name='ComplianceType', description='合规状态。取值：
+- NonCompliant：不合规。
+- Excluded：已忽略。
+- PendingExclusion：已忽略未生效。
+- PendingInclusion：已取消忽略未生效。', example='NonCompliant'),
+      regionId?: string(name='RegionId', description='The region ID of the resource.', example='cn-hangzhou'),
+      resourceClassification?: string(name='ResourceClassification', description='The check results further analyzed by auxiliary decision-making.
+
+>  This parameter is returned only when the check item supports the auxiliary decision-making feature.', example='RecentUnloginRamUser'),
+      resourceId?: string(name='ResourceId', description='The resource ID.', example='26435103783237****'),
+      resourceName?: string(name='ResourceName', description='The name of the resource.'),
+      resourceOwnerId?: long(name='ResourceOwnerId', description='The ID of the Alibaba Cloud account that owns the resource.', example='176618589410****'),
       resourceProperties?: [ 
         {
-          propertyName?: string(name='PropertyName', example='DisplayName'),
-          propertyValue?: string(name='PropertyValue'),
+          propertyName?: string(name='PropertyName', description='The name of the resource attribute.', example='DisplayName'),
+          propertyValue?: string(name='PropertyValue', description='The value of the resource attribute.'),
         }
-      ](name='ResourceProperties'),
-      resourceType?: string(name='ResourceType', example='ACS::RAM::User'),
+      ](name='ResourceProperties', description='The attributes of the resource.'),
+      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ACS::RAM::User'),
     }
-  ](name='Resources'),
+  ](name='Resources', description='The details of the non-compliant resources.'),
 }
 
 model ListEvaluationMetricDetailsResponse = {
@@ -1017,7 +1089,7 @@ model ListEvaluationMetricDetailsResponse = {
 }
 
 /**
- * @summary 获取云治理中心治理检测项结果详情
+ * @summary Queries the non-compliant resource information of a check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
  *
  * @param request ListEvaluationMetricDetailsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1055,15 +1127,11 @@ async function listEvaluationMetricDetailsWithOptions(request: ListEvaluationMet
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 获取云治理中心治理检测项结果详情
+ * @summary Queries the non-compliant resource information of a check item, including the name, ID, category, type, region, and related metadata of non-compliant resources.
  *
  * @param request ListEvaluationMetricDetailsRequest
  * @return ListEvaluationMetricDetailsResponse
@@ -1154,11 +1222,7 @@ async function listEvaluationResultsWithOptions(request: ListEvaluationResultsRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1173,22 +1237,28 @@ async function listEvaluationResults(request: ListEvaluationResultsRequest): Lis
 }
 
 model ListEvaluationScoreHistoryRequest {
-  accountId?: long(name='AccountId'),
-  endDate?: string(name='EndDate', example='2024-07-11'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  startDate?: string(name='StartDate', example='2024-06-11'),
+  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
+  endDate?: string(name='EndDate', description='The end of the time range to query. Specify the time in the YYYY-MM-DD format.
+
+By default, the historical scores that were generated in the seven days before the current date are queried.', example='2024-07-11'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  startDate?: string(name='StartDate', description='The beginning of the time range to query. Specify the time in the YYYY-MM-DD format.
+
+You can query the historical scores within the previous 180 days.', example='2024-06-11'),
 }
 
 model ListEvaluationScoreHistoryResponseBody = {
-  requestId?: string(name='RequestId', example='AC9BD94C-D20C-4D27-88D4-89E8D75C051B'),
+  requestId?: string(name='RequestId', description='The request ID.', example='AC9BD94C-D20C-4D27-88D4-89E8D75C051B'),
   scoreHistory?: {
     totalScoreHistory?: [ 
       {
-        evaluationTime?: string(name='EvaluationTime', example='2024-06-30T03:34:02Z'),
-        score?: double(name='Score', example='0.6753'),
+        evaluationTime?: string(name='EvaluationTime', description='The time when the score was generated. The time is in UTC.', example='2024-06-30T03:34:02Z'),
+        score?: double(name='Score', description='The score.
+
+Valid values: 0 to 1.', example='0.6753'),
       }
-    ](name='TotalScoreHistory'),
-  }(name='ScoreHistory'),
+    ](name='TotalScoreHistory', description='The historical scores.'),
+  }(name='ScoreHistory', description='The historical scores.'),
 }
 
 model ListEvaluationScoreHistoryResponse = {
@@ -1198,7 +1268,7 @@ model ListEvaluationScoreHistoryResponse = {
 }
 
 /**
- * @summary 查看治理检测定义
+ * @summary Queries the historical scores of a governance maturity check.
  *
  * @param request ListEvaluationScoreHistoryRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1233,15 +1303,11 @@ async function listEvaluationScoreHistoryWithOptions(request: ListEvaluationScor
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 查看治理检测定义
+ * @summary Queries the historical scores of a governance maturity check.
  *
  * @param request ListEvaluationScoreHistoryRequest
  * @return ListEvaluationScoreHistoryResponse
@@ -1252,13 +1318,27 @@ async function listEvaluationScoreHistory(request: ListEvaluationScoreHistoryReq
 }
 
 model RunEvaluationRequest {
-  accountId?: long(name='AccountId', example='176618589410****'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  scope?: string(name='Scope', example='ResourceDirectory'),
+  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
+  metricIds?: [ string ](name='MetricIds'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  scope?: string(name='Scope', description='The check range of the governance maturity check. Valid values:
+
+*   Account (default): A single-account governance maturity check is performed to check only the Alibaba Cloud account that you use to access Cloud Governance Center.
+*   ResourceDirectory: A multi-account governance maturity check is performed to check all members within a resource directory. Before you perform a multi-account governance maturity check, you must enable the multi-account governance maturity check feature.', example='ResourceDirectory'),
+}
+
+model RunEvaluationShrinkRequest {
+  accountId?: long(name='AccountId', description='The Alibaba Cloud account ID of the member. This parameter takes effect only when a multi-account governance maturity check is performed.', example='176618589410****'),
+  metricIdsShrink?: string(name='MetricIds'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  scope?: string(name='Scope', description='The check range of the governance maturity check. Valid values:
+
+*   Account (default): A single-account governance maturity check is performed to check only the Alibaba Cloud account that you use to access Cloud Governance Center.
+*   ResourceDirectory: A multi-account governance maturity check is performed to check all members within a resource directory. Before you perform a multi-account governance maturity check, you must enable the multi-account governance maturity check feature.', example='ResourceDirectory'),
 }
 
 model RunEvaluationResponseBody = {
-  requestId?: string(name='RequestId', example='2D3E2A3A-F2B8-578D-9659-3195F94A****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2D3E2A3A-F2B8-578D-9659-3195F94A****'),
 }
 
 model RunEvaluationResponse = {
@@ -1268,17 +1348,25 @@ model RunEvaluationResponse = {
 }
 
 /**
- * @summary 运行云治理中心治理检测
+ * @summary Performs a governance maturity check.
  *
- * @param request RunEvaluationRequest
+ * @param tmpReq RunEvaluationRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return RunEvaluationResponse
  */
-async function runEvaluationWithOptions(request: RunEvaluationRequest, runtime: Util.RuntimeOptions): RunEvaluationResponse {
-  Util.validateModel(request);
+async function runEvaluationWithOptions(tmpReq: RunEvaluationRequest, runtime: Util.RuntimeOptions): RunEvaluationResponse {
+  Util.validateModel(tmpReq);
+  var request = new RunEvaluationShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.metricIds)) {
+    request.metricIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.metricIds, 'MetricIds', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.accountId)) {
     query['AccountId'] = request.accountId;
+  }
+  if (!Util.isUnset(request.metricIdsShrink)) {
+    query['MetricIds'] = request.metricIdsShrink;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -1300,15 +1388,11 @@ async function runEvaluationWithOptions(request: RunEvaluationRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 运行云治理中心治理检测
+ * @summary Performs a governance maturity check.
  *
  * @param request RunEvaluationRequest
  * @return RunEvaluationResponse
@@ -1319,21 +1403,23 @@ async function runEvaluation(request: RunEvaluationRequest): RunEvaluationRespon
 }
 
 model UpdateAccountFactoryBaselineRequest {
-  baselineId?: string(name='BaselineId'),
+  baselineId?: string(name='BaselineId', description='The baseline ID.', example='afb-bp1pq3emlkt27vsj****'),
   baselineItems?: [ 
     {
-      config?: string(name='Config', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
-      name?: string(name='Name', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
-      version?: string(name='Version', example='1.0'),
+      config?: string(name='Config', description='The configurations of the baseline item. The value of this parameter is a JSON string.', example='{\\\\"EnabledServices\\\\":[\\\\"CEN_TR\\\\",\\\\"CDT\\\\",\\\\"CMS\\\\",\\\\"KMS\\\\"]}'),
+      name?: string(name='Name', description='The name of the baseline item.', example='ACS-BP_ACCOUNT_FACTORY_VPC'),
+      version?: string(name='Version', description='The version of the baseline item.', example='1.0'),
     }
-  ](name='BaselineItems'),
-  baselineName?: string(name='BaselineName'),
-  description?: string(name='Description'),
-  regionId?: string(name='RegionId', description='RegionId', example='cn-hangzhou'),
+  ](name='BaselineItems', description='The baseline items.
+
+You can call the [ListAccountFactoryBaselineItems](~~ListAccountFactoryBaselineItems~~) operation to query a list of baseline items supported by the account factory in Cloud Governance Center.'),
+  baselineName?: string(name='BaselineName', description='The name of the baseline.'),
+  description?: string(name='Description', description='The description of the baseline.'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model UpdateAccountFactoryBaselineResponseBody = {
-  requestId?: string(name='RequestId', example='C18A891D-7B04-51A1-AAC6-201727A361CE'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C18A891D-7B04-51A1-AAC6-201727A361CE'),
 }
 
 model UpdateAccountFactoryBaselineResponse = {
@@ -1343,7 +1429,7 @@ model UpdateAccountFactoryBaselineResponse = {
 }
 
 /**
- * @summary 更新账号工厂基线
+ * @summary Updates a baseline of the account factory.
  *
  * @param request UpdateAccountFactoryBaselineRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1381,15 +1467,11 @@ async function updateAccountFactoryBaselineWithOptions(request: UpdateAccountFac
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 更新账号工厂基线
+ * @summary Updates a baseline of the account factory.
  *
  * @param request UpdateAccountFactoryBaselineRequest
  * @return UpdateAccountFactoryBaselineResponse
