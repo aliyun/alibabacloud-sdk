@@ -2276,7 +2276,7 @@ model CreateNacosConfigRequest {
 *   en: English', example='zh', position='Query'),
   appName?: string(name='AppName', description='The name of the application.', example='saledatacenter-task', position='Query'),
   betaIps?: string(name='BetaIps', description='The list of IP addresses where the beta release of the configuration is performed.', example='100.117.XX.XX,100.117.XX.XX', position='Query'),
-  content?: string(name='Content', description='The content of the configuration.', example='asdf', position='Query'),
+  content?: string(name='Content', position='Body'),
   dataId: string(name='DataId', description='The ID of the data.
 
 This parameter is required.', example='common.yaml', position='Query'),
@@ -2318,7 +2318,7 @@ model CreateNacosConfigResponse = {
  */
 async function createNacosConfig(request: CreateNacosConfigRequest): CreateNacosConfigResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateNacosConfig', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'CreateNacosConfig', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateNacosInstanceRequest {
@@ -5687,6 +5687,14 @@ model GetNacosConfigResponseBody = {
     dataId?: string(name='DataId', description='The ID of the configuration.', example='log.yaml'),
     desc?: string(name='Desc', description='The description of the configuration.', example='For testing'),
     encryptedDataKey?: string(name='EncryptedDataKey', description='The encryption key.', example='key'),
+    grayVersions?: [ 
+      {
+        name?: string(name='Name'),
+        priority?: int32(name='Priority'),
+        rule?: string(name='Rule'),
+        type?: string(name='Type'),
+      }
+    ](name='GrayVersions'),
     group?: string(name='Group', description='The name of the configuration group.', example='test'),
     md5?: string(name='Md5', description='The message digest of the configuration.', example='123rfsdf3'),
     tags?: string(name='Tags', description='The tags of the configuration.', example='context'),
@@ -9247,6 +9255,14 @@ model ListListenersByConfigRequest {
   dataId: string(name='DataId', description='The ID of the data.
 
 This parameter is required.', example='zeekr-clueboss.yml', position='Query'),
+  extGrayRules?: [ 
+    {
+      grayRule?: string(name='GrayRule'),
+      grayRuleName?: string(name='GrayRuleName'),
+      grayRulePriority?: int32(name='GrayRulePriority'),
+      grayRuleType?: string(name='GrayRuleType'),
+    }
+  ](name='ExtGrayRules', shrink='json', position='Query'),
   group: string(name='Group', description='The name of the group.
 
 This parameter is required.', example='prod', position='Query'),
@@ -9264,6 +9280,8 @@ model ListListenersByConfigResponseBody = {
     {
       ip?: string(name='Ip', description='The IP address.', example='1.1.1.1'),
       labels?: map[string]string(name='Labels', description='The label of the listener.'),
+      matchRuleName?: string(name='MatchRuleName'),
+      matchRuleType?: string(name='MatchRuleType'),
       md5?: string(name='Md5', description='The verification string.', example='23sdfdf'),
       status?: string(name='Status', description='The status.', example='beta'),
       version?: string(name='Version', description='The current version of the listener. Valid values: gray and normal.', example='gray'),
@@ -13477,6 +13495,47 @@ async function updateGatewayRouteWafStatus(request: UpdateGatewayRouteWafStatusR
   return @handler.do('RPC', 'UpdateGatewayRouteWafStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateGatewayServiceRequest {
+  acceptLanguage?: string(name='AcceptLanguage', example='zh', position='Query'),
+  gatewayId?: long(name='GatewayId', example='501', position='Query'),
+  gatewayUniqueId?: string(name='GatewayUniqueId', example='gw-c9bc5afd61014165bd58f621b491*****', position='Query'),
+  id?: string(name='Id', example='322', position='Query'),
+  ipList?: [ string ](name='IpList', shrink='json', position='Query'),
+  name?: string(name='Name', example='test', position='Query'),
+  servicePort?: string(name='ServicePort', example='80', position='Query'),
+  serviceProtocol?: string(name='ServiceProtocol', example='HTTP', position='Query'),
+  tlsSetting?: string(name='TlsSetting', example='{
+      "mode": "MUTUAL",
+      "certId": "1*****-cn-hangzhou",
+      "caCertContent": "123",
+      "sni": "ceshi"
+}', position='Query'),
+}
+
+model UpdateGatewayServiceResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: long(name='Data', example='322'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='OK'),
+  requestId?: string(name='RequestId', example='AF21683A-29C7-4853-AC0F-B5ADEE4****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateGatewayServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayServiceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateGatewayService  UpdateGatewayServiceRequest
+  * @return UpdateGatewayServiceResponse
+ */
+async function updateGatewayService(request: UpdateGatewayServiceRequest): UpdateGatewayServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateGatewayService', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpdateGatewayServiceCheckRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='The language in which you want to display the results. Valid values: zh and en. zh indicates Chinese, which is the default value. en indicates English.', example='zh', position='Query'),
   check?: boolean(name='Check', description='Specifies whether to enable the health check.', example='true', position='Query'),
@@ -13891,7 +13950,7 @@ model UpdateNacosConfigRequest {
 *   en: English', example='zh', position='Query'),
   appName?: string(name='AppName', description='The name of the application.', example='postoffice', position='Query'),
   betaIps?: string(name='BetaIps', description='The list of IP addresses where the beta release of the configuration is performed.', example='196.168.XX.XX', position='Query'),
-  content?: string(name='Content', description='The content of the configuration.', example='attribute1=1221111\\r\\nattribute2=Chinese\\r\\nattribute3=abc11\\r\\nattribute4=1.00111', position='Query'),
+  content?: string(name='Content', position='Body'),
   dataId: string(name='DataId', description='The ID of the configuration.
 
 This parameter is required.', example='ky-check-****.yml', position='Query'),
@@ -13934,7 +13993,7 @@ model UpdateNacosConfigResponse = {
  */
 async function updateNacosConfig(request: UpdateNacosConfigRequest): UpdateNacosConfigResponse {
   @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateNacosConfig', 'POST', '/', 'json', false, 'json', request);
+  return @handler.do('RPC', 'UpdateNacosConfig', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateNacosGrayConfigRequest {
@@ -13943,12 +14002,14 @@ model UpdateNacosGrayConfigRequest {
   content?: string(name='Content', example='asdf', position='Query'),
   dataId: string(name='DataId', description='This parameter is required.', example='test', position='Query'),
   grayRule?: string(name='GrayRule', example='key=value1,value2', position='Query'),
+  grayRuleName?: string(name='GrayRuleName', position='Query'),
+  grayRulePriority?: int32(name='GrayRulePriority', position='Query'),
   grayType: string(name='GrayType', description='This parameter is required.', example='Tags', position='Query'),
   group?: string(name='Group', example='DEFAULT_GROUP', position='Query'),
   instanceId: string(name='InstanceId', description='This parameter is required.', example='mse_prepaid_public_cn-st2212****', position='Query'),
   namespaceId?: string(name='NamespaceId', example='6cf708a5-****-89f2-3ba62c5ee9ba', position='Query'),
+  opType?: string(name='OpType', position='Query'),
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  requestPars?: string(name='RequestPars', example='{}', position='Query'),
   stopGray?: boolean(name='StopGray', example='true', position='Query'),
 }
 
