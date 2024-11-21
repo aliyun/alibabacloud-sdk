@@ -205,7 +205,7 @@ model DataQualityResult {
       tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
       type?: string(name='Type', example='Table'),
     }(name='Target'),
-    templateCode?: string(name='TemplateCode', example='system::user_defined'),
+    templateCode?: string(name='TemplateCode', example='SYSTEM:user_defined_sql'),
     tenantId?: long(name='TenantId', example='1'),
   }(name='Rule'),
   sample?: string(name='Sample', example='[   {     "gender": "male",     "_count": 100   }, {     "gender": "female",     "_count": 100   } ]'),
@@ -256,7 +256,7 @@ model DataQualityRule {
     tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
     type?: string(name='Type', example='Table'),
   }(name='Target'),
-  templateCode?: string(name='TemplateCode', example='system::user_defined'),
+  templateCode?: string(name='TemplateCode', example='SYSTEM:user_defined_sql'),
   tenantId?: long(name='TenantId', example='1'),
 }
 
@@ -456,6 +456,144 @@ async function cloneDataSourceWithOptions(request: CloneDataSourceRequest, runti
 async function cloneDataSource(request: CloneDataSourceRequest): CloneDataSourceResponse {
   var runtime = new Util.RuntimeOptions{};
   return cloneDataSourceWithOptions(request, runtime);
+}
+
+model CreateAlertRuleRequest {
+  enabled?: boolean(name='Enabled', description='This parameter is required.', example='true'),
+  name?: string(name='Name', description='This parameter is required.', example='xm_create_test'),
+  notification?: {
+    channels?: [ string ](name='Channels', description='This parameter is required.'),
+    intervalInMinutes?: int32(name='IntervalInMinutes', example='30'),
+    maximum?: int32(name='Maximum', example='3'),
+    receivers?: [ 
+      {
+        extension?: string(name='Extension', example='{"atAll":true}'),
+        receiverType?: string(name='ReceiverType', example='TaskOwner'),
+        receiverValues?: [ string ](name='ReceiverValues'),
+      }
+    ](name='Receivers', description='This parameter is required.'),
+    silenceEndTime?: string(name='SilenceEndTime', example='00:00:00'),
+    silenceStartTime?: string(name='SilenceStartTime', example='00:00:00'),
+  }(name='Notification'),
+  owner?: string(name='Owner', description='This parameter is required.', example='279114181716147735'),
+  triggerCondition?: {
+    extension?: {
+      cycleUnfinished?: {
+        cycleAndTime?: [ 
+          {
+            cycleId?: int32(name='CycleId', example='1'),
+            time?: string(name='Time', example='12:00'),
+          }
+        ](name='CycleAndTime'),
+      }(name='CycleUnfinished'),
+      error?: {
+        autoRerunAlert?: boolean(name='AutoRerunAlert', example='false'),
+        streamTaskIds?: [ long ](name='StreamTaskIds'),
+      }(name='Error'),
+      instanceErrorCount?: {
+        count?: int32(name='Count', example='5'),
+      }(name='InstanceErrorCount'),
+      instanceErrorPercentage?: {
+        percentage?: int32(name='Percentage', example='5'),
+      }(name='InstanceErrorPercentage'),
+      instanceTransferFluctuate?: {
+        percentage?: int32(name='Percentage', example='10'),
+        trend?: string(name='Trend', example='abs'),
+      }(name='InstanceTransferFluctuate'),
+      timeout?: {
+        timeoutInMinutes?: int32(name='TimeoutInMinutes', example='10'),
+      }(name='Timeout'),
+      unFinished?: {
+        unFinishedTime?: string(name='UnFinishedTime', example='30:00'),
+      }(name='UnFinished'),
+    }(name='Extension'),
+    target?: {
+      allowTasks?: [ long ](name='AllowTasks'),
+      ids?: [ long ](name='Ids'),
+      type?: string(name='Type', example='Task'),
+    }(name='Target'),
+    type?: string(name='Type', example='Error'),
+  }(name='TriggerCondition', description='This parameter is required.'),
+}
+
+model CreateAlertRuleShrinkRequest {
+  enabled?: boolean(name='Enabled', description='This parameter is required.', example='true'),
+  name?: string(name='Name', description='This parameter is required.', example='xm_create_test'),
+  notificationShrink?: string(name='Notification'),
+  owner?: string(name='Owner', description='This parameter is required.', example='279114181716147735'),
+  triggerConditionShrink?: string(name='TriggerCondition', description='This parameter is required.'),
+}
+
+model CreateAlertRuleResponseBody = {
+  id?: long(name='Id', example='123123'),
+  requestId?: string(name='RequestId', example='A6C6B486-E3A2-5D52-9E76-D9380485D946'),
+}
+
+model CreateAlertRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAlertRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建自定义监控报警规则
+ *
+ * @param tmpReq CreateAlertRuleRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAlertRuleResponse
+ */
+async function createAlertRuleWithOptions(tmpReq: CreateAlertRuleRequest, runtime: Util.RuntimeOptions): CreateAlertRuleResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAlertRuleShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.notification)) {
+    request.notificationShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.notification, 'Notification', 'json');
+  }
+  if (!Util.isUnset(tmpReq.triggerCondition)) {
+    request.triggerConditionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.triggerCondition, 'TriggerCondition', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.enabled)) {
+    query['Enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.notificationShrink)) {
+    query['Notification'] = request.notificationShrink;
+  }
+  if (!Util.isUnset(request.owner)) {
+    query['Owner'] = request.owner;
+  }
+  if (!Util.isUnset(request.triggerConditionShrink)) {
+    query['TriggerCondition'] = request.triggerConditionShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAlertRule',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建自定义监控报警规则
+ *
+ * @param request CreateAlertRuleRequest
+ * @return CreateAlertRuleResponse
+ */
+async function createAlertRule(request: CreateAlertRuleRequest): CreateAlertRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAlertRuleWithOptions(request, runtime);
 }
 
 model CreateDIAlarmRuleRequest {
@@ -1705,6 +1843,62 @@ async function createWorkflowDefinition(request: CreateWorkflowDefinitionRequest
   return createWorkflowDefinitionWithOptions(request, runtime);
 }
 
+model DeleteAlertRuleRequest {
+  id?: long(name='Id', example='105412'),
+}
+
+model DeleteAlertRuleResponseBody = {
+  requestId?: string(name='RequestId', example='8754EE08-4AA2-5F77-ADD7-754DBBDA9F75'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteAlertRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAlertRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除自定义监控报警规则
+ *
+ * @param request DeleteAlertRuleRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAlertRuleResponse
+ */
+async function deleteAlertRuleWithOptions(request: DeleteAlertRuleRequest, runtime: Util.RuntimeOptions): DeleteAlertRuleResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteAlertRule',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除自定义监控报警规则
+ *
+ * @param request DeleteAlertRuleRequest
+ * @return DeleteAlertRuleResponse
+ */
+async function deleteAlertRule(request: DeleteAlertRuleRequest): DeleteAlertRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteAlertRuleWithOptions(request, runtime);
+}
+
 model DeleteDIAlarmRuleRequest {
   DIAlarmRuleId?: long(name='DIAlarmRuleId', description='The ID of the alert rule.', example='2'),
   DIJobId?: long(name='DIJobId', description='The ID of the synchronization task.', example='1'),
@@ -2181,12 +2375,16 @@ async function deleteProject(request: DeleteProjectRequest): DeleteProjectRespon
 }
 
 model DeleteProjectMemberRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='534752'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+This parameter is required.', example='534752'),
+  userId?: string(name='UserId', description='The ID of the account used by the member in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.51d7281fjgBRmo), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the ID of the account used by the member in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model DeleteProjectMemberResponseBody = {
-  requestId?: string(name='RequestId', example='1FF0465F-209C-5964-8F30-FAF21B677CC6'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='1FF0465F-209C-5964-8F30-FAF21B677CC6'),
 }
 
 model DeleteProjectMemberResponse = {
@@ -2196,7 +2394,7 @@ model DeleteProjectMemberResponse = {
 }
 
 /**
- * @summary 移除工作空间成员
+ * @summary Removes a member from a workspace.
  *
  * @param request DeleteProjectMemberRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2229,7 +2427,7 @@ async function deleteProjectMemberWithOptions(request: DeleteProjectMemberReques
 }
 
 /**
- * @summary 移除工作空间成员
+ * @summary Removes a member from a workspace.
  *
  * @param request DeleteProjectMemberRequest
  * @return DeleteProjectMemberResponse
@@ -2701,6 +2899,116 @@ async function execDeploymentStageWithOptions(request: ExecDeploymentStageReques
 async function execDeploymentStage(request: ExecDeploymentStageRequest): ExecDeploymentStageResponse {
   var runtime = new Util.RuntimeOptions{};
   return execDeploymentStageWithOptions(request, runtime);
+}
+
+model GetAlertRuleRequest {
+  id?: string(name='Id', example='28547072'),
+}
+
+model GetAlertRuleResponseBody = {
+  alertRule?: {
+    enabled?: boolean(name='Enabled', example='true'),
+    id?: long(name='Id', example='16035'),
+    name?: string(name='Name', example='error_rule'),
+    notification?: {
+      channels?: [ string ](name='Channels'),
+      intervalInMinutes?: int32(name='IntervalInMinutes', example='30'),
+      maximum?: int32(name='Maximum', example='3'),
+      receivers?: [ 
+        {
+          extension?: string(name='Extension', example='{"atAll":true}'),
+          receiverType?: string(name='ReceiverType', example='WebhookUrl'),
+          receiverValues?: [ string ](name='ReceiverValues'),
+        }
+      ](name='Receivers'),
+      silenceEndTime?: string(name='SilenceEndTime', example='00:00:00'),
+      silenceStartTime?: string(name='SilenceStartTime', example='00:00:00'),
+    }(name='Notification'),
+    owner?: string(name='Owner', example='279961421580845157'),
+    triggerCondition?: {
+      extension?: {
+        cycleUnfinished?: {
+          cycleAndTime?: [ 
+            {
+              cycleId?: int32(name='CycleId', example='1'),
+              time?: string(name='Time', example='12:00'),
+            }
+          ](name='CycleAndTime'),
+        }(name='CycleUnfinished'),
+        error?: {
+          autoRerunAlert?: boolean(name='AutoRerunAlert', example='false'),
+          streamTaskIds?: [ long ](name='StreamTaskIds'),
+        }(name='Error'),
+        instanceErrorCount?: {
+          count?: int32(name='Count', example='10'),
+        }(name='InstanceErrorCount'),
+        instanceErrorPercentage?: {
+          percentage?: int32(name='Percentage', example='10'),
+        }(name='InstanceErrorPercentage'),
+        instanceTransferFluctuate?: {
+          percentage?: int32(name='Percentage', example='10'),
+          trend?: string(name='Trend', example='10'),
+        }(name='InstanceTransferFluctuate'),
+        timeout?: {
+          timeoutInMinutes?: int32(name='TimeoutInMinutes', example='10'),
+        }(name='Timeout'),
+        unFinished?: {
+          unFinishedTime?: string(name='UnFinishedTime', example='12:00'),
+        }(name='UnFinished'),
+      }(name='Extension'),
+      target?: {
+        allowTasks?: [ long ](name='AllowTasks'),
+        ids?: [ long ](name='Ids'),
+        type?: string(name='Type', example='Task'),
+      }(name='Target'),
+      type?: string(name='Type', example='Error'),
+    }(name='TriggerCondition'),
+  }(name='AlertRule'),
+  requestId?: string(name='RequestId', example='8abcb91f-d266-4073-b907-2ed670378ed1'),
+}
+
+model GetAlertRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAlertRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取自定义监控报警规则
+ *
+ * @param request GetAlertRuleRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAlertRuleResponse
+ */
+async function getAlertRuleWithOptions(request: GetAlertRuleRequest, runtime: Util.RuntimeOptions): GetAlertRuleResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAlertRule',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取自定义监控报警规则
+ *
+ * @param request GetAlertRuleRequest
+ * @return GetAlertRuleResponse
+ */
+async function getAlertRule(request: GetAlertRuleRequest): GetAlertRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAlertRuleWithOptions(request, runtime);
 }
 
 model GetDIJobRequest {
@@ -3457,24 +3765,47 @@ async function getProject(request: GetProjectRequest): GetProjectResponse {
 }
 
 model GetProjectMemberRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='88757'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://dataworks.console.aliyun.com/workspace/list) and go to the Workspace page to query the ID.
+
+You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.
+
+This parameter is required.', example='88757'),
+  userId?: string(name='UserId', description='The ID of the account used by the member in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.39e9281f3mhq4J), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the ID of the account used by the member in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model GetProjectMemberResponseBody = {
   projectMember?: {
-    projectId?: long(name='ProjectId', example='88757'),
+    projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='88757'),
     roles?: [ 
       {
-        code?: string(name='Code', example='role_project_guest'),
-        name?: string(name='Name'),
-        type?: string(name='Type', example='System'),
+        code?: string(name='Code', description='The code of the role. Valid values:
+
+*   role_project_admin: Workspace Administrator
+*   role_project_dev: Develop
+*   role_project_dg_admin: Data Governance Administrator
+*   role_project_guest: Visitor
+*   role_project_security: Security Administrator
+*   role_project_deploy: Deploy
+*   role_project_owner: Workspace Owner
+*   role_project_data_analyst: Data Analyst
+*   role_project_pe: O\\\\&M
+*   role_project_erd: Model Designer', example='role_project_guest'),
+        name?: string(name='Name', description='The name of the role.'),
+        type?: string(name='Type', description='The type of the role. Valid values:
+
+*   UserCustom: custom role
+*   System: built-in role', example='System'),
       }
-    ](name='Roles'),
-    status?: string(name='Status', example='Normal'),
-    userId?: string(name='UserId', example='123422344899'),
-  }(name='ProjectMember'),
-  requestId?: string(name='RequestId', example='8abcb91f-d266-4073-b907-2ed670378ed1'),
+    ](name='Roles', description='The roles that are assigned to the member in the workspace.'),
+    status?: string(name='Status', description='The status of the member.
+
+*   Normal
+*   Forbidden', example='Normal'),
+    userId?: string(name='UserId', description='The ID of the account used by the member in the workspace.', example='123422344899'),
+  }(name='ProjectMember', description='The details about the member in the workspace.'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='8abcb91f-d266-4073-b907-2ed670378ed1'),
 }
 
 model GetProjectMemberResponse = {
@@ -3484,7 +3815,7 @@ model GetProjectMemberResponse = {
 }
 
 /**
- * @summary 查询工作空间成员详情
+ * @summary Queries the details about a member in a workspace.
  *
  * @param request GetProjectMemberRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3517,7 +3848,7 @@ async function getProjectMemberWithOptions(request: GetProjectMemberRequest, run
 }
 
 /**
- * @summary 查询工作空间成员详情
+ * @summary Queries the details about a member in a workspace.
  *
  * @param request GetProjectMemberRequest
  * @return GetProjectMemberResponse
@@ -3806,7 +4137,8 @@ model GetTaskResponseBody = {
     dependencies?: [ 
       {
         type?: string(name='Type', example='Normal'),
-        upstream?: string(name='Upstream', example='pre.odps_sql_demo_0'),
+        upstreamOutput?: string(name='UpstreamOutput'),
+        upstreamTaskId?: string(name='UpstreamTaskId'),
       }
     ](name='Dependencies'),
     description?: string(name='Description', example='test'),
@@ -3815,12 +4147,12 @@ model GetTaskResponseBody = {
       variables?: [ 
         {
           name?: string(name='Name', example='key1'),
-          scope?: string(name='Scope', example='TaskContext'),
           type?: string(name='Type', example='Constant'),
           value?: string(name='Value', example='Value1'),
         }
       ](name='Variables'),
     }(name='Inputs'),
+    instanceMode?: string(name='InstanceMode'),
     modifyTime?: long(name='ModifyTime', example='1710239005403'),
     modifyUser?: string(name='ModifyUser', example='1000'),
     name?: string(name='Name'),
@@ -3833,7 +4165,6 @@ model GetTaskResponseBody = {
       variables?: [ 
         {
           name?: string(name='Name', example='key1'),
-          scope?: string(name='Scope', example='TaskContext'),
           type?: string(name='Type', example='Constant'),
           value?: string(name='Value', example='value1'),
         }
@@ -3957,89 +4288,130 @@ async function getTask(request: GetTaskRequest): GetTaskResponse {
 }
 
 model GetTaskInstanceRequest {
-  id?: long(name='Id', description='This parameter is required.', example='1234'),
+  id?: long(name='Id', description='The instance ID.
+
+This parameter is required.', example='1234'),
 }
 
 model GetTaskInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  requestId?: string(name='RequestId', description='The request ID.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
   taskInstance?: {
-    baselineId?: long(name='BaselineId', example='1234'),
-    bizdate?: long(name='Bizdate', example='1710239005403'),
-    createTime?: long(name='CreateTime', example='1710239005403'),
-    createUser?: string(name='CreateUser', example='1000'),
+    baselineId?: long(name='BaselineId', description='The baseline ID.', example='1234'),
+    bizdate?: long(name='Bizdate', description='The data timestamp.', example='1710239005403'),
+    createTime?: long(name='CreateTime', description='The creation time.', example='1710239005403'),
+    createUser?: string(name='CreateUser', description='The account ID of the creator.', example='1000'),
     dataSource?: {
-      name?: string(name='Name', example='mysql_test'),
-    }(name='DataSource'),
-    description?: string(name='Description', example='test'),
-    finishedTime?: long(name='FinishedTime', example='1710239005403'),
-    id?: long(name='Id', example='1234'),
+      name?: string(name='Name', description='The name of the data source.', example='mysql_test'),
+    }(name='DataSource', description='The information about the associated data source.'),
+    description?: string(name='Description', description='The description.', example='test'),
+    finishedTime?: long(name='FinishedTime', description='The time when the instance finished running.', example='1710239005403'),
+    id?: long(name='Id', description='The instance ID.', example='1234'),
     inputs?: {
       variables?: [ 
         {
-          name?: string(name='Name', example='Key1'),
-          scope?: string(name='Scope', example='TaskContext'),
-          type?: string(name='Type', example='Constant'),
-          value?: string(name='Value', example='Value1'),
+          name?: string(name='Name', description='The name of the variable.', example='Key1'),
+          type?: string(name='Type', description='The type. Valid values:
+
+*   Constant: constant
+*   PassThrough: node output
+*   System: variable
+*   NodeOutput: script output', example='Constant'),
+          value?: string(name='Value', description='The value of the variable.', example='Value1'),
         }
-      ](name='Variables'),
-    }(name='Inputs'),
-    modifyTime?: long(name='ModifyTime', example='1710239005403'),
-    modifyUser?: string(name='ModifyUser', example='1000'),
+      ](name='Variables', description='The variables.'),
+    }(name='Inputs', description='The input information.'),
+    modifyTime?: long(name='ModifyTime', description='The modification time.', example='1710239005403'),
+    modifyUser?: string(name='ModifyUser', description='The account ID of the modifier.', example='1000'),
     outputs?: {
       taskOutputs?: [ 
         {
-          output?: string(name='Output', example='pre.odps_sql_demo_0'),
+          output?: string(name='Output', description='The output identifier.', example='pre.odps_sql_demo_0'),
         }
-      ](name='TaskOutputs'),
+      ](name='TaskOutputs', description='The task outputs.'),
       variables?: [ 
         {
-          name?: string(name='Name', example='key1'),
-          scope?: string(name='Scope', example='TaskContext'),
-          type?: string(name='Type', example='Constant'),
-          value?: string(name='Value', example='value1'),
+          name?: string(name='Name', description='The name of the variable.', example='key1'),
+          type?: string(name='Type', description='The type. Valid values:
+
+*   Constant: constant
+*   PassThrough: node output
+*   System: variable
+*   NodeOutput: script output', example='Constant'),
+          value?: string(name='Value', description='The value of the variable.', example='value1'),
         }
-      ](name='Variables'),
-    }(name='Outputs'),
-    owner?: string(name='Owner', example='1000'),
-    priority?: int32(name='Priority', example='1'),
-    projectEnv?: string(name='ProjectEnv', example='Prod'),
-    projectId?: long(name='ProjectId', example='100'),
-    rerunMode?: string(name='RerunMode', example='AllAllowed'),
-    runNumber?: int32(name='RunNumber', example='1'),
+      ](name='Variables', description='The variables.'),
+    }(name='Outputs', description='The output information.'),
+    owner?: string(name='Owner', description='The account ID of the task owner.', example='1000'),
+    periodNumber?: int32(name='PeriodNumber'),
+    priority?: int32(name='Priority', description='The task priority. Valid values: 1 to 8. A larger value indicates a higher priority. Default value: 1.', example='1'),
+    projectEnv?: string(name='ProjectEnv', description='The environment of the workspace. Valid values:
+
+*   Prod: production environment
+*   Dev: development environment', example='Prod'),
+    projectId?: long(name='ProjectId', description='The workspace ID.', example='100'),
+    rerunMode?: string(name='RerunMode', description='The rerun mode. Valid values:
+
+*   AllDenied: The task cannot be rerun regardless of whether the task is successfully run or fails to run.
+*   AllAllowed: The task can be rerun regardless of whether the task is successfully run or fails to run.
+*   FailureAllowed: The task can be rerun only after it fails to run.', example='AllAllowed'),
+    runNumber?: int32(name='RunNumber', description='The number of times the instance is run. By default, the value starts from 1.', example='1'),
     runtime?: {
-      gateway?: string(name='Gateway', example='cn-shanghai.1.2'),
-      processId?: string(name='ProcessId', example='T3_123'),
-    }(name='Runtime'),
+      gateway?: string(name='Gateway', description='The host for running.', example='cn-shanghai.1.2'),
+      processId?: string(name='ProcessId', description='The instance run ID.', example='T3_123'),
+    }(name='Runtime', description='The runtime information about the instance.'),
     runtimeResource?: {
-      cu?: string(name='Cu', example='0.25'),
-      image?: string(name='Image', example='i-xxxxxx'),
-      resourceGroupId?: string(name='ResourceGroupId', example='S_res_group_524258031846018_1684XXXXXXXXX'),
-    }(name='RuntimeResource'),
+      cu?: string(name='Cu', description='The default number of CUs configured for task running.', example='0.25'),
+      image?: string(name='Image', description='The ID of the image configured for task running.', example='i-xxxxxx'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group for scheduling configured for task running.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
+    }(name='RuntimeResource', description='The information about the resource group with which the instance is associated.'),
     script?: {
-      content?: string(name='Content', example='echo "helloWorld"'),
-      parameters?: string(name='Parameters', example='para1=$bizdate'),
-    }(name='Script'),
-    startedTime?: long(name='StartedTime', example='1710239005403'),
-    status?: string(name='Status', example='Success'),
+      content?: string(name='Content', description='The script content.', example='echo "helloWorld"'),
+      parameters?: string(name='Parameters', description='The script parameters.', example='para1=$bizdate'),
+    }(name='Script', description='The script information.'),
+    startedTime?: long(name='StartedTime', description='The time when the instance started to run.', example='1710239005403'),
+    status?: string(name='Status', description='The status of the instance. Valid values:
+
+*   NotRun: The instance is not run.
+*   Running: The instance is running.
+*   WaitTime: The instance is waiting for the scheduling time to arrive.
+*   CheckingCondition: Branch conditions are being checked for the instance.
+*   WaitResource: The instance is waiting for resources.
+*   Failure: The instance fails to be run.
+*   Success: The instance is successfully run.
+*   Checking: Data quality is being checked for the instance.', example='Success'),
     tags?: [ 
       {
-        key?: string(name='Key', example='key1'),
-        value?: string(name='Value', example='value1'),
+        key?: string(name='Key', description='The tag key.', example='key1'),
+        value?: string(name='Value', description='The tag value.', example='value1'),
       }
-    ](name='Tags'),
-    taskId?: long(name='TaskId', example='1234'),
-    taskName?: string(name='TaskName'),
-    taskType?: string(name='TaskType', example='ODPS_SQL'),
-    tenantId?: long(name='TenantId', example='1'),
-    timeout?: int32(name='Timeout', example='1'),
-    triggerRecurrence?: string(name='TriggerRecurrence', example='Normal'),
-    triggerTime?: long(name='TriggerTime', example='1710239005403'),
-    triggerType?: string(name='TriggerType', example='Scheduler'),
-    workflowId?: long(name='WorkflowId', example='1234'),
-    workflowInstanceId?: long(name='WorkflowInstanceId', example='1234'),
-    workflowInstanceType?: string(name='WorkflowInstanceType', example='Normal'),
-    workflowName?: string(name='WorkflowName'),
-  }(name='TaskInstance'),
+    ](name='Tags', description='The tags of the task.'),
+    taskId?: long(name='TaskId', description='The ID of the task for which the instance is generated.', example='1234'),
+    taskName?: string(name='TaskName', description='The name of the task for which the instance is generated.'),
+    taskType?: string(name='TaskType', description='The type of the task for which the instance is generated.', example='ODPS_SQL'),
+    tenantId?: long(name='TenantId', description='The tenant ID.', example='1'),
+    timeout?: int32(name='Timeout', description='The timeout period of task running. Unit: seconds.', example='1'),
+    triggerRecurrence?: string(name='TriggerRecurrence', description='The running mode of the instance after it is triggered. This parameter takes effect only if the TriggerType parameter is set to Scheduler. Valid values:
+
+*   Pause
+*   Skip
+*   Normal', example='Normal'),
+    triggerTime?: long(name='TriggerTime', description='The scheduling time.', example='1710239005403'),
+    triggerType?: string(name='TriggerType', description='The method to trigger instance scheduling. The value of the Trigger.Type parameter in the response of the GetTask operation is used. Valid values:
+
+*   Scheduler
+*   Manual', example='Scheduler'),
+    workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
+    workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
+    workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance. Valid values:
+
+*   SmokeTest
+*   SupplementData
+*   Manual
+*   ManualWorkflow
+*   Normal
+*   ManualFlow', example='Normal'),
+    workflowName?: string(name='WorkflowName', description='The name of the workflow to which the instance belongs.'),
+  }(name='TaskInstance', description='The details of the instance.'),
 }
 
 model GetTaskInstanceResponse = {
@@ -4049,6 +4421,8 @@ model GetTaskInstanceResponse = {
 }
 
 /**
+ * @summary Queries the information about an instance.
+ *
  * @param request GetTaskInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTaskInstanceResponse
@@ -4074,6 +4448,8 @@ async function getTaskInstanceWithOptions(request: GetTaskInstanceRequest, runti
 }
 
 /**
+ * @summary Queries the information about an instance.
+ *
  * @param request GetTaskInstanceRequest
  * @return GetTaskInstanceResponse
  */
@@ -4199,19 +4575,35 @@ async function getWorkflowDefinition(request: GetWorkflowDefinitionRequest): Get
 }
 
 model GrantMemberProjectRolesRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='105149'),
-  roleCodes?: [ string ](name='RoleCodes', description='This parameter is required.'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+This parameter is required.', example='105149'),
+  roleCodes?: [ string ](name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.
+
+You must configure this parameter to specify the roles that you want to assign to members in the workspace.
+
+This parameter is required.'),
+  userId?: string(name='UserId', description='The IDs of the accounts used by the members in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.51d7281fjgBRmo), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the IDs of the accounts used by the members in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model GrantMemberProjectRolesShrinkRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='105149'),
-  roleCodesShrink?: string(name='RoleCodes', description='This parameter is required.'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+This parameter is required.', example='105149'),
+  roleCodesShrink?: string(name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.
+
+You must configure this parameter to specify the roles that you want to assign to members in the workspace.
+
+This parameter is required.'),
+  userId?: string(name='UserId', description='The IDs of the accounts used by the members in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.51d7281fjgBRmo), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the IDs of the accounts used by the members in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model GrantMemberProjectRolesResponseBody = {
-  requestId?: string(name='RequestId', example='2d9ced66-38ef-4923-baf6-391dd3a7e656'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='2d9ced66-38ef-4923-baf6-391dd3a7e656'),
 }
 
 model GrantMemberProjectRolesResponse = {
@@ -4221,7 +4613,7 @@ model GrantMemberProjectRolesResponse = {
 }
 
 /**
- * @summary 授予工作空间成员角色
+ * @summary Assigns roles to members in a workspace.
  *
  * @param tmpReq GrantMemberProjectRolesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4262,7 +4654,7 @@ async function grantMemberProjectRolesWithOptions(tmpReq: GrantMemberProjectRole
 }
 
 /**
- * @summary 授予工作空间成员角色
+ * @summary Assigns roles to members in a workspace.
  *
  * @param request GrantMemberProjectRolesRequest
  * @return GrantMemberProjectRolesResponse
@@ -4339,6 +4731,154 @@ async function importWorkflowDefinitionWithOptions(request: ImportWorkflowDefini
 async function importWorkflowDefinition(request: ImportWorkflowDefinitionRequest): ImportWorkflowDefinitionResponse {
   var runtime = new Util.RuntimeOptions{};
   return importWorkflowDefinitionWithOptions(request, runtime);
+}
+
+model ListAlertRulesRequest {
+  name?: string(name='Name', example='error_rule'),
+  owner?: string(name='Owner', example='1933790683****'),
+  pageNumber?: int32(name='PageNumber', description='This parameter is required.', example='1'),
+  pageSize?: long(name='PageSize', description='This parameter is required.', example='10'),
+  receiver?: string(name='Receiver', example='1933790683****'),
+  taskIds?: [ long ](name='TaskIds'),
+  types?: [ string ](name='Types'),
+}
+
+model ListAlertRulesShrinkRequest {
+  name?: string(name='Name', example='error_rule'),
+  owner?: string(name='Owner', example='1933790683****'),
+  pageNumber?: int32(name='PageNumber', description='This parameter is required.', example='1'),
+  pageSize?: long(name='PageSize', description='This parameter is required.', example='10'),
+  receiver?: string(name='Receiver', example='1933790683****'),
+  taskIdsShrink?: string(name='TaskIds'),
+  typesShrink?: string(name='Types'),
+}
+
+model ListAlertRulesResponseBody = {
+  pagingInfo?: {
+    alertRules?: [ 
+      {
+        enabled?: boolean(name='Enabled', example='true'),
+        id?: long(name='Id', example='22125'),
+        name?: string(name='Name', example='error_test'),
+        owner?: string(name='Owner', example='1933790683****'),
+        triggerCondition?: {
+          extension?: {
+            cycleUnfinished?: {
+              cycleAndTime?: [ 
+                {
+                  cycleId?: int32(name='CycleId', example='1'),
+                  time?: string(name='Time', example='01:00'),
+                }
+              ](name='CycleAndTime'),
+            }(name='CycleUnfinished'),
+            error?: {
+              autoRerunAlert?: boolean(name='AutoRerunAlert', example='false'),
+              streamTaskIds?: [ long ](name='StreamTaskIds'),
+            }(name='Error'),
+            instanceErrorCount?: {
+              count?: int32(name='Count', example='10'),
+            }(name='InstanceErrorCount'),
+            instanceErrorPercentage?: {
+              percentage?: int32(name='Percentage', example='10'),
+            }(name='InstanceErrorPercentage'),
+            instanceTransferFluctuate?: {
+              percentage?: int32(name='Percentage', example='10'),
+              trend?: string(name='Trend', example='abs'),
+            }(name='InstanceTransferFluctuate'),
+            timeout?: {
+              timeoutInMinutes?: int32(name='TimeoutInMinutes', example='10'),
+            }(name='Timeout'),
+            unFinished?: {
+              unFinishedTime?: string(name='UnFinishedTime', example='12:00'),
+            }(name='UnFinished'),
+          }(name='Extension'),
+          target?: {
+            allowTasks?: [ long ](name='AllowTasks'),
+            ids?: [ long ](name='Ids'),
+            type?: string(name='Type', example='Task'),
+          }(name='Target'),
+          type?: string(name='Type', example='Error'),
+        }(name='TriggerCondition'),
+      }
+    ](name='AlertRules'),
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    totalCount?: int32(name='TotalCount', example='5'),
+  }(name='PagingInfo'),
+  requestId?: string(name='RequestId', example='A6C6B486-E3A2-5D52-9E76-D9380485D946'),
+}
+
+model ListAlertRulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAlertRulesResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页获取自定义监控报警规则
+ *
+ * @param tmpReq ListAlertRulesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAlertRulesResponse
+ */
+async function listAlertRulesWithOptions(tmpReq: ListAlertRulesRequest, runtime: Util.RuntimeOptions): ListAlertRulesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListAlertRulesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.taskIds)) {
+    request.taskIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskIds, 'TaskIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.types)) {
+    request.typesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.types, 'Types', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.owner)) {
+    query['Owner'] = request.owner;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.receiver)) {
+    query['Receiver'] = request.receiver;
+  }
+  if (!Util.isUnset(request.taskIdsShrink)) {
+    query['TaskIds'] = request.taskIdsShrink;
+  }
+  if (!Util.isUnset(request.typesShrink)) {
+    query['Types'] = request.typesShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAlertRules',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 分页获取自定义监控报警规则
+ *
+ * @param request ListAlertRulesRequest
+ * @return ListAlertRulesResponse
+ */
+async function listAlertRules(request: ListAlertRulesRequest): ListAlertRulesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAlertRulesWithOptions(request, runtime);
 }
 
 model ListDIAlarmRulesRequest {
@@ -4778,91 +5318,115 @@ async function listDIJobs(request: ListDIJobsRequest): ListDIJobsResponse {
 }
 
 model ListDataQualityEvaluationTaskInstancesRequest {
-  bizdateFrom?: string(name='BizdateFrom', example='2024-04-01'),
-  bizdateTo?: string(name='BizdateTo', example='2024-05-01'),
-  createTimeFrom?: long(name='CreateTimeFrom', example='1710239005403'),
-  createTimeTo?: long(name='CreateTimeTo', example='1710239005403'),
-  dataQualityEvaluationTaskId?: long(name='DataQualityEvaluationTaskId', example='10000'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  projectId?: long(name='ProjectId', example='100'),
-  tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-  triggerClient?: string(name='TriggerClient', example='CWF2'),
-  triggerClientId?: string(name='TriggerClientId', example='1001'),
+  bizdateFrom?: string(name='BizdateFrom', description='The start time of the data quality monitoring task.', example='2024-04-01'),
+  bizdateTo?: string(name='BizdateTo', description='The end time of the data quality monitoring task.', example='2024-05-01'),
+  createTimeFrom?: long(name='CreateTimeFrom', description='The earliest start time at which the instances are generated.', example='1710239005403'),
+  createTimeTo?: long(name='CreateTimeTo', description='The latest start time at which the instances are generated.', example='1710239005403'),
+  dataQualityEvaluationTaskId?: long(name='DataQualityEvaluationTaskId', description='The ID of the data quality monitoring task.', example='10000'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+  tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+  triggerClient?: string(name='TriggerClient', description='The name of the trigger module of the instance.', example='CWF2'),
+  triggerClientId?: string(name='TriggerClientId', description='The ID of the instance that is generated by the task.', example='1001'),
 }
 
 model ListDataQualityEvaluationTaskInstancesResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message'),
   pagingInfo?: {
     dataQualityEvaluationTaskInstances?: [ 
       {
-        createTime?: long(name='CreateTime', example='1710239005403'),
-        finishTime?: long(name='FinishTime', example='1710239005403'),
-        id?: long(name='Id', example='10001'),
-        parameters?: string(name='Parameters', example='{
+        createTime?: long(name='CreateTime', description='The time at which the instance was generated.', example='1710239005403'),
+        finishTime?: long(name='FinishTime', description='The time at which the instance finished running.', example='1710239005403'),
+        id?: long(name='Id', description='The ID of the instance.', example='10001'),
+        parameters?: string(name='Parameters', description='The parameters configured for the instance.', example='{
   "bizdate": "20240517",
   "triggerTime": "1710239005403"
 }'),
-        projectId?: long(name='ProjectId', example='100'),
-        status?: string(name='Status', example='Critical'),
+        projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+        status?: string(name='Status', description='The status of the instance. Valid values:
+
+*   Running
+*   Error
+*   Passed
+*   Warned
+*   Critical', example='Critical'),
         task?: {
-          description?: string(name='Description', description='质量监控任务描述', example='This is a daily run data quality evaluation plan.'),
+          description?: string(name='Description', description='The description of the task.', example='This is a daily run data quality evaluation plan.'),
           hooks?: [ 
             {
-              condition?: string(name='Condition', description='Hook触发条件', example='${severity} == "High" AND ${status} == "Critical"'),
-              type?: string(name='Type', description='Hook类型', example='BlockTaskInstance'),
+              condition?: string(name='Condition', description='The trigger configuration of the callback event.', example='${severity} == "High" AND ${status} == "Critical"'),
+              type?: string(name='Type', description='The type of the callback event.
+
+*   Valid values: BlockTaskInstance. The value indicates that an auto triggered node is blocked.', example='BlockTaskInstance'),
             }
-          ](name='Hooks', description='数据质量校验任务实例生命周期中的回调设置，目前只支持一个阻塞调度任务的Hook'),
-          id?: long(name='Id', description='代表资源一级ID的资源属性字段', example='10001'),
-          name?: string(name='Name', description='质量监控任务名称
+          ](name='Hooks', description='The callback configurations of the task during the instance lifecycle. Blocking an auto triggered node is a type of callback event. Only this type is supported.'),
+          id?: long(name='Id', description='The task ID.', example='10001'),
+          name?: string(name='Name', description='The name of the task.
 
 This parameter is required.'),
           notifications?: {
-            condition?: string(name='Condition', description='通知触发条件', example='${severity} == "High"'),
+            condition?: string(name='Condition', description='The trigger condition of the alert notification.', example='${severity} == "High"'),
             notifications?: [ 
               {
                 nofiticationReceivers?: [ 
                   {
-                    extension?: string(name='Extension', description='扩展信息，格式为 json，例如钉钉机器人支持 at 所有人', example='{"atAll":"true"}'),
-                    receiverType?: string(name='ReceiverType', description='告警接收人类型', example='AliUid'),
-                    receiverValues?: [ string ](name='ReceiverValues', description='告警接收人'),
+                    extension?: string(name='Extension', description='The extended information in the JSON format. For example, the DingTalk chatbot can remind all members in a DingTalk group by using the at sign (@).', example='{"atAll":"true"}'),
+                    receiverType?: string(name='ReceiverType', description='The type of the alert recipient. Valid values:
+
+*   AliUid: Alibaba Cloud account ID
+*   WebhookUrl: URL of a custom webhook
+*   DingdingUrl: DingTalk chatbot URL
+*   FeishuUrl: Lark chatbot URL
+*   WeixinUrl: WeCom chatbot URL', example='AliUid'),
+                    receiverValues?: [ string ](name='ReceiverValues', description='The alert recipients.'),
                   }
-                ](name='NofiticationReceivers', description='告警接收人设置'),
+                ](name='NofiticationReceivers', description='The alert recipients.'),
                 notificationChannels?: [ 
                   {
-                    channels?: [ string ](name='Channels', description='通知方式'),
+                    channels?: [ string ](name='Channels', description='The alert notification methods.'),
                   }
-                ](name='NotificationChannels', description='通知方式'),
+                ](name='NotificationChannels', description='The alert notification methods.'),
               }
-            ](name='Notifications', description='具体的消息通知设置'),
-          }(name='Notifications', description='数据质量校验任务通知订阅配置'),
-          projectId?: long(name='ProjectId', description='项目空间Id', example='100'),
-          regionId?: string(name='RegionId', description='代表region的资源属性字段', example='cn-shanghai'),
-          runtimeConf?: string(name='RuntimeConf', description='使用数据源时的一些设置，目前只支持指定EMR的yarn队列、采集EMR表时把SQL引擎指定为SPARK-SQL', example='{ "queue": "default", "sqlEngine": "SPARK-SQL" }'),
+            ](name='Notifications', description='The configurations for the alert notification.'),
+          }(name='Notifications', description='The configurations for alert notifications.'),
+          projectId?: long(name='ProjectId', description='The workspace ID.', example='100'),
+          regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+          runtimeConf?: string(name='RuntimeConf', description='The configuration of the data source. The value of the queue field is default, and that of the sqlEngine field is SPARK-SQL. The value default indicates the YARN queue for E-MapReduce (EMR) tasks, and the value SPARK-SQL indicates the SQL engine that is used to collect EMR data.', example='{ "queue": "default", "sqlEngine": "SPARK-SQL" }'),
           target?: {
-            databaseType?: string(name='DatabaseType', description='表所属的数据库类型', example='maxcompute'),
-            partitionSpec?: string(name='PartitionSpec', description='分区表的分区设置', example='ds=$[yyyymmdd-1]'),
-            tableGuid?: string(name='TableGuid', description='表在数据地图中的唯一ID', example='odps.unit_test.tb_unit_test'),
-            type?: string(name='Type', description='监控对象类型', example='Table'),
-          }(name='Target', description='参看 DataQualityTarget示例	数据质量校验任务的监控对象，参考 DataQualityTarget'),
-          tenantId?: long(name='TenantId', description='租户Id', example='10'),
+            databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+            partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+            tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+            type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+          }(name='Target', description='The monitored object of the task.'),
+          tenantId?: long(name='TenantId', description='The tenant ID.', example='10'),
           trigger?: {
-            taskIds?: [ long ](name='TaskIds', description='具体指明哪些调度节点的实例执行成功后可以触发'),
-            type?: string(name='Type', description='何种事件可以触发质量校验任务执行', example='ByScheduledTaskInstance'),
-          }(name='Trigger', description='数据质量校验任务的触发配置'),
-        }(name='Task'),
-        triggerContext?: string(name='TriggerContext', example='{
+            taskIds?: [ long ](name='TaskIds', description='The IDs of the auto triggered nodes of which the instances are successfully run.'),
+            type?: string(name='Type', description='The trigger condition of the task.
+
+*   Valid values: ByScheduledTaskInstance. The value indicates that the task is triggered when the instance of an auto triggered node is successfully run.', example='ByScheduledTaskInstance'),
+          }(name='Trigger', description='The trigger configuration of the task.'),
+        }(name='Task', description='The snapshot of the configurations for the task when the task starts.'),
+        triggerContext?: string(name='TriggerContext', description='The information about the trigger module of the instance.', example='{
   "TriggerClientId": 10001,
   "TriggerClient": "CWF2"
 }'),
       }
-    ](name='DataQualityEvaluationTaskInstances'),
-    pageNumber?: int32(name='PageNumber', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
-    totalCount?: int32(name='TotalCount', example='294'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='691CA452-D37A-4ED0-9441'),
+    ](name='DataQualityEvaluationTaskInstances', description='The instances generated by the task.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='294'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='691CA452-D37A-4ED0-9441'),
 }
 
 model ListDataQualityEvaluationTaskInstancesResponse = {
@@ -4872,7 +5436,7 @@ model ListDataQualityEvaluationTaskInstancesResponse = {
 }
 
 /**
- * @summary ListDataQualityEvaluationTaskInstances
+ * @summary Queries a list of instances generated by a data quality monitoring task by page.
  *
  * @param request ListDataQualityEvaluationTaskInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4899,7 +5463,7 @@ async function listDataQualityEvaluationTaskInstancesWithOptions(request: ListDa
 }
 
 /**
- * @summary ListDataQualityEvaluationTaskInstances
+ * @summary Queries a list of instances generated by a data quality monitoring task by page.
  *
  * @param request ListDataQualityEvaluationTaskInstancesRequest
  * @return ListDataQualityEvaluationTaskInstancesResponse
@@ -4910,67 +5474,85 @@ async function listDataQualityEvaluationTaskInstances(request: ListDataQualityEv
 }
 
 model ListDataQualityEvaluationTasksRequest {
-  name?: string(name='Name'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  projectId?: long(name='ProjectId', example='100'),
-  tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
+  name?: string(name='Name', description='The name of the data quality monitoring task. Fuzzy match is supported.'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+  tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
 }
 
 model ListDataQualityEvaluationTasksResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message'),
   pagingInfo?: {
     dataQualityEvaluationTasks?: [ 
       {
-        description?: string(name='Description', example='This is a daily run data quality evaluation plan'),
+        description?: string(name='Description', description='The description of the data quality monitoring task. The description can be up to 65,535 characters in length.', example='This is a daily run data quality evaluation plan'),
         hooks?: [ 
           {
-            condition?: string(name='Condition', example='${severity} == "High" AND ${status} == "Critical"'),
-            type?: string(name='Type', example='BlockTaskInstance'),
+            condition?: string(name='Condition', description='The trigger configuration of the callback event.', example='${severity} == "High" AND ${status} == "Critical"'),
+            type?: string(name='Type', description='The type of the callback event.
+
+*   Valid values: BlockTaskInstance. The value indicates that an auto triggered node is blocked.', example='BlockTaskInstance'),
           }
-        ](name='Hooks'),
-        id?: long(name='Id', example='10001'),
-        name?: string(name='Name'),
+        ](name='Hooks', description='The callback configurations of the task during the instance lifecycle. Blocking an auto triggered node is a type of callback event. Only this type is supported.'),
+        id?: long(name='Id', description='The ID of the data quality monitoring task.', example='10001'),
+        name?: string(name='Name', description='The name of the data quality monitoring task. The name can be up to 255 characters in length and can contain digits, letters, and punctuation marks.'),
         notifications?: {
-          condition?: string(name='Condition', example='${severity} == "High"'),
+          condition?: string(name='Condition', description='The trigger condition of the alert notification.', example='${severity} == "High"'),
           notifications?: [ 
             {
               notificationChannels?: [ 
                 {
-                  channels?: [ string ](name='Channels'),
+                  channels?: [ string ](name='Channels', description='The alert notification methods.'),
                 }
-              ](name='NotificationChannels'),
+              ](name='NotificationChannels', description='The alert notification methods.'),
               notificationReceivers?: [ 
                 {
-                  extension?: string(name='Extension', example='{"atAll":"true"}'),
-                  receiverType?: string(name='ReceiverType', example='AliUid'),
-                  receiverValues?: [ string ](name='ReceiverValues'),
+                  extension?: string(name='Extension', description='The extended information in the JSON format. For example, the DingTalk chatbot can remind all members in a DingTalk group by using the at sign (@).', example='{"atAll":"true"}'),
+                  receiverType?: string(name='ReceiverType', description='The type of the alert recipient. Valid values:
+
+*   AliUid: Alibaba Cloud account ID
+*   WebhookUrl: URL of a custom webhook
+*   DingdingUrl: DingTalk chatbot URL
+*   FeishuUrl: Lark chatbot URL
+*   WeixinUrl: WeCom chatbot URL', example='AliUid'),
+                  receiverValues?: [ string ](name='ReceiverValues', description='The alert recipients.'),
                 }
-              ](name='NotificationReceivers'),
+              ](name='NotificationReceivers', description='The alert recipients.'),
             }
-          ](name='Notifications'),
-        }(name='Notifications'),
-        projectId?: long(name='ProjectId', example='100'),
-        runtimeConf?: string(name='RuntimeConf', example='{ "queue": "default", "sqlEngine": "SPARK-SQL" }'),
+          ](name='Notifications', description='The configurations for the alert notification.'),
+        }(name='Notifications', description='The configurations for alert notifications.'),
+        projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100'),
+        runtimeConf?: string(name='RuntimeConf', description='The configuration of the data source. The value of the queue field is default, and that of the sqlEngine field is SPARK-SQL. The value default indicates the YARN queue for E-MapReduce (EMR) tasks, and the value SPARK-SQL indicates the SQL engine that is used to collect EMR data.', example='{ "queue": "default", "sqlEngine": "SPARK-SQL" }'),
         target?: {
-          databaseType?: string(name='DatabaseType', example='maxcompute'),
-          partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-          tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-          type?: string(name='Type', example='Table'),
-        }(name='Target'),
-        tenantId?: long(name='TenantId', example='10'),
+          databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+          partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+          tableGuid?: string(name='TableGuid', description='The ID of the table in Data Map.', example='odps.unit_test.tb_unit_test'),
+          type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+        }(name='Target', description='The monitored object of the task.'),
+        tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='10'),
         trigger?: {
-          taskIds?: [ long ](name='TaskIds'),
-          type?: string(name='Type', example='ByScheduledTaskInstance'),
-        }(name='Trigger'),
+          taskIds?: [ long ](name='TaskIds', description='The IDs of the auto triggered nodes of which the instances are successfully run. This parameter takes effect only if the Type parameter is set to ByScheduledTaskInstance.'),
+          type?: string(name='Type', description='The trigger condition of the task.
+
+*   Valid values: ByScheduledTaskInstance. The value indicates that the task is triggered when the instance of an auto triggered node is successfully run.', example='ByScheduledTaskInstance'),
+        }(name='Trigger', description='The trigger configuration of the task.'),
       }
-    ](name='DataQualityEvaluationTasks'),
-    pageNumber?: string(name='PageNumber', example='1'),
-    pageSize?: string(name='PageSize', example='10'),
-    totalCount?: string(name='TotalCount', example='131'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='691CA452-D37A-4ED0-9441'),
+    ](name='DataQualityEvaluationTasks', description='The data quality monitoring tasks.'),
+    pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
+    totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='131'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='691CA452-D37A-4ED0-9441'),
 }
 
 model ListDataQualityEvaluationTasksResponse = {
@@ -4980,6 +5562,8 @@ model ListDataQualityEvaluationTasksResponse = {
 }
 
 /**
+ * @summary Queries a list of data quality monitoring tasks by page.
+ *
  * @param request ListDataQualityEvaluationTasksRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDataQualityEvaluationTasksResponse
@@ -5005,6 +5589,8 @@ async function listDataQualityEvaluationTasksWithOptions(request: ListDataQualit
 }
 
 /**
+ * @summary Queries a list of data quality monitoring tasks by page.
+ *
  * @param request ListDataQualityEvaluationTasksRequest
  * @return ListDataQualityEvaluationTasksResponse
  */
@@ -5014,8 +5600,8 @@ async function listDataQualityEvaluationTasks(request: ListDataQualityEvaluation
 }
 
 model ListDataQualityResultsRequest {
-  bizdateFrom?: string(name='BizdateFrom', example='2024-05-01'),
-  bizdateTo?: string(name='BizdateTo', example='2024-05-04'),
+  bizdateFrom?: string(name='BizdateFrom', description='The beginning of the time range to query.', example='2024-05-01'),
+  bizdateTo?: string(name='BizdateTo', description='The end of the time range to query.', example='2024-05-04'),
   createTimeFrom?: long(name='CreateTimeFrom', example='1710239005403'),
   createTimeTo?: long(name='CreateTimeTo', example='1710239005403'),
   dataQualityEvaluationTaskId?: long(name='DataQualityEvaluationTaskId', example='200001'),
@@ -5027,8 +5613,6 @@ model ListDataQualityResultsRequest {
 }
 
 model ListDataQualityResultsResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message'),
   pagingInfo?: {
     dataQualityResults?: [ 
       {
@@ -5037,12 +5621,14 @@ model ListDataQualityResultsResponseBody = {
           {
             checkedValue?: string(name='CheckedValue', example='100.0'),
             referencedValue?: string(name='ReferencedValue', example='0.0'),
-            status?: string(name='Status', description='*   ERROR
-*   PASSED
-*   WARNED
-*   CRITICAL', example='PASSED'),
+            status?: string(name='Status', description='The comparison result between the value of CheckedValue and the threshold. Valid values:
+
+*   Error
+*   Passed
+*   Warned
+*   Critical', example='PASSED'),
           }
-        ](name='Details'),
+        ](name='Details', description='The check details.'),
         id?: long(name='Id', example='16033'),
         rule?: {
           checkingConfig?: {
@@ -5076,60 +5662,73 @@ model ListDataQualityResultsResponseBody = {
                 value?: string(name='Value', example='100.0'),
               }(name='Warned'),
             }(name='Thresholds'),
-            type?: string(name='Type', description='*   FIXED
-*   FLUCTATION
-*   AUTO
-*   AVERAGE
-*   VARIANCE
-*   FLUCTATION_DISCREATE', example='FIXED'),
-          }(name='CheckingConfig'),
+            type?: string(name='Type', description='The threshold calculation method. Valid values:
+
+*   Fixed
+*   Fluctation
+*   FluctationDiscreate
+*   Auto
+*   Average
+*   Variance', example='FIXED'),
+          }(name='CheckingConfig', description='The check settings for sample data.'),
           description?: string(name='Description', example='this is a odps _sql task'),
           enabled?: boolean(name='Enabled', example='true'),
           errorHandlers?: [ 
             {
               errorDataFilter?: string(name='ErrorDataFilter', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
-              type?: string(name='Type', description='*   SAVE_ERROR_DATA', example='SAVE_ERROR_DATA'),
+              type?: string(name='Type', description='The type of the operation. Valid values:
+
+*   SaveErrorData', example='SAVE_ERROR_DATA'),
             }
-          ](name='ErrorHandlers'),
+          ](name='ErrorHandlers', description='The operations that you can perform after the rule-based check fails.'),
           id?: long(name='Id', example='100001'),
           name?: string(name='Name'),
           projectId?: long(name='ProjectId', example='100'),
           samplingConfig?: {
-            metric?: string(name='Metric', description='*
-*
-*
-*
-*
-*
-*
-*
-*
-*
-*
-*
-*
-*', example='COUNT'),
+            metric?: string(name='Metric', description='The metrics used for sampling. Valid values:
+
+*   Count: the number of rows in the table.
+*   Min: the minimum value of the field.
+*   Max: the maximum value of the field.
+*   Avg: the average value of the field.
+*   DistinctCount: the number of unique values of the field after deduplication.
+*   DistinctPercent: the proportion of the number of unique values of the field after deduplication to the number of rows in the table.
+*   DuplicatedCount: the number of duplicated values of the field.
+*   DuplicatedPercent: the proportion of the number of duplicated values of the field to the number of rows in the table.
+*   TableSize: the table size.
+*   NullValueCount: the number of rows in which the field value is null.
+*   NullValuePercent: the proportion of the number of rows in which the field value is null to the number of rows in the table.
+*   GroupCount: the field value and the number of rows for each field value.
+*   CountNotIn: the number of rows in which the field values are different from the referenced values that you specified in the rule.
+*   CountDistinctNotIn: the number of unique values that are different from the referenced values that you specified in the rule after deduplication.
+*   UserDefinedSql: indicates that data is sampled by executing custom SQL statements.', example='COUNT'),
             metricParameters?: string(name='MetricParameters', example='{ "columns": [ "id", "name" ] }'),
             samplingFilter?: string(name='SamplingFilter', example='id IS NULL'),
             settingConfig?: string(name='SettingConfig', example='SET odps.sql.udf.timeout=600s;'),
-          }(name='SamplingConfig'),
-          severity?: string(name='Severity', description='*   HIGH
-*   NORMAL', example='NORMAL'),
+          }(name='SamplingConfig', description='The sampling settings.'),
+          severity?: string(name='Severity', description='The strength of the rule. Valid values:
+
+*   High
+*   Normal', example='NORMAL'),
           target?: {
-            databaseType?: string(name='DatabaseType', description='*   MAX_COMPUTE
-*   EMR
-*   CDH
-*   HOLOGRES
-*   ANALYTICDB_FOR_POSTGRESQL
-*   ANALYTICDB_FOR_MYSQL
-*   STAR_ROCKS', example='MAX_COMPUTE'),
+            databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='MAX_COMPUTE'),
             partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
             tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-            type?: string(name='Type', description='*   TABLE', example='TABLE'),
-          }(name='Target'),
+            type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='TABLE'),
+          }(name='Target', description='The monitored object of the rule.'),
           templateCode?: string(name='TemplateCode', example='system::user_defined'),
           tenantId?: long(name='TenantId', example='1'),
-        }(name='Rule'),
+        }(name='Rule', description='The snapshot of the rule configuration when the check starts.'),
         sample?: string(name='Sample', example='[
   {
     "gender": "male",
@@ -5139,19 +5738,21 @@ model ListDataQualityResultsResponseBody = {
     "_count": 100
   }
 ]'),
-        status?: string(name='Status', description='*   RUNNING
-*   ERROR
-*   PASSED
-*   WARNED
-*   CRITICAL', example='PASSED'),
+        status?: string(name='Status', description='The status of the check result. Valid values:
+
+*   Running
+*   Error
+*   Passed
+*   Warned
+*   Critical', example='PASSED'),
         taskInstanceId?: long(name='TaskInstanceId', example='200001'),
       }
-    ](name='DataQualityResults'),
+    ](name='DataQualityResults', description='The data quality check results.'),
     pageNumber?: int32(name='PageNumber', example='1'),
     pageSize?: int32(name='PageSize', example='10'),
     totalCount?: int32(name='TotalCount', example='219'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='691CA452-D37A-4ED0-9441'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='691CA452-D37A-4ED0-9441'),
 }
 
 model ListDataQualityResultsResponse = {
@@ -5195,72 +5796,129 @@ async function listDataQualityResults(request: ListDataQualityResultsRequest): L
 }
 
 model ListDataQualityRulesRequest {
-  dataQualityEvaluationTaskId?: long(name='DataQualityEvaluationTaskId', example='10000'),
-  name?: string(name='Name', example='unit_test'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  projectId?: long(name='ProjectId', example='10002'),
-  tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
+  dataQualityEvaluationTaskId?: long(name='DataQualityEvaluationTaskId', description='The ID of the data quality monitoring task that is associated with the rule.', example='10000'),
+  name?: string(name='Name', description='The name of the rule. Fuzzy match is supported.', example='unit_test'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 200.', example='10'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='10002'),
+  tableGuid?: string(name='TableGuid', description='The ID of the table that is limited by the rule in Data Map.', example='odps.unit_test.tb_unit_test'),
 }
 
 model ListDataQualityRulesResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message'),
   pagingInfo?: {
     dataQualityRules?: [ 
       {
         checkingConfig?: {
-          referencedSamplesFilter?: string(name='ReferencedSamplesFilter', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
+          referencedSamplesFilter?: string(name='ReferencedSamplesFilter', description='The method that is used to query the referenced samples. To obtain some types of thresholds, you need to query reference values. In this example, an expression is used to indicate the query method of referenced samples.', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
           thresholds?: {
             critical?: {
-              operator?: string(name='Operator', example='>'),
-              value?: string(name='Value', example='100.0'),
-            }(name='Critical'),
+              operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+              value?: string(name='Value', description='The threshold value.', example='100.0'),
+            }(name='Critical', description='The threshold settings for critical alerts.'),
             expected?: {
-              operator?: string(name='Operator', example='>'),
-              value?: string(name='Value', example='100.0'),
-            }(name='Expected'),
+              operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+              value?: string(name='Value', description='The threshold value.', example='100.0'),
+            }(name='Expected', description='The expected threshold setting.'),
             warned?: {
-              operator?: string(name='Operator', example='>'),
-              value?: string(name='Value', example='100.0'),
-            }(name='Warned'),
-          }(name='Thresholds'),
-          type?: string(name='Type', example='Fixed'),
-        }(name='CheckingConfig'),
-        description?: string(name='Description', example='this is a odps _sql task'),
-        enabled?: boolean(name='Enabled', example='true'),
+              operator?: string(name='Operator', description='The comparison operator. Valid values:
+
+*   \\\\>
+*   \\\\>=
+*   <
+*   <=
+*   !=
+*   \\\\=', example='>'),
+              value?: string(name='Value', description='The threshold value.', example='100.0'),
+            }(name='Warned', description='The threshold settings for normal alerts.'),
+          }(name='Thresholds', description='The threshold settings.'),
+          type?: string(name='Type', description='The threshold calculation method. Valid values:
+
+*   Fixed
+*   Fluctation
+*   FluctationDiscreate
+*   Auto
+*   Average
+*   Variance', example='Fixed'),
+        }(name='CheckingConfig', description='The check settings for sample data.'),
+        description?: string(name='Description', description='The description of the rule. The description can be up to 500 characters in length.', example='this is a odps _sql task'),
+        enabled?: boolean(name='Enabled', description='Indicates whether the rule is enabled.', example='true'),
         errorHandlers?: [ 
           {
-            errorDataFilter?: string(name='ErrorDataFilter', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
-            type?: string(name='Type', example='SaveErrorData'),
+            errorDataFilter?: string(name='ErrorDataFilter', description='The SQL statement that is used to filter failed tasks. If the rule is defined by custom SQL statements, you must specify an SQL statement to filter failed tasks.', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
+            type?: string(name='Type', description='The type of the operation. Valid values:
+
+*   SaveErrorData', example='SaveErrorData'),
           }
-        ](name='ErrorHandlers'),
-        id?: long(name='Id', example='22130'),
-        name?: string(name='Name'),
-        projectId?: long(name='ProjectId', example='100001'),
+        ](name='ErrorHandlers', description='The operations that you can perform after the rule-based check fails.'),
+        id?: long(name='Id', description='The rule ID.', example='22130'),
+        name?: string(name='Name', description='The rule name.'),
+        projectId?: long(name='ProjectId', description='The DataWorks workspace ID.', example='100001'),
         samplingConfig?: {
-          metric?: string(name='Metric', example='Max'),
-          metricParameters?: string(name='MetricParameters', example='{ "Columns": [ "id", "name" ] , "SQL": "select count(1) from table;"}'),
-          samplingFilter?: string(name='SamplingFilter', example='id IS NULL'),
-          settingConfig?: string(name='SettingConfig', example='SET odps.sql.udf.timeout=600s; 
+          metric?: string(name='Metric', description='The metrics used for sampling. Valid values:
+
+*   Count: the number of rows in the table.
+*   Min: the minimum value of the field.
+*   Max: the maximum value of the field.
+*   Avg: the average value of the field.
+*   DistinctCount: the number of unique values of the field after deduplication.
+*   DistinctPercent: the percentage of the number of unique values of the field after deduplication to the number of rows in the table.
+*   DuplicatedCount: the number of duplicated values in the field.
+*   DuplicatedPercent: the percentage of the number of duplicated values of the field to the number of rows in the table.
+*   TableSize: the table size.
+*   NullValueCount: the number of rows in which the field is set to null.
+*   NullValuePercent: the percentage of the number of rows in which the field is set to null to the number of rows in the table.
+*   GroupCount: the field value and the number of rows for each field value.
+*   CountNotIn: the number of rows in which the field values are different from the referenced values that you specified in the rule.
+*   CountDistinctNotIn: the number of unique values that are different from the referenced values that you specified in the rule after deduplication.
+*   UserDefinedSql: indicates that the data is sampled by executing custom SQL statements.', example='Max'),
+          metricParameters?: string(name='MetricParameters', description='The parameters required for sampling.', example='{ "Columns": [ "id", "name" ] , "SQL": "select count(1) from table;"}'),
+          samplingFilter?: string(name='SamplingFilter', description='The statements that are used to filter unnecessary data during sampling. The statements can be up to 16,777,215 characters in length.', example='id IS NULL'),
+          settingConfig?: string(name='SettingConfig', description='The statements that are used to configure the parameters required for sampling before you execute the sampling statements. The statements can be up to 1,000 characters in length. Only the MaxCompute database is supported.', example='SET odps.sql.udf.timeout=600s; 
 SET odps.sql.python.version=cp27;'),
-        }(name='SamplingConfig'),
-        severity?: string(name='Severity', example='High'),
+        }(name='SamplingConfig', description='The settings for sampling.'),
+        severity?: string(name='Severity', description='The strength of the rule. Valid values:
+
+*   Normal
+*   High', example='High'),
         target?: {
-          databaseType?: string(name='DatabaseType', example='maxcompute'),
-          partitionSpec?: string(name='PartitionSpec', example='ds=$[yyyymmdd-1]'),
-          tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
-          type?: string(name='Type', example='Table'),
-        }(name='Target'),
-        templateCode?: string(name='TemplateCode', example='system::user_defined'),
-        tenantId?: long(name='TenantId', example='100001'),
+          databaseType?: string(name='DatabaseType', description='The type of the database to which the table belongs. Valid values:
+
+*   maxcompute
+*   emr
+*   cdh
+*   hologres
+*   analyticdb_for_postgresql
+*   analyticdb_for_mysql
+*   starrocks', example='maxcompute'),
+          partitionSpec?: string(name='PartitionSpec', description='The configuration of the partitioned table.', example='ds=$[yyyymmdd-1]'),
+          tableGuid?: string(name='TableGuid', description='The ID of the table that is limited by the rule in Data Map.', example='odps.unit_test.tb_unit_test'),
+          type?: string(name='Type', description='The type of the monitored object. Valid values:
+
+*   Table', example='Table'),
+        }(name='Target', description='The monitored object of the rule.'),
+        templateCode?: string(name='TemplateCode', description='The ID of the template used by the rule.', example='system::user_defined'),
+        tenantId?: long(name='TenantId', description='The ID of the DataWorks tenant.', example='100001'),
       }
-    ](name='DataQualityRules'),
-    pageNumber?: int32(name='PageNumber', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
-    totalCount?: int32(name='TotalCount', example='294'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='691CA452-D37A-4ED0-9441'),
+    ](name='DataQualityRules', description='The rules.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='294'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='691CA452-D37A-4ED0-9441'),
 }
 
 model ListDataQualityRulesResponse = {
@@ -5270,7 +5928,7 @@ model ListDataQualityRulesResponse = {
 }
 
 /**
- * @summary 质量监控规则分页查询
+ * @summary Queries a list of data quality monitoring rules by page.
  *
  * @param request ListDataQualityRulesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5297,7 +5955,7 @@ async function listDataQualityRulesWithOptions(request: ListDataQualityRulesRequ
 }
 
 /**
- * @summary 质量监控规则分页查询
+ * @summary Queries a list of data quality monitoring rules by page.
  *
  * @param request ListDataQualityRulesRequest
  * @return ListDataQualityRulesResponse
@@ -5630,6 +6288,7 @@ model ListDownstreamTaskInstancesResponseBody = {
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         owner?: string(name='Owner', example='100'),
+        periodNumber?: int32(name='PeriodNumber'),
         priority?: int32(name='Priority', example='1'),
         projectEnv?: string(name='ProjectEnv', example='Prod'),
         projectId?: long(name='ProjectId', example='100'),
@@ -5726,6 +6385,7 @@ model ListDownstreamTasksResponseBody = {
         }(name='DataSource'),
         description?: string(name='Description', example='test'),
         id?: long(name='Id', example='1234'),
+        instanceMode?: string(name='InstanceMode'),
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         name?: string(name='Name'),
@@ -5741,6 +6401,7 @@ model ListDownstreamTasksResponseBody = {
           image?: string(name='Image', example='i-xxxxxx'),
           resourceGroupId?: string(name='ResourceGroupId', example='S_res_group_524258031846018_1684XXXXXXXXX'),
         }(name='RuntimeResource'),
+        stepType?: string(name='StepType'),
         tenantId?: long(name='TenantId', example='1'),
         timeout?: int32(name='Timeout', example='3600'),
         trigger?: {
@@ -6426,42 +7087,56 @@ async function listNodes(request: ListNodesRequest): ListNodesResponse {
 }
 
 model ListProjectMembersRequest {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='62136'),
-  roleCodes?: [ string ](name='RoleCodes'),
-  userIds?: [ string ](name='UserIds'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10'),
+  projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.
+
+This parameter is required.', example='62136'),
+  roleCodes?: [ string ](name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.'),
+  userIds?: [ string ](name='UserIds', description='The IDs of the accounts used by the members in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=a2c4g.11186623.0.0.7f96340a3HFgqS), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the IDs of the accounts used by the members in the workspace.'),
 }
 
 model ListProjectMembersShrinkRequest {
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='62136'),
-  roleCodesShrink?: string(name='RoleCodes'),
-  userIdsShrink?: string(name='UserIds'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10'),
+  projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the Workspace page to query the ID.
+
+You must configure this parameter to specify the DataWorks workspace to which the API operation is applied.
+
+This parameter is required.', example='62136'),
+  roleCodesShrink?: string(name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.'),
+  userIdsShrink?: string(name='UserIds', description='The IDs of the accounts used by the members in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=a2c4g.11186623.0.0.7f96340a3HFgqS), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the IDs of the accounts used by the members in the workspace.'),
 }
 
 model ListProjectMembersResponseBody = {
   pagingInfo?: {
-    pageNumber?: int32(name='PageNumber', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
     projectMembers?: [ 
       {
-        projectId?: long(name='ProjectId', example='62136'),
+        projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace.', example='62136'),
         roles?: [ 
           {
-            code?: string(name='Code', example='role_project_guest'),
-            name?: string(name='Name'),
-            type?: string(name='Type', example='System'),
+            code?: string(name='Code', description='The code of the role.', example='role_project_guest'),
+            name?: string(name='Name', description='The name of the role.'),
+            type?: string(name='Type', description='The type of the role. Valid values:
+
+*   UserCustom: custom role
+*   System: built-in role', example='System'),
           }
-        ](name='Roles'),
-        status?: string(name='Status', example='Normal'),
-        userId?: string(name='UserId', example='123422344899'),
+        ](name='Roles', description='The roles that are assigned to the member.'),
+        status?: string(name='Status', description='The status of the member. Valid values:
+
+*   Normal
+*   Forbidden', example='Normal'),
+        userId?: string(name='UserId', description='The ID of the account used by the member.', example='123422344899'),
       }
-    ](name='ProjectMembers'),
-    totalCount?: int32(name='TotalCount', example='12'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='9FBBBB1F-DD5E-5D8E-8F50-37F77460F056'),
+    ](name='ProjectMembers', description='The members in the workspace.'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='12'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='9FBBBB1F-DD5E-5D8E-8F50-37F77460F056'),
 }
 
 model ListProjectMembersResponse = {
@@ -6471,7 +7146,7 @@ model ListProjectMembersResponse = {
 }
 
 /**
- * @summary 分页查询工作空间成员详情
+ * @summary Queries details about members in a workspace.
  *
  * @param tmpReq ListProjectMembersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6521,7 +7196,7 @@ async function listProjectMembersWithOptions(tmpReq: ListProjectMembersRequest, 
 }
 
 /**
- * @summary 分页查询工作空间成员详情
+ * @summary Queries details about members in a workspace.
  *
  * @param request ListProjectMembersRequest
  * @return ListProjectMembersResponse
@@ -7131,7 +7806,9 @@ model ListTaskInstancesRequest {
   taskId?: long(name='TaskId', example='1234'),
   taskIds?: [ long ](name='TaskIds'),
   taskName?: string(name='TaskName'),
-  taskType?: int32(name='TaskType', example='ODPS_SQL'),
+  taskType?: string(name='TaskType', example='ODPS_SQL'),
+  triggerRecurrence?: string(name='TriggerRecurrence'),
+  triggerType?: string(name='TriggerType'),
   workflowId?: long(name='WorkflowId', example='1234'),
   workflowInstanceId?: long(name='WorkflowInstanceId', example='1234'),
   workflowInstanceType?: string(name='WorkflowInstanceType', example='Normal'),
@@ -7151,7 +7828,9 @@ model ListTaskInstancesShrinkRequest {
   taskId?: long(name='TaskId', example='1234'),
   taskIdsShrink?: string(name='TaskIds'),
   taskName?: string(name='TaskName'),
-  taskType?: int32(name='TaskType', example='ODPS_SQL'),
+  taskType?: string(name='TaskType', example='ODPS_SQL'),
+  triggerRecurrence?: string(name='TriggerRecurrence'),
+  triggerType?: string(name='TriggerType'),
   workflowId?: long(name='WorkflowId', example='1234'),
   workflowInstanceId?: long(name='WorkflowInstanceId', example='1234'),
   workflowInstanceType?: string(name='WorkflowInstanceType', example='Normal'),
@@ -7176,6 +7855,7 @@ model ListTaskInstancesResponseBody = {
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         owner?: string(name='Owner', example='1000'),
+        periodNumber?: int32(name='PeriodNumber'),
         priority?: int32(name='Priority', example='1'),
         projectEnv?: string(name='ProjectEnv', example='Prod'),
         projectId?: long(name='ProjectId', example='100'),
@@ -7274,6 +7954,12 @@ async function listTaskInstancesWithOptions(tmpReq: ListTaskInstancesRequest, ru
   }
   if (!Util.isUnset(request.taskType)) {
     body['TaskType'] = request.taskType;
+  }
+  if (!Util.isUnset(request.triggerRecurrence)) {
+    body['TriggerRecurrence'] = request.triggerRecurrence;
+  }
+  if (!Util.isUnset(request.triggerType)) {
+    body['TriggerType'] = request.triggerType;
   }
   if (!Util.isUnset(request.workflowId)) {
     body['WorkflowId'] = request.workflowId;
@@ -7405,6 +8091,7 @@ model ListTasksResponseBody = {
         }(name='DataSource'),
         description?: string(name='Description', example='test'),
         id?: long(name='Id', example='1234'),
+        instanceMode?: string(name='InstanceMode'),
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         name?: string(name='Name'),
@@ -7539,6 +8226,7 @@ model ListUpstreamTaskInstancesResponseBody = {
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         owner?: string(name='Owner', example='1000'),
+        periodNumber?: int32(name='PeriodNumber'),
         priority?: int32(name='Priority', example='1'),
         projectEnv?: string(name='ProjectEnv', example='Prod'),
         projectId?: long(name='ProjectId', example='100'),
@@ -7635,6 +8323,7 @@ model ListUpstreamTasksResponseBody = {
         }(name='DataSource'),
         description?: string(name='Description', example='test'),
         id?: long(name='Id', example='1234'),
+        instanceMode?: string(name='InstanceMode'),
         modifyTime?: long(name='ModifyTime', example='1710239005403'),
         modifyUser?: string(name='ModifyUser', example='1000'),
         name?: string(name='Name'),
@@ -7650,6 +8339,7 @@ model ListUpstreamTasksResponseBody = {
           image?: string(name='Image', example='i-xxxxxx'),
           resourceGroupId?: string(name='ResourceGroupId', example='S_res_group_524258031846018_1684XXXXXXXXX'),
         }(name='RuntimeResource'),
+        stepType?: string(name='StepType'),
         tenantId?: long(name='TenantId', example='1'),
         timeout?: int32(name='Timeout', example='3600'),
         trigger?: {
@@ -8611,19 +9301,35 @@ async function resumeTaskInstances(request: ResumeTaskInstancesRequest): ResumeT
 }
 
 model RevokeMemberProjectRolesRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='105149'),
-  roleCodes?: [ string ](name='RoleCodes', description='This parameter is required.'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://dataworks.console.aliyun.com/workspace/list) and go to the Workspace page to query the ID.
+
+This parameter is required.', example='105149'),
+  roleCodes?: [ string ](name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.
+
+You must configure this parameter to specify the roles that you want to revoke from the member in the workspace.
+
+This parameter is required.'),
+  userId?: string(name='UserId', description='The ID of the account used by the member in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.51d7281fjgBRmo), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the ID of the account used by the member in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model RevokeMemberProjectRolesShrinkRequest {
-  projectId?: long(name='ProjectId', description='This parameter is required.', example='105149'),
-  roleCodesShrink?: string(name='RoleCodes', description='This parameter is required.'),
-  userId?: string(name='UserId', description='This parameter is required.', example='123422344899'),
+  projectId?: long(name='ProjectId', description='The DataWorks workspace ID. You can log on to the [DataWorks console](https://dataworks.console.aliyun.com/workspace/list) and go to the Workspace page to query the ID.
+
+This parameter is required.', example='105149'),
+  roleCodesShrink?: string(name='RoleCodes', description='The codes of the roles in the workspace. You can call the [ListProjectRoles](https://help.aliyun.com/zh/dataworks/developer-reference/api-dataworks-public-2024-05-18-listprojectroles?spm=a2c4g.11186623.0.0.43841daeywTtF3) operation to query the codes of all roles in the workspace.
+
+You must configure this parameter to specify the roles that you want to revoke from the member in the workspace.
+
+This parameter is required.'),
+  userId?: string(name='UserId', description='The ID of the account used by the member in the workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console?spm=openapi-amp.newDocPublishment.0.0.51d7281fjgBRmo), choose More > Management Center in the left-side navigation pane, select the desired workspace on the Management Center page, and then click Go to Management Center. In the left-side navigation pane of the SettingCenter page, click Tenant Members and Roles. On the Tenant Members and Roles page, view the ID of the account used by the member in the workspace.
+
+This parameter is required.', example='123422344899'),
 }
 
 model RevokeMemberProjectRolesResponseBody = {
-  requestId?: string(name='RequestId', example='676271D6-53B4-57BE-89FA-72F7AE1418DF'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to query logs and troubleshoot issues.', example='676271D6-53B4-57BE-89FA-72F7AE1418DF'),
 }
 
 model RevokeMemberProjectRolesResponse = {
@@ -8633,7 +9339,7 @@ model RevokeMemberProjectRolesResponse = {
 }
 
 /**
- * @summary 撤销工作空间成员的角色
+ * @summary Revokes roles that are assigned to a member in a workspace.
  *
  * @param tmpReq RevokeMemberProjectRolesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -8674,7 +9380,7 @@ async function revokeMemberProjectRolesWithOptions(tmpReq: RevokeMemberProjectRo
 }
 
 /**
- * @summary 撤销工作空间成员的角色
+ * @summary Revokes roles that are assigned to a member in a workspace.
  *
  * @param request RevokeMemberProjectRolesRequest
  * @return RevokeMemberProjectRolesResponse
@@ -9065,6 +9771,149 @@ async function triggerSchedulerTaskInstanceWithOptions(request: TriggerScheduler
 async function triggerSchedulerTaskInstance(request: TriggerSchedulerTaskInstanceRequest): TriggerSchedulerTaskInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   return triggerSchedulerTaskInstanceWithOptions(request, runtime);
+}
+
+model UpdateAlertRuleRequest {
+  enabled?: boolean(name='Enabled', example='true'),
+  id?: long(name='Id', example='105412'),
+  name?: string(name='Name', example='collection_name'),
+  notification?: {
+    channels?: [ string ](name='Channels'),
+    intervalInMinutes?: int32(name='IntervalInMinutes', example='30'),
+    maximum?: int32(name='Maximum', example='3'),
+    receivers?: [ 
+      {
+        extension?: string(name='Extension', example='{"atAll":true}'),
+        receiverType?: string(name='ReceiverType', example='TaskOwner'),
+        receiverValues?: [ string ](name='ReceiverValues'),
+      }
+    ](name='Receivers'),
+    silenceEndTime?: string(name='SilenceEndTime', example='00:00:00'),
+    silenceStartTime?: string(name='SilenceStartTime', example='00:00:00'),
+  }(name='Notification'),
+  owner?: string(name='Owner', example='193379****'),
+  triggerCondition?: {
+    extension?: {
+      cycleUnfinished?: {
+        cycleAndTime?: [ 
+          {
+            cycleId?: int32(name='CycleId', example='1'),
+            time?: string(name='Time', example='01:00'),
+          }
+        ](name='CycleAndTime'),
+      }(name='CycleUnfinished'),
+      error?: {
+        autoRerunAlert?: boolean(name='AutoRerunAlert', example='true'),
+        streamTaskIds?: [ long ](name='StreamTaskIds'),
+      }(name='Error'),
+      instanceErrorCount?: {
+        count?: int32(name='Count', example='10'),
+      }(name='InstanceErrorCount'),
+      instanceErrorPercentage?: {
+        percentage?: int32(name='Percentage', example='10'),
+      }(name='InstanceErrorPercentage'),
+      instanceTransferFluctuate?: {
+        percentage?: int32(name='Percentage', example='10'),
+        trend?: string(name='Trend', example='abs'),
+      }(name='InstanceTransferFluctuate'),
+      timeout?: {
+        timeoutInMinutes?: int32(name='TimeoutInMinutes', example='10'),
+      }(name='Timeout'),
+      unFinished?: {
+        unFinishedTime?: string(name='UnFinishedTime', example='12:00'),
+      }(name='UnFinished'),
+    }(name='Extension'),
+    target?: {
+      allowTasks?: [ long ](name='AllowTasks'),
+      ids?: [ long ](name='Ids'),
+      type?: string(name='Type', example='Task'),
+    }(name='Target'),
+    type?: string(name='Type', example='ERROR'),
+  }(name='TriggerCondition'),
+}
+
+model UpdateAlertRuleShrinkRequest {
+  enabled?: boolean(name='Enabled', example='true'),
+  id?: long(name='Id', example='105412'),
+  name?: string(name='Name', example='collection_name'),
+  notificationShrink?: string(name='Notification'),
+  owner?: string(name='Owner', example='193379****'),
+  triggerConditionShrink?: string(name='TriggerCondition'),
+}
+
+model UpdateAlertRuleResponseBody = {
+  requestId?: string(name='RequestId', example='D85FEE2B-6174-5817-AF9E-FDD02FEDA5BC'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateAlertRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAlertRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建自定义监控报警规则
+ *
+ * @param tmpReq UpdateAlertRuleRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAlertRuleResponse
+ */
+async function updateAlertRuleWithOptions(tmpReq: UpdateAlertRuleRequest, runtime: Util.RuntimeOptions): UpdateAlertRuleResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateAlertRuleShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.notification)) {
+    request.notificationShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.notification, 'Notification', 'json');
+  }
+  if (!Util.isUnset(tmpReq.triggerCondition)) {
+    request.triggerConditionShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.triggerCondition, 'TriggerCondition', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.enabled)) {
+    query['Enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.notificationShrink)) {
+    query['Notification'] = request.notificationShrink;
+  }
+  if (!Util.isUnset(request.owner)) {
+    query['Owner'] = request.owner;
+  }
+  if (!Util.isUnset(request.triggerConditionShrink)) {
+    query['TriggerCondition'] = request.triggerConditionShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateAlertRule',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建自定义监控报警规则
+ *
+ * @param request UpdateAlertRuleRequest
+ * @return UpdateAlertRuleResponse
+ */
+async function updateAlertRule(request: UpdateAlertRuleRequest): UpdateAlertRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateAlertRuleWithOptions(request, runtime);
 }
 
 model UpdateDIAlarmRuleRequest {
