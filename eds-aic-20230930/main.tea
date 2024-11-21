@@ -166,7 +166,8 @@ model BackupFileRequest {
   androidInstanceIdList?: [ string ](name='AndroidInstanceIdList', description='This parameter is required.'),
   backupFilePath?: string(name='BackupFilePath', description='This parameter is required.'),
   description?: string(name='Description'),
-  sourceFilePathList?: [ string ](name='SourceFilePathList', description='This parameter is required.'),
+  sourceAppList?: [ string ](name='SourceAppList'),
+  sourceFilePathList?: [ string ](name='SourceFilePathList'),
   uploadEndpoint?: string(name='UploadEndpoint', example='oss-cn-shanghai-internal.aliyuncs.com'),
   uploadType?: string(name='UploadType', example='OSS'),
 }
@@ -208,6 +209,9 @@ async function backupFileWithOptions(request: BackupFileRequest, runtime: Util.R
   }
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.sourceAppList)) {
+    query['SourceAppList'] = request.sourceAppList;
   }
   if (!Util.isUnset(request.sourceFilePathList)) {
     query['SourceFilePathList'] = request.sourceFilePathList;
@@ -452,7 +456,7 @@ async function createAndroidInstanceGroup(request: CreateAndroidInstanceGroupReq
 }
 
 model CreateAppRequest {
-  appName?: string(name='AppName', description='This parameter is required.'),
+  appName?: string(name='AppName'),
   bizRegionId?: string(name='BizRegionId'),
   description?: string(name='Description'),
   fileName?: string(name='FileName', example='testApp.apk'),
@@ -667,7 +671,13 @@ model CreatePolicyGroupRequest {
   localDrive?: string(name='LocalDrive', example='off'),
   lockResolution?: string(name='LockResolution'),
   netRedirectPolicy?: {
+    customProxy?: string(name='CustomProxy'),
+    hostAddr?: string(name='HostAddr'),
     netRedirect?: string(name='NetRedirect'),
+    port?: string(name='Port'),
+    proxyPassword?: string(name='ProxyPassword'),
+    proxyType?: string(name='ProxyType'),
+    proxyUserName?: string(name='ProxyUserName'),
   }(name='NetRedirectPolicy'),
   policyGroupName?: string(name='PolicyGroupName'),
   resolutionHeight?: int32(name='ResolutionHeight', example='1280'),
@@ -1421,6 +1431,7 @@ model DescribeBackupFilesRequest {
   maxResults?: long(name='MaxResults', example='10'),
   nextToken?: string(name='NextToken', example='AAAAAV3MpHK1AP0pfERHZN5pu6l5V9uON****'),
   startTime?: string(name='StartTime', example='2024-05-23 10:00:00'),
+  statusList?: [ string ](name='StatusList'),
 }
 
 model DescribeBackupFilesResponseBody = {
@@ -1437,8 +1448,11 @@ model DescribeBackupFilesResponseBody = {
       gmtCreated?: string(name='GmtCreated', example='2024-05-15 17:33:59'),
       gmtModified?: string(name='GmtModified', example='2024-05-15 17:33:59'),
       instanceGroupId?: string(name='InstanceGroupId', example='ag-58ftsoo90p0qi****'),
+      regionId?: string(name='RegionId'),
+      sourceAppInfoList?: [ string ](name='SourceAppInfoList'),
       sourceFilePathList?: [ string ](name='SourceFilePathList'),
       status?: string(name='Status', example='AVAILABLE'),
+      taskId?: string(name='TaskId'),
       uploadEndpoint?: string(name='UploadEndpoint', example='oss-cn-hangzhou.aliyuncs.com'),
       uploadType?: string(name='UploadType', example='OSS'),
     }
@@ -1495,6 +1509,9 @@ async function describeBackupFilesWithOptions(request: DescribeBackupFilesReques
   }
   if (!Util.isUnset(request.startTime)) {
     query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.statusList)) {
+    query['StatusList'] = request.statusList;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1759,10 +1776,15 @@ async function describeKeyPairs(request: DescribeKeyPairsRequest): DescribeKeyPa
   return describeKeyPairsWithOptions(request, runtime);
 }
 
+model DescribeRegionsRequest {
+  acceptLanguage?: string(name='AcceptLanguage'),
+}
+
 model DescribeRegionsResponseBody = {
   regionModels?: [ 
     {
       regionId?: string(name='RegionId', example='cn-hangzhou'),
+      regionName?: string(name='RegionName'),
     }
   ](name='RegionModels'),
   requestId?: string(name='RequestId', example='A87B3769-0D05-5383-B236-5798B455****'),
@@ -1781,8 +1803,15 @@ model DescribeRegionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeRegionsResponse
  */
-async function describeRegionsWithOptions(runtime: Util.RuntimeOptions): DescribeRegionsResponse {
-  var req = new OpenApi.OpenApiRequest{};
+async function describeRegionsWithOptions(request: DescribeRegionsRequest, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['AcceptLanguage'] = request.acceptLanguage;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
   var params = new OpenApi.Params{
     action = 'DescribeRegions',
     version = '2023-09-30',
@@ -1800,11 +1829,12 @@ async function describeRegionsWithOptions(runtime: Util.RuntimeOptions): Describ
 /**
  * @summary 查询地域
  *
+ * @param request DescribeRegionsRequest
  * @return DescribeRegionsResponse
  */
-async function describeRegions(): DescribeRegionsResponse {
+async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
-  return describeRegionsWithOptions(runtime);
+  return describeRegionsWithOptions(request, runtime);
 }
 
 model DescribeSpecRequest {
@@ -1907,6 +1937,8 @@ model DescribeTasksRequest {
 model DescribeTasksResponseBody = {
   data?: [ 
     {
+      errorCode?: string(name='ErrorCode'),
+      errorMsg?: string(name='ErrorMsg'),
       finishTime?: string(name='FinishTime', example='2022-10-11T08:53:32Z'),
       invokeId?: string(name='InvokeId', example='B8ED2BA9-0C6A-5643-818F-B5D60A64****'),
       regionId?: string(name='RegionId', example='cn-hangzhou'),
@@ -2253,65 +2285,6 @@ async function fetchFile(request: FetchFileRequest): FetchFileResponse {
   return fetchFileWithOptions(request, runtime);
 }
 
-model GetAdbSecureRequest {
-  instanceIds?: [ string ](name='InstanceIds'),
-}
-
-model GetAdbSecureResponseBody = {
-  data?: {
-    adbSecureList?: [ 
-      {
-        instanceId?: string(name='InstanceId', example='acp-5hh431emkt6u*****'),
-        status?: int32(name='Status', example='1'),
-      }
-    ](name='AdbSecureList'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='1A923337-44D9-5CAD-9A53-95084BD4****'),
-}
-
-model GetAdbSecureResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetAdbSecureResponseBody(name='body'),
-}
-
-/**
- * @param request GetAdbSecureRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetAdbSecureResponse
- */
-async function getAdbSecureWithOptions(request: GetAdbSecureRequest, runtime: Util.RuntimeOptions): GetAdbSecureResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceIds)) {
-    query['InstanceIds'] = request.instanceIds;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetAdbSecure',
-    version = '2023-09-30',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request GetAdbSecureRequest
- * @return GetAdbSecureResponse
- */
-async function getAdbSecure(request: GetAdbSecureRequest): GetAdbSecureResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getAdbSecureWithOptions(request, runtime);
-}
-
 model ImportKeyPairRequest {
   keyPairName?: string(name='KeyPairName', description='This parameter is required.', example='TestKeyPairName'),
   publicKeyBody?: string(name='PublicKeyBody', description='This parameter is required.', example='ABC1234567*****'),
@@ -2453,7 +2426,13 @@ model ListPolicyGroupsResponseBody = {
       localDrive?: string(name='LocalDrive', example='off'),
       lockResolution?: string(name='LockResolution'),
       netRedirectPolicy?: {
+        customProxy?: string(name='CustomProxy'),
+        hostAddr?: string(name='HostAddr'),
         netRedirect?: string(name='NetRedirect'),
+        port?: string(name='Port'),
+        proxyPassword?: string(name='ProxyPassword'),
+        proxyType?: string(name='ProxyType'),
+        proxyUserName?: string(name='ProxyUserName'),
       }(name='NetRedirectPolicy'),
       policyGroupId?: string(name='PolicyGroupId', example='pg-9q6o8qpiy8opkj****'),
       policyGroupName?: string(name='PolicyGroupName'),
@@ -2776,7 +2755,13 @@ model ModifyPolicyGroupRequest {
   localDrive?: string(name='LocalDrive', example='off'),
   lockResolution?: string(name='LockResolution'),
   netRedirectPolicy?: {
+    customProxy?: string(name='CustomProxy'),
+    hostAddr?: string(name='HostAddr'),
     netRedirect?: string(name='NetRedirect'),
+    port?: string(name='Port'),
+    proxyPassword?: string(name='ProxyPassword'),
+    proxyType?: string(name='ProxyType'),
+    proxyUserName?: string(name='ProxyUserName'),
   }(name='NetRedirectPolicy'),
   policyGroupId?: string(name='PolicyGroupId', example='pg-4bi18ebi9tfjh****'),
   policyGroupName?: string(name='PolicyGroupName'),
@@ -3283,66 +3268,6 @@ async function sendFileWithOptions(request: SendFileRequest, runtime: Util.Runti
 async function sendFile(request: SendFileRequest): SendFileResponse {
   var runtime = new Util.RuntimeOptions{};
   return sendFileWithOptions(request, runtime);
-}
-
-model SetAdbSecureRequest {
-  instanceIds?: [ string ](name='InstanceIds'),
-  status?: int32(name='Status', description='This parameter is required.', example='1'),
-}
-
-model SetAdbSecureResponseBody = {
-  data?: {
-    failCount?: int32(name='FailCount', example='0'),
-    instanceIds?: [ string ](name='InstanceIds'),
-    totalCount?: int32(name='TotalCount', example='100'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='69BCBBE4-FCF2-59B8-AD9D-531EB422****'),
-}
-
-model SetAdbSecureResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: SetAdbSecureResponseBody(name='body'),
-}
-
-/**
- * @param request SetAdbSecureRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return SetAdbSecureResponse
- */
-async function setAdbSecureWithOptions(request: SetAdbSecureRequest, runtime: Util.RuntimeOptions): SetAdbSecureResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.instanceIds)) {
-    query['InstanceIds'] = request.instanceIds;
-  }
-  if (!Util.isUnset(request.status)) {
-    query['Status'] = request.status;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'SetAdbSecure',
-    version = '2023-09-30',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @param request SetAdbSecureRequest
- * @return SetAdbSecureResponse
- */
-async function setAdbSecure(request: SetAdbSecureRequest): SetAdbSecureResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return setAdbSecureWithOptions(request, runtime);
 }
 
 model StartAndroidInstanceRequest {

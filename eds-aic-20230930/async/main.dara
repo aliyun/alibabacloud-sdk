@@ -89,7 +89,8 @@ model BackupFileRequest {
   androidInstanceIdList: [ string ](name='AndroidInstanceIdList', description='This parameter is required.', position='Query'),
   backupFilePath: string(name='BackupFilePath', description='This parameter is required.', position='Query'),
   description?: string(name='Description', position='Query'),
-  sourceFilePathList: [ string ](name='SourceFilePathList', description='This parameter is required.', position='Query'),
+  sourceAppList?: [ string ](name='SourceAppList', position='Query'),
+  sourceFilePathList?: [ string ](name='SourceFilePathList', position='Query'),
   uploadEndpoint?: string(name='UploadEndpoint', example='oss-cn-shanghai-internal.aliyuncs.com', position='Query'),
   uploadType?: string(name='UploadType', example='OSS', position='Query'),
 }
@@ -204,7 +205,7 @@ async function createAndroidInstanceGroup(request: CreateAndroidInstanceGroupReq
 }
 
 model CreateAppRequest {
-  appName: string(name='AppName', description='This parameter is required.', position='Query'),
+  appName?: string(name='AppName', position='Query'),
   bizRegionId?: string(name='BizRegionId', position='Query'),
   description?: string(name='Description', position='Query'),
   fileName?: string(name='FileName', example='testApp.apk', position='Query'),
@@ -297,7 +298,13 @@ model CreatePolicyGroupRequest {
   localDrive?: string(name='LocalDrive', example='off', position='Body'),
   lockResolution?: string(name='LockResolution', position='Body'),
   netRedirectPolicy?: {
+    customProxy?: string(name='CustomProxy'),
+    hostAddr?: string(name='HostAddr'),
     netRedirect?: string(name='NetRedirect'),
+    port?: string(name='Port'),
+    proxyPassword?: string(name='ProxyPassword'),
+    proxyType?: string(name='ProxyType'),
+    proxyUserName?: string(name='ProxyUserName'),
   }(name='NetRedirectPolicy', shrink='json', position='Body'),
   policyGroupName?: string(name='PolicyGroupName', position='Body'),
   resolutionHeight?: int32(name='ResolutionHeight', example='1280', position='Body'),
@@ -642,6 +649,7 @@ model DescribeBackupFilesRequest {
   maxResults?: long(name='MaxResults', example='10', minimum=0, maximum=100, position='Query'),
   nextToken?: string(name='NextToken', example='AAAAAV3MpHK1AP0pfERHZN5pu6l5V9uON****', position='Query'),
   startTime?: string(name='StartTime', example='2024-05-23 10:00:00', position='Query'),
+  statusList?: [ string ](name='StatusList', position='Query'),
 }
 
 model DescribeBackupFilesResponseBody = {
@@ -658,8 +666,11 @@ model DescribeBackupFilesResponseBody = {
       gmtCreated?: string(name='GmtCreated', example='2024-05-15 17:33:59'),
       gmtModified?: string(name='GmtModified', example='2024-05-15 17:33:59'),
       instanceGroupId?: string(name='InstanceGroupId', example='ag-58ftsoo90p0qi****'),
+      regionId?: string(name='RegionId'),
+      sourceAppInfoList?: [ string ](name='SourceAppInfoList'),
       sourceFilePathList?: [ string ](name='SourceFilePathList'),
       status?: string(name='Status', example='AVAILABLE'),
+      taskId?: string(name='TaskId'),
       uploadEndpoint?: string(name='UploadEndpoint', example='oss-cn-hangzhou.aliyuncs.com'),
       uploadType?: string(name='UploadType', example='OSS'),
     }
@@ -804,12 +815,14 @@ async function describeKeyPairs(request: DescribeKeyPairsRequest): DescribeKeyPa
 }
 
 model DescribeRegionsRequest {
+  acceptLanguage?: string(name='AcceptLanguage', position='Query'),
 }
 
 model DescribeRegionsResponseBody = {
   regionModels?: [ 
     {
       regionId?: string(name='RegionId', example='cn-hangzhou'),
+      regionName?: string(name='RegionName'),
     }
   ](name='RegionModels'),
   requestId?: string(name='RequestId', example='A87B3769-0D05-5383-B236-5798B455****'),
@@ -883,6 +896,8 @@ model DescribeTasksRequest {
 model DescribeTasksResponseBody = {
   data?: [ 
     {
+      errorCode?: string(name='ErrorCode'),
+      errorMsg?: string(name='ErrorMsg'),
       finishTime?: string(name='FinishTime', example='2022-10-11T08:53:32Z'),
       invokeId?: string(name='InvokeId', example='B8ED2BA9-0C6A-5643-818F-B5D60A64****'),
       regionId?: string(name='RegionId', example='cn-hangzhou'),
@@ -1027,37 +1042,6 @@ async function fetchFile(request: FetchFileRequest): FetchFileResponse {
   return @handler.do('RPC', 'FetchFile', 'POST', '/', 'json', false, 'json', request);
 }
 
-model GetAdbSecureRequest {
-  instanceIds?: [ string ](name='InstanceIds', position='Query'),
-}
-
-model GetAdbSecureResponseBody = {
-  data?: {
-    adbSecureList?: [ 
-      {
-        instanceId?: string(name='InstanceId', example='acp-5hh431emkt6u*****'),
-        status?: int32(name='Status', example='1'),
-      }
-    ](name='AdbSecureList'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='1A923337-44D9-5CAD-9A53-95084BD4****'),
-}
-
-model GetAdbSecureResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetAdbSecureResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of GetAdbSecure  GetAdbSecureRequest
-  * @return GetAdbSecureResponse
- */
-async function getAdbSecure(request: GetAdbSecureRequest): GetAdbSecureResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetAdbSecure', 'POST', '/', 'json', false, 'json', request);
-}
-
 model ImportKeyPairRequest {
   keyPairName: string(name='KeyPairName', description='This parameter is required.', example='TestKeyPairName', minLength=1, maxLength=128, position='Query'),
   publicKeyBody: string(name='PublicKeyBody', description='This parameter is required.', example='ABC1234567*****', minLength=1, maxLength=1024, position='Query'),
@@ -1130,7 +1114,13 @@ model ListPolicyGroupsResponseBody = {
       localDrive?: string(name='LocalDrive', example='off'),
       lockResolution?: string(name='LockResolution'),
       netRedirectPolicy?: {
+        customProxy?: string(name='CustomProxy'),
+        hostAddr?: string(name='HostAddr'),
         netRedirect?: string(name='NetRedirect'),
+        port?: string(name='Port'),
+        proxyPassword?: string(name='ProxyPassword'),
+        proxyType?: string(name='ProxyType'),
+        proxyUserName?: string(name='ProxyUserName'),
       }(name='NetRedirectPolicy'),
       policyGroupId?: string(name='PolicyGroupId', example='pg-9q6o8qpiy8opkj****'),
       policyGroupName?: string(name='PolicyGroupName'),
@@ -1263,7 +1253,13 @@ model ModifyPolicyGroupRequest {
   localDrive?: string(name='LocalDrive', example='off', position='Body'),
   lockResolution?: string(name='LockResolution', position='Body'),
   netRedirectPolicy?: {
+    customProxy?: string(name='CustomProxy'),
+    hostAddr?: string(name='HostAddr'),
     netRedirect?: string(name='NetRedirect'),
+    port?: string(name='Port'),
+    proxyPassword?: string(name='ProxyPassword'),
+    proxyType?: string(name='ProxyType'),
+    proxyUserName?: string(name='ProxyUserName'),
   }(name='NetRedirectPolicy', shrink='json', position='Body'),
   policyGroupId?: string(name='PolicyGroupId', example='pg-4bi18ebi9tfjh****', position='Body'),
   policyGroupName?: string(name='PolicyGroupName', position='Body'),
@@ -1456,35 +1452,6 @@ model SendFileResponse = {
 async function sendFile(request: SendFileRequest): SendFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SendFile', 'POST', '/', 'json', false, 'json', request);
-}
-
-model SetAdbSecureRequest {
-  instanceIds?: [ string ](name='InstanceIds', position='Query'),
-  status: int32(name='Status', description='This parameter is required.', example='1', position='Query'),
-}
-
-model SetAdbSecureResponseBody = {
-  data?: {
-    failCount?: int32(name='FailCount', example='0'),
-    instanceIds?: [ string ](name='InstanceIds'),
-    totalCount?: int32(name='TotalCount', example='100'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='69BCBBE4-FCF2-59B8-AD9D-531EB422****'),
-}
-
-model SetAdbSecureResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: SetAdbSecureResponseBody(name='body'),
-}
-
-/**
-  * @param request  the request parameters of SetAdbSecure  SetAdbSecureRequest
-  * @return SetAdbSecureResponse
- */
-async function setAdbSecure(request: SetAdbSecureRequest): SetAdbSecureResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'SetAdbSecure', 'POST', '/', 'json', false, 'json', request);
 }
 
 model StartAndroidInstanceRequest {
