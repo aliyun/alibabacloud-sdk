@@ -1708,36 +1708,56 @@ async function createEditingProject(request: CreateEditingProjectRequest): Creat
 }
 
 model CreateLiveRecordTemplateRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The name of the template.
 
 This parameter is required.'),
   recordFormat?: [ 
     {
-      cycleDuration?: int32(name='CycleDuration', example='3600'),
-      format?: string(name='Format', description='格式
+      cycleDuration?: int32(name='CycleDuration', description='The duration of the recording cycle. Unit: seconds. If you do not specify this parameter, the default value 6 hours is used.
+
+> 
+
+*   If a live stream is interrupted during a recording cycle but is resumed within 3 minutes, the stream is recorded in the same recording before and after the interruption.
+
+*   If a live stream is interrupted for more than 3 minutes, a new recording is generated. To change the default stream interruption time, submit a ticket.', example='3600'),
+      format?: string(name='Format', description='The format.
+
+>  If you set this parameter to m3u8, you must also specify the SliceOssObjectPrefix and SliceDuration parameters.
 
 This parameter is required.', example='m3u8'),
-      ossObjectPrefix?: string(name='OssObjectPrefix', description='Oss对象名，不包含后缀', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
-      sliceDuration?: int32(name='SliceDuration', description='切片时长', example='30'),
-      sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='切片Oss对象名，不包含后缀', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
+      ossObjectPrefix?: string(name='OssObjectPrefix', description='The name of the recording file that is stored in Object Storage Service (OSS).
+
+*   The name must be less than 256 bytes in length and can contain the {JobId}, {Sequence}, {StartTime}, {EndTime}, {EscapedStartTime}, and {EscapedEndTime} variables.
+*   The name must contain the {StartTime} and {EndTime} variables or the {EscapedStartTime} and {EscapedEndTime} variables.', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
+      sliceDuration?: int32(name='SliceDuration', description='The duration of a single segment. Unit: seconds.
+
+>  This parameter takes effect only if you set Format to m3u8.
+
+If you do not specify this parameter, the default value 30 seconds is used. Valid values: 5 to 30.', example='30'),
+      sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='The name of the TS segment.
+
+>  This parameter is required only if you set Format to m3u8.
+
+*   By default, the duration of a segment is 30 seconds. The segment name must be less than 256 bytes in length and can contain the {JobId}, {UnixTimestamp}, and {Sequence} variables.
+*   The segment name must contain the {UnixTimestamp} and {Sequence} variables.', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
     }
-  ](name='RecordFormat', description='录制格式
+  ](name='RecordFormat', description='The list of recording formats.
 
 This parameter is required.'),
 }
 
 model CreateLiveRecordTemplateShrinkRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The name of the template.
 
 This parameter is required.'),
-  recordFormatShrink?: string(name='RecordFormat', description='录制格式
+  recordFormatShrink?: string(name='RecordFormat', description='The list of recording formats.
 
 This parameter is required.'),
 }
 
 model CreateLiveRecordTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='0622C702-41BE-467E-AF2E-883D4517962E'),
-  templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段', example='****96e8864746a0b6f3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0622C702-41BE-467E-AF2E-883D4517962E'),
+  templateId?: string(name='TemplateId', description='The template ID.', example='****96e8864746a0b6f3****'),
 }
 
 model CreateLiveRecordTemplateResponse = {
@@ -1747,7 +1767,9 @@ model CreateLiveRecordTemplateResponse = {
 }
 
 /**
- * @summary 创建直播录制模板
+ * @summary Creates a live stream recording template to submit live stream recording jobs.
+ *
+ * @description You must specify a recording template for live stream recording. You can configure information such as the format and duration of a recording in a recording template. The recording format can be M3U8, MP4, or FLV.
  *
  * @param tmpReq CreateLiveRecordTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1785,7 +1807,9 @@ async function createLiveRecordTemplateWithOptions(tmpReq: CreateLiveRecordTempl
 }
 
 /**
- * @summary 创建直播录制模板
+ * @summary Creates a live stream recording template to submit live stream recording jobs.
+ *
+ * @description You must specify a recording template for live stream recording. You can configure information such as the format and duration of a recording in a recording template. The recording format can be M3U8, MP4, or FLV.
  *
  * @param request CreateLiveRecordTemplateRequest
  * @return CreateLiveRecordTemplateResponse
@@ -1796,15 +1820,34 @@ async function createLiveRecordTemplate(request: CreateLiveRecordTemplateRequest
 }
 
 model CreateLiveSnapshotTemplateRequest {
-  overwriteFormat?: string(name='OverwriteFormat', example='snapshot/{JobId}.jpg'),
-  sequenceFormat?: string(name='SequenceFormat', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
-  templateName?: string(name='TemplateName', description='This parameter is required.'),
-  timeInterval?: int32(name='TimeInterval', description='This parameter is required.', example='5'),
+  overwriteFormat?: string(name='OverwriteFormat', description='The naming format of the snapshot captured in overwrite mode.
+
+*   The value cannot start with a forward slash (/). Only the suffix .jpg is supported.
+*   It cannot exceed 255 characters in length.
+*   The {JobId} placeholder is supported. It specifies the ID of the snapshot job.
+*   Placeholders such as {UnixTimestamp}, {Sequence}, and {Date} are not allowed.
+*   You must specify at least one of the OverwriteFormat and SequenceFormat parameters.', example='snapshot/{JobId}.jpg'),
+  sequenceFormat?: string(name='SequenceFormat', description='The naming format of the snapshot captured in time series mode.
+
+*   The value cannot start with a forward slash (/). Only the suffix .jpg is supported.
+*   It cannot exceed 255 characters in length.
+*   The {JobId}, {Date}, {UnixTimestamp}, and {Sequence} placeholders are supported. {JobId} specifies the ID of the snapshot job. {Date} specifies the date on which the snapshot is captured. {UnixTimestamp} specifies the timestamp of the snapshot. {Sequence} specifies the sequence number of the snapshot. You must specify at least one of the {UnixTimestamp} and {Sequence} placeholders.
+*   You must specify at least one of the OverwriteFormat and SequenceFormat parameters.', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
+  templateName?: string(name='TemplateName', description='The name of the template.
+
+*   It cannot exceed 128 characters in length.
+
+This parameter is required.'),
+  timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots. Unit: seconds.
+
+*   Valid values: [5,3600].
+
+This parameter is required.', example='5'),
 }
 
 model CreateLiveSnapshotTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287782****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  templateId?: string(name='TemplateId', description='The template ID.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model CreateLiveSnapshotTemplateResponse = {
@@ -1814,7 +1857,7 @@ model CreateLiveSnapshotTemplateResponse = {
 }
 
 /**
- * @summary 创建直播截图模板
+ * @summary Create a live stream snapshot template to facilitate the creation of snapshot jobs.
  *
  * @param request CreateLiveSnapshotTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1853,7 +1896,7 @@ async function createLiveSnapshotTemplateWithOptions(request: CreateLiveSnapshot
 }
 
 /**
- * @summary 创建直播截图模板
+ * @summary Create a live stream snapshot template to facilitate the creation of snapshot jobs.
  *
  * @param request CreateLiveSnapshotTemplateRequest
  * @return CreateLiveSnapshotTemplateResponse
@@ -1864,37 +1907,72 @@ async function createLiveSnapshotTemplate(request: CreateLiveSnapshotTemplateReq
 }
 
 model CreateLiveTranscodeTemplateRequest {
-  name?: string(name='Name', description='This parameter is required.', example='my template'),
+  name?: string(name='Name', description='The name of the template.
+
+This parameter is required.', example='my template'),
   templateConfig?: {
     audioParams?: {
-      bitrate?: string(name='Bitrate', example='100'),
-      channels?: string(name='Channels', example='2'),
-      codec?: string(name='Codec', example='AAC'),
-      profile?: string(name='Profile', example='aaclow'),
-      samplerate?: string(name='Samplerate', example='44100'),
-    }(name='AudioParams'),
+      bitrate?: string(name='Bitrate', description='The bitrate of the output audio. Unit: Kbit/s. Valid values: 1 to 1000.', example='100'),
+      channels?: string(name='Channels', description='The number of sound channels. Valid values: 1: mono 2: binaural', example='2'),
+      codec?: string(name='Codec', description='The audio codec. Valid values:
+
+*   AAC
+*   MP3', example='AAC'),
+      profile?: string(name='Profile', description='The audio codec profile. Valid values when the Codec parameter is set to AAC:
+
+*   aac_low
+*   aac_he
+*   aac_he_v2
+*   aac_ld', example='aaclow'),
+      samplerate?: string(name='Samplerate', description='The audio sampling rate. Valid values: 22050 to 96000.
+
+Note: If you set AudioProfile to aac_ld, the audio sampling rate cannot exceed 44,100.', example='44100'),
+    }(name='AudioParams', description='The audio parameters.'),
     videoParams?: {
-      bitrate?: string(name='Bitrate', example='2500'),
-      codec?: string(name='Codec', example='H.264'),
-      fps?: string(name='Fps', example='25'),
-      gop?: string(name='Gop', example='1000'),
-      height?: string(name='Height', example='720'),
-      profile?: string(name='Profile', example='2'),
-      width?: string(name='Width', example='1280'),
-    }(name='VideoParams'),
-  }(name='TemplateConfig'),
-  type?: string(name='Type', description='This parameter is required.', example='normal'),
+      bitrate?: string(name='Bitrate', description='The bitrate of the output video. Unit: Kbit/s. Valid values: 1 to 6000.', example='2500'),
+      codec?: string(name='Codec', description='The encoding type. Valid values:
+
+*   H.264
+*   H.265', example='H.264'),
+      fps?: string(name='Fps', description='The frame rate of the output video. Unit: frames per second (FPS). Valid values: 1 to 60.', example='25'),
+      gop?: string(name='Gop', description='The group of pictures (GOP) of the output video. Unit: frame. Valid values: 1 to 3000.', example='1000'),
+      height?: string(name='Height', description='The height of the output video. Valid values: Height ≥ 128 max (Height,Width) ≤ 2560 min (Height,Width) ≤ 1440
+
+Note: The resolution of the output video that is transcoded by using the H.265 Narrowband HD transcoding template cannot exceed 1280 × 720 pixels.', example='720'),
+      profile?: string(name='Profile', description='The encoding profile. The profile determines how a video is encoded. In most cases, a greater value indicates better image quality and higher resource consumption. Valid values: 1: baseline. This value is suitable for mobile devices. 2: main. This value is suitable for standard-definition devices. 3: high. This value is suitable for high-definition devices.', example='2'),
+      width?: string(name='Width', description='The width of the output video. Valid values: Width ≥ 128 max (Height,Width) ≤ 2560 min (Height,Width) ≤ 1440
+
+Note: The resolution of the output video that is transcoded by using the H.265 Narrowband HD transcoding template cannot exceed 1280 × 720 pixels.', example='1280'),
+    }(name='VideoParams', description='The video parameters.'),
+  }(name='TemplateConfig', description='The configuration of the template.'),
+  type?: string(name='Type', description='The type of the template. Valid values:
+
+*   normal
+*   narrow-band
+*   audio-only
+*   origin
+
+This parameter is required.', example='normal'),
 }
 
 model CreateLiveTranscodeTemplateShrinkRequest {
-  name?: string(name='Name', description='This parameter is required.', example='my template'),
-  templateConfigShrink?: string(name='TemplateConfig'),
-  type?: string(name='Type', description='This parameter is required.', example='normal'),
+  name?: string(name='Name', description='The name of the template.
+
+This parameter is required.', example='my template'),
+  templateConfigShrink?: string(name='TemplateConfig', description='The configuration of the template.'),
+  type?: string(name='Type', description='The type of the template. Valid values:
+
+*   normal
+*   narrow-band
+*   audio-only
+*   origin
+
+This parameter is required.', example='normal'),
 }
 
 model CreateLiveTranscodeTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
-  templateId?: string(name='TemplateId', example='****20b48fb04483915d4f2cd8ac****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
+  templateId?: string(name='TemplateId', description='The ID of the template.', example='****20b48fb04483915d4f2cd8ac****'),
 }
 
 model CreateLiveTranscodeTemplateResponse = {
@@ -1904,7 +1982,7 @@ model CreateLiveTranscodeTemplateResponse = {
 }
 
 /**
- * @summary 创建转码模版
+ * @summary Creates a live stream transcoding template to submit live stream transcoding jobs.
  *
  * @param tmpReq CreateLiveTranscodeTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1945,7 +2023,7 @@ async function createLiveTranscodeTemplateWithOptions(tmpReq: CreateLiveTranscod
 }
 
 /**
- * @summary 创建转码模版
+ * @summary Creates a live stream transcoding template to submit live stream transcoding jobs.
  *
  * @param request CreateLiveTranscodeTemplateRequest
  * @return CreateLiveTranscodeTemplateResponse
@@ -3038,19 +3116,21 @@ async function deleteEditingProjects(request: DeleteEditingProjectsRequest): Del
 }
 
 model DeleteLiveRecordFilesRequest {
-  recordIds?: [ string ](name='RecordIds', description='This parameter is required.'),
-  removeFile?: boolean(name='RemoveFile', example='true'),
+  recordIds?: [ string ](name='RecordIds', description='The collection of IDs of recording files.
+
+This parameter is required.'),
+  removeFile?: boolean(name='RemoveFile', description='Specifies whether to delete the original files in OSS.', example='true'),
 }
 
 model DeleteLiveRecordFilesResponseBody = {
   deleteFileInfoList?: [ 
     {
-      code?: string(name='Code', example='OK'),
-      message?: string(name='Message', example='OK'),
-      recordId?: string(name='RecordId', example='13cbb83e-043c-4728-ac35-*****'),
+      code?: string(name='Code', description='The code that identifies the result of the deletion.', example='OK'),
+      message?: string(name='Message', description='The result of deletion.', example='OK'),
+      recordId?: string(name='RecordId', description='The ID of the deleted recording file.', example='13cbb83e-043c-4728-ac35-*****'),
     }
-  ](name='DeleteFileInfoList'),
-  message?: string(name='Message', example='OK'),
+  ](name='DeleteFileInfoList', description='The list of files deleted.'),
+  message?: string(name='Message', description='The description of the state returned.', example='OK'),
   requestId?: string(name='RequestId', description='Id of the request', example='13cbb83e-043c-4728-ac35-*****'),
 }
 
@@ -3061,7 +3141,7 @@ model DeleteLiveRecordFilesResponse = {
 }
 
 /**
- * @summary 实时媒体服务-删除录制文件
+ * @summary Deletes live stream recording files. You can choose to delete only the recording files or delete both the recording files and the original Object Storage Service (OSS) files.
  *
  * @param request DeleteLiveRecordFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3094,7 +3174,7 @@ async function deleteLiveRecordFilesWithOptions(request: DeleteLiveRecordFilesRe
 }
 
 /**
- * @summary 实时媒体服务-删除录制文件
+ * @summary Deletes live stream recording files. You can choose to delete only the recording files or delete both the recording files and the original Object Storage Service (OSS) files.
  *
  * @param request DeleteLiveRecordFilesRequest
  * @return DeleteLiveRecordFilesResponse
@@ -3105,13 +3185,13 @@ async function deleteLiveRecordFiles(request: DeleteLiveRecordFilesRequest): Del
 }
 
 model DeleteLiveRecordTemplateRequest {
-  templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段
+  templateId?: string(name='TemplateId', description='The ID of the template to be deleted. To obtain the template ID, log on to the [Intelligent Media Services (IMS) console](https://ice.console.aliyun.com/live-processing/template/list/record), choose Real-time Media Processing > Template Management, and then click the Recording tab. Alternatively, find the ID from the response parameters of the [CreateLiveRecordTemplate](https://help.aliyun.com/document_detail/448213.html) operation.
 
 This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model DeleteLiveRecordTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='3E5330CF-B4C8-5BEF-AA6B-8E70BD20FAEE'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3E5330CF-B4C8-5BEF-AA6B-8E70BD20FAEE'),
 }
 
 model DeleteLiveRecordTemplateResponse = {
@@ -3121,7 +3201,7 @@ model DeleteLiveRecordTemplateResponse = {
 }
 
 /**
- * @summary 删除直播录制模板
+ * @summary Deletes a live stream recording template without affecting existing jobs.
  *
  * @param request DeleteLiveRecordTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3151,7 +3231,7 @@ async function deleteLiveRecordTemplateWithOptions(request: DeleteLiveRecordTemp
 }
 
 /**
- * @summary 删除直播录制模板
+ * @summary Deletes a live stream recording template without affecting existing jobs.
  *
  * @param request DeleteLiveRecordTemplateRequest
  * @return DeleteLiveRecordTemplateResponse
@@ -3162,25 +3242,38 @@ async function deleteLiveRecordTemplate(request: DeleteLiveRecordTemplateRequest
 }
 
 model DeleteLiveSnapshotFilesRequest {
-  createTimestampList?: [ long ](name='CreateTimestampList', description='This parameter is required.'),
-  deleteOriginalFile?: boolean(name='DeleteOriginalFile', example='true'),
-  jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  createTimestampList?: [ long ](name='CreateTimestampList', description='The list of timestamps when the jobs were created. The values are UNIX timestamps representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. A maximum of 200 jobs can be deleted at a time.
+
+This parameter is required.'),
+  deleteOriginalFile?: boolean(name='DeleteOriginalFile', description='Specifies whether to delete the original files at the same time. Default value: false.', example='true'),
+  jobId?: string(name='JobId', description='The ID of the snapshot job.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model DeleteLiveSnapshotFilesShrinkRequest {
-  createTimestampListShrink?: string(name='CreateTimestampList', description='This parameter is required.'),
-  deleteOriginalFile?: boolean(name='DeleteOriginalFile', example='true'),
-  jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  createTimestampListShrink?: string(name='CreateTimestampList', description='The list of timestamps when the jobs were created. The values are UNIX timestamps representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC. A maximum of 200 jobs can be deleted at a time.
+
+This parameter is required.'),
+  deleteOriginalFile?: boolean(name='DeleteOriginalFile', description='Specifies whether to delete the original files at the same time. Default value: false.', example='true'),
+  jobId?: string(name='JobId', description='The ID of the snapshot job.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model DeleteLiveSnapshotFilesResponseBody = {
   deleteFileResultList?: [ 
     {
-      createTimestamp?: long(name='CreateTimestamp', example='1660638613798'),
-      result?: string(name='Result', example='OK'),
+      createTimestamp?: long(name='CreateTimestamp', description='The time when the file was created. This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1660638613798'),
+      result?: string(name='Result', description='The result of deletion. A value of OK indicates that the file is deleted. Other values indicate that the file failed to be deleted.
+
+Valid values:
+
+*   OK: The file was deleted.
+*   NotFound: The file was not found.', example='OK'),
     }
-  ](name='DeleteFileResultList'),
-  requestId?: string(name='RequestId', example='****2876-6263-4B75-8F2C-CD0F7FCF****'),
+  ](name='DeleteFileResultList', description='The list of deleted files.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='****2876-6263-4B75-8F2C-CD0F7FCF****'),
 }
 
 model DeleteLiveSnapshotFilesResponse = {
@@ -3190,7 +3283,7 @@ model DeleteLiveSnapshotFilesResponse = {
 }
 
 /**
- * @summary 批量删除直播截图文件
+ * @summary Deletes live stream snapshot files. You can choose to delete only the snapshot files or delete both the snapshot files and the original Object Storage Service (OSS) files.
  *
  * @param tmpReq DeleteLiveSnapshotFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3231,7 +3324,7 @@ async function deleteLiveSnapshotFilesWithOptions(tmpReq: DeleteLiveSnapshotFile
 }
 
 /**
- * @summary 批量删除直播截图文件
+ * @summary Deletes live stream snapshot files. You can choose to delete only the snapshot files or delete both the snapshot files and the original Object Storage Service (OSS) files.
  *
  * @param request DeleteLiveSnapshotFilesRequest
  * @return DeleteLiveSnapshotFilesResponse
@@ -3242,11 +3335,13 @@ async function deleteLiveSnapshotFiles(request: DeleteLiveSnapshotFilesRequest):
 }
 
 model DeleteLiveSnapshotTemplateRequest {
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model DeleteLiveSnapshotTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model DeleteLiveSnapshotTemplateResponse = {
@@ -3256,7 +3351,7 @@ model DeleteLiveSnapshotTemplateResponse = {
 }
 
 /**
- * @summary 删除直播截图模板
+ * @summary Deletes a live stream snapshot template.
  *
  * @param request DeleteLiveSnapshotTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3286,7 +3381,7 @@ async function deleteLiveSnapshotTemplateWithOptions(request: DeleteLiveSnapshot
 }
 
 /**
- * @summary 删除直播截图模板
+ * @summary Deletes a live stream snapshot template.
  *
  * @param request DeleteLiveSnapshotTemplateRequest
  * @return DeleteLiveSnapshotTemplateResponse
@@ -3297,11 +3392,13 @@ async function deleteLiveSnapshotTemplate(request: DeleteLiveSnapshotTemplateReq
 }
 
 model DeleteLiveTranscodeJobRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
+  jobId?: string(name='JobId', description='The ID of the transcoding job.
+
+This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
 }
 
 model DeleteLiveTranscodeJobResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model DeleteLiveTranscodeJobResponse = {
@@ -3352,11 +3449,13 @@ async function deleteLiveTranscodeJob(request: DeleteLiveTranscodeJobRequest): D
 }
 
 model DeleteLiveTranscodeTemplateRequest {
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****d80e4e4044975745c14b****'),
+  templateId?: string(name='TemplateId', description='The template ID. To obtain the template ID, log on to the [Intelligent Media Services (IMS) console](https://ice.console.aliyun.com/summary), choose Real-time Media Processing > Template Management, and then click the Transcoding tab. Alternatively, find the ID from the response parameters of the [CreateLiveTranscodeTemplate](https://help.aliyun.com/document_detail/449217.html) operation.
+
+This parameter is required.', example='****d80e4e4044975745c14b****'),
 }
 
 model DeleteLiveTranscodeTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model DeleteLiveTranscodeTemplateResponse = {
@@ -3366,7 +3465,7 @@ model DeleteLiveTranscodeTemplateResponse = {
 }
 
 /**
- * @summary 删除指定转码模版
+ * @summary Deletes a live stream transcoding template.
  *
  * @param request DeleteLiveTranscodeTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3396,7 +3495,7 @@ async function deleteLiveTranscodeTemplateWithOptions(request: DeleteLiveTransco
 }
 
 /**
- * @summary 删除指定转码模版
+ * @summary Deletes a live stream transcoding template.
  *
  * @param request DeleteLiveTranscodeTemplateRequest
  * @return DeleteLiveTranscodeTemplateResponse
@@ -6144,13 +6243,19 @@ async function getEditingProjectMaterials(request: GetEditingProjectMaterialsReq
 }
 
 model GetEventCallbackResponseBody = {
-  authKey?: string(name='AuthKey', example='TestKey001'),
-  authSwitch?: string(name='AuthSwitch', example='on'),
-  callbackQueueName?: string(name='CallbackQueueName', example='ice-callback-queue'),
-  callbackType?: string(name='CallbackType', example='HTTP'),
-  callbackURL?: string(name='CallbackURL', example='http://xxx.yyy/callback'),
-  eventTypeList?: string(name='EventTypeList', example='ProduceMediaComplete,TranscodeComplete'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  authKey?: string(name='AuthKey', description='The authentication key. This parameter is returned only for HTTP callbacks.', example='TestKey001'),
+  authSwitch?: string(name='AuthSwitch', description='Specifies whether callback authentication is enabled. This parameter is returned only for **HTTP** callbacks. Valid values:
+
+*   **on**
+*   **off**', example='on'),
+  callbackQueueName?: string(name='CallbackQueueName', description='The name of the Simple Message Queue (SMQ) queue to which callback messages are sent.', example='ice-callback-queue'),
+  callbackType?: string(name='CallbackType', description='The callback method. Valid values:
+
+*   **HTTP**
+*   **MNS**', example='HTTP'),
+  callbackURL?: string(name='CallbackURL', description='The callback URL to which event notifications are sent.', example='http://xxx.yyy/callback'),
+  eventTypeList?: string(name='EventTypeList', description='The type of the callback event. Multiple values are separated with commas (,). For more information about callback event types, see [Event notification content](https://help.aliyun.com/document_detail/441362.html).', example='ProduceMediaComplete,TranscodeComplete'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model GetEventCallbackResponse = {
@@ -6160,7 +6265,7 @@ model GetEventCallbackResponse = {
 }
 
 /**
- * @summary 获取事件回调地址
+ * @summary Queries event callback configurations.
  *
  * @param request GetEventCallbackRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6183,7 +6288,7 @@ async function getEventCallbackWithOptions(runtime: Util.RuntimeOptions): GetEve
 }
 
 /**
- * @summary 获取事件回调地址
+ * @summary Queries event callback configurations.
  *
  * @return GetEventCallbackResponse
  */
@@ -6347,31 +6452,44 @@ async function getLiveEditingJob(request: GetLiveEditingJobRequest): GetLiveEdit
 }
 
 model GetLiveRecordJobRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+  jobId?: string(name='JobId', description='The ID of the recording job.
+
+This parameter is required.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
 }
 
 model GetLiveRecordJobResponseBody = {
   recordJob?: {
-    createTime?: string(name='CreateTime', description='代表创建时间的资源属性字段
+    createTime?: string(name='CreateTime', description='The time when the job was created.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T02:48:58Z'),
-    jobId?: string(name='JobId', description='代表资源名称的资源属性字段', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
-    name?: string(name='Name', description='代表资源名称的资源属性字段'),
-    notifyUrl?: string(name='NotifyUrl', description='回调地址', example='https://example.com/imsnotify'),
+    jobId?: string(name='JobId', description='The ID of the recording job.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+    name?: string(name='Name', description='The name of the recording job.'),
+    notifyUrl?: string(name='NotifyUrl', description='The callback URL.', example='https://example.com/imsnotify'),
     recordOutput?: {
-      bucket?: string(name='Bucket', example='imsbucket1'),
-      endpoint?: string(name='Endpoint', example='oss-cn-shanghai.aliyuncs.com'),
-      type?: string(name='Type', example='oss'),
-    }(name='RecordOutput'),
-    status?: string(name='Status', description='代表资源名称的资源属性字段', example='paused'),
+      bucket?: string(name='Bucket', description='The bucket name.', example='imsbucket1'),
+      endpoint?: string(name='Endpoint', description='The endpoint of the storage service.', example='oss-cn-shanghai.aliyuncs.com'),
+      type?: string(name='Type', description='The type of the storage address.
+
+Valid values:
+
+*   vod
+*   oss', example='oss'),
+    }(name='RecordOutput', description='The storage address of the recording.'),
+    status?: string(name='Status', description='The state of the recording job.
+
+Valid values:
+
+*   paused: The job is paused.
+*   initial: The job is not started.
+*   started: The job is in progress.', example='paused'),
     streamInput?: {
-      type?: string(name='Type', example='rtmp'),
-      url?: string(name='Url', example='rtmp://example.com/app/stream'),
-    }(name='StreamInput'),
-    templateId?: string(name='TemplateId', description='录制模板ID', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
-    templateName?: string(name='TemplateName', description='录制模板ID', example='test template'),
-  }(name='RecordJob', description='录制任务'),
-  requestId?: string(name='RequestId', example='B57A046C-CE33-5FBB-B57A-D2B89ACF6907'),
+      type?: string(name='Type', description='The type of the live stream. The value can only be rtmp.', example='rtmp'),
+      url?: string(name='Url', description='The URL of the live stream.', example='rtmp://example.com/app/stream'),
+    }(name='StreamInput', description='The URL of the live stream.'),
+    templateId?: string(name='TemplateId', description='The ID of the recording template.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
+    templateName?: string(name='TemplateName', description='The name of the recording template.', example='test template'),
+  }(name='RecordJob', description='The details of the recording job.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B57A046C-CE33-5FBB-B57A-D2B89ACF6907'),
 }
 
 model GetLiveRecordJobResponse = {
@@ -6381,7 +6499,7 @@ model GetLiveRecordJobResponse = {
 }
 
 /**
- * @summary 查询录制任务明细
+ * @summary Queries the information about a live stream recording job.
  *
  * @param request GetLiveRecordJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6408,7 +6526,7 @@ async function getLiveRecordJobWithOptions(request: GetLiveRecordJobRequest, run
 }
 
 /**
- * @summary 查询录制任务明细
+ * @summary Queries the information about a live stream recording job.
  *
  * @param request GetLiveRecordJobRequest
  * @return GetLiveRecordJobResponse
@@ -6419,32 +6537,39 @@ async function getLiveRecordJob(request: GetLiveRecordJobRequest): GetLiveRecord
 }
 
 model GetLiveRecordTemplateRequest {
-  jobId?: string(name='JobId', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
+  jobId?: string(name='JobId', description='The ID of the recording job. You can specify the JobId parameter to retrieve the snapshot of the template used by the job.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model GetLiveRecordTemplateResponseBody = {
   recordTemplate?: {
-    createTime?: string(name='CreateTime', description='代表创建时间的资源属性字段
+    createTime?: string(name='CreateTime', description='The time when the job was created.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T03:26:36Z'),
-    lastModified?: string(name='LastModified', description='代表创建时间的资源属性字段
+    lastModified?: string(name='LastModified', description='The time when the template was last modified.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T03:26:36Z'),
-    name?: string(name='Name', description='代表资源名称的资源属性字段', example='test template'),
+    name?: string(name='Name', description='The template name.', example='test template'),
     recordFormatList?: [ 
       {
-        cycleDuration?: int32(name='CycleDuration', example='7200'),
-        format?: string(name='Format', description='格式', example='m3u8'),
-        ossObjectPrefix?: string(name='OssObjectPrefix', description='Oss对象名，不包含后缀', example='record/{JobId}/{Sequence}{EscapedStartTime}{EscapedEndTime}'),
-        sliceDuration?: int32(name='SliceDuration', example='30'),
-        sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='切片Oss对象名，不包含后缀', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
+        cycleDuration?: int32(name='CycleDuration', description='The duration of the recording cycle. Unit: seconds. If you do not specify this parameter, the default value 6 hours is used.', example='7200'),
+        format?: string(name='Format', description='The output file format.', example='m3u8'),
+        ossObjectPrefix?: string(name='OssObjectPrefix', description='The name of the recording file that is stored in Object Storage Service (OSS).', example='record/{JobId}/{Sequence}{EscapedStartTime}{EscapedEndTime}'),
+        sliceDuration?: int32(name='SliceDuration', description='The duration of a single segment. Unit: seconds.', example='30'),
+        sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='The name of the TS segment.', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
       }
-    ](name='RecordFormatList', description='录制格式'),
-    templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
-    type?: string(name='Type', description='代表资源名称的资源属性字段', example='custom'),
-  }(name='RecordTemplate', description='录制模板'),
-  requestId?: string(name='RequestId', example='C892855F-95DF-50D6-A28C-279ABDB76810'),
+    ](name='RecordFormatList', description='The list of recording formats.'),
+    templateId?: string(name='TemplateId', description='The template ID.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
+    type?: string(name='Type', description='The type of the template.
+
+Valid values:
+
+*   system
+*   custom', example='custom'),
+  }(name='RecordTemplate', description='The recording template.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C892855F-95DF-50D6-A28C-279ABDB76810'),
 }
 
 model GetLiveRecordTemplateResponse = {
@@ -6454,7 +6579,7 @@ model GetLiveRecordTemplateResponse = {
 }
 
 /**
- * @summary 查询直播录制模板详情
+ * @summary Queries the information about a live stream recording template or a snapshot of the template.
  *
  * @param request GetLiveRecordTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6481,7 +6606,7 @@ async function getLiveRecordTemplateWithOptions(request: GetLiveRecordTemplateRe
 }
 
 /**
- * @summary 查询直播录制模板详情
+ * @summary Queries the information about a live stream recording template or a snapshot of the template.
  *
  * @param request GetLiveRecordTemplateRequest
  * @return GetLiveRecordTemplateResponse
@@ -6492,31 +6617,39 @@ async function getLiveRecordTemplate(request: GetLiveRecordTemplateRequest): Get
 }
 
 model GetLiveSnapshotJobRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  jobId?: string(name='JobId', description='The job ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model GetLiveSnapshotJobResponseBody = {
-  callbackUrl?: string(name='CallbackUrl', example='http://www.aliyun.com/snapshot/callback'),
-  createTime?: string(name='CreateTime', example='2022-02-02T22:22:22Z'),
-  jobId?: string(name='JobId', example='****a046-263c-3560-978a-fb287782****'),
-  jobName?: string(name='JobName'),
-  lastModified?: string(name='LastModified', example='2022-02-02T22:22:22Z'),
-  overwriteFormat?: string(name='OverwriteFormat', example='snapshot/{JobId}.jpg'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  sequenceFormat?: string(name='SequenceFormat', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
+  callbackUrl?: string(name='CallbackUrl', description='The snapshot callback URL.', example='http://www.aliyun.com/snapshot/callback'),
+  createTime?: string(name='CreateTime', description='The time when the file was created.', example='2022-02-02T22:22:22Z'),
+  jobId?: string(name='JobId', description='The job ID.', example='****a046-263c-3560-978a-fb287782****'),
+  jobName?: string(name='JobName', description='The name of the job.'),
+  lastModified?: string(name='LastModified', description='The time when the file was last modified.', example='2022-02-02T22:22:22Z'),
+  overwriteFormat?: string(name='OverwriteFormat', description='The naming format of the snapshot captured in overwrite mode.', example='snapshot/{JobId}.jpg'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  sequenceFormat?: string(name='SequenceFormat', description='The naming format of the snapshot captured in time series mode.', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
   snapshotOutput?: {
-    bucket?: string(name='Bucket', example='testbucket'),
-    endpoint?: string(name='Endpoint', example='oss-cn-shanghai.aliyuncs.com'),
-    storageType?: string(name='StorageType', example='oss'),
-  }(name='SnapshotOutput'),
-  status?: string(name='Status', example='started'),
+    bucket?: string(name='Bucket', description='The bucket of the output endpoint. If the storage type is set to oss, the OSS bucket is returned.', example='testbucket'),
+    endpoint?: string(name='Endpoint', description='The output endpoint. If the storage type is set to oss, the Object Storage Service (OSS) domain name is returned.', example='oss-cn-shanghai.aliyuncs.com'),
+    storageType?: string(name='StorageType', description='The storage type. The value can only be oss.', example='oss'),
+  }(name='SnapshotOutput', description='The output information.'),
+  status?: string(name='Status', description='The state of the job.
+
+Valid values:
+
+*   init: The job is not started.
+*   paused: The job is paused.
+*   started: The job is in progress.', example='started'),
   streamInput?: {
-    type?: string(name='Type', example='rtmp'),
-    url?: string(name='Url', example='rtmp://www.aliyun.com/stream'),
-  }(name='StreamInput'),
-  templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287666****'),
-  templateName?: string(name='TemplateName'),
-  timeInterval?: int32(name='TimeInterval', example='5'),
+    type?: string(name='Type', description='The type of the input stream. The value can only be rtmp.', example='rtmp'),
+    url?: string(name='Url', description='The URL of the input stream.', example='rtmp://www.aliyun.com/stream'),
+  }(name='StreamInput', description='The input information.'),
+  templateId?: string(name='TemplateId', description='The template ID.', example='****a046-263c-3560-978a-fb287666****'),
+  templateName?: string(name='TemplateName', description='The name of the template.'),
+  timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots.', example='5'),
 }
 
 model GetLiveSnapshotJobResponse = {
@@ -6526,7 +6659,7 @@ model GetLiveSnapshotJobResponse = {
 }
 
 /**
- * @summary 查询直播截图任务
+ * @summary Queries the information a live stream snapshot job.
  *
  * @param request GetLiveSnapshotJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6553,7 +6686,7 @@ async function getLiveSnapshotJobWithOptions(request: GetLiveSnapshotJobRequest,
 }
 
 /**
- * @summary 查询直播截图任务
+ * @summary Queries the information a live stream snapshot job.
  *
  * @param request GetLiveSnapshotJobRequest
  * @return GetLiveSnapshotJobResponse
@@ -6564,19 +6697,26 @@ async function getLiveSnapshotJob(request: GetLiveSnapshotJobRequest): GetLiveSn
 }
 
 model GetLiveSnapshotTemplateRequest {
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model GetLiveSnapshotTemplateResponseBody = {
-  createTime?: string(name='CreateTime', example='2022-02-02T22:22:22Z'),
-  lastModified?: string(name='LastModified', example='2022-02-02T22:22:22Z'),
-  overwriteFormat?: string(name='OverwriteFormat', example='snapshot/{JobId}.jpg'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  sequenceFormat?: string(name='SequenceFormat', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
-  templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287782****'),
-  templateName?: string(name='TemplateName'),
-  timeInterval?: int32(name='TimeInterval', example='5'),
-  type?: string(name='Type', example='custom'),
+  createTime?: string(name='CreateTime', description='The time when the configuration was modified.', example='2022-02-02T22:22:22Z'),
+  lastModified?: string(name='LastModified', description='The time when the template was created.', example='2022-02-02T22:22:22Z'),
+  overwriteFormat?: string(name='OverwriteFormat', description='The naming format of the snapshot captured in overwrite mode.', example='snapshot/{JobId}.jpg'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  sequenceFormat?: string(name='SequenceFormat', description='The naming format of the snapshot captured in time series mode.', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
+  templateId?: string(name='TemplateId', description='The template ID.', example='****a046-263c-3560-978a-fb287782****'),
+  templateName?: string(name='TemplateName', description='The template name.'),
+  timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots.', example='5'),
+  type?: string(name='Type', description='The type of the template.
+
+Valid values:
+
+*   system
+*   custom', example='custom'),
 }
 
 model GetLiveSnapshotTemplateResponse = {
@@ -6586,7 +6726,7 @@ model GetLiveSnapshotTemplateResponse = {
 }
 
 /**
- * @summary 查询直播截图模板
+ * @summary Queries the information about a live stream snapshot template.
  *
  * @param request GetLiveSnapshotTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6613,7 +6753,7 @@ async function getLiveSnapshotTemplateWithOptions(request: GetLiveSnapshotTempla
 }
 
 /**
- * @summary 查询直播截图模板
+ * @summary Queries the information about a live stream snapshot template.
  *
  * @param request GetLiveSnapshotTemplateRequest
  * @return GetLiveSnapshotTemplateResponse
@@ -6624,33 +6764,39 @@ async function getLiveSnapshotTemplate(request: GetLiveSnapshotTemplateRequest):
 }
 
 model GetLiveTranscodeJobRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
+  jobId?: string(name='JobId', description='The ID of the transcoding job.
+
+This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
 }
 
 model GetLiveTranscodeJobResponseBody = {
   job?: {
-    createTime?: string(name='CreateTime', example='2022-07-20T02:48:58Z'),
-    jobId?: string(name='JobId', example='****20b48fb04483915d4f2cd8ac****'),
-    name?: string(name='Name', example='task1'),
+    createTime?: string(name='CreateTime', description='The time when the job was created.', example='2022-07-20T02:48:58Z'),
+    jobId?: string(name='JobId', description='The ID of the transcoding job.', example='****20b48fb04483915d4f2cd8ac****'),
+    name?: string(name='Name', description='The name of the transcoding job.', example='task1'),
     outputStream?: {
       streamInfos?: [ 
         {
-          outputUrl?: string(name='OutputUrl', example='rtmp://mydomain/app/mytranscode1'),
-          type?: string(name='Type', example='rtmp'),
+          outputUrl?: string(name='OutputUrl', description='The URL of the output stream.', example='rtmp://mydomain/app/mytranscode1'),
+          type?: string(name='Type', description='The type of the output stream protocol. Only the RTMP protocol is supported.', example='rtmp'),
         }
-      ](name='StreamInfos'),
-    }(name='OutputStream'),
-    startMode?: int32(name='StartMode', example='0'),
-    status?: int32(name='Status', example='1'),
+      ](name='StreamInfos', description='The information about the output stream.'),
+    }(name='OutputStream', description='The information about the output stream.'),
+    startMode?: int32(name='StartMode', description='The start mode of the job.', example='0'),
+    status?: int32(name='Status', description='The state of the job.
+
+*   0: The job is not started.
+*   1: The job is in progress.
+*   2: The job is stopped.', example='1'),
     streamInput?: {
-      inputUrl?: string(name='InputUrl', example='rtmp://mydomain/app/stream1'),
-      type?: string(name='Type', example='rtmp'),
-    }(name='StreamInput'),
-    templateId?: string(name='TemplateId', example='b6491d5b3e514b7d895d14b5453ea119'),
-    templateName?: string(name='TemplateName', example='basic'),
-    templateType?: string(name='TemplateType', example='normal'),
-  }(name='Job'),
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+      inputUrl?: string(name='InputUrl', description='The URL of the input stream.', example='rtmp://mydomain/app/stream1'),
+      type?: string(name='Type', description='The type of the input stream.', example='rtmp'),
+    }(name='StreamInput', description='The information about the input stream.'),
+    templateId?: string(name='TemplateId', description='The template ID.', example='b6491d5b3e514b7d895d14b5453ea119'),
+    templateName?: string(name='TemplateName', description='The template name.', example='basic'),
+    templateType?: string(name='TemplateType', description='The type of the template.', example='normal'),
+  }(name='Job', description='The information about the transcoding job.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model GetLiveTranscodeJobResponse = {
@@ -6660,7 +6806,7 @@ model GetLiveTranscodeJobResponse = {
 }
 
 /**
- * @summary 查询转码任务详情
+ * @summary Queries the information about a live stream transcoding job.
  *
  * @param request GetLiveTranscodeJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6690,7 +6836,7 @@ async function getLiveTranscodeJobWithOptions(request: GetLiveTranscodeJobReques
 }
 
 /**
- * @summary 查询转码任务详情
+ * @summary Queries the information about a live stream transcoding job.
  *
  * @param request GetLiveTranscodeJobRequest
  * @return GetLiveTranscodeJobResponse
@@ -6701,36 +6847,41 @@ async function getLiveTranscodeJob(request: GetLiveTranscodeJobRequest): GetLive
 }
 
 model GetLiveTranscodeTemplateRequest {
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287666****'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287666****'),
 }
 
 model GetLiveTranscodeTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
   templateContent?: {
-    category?: string(name='Category', example='customized'),
-    createTime?: string(name='CreateTime', example='2022-07-25T06:15:14Z'),
-    name?: string(name='Name', example='my-template'),
+    category?: string(name='Category', description='The category of the template. Valid values:
+
+*   system
+*   customized', example='customized'),
+    createTime?: string(name='CreateTime', description='The time when the template was created.', example='2022-07-25T06:15:14Z'),
+    name?: string(name='Name', description='The name of the template.', example='my-template'),
     templateConfig?: {
       audioParams?: {
-        bitrate?: string(name='Bitrate', example='1000'),
-        channels?: string(name='Channels', example='2'),
-        codec?: string(name='Codec', example='AAC'),
-        profile?: string(name='Profile', example='1'),
-        samplerate?: string(name='Samplerate', example='44100'),
-      }(name='AudioParams'),
+        bitrate?: string(name='Bitrate', description='The bitrate of the output audio.', example='1000'),
+        channels?: string(name='Channels', description='The number of sound channels.', example='2'),
+        codec?: string(name='Codec', description='The audio codec.', example='AAC'),
+        profile?: string(name='Profile', description='The audio codec profile.', example='1'),
+        samplerate?: string(name='Samplerate', description='The audio sampling rate.', example='44100'),
+      }(name='AudioParams', description='The audio parameters.'),
       videoParams?: {
-        bitrate?: string(name='Bitrate', example='2500'),
-        codec?: string(name='Codec', example='H.264'),
-        fps?: string(name='Fps', example='30'),
-        gop?: string(name='Gop', example='1000'),
-        height?: string(name='Height', example='720'),
-        profile?: string(name='Profile', example='2'),
-        width?: string(name='Width', example='1280'),
-      }(name='VideoParams'),
-    }(name='TemplateConfig'),
-    templateId?: string(name='TemplateId', example='bcfa57950bc649b2abfb476ecd36ea4f'),
-    type?: string(name='Type', example='normal'),
-  }(name='TemplateContent'),
+        bitrate?: string(name='Bitrate', description='The bitrate of the output video.', example='2500'),
+        codec?: string(name='Codec', description='The encoding type.', example='H.264'),
+        fps?: string(name='Fps', description='The frame rate of the output video.', example='30'),
+        gop?: string(name='Gop', description='The group of pictures (GOP) of the output video.', example='1000'),
+        height?: string(name='Height', description='The height of the output video.', example='720'),
+        profile?: string(name='Profile', description='The encoding profile.', example='2'),
+        width?: string(name='Width', description='The width of the output video.', example='1280'),
+      }(name='VideoParams', description='The video parameters.'),
+    }(name='TemplateConfig', description='The configuration of the template.'),
+    templateId?: string(name='TemplateId', description='The template ID.', example='bcfa57950bc649b2abfb476ecd36ea4f'),
+    type?: string(name='Type', description='The type of the template.', example='normal'),
+  }(name='TemplateContent', description='The content of the template.'),
 }
 
 model GetLiveTranscodeTemplateResponse = {
@@ -6740,7 +6891,7 @@ model GetLiveTranscodeTemplateResponse = {
 }
 
 /**
- * @summary 查询转码模版详情
+ * @summary Queries the information a live stream transcoding template.
  *
  * @param request GetLiveTranscodeTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6770,7 +6921,7 @@ async function getLiveTranscodeTemplateWithOptions(request: GetLiveTranscodeTemp
 }
 
 /**
- * @summary 查询转码模版详情
+ * @summary Queries the information a live stream transcoding template.
  *
  * @param request GetLiveTranscodeTemplateRequest
  * @return GetLiveTranscodeTemplateResponse
@@ -7256,6 +7407,7 @@ Note: Pay attention to this parameter if the job failed.', example='The specifie
     modifiedTime?: string(name='ModifiedTime', description='The time when the media editing and production job was last modified.
 
 The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2020-12-23T13:33:49Z'),
+    progress?: int32(name='Progress'),
     projectId?: string(name='ProjectId', description='The ID of the online editing project.', example='****fddd7748b58bf1d47e95****'),
     status?: string(name='Status', description='The state of the media editing and production job. Valid values:
 
@@ -10923,38 +11075,44 @@ async function listEditingProjects(request: ListEditingProjectsRequest): ListEdi
 }
 
 model ListLiveRecordFilesRequest {
-  endTime?: string(name='EndTime', example='2017-12-22T08:00:00Z'),
-  jobIds?: [ string ](name='JobIds'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  recordFormat?: string(name='RecordFormat', example='m3u8'),
-  sortBy?: string(name='SortBy', example='asc'),
-  startTime?: string(name='StartTime', example='2017-12-21T08:00:01Z'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. The maximum time range to query is four days. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2017-12-22T08:00:00Z'),
+  jobIds?: [ string ](name='JobIds', description='The list of job IDs.'),
+  pageNo?: int32(name='PageNo', description='The page number of the page to return. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 5 to 30. Default value: 10.', example='10'),
+  recordFormat?: string(name='RecordFormat', description='The format of the recording file. Valid values:
+
+M3U8, FLV, and MP4', example='m3u8'),
+  sortBy?: string(name='SortBy', description='The sorting order of the index files by creation time. Valid values:
+
+asc: The query results are displayed in ascending order. This is the default value.
+
+desc: The query results are displayed in descending order.', example='asc'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.', example='2017-12-21T08:00:01Z'),
 }
 
 model ListLiveRecordFilesResponseBody = {
   files?: [ 
     {
-      createTime?: string(name='CreateTime', example='2016-05-27T09:40:56Z'),
-      duration?: float(name='Duration', example='100.0'),
-      endTime?: string(name='EndTime', example='2015-12-01T07:36:10Z'),
-      format?: string(name='Format', example='m3u8'),
-      height?: int32(name='Height', example='640'),
-      jobId?: string(name='JobId', example='c4d7f0a4-b506-43f9-8de3-07732c3f****'),
-      jobName?: string(name='JobName', example='LiveRecordJob***'),
-      recordId?: string(name='RecordId', example='c4d7f0a4-b506-43f9-8de3-07732c3f****'),
-      recordOutput?: string(name='RecordOutput', example='{ "Type": "oss", "Endpoint":"oss-cn-shanghai.aliyuncs.com", "Bucket": "test-bucket" }'),
-      recordUrl?: string(name='RecordUrl'),
-      startTime?: string(name='StartTime', example='2015-12-01T07:36:00Z'),
-      streamUrl?: string(name='StreamUrl', example='LiveStream***'),
-      width?: int32(name='Width', example='480'),
+      createTime?: string(name='CreateTime', description='The time when the file was created in UTC.', example='2016-05-27T09:40:56Z'),
+      duration?: float(name='Duration', description='The recording length. Unit: seconds.', example='100.0'),
+      endTime?: string(name='EndTime', description='The end of the time range to query. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2015-12-01T07:36:10Z'),
+      format?: string(name='Format', description='The format of the recording file.', example='m3u8'),
+      height?: int32(name='Height', description='The height of the video.', example='640'),
+      jobId?: string(name='JobId', description='The ID of the recording job.', example='c4d7f0a4-b506-43f9-8de3-07732c3f****'),
+      jobName?: string(name='JobName', description='The name of the recording job.', example='LiveRecordJob***'),
+      recordId?: string(name='RecordId', description='The ID of the index file.', example='c4d7f0a4-b506-43f9-8de3-07732c3f****'),
+      recordOutput?: string(name='RecordOutput', description='The storage information about the recording file.', example='{ "Type": "oss", "Endpoint":"oss-cn-shanghai.aliyuncs.com", "Bucket": "test-bucket" }'),
+      recordUrl?: string(name='RecordUrl', description='The URL of the index file.'),
+      startTime?: string(name='StartTime', description='The beginning of the time range to query. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2015-12-01T07:36:00Z'),
+      streamUrl?: string(name='StreamUrl', description='The name of the live stream.', example='LiveStream***'),
+      width?: int32(name='Width', description='The width of the video.', example='480'),
     }
-  ](name='Files'),
-  pageNo?: long(name='PageNo', example='1'),
-  pageSize?: string(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='DE24625C-7C0F-4020-8448-****'),
-  sortBy?: string(name='SortBy', example='asc'),
-  totalCount?: string(name='TotalCount', example='100'),
+  ](name='Files', description='The list of index files.'),
+  pageNo?: long(name='PageNo', description='The page number.', example='1'),
+  pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DE24625C-7C0F-4020-8448-****'),
+  sortBy?: string(name='SortBy', description='The sorting order of the index files by creation time.', example='asc'),
+  totalCount?: string(name='TotalCount', description='The total number of files that meet the specified conditions.', example='100'),
 }
 
 model ListLiveRecordFilesResponse = {
@@ -10964,7 +11122,7 @@ model ListLiveRecordFilesResponse = {
 }
 
 /**
- * @summary 查询录制文件
+ * @summary Queries all recording index files in the specified period of time.
  *
  * @param request ListLiveRecordFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10991,7 +11149,7 @@ async function listLiveRecordFilesWithOptions(request: ListLiveRecordFilesReques
 }
 
 /**
- * @summary 查询录制文件
+ * @summary Queries all recording index files in the specified period of time.
  *
  * @param request ListLiveRecordFilesRequest
  * @return ListLiveRecordFilesResponse
@@ -11002,43 +11160,63 @@ async function listLiveRecordFiles(request: ListLiveRecordFilesRequest): ListLiv
 }
 
 model ListLiveRecordJobsRequest {
-  endTime?: string(name='EndTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-11T08:00:00Z'),
-  keyword?: string(name='Keyword', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
-  pageNo?: long(name='PageNo', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  sortBy?: string(name='SortBy', example='desc'),
-  startTime?: string(name='StartTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-15T08:00:00Z'),
-  status?: string(name='Status', example='started'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. The maximum time range between EndTime and StartTime cannot exceed 30 days. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-11T08:00:00Z'),
+  keyword?: string(name='Keyword', description='The search keyword. You can use the job ID or name as the keyword to search for jobs.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+  pageNo?: long(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Default value: 10.', example='20'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.
+
+Valid values:
+
+*   asc: sorts the query results in ascending order.
+*   desc: sorts the query results in descending order.', example='desc'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-15T08:00:00Z'),
+  status?: string(name='Status', description='The state of the job. By default, the state is not filtered.
+
+Valid values:
+
+*   paused: The job is paused.
+*   initial: The job is not started.
+*   started: The job is in progress.', example='started'),
 }
 
 model ListLiveRecordJobsResponseBody = {
   liveRecordJobs?: [ 
     {
-      createTime?: string(name='CreateTime', description='代表创建时间的资源属性字段
+      createTime?: string(name='CreateTime', description='The time when the job was created.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T03:26:36Z'),
-      jobId?: string(name='JobId', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
-      name?: string(name='Name', description='代表资源名称的资源属性字段'),
-      notifyUrl?: string(name='NotifyUrl', description='回调地址', example='https://example.com/imsnotify'),
+      jobId?: string(name='JobId', description='The ID of the recording job.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+      name?: string(name='Name', description='The name of the recording job.'),
+      notifyUrl?: string(name='NotifyUrl', description='The callback URL.', example='https://example.com/imsnotify'),
       recordOutput?: {
-        bucket?: string(name='Bucket', example='imsbucket1'),
-        endpoint?: string(name='Endpoint', example='oss-cn-hangzhou.aliyuncs.com'),
-        type?: string(name='Type', example='oss'),
-      }(name='RecordOutput'),
-      status?: string(name='Status', example='paused'),
+        bucket?: string(name='Bucket', description='The bucket name.', example='imsbucket1'),
+        endpoint?: string(name='Endpoint', description='The endpoint of the storage service.', example='oss-cn-hangzhou.aliyuncs.com'),
+        type?: string(name='Type', description='The type of the storage address.
+
+Valid values:
+
+*   vod
+*   oss', example='oss'),
+      }(name='RecordOutput', description='The storage address of the recording.'),
+      status?: string(name='Status', description='The state of the recording job.', example='paused'),
       streamInput?: {
-        type?: string(name='Type', example='rtmp'),
-        url?: string(name='Url', example='rtmp://example-live.com/live/stream1'),
-      }(name='StreamInput'),
-      templateId?: string(name='TemplateId', description='录制模板ID', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
-      templateName?: string(name='TemplateName', example='test template'),
+        type?: string(name='Type', description='The type of the live stream URL.', example='rtmp'),
+        url?: string(name='Url', description='The URL of the live stream.', example='rtmp://example-live.com/live/stream1'),
+      }(name='StreamInput', description='The URL of the live stream.'),
+      templateId?: string(name='TemplateId', description='The ID of the recording template.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
+      templateName?: string(name='TemplateName', description='The name of the recording template.', example='test template'),
     }
-  ](name='LiveRecordJobs'),
-  pageNo?: long(name='PageNo', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='A27DFFA4-F272-5563-8363-CB0BC42740BA'),
-  sortBy?: string(name='SortBy', example='desc'),
-  totalCount?: long(name='TotalCount', example='180'),
+  ](name='LiveRecordJobs', description='The list of live stream recording jobs.'),
+  pageNo?: long(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Default value: 10.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A27DFFA4-F272-5563-8363-CB0BC42740BA'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.', example='desc'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='180'),
 }
 
 model ListLiveRecordJobsResponse = {
@@ -11048,7 +11226,7 @@ model ListLiveRecordJobsResponse = {
 }
 
 /**
- * @summary 查询录制任务
+ * @summary Queries a list of live stream recording jobs by page.
  *
  * @param request ListLiveRecordJobsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11075,7 +11253,7 @@ async function listLiveRecordJobsWithOptions(request: ListLiveRecordJobsRequest,
 }
 
 /**
- * @summary 查询录制任务
+ * @summary Queries a list of live stream recording jobs by page.
  *
  * @param request ListLiveRecordJobsRequest
  * @return ListLiveRecordJobsResponse
@@ -11086,42 +11264,57 @@ async function listLiveRecordJobs(request: ListLiveRecordJobsRequest): ListLiveR
 }
 
 model ListLiveRecordTemplatesRequest {
-  keyword?: string(name='Keyword', example='test template'),
-  pageNo?: long(name='PageNo', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
-  sortBy?: string(name='SortBy', example='desc'),
+  keyword?: string(name='Keyword', description='The search keyword. You can use the template ID or name as the keyword to search for templates. If you search for templates by name, fuzzy match is supported.', example='test template'),
+  pageNo?: long(name='PageNo', description='The page number. Minimum value: 1. Default value: 1.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.
+
+Valid values:
+
+*   asc: sorts the query results in ascending order.
+*   desc: sorts the query results in descending order.', example='desc'),
   templateIds?: [ string ](name='TemplateIds'),
-  type?: string(name='Type', example='custom'),
+  type?: string(name='Type', description='The type of the template.
+
+Valid values:
+
+*   system
+*   custom', example='custom'),
 }
 
 model ListLiveRecordTemplatesResponseBody = {
-  pageNo?: long(name='PageNo', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
+  pageNo?: long(name='PageNo', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page.', example='10'),
   recordTemplateList?: [ 
     {
-      createTime?: string(name='CreateTime', description='代表创建时间的资源属性字段
+      createTime?: string(name='CreateTime', description='The time when the job was created.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T02:48:58Z'),
-      lastModified?: string(name='LastModified', description='最后修改时间
+      lastModified?: string(name='LastModified', description='The time when the template was last modified.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2022-07-20T03:26:36Z'),
-      name?: string(name='Name', description='代表资源名称的资源属性字段', example='test template'),
+      name?: string(name='Name', description='The template name.', example='test template'),
       recordFormatList?: [ 
         {
-          cycleDuration?: int32(name='CycleDuration', example='21600'),
-          format?: string(name='Format', description='格式', example='m3u8'),
-          ossObjectPrefix?: string(name='OssObjectPrefix', description='Oss对象名，不包含后缀', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
-          sliceDuration?: int32(name='SliceDuration', description='切片时长', example='30'),
-          sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='切片Oss对象名，不包含后缀', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
+          cycleDuration?: int32(name='CycleDuration', description='The duration of the recording cycle. Unit: seconds.', example='21600'),
+          format?: string(name='Format', description='The output file format.', example='m3u8'),
+          ossObjectPrefix?: string(name='OssObjectPrefix', description='The name of the recording file that is stored in Object Storage Service (OSS).', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
+          sliceDuration?: int32(name='SliceDuration', description='The duration of a single segment. Unit: seconds.', example='30'),
+          sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='The name of the TS segment.', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
         }
-      ](name='RecordFormatList', description='录制格式'),
-      templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
-      type?: string(name='Type', description='代表资源名称的资源属性字段', example='custom'),
+      ](name='RecordFormatList', description='The list of recording formats.'),
+      templateId?: string(name='TemplateId', description='The template ID.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
+      type?: string(name='Type', description='The type of the template.', example='custom'),
     }
-  ](name='RecordTemplateList'),
-  requestId?: string(name='RequestId', example='BEA98A0C-7870-15FE-B96F-8880BB600A2C'),
-  sortBy?: string(name='SortBy', example='desc'),
-  totalCount?: long(name='TotalCount', example='5'),
+  ](name='RecordTemplateList', description='The list of recording templates.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BEA98A0C-7870-15FE-B96F-8880BB600A2C'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.
+
+Valid values:
+
+*   asc: sorts the query results in ascending order.
+*   desc: sorts the query results in descending order.', example='desc'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='5'),
 }
 
 model ListLiveRecordTemplatesResponse = {
@@ -11131,7 +11324,7 @@ model ListLiveRecordTemplatesResponse = {
 }
 
 /**
- * @summary 查询直播录制模板
+ * @summary Queries a list of live stream recording templates.
  *
  * @param request ListLiveRecordTemplatesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11158,7 +11351,7 @@ async function listLiveRecordTemplatesWithOptions(request: ListLiveRecordTemplat
 }
 
 /**
- * @summary 查询直播录制模板
+ * @summary Queries a list of live stream recording templates.
  *
  * @param request ListLiveRecordTemplatesRequest
  * @return ListLiveRecordTemplatesResponse
@@ -11169,26 +11362,39 @@ async function listLiveRecordTemplates(request: ListLiveRecordTemplatesRequest):
 }
 
 model ListLiveSnapshotFilesRequest {
-  endTime?: string(name='EndTime', description='This parameter is required.', example='2022-02-02T23:59:59Z'),
-  jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
-  limit?: int32(name='Limit', example='10'),
-  sortBy?: string(name='SortBy', example='desc'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2022-02-02T00:00:00Z'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+*   The maximum time range that can be specified is one day.
+
+This parameter is required.', example='2022-02-02T23:59:59Z'),
+  jobId?: string(name='JobId', description='The ID of the snapshot job.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  limit?: int32(name='Limit', description='The number of results to return each time. Valid values: 1 to 100. Default value: 10.', example='10'),
+  sortBy?: string(name='SortBy', description='The sorting order. Default value: asc.
+
+Valid values:
+
+*   asc: sorts the query results by creation time in ascending order.
+*   desc: sorts the query results by creation time in descending order.', example='desc'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+This parameter is required.', example='2022-02-02T00:00:00Z'),
 }
 
 model ListLiveSnapshotFilesResponseBody = {
   fileList?: [ 
     {
-      createTime?: string(name='CreateTime', example='2022-02-02T22:22:22Z'),
-      createTimestamp?: long(name='CreateTimestamp', example='1619503516000'),
-      isOverlay?: boolean(name='IsOverlay', example='true'),
-      ossBucket?: string(name='OssBucket', description='OSS bucket。', example='testbucket'),
-      ossEndpoint?: string(name='OssEndpoint', example='oss-cn-shanghai.aliyuncs.com'),
-      ossObject?: string(name='OssObject'),
+      createTime?: string(name='CreateTime', description='The time when the template was created.', example='2022-02-02T22:22:22Z'),
+      createTimestamp?: long(name='CreateTimestamp', description='The creation timestamp that is used as an input parameter for a delete API operation.', example='1619503516000'),
+      isOverlay?: boolean(name='IsOverlay', description='Specifies whether to overlay snapshots.', example='true'),
+      ossBucket?: string(name='OssBucket', description='The OSS bucket.', example='testbucket'),
+      ossEndpoint?: string(name='OssEndpoint', description='The Object Storage Service (OSS) domain name.', example='oss-cn-shanghai.aliyuncs.com'),
+      ossObject?: string(name='OssObject', description='The location in which the OSS object is stored.'),
     }
-  ](name='FileList'),
-  nextStartTime?: string(name='NextStartTime', example='2022-02-02T22:22:22Z'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  ](name='FileList', description='The list of files.'),
+  nextStartTime?: string(name='NextStartTime', description='The start time of the next page. If no value is returned, the pagination ends.', example='2022-02-02T22:22:22Z'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model ListLiveSnapshotFilesResponse = {
@@ -11198,7 +11404,7 @@ model ListLiveSnapshotFilesResponse = {
 }
 
 /**
- * @summary 查询直播截图文件列表
+ * @summary Queries a list of live stream snapshot files by page.
  *
  * @param request ListLiveSnapshotFilesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11225,7 +11431,7 @@ async function listLiveSnapshotFilesWithOptions(request: ListLiveSnapshotFilesRe
 }
 
 /**
- * @summary 查询直播截图文件列表
+ * @summary Queries a list of live stream snapshot files by page.
  *
  * @param request ListLiveSnapshotFilesRequest
  * @return ListLiveSnapshotFilesResponse
@@ -11236,37 +11442,62 @@ async function listLiveSnapshotFiles(request: ListLiveSnapshotFilesRequest): Lis
 }
 
 model ListLiveSnapshotJobsRequest {
-  endTime?: string(name='EndTime', example='2022-02-02T23:59:59Z'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  searchKeyWord?: string(name='SearchKeyWord', example='****a046-263c-3560-978a-fb287782****'),
-  sortBy?: string(name='SortBy', example='desc'),
-  startTime?: string(name='StartTime', example='2022-02-02T00:00:00Z'),
-  status?: string(name='Status'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+*   By default, EndTime is seven days later than StartTime.
+*   The time range specified by the StartTime and EndTime parameters cannot exceed 30 days.', example='2022-02-02T23:59:59Z'),
+  pageNo?: int32(name='PageNo', description='The page number. Valid values: [1,n). Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
+  searchKeyWord?: string(name='SearchKeyWord', description='The search keyword. You can use the job ID or name as the keyword to search for jobs. If you search for jobs by name, fuzzy match is supported.
+
+*   It cannot exceed 128 characters in length.', example='****a046-263c-3560-978a-fb287782****'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.
+
+Valid values:
+
+*   asc: sorts the query results by creation time in ascending order.
+*   desc: sorts the query results by creation time in descending order.', example='desc'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time must be in UTC.
+
+*   The default value is seven days ago.
+*   The time range specified by the StartTime and EndTime parameters cannot exceed 30 days.', example='2022-02-02T00:00:00Z'),
+  status?: string(name='Status', description='The job state filter. By default, all jobs are queried.
+
+Valid values:
+
+*   init: The job is not started.
+*   paused: The job is paused.
+*   started: The job is in progress.'),
 }
 
 model ListLiveSnapshotJobsResponseBody = {
   jobList?: [ 
     {
-      createTime?: string(name='CreateTime', example='2022-07-20T02:48:58Z'),
-      jobId?: string(name='JobId', example='****a046-263c-3560-978a-fb287782****'),
-      jobName?: string(name='JobName'),
+      createTime?: string(name='CreateTime', description='The time when the template was created.', example='2022-07-20T02:48:58Z'),
+      jobId?: string(name='JobId', description='The job ID.', example='****a046-263c-3560-978a-fb287782****'),
+      jobName?: string(name='JobName', description='The name of the job.'),
       snapshotOutput?: {
-        bucket?: string(name='Bucket', example='testbucket'),
-        endpoint?: string(name='Endpoint', example='oss-cn-shanghai.aliyuncs.com'),
-        storageType?: string(name='StorageType', example='oss'),
-      }(name='SnapshotOutput'),
-      status?: string(name='Status', example='started'),
-      templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287666****'),
-      templateName?: string(name='TemplateName'),
-      timeInterval?: int32(name='TimeInterval', example='5'),
+        bucket?: string(name='Bucket', description='The bucket of the output endpoint. If the storage type is set to oss, the OSS bucket is returned.', example='testbucket'),
+        endpoint?: string(name='Endpoint', description='The output endpoint. If the storage type is set to oss, the Object Storage Service (OSS) domain name is returned.', example='oss-cn-shanghai.aliyuncs.com'),
+        storageType?: string(name='StorageType', description='The storage type. The value can only be oss.', example='oss'),
+      }(name='SnapshotOutput', description='The output information.'),
+      status?: string(name='Status', description='The state of the job.
+
+Valid values:
+
+*   init: The job is not started.
+*   paused: The job is paused.
+*   started: The job is in progress.', example='started'),
+      templateId?: string(name='TemplateId', description='The template ID.', example='****a046-263c-3560-978a-fb287666****'),
+      templateName?: string(name='TemplateName', description='The template name.'),
+      timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots. Unit: seconds.', example='5'),
     }
-  ](name='JobList'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  sortBy?: string(name='SortBy', example='desc'),
-  totalCount?: long(name='TotalCount', example='100'),
+  ](name='JobList', description='The list of jobs.'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  sortBy?: string(name='SortBy', description='The sorting order of the jobs by creation time.', example='desc'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='100'),
 }
 
 model ListLiveSnapshotJobsResponse = {
@@ -11276,7 +11507,7 @@ model ListLiveSnapshotJobsResponse = {
 }
 
 /**
- * @summary 查询直播截图任务列表
+ * @summary Queries a list of live stream snapshot jobs by page.
  *
  * @param request ListLiveSnapshotJobsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11303,7 +11534,7 @@ async function listLiveSnapshotJobsWithOptions(request: ListLiveSnapshotJobsRequ
 }
 
 /**
- * @summary 查询直播截图任务列表
+ * @summary Queries a list of live stream snapshot jobs by page.
  *
  * @param request ListLiveSnapshotJobsRequest
  * @return ListLiveSnapshotJobsResponse
@@ -11314,29 +11545,49 @@ async function listLiveSnapshotJobs(request: ListLiveSnapshotJobsRequest): ListL
 }
 
 model ListLiveSnapshotTemplatesRequest {
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  searchKeyWord?: string(name='SearchKeyWord', example='****a046-263c-3560-978a-fb287782****'),
-  sortBy?: string(name='SortBy', example='desc'),
-  templateIds?: [ string ](name='TemplateIds'),
-  type?: string(name='Type', example='custom'),
+  pageNo?: int32(name='PageNo', description='The page number. Valid values: [1,n). Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
+  searchKeyWord?: string(name='SearchKeyWord', description='The search keyword. You can use the template ID or name as the keyword to search for templates. If you search for templates by name, fuzzy match is supported.
+
+*   It cannot exceed 128 characters in length.', example='****a046-263c-3560-978a-fb287782****'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order.
+
+Valid values:
+
+*   asc: sorts the query results by creation time in ascending order.
+*   desc: sorts the query results by creation time in descending order.', example='desc'),
+  templateIds?: [ string ](name='TemplateIds', description='The template IDs.
+
+*   If you specify the SearchKeyWord parameter, this condition does not take effect.
+*   The maximum length of the array is 200.'),
+  type?: string(name='Type', description='The type of the template. By default, all types are queried.
+
+Valid values:
+
+*   system
+*   custom', example='custom'),
 }
 
 model ListLiveSnapshotTemplatesResponseBody = {
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  sortBy?: string(name='SortBy', example='desc'),
+  pageNo?: int32(name='PageNo', description='The number of the returned page.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  sortBy?: string(name='SortBy', description='The sorting order of the results by creation time.', example='desc'),
   templateList?: [ 
     {
-      createTime?: string(name='CreateTime', example='2022-07-20T02:48:58Z'),
-      templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287782****'),
-      templateName?: string(name='TemplateName'),
-      timeInterval?: int32(name='TimeInterval', example='10'),
-      type?: string(name='Type', example='custom'),
+      createTime?: string(name='CreateTime', description='The time when the job was created.', example='2022-07-20T02:48:58Z'),
+      templateId?: string(name='TemplateId', description='The template ID.', example='****a046-263c-3560-978a-fb287782****'),
+      templateName?: string(name='TemplateName', description='The template name.'),
+      timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots. Unit: seconds.', example='10'),
+      type?: string(name='Type', description='The type of the template.
+
+Valid values:
+
+*   system
+*   custom', example='custom'),
     }
-  ](name='TemplateList'),
-  totalCount?: long(name='TotalCount', example='100'),
+  ](name='TemplateList', description='The list of the templates.'),
+  totalCount?: long(name='TotalCount', description='The total number of entries returned.', example='100'),
 }
 
 model ListLiveSnapshotTemplatesResponse = {
@@ -11346,7 +11597,7 @@ model ListLiveSnapshotTemplatesResponse = {
 }
 
 /**
- * @summary 查询直播截图模板列表
+ * @summary Queries a list of live stream snapshot templates by page.
  *
  * @param request ListLiveSnapshotTemplatesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11373,7 +11624,7 @@ async function listLiveSnapshotTemplatesWithOptions(request: ListLiveSnapshotTem
 }
 
 /**
- * @summary 查询直播截图模板列表
+ * @summary Queries a list of live stream snapshot templates by page.
  *
  * @param request ListLiveSnapshotTemplatesRequest
  * @return ListLiveSnapshotTemplatesResponse
@@ -11384,42 +11635,55 @@ async function listLiveSnapshotTemplates(request: ListLiveSnapshotTemplatesReque
 }
 
 model ListLiveTranscodeJobsRequest {
-  keyWord?: string(name='KeyWord', example='24ecbb5c-4f98-4194-9400-f17102e27fc5'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  sortBy?: string(name='SortBy', example='asc'),
-  startMode?: int32(name='StartMode', example='0'),
-  status?: int32(name='Status', example='1'),
-  type?: string(name='Type', example='normal'),
+  keyWord?: string(name='KeyWord', description='The search keyword. You can use the job ID or name as the keyword to search for jobs. If you search for jobs by name, fuzzy match is supported.', example='24ecbb5c-4f98-4194-9400-f17102e27fc5'),
+  pageNo?: int32(name='PageNo', description='The page number. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='20'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order. Valid values:
+
+*   asc
+*   desc', example='asc'),
+  startMode?: int32(name='StartMode', description='The start mode of the transcoding job.
+
+*   0: The transcoding job immediately starts.
+*   1: The transcoding job starts at the scheduled time.', example='0'),
+  status?: int32(name='Status', description='The state of the job.
+
+0: The job is not started. 1: The job is in progress. 2: The job is stopped.', example='1'),
+  type?: string(name='Type', description='The type of the template used by the transcoding job.
+
+*   normal
+*   narrow-band
+*   audio-only
+*   origin', example='normal'),
 }
 
 model ListLiveTranscodeJobsResponseBody = {
   jobList?: [ 
     {
-      createTime?: string(name='CreateTime', example='2022-07-20T02:48:58Z'),
-      jobId?: string(name='JobId', example='****a046-263c-3560-978a-fb287782****'),
-      name?: string(name='Name', example='mytask'),
+      createTime?: string(name='CreateTime', description='The time when the job was created.', example='2022-07-20T02:48:58Z'),
+      jobId?: string(name='JobId', description='The job ID.', example='****a046-263c-3560-978a-fb287782****'),
+      name?: string(name='Name', description='The name of the transcoding job.', example='mytask'),
       outputStream?: {
         streamInfos?: [ 
           {
-            outputUrl?: string(name='OutputUrl', example='rtmp://mydomain/app/mytranscode1'),
-            type?: string(name='Type', example='rtmp'),
+            outputUrl?: string(name='OutputUrl', description='The URL of the output stream.', example='rtmp://mydomain/app/mytranscode1'),
+            type?: string(name='Type', description='The type of the output stream protocol. Only the RTMP protocol is supported.', example='rtmp'),
           }
-        ](name='StreamInfos'),
-      }(name='OutputStream'),
-      startMode?: int32(name='StartMode', example='0'),
-      status?: int32(name='Status', example='1'),
+        ](name='StreamInfos', description='The list of stream URLs.'),
+      }(name='OutputStream', description='The information about the output stream.'),
+      startMode?: int32(name='StartMode', description='The start mode of the job.', example='0'),
+      status?: int32(name='Status', description='The state of the job.', example='1'),
       streamInput?: {
-        inputUrl?: string(name='InputUrl', example='rtmp://mydomain/app/stream1'),
-        type?: string(name='Type', example='rtmp'),
-      }(name='StreamInput'),
-      templateId?: string(name='TemplateId', example='****a046-263c-3560-978a-fb287666****'),
-      templateName?: string(name='TemplateName'),
-      templateType?: string(name='TemplateType', example='normal'),
+        inputUrl?: string(name='InputUrl', description='The URL of the input stream.', example='rtmp://mydomain/app/stream1'),
+        type?: string(name='Type', description='The type of the input stream.', example='rtmp'),
+      }(name='StreamInput', description='The information about the input stream.'),
+      templateId?: string(name='TemplateId', description='The ID of the transcoding template used by the transcoding job.', example='****a046-263c-3560-978a-fb287666****'),
+      templateName?: string(name='TemplateName', description='The template name.'),
+      templateType?: string(name='TemplateType', description='The type of the transcoding template used by the transcoding job.', example='normal'),
     }
-  ](name='JobList'),
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
-  totalCount?: int32(name='TotalCount', example='100'),
+  ](name='JobList', description='The list of transcoding jobs.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='100'),
 }
 
 model ListLiveTranscodeJobsResponse = {
@@ -11429,7 +11693,7 @@ model ListLiveTranscodeJobsResponse = {
 }
 
 /**
- * @summary 查询转码任务列表
+ * @summary Queries a list of live stream transcoding jobs.
  *
  * @param request ListLiveTranscodeJobsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11477,7 +11741,7 @@ async function listLiveTranscodeJobsWithOptions(request: ListLiveTranscodeJobsRe
 }
 
 /**
- * @summary 查询转码任务列表
+ * @summary Queries a list of live stream transcoding jobs.
  *
  * @param request ListLiveTranscodeJobsRequest
  * @return ListLiveTranscodeJobsResponse
@@ -11488,45 +11752,59 @@ async function listLiveTranscodeJobs(request: ListLiveTranscodeJobsRequest): Lis
 }
 
 model ListLiveTranscodeTemplatesRequest {
-  category?: string(name='Category', example='customized'),
-  keyWord?: string(name='KeyWord', example='my_template'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='20'),
-  sortBy?: string(name='SortBy', example='asc'),
-  type?: string(name='Type', example='normal'),
-  videoCodec?: string(name='VideoCodec', example='H.264'),
+  category?: string(name='Category', description='The category of the template. Valid values:
+
+*   system
+*   customized', example='customized'),
+  keyWord?: string(name='KeyWord', description='The search keyword. You can use the template ID or name as the keyword to search for templates. If you search for templates by name, fuzzy match is supported.', example='my_template'),
+  pageNo?: int32(name='PageNo', description='The page number of the page to return. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='20'),
+  sortBy?: string(name='SortBy', description='The sorting order. By default, the query results are sorted by creation time in descending order. Valid values:
+
+*   asc
+*   desc', example='asc'),
+  type?: string(name='Type', description='The type of the template. Valid values:
+
+*   normal
+*   narrow-band
+*   audio-only
+*   origin', example='normal'),
+  videoCodec?: string(name='VideoCodec', description='The video codec. Valid values:
+
+*   H.264
+*   H.265', example='H.264'),
 }
 
 model ListLiveTranscodeTemplatesResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
   templateContentList?: [ 
     {
-      category?: string(name='Category', example='system'),
-      createTime?: string(name='CreateTime', example='2022-07-20T03:26:36Z'),
-      name?: string(name='Name', example='my_template'),
+      category?: string(name='Category', description='The category of the template. Valid values:', example='system'),
+      createTime?: string(name='CreateTime', description='The time when the job was created.', example='2022-07-20T03:26:36Z'),
+      name?: string(name='Name', description='The template name.', example='my_template'),
       templateConfig?: {
         audioParams?: {
-          bitrate?: string(name='Bitrate', example='1000'),
-          channels?: string(name='Channels', example='2'),
-          codec?: string(name='Codec', example='AAC'),
-          profile?: string(name='Profile', example='aac_low'),
-          samplerate?: string(name='Samplerate', example='44100'),
-        }(name='AudioParams'),
+          bitrate?: string(name='Bitrate', description='The audio bitrate.', example='1000'),
+          channels?: string(name='Channels', description='The number of sound channels.', example='2'),
+          codec?: string(name='Codec', description='The audio codec.', example='AAC'),
+          profile?: string(name='Profile', description='The encoding profile.', example='aac_low'),
+          samplerate?: string(name='Samplerate', description='The audio sampling rate.', example='44100'),
+        }(name='AudioParams', description='The audio parameters.'),
         videoParams?: {
-          bitrate?: string(name='Bitrate', example='2500'),
-          codec?: string(name='Codec', example='264'),
-          fps?: string(name='Fps', example='30'),
-          gop?: string(name='Gop', example='1000'),
-          height?: string(name='Height', example='1280'),
-          profile?: string(name='Profile', example='3'),
-          width?: string(name='Width', example='720'),
-        }(name='VideoParams'),
-      }(name='TemplateConfig'),
-      templateId?: string(name='TemplateId', example='9b1571b513cb44f7a1ba6ae561ff46f7'),
-      type?: string(name='Type', example='normal'),
+          bitrate?: string(name='Bitrate', description='The video bitrate.', example='2500'),
+          codec?: string(name='Codec', description='The encoding format.', example='264'),
+          fps?: string(name='Fps', description='The video frame rate.', example='30'),
+          gop?: string(name='Gop', description='The group of pictures (GOP) of the output video. Unit: frame.', example='1000'),
+          height?: string(name='Height', description='The vertical resolution of the video.', example='1280'),
+          profile?: string(name='Profile', description='The encoding profile.', example='3'),
+          width?: string(name='Width', description='The horizontal resolution of the video.', example='720'),
+        }(name='VideoParams', description='The video parameters.'),
+      }(name='TemplateConfig', description='The configuration of the template.'),
+      templateId?: string(name='TemplateId', description='The template ID.', example='9b1571b513cb44f7a1ba6ae561ff46f7'),
+      type?: string(name='Type', description='The type of the template.', example='normal'),
     }
-  ](name='TemplateContentList'),
-  totalCount?: int32(name='TotalCount', example='100'),
+  ](name='TemplateContentList', description='The list of transcoding templates.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='100'),
 }
 
 model ListLiveTranscodeTemplatesResponse = {
@@ -11536,7 +11814,7 @@ model ListLiveTranscodeTemplatesResponse = {
 }
 
 /**
- * @summary 查询转码模版列表
+ * @summary Queries a list of live stream transcoding templates.
  *
  * @param request ListLiveTranscodeTemplatesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -11584,7 +11862,7 @@ async function listLiveTranscodeTemplatesWithOptions(request: ListLiveTranscodeT
 }
 
 /**
- * @summary 查询转码模版列表
+ * @summary Queries a list of live stream transcoding templates.
  *
  * @param request ListLiveTranscodeTemplatesRequest
  * @return ListLiveTranscodeTemplatesResponse
@@ -16515,12 +16793,22 @@ async function sendAIAgentSpeech(request: SendAIAgentSpeechRequest): SendAIAgent
 }
 
 model SendLiveSnapshotJobCommandRequest {
-  command?: string(name='Command', description='This parameter is required.', example='start'),
-  jobId?: string(name='JobId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  command?: string(name='Command', description='The operation command.
+
+Valid values:
+
+*   stop
+*   restart
+*   start
+
+This parameter is required.', example='start'),
+  jobId?: string(name='JobId', description='The ID of the snapshot job.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model SendLiveSnapshotJobCommandResponseBody = {
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model SendLiveSnapshotJobCommandResponse = {
@@ -16530,7 +16818,7 @@ model SendLiveSnapshotJobCommandResponse = {
 }
 
 /**
- * @summary 发送实时截图任务指令
+ * @summary Sends a command to process a live stream snapshot job.
  *
  * @param request SendLiveSnapshotJobCommandRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16563,7 +16851,7 @@ async function sendLiveSnapshotJobCommandWithOptions(request: SendLiveSnapshotJo
 }
 
 /**
- * @summary 发送实时截图任务指令
+ * @summary Sends a command to process a live stream snapshot job.
  *
  * @param request SendLiveSnapshotJobCommandRequest
  * @return SendLiveSnapshotJobCommandResponse
@@ -16574,12 +16862,16 @@ async function sendLiveSnapshotJobCommand(request: SendLiveSnapshotJobCommandReq
 }
 
 model SendLiveTranscodeJobCommandRequest {
-  command?: string(name='Command', description='This parameter is required.', example='stop'),
-  jobId?: string(name='JobId', description='This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
+  command?: string(name='Command', description='The operation command. Only the stop command is supported. This command is used to stop a transcoding job.
+
+This parameter is required.', example='stop'),
+  jobId?: string(name='JobId', description='The ID of the transcoding job.
+
+This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
 }
 
 model SendLiveTranscodeJobCommandResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model SendLiveTranscodeJobCommandResponse = {
@@ -16589,7 +16881,7 @@ model SendLiveTranscodeJobCommandResponse = {
 }
 
 /**
- * @summary 给指定转码任务发实时命令
+ * @summary Sends a command to process a live stream transcoding job.
  *
  * @param request SendLiveTranscodeJobCommandRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16622,7 +16914,7 @@ async function sendLiveTranscodeJobCommandWithOptions(request: SendLiveTranscode
 }
 
 /**
- * @summary 给指定转码任务发实时命令
+ * @summary Sends a command to process a live stream transcoding job.
  *
  * @param request SendLiveTranscodeJobCommandRequest
  * @return SendLiveTranscodeJobCommandResponse
@@ -16819,17 +17111,23 @@ async function setDefaultStorageLocation(request: SetDefaultStorageLocationReque
 }
 
 model SetEventCallbackRequest {
-  authKey?: string(name='AuthKey', example='TestKey001'),
-  authSwitch?: string(name='AuthSwitch', example='on'),
-  callbackQueueName?: string(name='CallbackQueueName', example='ice-callback-queue'),
-  callbackType?: string(name='CallbackType', example='HTTP'),
-  callbackURL?: string(name='CallbackURL', example='http://xxx.yyy/callback'),
-  eventTypeList?: string(name='EventTypeList', example='ProduceMediaComplete'),
+  authKey?: string(name='AuthKey', description='The authentication key. The key can be up to 32 characters in length and must contain uppercase letters, lowercase letters, and digits. This parameter takes effect only if you set CallbackType to **HTTP**.', example='TestKey001'),
+  authSwitch?: string(name='AuthSwitch', description='Specifies whether to enable callback authentication. This parameter takes effect only if you set CallbackType to **HTTP**. Valid values:
+
+*   **on**
+*   **off**', example='on'),
+  callbackQueueName?: string(name='CallbackQueueName', description='The name of the Simple Message Queue (SMQ) queue in the region. The name must start with ice-callback-.', example='ice-callback-queue'),
+  callbackType?: string(name='CallbackType', description='The callback method. Valid values:
+
+*   **HTTP**
+*   **MNS**', example='HTTP'),
+  callbackURL?: string(name='CallbackURL', description='The callback URL. This parameter is required if you set CallbackType to **HTTP**. The callback URL cannot exceed 256 bytes in length. You can specify only one callback URL.', example='http://xxx.yyy/callback'),
+  eventTypeList?: string(name='EventTypeList', description='The type of the callback event. You can specify multiple values separated with commas (,). ProduceMediaComplete: indicates that the editing and production task is complete.', example='ProduceMediaComplete'),
 }
 
 model SetEventCallbackResponseBody = {
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
-  success?: boolean(name='Success', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
+  success?: boolean(name='Success', description='Indicates whether the configuration was successful. Valid values: true and false.', example='true'),
 }
 
 model SetEventCallbackResponse = {
@@ -16839,7 +17137,7 @@ model SetEventCallbackResponse = {
 }
 
 /**
- * @summary 配置事件回调地址
+ * @summary Configures a callback method for one or more events.
  *
  * @param request SetEventCallbackRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16884,7 +17182,7 @@ async function setEventCallbackWithOptions(request: SetEventCallbackRequest, run
 }
 
 /**
- * @summary 配置事件回调地址
+ * @summary Configures a callback method for one or more events.
  *
  * @param request SetEventCallbackRequest
  * @return SetEventCallbackResponse
@@ -17607,7 +17905,7 @@ model SubmitAvatarVideoJobResponse = {
 }
 
 /**
- * @summary 提交虚拟人视频合成任务
+ * @summary Submits a video rendering job for a digitized virtual human based on text or an audio file of a human voice.
  *
  * @param request SubmitAvatarVideoJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17652,7 +17950,7 @@ async function submitAvatarVideoJobWithOptions(request: SubmitAvatarVideoJobRequ
 }
 
 /**
- * @summary 提交虚拟人视频合成任务
+ * @summary Submits a video rendering job for a digitized virtual human based on text or an audio file of a human voice.
  *
  * @param request SubmitAvatarVideoJobRequest
  * @return SubmitAvatarVideoJobResponse
@@ -18566,39 +18864,51 @@ async function submitLiveEditingJob(request: SubmitLiveEditingJobRequest): Submi
 }
 
 model SubmitLiveRecordJobRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The name of the recording job.
 
 This parameter is required.', example='live stream record 1'),
-  notifyUrl?: string(name='NotifyUrl', description='回调地址', example='https://example.com/imsnotify'),
+  notifyUrl?: string(name='NotifyUrl', description='The callback URL.', example='https://example.com/imsnotify'),
   recordOutput?: {
-    bucket?: string(name='Bucket', example='imsbucket1'),
-    endpoint?: string(name='Endpoint', example='oss-cn-hangzhou.aliyuncs.com'),
-    type?: string(name='Type', description='This parameter is required.', example='oss'),
-  }(name='RecordOutput', description='This parameter is required.'),
+    bucket?: string(name='Bucket', description='The bucket name.', example='imsbucket1'),
+    endpoint?: string(name='Endpoint', description='The endpoint of the storage service.', example='oss-cn-hangzhou.aliyuncs.com'),
+    type?: string(name='Type', description='The type of the storage address.
+
+This parameter is required.', example='oss'),
+  }(name='RecordOutput', description='The storage address of the recording.
+
+This parameter is required.'),
   streamInput?: {
-    type?: string(name='Type', description='This parameter is required.', example='rtmp'),
-    url?: string(name='Url', example='rtmp://example.com/live/stream1'),
-  }(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='录制模板ID
+    type?: string(name='Type', description='The type of the live stream URL. The value can only be rtmp.
+
+This parameter is required.', example='rtmp'),
+    url?: string(name='Url', description='The URL of the live stream.', example='rtmp://example.com/live/stream1'),
+  }(name='StreamInput', description='The URL of the live stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The ID of the recording template.
 
 This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model SubmitLiveRecordJobShrinkRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The name of the recording job.
 
 This parameter is required.', example='live stream record 1'),
-  notifyUrl?: string(name='NotifyUrl', description='回调地址', example='https://example.com/imsnotify'),
-  recordOutputShrink?: string(name='RecordOutput', description='This parameter is required.'),
-  streamInputShrink?: string(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='录制模板ID
+  notifyUrl?: string(name='NotifyUrl', description='The callback URL.', example='https://example.com/imsnotify'),
+  recordOutputShrink?: string(name='RecordOutput', description='The storage address of the recording.
+
+This parameter is required.'),
+  streamInputShrink?: string(name='StreamInput', description='The URL of the live stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The ID of the recording template.
 
 This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model SubmitLiveRecordJobResponseBody = {
-  jobId?: string(name='JobId', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
-  requestId?: string(name='RequestId', example='BEA98A0C-7870-15FE-B96F-8880BB600A2C'),
+  jobId?: string(name='JobId', description='The ID of the recording job.', example='ab0e3e76-1e9d-11ed-ba64-0c42a1b73d66'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BEA98A0C-7870-15FE-B96F-8880BB600A2C'),
 }
 
 model SubmitLiveRecordJobResponse = {
@@ -18608,7 +18918,11 @@ model SubmitLiveRecordJobResponse = {
 }
 
 /**
- * @summary 提交录制任务
+ * @summary Submits a live stream recording job.
+ *
+ * @description You can call this operation to record live streams of ApsaraVideo Live or third-party Real-Time Messaging Protocol (RTMP) live streams. We recommend that you ingest a stream before you call this operation to submit a recording job. If no stream is pulled from the streaming URL, the job attempts to pull a stream for 3 minutes. If the attempt times out, the recording service stops.
+ * Before you submit a recording job, you must prepare an Object Storage Service (OSS) or ApsaraVideo VOD bucket. We recommend that you use a storage address configured in Intelligent Media Services (IMS) to facilitate the management and processing of generated recording files.
+ * If the preset recording template does not meet your requirements, you can create a custom recording template.
  *
  * @param tmpReq SubmitLiveRecordJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18658,7 +18972,11 @@ async function submitLiveRecordJobWithOptions(tmpReq: SubmitLiveRecordJobRequest
 }
 
 /**
- * @summary 提交录制任务
+ * @summary Submits a live stream recording job.
+ *
+ * @description You can call this operation to record live streams of ApsaraVideo Live or third-party Real-Time Messaging Protocol (RTMP) live streams. We recommend that you ingest a stream before you call this operation to submit a recording job. If no stream is pulled from the streaming URL, the job attempts to pull a stream for 3 minutes. If the attempt times out, the recording service stops.
+ * Before you submit a recording job, you must prepare an Object Storage Service (OSS) or ApsaraVideo VOD bucket. We recommend that you use a storage address configured in Intelligent Media Services (IMS) to facilitate the management and processing of generated recording files.
+ * If the preset recording template does not meet your requirements, you can create a custom recording template.
  *
  * @param request SubmitLiveRecordJobRequest
  * @return SubmitLiveRecordJobResponse
@@ -18669,31 +18987,69 @@ async function submitLiveRecordJob(request: SubmitLiveRecordJobRequest): SubmitL
 }
 
 model SubmitLiveSnapshotJobRequest {
-  callbackUrl?: string(name='CallbackUrl', example='http://www.aliyun.com/snapshot/callback'),
-  jobName?: string(name='JobName', description='This parameter is required.'),
+  callbackUrl?: string(name='CallbackUrl', description='The snapshot callback URL.
+
+*   It cannot exceed 255 characters in length.
+*   Both HTTP and HTTPS URLs are supported.', example='http://www.aliyun.com/snapshot/callback'),
+  jobName?: string(name='JobName', description='The name of the job.
+
+*   It cannot exceed 128 characters in length.
+
+This parameter is required.'),
   snapshotOutput?: {
-    bucket?: string(name='Bucket', description='This parameter is required.', example='testbucket'),
-    endpoint?: string(name='Endpoint', description='This parameter is required.', example='oss-cn-shanghai.aliyuncs.com'),
-    storageType?: string(name='StorageType', description='This parameter is required.', example='oss'),
-  }(name='SnapshotOutput', description='This parameter is required.'),
+    bucket?: string(name='Bucket', description='The bucket of the snapshot output endpoint.
+
+This parameter is required.', example='testbucket'),
+    endpoint?: string(name='Endpoint', description='The output endpoint of the snapshot.
+
+This parameter is required.', example='oss-cn-shanghai.aliyuncs.com'),
+    storageType?: string(name='StorageType', description='The storage type of the snapshot. The value can only be oss.
+
+This parameter is required.', example='oss'),
+  }(name='SnapshotOutput', description='The information about the output snapshot.
+
+This parameter is required.'),
   streamInput?: {
-    type?: string(name='Type', description='This parameter is required.', example='rtmp'),
-    url?: string(name='Url', description='This parameter is required.', example='rtmp://www.aliyun.com/stream'),
-  }(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+    type?: string(name='Type', description='The type of the input stream. The value can only be rtmp.
+
+This parameter is required.', example='rtmp'),
+    url?: string(name='Url', description='The URL of the input stream.
+
+*   It cannot exceed 255 characters in length.
+
+This parameter is required.', example='rtmp://www.aliyun.com/stream'),
+  }(name='StreamInput', description='The information about the input stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model SubmitLiveSnapshotJobShrinkRequest {
-  callbackUrl?: string(name='CallbackUrl', example='http://www.aliyun.com/snapshot/callback'),
-  jobName?: string(name='JobName', description='This parameter is required.'),
-  snapshotOutputShrink?: string(name='SnapshotOutput', description='This parameter is required.'),
-  streamInputShrink?: string(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  callbackUrl?: string(name='CallbackUrl', description='The snapshot callback URL.
+
+*   It cannot exceed 255 characters in length.
+*   Both HTTP and HTTPS URLs are supported.', example='http://www.aliyun.com/snapshot/callback'),
+  jobName?: string(name='JobName', description='The name of the job.
+
+*   It cannot exceed 128 characters in length.
+
+This parameter is required.'),
+  snapshotOutputShrink?: string(name='SnapshotOutput', description='The information about the output snapshot.
+
+This parameter is required.'),
+  streamInputShrink?: string(name='StreamInput', description='The information about the input stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
 }
 
 model SubmitLiveSnapshotJobResponseBody = {
-  jobId?: string(name='JobId', example='****a046-263c-3560-978a-fb287666****'),
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  jobId?: string(name='JobId', description='The job ID.', example='****a046-263c-3560-978a-fb287666****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model SubmitLiveSnapshotJobResponse = {
@@ -18703,7 +19059,7 @@ model SubmitLiveSnapshotJobResponse = {
 }
 
 /**
- * @summary 创建直播截图任务
+ * @summary Submits a live stream snapshot job. If the job is submitted during stream ingest, it automatically starts in asynchronous mode. Otherwise, it does not start.
  *
  * @param tmpReq SubmitLiveSnapshotJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18753,7 +19109,7 @@ async function submitLiveSnapshotJobWithOptions(tmpReq: SubmitLiveSnapshotJobReq
 }
 
 /**
- * @summary 创建直播截图任务
+ * @summary Submits a live stream snapshot job. If the job is submitted during stream ingest, it automatically starts in asynchronous mode. Otherwise, it does not start.
  *
  * @param request SubmitLiveSnapshotJobRequest
  * @return SubmitLiveSnapshotJobResponse
@@ -18764,35 +19120,67 @@ async function submitLiveSnapshotJob(request: SubmitLiveSnapshotJobRequest): Sub
 }
 
 model SubmitLiveTranscodeJobRequest {
-  name?: string(name='Name', description='This parameter is required.', example='task1'),
-  startMode?: int32(name='StartMode', description='This parameter is required.', example='0'),
+  name?: string(name='Name', description='The name of the transcoding job.
+
+This parameter is required.', example='task1'),
+  startMode?: int32(name='StartMode', description='The start mode of the transcoding job.
+
+*   0: The transcoding job immediately starts.
+*   1: The transcoding job starts at the scheduled time.
+
+This parameter is required.', example='0'),
   streamInput?: {
-    inputUrl?: string(name='InputUrl', description='This parameter is required.', example='rtmp://mydomain/app/stream1'),
-    type?: string(name='Type', description='This parameter is required.', example='rtmp'),
-  }(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****96e8864746a0b6f3****'),
+    inputUrl?: string(name='InputUrl', description='The URL of the input stream.
+
+This parameter is required.', example='rtmp://mydomain/app/stream1'),
+    type?: string(name='Type', description='The type of the input stream. The value can only be rtmp.
+
+This parameter is required.', example='rtmp'),
+  }(name='StreamInput', description='The information about the input stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****96e8864746a0b6f3****'),
   timedConfig?: {
-    endTime?: string(name='EndTime', example='2022-07-20T08:20:32Z'),
-    startTime?: string(name='StartTime', example='2022-02-21T00:00:00Z'),
-  }(name='TimedConfig'),
+    endTime?: string(name='EndTime', description='The stop time of the transcoding job. Note: The time span between the stop time and the current time cannot exceed seven days.', example='2022-07-20T08:20:32Z'),
+    startTime?: string(name='StartTime', description='The start time of the transcoding job. Note: The time span between the start time and the current time cannot exceed seven days.', example='2022-02-21T00:00:00Z'),
+  }(name='TimedConfig', description='The configuration of a timed transcoding job. This parameter is required if you set StartMode to 1.'),
   transcodeOutput?: {
-    domainName?: string(name='DomainName', example='mydomain'),
-    type?: string(name='Type', description='This parameter is required.', example='LiveCenter'),
-  }(name='TranscodeOutput', description='This parameter is required.'),
+    domainName?: string(name='DomainName', description='The streaming domain name of ApsaraVideo Live.', example='mydomain'),
+    type?: string(name='Type', description='The type of the output stream. A value of LiveCenter indicates that the URL of the output stream is generated based on the domain name of ApsaraVideo Live. The value can only be LiveCenter.
+
+This parameter is required.', example='LiveCenter'),
+  }(name='TranscodeOutput', description='The information about the transcoding output.
+
+This parameter is required.'),
 }
 
 model SubmitLiveTranscodeJobShrinkRequest {
-  name?: string(name='Name', description='This parameter is required.', example='task1'),
-  startMode?: int32(name='StartMode', description='This parameter is required.', example='0'),
-  streamInputShrink?: string(name='StreamInput', description='This parameter is required.'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****96e8864746a0b6f3****'),
-  timedConfigShrink?: string(name='TimedConfig'),
-  transcodeOutputShrink?: string(name='TranscodeOutput', description='This parameter is required.'),
+  name?: string(name='Name', description='The name of the transcoding job.
+
+This parameter is required.', example='task1'),
+  startMode?: int32(name='StartMode', description='The start mode of the transcoding job.
+
+*   0: The transcoding job immediately starts.
+*   1: The transcoding job starts at the scheduled time.
+
+This parameter is required.', example='0'),
+  streamInputShrink?: string(name='StreamInput', description='The information about the input stream.
+
+This parameter is required.'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****96e8864746a0b6f3****'),
+  timedConfigShrink?: string(name='TimedConfig', description='The configuration of a timed transcoding job. This parameter is required if you set StartMode to 1.'),
+  transcodeOutputShrink?: string(name='TranscodeOutput', description='The information about the transcoding output.
+
+This parameter is required.'),
 }
 
 model SubmitLiveTranscodeJobResponseBody = {
-  jobId?: string(name='JobId', example='****20b48fb04483915d4f2cd8ac****'),
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  jobId?: string(name='JobId', description='The ID of the transcoding job.', example='****20b48fb04483915d4f2cd8ac****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model SubmitLiveTranscodeJobResponse = {
@@ -18802,7 +19190,10 @@ model SubmitLiveTranscodeJobResponse = {
 }
 
 /**
- * @summary 提交转码任务
+ * @summary Submits a live stream transcoding job.
+ *
+ * @description *   When you submit a transcoding job that immediately takes effect, make sure that the input stream can be streamed.
+ * *   When you submit a timed transcoding job, make sure that the input stream can be streamed before the specified time.
  *
  * @param tmpReq SubmitLiveTranscodeJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18858,7 +19249,10 @@ async function submitLiveTranscodeJobWithOptions(tmpReq: SubmitLiveTranscodeJobR
 }
 
 /**
- * @summary 提交转码任务
+ * @summary Submits a live stream transcoding job.
+ *
+ * @description *   When you submit a transcoding job that immediately takes effect, make sure that the input stream can be streamed.
+ * *   When you submit a timed transcoding job, make sure that the input stream can be streamed before the specified time.
  *
  * @param request SubmitLiveTranscodeJobRequest
  * @return SubmitLiveTranscodeJobResponse
@@ -22118,41 +22512,60 @@ async function updateEditingProject(request: UpdateEditingProjectRequest): Updat
 }
 
 model UpdateLiveRecordTemplateRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The template name.
 
 This parameter is required.', example='test template'),
   recordFormat?: [ 
     {
-      cycleDuration?: int32(name='CycleDuration', example='3600'),
-      format?: string(name='Format', description='格式
+      cycleDuration?: int32(name='CycleDuration', description='The duration of the recording cycle. Unit: seconds If you do not specify this parameter, the default value 6 hours is used.
+
+> 
+
+*   If a live stream is interrupted during a recording cycle but is resumed within 3 minutes, the stream is recorded in the same recording before and after the interruption.
+
+*   If a live stream is interrupted for more than 3 minutes, a new recording is generated. To change the default stream interruption time, submit a ticket.', example='3600'),
+      format?: string(name='Format', description='The format of recording files.
+
+>  If you set this parameter to m3u8, you must also specify the SliceOssObjectPrefix and SliceDuration parameters.
 
 This parameter is required.', example='m3u8'),
-      ossObjectPrefix?: string(name='OssObjectPrefix', description='Oss对象名，不包含后缀', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
-      sliceDuration?: int32(name='SliceDuration', description='切片时长', example='30'),
-      sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='切片Oss对象名，不包含后缀', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
+      ossObjectPrefix?: string(name='OssObjectPrefix', description='The name of the recording that is stored in Object Storage Service (OSS).
+
+*   The name must be less than 256 bytes in length and can contain the {JobId}, {Sequence}, {StartTime}, {EndTime}, {EscapedStartTime}, and {EscapedEndTime} variables.
+*   The name must contain the {StartTime} and {EndTime} variables or the {EscapedStartTime} and {EscapedEndTime} variables.', example='record/{JobId}/{Sequence}_{EscapedStartTime}_{EscapedEndTime}'),
+      sliceDuration?: int32(name='SliceDuration', description='The duration of a single segment. Unit: seconds
+
+>  This parameter takes effect only if you set Format to m3u8.
+
+If you do not specify this parameter, the default value 30 seconds is used. Valid values: 5 to 30.', example='30'),
+      sliceOssObjectPrefix?: string(name='SliceOssObjectPrefix', description='The name of the TS segment.
+
+>  This parameter is required only if you set Format to m3u8. By default, the duration of a segment is 30 seconds. The segment name must be less than 256 bytes in length and can contain the {JobId}, {UnixTimestamp}, and {Sequence} variables.
+
+The segment name must contain the {UnixTimestamp} and {Sequence} variables.', example='record/{JobId}/{UnixTimestamp}_{Sequence}'),
     }
-  ](name='RecordFormat', description='录制格式
+  ](name='RecordFormat', description='The list of recording formats.
 
 This parameter is required.'),
-  templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段
+  templateId?: string(name='TemplateId', description='The template ID.
 
 This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model UpdateLiveRecordTemplateShrinkRequest {
-  name?: string(name='Name', description='代表资源名称的资源属性字段
+  name?: string(name='Name', description='The template name.
 
 This parameter is required.', example='test template'),
-  recordFormatShrink?: string(name='RecordFormat', description='录制格式
+  recordFormatShrink?: string(name='RecordFormat', description='The list of recording formats.
 
 This parameter is required.'),
-  templateId?: string(name='TemplateId', description='代表资源一级ID的资源属性字段
+  templateId?: string(name='TemplateId', description='The template ID.
 
 This parameter is required.', example='69e1f9fe-1e97-11ed-ba64-0c42a1b73d66'),
 }
 
 model UpdateLiveRecordTemplateResponseBody = {
-  requestId?: string(name='RequestId', description='代表资源一级ID的资源属性字段', example='0F3D5C03-4B6E-5F40-B7F6-B1956776E7D3'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0F3D5C03-4B6E-5F40-B7F6-B1956776E7D3'),
 }
 
 model UpdateLiveRecordTemplateResponse = {
@@ -22162,7 +22575,9 @@ model UpdateLiveRecordTemplateResponse = {
 }
 
 /**
- * @summary 修改直播录制模板
+ * @summary Updates the information about a live stream recording template.
+ *
+ * @description Only user-created templates can be updated. The preset template cannot be updated.
  *
  * @param tmpReq UpdateLiveRecordTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22203,7 +22618,9 @@ async function updateLiveRecordTemplateWithOptions(tmpReq: UpdateLiveRecordTempl
 }
 
 /**
- * @summary 修改直播录制模板
+ * @summary Updates the information about a live stream recording template.
+ *
+ * @description Only user-created templates can be updated. The preset template cannot be updated.
  *
  * @param request UpdateLiveRecordTemplateRequest
  * @return UpdateLiveRecordTemplateResponse
@@ -22214,15 +22631,36 @@ async function updateLiveRecordTemplate(request: UpdateLiveRecordTemplateRequest
 }
 
 model UpdateLiveSnapshotTemplateRequest {
-  overwriteFormat?: string(name='OverwriteFormat', example='snapshot/{JobId}.jpg'),
-  sequenceFormat?: string(name='SequenceFormat', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
-  templateName?: string(name='TemplateName', description='This parameter is required.'),
-  timeInterval?: int32(name='TimeInterval', description='This parameter is required.', example='5'),
+  overwriteFormat?: string(name='OverwriteFormat', description='The naming format of the snapshot captured in overwrite mode.
+
+*   The value cannot start with a forward slash (/). Only the suffix .jpg is supported.
+*   The value cannot exceed 255 characters in length.
+*   The {JobId} placeholder is supported. It specifies the ID of the snapshot job.
+*   Placeholders such as {UnixTimestamp}, {Sequence}, and {Date} are not allowed.
+*   You must specify at least one of the OverwriteFormat and SequenceFormat parameters.', example='snapshot/{JobId}.jpg'),
+  sequenceFormat?: string(name='SequenceFormat', description='The naming format of the snapshot captured in time series mode.
+
+*   The value cannot start with a forward slash (/). Only the suffix .jpg is supported.
+*   The value cannot exceed 255 characters in length.
+*   The {JobId}, {Date}, {UnixTimestamp}, and {Sequence} placeholders are supported. {JobId} specifies the ID of the snapshot job. {Date} specifies the date on which the snapshot is captured. {UnixTimestamp} specifies the timestamp of the snapshot. {Sequence} specifies the sequence number of the snapshot. You must specify at least one of the {UnixTimestamp} and {Sequence} placeholders.
+*   You must specify at least one of the OverwriteFormat and SequenceFormat parameters.', example='snapshot/{JobId}/{UnixTimestamp}.jpg'),
+  templateId?: string(name='TemplateId', description='The template ID.
+
+This parameter is required.', example='****a046-263c-3560-978a-fb287782****'),
+  templateName?: string(name='TemplateName', description='The name of the template.
+
+*   It cannot exceed 128 characters in length.
+
+This parameter is required.'),
+  timeInterval?: int32(name='TimeInterval', description='The interval between two adjacent snapshots. Unit: seconds.
+
+*   Valid values: [5,3600].
+
+This parameter is required.', example='5'),
 }
 
 model UpdateLiveSnapshotTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******11-DB8D-4A9A-875B-275798******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******11-DB8D-4A9A-875B-275798******'),
 }
 
 model UpdateLiveSnapshotTemplateResponse = {
@@ -22232,7 +22670,7 @@ model UpdateLiveSnapshotTemplateResponse = {
 }
 
 /**
- * @summary 更新直播截图模板
+ * @summary Updates the information about a live stream snapshot template.
  *
  * @param request UpdateLiveSnapshotTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22274,7 +22712,7 @@ async function updateLiveSnapshotTemplateWithOptions(request: UpdateLiveSnapshot
 }
 
 /**
- * @summary 更新直播截图模板
+ * @summary Updates the information about a live stream snapshot template.
  *
  * @param request UpdateLiveSnapshotTemplateRequest
  * @return UpdateLiveSnapshotTemplateResponse
@@ -22285,32 +22723,44 @@ async function updateLiveSnapshotTemplate(request: UpdateLiveSnapshotTemplateReq
 }
 
 model UpdateLiveTranscodeJobRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
-  name?: string(name='Name', example='mytest3'),
+  jobId?: string(name='JobId', description='The job ID.
+
+This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
+  name?: string(name='Name', description='The name of the job.', example='mytest3'),
   streamInput?: {
-    inputUrl?: string(name='InputUrl', description='This parameter is required.', example='rtmp://mydomain/app/stream1'),
-    type?: string(name='Type', description='This parameter is required.', example='rtmp'),
-  }(name='StreamInput'),
+    inputUrl?: string(name='InputUrl', description='The URL of the input stream.
+
+This parameter is required.', example='rtmp://mydomain/app/stream1'),
+    type?: string(name='Type', description='The type of the input stream. The value can only be rtmp.
+
+This parameter is required.', example='rtmp'),
+  }(name='StreamInput', description='The information about the input stream.'),
   timedConfig?: {
-    endTime?: string(name='EndTime', example='2022-08-05T06:08:31Z'),
-    startTime?: string(name='StartTime', example='2022-06-19T02:16:41Z'),
-  }(name='TimedConfig'),
+    endTime?: string(name='EndTime', description='The stop time of the transcoding job. Note: The time span between the stop time and the current time cannot exceed seven days.', example='2022-08-05T06:08:31Z'),
+    startTime?: string(name='StartTime', description='The start time of the transcoding job. Note: The time span between the start time and the current time cannot exceed seven days.', example='2022-06-19T02:16:41Z'),
+  }(name='TimedConfig', description='The configuration of a timed transcoding job.'),
   transcodeOutput?: {
-    domainName?: string(name='DomainName', description='This parameter is required.', example='mydomain'),
-    type?: string(name='Type', description='This parameter is required.', example='LiveCenter'),
-  }(name='TranscodeOutput'),
+    domainName?: string(name='DomainName', description='The streaming domain name of ApsaraVideo Live.
+
+This parameter is required.', example='mydomain'),
+    type?: string(name='Type', description='The type of the output stream. A value of LiveCenter indicates that the URL of the output stream is generated based on the domain name of ApsaraVideo Live. The value can only be LiveCenter.
+
+This parameter is required.', example='LiveCenter'),
+  }(name='TranscodeOutput', description='The information about the transcoding output.'),
 }
 
 model UpdateLiveTranscodeJobShrinkRequest {
-  jobId?: string(name='JobId', description='This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
-  name?: string(name='Name', example='mytest3'),
-  streamInputShrink?: string(name='StreamInput'),
-  timedConfigShrink?: string(name='TimedConfig'),
-  transcodeOutputShrink?: string(name='TranscodeOutput'),
+  jobId?: string(name='JobId', description='The job ID.
+
+This parameter is required.', example='****20b48fb04483915d4f2cd8ac****'),
+  name?: string(name='Name', description='The name of the job.', example='mytest3'),
+  streamInputShrink?: string(name='StreamInput', description='The information about the input stream.'),
+  timedConfigShrink?: string(name='TimedConfig', description='The configuration of a timed transcoding job.'),
+  transcodeOutputShrink?: string(name='TranscodeOutput', description='The information about the transcoding output.'),
 }
 
 model UpdateLiveTranscodeJobResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model UpdateLiveTranscodeJobResponse = {
@@ -22320,7 +22770,10 @@ model UpdateLiveTranscodeJobResponse = {
 }
 
 /**
- * @summary 更新转码任务配置
+ * @summary Updates the information about a live stream transcoding job.
+ *
+ * @description *   For a non-timed transcoding job, you can modify the Name parameter of the job, regardless of the job state.
+ * *   For a timed job, you can modify the Name, StreamInput, TranscodeOutput, and TimedConfig parameters. However, the StreamInput, TranscodeOutput, and TimedConfig parameters can be modified only when the job is not started.
  *
  * @param tmpReq UpdateLiveTranscodeJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22373,7 +22826,10 @@ async function updateLiveTranscodeJobWithOptions(tmpReq: UpdateLiveTranscodeJobR
 }
 
 /**
- * @summary 更新转码任务配置
+ * @summary Updates the information about a live stream transcoding job.
+ *
+ * @description *   For a non-timed transcoding job, you can modify the Name parameter of the job, regardless of the job state.
+ * *   For a timed job, you can modify the Name, StreamInput, TranscodeOutput, and TimedConfig parameters. However, the StreamInput, TranscodeOutput, and TimedConfig parameters can be modified only when the job is not started.
  *
  * @param request UpdateLiveTranscodeJobRequest
  * @return UpdateLiveTranscodeJobResponse
@@ -22384,36 +22840,66 @@ async function updateLiveTranscodeJob(request: UpdateLiveTranscodeJobRequest): U
 }
 
 model UpdateLiveTranscodeTemplateRequest {
-  name?: string(name='Name'),
+  name?: string(name='Name', description='The template name.'),
   templateConfig?: {
     audioParams?: {
-      bitrate?: string(name='Bitrate', example='100'),
-      channels?: string(name='Channels', example='2'),
-      codec?: string(name='Codec', example='AAC'),
-      profile?: string(name='Profile', example='aac_low'),
-      samplerate?: string(name='Samplerate', example='44100'),
-    }(name='AudioParams'),
+      bitrate?: string(name='Bitrate', description='The bitrate of the output audio. Unit: Kbit/s. Valid values: 1 to 1000.', example='100'),
+      channels?: string(name='Channels', description='The number of sound channels. Valid values: 1: mono 2: binaural', example='2'),
+      codec?: string(name='Codec', description='The audio codec. Valid values: AAC MP3', example='AAC'),
+      profile?: string(name='Profile', description='The audio codec profile. Valid values when the Codec parameter is set to AAC:
+
+*   aac_low
+*   aac_he
+*   aac_he_v2
+*   aac_ld', example='aac_low'),
+      samplerate?: string(name='Samplerate', description='The audio sampling rate. Valid values: 22050 to 96000.
+
+Note If you set AudioProfile to aac_ld, the audio sampling rate cannot exceed 44100.', example='44100'),
+    }(name='AudioParams', description='The audio parameters.'),
     videoParams?: {
-      bitrate?: string(name='Bitrate', example='2500'),
-      codec?: string(name='Codec', example='H.264'),
-      fps?: string(name='Fps', example='30'),
-      gop?: string(name='Gop', example='1000'),
-      height?: string(name='Height', example='720'),
-      profile?: string(name='Profile', example='2'),
-      width?: string(name='Width', example='1280'),
-    }(name='VideoParams'),
-  }(name='TemplateConfig'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****96e8864746a0b6f3****'),
+      bitrate?: string(name='Bitrate', description='The bitrate of the output video. Unit: Kbit/s. Valid values: 1 to 6000.', example='2500'),
+      codec?: string(name='Codec', description='The encoding type. Valid values:
+
+*   H.264
+*   H.265', example='H.264'),
+      fps?: string(name='Fps', description='The frame rate of the output video. Unit: frames per second (FPS). Valid values: 1 to 60.', example='30'),
+      gop?: string(name='Gop', description='The group of pictures (GOP) of the output video. Unit: frame. Valid values: 1 to 3000.', example='1000'),
+      height?: string(name='Height', description='The height of the output video. Valid values:
+
+*   Height ≥ 128
+*   max (Height,Width) ≤ 2560
+*   min（Height,Width）≤ 1440
+
+>  The resolution of a video transcoded by using the H.265 Narrowband HD template cannot exceed 1,280 × 720 pixels.', example='720'),
+      profile?: string(name='Profile', description='The video encoding profile. The profile determines how a video is encoded. In most cases, a greater value indicates better image quality and higher resource consumption. Valid values:
+
+*   1: baseline. This value is suitable for mobile devices.
+*   2: main. This value is suitable for standard-definition devices.
+*   3: high. This value is suitable for high-definition devices.', example='2'),
+      width?: string(name='Width', description='The width of the output video. Valid values:
+
+*   Width ≥ 128
+*   max (Height,Width) ≤ 2560
+*   min（Height,Width）≤ 1440
+
+>  The resolution of a video transcoded by using the H.265 Narrowband HD template cannot exceed 1,280 × 720 pixels.', example='1280'),
+    }(name='VideoParams', description='The video parameters.'),
+  }(name='TemplateConfig', description='The configuration of the template.'),
+  templateId?: string(name='TemplateId', description='The template ID. To obtain the template ID, log on to the [Intelligent Media Services (IMS) console](https://ims.console.aliyun.com/summary), choose Real-time Media Processing > Template Management, and then click the Transcoding tab. Alternatively, find the ID from the response parameters of the [CreateLiveTranscodeTemplate](https://help.aliyun.com/document_detail/449217.html) operation.
+
+This parameter is required.', example='****96e8864746a0b6f3****'),
 }
 
 model UpdateLiveTranscodeTemplateShrinkRequest {
-  name?: string(name='Name'),
-  templateConfigShrink?: string(name='TemplateConfig'),
-  templateId?: string(name='TemplateId', description='This parameter is required.', example='****96e8864746a0b6f3****'),
+  name?: string(name='Name', description='The template name.'),
+  templateConfigShrink?: string(name='TemplateConfig', description='The configuration of the template.'),
+  templateId?: string(name='TemplateId', description='The template ID. To obtain the template ID, log on to the [Intelligent Media Services (IMS) console](https://ims.console.aliyun.com/summary), choose Real-time Media Processing > Template Management, and then click the Transcoding tab. Alternatively, find the ID from the response parameters of the [CreateLiveTranscodeTemplate](https://help.aliyun.com/document_detail/449217.html) operation.
+
+This parameter is required.', example='****96e8864746a0b6f3****'),
 }
 
 model UpdateLiveTranscodeTemplateResponseBody = {
-  requestId?: string(name='RequestId', example='******3B-0E1A-586A-AC29-742247******'),
+  requestId?: string(name='RequestId', description='The request ID.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model UpdateLiveTranscodeTemplateResponse = {
@@ -22423,7 +22909,7 @@ model UpdateLiveTranscodeTemplateResponse = {
 }
 
 /**
- * @summary 更新转码模版
+ * @summary Updates the information about a live stream transcoding template.
  *
  * @param tmpReq UpdateLiveTranscodeTemplateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22464,7 +22950,7 @@ async function updateLiveTranscodeTemplateWithOptions(tmpReq: UpdateLiveTranscod
 }
 
 /**
- * @summary 更新转码模版
+ * @summary Updates the information about a live stream transcoding template.
  *
  * @param request UpdateLiveTranscodeTemplateRequest
  * @return UpdateLiveTranscodeTemplateResponse
