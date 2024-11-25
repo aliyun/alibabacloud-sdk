@@ -373,12 +373,14 @@ model CreateInstanceRequest {
 
 >  This parameter takes effect only if you set AutoRenew to true. Default value: 1.', example='1'),
   clientToken?: string(name='ClientToken', description='The client token.', example='c2c5d1274axxxxxxxx'),
+  encryptedInstance?: boolean(name='EncryptedInstance'),
   instanceName?: string(name='InstanceName', description='The instance name. We recommend that you specify a name that does not exceed 64 characters in length.', example='amqp-xxxxx'),
   instanceType?: string(name='InstanceType', description='The instance edition. Valid values:
 
 *   professional: Professional Edition
 *   enterprise: Enterprise Edition
 *   vip: Enterprise Platinum Edition', example='professional'),
+  kmsKeyId?: string(name='KmsKeyId', example='key-xxx'),
   maxConnections?: int32(name='MaxConnections', description='The maximum number of connections that can be established to the instance. Configure this parameter based on the values provided on the [ApsaraMQ for RocketMQ buy page](https://common-buy.aliyun.com/?commodityCode=ons_onsproxy_pre).', example='50000'),
   maxEipTps?: long(name='MaxEipTps', description='The maximum number of EIP-based TPS on the instance. Configure this parameter based on the values provided on the [ApsaraMQ for RocketMQ buy page](https://common-buy.aliyun.com/?commodityCode=ons_onsproxy_pre).', example='128'),
   maxPrivateTps?: long(name='MaxPrivateTps', description='The maximum number of virtual private cloud (VPC)-based transactions per second (TPS) on the instance. Configure this parameter based on the values provided on the [ApsaraMQ for RocketMQ buy page](https://common-buy.aliyun.com/?commodityCode=ons_onsproxy_pre).', example='1000'),
@@ -478,11 +480,17 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, runtime
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
   }
+  if (!Util.isUnset(request.encryptedInstance)) {
+    query['EncryptedInstance'] = request.encryptedInstance;
+  }
   if (!Util.isUnset(request.instanceName)) {
     query['InstanceName'] = request.instanceName;
   }
   if (!Util.isUnset(request.instanceType)) {
     query['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.kmsKeyId)) {
+    query['KmsKeyId'] = request.kmsKeyId;
   }
   if (!Util.isUnset(request.maxConnections)) {
     query['MaxConnections'] = request.maxConnections;
@@ -1117,6 +1125,89 @@ async function deleteVirtualHost(request: DeleteVirtualHostRequest): DeleteVirtu
   return deleteVirtualHostWithOptions(request, runtime);
 }
 
+model GetInstanceRequest {
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='amqp-cn-v0h1kb9nu***'),
+}
+
+model GetInstanceResponseBody = {
+  data?: {
+    autoRenewInstance?: boolean(name='AutoRenewInstance', example='false'),
+    classicEndpoint?: string(name='ClassicEndpoint', example='amqp-cn-st21x7kv****.not-support'),
+    encryptedInstance?: boolean(name='EncryptedInstance'),
+    expireTime?: long(name='ExpireTime', example='1651507200000'),
+    instanceId?: string(name='InstanceId', example='amqp-cn-*********'),
+    instanceName?: string(name='InstanceName', example='yunQi-instance'),
+    instanceType?: string(name='InstanceType', example='enterprise'),
+    kmsKeyId?: string(name='KmsKeyId'),
+    maxConnections?: int32(name='MaxConnections', example='1500'),
+    maxEipTps?: int32(name='MaxEipTps', example='1000'),
+    maxQueue?: int32(name='MaxQueue', example='1000'),
+    maxTps?: int32(name='MaxTps', example='1000'),
+    maxVhost?: int32(name='MaxVhost', example='50'),
+    orderCreateTime?: long(name='OrderCreateTime', example='1651507200000'),
+    orderType?: string(name='OrderType', example='PRE_PAID'),
+    privateEndpoint?: string(name='PrivateEndpoint', example='amqp-cn-st21x7kv****.mq-amqp.cn-hangzhou-a.aliyuncs.com'),
+    publicEndpoint?: string(name='PublicEndpoint', example='xxx.cn-hangzhou.xxx.net.mq.amqp.aliyuncs.com'),
+    resourceGroupId?: string(name='ResourceGroupId'),
+    status?: string(name='Status', example='SERVING'),
+    storageSize?: int32(name='StorageSize', example='200'),
+    supportEIP?: boolean(name='SupportEIP', example='true'),
+    supportTracing?: boolean(name='SupportTracing', example='True'),
+    tags?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tags'),
+    tracingStorageTime?: int32(name='TracingStorageTime', example='15'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='92385FD2-624A-48C9-8FB5-753F2AFA***'),
+}
+
+model GetInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetInstanceResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取实例详情
+ *
+ * @param request GetInstanceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetInstanceResponse
+ */
+async function getInstanceWithOptions(request: GetInstanceRequest, runtime: Util.RuntimeOptions): GetInstanceResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetInstance',
+    version = '2019-12-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取实例详情
+ *
+ * @param request GetInstanceRequest
+ * @return GetInstanceResponse
+ */
+async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getInstanceWithOptions(request, runtime);
+}
+
 model GetMetadataAmountRequest {
   instanceId?: string(name='InstanceId', description='The ID of the ApsaraMQ for RabbitMQ instance.', example='amqp-cn-v0h1kb9n***'),
 }
@@ -1618,6 +1709,7 @@ model ListInstancesResponseBody = {
       {
         autoRenewInstance?: boolean(name='AutoRenewInstance', description='Indicates whether the instance is automatically renewed.', example='false'),
         classicEndpoint?: string(name='ClassicEndpoint', description='The endpoint that is used to access the instance over the classic network. This parameter is no longer available.', example='amqp-cn-st21x7kv****.not-support'),
+        encryptedInstance?: boolean(name='EncryptedInstance'),
         expireTime?: long(name='ExpireTime', description='The timestamp that indicates when the instance expires. Unit: milliseconds.', example='1651507200000'),
         instanceId?: string(name='InstanceId', description='The instance ID', example='amqp-cn-st21x7kv****'),
         instanceName?: string(name='InstanceName', description='The instance name.', example='amqp-cn-st21x7kv****'),
@@ -1626,6 +1718,7 @@ model ListInstancesResponseBody = {
 *   PROFESSIONAL: Professional Edition
 *   ENTERPRISE: Enterprise Edition
 *   VIP: Enterprise Platinum Edition', example='professional'),
+        kmsKeyId?: string(name='KmsKeyId'),
         maxEipTps?: int32(name='MaxEipTps', description='The maximum number of Internet-based transactions per second (TPS) for the instance.', example='24832'),
         maxQueue?: int32(name='MaxQueue', description='The maximum number of queues on the instance.', example='50'),
         maxTps?: int32(name='MaxTps', description='The maximum number of VPC-based TPS for the instance.', example='5000'),
@@ -2023,8 +2116,10 @@ async function listVirtualHosts(request: ListVirtualHostsRequest): ListVirtualHo
 
 model UpdateInstanceRequest {
   clientToken?: string(name='ClientToken', example='c2c5d1274axxxxxxxx'),
+  encryptedInstance?: boolean(name='EncryptedInstance'),
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='amqp-cn-jtexxxxx'),
   instanceType?: string(name='InstanceType', example='professional'),
+  kmsKeyId?: string(name='KmsKeyId', example='key-xxx'),
   maxConnections?: int32(name='MaxConnections', example='1000'),
   maxEipTps?: long(name='MaxEipTps', example='128'),
   maxPrivateTps?: long(name='MaxPrivateTps', example='1000'),
@@ -2065,11 +2160,17 @@ async function updateInstanceWithOptions(request: UpdateInstanceRequest, runtime
   if (!Util.isUnset(request.clientToken)) {
     query['ClientToken'] = request.clientToken;
   }
+  if (!Util.isUnset(request.encryptedInstance)) {
+    query['EncryptedInstance'] = request.encryptedInstance;
+  }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.instanceType)) {
     query['InstanceType'] = request.instanceType;
+  }
+  if (!Util.isUnset(request.kmsKeyId)) {
+    query['KmsKeyId'] = request.kmsKeyId;
   }
   if (!Util.isUnset(request.maxConnections)) {
     query['MaxConnections'] = request.maxConnections;
