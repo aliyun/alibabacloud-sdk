@@ -141,25 +141,31 @@ model CreateServiceInstanceRequest {
 
 *   **true**
 *   **false**', example='false'),
-    autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the instance. Valid values:
+    autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the service instance. Valid values:
 
 *   **true**
 *   **false**', example='false'),
-    couponId?: string(name='CouponId'),
+    couponId?: string(name='CouponId', description='The coupon ID.', example='302070970220'),
     payPeriod?: long(name='PayPeriod', description='The subscription duration.', example='1'),
     payPeriodUnit?: string(name='PayPeriodUnit', description='The unit of the subscription duration. Valid values:
 
-*   Year
-*   Month
-*   Day', example='Year'),
+*   **Year**
+*   **Month**
+*   **Day**', example='Year'),
   }(name='Commodity', description='The information about the order placed in Alibaba Cloud Marketplace. You do not need to specify this parameter if the service is not published in Alibaba Cloud Marketplace or uses the pay-as-you-go billing method.', position='Query'),
-  contactGroup?: string(name='ContactGroup', description='The alert contact group.', example='云账号报警联系人', position='Query'),
-  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
+  contactGroup?: string(name='ContactGroup', description='The alert contact group.', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run for the request to check information such as the permissions and instance status. Valid values:
 
-*   **true**: performs a dry run. The system checks the required parameters, request syntax, and limits. 
-*   **false** (default): sends the request.', example='false', position='Query'),
-  enableInstanceOps?: boolean(name='EnableInstanceOps', description='Indicates whether the service instance supports the operation feature.', example='true', position='Query'),
-  enableUserPrometheus?: boolean(name='EnableUserPrometheus', description='Whether to enable Prometheus monitoring.', example='true', position='Query'),
+*   **true**: performs a dry run for the request, but does not create a service instance.
+*   **false**: performs a dry run for the request, and creates a service instance if the request passes the dry run.', example='false', position='Query'),
+  enableInstanceOps?: boolean(name='EnableInstanceOps', description='Specifies whether the service instance supports the hosted O\\&M feature. Valid values:
+
+*   **true**
+*   **false**', example='true', position='Query'),
+  enableUserPrometheus?: boolean(name='EnableUserPrometheus', description='Specifies whether to enable the Prometheus monitoring feature. Valid values:
+
+*   **true**
+*   **false**', example='true', position='Query'),
   name?: string(name='Name', description='The serviceInstance name.', example='TestName', position='Query'),
   operationMetadata?: {
     endTime?: string(name='EndTime', description='The operation end time.', example='2022-01-28T06:48:56Z'),
@@ -188,30 +194,28 @@ model CreateServiceInstanceRequest {
 *   ap-southeast-1: Singapore.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  resourceAutoPay?: boolean(name='ResourceAutoPay', description='Whether the resource pays automatically.Valid values:
-- true
-- false', position='Query'),
+  resourceAutoPay?: boolean(name='ResourceAutoPay', description='Specifies whether to automatically deduct the resource fees from the account balance. Valid values:
+
+*   **true**
+*   **false**', example='true', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-bp67acfmxazb4p****', position='Query'),
   serviceId: string(name='ServiceId', description='The service ID.
 
 This parameter is required.', example='service-0e6fca6a51a54420****', position='Query'),
   serviceVersion?: string(name='ServiceVersion', description='The service version.', example='1', position='Query'),
   specificationCode?: string(name='SpecificationCode', description='Specification code.', example='yuncode5425200001', position='Query'),
-  specificationName?: string(name='SpecificationName', description='The package name.', example='套餐一', position='Query'),
+  specificationName?: string(name='SpecificationName', description='The package name.', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key.', example='key1'),
       value?: string(name='Value', description='The tag value.', example='value1'),
     }
   ](name='Tag', description='The tags.', position='Query'),
-  templateName?: string(name='TemplateName', description='The name of the template.', example='模板1', position='Query'),
-  trialType?: string(name='TrialType', description='The trial type of serviceInstance. 
-Valid values:
+  templateName?: string(name='TemplateName', description='The name of the template.', position='Query'),
+  trialType?: string(name='TrialType', description='The trial type of the service instance. Valid values:
 
-- Created: 
-- Deploying
-- DeployedFailed
-- Deployed', example='Trial', position='Query'),
+*   **Trial**: Trials are supported.
+*   **NotTrial**: Trials are not supported.', example='Trial', position='Query'),
 }
 
 model CreateServiceInstanceResponseBody = {
@@ -219,11 +223,16 @@ model CreateServiceInstanceResponseBody = {
   orderId?: string(name='OrderId', description='The order ID.', example='2306175xxxxxxxx'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D****'),
   serviceInstanceId?: string(name='ServiceInstanceId', description='The service instance ID.', example='si-d6ab3a63ccbb4b17****'),
-  status?: string(name='Status', description='Indicates whether the synchronization task was created. Valid values:
+  status?: string(name='Status', description='The status of the service instance. Valid values:
 
-*   **1**: Created.
-*   **0**: Creation failed. The tables in the synchronization task are duplicate. The duplicate tables are returned for the **RepeatedDbs** parameter.
-*   **-1**: Creation failed. The cause why the creation failed is returned for the **ErrorMsg** parameter.', example='Created'),
+*   **Created**
+*   **Deploying**
+*   **DeployedFailed**
+*   **Deployed**
+*   **Upgrading**
+*   **Deleting**
+*   **Deleted**
+*   **DeletedFailed**', example='Created'),
 }
 
 model CreateServiceInstanceResponse = {
@@ -344,6 +353,135 @@ model GenerateServicePolicyResponse = {
 async function generateServicePolicy(request: GenerateServicePolicyRequest): GenerateServicePolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GenerateServicePolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GetServiceRequest {
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  serviceId?: string(name='ServiceId', example='service-0e6fca6a51a544xxxxxx', position='Query'),
+  serviceInstanceId?: string(name='ServiceInstanceId', position='Query'),
+  serviceName?: string(name='ServiceName', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', example='1.0', position='Query'),
+  showDetails?: [ string ](name='ShowDetails', position='Query'),
+}
+
+model GetServiceResponseBody = {
+  alarmMetadata?: string(name='AlarmMetadata'),
+  categories?: string(name='Categories'),
+  commodity?: {
+    chargeType?: string(name='ChargeType'),
+    commodityCode?: string(name='CommodityCode'),
+    cssMetadata?: {
+      componentsMappings?: [ 
+        {
+          mappings?: map[string]string(name='Mappings'),
+          templateName?: string(name='TemplateName'),
+        }
+      ](name='ComponentsMappings'),
+    }(name='CssMetadata'),
+    deployPage?: string(name='DeployPage'),
+    marketplaceMetadata?: {
+      specificationMappings?: [ 
+        {
+          specificationCode?: string(name='SpecificationCode'),
+          specificationName?: string(name='SpecificationName'),
+          templateName?: string(name='TemplateName'),
+        }
+      ](name='SpecificationMappings'),
+    }(name='MarketplaceMetadata'),
+    orderTime?: map[string][ string ](name='OrderTime'),
+    saasBoostMetadata?: string(name='SaasBoostMetadata'),
+    specifications?: [ 
+      {
+        code?: string(name='Code'),
+        name?: string(name='Name'),
+        times?: [ string ](name='Times'),
+      }
+    ](name='Specifications'),
+    type?: string(name='Type'),
+  }(name='Commodity'),
+  deployFrom?: string(name='DeployFrom'),
+  deployMetadata?: string(name='DeployMetadata', example='{\\"TemplateUrl\\": \\"http://tidbRosFile\\"}'),
+  deployType?: string(name='DeployType', example='ros'),
+  duration?: long(name='Duration', example='259200'),
+  instanceRoleInfos?: [ 
+    {
+      policyDocument?: string(name='PolicyDocument'),
+      principals?: [ string ](name='Principals'),
+      roleName?: string(name='RoleName'),
+      templateName?: string(name='TemplateName'),
+    }
+  ](name='InstanceRoleInfos'),
+  isSupportOperated?: boolean(name='IsSupportOperated', example='false'),
+  licenseMetadata?: string(name='LicenseMetadata'),
+  logMetadata?: string(name='LogMetadata'),
+  operationMetadata?: string(name='OperationMetadata', example='{\\"PrometheusConfigMap\\":{\\"New_Vpc_Ack_And_Jumpserver\\":{}}}'),
+  permission?: string(name='Permission', example='Deployable'),
+  policyNames?: string(name='PolicyNames', example='policyName1, policyName2'),
+  publishTime?: string(name='PublishTime', example='2021-05-21T00:00:00Z'),
+  requestId?: string(name='RequestId', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
+  serviceDocumentInfos?: [ 
+    {
+      documentUrl?: string(name='DocumentUrl'),
+      locale?: string(name='Locale'),
+      templateName?: string(name='TemplateName'),
+    }
+  ](name='ServiceDocumentInfos'),
+  serviceId?: string(name='ServiceId', example='service-0e6fca6a51a544xxxxxx'),
+  serviceInfos?: [ 
+    {
+      agreements?: [ 
+        {
+          name?: string(name='Name'),
+          url?: string(name='Url'),
+        }
+      ](name='Agreements'),
+      image?: string(name='Image', example='https://example.com/service-image/c1c4a559-cc60-4af1-b976-98f356602462.png'),
+      locale?: string(name='Locale', example='zh-CN'),
+      name?: string(name='Name'),
+      shortDescription?: string(name='ShortDescription'),
+      softwares?: [ 
+        {
+          name?: string(name='Name'),
+          version?: string(name='Version'),
+        }
+      ](name='Softwares'),
+    }
+  ](name='ServiceInfos'),
+  serviceProductUrl?: string(name='ServiceProductUrl', example='http://example1.com'),
+  serviceType?: string(name='ServiceType', example='private'),
+  shareType?: string(name='ShareType', example='Public'),
+  status?: string(name='Status', example='Online'),
+  supplierDesc?: string(name='SupplierDesc'),
+  supplierLogo?: string(name='SupplierLogo'),
+  supplierName?: string(name='SupplierName'),
+  supplierUid?: long(name='SupplierUid'),
+  supplierUrl?: string(name='SupplierUrl', example='http://example.com'),
+  tags?: [ 
+    {
+      key?: string(name='Key', example='key1'),
+      value?: string(name='Value', example='value1'),
+    }
+  ](name='Tags'),
+  tenantType?: string(name='TenantType', example='SingleTenant'),
+  trialDuration?: long(name='TrialDuration', example='7'),
+  trialType?: string(name='TrialType', example='Trial'),
+  version?: string(name='Version', example='1.0'),
+  versionName?: string(name='VersionName', example='v1'),
+}
+
+model GetServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetService  GetServiceRequest
+  * @return GetServiceResponse
+ */
+async function getService(request: GetServiceRequest): GetServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetService', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetServiceEstimateCostRequest {
@@ -599,6 +737,12 @@ model GetServiceInstanceResponseBody = {
 *   Beta', example='Online'),
     supplierName?: string(name='SupplierName', description='The name of the service provider.', example='A公司'),
     supplierUrl?: string(name='SupplierUrl', description='The URL of the service provider.', example='http://example.com'),
+    upgradableServiceInfos?: [ 
+      {
+        version?: string(name='Version'),
+        versionName?: string(name='VersionName'),
+      }
+    ](name='UpgradableServiceInfos'),
     upgradableServiceVersions?: [ string ](name='UpgradableServiceVersions', description='The service version that can be updated.'),
     upgradeMetadata?: string(name='UpgradeMetadata', description='The metadata about the upgrade.', example='{\\"Description\\":\\"开启服务升级\\",\\"SupportRollback\\":true,\\"SupportUpgradeFromVersions\\":[],\\"UpgradeComponents\\":[\\"Configuration\\",\\"Resource\\"]}'),
     version?: string(name='Version', description='The service version.', example='1'),
@@ -1269,6 +1413,91 @@ model ListServiceUsagesResponse = {
 async function listServiceUsages(request: ListServiceUsagesRequest): ListServiceUsagesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListServiceUsages', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListServicesRequest {
+  filter?: [ 
+    {
+      name?: string(name='Name', example='Status'),
+      value?: [ string ](name='Value'),
+    }
+  ](name='Filter', position='Query'),
+  fuzzyKeyword?: string(name='FuzzyKeyword', example='name', position='Query'),
+  inUsed?: boolean(name='InUsed', example='false', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='BBBAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
+  orderByType?: string(name='OrderByType', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  serviceAccessType?: string(name='ServiceAccessType', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='key1'),
+      value?: string(name='Value', example='value1'),
+    }
+  ](name='Tag', position='Query'),
+}
+
+model ListServicesResponseBody = {
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='AAAAAfu+XtuBE55iRLHEYYuojI41'),
+  requestId?: string(name='RequestId', example='3F976EF8-C10A-57DC-917C-BB7BEB508FFB'),
+  services?: [ 
+    {
+      categories?: string(name='Categories', example='cloud_ssd'),
+      commodity?: {
+        commodityCode?: string(name='CommodityCode'),
+        deployPage?: string(name='DeployPage'),
+      }(name='Commodity'),
+      commodityCode?: string(name='CommodityCode', example='cmjj00xxxx'),
+      deployFrom?: string(name='DeployFrom', example='ComputeNest'),
+      deployType?: string(name='DeployType', example='ros'),
+      publishTime?: string(name='PublishTime', example='2022-01-21T10:35:44Z'),
+      score?: int32(name='Score', example='5'),
+      serviceId?: string(name='ServiceId', example='service-6b5d632edd394dxxxxxx'),
+      serviceInfos?: [ 
+        {
+          image?: string(name='Image', example='http://img.tidb.oss.url'),
+          locale?: string(name='Locale', example='zh-CN'),
+          name?: string(name='Name'),
+          shortDescription?: string(name='ShortDescription'),
+        }
+      ](name='ServiceInfos'),
+      serviceProductUrl?: string(name='ServiceProductUrl', example='http://example1.com'),
+      serviceType?: string(name='ServiceType', example='private'),
+      status?: string(name='Status', example='Online'),
+      supplierName?: string(name='SupplierName'),
+      supplierUid?: long(name='SupplierUid'),
+      supplierUrl?: string(name='SupplierUrl', example='http://example.com'),
+      tags?: [ 
+        {
+          key?: string(name='Key', example='key1'),
+          value?: string(name='Value', example='value1'),
+        }
+      ](name='Tags'),
+      tenantType?: string(name='TenantType', example='SingleTenant'),
+      trialDuration?: string(name='TrialDuration', example='7'),
+      trialType?: string(name='TrialType', example='Trial'),
+      version?: string(name='Version', example='4'),
+      versionName?: string(name='VersionName', example='v2.0.0'),
+      virtualInternetService?: string(name='VirtualInternetService'),
+    }
+  ](name='Services'),
+  totalCount?: int32(name='TotalCount', example='1'),
+}
+
+model ListServicesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServicesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListServices  ListServicesRequest
+  * @return ListServicesResponse
+ */
+async function listServices(request: ListServicesRequest): ListServicesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListServices', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListTagKeysRequest {
