@@ -340,6 +340,7 @@ model Cluster {
   clusterState?: string(name='ClusterState', description='集群状态。', example='RUNNING'),
   clusterType?: string(name='ClusterType', description='集群类型。', example='DATALAKE'),
   createTime?: long(name='CreateTime', description='创建时间。', example='1592837465784'),
+  deletionProtection?: boolean(name='DeletionProtection', example='false'),
   deployMode?: string(name='DeployMode', description='部署模式。', example='HA'),
   description?: string(name='Description'),
   emrDefaultRole?: string(name='EmrDefaultRole', description='EMR默认角色。', example='AliyunEMRDefaultRole'),
@@ -403,6 +404,7 @@ model ClusterSummary {
 - DATAFLOW：实时数据流。
 - DATASERVING：数据服务。', example='DATALAKE'),
   createTime?: long(name='CreateTime', description='创建时间。', example='1592837465784'),
+  deletionProtection?: boolean(name='DeletionProtection'),
   description?: string(name='Description'),
   emrDefaultRole?: string(name='EmrDefaultRole', description='EMR服务角色。'),
   endTime?: long(name='EndTime', description='删除时间。', example='1592837465784'),
@@ -733,12 +735,24 @@ model Node {
 }
 
 model NodeAttributes {
+  dataDiskEncrypted?: boolean(name='DataDiskEncrypted', description='是否启用云盘加密。取值范围：
+- true：启用加密。
+- false：不加密。
+
+默认值：false，不加密', example='false'),
+  dataDiskKMSKeyId?: string(name='DataDiskKMSKeyId', description='KMS加密秘钥ID。', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
   keyPairName?: string(name='KeyPairName', description='ECS ssh登录秘钥。', example='emr_login'),
   masterRootPassword?: string(name='MasterRootPassword', description='MASTER节点root密码。', example='Adxefswfd****'),
   ramRole?: string(name='RamRole', description='ECS访问资源绑定的角色。', example='AliyunECSInstanceForEMRRole'),
   securityGroupId: string(name='SecurityGroupId', description='安全组ID。EMR只支持普通安全组，不支持企业安全组。
 
 This parameter is required.', example='sg-hp3abbae8lb6lmb1****'),
+  systemDiskEncrypted?: boolean(name='SystemDiskEncrypted', description='是否启用云盘加密。取值范围：
+- true：启用加密。
+- false：不加密。
+
+默认值：false，不加密', example='false'),
+  systemDiskKMSKeyId?: string(name='SystemDiskKMSKeyId', description='KMS加密秘钥ID。', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
   vpcId: string(name='VpcId', description='专有网络ID。
 
 This parameter is required.', example='vpc-bp1tgey2p0ytxmdo5****'),
@@ -782,6 +796,7 @@ model NodeGroup {
   paymentType?: string(name='PaymentType', description='节点组付费类型。取值范围：
 - PayAsYouGo：后付费，按量付费。
 - Subscription：预付费，包年包月。', example='PayAsYouGo'),
+  privatePoolOptions?: PrivatePoolOptions(name='PrivatePoolOptions'),
   runningNodeCount?: int32(name='RunningNodeCount', description='存活节点数量。', example='3'),
   spotBidPrices?: [
     SpotBidPrice
@@ -793,7 +808,7 @@ model NodeGroup {
 默认值：false。', example='true'),
   spotStrategy?: string(name='SpotStrategy', description='是否支持竞价实例。', example='NoSpot'),
   stateChangeReason?: NodeGroupStateChangeReason(name='StateChangeReason', description='状态变化原因。'),
-  status?: string(name='Status', description='节点组状态，NodeGroupState别名。', example='CREATED'),
+  status?: string(name='Status', example='CREATED'),
   systemDisk?: SystemDisk(name='SystemDisk', description='系统盘信息。'),
   vSwitchIds?: [ string ](name='VSwitchIds', description='虚拟机交换机ID列表。', example='["vsw-hp35g7ya5ymw68mmg****"]'),
   withPublicIp?: boolean(name='WithPublicIp', description='是否开公网IP。取值范围：
@@ -840,6 +855,7 @@ This parameter is required.', example='CORE'),
 - Subscription：预付费，包年包月。
 
 默认值：PayAsYouGo。', example='PayAsYouGo'),
+  privatePoolOptions?: PrivatePoolOptions(name='PrivatePoolOptions'),
   spotBidPrices?: [
     SpotBidPrice
   ](name='SpotBidPrices', description='抢占式Spot实例出价价格。参数SpotStrategy取值为SpotWithPriceLimit时生效。数组元数个数N的取值范围：0~100。'),
@@ -973,6 +989,11 @@ model PriceInfo {
   spotPrice?: string(name='SpotPrice'),
   taxPrice?: string(name='TaxPrice'),
   tradePrice?: string(name='TradePrice'),
+}
+
+model PrivatePoolOptions {
+  matchCriteria?: string(name='MatchCriteria', example='Open'),
+  privatePoolIds?: [ string ](name='PrivatePoolIds', example='eap-bp67acfmxazb4****'),
 }
 
 model Promotion {
@@ -1488,6 +1509,7 @@ This parameter is required.', example='emrtest', position='Query'),
 If you create an EMR cluster for the first time after 17:00 (UTC +8) on December 19, 2022, you cannot select the HADOOP, DATA_SCIENCE, PRESTO, or ZOOKEEPER cluster type.
 
 This parameter is required.', example='DATALAKE', position='Query'),
+  deletionProtection?: boolean(name='DeletionProtection', position='Query'),
   deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
 *   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
@@ -1619,6 +1641,8 @@ async function createScript(request: CreateScriptRequest): CreateScriptResponse 
 }
 
 model DecreaseNodesRequest {
+  batchInterval?: int32(name='BatchInterval', position='Query'),
+  batchSize?: int32(name='BatchSize', position='Query'),
   clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
@@ -2026,6 +2050,7 @@ model GetClusterCloneMetaResponseBody = {
 *   DATASERVING
 *   CUSTOM
 *   HADOOP', example='DATALAKE'),
+    deletionProtection?: boolean(name='DeletionProtection'),
     deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
 *   NORMAL: regular mode.
@@ -2051,10 +2076,12 @@ model GetClusterCloneMetaResponseBody = {
         clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****'),
         constraints?: {
           maxCapacity?: int32(name='MaxCapacity', description='The maximum number of nodes in the node group. Default value: 2000.', example='200'),
+          maxOnDemandCapacity?: int32(name='MaxOnDemandCapacity'),
           minCapacity?: int32(name='MinCapacity', description='The minimum number of nodes in the node group. Default value: 0.', example='50'),
         }(name='Constraints', description='The maximum and minimum number of nodes in the node group.'),
         nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-869471354ecd****'),
         scalingPolicyId?: string(name='ScalingPolicyId', description='The ID of the auto scaling policy.', example='asp-asduwe23znl***'),
+        scalingPolicyType?: string(name='ScalingPolicyType'),
         scalingRules?: [ 
           {
             activityType?: string(name='ActivityType', description='The scaling type. This parameter is required. Valid values:
@@ -6857,7 +6884,7 @@ This parameter is required.', example='PayAsYouGo', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  releaseVersion?: string(name='ReleaseVersion', description='EMR distribution.', example='线上已发布版本EMR-5.8.0', position='Query'),
+  releaseVersion?: string(name='ReleaseVersion', description='EMR distribution.', example='EMR-5.8.0', position='Query'),
   zoneId: string(name='ZoneId', description='Availability Zone ID
 
 This parameter is required.', example='cn-beijing-h', position='Query'),
@@ -7282,68 +7309,70 @@ async function runApplicationAction(request: RunApplicationActionRequest): RunAp
 model RunClusterRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='应用配置。数组元素个数N的取值范围：1~1000。', shrink='json', position='Body'),
+  ](name='ApplicationConfigs', description='The service configurations. Number of elements in the array: 1 to 1,000.', shrink='json', position='Body'),
   applications: [
     Application
-  ](name='Applications', description='应用列表。数组元素个数N的取值范围：1~100。
+  ](name='Applications', description='The list of services. Number of elements in the array: 1 to 100.
 
 This parameter is required.', shrink='json', position='Body'),
   bootstrapScripts?: [
     Script
-  ](name='BootstrapScripts', description='引导脚本。数组元素个数N的取值范围：1~10。', shrink='json', position='Body'),
-  clientToken?: string(name='ClientToken', description='幂等客户端TOKEN。同一个ClientToken多次调用的返回结果一致，同一个ClientToken最多只创建一个集群。', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Body'),
-  clusterName: string(name='ClusterName', description='集群名称。长度为1~128个字符，必须以大小字母或中文开头，不能以http://和https://开头。可以包含中文、英文、数字、半角冒号（:）、下划线（_）、半角句号（.）或者短划线（-）
+  ](name='BootstrapScripts', description='The bootstrap actions. Number of elements in the array: 1 to 10.', shrink='json', position='Body'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. The same ClientToken value for multiple calls to the RunCluster operation results in identical responses. Only one cluster can be created by using the same ClientToken value.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Body'),
+  clusterName: string(name='ClusterName', description='The cluster name. The name must be 1 to 128 characters in length. The name must start with a letter but cannot start with http:// or https://. The name can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
 This parameter is required.', example='emrtest', position='Body'),
-  clusterType: string(name='ClusterType', description='创建的EMR集群类型。取值范围：
-- DATALAKE：新版数据湖。
-- OLAP：数据分析。
-- DATAFLOW：实时数据流。
-- DATASERVING：数据服务。
-- CUSTOM：自定义集群。
-- HADOOP：旧版数据湖（不推荐使用，建议使用新版数据湖）。
+  clusterType: string(name='ClusterType', description='The type of the cluster. Valid values:
+
+*   DATALAKE
+*   OLAP
+*   DATAFLOW
+*   DATASERVING
+*   CUSTOM
+*   HADOOP: We recommend that you set this parameter to DATALAKE rather than HADOOP.
+
+If the first time you create an EMR cluster is after 17:00 (UTC+8) on December 19, 2022, you cannot create a Hadoop, Data Science, Presto, or ZooKeeper cluster.
 
 This parameter is required.', example='DATALAKE', position='Body'),
-  deployMode?: string(name='DeployMode', description='集群中的应用部署模式。取值范围：
-- NORMAL：非高可用部署。集群1个MASTER节点。
-- HA：高可用部署。高可用部署要求至少3个MASTER节点。
+  deletionProtection?: boolean(name='DeletionProtection', position='Body'),
+  deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
-默认值：NORMAL。', example='HA', position='Body'),
-  description?: string(name='Description', example='Emr cluster for ETL', position='Body'),
-  nodeAttributes?: NodeAttributes(name='NodeAttributes', shrink='json', position='Body'),
+*   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
+*   HA: high availability mode. A cluster that contains at least three master nodes is created.', example='HA', position='Body'),
+  description?: string(name='Description', description='The cluster description.', example='Emr cluster for ETL', position='Body'),
+  nodeAttributes?: NodeAttributes(name='NodeAttributes', description='The basic attributes of all ECS instances in the cluster.', shrink='json', position='Body'),
   nodeGroups: [
     NodeGroupConfig
-  ](name='NodeGroups', description='节点组。数组元素个数N的取值范围：1~100。
-<p>
+  ](name='NodeGroups', description='The node groups. Number of elements in the array: 1 to 100.
 
 This parameter is required.', shrink='json', position='Body'),
-  paymentType?: string(name='PaymentType', description='集群的付费类型。取值范围：
-- PayAsYouGo：后付费。
-- Subscription：预付费。
+  paymentType?: string(name='PaymentType', description='The billing method of the cluster. Valid values:
 
-默认值：PayAsYouGo。', example='PayAsYouGo', position='Body'),
-  regionId: string(name='RegionId', description='区域ID。
+*   PayAsYouGo
+*   Subscription
+
+Default value: PayAsYouGo.', example='PayAsYouGo', position='Body'),
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  releaseVersion: string(name='ReleaseVersion', description='EMR发行版。
+  releaseVersion: string(name='ReleaseVersion', description='The EMR version. You can query available EMR versions in the EMR console.
 
 This parameter is required.', example='EMR-5.16.0', position='Body'),
-  resourceGroupId?: string(name='ResourceGroupId', description='集群所在的企业资源组ID。', example='rg-acfmzabjyop****', position='Body'),
-  securityMode?: string(name='SecurityMode', description='Kerberos安全模式。取值范围：
-- NORMAL：普通模式，不开启Kerberos模式。
-- KERBEROS：开启Kerberos模式。
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****', position='Body'),
+  securityMode?: string(name='SecurityMode', description='The security mode of the cluster. Valid values:
 
-默认值：NORMAL', example='NORMAL', position='Body'),
-  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', shrink='json', position='Body'),
+*   NORMAL: regular mode. Kerberos authentication is disabled. This is the default value.
+*   KERBEROS: Kerberos mode. Kerberos authentication is enabled.', example='NORMAL', position='Body'),
+  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations. This parameter is required only if you set the PaymentType parameter to Subscription.', shrink='json', position='Body'),
   tags?: [
     Tag
-  ](name='Tags', description='标签。数组元数个数N的取值范围：0~20。', shrink='json', position='Body'),
+  ](name='Tags', description='The list of tags. Number of elements in the array: 0 to 20.', shrink='json', position='Body'),
 }
 
 model RunClusterResponseBody = {
-  clusterId?: string(name='ClusterId', description='集群ID。', example='c-b933c5aac7f7***'),
-  operationId?: string(name='OperationId', description='操作ID。', example='op-13c37a77c505****'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac7f7***'),
+  operationId?: string(name='OperationId', description='The operation ID.', example='op-13c37a77c505****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model RunClusterResponse = {
@@ -7353,6 +7382,7 @@ model RunClusterResponse = {
 }
 
 /**
+  * @description RunCluster is an upgraded version of CreateCluster and supports more parameters. Parameters of the object and array types are in the JSON format, which are friendly for users who use CLI.
   * @param request  the request parameters of RunCluster  RunClusterRequest
   * @return RunClusterResponse
  */
