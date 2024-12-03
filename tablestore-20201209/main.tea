@@ -29,12 +29,16 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model ChangeResourceGroupRequest {
-  newResourceGroupId?: string(name='NewResourceGroupId'),
-  resourceId?: string(name='ResourceId'),
+  newResourceGroupId?: string(name='NewResourceGroupId', description='The ID of the new resource group.
+
+This parameter is required.', example='rg-aek3bgek3kxhyky'),
+  resourceId?: string(name='ResourceId', description='The resource ID, which is the instance name.
+
+This parameter is required.', example='first-ins'),
 }
 
 model ChangeResourceGroupResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='39871ED2-62C0-578F-A32E-B88072D5582F'),
 }
 
 model ChangeResourceGroupResponse = {
@@ -43,6 +47,14 @@ model ChangeResourceGroupResponse = {
   body?: ChangeResourceGroupResponseBody(name='body'),
 }
 
+/**
+ * @summary Changes the resource group to which an instance belongs.
+ *
+ * @param request ChangeResourceGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChangeResourceGroupResponse
+ */
 async function changeResourceGroupWithOptions(request: ChangeResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ChangeResourceGroupResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -71,34 +83,196 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Changes the resource group to which an instance belongs.
+ *
+ * @param request ChangeResourceGroupRequest
+ * @return ChangeResourceGroupResponse
+ */
 async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return changeResourceGroupWithOptions(request, headers, runtime);
 }
 
+model CheckInstancePolicyRequest {
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='workshop-bj-ots1'),
+  policy?: string(name='Policy', description='The instance policy in the JSON format.
+
+This parameter is required.', example='{
+    "Version": "1",
+    "Statement": [
+        {
+            "Action": [
+                "ots:*"
+            ],
+            "Resource": [
+                "acs:ots:*:13791xxxxxxxxxxx:instance/myinstance*"
+            ],
+            "Principal": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Condition": {
+                "StringEquals": {
+                    "ots:TLSVersion": [
+                        "1.2"
+                    ]
+                },
+                "IpAddress": {
+                    "acs:SourceIp": [
+                        "192.168.0.1",
+                        "172.16.0.1"
+                    ]
+                }
+            }
+        }
+    ]
+}'),
+}
+
+model CheckInstancePolicyResponseBody = {
+  code?: string(name='Code', description='The HTTP status code.', example='OK'),
+  message?: string(name='Message', description='The response message.', example='Verification passed.'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='757E172A-F94B-5E78-8A23-D9068E42F2E9'),
+}
+
+model CheckInstancePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckInstancePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Checks the validity of a Resource Access Management (RAM) policy for an instance.
+ *
+ * @param request CheckInstancePolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CheckInstancePolicyResponse
+ */
+async function checkInstancePolicyWithOptions(request: CheckInstancePolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CheckInstancePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.policy)) {
+    body['Policy'] = request.policy;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CheckInstancePolicy',
+    version = '2020-12-09',
+    protocol = 'HTTPS',
+    pathname = `/v2/openapi/checkinstancepolicy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Checks the validity of a Resource Access Management (RAM) policy for an instance.
+ *
+ * @param request CheckInstancePolicyRequest
+ * @return CheckInstancePolicyResponse
+ */
+async function checkInstancePolicy(request: CheckInstancePolicyRequest): CheckInstancePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return checkInstancePolicyWithOptions(request, headers, runtime);
+}
+
 model CreateInstanceRequest {
-  clusterType?: string(name='ClusterType', example='SSD vs HYBRID'),
-  disableReplication?: boolean(name='DisableReplication'),
-  instanceDescription?: string(name='InstanceDescription', example='实例描述'),
-  instanceName?: string(name='InstanceName', example='first-ins'),
-  network?: string(name='Network'),
-  networkSourceACL?: [ string ](name='NetworkSourceACL'),
-  networkTypeACL?: [ string ](name='NetworkTypeACL'),
-  policy?: string(name='Policy'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxh4em5jnbcd'),
+  clusterType?: string(name='ClusterType', description='The type of the instance.
+
+*   SSD: high-performance instance
+*   HYBRID: capacity instance
+
+This parameter is required.', example='SSD'),
+  disableReplication?: boolean(name='DisableReplication', description='(Deprecated) Specifies whether to enable disaster recovery for the instance.
+
+Valid values:
+
+*   false
+*   true', example='false'),
+  instanceDescription?: string(name='InstanceDescription', description='The description of the instance. The instance description must be 3 to 256 characters in length.', example='the test instance'),
+  instanceName?: string(name='InstanceName', description='The name of the instance. Instance naming conventions:
+
+*   The name can contain only letters, digits, and hyphens (-).
+*   The name must start with a letter.
+*   The name cannot end with a hyphen (-).
+*   The name is case-insensitive.
+*   The name must be 3 to 16 characters in length.
+*   The name cannot contain the following words: ali, ay, ots, taobao, and admin.
+
+This parameter is required.', example='instance-test'),
+  network?: string(name='Network', description='(Deprecated) The network type of the instance. Valid values: NORMAL and VPC_CONSOLE. Default value: NORMAL.', example='NORMAL'),
+  networkSourceACL?: [ string ](name='NetworkSourceACL', description='The types of the source from which access is allowed. By default, the following source type is allowed:
+
+TRUST_PROXY: console'),
+  networkTypeACL?: [ string ](name='NetworkTypeACL', description='The types of the network from which access is allowed. By default, the following network types are allowed:
+
+*   INTERNET: Internet
+*   VPC: virtual private cloud (VPC)
+*   CLASSIC: classic network'),
+  policy?: string(name='Policy', description='The instance policy in the JSON format.', example='{
+    "Version": "1",
+    "Statement": [
+        {
+            "Action": [
+                "ots:*"
+            ],
+            "Resource": [
+                "acs:ots:*:13791xxxxxxxxxxx:instance/myinstance*"
+            ],
+            "Principal": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Condition": {
+                "StringEquals": {
+                    "ots:TLSVersion": [
+                        "1.2"
+                    ]
+                },
+                "IpAddress": {
+                    "acs:SourceIp": [
+                        "192.168.0.1",
+                        "198.51.100.1"
+                    ]
+                }
+            }
+        }
+    ]
+}'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmxh4em5jnbcd'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key. The tag key can be up to 64 characters in length.
+
+This parameter is required.', example='p_instance'),
+      value?: string(name='Value', description='The tag value. The tag value can be up to 64 characters in length.
+
+This parameter is required.', example='0woauavextilfqr61'),
     }
-  ](name='Tags'),
+  ](name='Tags', description='The tags.'),
 }
 
 model CreateInstanceResponseBody = {
-  code?: string(name='Code'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The response message.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='39871ED2-62C0-578F-A32E-B88072D5582F'),
 }
 
 model CreateInstanceResponse = {
@@ -107,6 +281,18 @@ model CreateInstanceResponse = {
   body?: CreateInstanceResponseBody(name='body'),
 }
 
+/**
+ * @summary Creates an instance.
+ *
+ * @description *   **Before you call this operation, you must understand the billing and pricing of Tablestore. For more information, see [Billing overview](https://help.aliyun.com/document_detail/27291.html).**
+ * *   Each Alibaba Cloud account can create up to 10 instances. The name of an instance must be unique within the region in which the instance resides.
+ * *   After you create an instance, you cannot change the type of the instance. Proceed with caution.
+ *
+ * @param request CreateInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateInstanceResponse
+ */
 async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateInstanceResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -159,6 +345,16 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Creates an instance.
+ *
+ * @description *   **Before you call this operation, you must understand the billing and pricing of Tablestore. For more information, see [Billing overview](https://help.aliyun.com/document_detail/27291.html).**
+ * *   Each Alibaba Cloud account can create up to 10 instances. The name of an instance must be unique within the region in which the instance resides.
+ * *   After you create an instance, you cannot change the type of the instance. Proceed with caution.
+ *
+ * @param request CreateInstanceRequest
+ * @return CreateInstanceResponse
+ */
 async function createInstance(request: CreateInstanceRequest): CreateInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -166,11 +362,13 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
 }
 
 model DeleteInstanceRequest {
-  instanceName?: string(name='InstanceName'),
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='instance-test'),
 }
 
 model DeleteInstanceResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='17827FB1-CC71-559D-BBDF-9D41534322E7'),
 }
 
 model DeleteInstanceResponse = {
@@ -179,6 +377,18 @@ model DeleteInstanceResponse = {
   body?: DeleteInstanceResponseBody(name='body'),
 }
 
+/**
+ * @summary Deletes an instance.
+ *
+ * @description *   Before you delete an instance, make sure that all data tables and time series tables in the instance are deleted and virtual private clouds (VPCs) are unbound from the instance.
+ * *   To prevent conflicts, do not create an instance that has the same name as the instance that is being deleted.
+ * *   After an instance is deleted, the instance becomes unavailable and the tables, table data, and related indexes in the instance cannot be recovered. Proceed with caution.
+ *
+ * @param request DeleteInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstanceResponse
+ */
 async function deleteInstanceWithOptions(request: DeleteInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstanceResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -204,24 +414,111 @@ async function deleteInstanceWithOptions(request: DeleteInstanceRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Deletes an instance.
+ *
+ * @description *   Before you delete an instance, make sure that all data tables and time series tables in the instance are deleted and virtual private clouds (VPCs) are unbound from the instance.
+ * *   To prevent conflicts, do not create an instance that has the same name as the instance that is being deleted.
+ * *   After an instance is deleted, the instance becomes unavailable and the tables, table data, and related indexes in the instance cannot be recovered. Proceed with caution.
+ *
+ * @param request DeleteInstanceRequest
+ * @return DeleteInstanceResponse
+ */
 async function deleteInstance(request: DeleteInstanceRequest): DeleteInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteInstanceWithOptions(request, headers, runtime);
 }
 
+model DeleteInstancePolicyRequest {
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='my-test-12345'),
+  policyVersion?: long(name='PolicyVersion', description='The version of the instance policy.
+
+This parameter is required.', example='2'),
+}
+
+model DeleteInstancePolicyResponseBody = {
+  code?: string(name='Code', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The response message.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='3104C83E-6E82-57FB-BB88-8C64CCFDEF89'),
+}
+
+model DeleteInstancePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstancePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a Resource Access Management (RAM) policy of an instance.
+ *
+ * @description *   You cannot recover a deleted instance policy. Proceed with caution.
+ * *   After you delete an instance policy, the access control that is specified by the instance policy becomes invalid. Make sure that your instance is in a secure environment.
+ *
+ * @param request DeleteInstancePolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstancePolicyResponse
+ */
+async function deleteInstancePolicyWithOptions(request: DeleteInstancePolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstancePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.policyVersion)) {
+    body['PolicyVersion'] = request.policyVersion;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteInstancePolicy',
+    version = '2020-12-09',
+    protocol = 'HTTPS',
+    pathname = `/v2/openapi/deleteinstancepolicy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a Resource Access Management (RAM) policy of an instance.
+ *
+ * @description *   You cannot recover a deleted instance policy. Proceed with caution.
+ * *   After you delete an instance policy, the access control that is specified by the instance policy becomes invalid. Make sure that your instance is in a secure environment.
+ *
+ * @param request DeleteInstancePolicyRequest
+ * @return DeleteInstancePolicyResponse
+ */
+async function deleteInstancePolicy(request: DeleteInstancePolicyRequest): DeleteInstancePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstancePolicyWithOptions(request, headers, runtime);
+}
+
 model DescribeRegionsRequest {
-  clientToken?: string(name='ClientToken'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+>  #### You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='ETnLKlblzczshOTUbOCzxxxxxxxxxx'),
 }
 
 model DescribeRegionsResponseBody = {
   regions?: [ 
     {
-      i18nKey?: string(name='I18nKey'),
-      regionId?: string(name='RegionId'),
+      i18nKey?: string(name='I18nKey', description='The key of the region.', example='yunjiankong.cloud.region.cn-hangzhou'),
+      regionId?: string(name='RegionId', description='The ID of the region.', example='cn-hangzhou'),
     }
-  ](name='Regions'),
-  requestId?: string(name='requestId'),
+  ](name='Regions', description='The regions.'),
+  requestId?: string(name='requestId', description='The request ID, which can be used to troubleshoot issues.', example='B37BBA04-D827-55C8-B901-5264B904E8C6'),
 }
 
 model DescribeRegionsResponse = {
@@ -230,6 +527,14 @@ model DescribeRegionsResponse = {
   body?: DescribeRegionsResponseBody(name='body'),
 }
 
+/**
+ * @summary Queries supported regions.
+ *
+ * @param request DescribeRegionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeRegionsResponse
+ */
 async function describeRegionsWithOptions(request: DescribeRegionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -255,6 +560,12 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, heade
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Queries supported regions.
+ *
+ * @param request DescribeRegionsRequest
+ * @return DescribeRegionsResponse
+ */
 async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -262,38 +573,93 @@ async function describeRegions(request: DescribeRegionsRequest): DescribeRegions
 }
 
 model GetInstanceRequest {
-  instanceName?: string(name='InstanceName'),
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='instance-test'),
 }
 
 model GetInstanceResponseBody = {
-  aliasName?: string(name='AliasName'),
-  createTime?: string(name='CreateTime'),
-  instanceDescription?: string(name='InstanceDescription'),
-  instanceName?: string(name='InstanceName'),
-  instanceSpecification?: string(name='InstanceSpecification'),
-  instanceStatus?: string(name='InstanceStatus'),
-  network?: string(name='Network'),
-  networkSourceACL?: [ string ](name='NetworkSourceACL'),
-  networkTypeACL?: [ string ](name='NetworkTypeACL'),
-  paymentType?: string(name='PaymentType'),
-  policy?: string(name='Policy'),
-  policyVersion?: long(name='PolicyVersion'),
-  regionId?: string(name='RegionId'),
-  requestId?: string(name='RequestId'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxh4em5jncda'),
-  SPInstanceId?: string(name='SPInstanceId'),
-  storageType?: string(name='StorageType'),
-  tableQuota?: int32(name='TableQuota'),
+  aliasName?: string(name='AliasName', description='The alias of the instance.', example='instance-test'),
+  createTime?: string(name='CreateTime', description='The time when the instance was created.', example='2019-12-23T07:24:33Z'),
+  instanceDescription?: string(name='InstanceDescription', description='The description of the instance.', example='Description of the test instance.'),
+  instanceName?: string(name='InstanceName', description='The name of the instance.', example='instance-test'),
+  instanceSpecification?: string(name='InstanceSpecification', description='The type of the instance.
+
+*   SSD: high-performance instance
+*   HYBRID: capacity instance', example='SSD'),
+  instanceStatus?: string(name='InstanceStatus', description='The status of the instance.
+
+*   normal: The instance works as expected.
+*   forbidden: The instance is disabled.
+*   Deleting: The instance is being deleted.', example='normal'),
+  isMultiAZ?: boolean(name='IsMultiAZ'),
+  network?: string(name='Network', description='The network type of the instance. Valid values:
+
+*   VPC: The instance can be accessed only over the bound virtual private clouds (VPCs).
+*   VPC_CONSOLE: The instance can be accessed from the Tablestore console or over the bound VPCs.
+*   NORMAL: The instance can be accessed from networks of the custom types.', example='VPC'),
+  networkSourceACL?: [ string ](name='NetworkSourceACL', description='The sources of the network from which access is allowed. Valid value:
+
+TRUST_PROXY: console'),
+  networkTypeACL?: [ string ](name='NetworkTypeACL', description='The types of the network from which access is allowed. Valid values:
+
+*   CLASSIC: the classic network
+*   INTERNET: the Internet
+*   VPC: VPCs'),
+  paymentType?: string(name='PaymentType', description='The billing method. Valid values:
+
+*   Subscription: subscription
+*   PayAsYouGo: pay-as-you-go', example='Subscription'),
+  policy?: string(name='Policy', description='The instance policy.', example='{
+    "Version": "1",
+    "Statement": [
+        {
+            "Action": [
+                "ots:*"
+            ],
+            "Resource": [
+                "acs:ots:*:13791xxxxxxxxxxx:instance/myinstance*"
+            ],
+            "Principal": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Condition": {
+                "StringEquals": {
+                    "ots:TLSVersion": [
+                        "1.2"
+                    ]
+                },
+                "IpAddress": {
+                    "acs:SourceIp": [
+                        "192.168.0.1",
+                        "198.51.100.1"
+                    ]
+                }
+            }
+        }
+    ]
+}'),
+  policyVersion?: long(name='PolicyVersion', description='The version of the instance policy.', example='1'),
+  regionId?: string(name='RegionId', description='The region ID of the instance.', example='cn-chengdu'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='757E172A-F94B-5E78-8A23-D9068E42F2E9'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmxh4em5jncda'),
+  SPInstanceId?: string(name='SPInstanceId', description='The ID of the instance.', example='ots_standard_public_cn-9lb34u7u5001'),
+  storageType?: string(name='StorageType', description='The storage type.
+
+*   SSD: high-performance
+*   HYBRID: capacity', example='HYBRID'),
+  tableQuota?: int32(name='TableQuota', description='The total number of tables in the instance.', example='100'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      tagKey?: string(name='TagKey'),
-      tagValue?: string(name='TagValue'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='tag'),
+      tagKey?: string(name='TagKey', description='(Deprecated) The tag key.', example='keyTestA'),
+      tagValue?: string(name='TagValue', description='(Deprecated) The tag value.', example='00004a20240452b0'),
+      value?: string(name='Value', description='The tag value.', example='333'),
     }
-  ](name='Tags'),
-  userId?: string(name='UserId'),
-  VCUQuota?: int32(name='VCUQuota'),
+  ](name='Tags', description='The tags of the instance.'),
+  userId?: string(name='UserId', description='The user ID.', example='16542312566'),
+  VCUQuota?: int32(name='VCUQuota', description='The VCU quota.', example='20'),
 }
 
 model GetInstanceResponse = {
@@ -302,6 +668,14 @@ model GetInstanceResponse = {
   body?: GetInstanceResponseBody(name='body'),
 }
 
+/**
+ * @summary Queries instance information.
+ *
+ * @param request GetInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetInstanceResponse
+ */
 async function getInstanceWithOptions(request: GetInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetInstanceResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
@@ -327,6 +701,12 @@ async function getInstanceWithOptions(request: GetInstanceRequest, headers: map[
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Queries instance information.
+ *
+ * @param request GetInstanceRequest
+ * @return GetInstanceResponse
+ */
 async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -334,34 +714,62 @@ async function getInstance(request: GetInstanceRequest): GetInstanceResponse {
 }
 
 model ListInstancesRequest {
-  instanceName?: string(name='InstanceName'),
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
-  resourceGroupId?: string(name='ResourceGroupId'),
-  status?: string(name='Status'),
+  instanceName?: string(name='InstanceName', description='The name of the instance. Fuzzy search is supported.', example='instance'),
+  instanceNameList?: [ string ](name='InstanceNameList', description='The names of the instances. This parameter is used to specify multiple instances that you want to query at the same time.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of instances that you want to return. Valid values: 0 to 200. If you do not configure this parameter or set this parameter to 0, the default value of 100 is used.', example='100'),
+  nextToken?: string(name='NextToken', description='The token that determines the start position of the query. Set this parameter to the value of the NextToken parameter that is returned from the last call. Instances are returned in lexicographical order starting from the position that is specified by this parameter. The first time you call the operation, leave this parameter empty.', example='CAESCG15aC1xxxxx'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can query the ID on the Resource Group page in the Resource Management console.', example='rg-aek24upgom6p5ri'),
+  status?: string(name='Status', description='The instance status.
+
+*   normal: The instance is running as expected.
+*   forbidden: The instance is disabled.
+*   Deleting: The instance is being deleted.', example='normal'),
+}
+
+model ListInstancesShrinkRequest {
+  instanceName?: string(name='InstanceName', description='The name of the instance. Fuzzy search is supported.', example='instance'),
+  instanceNameListShrink?: string(name='InstanceNameList', description='The names of the instances. This parameter is used to specify multiple instances that you want to query at the same time.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of instances that you want to return. Valid values: 0 to 200. If you do not configure this parameter or set this parameter to 0, the default value of 100 is used.', example='100'),
+  nextToken?: string(name='NextToken', description='The token that determines the start position of the query. Set this parameter to the value of the NextToken parameter that is returned from the last call. Instances are returned in lexicographical order starting from the position that is specified by this parameter. The first time you call the operation, leave this parameter empty.', example='CAESCG15aC1xxxxx'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID. You can query the ID on the Resource Group page in the Resource Management console.', example='rg-aek24upgom6p5ri'),
+  status?: string(name='Status', description='The instance status.
+
+*   normal: The instance is running as expected.
+*   forbidden: The instance is disabled.
+*   Deleting: The instance is being deleted.', example='normal'),
 }
 
 model ListInstancesResponseBody = {
   instances?: [ 
     {
-      aliasName?: string(name='AliasName'),
-      createTime?: string(name='CreateTime'),
-      instanceDescription?: string(name='InstanceDescription'),
-      instanceName?: string(name='InstanceName'),
-      instanceSpecification?: string(name='InstanceSpecification'),
-      instanceStatus?: string(name='InstanceStatus'),
-      paymentType?: string(name='PaymentType'),
-      regionId?: string(name='RegionId'),
-      resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxh4em5jnbcd'),
-      SPInstanceId?: string(name='SPInstanceId'),
-      storageType?: string(name='StorageType'),
-      userId?: string(name='UserId'),
-      VCUQuota?: int32(name='VCUQuota'),
+      aliasName?: string(name='AliasName', description='The instance alias.', example='instance-test'),
+      createTime?: string(name='CreateTime', description='The time when the instance was created.', example='2019-04-07T09:19:21Z'),
+      instanceDescription?: string(name='InstanceDescription', description='The instance description.', example='Description of the test instance.'),
+      instanceName?: string(name='InstanceName', description='The name of the instance, which is used to uniquely identify the instance.', example='instance-test'),
+      instanceSpecification?: string(name='InstanceSpecification', description='The type of the instance.
+
+*   SSD: high-performance instance
+*   HYBRID: capacity instance', example='HYBRID'),
+      instanceStatus?: string(name='InstanceStatus', description='The instance status.', example='normal'),
+      isMultiAZ?: boolean(name='IsMultiAZ'),
+      paymentType?: string(name='PaymentType', description='The billing method.
+
+*   Subscription: subscription
+*   PayAsYouGo: pay as you go', example='Subscription'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-huhehaote'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmxh4em5jnbcd'),
+      SPInstanceId?: string(name='SPInstanceId', description='The ID of the instance.', example='ots_standard_public_cn-g4t3igqjj002'),
+      storageType?: string(name='StorageType', description='The storage type.
+
+*   SSD: high-performance
+*   HYBRID: capacity', example='HYBRID'),
+      userId?: string(name='UserId', description='The user ID.', example='13542356466'),
+      VCUQuota?: int32(name='VCUQuota', description='The VCU quota.', example='3'),
     }
-  ](name='Instances'),
-  nextToken?: string(name='NextToken'),
-  requestId?: string(name='RequestId'),
-  totalCount?: long(name='TotalCount'),
+  ](name='Instances', description='The instances.'),
+  nextToken?: string(name='NextToken', description='The token that determines the start position of the next query. If this parameter is empty, all instances that you want to query are returned.', example='CAESCG15aC1xxxxx'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='E734979F-5A44-5993-9CE5-C23103576923'),
+  totalCount?: long(name='TotalCount', description='The total number of instances returned.', example='2'),
 }
 
 model ListInstancesResponse = {
@@ -370,11 +778,27 @@ model ListInstancesResponse = {
   body?: ListInstancesResponseBody(name='body'),
 }
 
-async function listInstancesWithOptions(request: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
+/**
+ * @summary Queries instances.
+ *
+ * @param tmpReq ListInstancesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListInstancesResponse
+ */
+async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instanceNameList)) {
+    request.instanceNameListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceNameList, 'InstanceNameList', 'simple');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.instanceName)) {
     query['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.instanceNameListShrink)) {
+    query['InstanceNameList'] = request.instanceNameListShrink;
   }
   if (!Util.isUnset(request.maxResults)) {
     query['MaxResults'] = request.maxResults;
@@ -407,6 +831,12 @@ async function listInstancesWithOptions(request: ListInstancesRequest, headers: 
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Queries instances.
+ *
+ * @param request ListInstancesRequest
+ * @return ListInstancesResponse
+ */
 async function listInstances(request: ListInstancesRequest): ListInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -414,38 +844,42 @@ async function listInstances(request: ListInstancesRequest): ListInstancesRespon
 }
 
 model ListTagResourcesRequest {
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
-  resourceIds?: [ string ](name='ResourceIds'),
-  resourceType?: string(name='ResourceType'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of tagged resources that you want to return. Valid values: 0 to 200. If you do not specify this parameter or set the parameter to 0, the default value of 100 is used.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken. Tagged resources are returned in lexicographical order starting from the position that is specified by this parameter.', example='CAESCG15aC1xxxxx'),
+  resourceIds?: [ string ](name='ResourceIds', description='The resource IDs, which are instance names.'),
+  resourceType?: string(name='ResourceType', description='The type of the resource. valid value:
+
+instance: instance', example='instance'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='Owner'),
+      value?: string(name='Value', description='The tag value.', example='Tester'),
     }
-  ](name='Tags'),
+  ](name='Tags', description='The tags.'),
 }
 
 model ListTagResourcesShrinkRequest {
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
-  resourceIdsShrink?: string(name='ResourceIds'),
-  resourceType?: string(name='ResourceType'),
-  tagsShrink?: string(name='Tags'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of tagged resources that you want to return. Valid values: 0 to 200. If you do not specify this parameter or set the parameter to 0, the default value of 100 is used.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken. Tagged resources are returned in lexicographical order starting from the position that is specified by this parameter.', example='CAESCG15aC1xxxxx'),
+  resourceIdsShrink?: string(name='ResourceIds', description='The resource IDs, which are instance names.'),
+  resourceType?: string(name='ResourceType', description='The type of the resource. valid value:
+
+instance: instance', example='instance'),
+  tagsShrink?: string(name='Tags', description='The tags.'),
 }
 
 model ListTagResourcesResponseBody = {
-  maxResults?: int32(name='MaxResults'),
-  nextToken?: string(name='NextToken'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of tagged resources that are returned for the query.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results. If NextToken is empty, no next page exists.', example='CAESCG15aC1xxxxx'),
   tagResources?: [ 
     {
-      resourceId?: string(name='ResourceId'),
-      resourceType?: string(name='ResourceType'),
-      tagKey?: string(name='TagKey'),
-      tagValue?: string(name='TagValue'),
+      resourceId?: string(name='ResourceId', description='The resource ID, which is the instance name.', example='instance-test'),
+      resourceType?: string(name='ResourceType', description='The type of the resource.', example='ALIYUN::OTS::INSTANCE'),
+      tagKey?: string(name='TagKey', description='The tag key.', example='Owner'),
+      tagValue?: string(name='TagValue', description='The tag value.', example='Tester'),
     }
-  ](name='TagResources'),
-  requestId?: string(name='requestId'),
+  ](name='TagResources', description='The tags.'),
+  requestId?: string(name='requestId', description='The request ID, which can be used to troubleshoot issues.', example='31D8120C-AC52-5CA9-BE4A-E4C6316E19AD'),
 }
 
 model ListTagResourcesResponse = {
@@ -454,6 +888,14 @@ model ListTagResourcesResponse = {
   body?: ListTagResourcesResponseBody(name='body'),
 }
 
+/**
+ * @summary Queries tagged resources.
+ *
+ * @param tmpReq ListTagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTagResourcesResponse
+ */
 async function listTagResourcesWithOptions(tmpReq: ListTagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTagResourcesResponse {
   Util.validateModel(tmpReq);
   var request = new ListTagResourcesShrinkRequest{};
@@ -499,6 +941,12 @@ async function listTagResourcesWithOptions(tmpReq: ListTagResourcesRequest, head
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Queries tagged resources.
+ *
+ * @param request ListTagResourcesRequest
+ * @return ListTagResourcesResponse
+ */
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -506,18 +954,30 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model TagResourcesRequest {
-  resourceIds?: [ string ](name='ResourceIds'),
-  resourceType?: string(name='ResourceType'),
+  resourceIds?: [ string ](name='ResourceIds', description='The resource IDs, which are instance names.
+
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='The type of the resource. valid value:
+
+instance: instance
+
+This parameter is required.', example='instance'),
   tags?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.
+
+This parameter is required.', example='created'),
+      value?: string(name='Value', description='The tag value.
+
+This parameter is required.', example='job-0007z8j1omiabo5i872l'),
     }
-  ](name='Tags'),
+  ](name='Tags', description='The tags.
+
+This parameter is required.'),
 }
 
 model TagResourcesResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='44FDC379-4443-560E-B652-9F7476D8854F'),
 }
 
 model TagResourcesResponse = {
@@ -526,6 +986,14 @@ model TagResourcesResponse = {
   body?: TagResourcesResponseBody(name='body'),
 }
 
+/**
+ * @summary Adds tags to instances.
+ *
+ * @param request TagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TagResourcesResponse
+ */
 async function tagResourcesWithOptions(request: TagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): TagResourcesResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -557,6 +1025,12 @@ async function tagResourcesWithOptions(request: TagResourcesRequest, headers: ma
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Adds tags to instances.
+ *
+ * @param request TagResourcesRequest
+ * @return TagResourcesResponse
+ */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -564,14 +1038,19 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 }
 
 model UntagResourcesRequest {
-  all?: boolean(name='All'),
-  resourceIds?: [ string ](name='ResourceIds'),
-  resourceType?: string(name='ResourceType'),
-  tagKeys?: [ string ](name='TagKeys'),
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resources. Default value: false. Valid values:
+
+*   true: removes all tags from the resources.
+*   false: removes the tags that are specified by the TagKeys parameter from the resources.', example='false'),
+  resourceIds?: [ string ](name='ResourceIds', description='The resource IDs, which are instance names.'),
+  resourceType?: string(name='ResourceType', description='The type of the resource. valid value:
+
+instance: instance', example='instance'),
+  tagKeys?: [ string ](name='TagKeys', description='The tag keys.'),
 }
 
 model UntagResourcesResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request ID, which can be used to troubleshoot issues.', example='26B43C99-F5C9-5341-B462-37427C5BF201'),
 }
 
 model UntagResourcesResponse = {
@@ -580,6 +1059,16 @@ model UntagResourcesResponse = {
   body?: UntagResourcesResponseBody(name='body'),
 }
 
+/**
+ * @summary Removes tags from resources.
+ *
+ * @description Removing tags from resources helps simplify resource management, optimize system performance, and mitigate potential security vulnerabilities. After a tag is removed from a resource, the system automatically deletes the tag if the tag is not added to other resources.
+ *
+ * @param request UntagResourcesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UntagResourcesResponse
+ */
 async function untagResourcesWithOptions(request: UntagResourcesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UntagResourcesResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -614,6 +1103,14 @@ async function untagResourcesWithOptions(request: UntagResourcesRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Removes tags from resources.
+ *
+ * @description Removing tags from resources helps simplify resource management, optimize system performance, and mitigate potential security vulnerabilities. After a tag is removed from a resource, the system automatically deletes the tag if the tag is not added to other resources.
+ *
+ * @param request UntagResourcesRequest
+ * @return UntagResourcesResponse
+ */
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
@@ -621,16 +1118,24 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateInstanceRequest {
-  aliasName?: string(name='AliasName'),
-  instanceDescription?: string(name='InstanceDescription'),
-  instanceName?: string(name='InstanceName'),
-  network?: string(name='Network'),
-  networkSourceACL?: [ string ](name='NetworkSourceACL'),
-  networkTypeACL?: [ string ](name='NetworkTypeACL'),
+  aliasName?: string(name='AliasName', description='The alias of the instance.', example='instance-test'),
+  instanceDescription?: string(name='InstanceDescription', description='The description of the instance.', example='the test instance'),
+  instanceName?: string(name='InstanceName', description='The name of the instance whose information you want to update.
+
+This parameter is required.', example='instance-test'),
+  network?: string(name='Network', description='(Deprecated) The network type of the instance. Valid values: NORMAL and VPC_CONSOLE. Default value: NORMAL.', example='VPC'),
+  networkSourceACL?: [ string ](name='NetworkSourceACL', description='The new sources of the network from which access is allowed. By default, all sources of networks are allowed. Valid value:
+
+TRUST_PROXY: the console'),
+  networkTypeACL?: [ string ](name='NetworkTypeACL', description='The new types of the network from which access is allowed. By default, all types of networks are allowed. Valid values:
+
+*   INTERNET: the Internet
+*   VPC: VPCs
+*   CLASSIC: the classic network'),
 }
 
 model UpdateInstanceResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used to troubleshoot issues.', example='3104C83E-6E82-57FB-BB88-8C64CCFDEF89'),
 }
 
 model UpdateInstanceResponse = {
@@ -639,6 +1144,14 @@ model UpdateInstanceResponse = {
   body?: UpdateInstanceResponseBody(name='body'),
 }
 
+/**
+ * @summary Updates instance information.
+ *
+ * @param request UpdateInstanceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstanceResponse
+ */
 async function updateInstanceWithOptions(request: UpdateInstanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
@@ -679,9 +1192,196 @@ async function updateInstanceWithOptions(request: UpdateInstanceRequest, headers
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Updates instance information.
+ *
+ * @param request UpdateInstanceRequest
+ * @return UpdateInstanceResponse
+ */
 async function updateInstance(request: UpdateInstanceRequest): UpdateInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateInstanceWithOptions(request, headers, runtime);
+}
+
+model UpdateInstanceElasticVCUUpperLimitRequest {
+  elasticVCUUpperLimit?: float(name='ElasticVCUUpperLimit', description='The upper limit for the VCUs of the instance.
+
+>  Valid values of the upper limit for the VCUs of an instance: **Number of reserved VCUs+0.1 to 2000**. You can upgrade or downgrade configurations to modify the number of reserved VCUs by increments or decrements of 1. You can dynamically modify the upper limit for the VCUs of an instance by increments or decrements of 0.1
+
+This parameter is required.', example='6'),
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='workshop-bj-ots1'),
+}
+
+model UpdateInstanceElasticVCUUpperLimitResponseBody = {
+  requestId?: string(name='requestId', description='The request ID, which can be used to troubleshoot issues.', example='B37BBA04-D827-55C8-B901-5264B904E8C6'),
+}
+
+model UpdateInstanceElasticVCUUpperLimitResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInstanceElasticVCUUpperLimitResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the upper limit for the VCUs of an instance in VCU mode (formerly reserved mode).
+ *
+ * @description *   **Before you call this operation, you must understand the billing and pricing of Tablestore. For more information, see [Billing overview](https://help.aliyun.com/document_detail/27291.html).**
+ * *   After you enable scalability for an instance, the default upper limit for the VCUs of the instance is the sum of the scalability and the reserved VCUs.
+ * *   To use more computing resources when your business grows, you can modify the upper limit for the VCUs of your instance. The new upper limit for the VCUs of your instance immediately takes effect.
+ *
+ * @param request UpdateInstanceElasticVCUUpperLimitRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstanceElasticVCUUpperLimitResponse
+ */
+async function updateInstanceElasticVCUUpperLimitWithOptions(request: UpdateInstanceElasticVCUUpperLimitRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstanceElasticVCUUpperLimitResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.elasticVCUUpperLimit)) {
+    body['ElasticVCUUpperLimit'] = request.elasticVCUUpperLimit;
+  }
+  if (!Util.isUnset(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateInstanceElasticVCUUpperLimit',
+    version = '2020-12-09',
+    protocol = 'HTTPS',
+    pathname = `/v2/openapi/updateinstanceelasticvcuupperlimit`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the upper limit for the VCUs of an instance in VCU mode (formerly reserved mode).
+ *
+ * @description *   **Before you call this operation, you must understand the billing and pricing of Tablestore. For more information, see [Billing overview](https://help.aliyun.com/document_detail/27291.html).**
+ * *   After you enable scalability for an instance, the default upper limit for the VCUs of the instance is the sum of the scalability and the reserved VCUs.
+ * *   To use more computing resources when your business grows, you can modify the upper limit for the VCUs of your instance. The new upper limit for the VCUs of your instance immediately takes effect.
+ *
+ * @param request UpdateInstanceElasticVCUUpperLimitRequest
+ * @return UpdateInstanceElasticVCUUpperLimitResponse
+ */
+async function updateInstanceElasticVCUUpperLimit(request: UpdateInstanceElasticVCUUpperLimitRequest): UpdateInstanceElasticVCUUpperLimitResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstanceElasticVCUUpperLimitWithOptions(request, headers, runtime);
+}
+
+model UpdateInstancePolicyRequest {
+  instanceName?: string(name='InstanceName', description='The name of the instance.
+
+This parameter is required.', example='my-test-12345'),
+  policy?: string(name='Policy', description='The instance policy in the JSON format.
+
+This parameter is required.', example='{
+    "Version": "1",
+    "Statement": [
+        {
+            "Action": [
+                "ots:*"
+            ],
+            "Resource": [
+                "acs:ots:*:13791xxxxxxxxxxx:instance/myinstance*"
+            ],
+            "Principal": [
+                "*"
+            ],
+            "Effect": "Allow",
+            "Condition": {
+                "StringEquals": {
+                    "ots:TLSVersion": [
+                        "1.2"
+                    ]
+                },
+                "IpAddress": {
+                    "acs:SourceIp": [
+                        "192.168.0.1",
+                        "172.16.0.1"
+                    ]
+                }
+            }
+        }
+    ]
+}'),
+  policyVersion?: long(name='PolicyVersion', description='The version of the instance policy.
+
+This parameter is required.', example='2'),
+}
+
+model UpdateInstancePolicyResponseBody = {
+  code?: string(name='Code', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID, which can be used to troubleshoot issues.', example='31D8120C-AC52-5CA9-BE4A-E4C6316E19AD'),
+}
+
+model UpdateInstancePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateInstancePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies a Resource Access Management (RAM) policy for an instance.
+ *
+ * @param request UpdateInstancePolicyRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateInstancePolicyResponse
+ */
+async function updateInstancePolicyWithOptions(request: UpdateInstancePolicyRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateInstancePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.instanceName)) {
+    body['InstanceName'] = request.instanceName;
+  }
+  if (!Util.isUnset(request.policy)) {
+    body['Policy'] = request.policy;
+  }
+  if (!Util.isUnset(request.policyVersion)) {
+    body['PolicyVersion'] = request.policyVersion;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateInstancePolicy',
+    version = '2020-12-09',
+    protocol = 'HTTPS',
+    pathname = `/v2/openapi/updateinstancepolicy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies a Resource Access Management (RAM) policy for an instance.
+ *
+ * @param request UpdateInstancePolicyRequest
+ * @return UpdateInstancePolicyResponse
+ */
+async function updateInstancePolicy(request: UpdateInstancePolicyRequest): UpdateInstancePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateInstancePolicyWithOptions(request, headers, runtime);
 }
 
