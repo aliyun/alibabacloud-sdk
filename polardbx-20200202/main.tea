@@ -719,6 +719,38 @@ model CreateDBInstanceRequest {
   dnClass?: string(name='DnClass'),
   dnStorageSpace?: string(name='DnStorageSpace'),
   engineVersion?: string(name='EngineVersion', description='This parameter is required.', example='2.0'),
+  extraParams?: map[string]string(name='ExtraParams'),
+  isColumnarReadDBInstance?: boolean(name='IsColumnarReadDBInstance'),
+  isReadDBInstance?: boolean(name='IsReadDBInstance', example='false'),
+  networkType?: string(name='NetworkType', example='vpc'),
+  payType?: string(name='PayType', description='This parameter is required.', example='PREPAY'),
+  period?: string(name='Period', example='Month'),
+  primaryDBInstanceName?: string(name='PrimaryDBInstanceName', example='pxc-*********'),
+  primaryZone?: string(name='PrimaryZone', example='cn-shenzhen-e'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='null'),
+  secondaryZone?: string(name='SecondaryZone', example='cn-shenzhen-a'),
+  series?: string(name='Series'),
+  tertiaryZone?: string(name='TertiaryZone', example='cn-shenzhen-e'),
+  topologyType?: string(name='TopologyType', description='This parameter is required.', example='3azones'),
+  usedTime?: int32(name='UsedTime', example='1'),
+  VPCId?: string(name='VPCId', description='VPC ID。', example='vpc-*****'),
+  vSwitchId?: string(name='VSwitchId', example='vsw-*********'),
+  zoneId?: string(name='ZoneId', example='cn-hangzhou-a'),
+}
+
+model CreateDBInstanceShrinkRequest {
+  autoRenew?: boolean(name='AutoRenew', example='true'),
+  CNNodeCount?: string(name='CNNodeCount'),
+  clientToken?: string(name='ClientToken', example='xxxxxx-xxx'),
+  cnClass?: string(name='CnClass'),
+  DBNodeClass?: string(name='DBNodeClass', example='polarx.x4.2xlarge.2d'),
+  DBNodeCount?: int32(name='DBNodeCount', example='2'),
+  DNNodeCount?: string(name='DNNodeCount'),
+  dnClass?: string(name='DnClass'),
+  dnStorageSpace?: string(name='DnStorageSpace'),
+  engineVersion?: string(name='EngineVersion', description='This parameter is required.', example='2.0'),
+  extraParamsShrink?: string(name='ExtraParams'),
   isColumnarReadDBInstance?: boolean(name='IsColumnarReadDBInstance'),
   isReadDBInstance?: boolean(name='IsReadDBInstance', example='false'),
   networkType?: string(name='NetworkType', example='vpc'),
@@ -751,12 +783,17 @@ model CreateDBInstanceResponse = {
 }
 
 /**
- * @param request CreateDBInstanceRequest
+ * @param tmpReq CreateDBInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDBInstanceResponse
  */
-async function createDBInstanceWithOptions(request: CreateDBInstanceRequest, runtime: Util.RuntimeOptions): CreateDBInstanceResponse {
-  Util.validateModel(request);
+async function createDBInstanceWithOptions(tmpReq: CreateDBInstanceRequest, runtime: Util.RuntimeOptions): CreateDBInstanceResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDBInstanceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.extraParams)) {
+    request.extraParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.extraParams, 'ExtraParams', 'json');
+  }
   var query = {};
   if (!Util.isUnset(request.autoRenew)) {
     query['AutoRenew'] = request.autoRenew;
@@ -787,6 +824,9 @@ async function createDBInstanceWithOptions(request: CreateDBInstanceRequest, run
   }
   if (!Util.isUnset(request.engineVersion)) {
     query['EngineVersion'] = request.engineVersion;
+  }
+  if (!Util.isUnset(request.extraParamsShrink)) {
+    query['ExtraParams'] = request.extraParamsShrink;
   }
   if (!Util.isUnset(request.isColumnarReadDBInstance)) {
     query['IsColumnarReadDBInstance'] = request.isColumnarReadDBInstance;
@@ -2364,6 +2404,7 @@ async function describeDBInstanceTDE(request: DescribeDBInstanceTDERequest): Des
 model DescribeDBInstanceTopologyRequest {
   DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-********'),
   endTime?: string(name='EndTime'),
+  minuteSimple?: boolean(name='MinuteSimple'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
   startTime?: string(name='StartTime'),
 }
@@ -2464,6 +2505,9 @@ async function describeDBInstanceTopologyWithOptions(request: DescribeDBInstance
   }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.minuteSimple)) {
+    query['MinuteSimple'] = request.minuteSimple;
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
@@ -2624,6 +2668,7 @@ async function describeDBInstanceViaEndpoint(request: DescribeDBInstanceViaEndpo
 }
 
 model DescribeDBInstancesRequest {
+  dbVersion?: string(name='DbVersion'),
   instanceId?: string(name='InstanceId', example='dinga93c84f4d***'),
   mustHasCdc?: boolean(name='MustHasCdc'),
   pageNumber?: int32(name='PageNumber', example='1'),
@@ -2722,6 +2767,9 @@ model DescribeDBInstancesResponse = {
 async function describeDBInstancesWithOptions(request: DescribeDBInstancesRequest, runtime: Util.RuntimeOptions): DescribeDBInstancesResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.dbVersion)) {
+    query['DbVersion'] = request.dbVersion;
+  }
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
@@ -3091,8 +3139,73 @@ async function describeEvents(request: DescribeEventsRequest): DescribeEventsRes
   return describeEventsWithOptions(request, runtime);
 }
 
+model DescribeOpenBackupSetRequest {
+  DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-********'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  restoreTime?: string(name='RestoreTime', example='2024-10-14T00:00:00Z'),
+}
+
+model DescribeOpenBackupSetResponseBody = {
+  data?: any(name='Data', example='{"gmsBackupSet": {"pubFullDownloadUrl": "https://xxxxx","dnName": "pxc-xdb-m-xxxxxx","hostInstanceId": 0001,"binlogs": [],"backupEndTime": "2024-10-21T10:11:56Z","backupLinkExpiredTime": "2024-10-23T06:13:54Z","dnBackupSetId": "00088","notCompletedBinlogs": [],"commitIndex": "15249275","innerFullDownloadUrl": "http://xxxxx","backupStartTime": "2024-10-21T10:09:20Z","backupSetSize": 526118912},"dnBackupSets": [],"insName": "pxc-xxxxx","backupSetId": "cb-xxxxx","canBinlogRecoverToTime": 1729567925000,"backupEndTime": "2024-10-21T10:12:16Z","canBinlogRecoverToTimeUTC": "2024-10-22T03:32:05Z","canBackupMinRecoverToTimeUTC": "2024-10-21T10:11:56Z","pitrInvalid": false,"backupStartTime": "2024-10-21T10:09:16Z","canBackupMinRecoverToTime": 1729505516000}'),
+  requestId?: string(name='RequestId', example='FEA5DC20-6D8A-5979-97AA-FC57546ADC20'),
+}
+
+model DescribeOpenBackupSetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeOpenBackupSetResponseBody(name='body'),
+}
+
+/**
+ * @summary 开放商业备份集
+ *
+ * @param request DescribeOpenBackupSetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeOpenBackupSetResponse
+ */
+async function describeOpenBackupSetWithOptions(request: DescribeOpenBackupSetRequest, runtime: Util.RuntimeOptions): DescribeOpenBackupSetResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.DBInstanceName)) {
+    query['DBInstanceName'] = request.DBInstanceName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.restoreTime)) {
+    query['RestoreTime'] = request.restoreTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeOpenBackupSet',
+    version = '2020-02-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 开放商业备份集
+ *
+ * @param request DescribeOpenBackupSetRequest
+ * @return DescribeOpenBackupSetResponse
+ */
+async function describeOpenBackupSet(request: DescribeOpenBackupSetRequest): DescribeOpenBackupSetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeOpenBackupSetWithOptions(request, runtime);
+}
+
 model DescribeParameterTemplatesRequest {
-  DBInstanceId?: string(name='DBInstanceId', description='This parameter is required.', example='pxc-********'),
+  DBInstanceId?: string(name='DBInstanceId', example='pxc-********'),
+  engineVersion?: string(name='EngineVersion'),
   paramLevel?: string(name='ParamLevel', example='compute'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
 }
@@ -3132,6 +3245,9 @@ async function describeParameterTemplatesWithOptions(request: DescribeParameterT
   var query = {};
   if (!Util.isUnset(request.DBInstanceId)) {
     query['DBInstanceId'] = request.DBInstanceId;
+  }
+  if (!Util.isUnset(request.engineVersion)) {
+    query['EngineVersion'] = request.engineVersion;
   }
   if (!Util.isUnset(request.paramLevel)) {
     query['ParamLevel'] = request.paramLevel;
@@ -3180,6 +3296,7 @@ model DescribeParametersResponseBody = {
         parameterValue?: string(name='ParameterValue', example='-1'),
       }
     ](name='ConfigParameters'),
+    DBInstanceId?: string(name='DBInstanceId'),
     engine?: string(name='Engine', example='polarx'),
     engineVersion?: string(name='EngineVersion', example='2.0'),
     runningParameters?: [ 
@@ -4539,7 +4656,8 @@ model ModifyParameterRequest {
   clientToken?: string(name='ClientToken', example='FEA5DC20-6D8A-5979-97AA-FC57546ADC20'),
   DBInstanceId?: string(name='DBInstanceId', description='This parameter is required.', example='pxc-hzjasdyuoo'),
   paramLevel?: string(name='ParamLevel', example='compute'),
-  parameters?: string(name='Parameters', description='This parameter is required.', example='{"CONN_POOL_BLOCK_TIMEOUT":6000}'),
+  parameterGroupId?: string(name='ParameterGroupId'),
+  parameters?: string(name='Parameters', example='{"CONN_POOL_BLOCK_TIMEOUT":6000}'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
 }
 
@@ -4569,6 +4687,9 @@ async function modifyParameterWithOptions(request: ModifyParameterRequest, runti
   }
   if (!Util.isUnset(request.paramLevel)) {
     query['ParamLevel'] = request.paramLevel;
+  }
+  if (!Util.isUnset(request.parameterGroupId)) {
+    query['ParameterGroupId'] = request.parameterGroupId;
   }
   if (!Util.isUnset(request.parameters)) {
     query['Parameters'] = request.parameters;
@@ -4733,11 +4854,7 @@ async function releaseColdDataVolume(request: ReleaseColdDataVolumeRequest): Rel
 model ReleaseInstancePublicConnectionRequest {
   currentConnectionString?: string(name='CurrentConnectionString', description='This parameter is required.', example='pxc-hzjasdyuoo.polarx.rds.aliyuncs.com'),
   DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-hzjasd****'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model ReleaseInstancePublicConnectionResponseBody = {
@@ -4764,20 +4881,8 @@ async function releaseInstancePublicConnectionWithOptions(request: ReleaseInstan
   if (!Util.isUnset(request.DBInstanceName)) {
     query['DBInstanceName'] = request.DBInstanceName;
   }
-  if (!Util.isUnset(request.ownerAccount)) {
-    query['OwnerAccount'] = request.ownerAccount;
-  }
-  if (!Util.isUnset(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
-  }
-  if (!Util.isUnset(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
-  }
-  if (!Util.isUnset(request.resourceOwnerId)) {
-    query['ResourceOwnerId'] = request.resourceOwnerId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
