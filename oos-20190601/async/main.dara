@@ -180,6 +180,7 @@ model CreateApplicationRequest {
     healthCheckUrl?: string(name='HealthCheckUrl', description='The health check URL of the application.', example='/healthcheck/tcp50122'),
     templateIds?: [ string ](name='TemplateIds', description='The alert templates.'),
   }(name='AlarmConfig', description='The configurations of application alerts.', shrink='json', position='Query'),
+  applicationSource?: string(name='ApplicationSource', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='TF-CreateApplication-1647587475-84104b89-eba5-47a8-b2fd-807b8b7d', position='Query'),
   description?: string(name='Description', description='The description of the application.', example='application', position='Query'),
   name: string(name='Name', description='The application name.
@@ -1195,6 +1196,7 @@ This parameter is required.', example='MyApplicationGroup', position='Query'),
 model GetApplicationGroupResponseBody = {
   applicationGroup?: {
     applicationName?: string(name='ApplicationName', description='The name of the application.', example='MyApplication'),
+    applicationSource?: string(name='ApplicationSource'),
     cmsGroupId?: string(name='CmsGroupId', description='The ID of the application group in CloudMonitor.', example='12345678'),
     createDate?: string(name='CreateDate', description='The time when the application group was created.', example='2021-09-07T10:28:25Z'),
     deployOutputs?: string(name='DeployOutputs', description='The output of the deployment result.', example='{       "Outputs": [         {           "Description": "No description given",           "OutputKey": "InstanceIds"         }       ],       "StackId": "6ef4b860-f6e7-4145-8d22-f4a2a32363e1"     }   }'),
@@ -1204,12 +1206,12 @@ model GetApplicationGroupResponseBody = {
     importTagKey?: string(name='ImportTagKey', description='The tag key.', example='k1'),
     importTagValue?: string(name='ImportTagValue', description='The tag value.', example='v1'),
     name?: string(name='Name', description='The name of the application group.', example='MyApplicationGroup'),
-    operationMetadata?: string(name='OperationMetadata'),
+    operationMetadata?: string(name='OperationMetadata', description='The operation metadata.', example='{\\"PrometheusConfigMap\\":{\\"模板1\\":{\\"EnablePrometheus\\":false}}}'),
     progress?: string(name='Progress', description='The creation progress of the application instance.', example='100'),
     status?: string(name='Status', description='The state of the application group.', example='Created'),
     statusReason?: string(name='StatusReason', description='The state information of the application group.', example='Stack CREATE completed successfully'),
     updateDate?: string(name='UpdateDate', description='The time when the application group was last modified.', example='2021-09-07T10:28:25Z'),
-  }(name='ApplicationGroup', description='The details of the application group.'),
+  }(name='ApplicationGroup', description='The information about the application group.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='92EA60ED-544D-55E9-93D9-237BE9976C0D'),
 }
 
@@ -1790,6 +1792,81 @@ async function getTemplate(request: GetTemplateRequest): GetTemplateResponse {
   return @handler.do('RPC', 'GetTemplate', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetTemplateParameterConstraintsRequest {
+  parameters?: string(name='Parameters', example='{\\"endDate\\": \\"2022-04-13T03:31:20Z\\", \\"Status\\": \\"Stopped\\"}', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  templateContent?: string(name='TemplateContent', example='{
+	"Description": "Example template, describe instances in some status",
+	"FormatVersion": "OOS-2019-06-01",
+	"Parameters": {},
+	"Tasks": [{
+		"Name": "describeInstances",
+		"Action": "ACS::ExecuteAPI",
+		"Description": "desc-en",
+		"Properties": {
+			"Service": "ECS",
+			"API": "DescribeInstances",
+			"Parameters": {
+				"Status": "Running"
+			}
+		}
+	}]
+}', position='Query'),
+  templateName?: string(name='TemplateName', example='MyTemplate', position='Query'),
+  templateURL?: string(name='TemplateURL', example='http://oos-template.cn-hangzhou.oss.aliyun-inc.com/oos-test-template.json', position='Query'),
+  templateVersion?: string(name='TemplateVersion', example='v1', position='Query'),
+}
+
+model GetTemplateParameterConstraintsResponseBody = {
+  parameterConstraints?: map[string]any(name='ParameterConstraints', example='[
+    {
+      "Type": "String",
+      "AllowedValues": [
+        "ecs.n1.tiny",
+        "ecs.r8a.4xlarge",
+        "ecs.n2.xlarge",
+        "ecs.c7.2xlarge",
+        "ecs.c8i.4xlarge",
+        "ecs.g8i.48xlarge",
+        "ecs.c8a.4xlarge",
+        "ecs.i2.4xlarge",
+        "ecs.r8y.2xlarge"
+      ],
+      "AssociationParameterNames": [
+        "RegionId",
+        "zoneId"
+      ],
+      "ParameterKey": "instanceType"
+    },
+    {
+      "Type": "String",
+      "AllowedValues": [],
+      "AssociationParameterNames": [
+        "RegionId",
+        "zoneId",
+        "InstanceType"
+      ],
+      "ParameterKey": "systemDiskCategory"
+    }
+  ]'),
+  requestId?: string(name='RequestId', example='CBEC8072-BEC2-478E-8EAE-E723BA79CF19'),
+}
+
+model GetTemplateParameterConstraintsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTemplateParameterConstraintsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetTemplateParameterConstraints  GetTemplateParameterConstraintsRequest
+  * @return GetTemplateParameterConstraintsResponse
+ */
+async function getTemplateParameterConstraints(request: GetTemplateParameterConstraintsRequest): GetTemplateParameterConstraintsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetTemplateParameterConstraints', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListActionsRequest {
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: 20 to 100. Default value: 50.', example='50', position='Query'),
   nextToken?: string(name='NextToken', description='The token that is used to retrieve the next page of results.', example='-', position='Query'),
@@ -2102,7 +2179,7 @@ model ListExecutionsResponseBody = {
       lastTriggerStatusMessage?: string(name='LastTriggerStatusMessage', description='The status message of last trigger.', example='""'),
       lastTriggerTime?: string(name='LastTriggerTime', description='The time when the template was last successfully triggered.', example='2019-05-27T09:29:18Z'),
       mode?: string(name='Mode', description='The execution mode.', example='Automatic'),
-      nextScheduleTime?: string(name='NextScheduleTime'),
+      nextScheduleTime?: string(name='NextScheduleTime', description='The next schedule time for timer trigger execution.', example='2019-05-16T10:26:14Z'),
       outputs?: string(name='Outputs', description='The output of the execution.', example='{ "InstanceId":"i-xxx" }'),
       parameters?: map[string]any(name='Parameters', description='The input parameters of the execution.', example='{ "Status":"Running" }'),
       parentExecutionId?: string(name='ParentExecutionId', description='The ID of the parent execution.', example='exec-xxx'),
@@ -2225,30 +2302,32 @@ async function listGitRepositoryContents(request: ListGitRepositoryContentsReque
 }
 
 model ListInstancePackageStatesRequest {
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='i-bp1cpoxxxwxxxxxxxxxx', position='Query'),
-  maxResults?: int32(name='MaxResults', example='50', position='Query'),
-  nextToken?: string(name='NextToken', example='MTRBMDc0NjAtRUJFNy00N0NBLTk3NTctzxxxxxxx', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  templateNames?: string(name='TemplateNames', example='["template1","template2"]', position='Query'),
+  instanceId: string(name='InstanceId', description='ECS instance ID
+
+This parameter is required.', example='i-bp1cpoxxxwxxxxxxxxxx', position='Query'),
+  maxResults?: int32(name='MaxResults', description='Page size.', example='50', position='Query'),
+  nextToken?: string(name='NextToken', description='Pagination token.', example='MTRBMDc0NjAtRUJFNy00N0NBLTk3NTctzxxxxxxx', position='Query'),
+  regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou', position='Query'),
+  templateNames?: string(name='TemplateNames', description='List of extension names', example='["template1","template2"]', position='Query'),
 }
 
 model ListInstancePackageStatesResponseBody = {
-  maxResults?: string(name='MaxResults', example='50'),
-  nextToken?: string(name='NextToken', example='MTRBMDc0NjAtRUJFNy00N0NBLTk3NTctzxxxxxxx'),
+  maxResults?: string(name='MaxResults', description='Page size.', example='50'),
+  nextToken?: string(name='NextToken', description='Token string for pagination.', example='MTRBMDc0NjAtRUJFNy00N0NBLTk3NTctzxxxxxxx'),
   packageStates?: [ 
     {
-      description?: string(name='Description', example='template description'),
-      parameters?: string(name='Parameters', example='{}'),
-      publisher?: string(name='Publisher', example='Alibaba Cloud'),
-      templateCategory?: string(name='TemplateCategory', example='Package'),
-      templateId?: string(name='TemplateId', example='087b1e11072a40259f6fxxxxxxxxx'),
-      templateName?: string(name='TemplateName', example='ACS-ECS-Docker'),
-      templateVersion?: string(name='TemplateVersion', example='v3'),
-      templateVersionName?: string(name='TemplateVersionName', example='fix bug'),
-      updateTime?: string(name='UpdateTime', example='2024-05-04T11:17:28'),
+      description?: string(name='Description', description='Description', example='template description'),
+      parameters?: string(name='Parameters', description='Parameters', example='{}'),
+      publisher?: string(name='Publisher', description='Publisher', example='Alibaba Cloud'),
+      templateCategory?: string(name='TemplateCategory', description='Template type', example='Package'),
+      templateId?: string(name='TemplateId', description='Template ID', example='087b1e11072a40259f6fxxxxxxxxx'),
+      templateName?: string(name='TemplateName', description='Template name.', example='ACS-ECS-Docker'),
+      templateVersion?: string(name='TemplateVersion', description='Template version number', example='v3'),
+      templateVersionName?: string(name='TemplateVersionName', description='Template version name', example='fix bug'),
+      updateTime?: string(name='UpdateTime', description='Update time.', example='2024-05-04T11:17:28'),
     }
-  ](name='PackageStates'),
-  requestId?: string(name='RequestId', description='Id of the request', example='1306108F-610C-40FD-AAD5-XXXXXX'),
+  ](name='PackageStates', description='List of extensions'),
+  requestId?: string(name='RequestId', description='ID of the request', example='1306108F-610C-40FD-AAD5-XXXXXX'),
 }
 
 model ListInstancePackageStatesResponse = {
@@ -3069,7 +3148,7 @@ The value must be in the YYYY-MM-DDThh:mm:ssZ format.', example='2019-05-16T10:2
 
 The value must be in the YYYY-MM-DDThh:mm::ssZ format.', example='2019-05-16T10:26:14Z', position='Query'),
   hasTrigger?: boolean(name='HasTrigger', description='Specifies whether to query the template that is configured with a trigger.', example='true', position='Query'),
-  isExample?: boolean(name='IsExample', description='Specifies whether the template is an example template', example='false', position='Query'),
+  isExample?: boolean(name='IsExample', description='Specifies whether the template is an example template.', example='false', position='Query'),
   isFavorite?: boolean(name='IsFavorite', description='Specifies whether the template is added to favorites.', example='true', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page. Valid values: 10 to 100. Default value: 50.', example='50', position='Query'),
   nextToken?: string(name='NextToken', description='The token that is used to retrieve the next page of results.', example='xxx', position='Query'),
@@ -3142,7 +3221,7 @@ model ListTemplatesResponseBody = {
 >  This parameter is valid only if **ShareType** is set to **Private**.', example='5'),
       updatedBy?: string(name='UpdatedBy', description='The user who last updated the template.', example='root(13092000)'),
       updatedDate?: string(name='UpdatedDate', description='The time when the template was last updated.', example='2019-05-16T10:26:14Z'),
-      versionName?: string(name='VersionName'),
+      versionName?: string(name='VersionName', description='The version name.', example='v2.1'),
     }
   ](name='Templates', description='The template metadata.'),
 }
@@ -3590,8 +3669,8 @@ This parameter is required.', example='MyApplication', position='Query'),
 
 This parameter is required.', example='MyApplicationGroup', position='Query'),
   newName?: string(name='NewName', description='The new name of the application group.', example='UpdateMyApplicationGroup', position='Query'),
-  operationName?: string(name='OperationName', position='Query'),
-  parameters?: map[string]any(name='Parameters', shrink='json', position='Query'),
+  operationName?: string(name='OperationName', description='The name of the configuration update operation.', example='/business/v1/product/spus/{spu_id}', position='Query'),
+  parameters?: map[string]any(name='Parameters', description='The JSON string that consists of a set of parameters. Default value: {}.', example='{"username": "xx"}', shrink='json', position='Query'),
   regionId?: string(name='RegionId', description='The region ID. Set the value to cn-hangzhou.', example='cn-hangzhou', position='Query'),
 }
 
@@ -3656,16 +3735,27 @@ async function updateExecution(request: UpdateExecutionRequest): UpdateExecution
 }
 
 model UpdateInstancePackageStateRequest {
-  configureAction: string(name='ConfigureAction', description='This parameter is required.', example='install', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='i-bp1jaxa2bs4bps7*****', position='Query'),
-  parameters?: map[string]any(name='Parameters', example='{"username": "xx"}', shrink='json', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  templateName: string(name='TemplateName', description='This parameter is required.', example='ACS-ECS-InventoryDataCollection', position='Query'),
-  templateVersion?: string(name='TemplateVersion', example='v1', position='Query'),
+  configureAction: string(name='ConfigureAction', description='The operation type.
+
+Valid values:
+
+*   uninstall
+*   install
+
+This parameter is required.', example='install', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the Elastic Compute Service (ECS) instance.
+
+This parameter is required.', example='i-bp1jaxa2bs4bps7*****', position='Query'),
+  parameters?: map[string]any(name='Parameters', description='The parameters for installing or uninstalling the extensions.', example='{"username": "xx"}', shrink='json', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  templateName: string(name='TemplateName', description='The name of the template.
+
+This parameter is required.', example='ACS-ECS-InventoryDataCollection', position='Query'),
+  templateVersion?: string(name='TemplateVersion', description='The version of the template.', example='v1', position='Query'),
 }
 
 model UpdateInstancePackageStateResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='2597E94B-5346-42D1-BB58-XXXXXXXXXXX'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2597E94B-5346-42D1-BB58-XXXXXXXXXXX'),
 }
 
 model UpdateInstancePackageStateResponse = {
