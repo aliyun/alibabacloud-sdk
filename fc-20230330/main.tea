@@ -344,6 +344,13 @@ model GPUConfig {
   gpuType?: string(name='gpuType', example='fc.gpu.tesla.1'),
 }
 
+model GetInstanceLifecycleEventsOutput {
+  events?: [
+    InstanceEventItem
+  ](name='events'),
+  requestId?: string(name='requestId'),
+}
+
 model GetResourceTagsOutput {
   resouceType?: string(name='resouceType', example='ALIYUN::FC::FUNCTION'),
   resourceArn?: string(name='resourceArn', example='acs:fc:cn-shanghai:****:functions/demo'),
@@ -369,9 +376,23 @@ model InputCodeLocation {
   zipFile?: string(name='zipFile', example='UEsDBAoAAAAAANF'),
 }
 
+model InstanceEventItem {
+  children?: [
+    InstanceEventItem
+  ](name='children'),
+  level?: string(name='level'),
+  message?: string(name='message'),
+  time?: string(name='time'),
+  type?: string(name='type'),
+}
+
 model InstanceInfo {
+  createdTimeMs?: long(name='createdTimeMs'),
+  destroyedTimeMs?: long(name='destroyedTimeMs'),
   instanceId?: string(name='instanceId', example='1ef6b6ff-7f7b-485e-ab49-501ac681****'),
-  versionId?: string(name='versionId', example='LATEST'),
+  qualifier?: string(name='qualifier'),
+  status?: string(name='status'),
+  versionId?: string(name='versionId'),
 }
 
 model InstanceLifecycleConfig {
@@ -454,6 +475,7 @@ model ListInstancesOutput {
   instances?: [
     InstanceInfo
   ](name='instances'),
+  requestId?: string(name='requestId'),
 }
 
 model ListLayerVersionOutput {
@@ -2776,7 +2798,24 @@ async function listFunctions(request: ListFunctionsRequest): ListFunctionsRespon
 }
 
 model ListInstancesRequest {
+  endTimeMs?: long(name='endTimeMs'),
+  instanceIds?: [ string ](name='instanceIds'),
+  instanceStatus?: [ string ](name='instanceStatus'),
+  limit?: string(name='limit'),
   qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  startKey?: string(name='startKey'),
+  startTimeMs?: long(name='startTimeMs'),
+  withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all instances. Valid values: true and false.', example='true'),
+}
+
+model ListInstancesShrinkRequest {
+  endTimeMs?: long(name='endTimeMs'),
+  instanceIdsShrink?: string(name='instanceIds'),
+  instanceStatusShrink?: string(name='instanceStatus'),
+  limit?: string(name='limit'),
+  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  startKey?: string(name='startKey'),
+  startTimeMs?: long(name='startTimeMs'),
   withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all instances. Valid values: true and false.', example='true'),
 }
 
@@ -2789,16 +2828,42 @@ model ListInstancesResponse = {
 /**
  * @summary Queries a list of function instances.
  *
- * @param request ListInstancesRequest
+ * @param tmpReq ListInstancesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstancesResponse
  */
-async function listInstancesWithOptions(functionName: string, request: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
+async function listInstancesWithOptions(functionName: string, tmpReq: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.instanceIds)) {
+    request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'instanceIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.instanceStatus)) {
+    request.instanceStatusShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceStatus, 'instanceStatus', 'json');
+  }
   var query : map[string]any = {};
+  if (!Util.isUnset(request.endTimeMs)) {
+    query['endTimeMs'] = request.endTimeMs;
+  }
+  if (!Util.isUnset(request.instanceIdsShrink)) {
+    query['instanceIds'] = request.instanceIdsShrink;
+  }
+  if (!Util.isUnset(request.instanceStatusShrink)) {
+    query['instanceStatus'] = request.instanceStatusShrink;
+  }
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
   if (!Util.isUnset(request.qualifier)) {
     query['qualifier'] = request.qualifier;
+  }
+  if (!Util.isUnset(request.startKey)) {
+    query['startKey'] = request.startKey;
+  }
+  if (!Util.isUnset(request.startTimeMs)) {
+    query['startTimeMs'] = request.startTimeMs;
   }
   if (!Util.isUnset(request.withAllActive)) {
     query['withAllActive'] = request.withAllActive;
