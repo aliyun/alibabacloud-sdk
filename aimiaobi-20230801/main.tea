@@ -2,7 +2,6 @@
  *
  */
 import Util;
-import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -12,9 +11,6 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @productId = 'AiMiaoBi';
-  var gatewayClient = new GatewayClient();
-  @spi = gatewayClient;
   @endpointRule = '';
   
   checkConfig(config);
@@ -30,6 +26,118 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AddDatasetDocumentRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  document?: {
+    content?: string(name='Content', example='xxx'),
+    disableHandleMultimodalMedia?: boolean(name='DisableHandleMultimodalMedia', example='false'),
+    docId?: string(name='DocId', example='业务文档唯一ID'),
+    docType?: string(name='DocType', example='文档类型'),
+    docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+    extend1?: string(name='Extend1', example='扩展字段1'),
+    extend2?: string(name='Extend2', example='扩展字段2'),
+    extend3?: string(name='Extend3', example='扩展字段3'),
+    multimodalIndexName?: string(name='MultimodalIndexName', example='模型名称 todo 商业化 仅个别账号可传入'),
+    multimodalMedias?: [ 
+      {
+        fileUrl?: string(name='FileUrl', example='图片或视频文件地址'),
+        mediaId?: string(name='MediaId', example='多模态数据唯一标识'),
+        mediaType?: string(name='MediaType', example='多模态数据类型'),
+      }
+    ](name='MultimodalMedias'),
+    pubTime?: string(name='PubTime', example='2024-12-09 13:35:40'),
+    sourceFrom?: string(name='SourceFrom', example='来源'),
+    summary?: string(name='Summary', example='文章摘要'),
+    title?: string(name='Title', example='xxxxx@xxxxx.com'),
+    url?: string(name='Url', example='xxx'),
+  }(name='Document', description='This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xx'),
+}
+
+model AddDatasetDocumentShrinkRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  documentShrink?: string(name='Document', description='This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xx'),
+}
+
+model AddDatasetDocumentResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    docId?: string(name='DocId', example='文档业务唯一标识'),
+    docUuid?: string(name='DocUuid', example='8df2d69d63a247b6b52ff455b2d426b6'),
+    errorCode?: string(name='ErrorCode', example='Success'),
+    errorMessage?: string(name='ErrorMessage'),
+    status?: int32(name='Status', example='1'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model AddDatasetDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddDatasetDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 添加文档到数据集
+ *
+ * @param tmpReq AddDatasetDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddDatasetDocumentResponse
+ */
+async function addDatasetDocumentWithOptions(tmpReq: AddDatasetDocumentRequest, runtime: Util.RuntimeOptions): AddDatasetDocumentResponse {
+  Util.validateModel(tmpReq);
+  var request = new AddDatasetDocumentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.document)) {
+    request.documentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.document, 'Document', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.documentShrink)) {
+    body['Document'] = request.documentShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddDatasetDocument',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 添加文档到数据集
+ *
+ * @param request AddDatasetDocumentRequest
+ * @return AddDatasetDocumentResponse
+ */
+async function addDatasetDocument(request: AddDatasetDocumentRequest): AddDatasetDocumentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addDatasetDocumentWithOptions(request, runtime);
 }
 
 model CancelAsyncTaskRequest {
@@ -84,11 +192,7 @@ async function cancelAsyncTaskWithOptions(request: CancelAsyncTaskRequest, runti
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -151,11 +255,7 @@ async function clearIntervenesWithOptions(request: ClearIntervenesRequest, runti
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -167,6 +267,172 @@ async function clearIntervenesWithOptions(request: ClearIntervenesRequest, runti
 async function clearIntervenes(request: ClearIntervenesRequest): ClearIntervenesResponse {
   var runtime = new Util.RuntimeOptions{};
   return clearIntervenesWithOptions(request, runtime);
+}
+
+model CreateDatasetRequest {
+  datasetConfig?: {
+    searchSourceConfigs?: [ 
+      {
+        demoQuery?: string(name='DemoQuery', example='可以搜索到的关键词，用来验证是否可用'),
+        searchSourceRequestConfig?: {
+          body?: string(name='Body', example='{}'),
+          connectTimeout?: int32(name='ConnectTimeout', example='3000'),
+          headers?: [ 
+            {
+              name?: string(name='Name', example='参数名称'),
+              value?: string(name='Value', example='参数值'),
+              valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+              valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+            }
+          ](name='Headers'),
+          method?: string(name='Method', example='请求方式'),
+          params?: [ 
+            {
+              name?: string(name='Name', example='参数名称'),
+              value?: string(name='Value', example='参数值'),
+              valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+              valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+            }
+          ](name='Params'),
+          pathParamsEnable?: boolean(name='PathParamsEnable', example='true'),
+          socketTimeout?: int32(name='SocketTimeout', example='3000'),
+          url?: string(name='Url', example='api地址'),
+        }(name='SearchSourceRequestConfig'),
+        searchSourceResponseConfig?: {
+          jqNodes?: [ 
+            {
+              jqNodes?: [ 
+                {
+                  jqNodes?: [ 
+                    {
+                      key?: string(name='Key', example='title'),
+                      path?: string(name='Path'),
+                      type?: string(name='Type', example='string'),
+                    }
+                  ](name='JqNodes'),
+                  key?: string(name='Key', example='title'),
+                  path?: string(name='Path'),
+                  type?: string(name='Type', example='string'),
+                }
+              ](name='JqNodes'),
+              key?: string(name='Key', example='节点key'),
+              path?: string(name='Path', example='节点路径'),
+              type?: string(name='Type', example='节点数据类型：string number list object base'),
+            }
+          ](name='JqNodes'),
+        }(name='SearchSourceResponseConfig'),
+        size?: int32(name='Size', example='10'),
+      }
+    ](name='SearchSourceConfigs'),
+  }(name='DatasetConfig'),
+  datasetDescription?: string(name='DatasetDescription', example='企业自定义数据集'),
+  datasetName?: string(name='DatasetName', description='This parameter is required.', example='businessDataset'),
+  datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+  documentHandleConfig?: {
+    disableHandleMultimodalMedia?: boolean(name='DisableHandleMultimodalMedia', example='false'),
+  }(name='DocumentHandleConfig'),
+  searchDatasetEnable?: int32(name='SearchDatasetEnable', example='3'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xxx'),
+}
+
+model CreateDatasetShrinkRequest {
+  datasetConfigShrink?: string(name='DatasetConfig'),
+  datasetDescription?: string(name='DatasetDescription', example='企业自定义数据集'),
+  datasetName?: string(name='DatasetName', description='This parameter is required.', example='businessDataset'),
+  datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+  documentHandleConfigShrink?: string(name='DocumentHandleConfig'),
+  searchDatasetEnable?: int32(name='SearchDatasetEnable', example='3'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xxx'),
+}
+
+model CreateDatasetResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    createTime?: string(name='CreateTime', example='2024-11-12 21:46:24'),
+    createUser?: string(name='CreateUser', example='xxx'),
+    datasetDescription?: string(name='DatasetDescription', example='xxx'),
+    datasetId?: long(name='DatasetId', example='1'),
+    datasetName?: string(name='DatasetName', example='xxx'),
+    datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+    searchDatasetEnable?: int32(name='SearchDatasetEnable', example='1'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据集管理-创建
+ *
+ * @param tmpReq CreateDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDatasetResponse
+ */
+async function createDatasetWithOptions(tmpReq: CreateDatasetRequest, runtime: Util.RuntimeOptions): CreateDatasetResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateDatasetShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.datasetConfig)) {
+    request.datasetConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.datasetConfig, 'DatasetConfig', 'json');
+  }
+  if (!Util.isUnset(tmpReq.documentHandleConfig)) {
+    request.documentHandleConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.documentHandleConfig, 'DocumentHandleConfig', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetConfigShrink)) {
+    body['DatasetConfig'] = request.datasetConfigShrink;
+  }
+  if (!Util.isUnset(request.datasetDescription)) {
+    body['DatasetDescription'] = request.datasetDescription;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.datasetType)) {
+    body['DatasetType'] = request.datasetType;
+  }
+  if (!Util.isUnset(request.documentHandleConfigShrink)) {
+    body['DocumentHandleConfig'] = request.documentHandleConfigShrink;
+  }
+  if (!Util.isUnset(request.searchDatasetEnable)) {
+    body['SearchDatasetEnable'] = request.searchDatasetEnable;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateDataset',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据集管理-创建
+ *
+ * @param request CreateDatasetRequest
+ * @return CreateDatasetResponse
+ */
+async function createDataset(request: CreateDatasetRequest): CreateDatasetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createDatasetWithOptions(request, runtime);
 }
 
 model CreateGeneratedContentRequest {
@@ -266,11 +532,7 @@ async function createGeneratedContentWithOptions(tmpReq: CreateGeneratedContentR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -333,11 +595,7 @@ async function createTokenWithOptions(request: CreateTokenRequest, runtime: Util
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -407,11 +665,7 @@ async function deleteCustomTextWithOptions(request: DeleteCustomTextRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -477,11 +731,7 @@ async function deleteCustomTopicByTopicWithOptions(request: DeleteCustomTopicByT
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -547,11 +797,7 @@ async function deleteCustomTopicViewPointByIdWithOptions(request: DeleteCustomTo
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -563,6 +809,145 @@ async function deleteCustomTopicViewPointByIdWithOptions(request: DeleteCustomTo
 async function deleteCustomTopicViewPointById(request: DeleteCustomTopicViewPointByIdRequest): DeleteCustomTopicViewPointByIdResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteCustomTopicViewPointByIdWithOptions(request, runtime);
+}
+
+model DeleteDatasetRequest {
+  datasetId?: long(name='DatasetId', description='This parameter is required.', example='1'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model DeleteDatasetResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据集管理-删除
+ *
+ * @param request DeleteDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDatasetResponse
+ */
+async function deleteDatasetWithOptions(request: DeleteDatasetRequest, runtime: Util.RuntimeOptions): DeleteDatasetResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteDataset',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据集管理-删除
+ *
+ * @param request DeleteDatasetRequest
+ * @return DeleteDatasetResponse
+ */
+async function deleteDataset(request: DeleteDatasetRequest): DeleteDatasetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteDatasetWithOptions(request, runtime);
+}
+
+model DeleteDatasetDocumentRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  docId?: string(name='DocId', example='xxx'),
+  docUuid?: string(name='DocUuid', example='xxx'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xx'),
+}
+
+model DeleteDatasetDocumentResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: [ string ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DeleteDatasetDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDatasetDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除数据集文档
+ *
+ * @param request DeleteDatasetDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDatasetDocumentResponse
+ */
+async function deleteDatasetDocumentWithOptions(request: DeleteDatasetDocumentRequest, runtime: Util.RuntimeOptions): DeleteDatasetDocumentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.docId)) {
+    body['DocId'] = request.docId;
+  }
+  if (!Util.isUnset(request.docUuid)) {
+    body['DocUuid'] = request.docUuid;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteDatasetDocument',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除数据集文档
+ *
+ * @param request DeleteDatasetDocumentRequest
+ * @return DeleteDatasetDocumentResponse
+ */
+async function deleteDatasetDocument(request: DeleteDatasetDocumentRequest): DeleteDatasetDocumentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteDatasetDocumentWithOptions(request, runtime);
 }
 
 model DeleteDocsRequest {
@@ -624,11 +1009,7 @@ async function deleteDocsWithOptions(tmpReq: DeleteDocsRequest, runtime: Util.Ru
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -698,11 +1079,7 @@ async function deleteGeneratedContentWithOptions(request: DeleteGeneratedContent
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -771,11 +1148,7 @@ async function deleteInterveneRuleWithOptions(request: DeleteInterveneRuleReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -841,11 +1214,7 @@ async function deleteMaterialByIdWithOptions(request: DeleteMaterialByIdRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -934,11 +1303,7 @@ async function documentExtractionWithOptions(tmpReq: DocumentExtractionRequest, 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1004,11 +1369,7 @@ async function exportGeneratedContentWithOptions(request: ExportGeneratedContent
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1112,11 +1473,7 @@ async function exportHotTopicPlanningProposalsWithOptions(tmpReq: ExportHotTopic
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1178,11 +1535,7 @@ async function exportIntervenesWithOptions(request: ExportIntervenesRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1287,11 +1640,7 @@ async function feedbackDialogueWithOptions(tmpReq: FeedbackDialogueRequest, runt
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1387,11 +1736,7 @@ async function fetchImageTaskWithOptions(tmpReq: FetchImageTaskRequest, runtime:
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1461,11 +1806,7 @@ async function generateFileUrlByKeyWithOptions(request: GenerateFileUrlByKeyRequ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1572,11 +1913,7 @@ async function generateImageTaskWithOptions(tmpReq: GenerateImageTaskRequest, ru
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1650,11 +1987,7 @@ async function generateUploadConfigWithOptions(request: GenerateUploadConfigRequ
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1736,11 +2069,7 @@ async function generateViewPointWithOptions(tmpReq: GenerateViewPointRequest, ru
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1814,11 +2143,7 @@ async function getCategoriesByTaskIdWithOptions(request: GetCategoriesByTaskIdRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1886,11 +2211,7 @@ async function getCustomHotTopicBroadcastJobWithOptions(request: GetCustomHotTop
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1968,11 +2289,7 @@ async function getCustomTextWithOptions(request: GetCustomTextRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2063,11 +2380,7 @@ async function getCustomTopicSelectionPerspectiveAnalysisTaskWithOptions(request
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2142,11 +2455,7 @@ async function getDataSourceOrderConfigWithOptions(request: GetDataSourceOrderCo
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2158,6 +2467,226 @@ async function getDataSourceOrderConfigWithOptions(request: GetDataSourceOrderCo
 async function getDataSourceOrderConfig(request: GetDataSourceOrderConfigRequest): GetDataSourceOrderConfigResponse {
   var runtime = new Util.RuntimeOptions{};
   return getDataSourceOrderConfigWithOptions(request, runtime);
+}
+
+model GetDatasetRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='businessDataset'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xxx'),
+}
+
+model GetDatasetResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    createTime?: string(name='CreateTime', example='2024-11-12 21:46:24'),
+    createUser?: string(name='CreateUser', example='xxx'),
+    datasetConfig?: {
+      searchSourceConfigs?: [ 
+        {
+          demoQuery?: string(name='DemoQuery', example='可以搜索到的关键词，用来验证是否可用'),
+          searchSourceRequestConfig?: {
+            body?: string(name='Body', example='{}'),
+            connectTimeout?: int32(name='ConnectTimeout', example='30'),
+            headers?: [ 
+              {
+                name?: string(name='Name', example='参数名称'),
+                value?: string(name='Value', example='参数值'),
+                valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+                valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+              }
+            ](name='Headers'),
+            method?: string(name='Method', example='请求方式'),
+            params?: [ 
+              {
+                name?: string(name='Name', example='参数名称'),
+                value?: string(name='Value', example='参数值'),
+                valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+                valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+              }
+            ](name='Params'),
+            pathParamsEnable?: boolean(name='PathParamsEnable', example='true'),
+            socketTimeout?: int32(name='SocketTimeout', example='78'),
+            url?: string(name='Url', example='api地址'),
+          }(name='SearchSourceRequestConfig'),
+          searchSourceResponseConfig?: {
+            jqNodes?: [ 
+              {
+                jqNodes?: [ 
+                  {
+                    jqNodes?: [ 
+                      {
+                        key?: string(name='Key', example='title'),
+                        path?: string(name='Path', example='.title'),
+                        type?: string(name='Type', example='string'),
+                      }
+                    ](name='JqNodes'),
+                    key?: string(name='Key', example='title'),
+                    path?: string(name='Path', example='.title'),
+                    type?: string(name='Type', example='string'),
+                  }
+                ](name='JqNodes'),
+                key?: string(name='Key', example='节点key'),
+                path?: string(name='Path', example='节点路径'),
+                type?: string(name='Type', example='节点数据类型：string number list object base'),
+              }
+            ](name='JqNodes'),
+          }(name='SearchSourceResponseConfig'),
+          size?: int32(name='Size', example='10'),
+        }
+      ](name='SearchSourceConfigs'),
+    }(name='DatasetConfig'),
+    datasetDescription?: string(name='DatasetDescription', example='xxx'),
+    datasetId?: long(name='DatasetId', example='1'),
+    datasetName?: string(name='DatasetName', example='xxx'),
+    datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+    documentHandleConfig?: {
+      disableHandleMultimodalMedia?: boolean(name='DisableHandleMultimodalMedia', example='true'),
+    }(name='DocumentHandleConfig'),
+    searchDatasetEnable?: int32(name='SearchDatasetEnable', example='1'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据集管理-详情
+ *
+ * @param request GetDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDatasetResponse
+ */
+async function getDatasetWithOptions(request: GetDatasetRequest, runtime: Util.RuntimeOptions): GetDatasetResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDataset',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据集管理-详情
+ *
+ * @param request GetDatasetRequest
+ * @return GetDatasetResponse
+ */
+async function getDataset(request: GetDatasetRequest): GetDatasetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDatasetWithOptions(request, runtime);
+}
+
+model GetDatasetDocumentRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  docId?: string(name='DocId', example='xxx'),
+  docUuid?: string(name='DocUuid', example='xxx'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model GetDatasetDocumentResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    content?: string(name='Content'),
+    disableHandleMultimodalMedia?: boolean(name='DisableHandleMultimodalMedia', example='true'),
+    docId?: string(name='DocId', example='用户指定的文档唯一ID'),
+    docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+    pubTime?: string(name='PubTime', example='2024-05-14 08:54:33'),
+    sourceFrom?: string(name='SourceFrom', example='来源'),
+    summary?: string(name='Summary', example='文章摘要'),
+    title?: string(name='Title'),
+    url?: string(name='Url', example='https://www.aliyun.com'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetDatasetDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDatasetDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据集文档
+ *
+ * @param request GetDatasetDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDatasetDocumentResponse
+ */
+async function getDatasetDocumentWithOptions(request: GetDatasetDocumentRequest, runtime: Util.RuntimeOptions): GetDatasetDocumentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.docId)) {
+    body['DocId'] = request.docId;
+  }
+  if (!Util.isUnset(request.docUuid)) {
+    body['DocUuid'] = request.docUuid;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDatasetDocument',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据集文档
+ *
+ * @param request GetDatasetDocumentRequest
+ * @return GetDatasetDocumentResponse
+ */
+async function getDatasetDocument(request: GetDatasetDocumentRequest): GetDatasetDocumentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getDatasetDocumentWithOptions(request, runtime);
 }
 
 model GetDocClusterTaskRequest {
@@ -2222,11 +2751,7 @@ async function getDocClusterTaskWithOptions(request: GetDocClusterTaskRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2302,11 +2827,7 @@ async function getDocInfoWithOptions(request: GetDocInfoRequest, runtime: Util.R
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2398,11 +2919,7 @@ async function getEnterpriseVocAnalysisTaskWithOptions(request: GetEnterpriseVoc
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2484,11 +3001,7 @@ async function getGeneratedContentWithOptions(request: GetGeneratedContentReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2681,11 +3194,7 @@ async function getHotTopicBroadcastWithOptions(tmpReq: GetHotTopicBroadcastReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2752,11 +3261,7 @@ async function getInterveneGlobalReplyWithOptions(request: GetInterveneGlobalRep
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2830,11 +3335,7 @@ async function getInterveneImportTaskInfoWithOptions(request: GetInterveneImport
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2919,11 +3420,7 @@ async function getInterveneRuleDetailWithOptions(request: GetInterveneRuleDetail
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2985,11 +3482,7 @@ async function getInterveneTemplateFileUrlWithOptions(request: GetInterveneTempl
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3075,11 +3568,7 @@ async function getMaterialByIdWithOptions(request: GetMaterialByIdRequest, runti
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3196,11 +3685,7 @@ async function getPropertiesWithOptions(request: GetPropertiesRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3283,11 +3768,7 @@ async function getSmartClipTaskWithOptions(request: GetSmartClipTaskRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3378,11 +3859,7 @@ async function getTopicByIdWithOptions(request: GetTopicByIdRequest, runtime: Ut
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3580,11 +4057,7 @@ async function getTopicSelectionPerspectiveAnalysisTaskWithOptions(request: GetT
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3661,11 +4134,7 @@ async function importInterveneFileWithOptions(request: ImportInterveneFileReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3742,11 +4211,7 @@ async function importInterveneFileAsyncWithOptions(request: ImportInterveneFileA
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3830,11 +4295,7 @@ async function insertInterveneGlobalReplyWithOptions(tmpReq: InsertInterveneGlob
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3936,11 +4397,7 @@ async function insertInterveneRuleWithOptions(tmpReq: InsertInterveneRuleRequest
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4056,11 +4513,7 @@ async function listAnalysisTagDetailByTaskIdWithOptions(tmpReq: ListAnalysisTagD
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4211,11 +4664,7 @@ async function listAsyncTasksWithOptions(tmpReq: ListAsyncTasksRequest, runtime:
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4303,11 +4752,7 @@ async function listBuildConfigsWithOptions(request: ListBuildConfigsRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4383,11 +4828,7 @@ async function listCustomTextWithOptions(request: ListCustomTextRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4529,11 +4970,7 @@ async function listCustomViewPointsWithOptions(tmpReq: ListCustomViewPointsReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4545,6 +4982,261 @@ async function listCustomViewPointsWithOptions(tmpReq: ListCustomViewPointsReque
 async function listCustomViewPoints(request: ListCustomViewPointsRequest): ListCustomViewPointsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listCustomViewPointsWithOptions(request, runtime);
+}
+
+model ListDatasetDocumentsRequest {
+  datasetDescription?: string(name='DatasetDescription', example='xx'),
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  docType?: string(name='DocType', example='text'),
+  excludeFields?: [ string ](name='ExcludeFields'),
+  includeFields?: [ string ](name='IncludeFields'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  query?: string(name='Query', example='搜索条件'),
+  status?: int32(name='Status', example='100'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model ListDatasetDocumentsShrinkRequest {
+  datasetDescription?: string(name='DatasetDescription', example='xx'),
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  docType?: string(name='DocType', example='text'),
+  excludeFieldsShrink?: string(name='ExcludeFields'),
+  includeFieldsShrink?: string(name='IncludeFields'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  query?: string(name='Query', example='搜索条件'),
+  status?: int32(name='Status', example='100'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model ListDatasetDocumentsResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: [ 
+    {
+      categoryUuid?: string(name='CategoryUuid', example='xx'),
+      content?: string(name='Content', example='xx'),
+      disableHandleMultimodalMedia?: boolean(name='DisableHandleMultimodalMedia', example='false'),
+      docId?: string(name='DocId', example='xx'),
+      docType?: string(name='DocType', example='text'),
+      docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+      extend1?: string(name='Extend1', example='xx'),
+      extend2?: string(name='Extend2', example='xx'),
+      extend3?: string(name='Extend3', example='xx'),
+      multimodalMedias?: [ 
+        {
+          fileUrl?: string(name='FileUrl', example='图片或视频文件地址'),
+          mediaId?: string(name='MediaId', example='多模态数据唯一标识'),
+          mediaType?: string(name='MediaType', example='多模态数据类型'),
+        }
+      ](name='MultimodalMedias'),
+      pubTime?: string(name='PubTime', example='2022-01-01 00:00:00'),
+      sourceFrom?: string(name='SourceFrom', example='来源'),
+      status?: int32(name='Status', example='100'),
+      summary?: string(name='Summary', example='xx'),
+      title?: string(name='Title', example='xx'),
+      url?: string(name='Url', description='url', example='https://xxx/xx'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='100'),
+}
+
+model ListDatasetDocumentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDatasetDocumentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询数据集文档列表
+ *
+ * @param tmpReq ListDatasetDocumentsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDatasetDocumentsResponse
+ */
+async function listDatasetDocumentsWithOptions(tmpReq: ListDatasetDocumentsRequest, runtime: Util.RuntimeOptions): ListDatasetDocumentsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListDatasetDocumentsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.excludeFields)) {
+    request.excludeFieldsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.excludeFields, 'ExcludeFields', 'json');
+  }
+  if (!Util.isUnset(tmpReq.includeFields)) {
+    request.includeFieldsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.includeFields, 'IncludeFields', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetDescription)) {
+    body['DatasetDescription'] = request.datasetDescription;
+  }
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.docType)) {
+    body['DocType'] = request.docType;
+  }
+  if (!Util.isUnset(request.excludeFieldsShrink)) {
+    body['ExcludeFields'] = request.excludeFieldsShrink;
+  }
+  if (!Util.isUnset(request.includeFieldsShrink)) {
+    body['IncludeFields'] = request.includeFieldsShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDatasetDocuments',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询数据集文档列表
+ *
+ * @param request ListDatasetDocumentsRequest
+ * @return ListDatasetDocumentsResponse
+ */
+async function listDatasetDocuments(request: ListDatasetDocumentsRequest): ListDatasetDocumentsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listDatasetDocumentsWithOptions(request, runtime);
+}
+
+model ListDatasetsRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='businessDataset'),
+  datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+  endTime?: string(name='EndTime', example='创建时间-结束'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='10'),
+  searchDatasetEnable?: int32(name='SearchDatasetEnable', example='3'),
+  startTime?: string(name='StartTime', example='创建时间-开始'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xxx'),
+}
+
+model ListDatasetsResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2024-11-12 21:46:24'),
+      createUser?: string(name='CreateUser', example='xxx'),
+      datasetDescription?: string(name='DatasetDescription', example='xxx'),
+      datasetId?: long(name='DatasetId', example='1'),
+      datasetName?: string(name='DatasetName', example='xxx'),
+      datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+      searchDatasetEnable?: int32(name='SearchDatasetEnable', example='1'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='100'),
+}
+
+model ListDatasetsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListDatasetsResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据集管理-查询
+ *
+ * @param request ListDatasetsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDatasetsResponse
+ */
+async function listDatasetsWithOptions(request: ListDatasetsRequest, runtime: Util.RuntimeOptions): ListDatasetsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.datasetType)) {
+    body['DatasetType'] = request.datasetType;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    body['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.searchDatasetEnable)) {
+    body['SearchDatasetEnable'] = request.searchDatasetEnable;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    body['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListDatasets',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据集管理-查询
+ *
+ * @param request ListDatasetsRequest
+ * @return ListDatasetsResponse
+ */
+async function listDatasets(request: ListDatasetsRequest): ListDatasetsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listDatasetsWithOptions(request, runtime);
 }
 
 model ListDialoguesRequest {
@@ -4631,11 +5323,7 @@ async function listDialoguesWithOptions(request: ListDialoguesRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4752,11 +5440,7 @@ async function listDocsWithOptions(tmpReq: ListDocsRequest, runtime: Util.Runtim
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4848,11 +5532,7 @@ async function listFreshViewPointsWithOptions(request: ListFreshViewPointsReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4967,11 +5647,7 @@ async function listGeneratedContentsWithOptions(request: ListGeneratedContentsRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5085,11 +5761,7 @@ async function listHotNewsWithTypeWithOptions(tmpReq: ListHotNewsWithTypeRequest
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5169,11 +5841,7 @@ async function listHotSourcesWithOptions(request: ListHotSourcesRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5317,11 +5985,7 @@ async function listHotTopicsWithOptions(tmpReq: ListHotTopicsRequest, runtime: U
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5436,11 +6100,7 @@ async function listHotViewPointsWithOptions(request: ListHotViewPointsRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5515,11 +6175,7 @@ async function listInterveneCntWithOptions(request: ListInterveneCntRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5602,11 +6258,7 @@ async function listInterveneImportTasksWithOptions(request: ListInterveneImportT
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5697,11 +6349,7 @@ async function listInterveneRulesWithOptions(request: ListInterveneRulesRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5793,11 +6441,7 @@ async function listIntervenesWithOptions(request: ListIntervenesRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5973,11 +6617,7 @@ async function listMaterialDocumentsWithOptions(tmpReq: ListMaterialDocumentsReq
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6112,11 +6752,7 @@ async function listPlanningProposalWithOptions(tmpReq: ListPlanningProposalReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6128,6 +6764,334 @@ async function listPlanningProposalWithOptions(tmpReq: ListPlanningProposalReque
 async function listPlanningProposal(request: ListPlanningProposalRequest): ListPlanningProposalResponse {
   var runtime = new Util.RuntimeOptions{};
   return listPlanningProposalWithOptions(request, runtime);
+}
+
+model ListSearchTaskDialogueDatasRequest {
+  includeContent?: boolean(name='IncludeContent', example='true'),
+  multimodalSearchType?: string(name='MultimodalSearchType', example='text'),
+  originalSessionId?: string(name='OriginalSessionId', example='xx'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  query?: string(name='Query', example='xx'),
+  searchModel?: string(name='SearchModel', example='ClusterGenerate'),
+  searchModelDataValue?: string(name='SearchModelDataValue', example='xxx'),
+  sessionId?: string(name='SessionId', description='This parameter is required.', example='xx'),
+  taskId?: string(name='TaskId', example='xxx'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model ListSearchTaskDialogueDatasResponseBody = {
+  articles?: [ 
+    {
+      author?: string(name='Author', example='作者'),
+      categoryUuid?: string(name='CategoryUuid', example='xx'),
+      content?: string(name='Content', example='文章内容'),
+      docId?: string(name='DocId', example='文档-自定义的唯一ID'),
+      docType?: string(name='DocType', example='text'),
+      docUuid?: string(name='DocUuid', example='xxx'),
+      extend1?: string(name='Extend1', example='xx'),
+      extend2?: string(name='Extend2', example='xx'),
+      extend3?: string(name='Extend3', example='xx'),
+      multimodalMedias?: [ 
+        {
+          fileUrl?: string(name='FileUrl', example='图片或视频文件地址'),
+          mediaId?: string(name='MediaId', example='多模态数据唯一标识'),
+          mediaType?: string(name='MediaType', example='多模态数据类型'),
+        }
+      ](name='MultimodalMedias'),
+      pubTime?: string(name='PubTime', example='2024-11-25 14:25:59'),
+      source?: string(name='Source', example='新华社'),
+      summary?: string(name='Summary', example='文章摘要'),
+      title?: string(name='Title', example='文章标题'),
+      url?: string(name='Url', example='https://www.example.com/aaa.docx'),
+    }
+  ](name='Articles'),
+  code?: string(name='Code', example='NoData'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  images?: [ 
+    {
+      fileUrl?: string(name='FileUrl', example='图片或视频文件地址'),
+      mediaId?: string(name='MediaId', example='多模态数据唯一标识'),
+      mediaType?: string(name='MediaType', example='多模态数据类型'),
+    }
+  ](name='Images'),
+  message?: string(name='Message', example='success'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  realtimeSearch?: boolean(name='RealtimeSearch', example='true'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  searchType?: string(name='SearchType', example='realtime'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='100'),
+  videos?: [ 
+    {
+      fileUrl?: string(name='FileUrl', example='图片或视频文件地址'),
+      mediaId?: string(name='MediaId', example='多模态数据唯一标识'),
+      mediaType?: string(name='MediaType', example='多模态数据类型'),
+    }
+  ](name='Videos'),
+}
+
+model ListSearchTaskDialogueDatasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSearchTaskDialogueDatasResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询搜索生成任务对话详情中数据列表
+ *
+ * @param request ListSearchTaskDialogueDatasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSearchTaskDialogueDatasResponse
+ */
+async function listSearchTaskDialogueDatasWithOptions(request: ListSearchTaskDialogueDatasRequest, runtime: Util.RuntimeOptions): ListSearchTaskDialogueDatasResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.includeContent)) {
+    body['IncludeContent'] = request.includeContent;
+  }
+  if (!Util.isUnset(request.multimodalSearchType)) {
+    body['MultimodalSearchType'] = request.multimodalSearchType;
+  }
+  if (!Util.isUnset(request.originalSessionId)) {
+    body['OriginalSessionId'] = request.originalSessionId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.searchModel)) {
+    body['SearchModel'] = request.searchModel;
+  }
+  if (!Util.isUnset(request.searchModelDataValue)) {
+    body['SearchModelDataValue'] = request.searchModelDataValue;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['SessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSearchTaskDialogueDatas',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询搜索生成任务对话详情中数据列表
+ *
+ * @param request ListSearchTaskDialogueDatasRequest
+ * @return ListSearchTaskDialogueDatasResponse
+ */
+async function listSearchTaskDialogueDatas(request: ListSearchTaskDialogueDatasRequest): ListSearchTaskDialogueDatasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSearchTaskDialogueDatasWithOptions(request, runtime);
+}
+
+model ListSearchTaskDialoguesRequest {
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  taskId?: string(name='TaskId', example='xxxx'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model ListSearchTaskDialoguesResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2024-11-25 13:33:01'),
+      dialogueType?: int32(name='DialogueType', example='24'),
+      goodText?: string(name='GoodText', example='xxx'),
+      originSessionId?: string(name='OriginSessionId', example='xxxx'),
+      prompt?: string(name='Prompt', example='xxx'),
+      rating?: string(name='Rating', example='thumbsUp'),
+      responseBodyStr?: string(name='ResponseBodyStr', example='{}'),
+      sessionId?: string(name='SessionId', example='xxxx'),
+      tags?: [ string ](name='Tags'),
+      taskId?: string(name='TaskId', example='xxxx'),
+      text?: string(name='Text', example='xxx'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='100'),
+}
+
+model ListSearchTaskDialoguesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSearchTaskDialoguesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询妙搜搜索生成任务详情列表
+ *
+ * @param request ListSearchTaskDialoguesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSearchTaskDialoguesResponse
+ */
+async function listSearchTaskDialoguesWithOptions(request: ListSearchTaskDialoguesRequest, runtime: Util.RuntimeOptions): ListSearchTaskDialoguesResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSearchTaskDialogues',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询妙搜搜索生成任务详情列表
+ *
+ * @param request ListSearchTaskDialoguesRequest
+ * @return ListSearchTaskDialoguesResponse
+ */
+async function listSearchTaskDialogues(request: ListSearchTaskDialoguesRequest): ListSearchTaskDialoguesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSearchTaskDialoguesWithOptions(request, runtime);
+}
+
+model ListSearchTasksRequest {
+  dialogueTypes?: [ int32 ](name='DialogueTypes', example='24'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xx'),
+}
+
+model ListSearchTasksShrinkRequest {
+  dialogueTypesShrink?: string(name='DialogueTypes', example='24'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='llm-xx'),
+}
+
+model ListSearchTasksResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: [ 
+    {
+      createTime?: string(name='CreateTime', example='2024-11-25 11:40:50'),
+      dialogueType?: int32(name='DialogueType', example='24'),
+      taskId?: string(name='TaskId', example='xxxx'),
+      taskName?: string(name='TaskName', example='xxx'),
+      updateTime?: string(name='UpdateTime', example='2024-11-25 11:40:50'),
+      username?: string(name='Username', example='xxxx'),
+    }
+  ](name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+  totalCount?: int32(name='TotalCount', example='100'),
+}
+
+model ListSearchTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSearchTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询妙搜搜索生成历史任务列表
+ *
+ * @param tmpReq ListSearchTasksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSearchTasksResponse
+ */
+async function listSearchTasksWithOptions(tmpReq: ListSearchTasksRequest, runtime: Util.RuntimeOptions): ListSearchTasksResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListSearchTasksShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.dialogueTypes)) {
+    request.dialogueTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.dialogueTypes, 'DialogueTypes', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.dialogueTypesShrink)) {
+    body['DialogueTypes'] = request.dialogueTypesShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    body['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSearchTasks',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询妙搜搜索生成历史任务列表
+ *
+ * @param request ListSearchTasksRequest
+ * @return ListSearchTasksResponse
+ */
+async function listSearchTasks(request: ListSearchTasksRequest): ListSearchTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSearchTasksWithOptions(request, runtime);
 }
 
 model ListTimedViewAttitudeRequest {
@@ -6219,11 +7183,7 @@ async function listTimedViewAttitudeWithOptions(request: ListTimedViewAttitudeRe
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6296,11 +7256,7 @@ async function listTopicRecommendEventListWithOptions(request: ListTopicRecommen
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6377,11 +7333,7 @@ async function listTopicViewPointRecommendEventListWithOptions(request: ListTopi
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6456,11 +7408,7 @@ async function listVersionsWithOptions(request: ListVersionsRequest, runtime: Ut
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6568,11 +7516,7 @@ async function listWebReviewPointsWithOptions(request: ListWebReviewPointsReques
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6653,11 +7597,7 @@ async function queryAsyncTaskWithOptions(request: QueryAsyncTaskRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6736,11 +7676,7 @@ async function runAbbreviationContentWithOptions(request: RunAbbreviationContent
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6819,11 +7755,7 @@ async function runContinueContentWithOptions(request: RunContinueContentRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -6940,11 +7872,7 @@ async function runCustomHotTopicAnalysisWithOptions(request: RunCustomHotTopicAn
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7059,11 +7987,7 @@ async function runCustomHotTopicViewPointAnalysisWithOptions(request: RunCustomH
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7145,11 +8069,7 @@ async function runDocBrainmapWithOptions(request: RunDocBrainmapRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7250,11 +8170,7 @@ async function runDocIntroductionWithOptions(request: RunDocIntroductionRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7412,11 +8328,7 @@ async function runDocQaWithOptions(tmpReq: RunDocQaRequest, runtime: Util.Runtim
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7506,11 +8418,7 @@ async function runDocSummaryWithOptions(request: RunDocSummaryRequest, runtime: 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7601,11 +8509,7 @@ async function runDocTranslationWithOptions(request: RunDocTranslationRequest, r
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7684,11 +8588,7 @@ async function runExpandContentWithOptions(request: RunExpandContentRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -7782,11 +8682,7 @@ async function runKeywordsExtractionGenerationWithOptions(tmpReq: RunKeywordsExt
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8350,11 +9246,7 @@ async function runSearchGenerationWithOptions(tmpReq: RunSearchGenerationRequest
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8538,11 +9430,7 @@ async function runStepByStepWritingWithOptions(tmpReq: RunStepByStepWritingReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8639,11 +9527,7 @@ async function runStyleFeatureAnalysisWithOptions(tmpReq: RunStyleFeatureAnalysi
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8726,11 +9610,7 @@ async function runSummaryGenerateWithOptions(request: RunSummaryGenerateRequest,
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8808,11 +9688,7 @@ async function runTextPolishingWithOptions(request: RunTextPolishingRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -8911,11 +9787,7 @@ async function runTitleGenerationWithOptions(tmpReq: RunTitleGenerationRequest, 
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9014,11 +9886,7 @@ async function runTranslateGenerationWithOptions(tmpReq: RunTranslateGenerationR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9117,11 +9985,7 @@ async function runWriteToneGenerationWithOptions(tmpReq: RunWriteToneGenerationR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9286,11 +10150,7 @@ async function runWritingWithOptions(tmpReq: RunWritingRequest, runtime: Util.Ru
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9364,11 +10224,7 @@ async function saveCustomTextWithOptions(request: SaveCustomTextRequest, runtime
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9456,11 +10312,7 @@ async function saveDataSourceOrderConfigWithOptions(tmpReq: SaveDataSourceOrderC
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9596,11 +10448,7 @@ async function saveMaterialDocumentWithOptions(tmpReq: SaveMaterialDocumentReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9612,6 +10460,103 @@ async function saveMaterialDocumentWithOptions(tmpReq: SaveMaterialDocumentReque
 async function saveMaterialDocument(request: SaveMaterialDocumentRequest): SaveMaterialDocumentResponse {
   var runtime = new Util.RuntimeOptions{};
   return saveMaterialDocumentWithOptions(request, runtime);
+}
+
+model SearchDatasetDocumentsRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  extend1?: string(name='Extend1', example='业务参数'),
+  includeContent?: boolean(name='IncludeContent', example='false'),
+  pageSize?: string(name='PageSize', example='10'),
+  query?: string(name='Query', description='This parameter is required.', example='搜索内容'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xx'),
+}
+
+model SearchDatasetDocumentsResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    documents?: [ 
+      {
+        content?: string(name='Content', example='xx'),
+        docId?: string(name='DocId', example='用户指定的文档唯一ID'),
+        docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+        pubTime?: string(name='PubTime', example='2024-12-09 17:09:40'),
+        sourceFrom?: string(name='SourceFrom', example='来源'),
+        summary?: string(name='Summary', example='文章摘要'),
+        title?: string(name='Title', example='xx'),
+        url?: string(name='Url', example='xx'),
+      }
+    ](name='Documents'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model SearchDatasetDocumentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SearchDatasetDocumentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 搜索数据集文档
+ *
+ * @param request SearchDatasetDocumentsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SearchDatasetDocumentsResponse
+ */
+async function searchDatasetDocumentsWithOptions(request: SearchDatasetDocumentsRequest, runtime: Util.RuntimeOptions): SearchDatasetDocumentsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.extend1)) {
+    body['Extend1'] = request.extend1;
+  }
+  if (!Util.isUnset(request.includeContent)) {
+    body['IncludeContent'] = request.includeContent;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    body['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['Query'] = request.query;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SearchDatasetDocuments',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 搜索数据集文档
+ *
+ * @param request SearchDatasetDocumentsRequest
+ * @return SearchDatasetDocumentsResponse
+ */
+async function searchDatasetDocuments(request: SearchDatasetDocumentsRequest): SearchDatasetDocumentsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return searchDatasetDocumentsWithOptions(request, runtime);
 }
 
 model SearchNewsRequest {
@@ -9720,11 +10665,7 @@ async function searchNewsWithOptions(tmpReq: SearchNewsRequest, runtime: Util.Ru
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9806,11 +10747,7 @@ async function submitAsyncTaskWithOptions(request: SubmitAsyncTaskRequest, runti
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -9916,11 +10853,7 @@ async function submitCustomHotTopicBroadcastJobWithOptions(tmpReq: SubmitCustomH
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10018,11 +10951,7 @@ async function submitCustomTopicSelectionPerspectiveAnalysisTaskWithOptions(tmpR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10121,11 +11050,7 @@ async function submitDocClusterTaskWithOptions(tmpReq: SubmitDocClusterTaskReque
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10266,11 +11191,7 @@ async function submitEnterpriseVocAnalysisTaskWithOptions(tmpReq: SubmitEnterpri
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10404,11 +11325,7 @@ async function submitSmartClipTaskWithOptions(tmpReq: SubmitSmartClipTaskRequest
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10516,11 +11433,7 @@ async function submitTopicSelectionPerspectiveAnalysisTaskWithOptions(tmpReq: Su
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10598,11 +11511,7 @@ async function updateCustomTextWithOptions(request: UpdateCustomTextRequest, run
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10614,6 +11523,268 @@ async function updateCustomTextWithOptions(request: UpdateCustomTextRequest, run
 async function updateCustomText(request: UpdateCustomTextRequest): UpdateCustomTextResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateCustomTextWithOptions(request, runtime);
+}
+
+model UpdateDatasetRequest {
+  datasetConfig?: {
+    searchSourceConfigs?: [ 
+      {
+        demoQuery?: string(name='DemoQuery', example='可以搜索到的关键词，用来验证是否可用'),
+        searchSourceRequestConfig?: {
+          body?: string(name='Body', example='{}'),
+          connectTimeout?: int32(name='ConnectTimeout', example='3000'),
+          headers?: [ 
+            {
+              name?: string(name='Name', example='参数名称'),
+              value?: string(name='Value', example='参数值'),
+              valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+              valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+            }
+          ](name='Headers'),
+          method?: string(name='Method', example='请求方式'),
+          params?: [ 
+            {
+              name?: string(name='Name', example='参数名称'),
+              value?: string(name='Value', example='参数值'),
+              valueFormat?: string(name='ValueFormat', example='valueType = time 时有效'),
+              valueType?: string(name='ValueType', example='参数值数据类型: 默认string'),
+            }
+          ](name='Params'),
+          pathParamsEnable?: boolean(name='PathParamsEnable', example='true'),
+          socketTimeout?: int32(name='SocketTimeout', example='3000'),
+          url?: string(name='Url', example='api地址'),
+        }(name='SearchSourceRequestConfig'),
+        searchSourceResponseConfig?: {
+          jqNodes?: [ 
+            {
+              jqNodes?: [ 
+                {
+                  jqNodes?: [ 
+                    {
+                      key?: string(name='Key', example='title'),
+                      path?: string(name='Path', example='.title'),
+                      type?: string(name='Type', example='string'),
+                    }
+                  ](name='JqNodes'),
+                  key?: string(name='Key', example='title'),
+                  path?: string(name='Path', example='.title'),
+                  type?: string(name='Type', example='string'),
+                }
+              ](name='JqNodes'),
+              key?: string(name='Key', example='节点key'),
+              path?: string(name='Path', example='节点路径'),
+              type?: string(name='Type', example='节点数据类型：string number list object base'),
+            }
+          ](name='JqNodes'),
+        }(name='SearchSourceResponseConfig'),
+        size?: int32(name='Size', example='10'),
+      }
+    ](name='SearchSourceConfigs'),
+  }(name='DatasetConfig'),
+  datasetDescription?: string(name='DatasetDescription', example='企业自定义数据集'),
+  datasetId?: long(name='DatasetId', example='1'),
+  searchDatasetEnable?: int32(name='SearchDatasetEnable', example='3'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model UpdateDatasetShrinkRequest {
+  datasetConfigShrink?: string(name='DatasetConfig'),
+  datasetDescription?: string(name='DatasetDescription', example='企业自定义数据集'),
+  datasetId?: long(name='DatasetId', example='1'),
+  searchDatasetEnable?: int32(name='SearchDatasetEnable', example='3'),
+  workspaceId?: string(name='WorkspaceId', description='This parameter is required.', example='xxxx'),
+}
+
+model UpdateDatasetResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    createTime?: string(name='CreateTime', example='2024-11-12 21:46:24'),
+    createUser?: string(name='CreateUser', example='xxx'),
+    datasetDescription?: string(name='DatasetDescription', example='xxx'),
+    datasetId?: long(name='DatasetId', example='1'),
+    datasetName?: string(name='DatasetName', example='xxx'),
+    datasetType?: string(name='DatasetType', example='CustomSemanticSearch'),
+    newsArticleResults?: [ 
+      {
+        code?: string(name='Code', example='NoData'),
+        current?: int32(name='Current', example='1'),
+        data?: [ 
+          {
+            content?: string(name='Content', example='文章内容'),
+            pubTime?: string(name='PubTime', example='2024-11-12 15:12:14'),
+            source?: string(name='Source', example='央视网'),
+            summary?: string(name='Summary', example='文章摘要'),
+            title?: string(name='Title', example='文章标题'),
+            url?: string(name='Url', example='https://www.example.com/aaa.docx'),
+          }
+        ](name='Data'),
+        message?: string(name='Message', example='success'),
+        size?: int32(name='Size', example='10'),
+        total?: int32(name='Total', example='100'),
+      }
+    ](name='NewsArticleResults'),
+    searchDatasetEnable?: int32(name='SearchDatasetEnable', example='1'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateDatasetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDatasetResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据集管理-更新
+ *
+ * @param tmpReq UpdateDatasetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateDatasetResponse
+ */
+async function updateDatasetWithOptions(tmpReq: UpdateDatasetRequest, runtime: Util.RuntimeOptions): UpdateDatasetResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateDatasetShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.datasetConfig)) {
+    request.datasetConfigShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.datasetConfig, 'DatasetConfig', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetConfigShrink)) {
+    body['DatasetConfig'] = request.datasetConfigShrink;
+  }
+  if (!Util.isUnset(request.datasetDescription)) {
+    body['DatasetDescription'] = request.datasetDescription;
+  }
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.searchDatasetEnable)) {
+    body['SearchDatasetEnable'] = request.searchDatasetEnable;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateDataset',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据集管理-更新
+ *
+ * @param request UpdateDatasetRequest
+ * @return UpdateDatasetResponse
+ */
+async function updateDataset(request: UpdateDatasetRequest): UpdateDatasetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateDatasetWithOptions(request, runtime);
+}
+
+model UpdateDatasetDocumentRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  document?: {
+    docId?: string(name='DocId', example='用户指定的文档唯一ID'),
+    docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+    title?: string(name='Title', example='xx'),
+  }(name='Document', description='This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', example='xxxx'),
+}
+
+model UpdateDatasetDocumentShrinkRequest {
+  datasetId?: long(name='DatasetId', example='1'),
+  datasetName?: string(name='DatasetName', example='数据集名称'),
+  documentShrink?: string(name='Document', description='This parameter is required.'),
+  workspaceId?: string(name='WorkspaceId', example='xxxx'),
+}
+
+model UpdateDatasetDocumentResponseBody = {
+  code?: string(name='Code', example='NoData'),
+  data?: {
+    docId?: string(name='DocId', example='用户指定的文档唯一ID'),
+    docUuid?: string(name='DocUuid', example='内部文档唯一ID'),
+    title?: string(name='Title'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='1813ceee-7fe5-41b4-87e5-982a4d18cca5'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateDatasetDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateDatasetDocumentResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改数据集文档
+ *
+ * @param tmpReq UpdateDatasetDocumentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateDatasetDocumentResponse
+ */
+async function updateDatasetDocumentWithOptions(tmpReq: UpdateDatasetDocumentRequest, runtime: Util.RuntimeOptions): UpdateDatasetDocumentResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateDatasetDocumentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.document)) {
+    request.documentShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.document, 'Document', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.datasetId)) {
+    body['DatasetId'] = request.datasetId;
+  }
+  if (!Util.isUnset(request.datasetName)) {
+    body['DatasetName'] = request.datasetName;
+  }
+  if (!Util.isUnset(request.documentShrink)) {
+    body['Document'] = request.documentShrink;
+  }
+  if (!Util.isUnset(request.workspaceId)) {
+    body['WorkspaceId'] = request.workspaceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateDatasetDocument',
+    version = '2023-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改数据集文档
+ *
+ * @param request UpdateDatasetDocumentRequest
+ * @return UpdateDatasetDocumentResponse
+ */
+async function updateDatasetDocument(request: UpdateDatasetDocumentRequest): UpdateDatasetDocumentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateDatasetDocumentWithOptions(request, runtime);
 }
 
 model UpdateGeneratedContentRequest {
@@ -10703,11 +11874,7 @@ async function updateGeneratedContentWithOptions(tmpReq: UpdateGeneratedContentR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10848,11 +12015,7 @@ async function updateMaterialDocumentWithOptions(tmpReq: UpdateMaterialDocumentR
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -10939,11 +12102,7 @@ async function uploadDocWithOptions(tmpReq: UploadDocRequest, runtime: Util.Runt
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -11019,11 +12178,7 @@ async function validateUploadTemplateWithOptions(request: ValidateUploadTemplate
     reqBodyType = 'formData',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
