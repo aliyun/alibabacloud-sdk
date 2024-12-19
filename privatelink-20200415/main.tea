@@ -250,9 +250,11 @@ This parameter is required.', example='cn-hangzhou'),
 This parameter is required.', example='lb-hp32z1wp5peaoox2q****'),
   resourceType?: string(name='ResourceType', description='The type of the service resource. Valid values:
 
-*   **slb**: a Classic Load Balancer (CLB) instance
-*   **alb**: an Application Load Balancer (ALB) instance
-*   **nlb**: a Network Load Balancer (NLB) instance
+*   **slb**: Classic Load Balancer (CLB) instance
+*   **alb**: Application Load Balancer (ALB) instance
+*   **nlb**: Network Load Balancer (NLB) instance
+
+>  You cannot access TCP/SSL listeners configured for NLB instances.
 
 This parameter is required.', example='slb'),
   serviceId?: string(name='ServiceId', description='The ID of the endpoint service to which you want to add the service resource.
@@ -565,10 +567,33 @@ The description must be 2 to 256 characters in length, and cannot start with `ht
   endpointName?: string(name='EndpointName', description='The name of the endpoint.
 
 The name must be 2 to 128 characters in length, and can contain digits, underscores (_), and hyphens (-). The name must start with a letter.', example='test'),
-  endpointType?: string(name='EndpointType', description='The type of the endpoint.
+  endpointType?: string(name='EndpointType', description='The endpoint type. Valid values:
 
-Set the value to **Interface**. Then, you can specify Application Load Balancer (ALB) and Classic Load Balancer (CLB) instances as service resources for the endpoint service.', example='Interface'),
-  policyDocument?: string(name='PolicyDocument'),
+*   **Interface** You can specify an Application Load Balancer (ALB) instance, a Classic Load Balancer (CLB) instance, or a Network Load Balancer (NLB) instance.
+*   **Reverse** You can specify a Virtual Private Cloud (VPC) NAT gateway.
+
+>  Services that support reverse endpoints are provided by Alibaba Cloud or Alibaba Cloud partners. To create such a service on your own, contact your account manager.', example='Interface'),
+  policyDocument?: string(name='PolicyDocument', example='{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "oss:List*",
+        "oss:PutObject",
+        "oss:GetObject"
+      ],
+      "Resource": [
+        "acs:oss:oss-*:*:pvl-policy-test/policy-test.txt"
+      ],
+      "Principal": {
+        "RAM": [
+          "acs:ram::14199xxxxxx:*"
+        ]
+      }
+    }
+  ]
+}'),
   protectedEnabled?: boolean(name='ProtectedEnabled', description='Specifies whether to enable user authentication. This parameter is available in Security Token Service (STS) mode. Valid values:
 
 *   **true**: enables user authentication. After user authentication is enabled, only the user who creates the endpoint can modify or delete the endpoint in STS mode.
@@ -757,12 +782,10 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
 *   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false'),
-  payer?: string(name='Payer', description='The payer of the endpoint service. Valid values:
+  payer?: string(name='Payer', description='The payer. Valid values:
 
-*   **Endpoint**: the service consumer
-*   **EndpointService**: the service provider
-
-> By default, the feature of allowing the service provider to pay is unavailable. To use this feature, log on to the [Quota Center console](https://quotas.console.aliyun.com/white-list-products/privatelink/quotas) and click Privileges in the left-side navigation pane. On the **Privileges** page, enter the quota ID `privatelink_whitelist/epsvc_payer_mode`, and click Apply in the Actions column.', example='Endpoint'),
+*   **Endpoint**: service consumer
+*   **EndpointService**: service provider', example='Endpoint'),
   regionId?: string(name='RegionId', description='The region ID of the endpoint service.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/120468.html) operation to query the most recent region list.
@@ -773,21 +796,23 @@ This parameter is required.', example='cn-huhehaote'),
       resourceId?: string(name='ResourceId', description='The ID of the service resource that is added to the endpoint service. You can specify up to 20 service resource IDs.', example='lb-hp32z1wp5peaoox2q****'),
       resourceType?: string(name='ResourceType', description='The type of the service resource that is added to the endpoint service. You can add up to 20 service resources to the endpoint service. Valid values:
 
-*   **slb**: Classic Load Balancer (CLB) instance
-*   **alb**: Application Load Balancer (ALB) instance
-*   **nlb**: Network Load Balancer (NLB) instance
+*   **slb**: CLB instance
+*   **alb**: ALB instance
+*   **nlb**: NLB instance
 
->  In regions where PrivateLink is supported, CLB instances deployed in virtual private clouds (VPCs) can serve as the service resources of the endpoint service.', example='slb'),
-      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-huhehaote-a'),
+>  In regions where PrivateLink is supported, CLB instances deployed in virtual private clouds (VPCs) can serve as the service resources of the endpoint service. You cannot access TCP/SSL listeners configured for NLB instances.', example='slb'),
+      zoneId?: string(name='ZoneId', description='The ID of the zone.', example='cn-huhehaote-a'),
     }
   ](name='Resource', description='The service resources of the endpoint service.'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy*****'),
   serviceDescription?: string(name='ServiceDescription', description='The description of the endpoint service.', example='This is my EndpointService.'),
   serviceResourceType?: string(name='ServiceResourceType', description='The type of the service resource. Valid values:
 
-*   **slb**: a Classic Load Balancer (CLB) instance
-*   **alb**: an Application Load Balancer (ALB) instance
-*   **nlb**: a Network Load Balancer (NLB) instance', example='slb'),
+*   **slb**: Classic Load Balancer (CLB) instance
+*   **alb**: Application Load Balancer (ALB) instance
+*   **nlb**: Network Load Balancer (NLB) instance
+
+>  You cannot access TCP/SSL listeners configured for NLB instances.', example='slb'),
   serviceSupportIPv6?: boolean(name='ServiceSupportIPv6', description='Specifies whether to enable IPv6 for the endpoint service. Valid values:
 
 *   **true**
@@ -1119,6 +1144,7 @@ async function deleteVpcEndpointService(request: DeleteVpcEndpointServiceRequest
 
 model DescribeRegionsRequest {
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  serviceResourceType?: string(name='ServiceResourceType'),
 }
 
 model DescribeRegionsResponseBody = {
@@ -1128,6 +1154,9 @@ model DescribeRegionsResponseBody = {
       localName?: string(name='LocalName', description='The name of the region.', example='China (Hangzhou)'),
       regionEndpoint?: string(name='RegionEndpoint', description='The endpoint of the region.', example='privatelink.cn-hangzhou.aliyuncs.com'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+      serviceResourceTypes?: {
+        serviceResourceType?: [ string ](name='ServiceResourceType')
+      }(name='ServiceResourceTypes'),
     }
   ](name='Region')
   }(name='Regions', description='The available regions.'),
@@ -1155,6 +1184,9 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, runti
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.serviceResourceType)) {
+    query['ServiceResourceType'] = request.serviceResourceType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1188,6 +1220,7 @@ model DescribeZonesRequest {
   regionId?: string(name='RegionId', description='The region ID of the zone. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/120468.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
+  serviceResourceType?: string(name='ServiceResourceType'),
 }
 
 model DescribeZonesResponseBody = {
@@ -1223,6 +1256,9 @@ async function describeZonesWithOptions(request: DescribeZonesRequest, runtime: 
   }
   if (!Util.isUnset(request.regionId)) {
     query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.serviceResourceType)) {
+    query['ServiceResourceType'] = request.serviceResourceType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -1562,12 +1598,12 @@ This parameter is required.', example='ep-hp33b2e43fays7s8****'),
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/120468.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
-  replacedResource?: boolean(name='ReplacedResource', description='Specifies whether to disconnect the endpoint from the previous connection after the service resource is smoothly migrated. Valid values:
+  replacedResource?: boolean(name='ReplacedResource', description='Specifies whether to close connections in the endpoint zone after migration. Valid values:
 
-*   **true**
-*   **false** (default)
+*   **true**: yes
+*   **false** (default): no
 
-> Set the value to true if you want to disconnect the endpoint from the previous connection in the zone after the service resource is smoothly migrated.', example='false'),
+>  Set the value to true if you want to close connections in the endpoint zone after migration.', example='false'),
   serviceId?: string(name='ServiceId', description='The endpoint service ID.
 
 This parameter is required.', example='epsrv-hp3vpx8yqxblby3i****'),
@@ -1587,7 +1623,7 @@ model DisableVpcEndpointZoneConnectionResponse = {
 }
 
 /**
- * @summary Disconnects an endpoint from a connection in the specified zone.
+ * @summary Closes connections in an endpoint zone.
  *
  * @description *   You can call this operation only when the state of the endpoint is **Connected** and the state of the zone associated with the endpoint is **Connected** or **Migrated**.
  * *   **DisableVpcEndpointZoneConnection** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [ListVpcEndpointZones](https://help.aliyun.com/document_detail/183560.html) operation to query the status of the task.
@@ -1644,7 +1680,7 @@ async function disableVpcEndpointZoneConnectionWithOptions(request: DisableVpcEn
 }
 
 /**
- * @summary Disconnects an endpoint from a connection in the specified zone.
+ * @summary Closes connections in an endpoint zone.
  *
  * @description *   You can call this operation only when the state of the endpoint is **Connected** and the state of the zone associated with the endpoint is **Connected** or **Migrated**.
  * *   **DisableVpcEndpointZoneConnection** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [ListVpcEndpointZones](https://help.aliyun.com/document_detail/183560.html) operation to query the status of the task.
@@ -1796,7 +1832,7 @@ model EnableVpcEndpointZoneConnectionResponse = {
 }
 
 /**
- * @summary Accepts a connection request from an endpoint in the specified zone.
+ * @summary Allows connections to endpoint zones.
  *
  * @description *   You can call this operation only when the state of the endpoint is **Connected** and the state of the associated zone is **Disconnected**.
  * *   **EnableVpcEndpointZoneConnection** is an asynchronous operation. After you send a request, the system returns a request ID and runs the task in the background. You can call the [ListVpcEndpointZones](https://help.aliyun.com/document_detail/183560.html) operation to check whether the endpoint service accepts a connection request from the endpoint in the associated zone.
@@ -1850,7 +1886,7 @@ async function enableVpcEndpointZoneConnectionWithOptions(request: EnableVpcEndp
 }
 
 /**
- * @summary Accepts a connection request from an endpoint in the specified zone.
+ * @summary Allows connections to endpoint zones.
  *
  * @description *   You can call this operation only when the state of the endpoint is **Connected** and the state of the associated zone is **Disconnected**.
  * *   **EnableVpcEndpointZoneConnection** is an asynchronous operation. After you send a request, the system returns a request ID and runs the task in the background. You can call the [ListVpcEndpointZones](https://help.aliyun.com/document_detail/183560.html) operation to check whether the endpoint service accepts a connection request from the endpoint in the associated zone.
@@ -1910,7 +1946,27 @@ model GetVpcEndpointAttributeResponseBody = {
 
 *   **Endpoint**: the service consumer.
 *   **EndpointService**: the service provider.', example='Endpoint'),
-  policyDocument?: string(name='PolicyDocument'),
+  policyDocument?: string(name='PolicyDocument', example='{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "oss:List*",
+        "oss:PutObject",
+        "oss:GetObject"
+      ],
+      "Resource": [
+        "acs:oss:oss-*:*:pvl-policy-test/policy-test.txt"
+      ],
+      "Principal": {
+        "RAM": [
+          "acs:ram::14199xxxxxx:*"
+        ]
+      }
+    }
+  ]
+}'),
   regionId?: string(name='RegionId', description='The region ID of the endpoint.', example='cn-huhehaote'),
   requestId?: string(name='RequestId', description='The request ID.', example='8D8992C1-6712-423C-BAC5-E5E817484C6B'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmz7nocpei***'),
@@ -2009,10 +2065,10 @@ model GetVpcEndpointServiceAttributeResponseBody = {
   regionId?: string(name='RegionId', description='The region ID of the endpoint service.', example='cn-huhehaote'),
   requestId?: string(name='RequestId', description='The request ID.', example='8D8992C1-6712-423C-BAC5-E5E817484C6B'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy*****'),
-  serviceBusinessStatus?: string(name='ServiceBusinessStatus', description='The service state of the endpoint service. Valid values:
+  serviceBusinessStatus?: string(name='ServiceBusinessStatus', description='The service status of the endpoint service. Valid values:
 
 *   **Normal**: The endpoint service runs as expected.
-*   **FinacialLocked**: The endpoint service is locked due to overdue payments.', example='Normal'),
+*   **FinancialLocked**: The endpoint service is locked due to overdue payments.', example='Normal'),
   serviceDescription?: string(name='ServiceDescription', description='The description of the endpoint service.', example='This is my EndpointService.'),
   serviceDomain?: string(name='ServiceDomain', description='The domain name of the endpoint service.', example='epsrv-hp3vpx8yqxblby3i****.cn-huhehaote.privatelink.aliyuncs.com'),
   serviceId?: string(name='ServiceId', description='The endpoint service ID.', example='epsrv-hp3vpx8yqxblby3i****'),
@@ -2028,7 +2084,7 @@ model GetVpcEndpointServiceAttributeResponseBody = {
 *   **Active**: The endpoint service is available.
 *   **Deleting**: The endpoint service is being deleted.
 *   **Inactive**: The endpoint service is unavailable.', example='Active'),
-  serviceSupportIPv6?: boolean(name='ServiceSupportIPv6', description='Indicates whether IPv6 is enabled for the endpoint service. Valid values:
+  serviceSupportIPv6?: boolean(name='ServiceSupportIPv6', description='Specifies whether the endpoint service supports IPv6. Valid values:
 
 *   **true**
 *   **false** (default)', example='false', deprecated=true),
@@ -2890,7 +2946,7 @@ async function listVpcEndpointServices(request: ListVpcEndpointServicesRequest):
 }
 
 model ListVpcEndpointServicesByEndUserRequest {
-  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: **1** to **50**. Default value: **50**.', example='50'),
+  maxResults?: int32(name='MaxResults', description='The number of entries per page. Valid values: **1** to **50**. Default value: **50**.', example='50'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. Valid values:
 
 *   If this is your first request and no next requests are to be performed, you do not need to specify this parameter.
@@ -2956,7 +3012,7 @@ Only **Interface** is returned, which indicates an interface endpoint. You can s
       ](name='Tags', description='The list of tags.'),
       zones?: [ string ](name='Zones', description='The zones of the endpoint service that can be associated with the endpoint.'),
     }
-  ](name='Services', description='The endpoint services.'),
+  ](name='Services', description='The information about endpoint services.'),
   totalCount?: string(name='TotalCount', description='The total number of entries returned.', example='29'),
 }
 
@@ -3162,9 +3218,10 @@ model ListVpcEndpointsRequest {
 *   **Active**: The endpoint is available.
 *   **Pending**: The endpoint is being modified.
 *   **Deleting**: The endpoint is being deleted.', example='Active'),
-  endpointType?: string(name='EndpointType', description='The type of the endpoint.
+  endpointType?: string(name='EndpointType', description='The type of the endpoint. Valid values:
 
-Set the value to **Interface**. Then, you can specify Application Load Balancer (ALB) and Classic Load Balancer (CLB) instances as service resources for the endpoint service.', example='Interface'),
+*   **Interface**: interface endpoint
+*   **Reverse**: reverse endpoint', example='Interface'),
   maxResults?: int32(name='MaxResults', description='The number of entries returned on each page.', example='50'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. Valid values:
 
@@ -3219,10 +3276,11 @@ model ListVpcEndpointsResponseBody = {
 *   **Active**: The endpoint is available.
 *   **Pending**: The endpoint is being modified.
 *   **Deleting**: The endpoint is being deleted.', example='Active'),
-      endpointType?: string(name='EndpointType', description='The type of the endpoint.
+      endpointType?: string(name='EndpointType', description='The type of the endpoint. Valid values:
 
-Only **Interface** may be returned, which indicates an interface endpoint. You can specify Application Load Balancer (ALB) instances, Classic Load Balancer (CLB) instances, and Network Load Balancer (NLB) instances as service resources.', example='Interface'),
-      policyDocument?: string(name='PolicyDocument'),
+*   **Interface**: interface endpoint
+*   **Reverse**: reverse endpoint', example='Interface'),
+      policyDocument?: string(name='PolicyDocument', description='The Resource Access Management (RAM) policy. For more information about policy definitions, see [Policy elements](https://help.aliyun.com/document_detail/93738.html).', example='{\\\\n  \\\\"Version\\\\": \\\\"1\\\\",\\\\n  \\\\"Statement\\\\": [\\\\n    {\\\\n      \\\\"Effect\\\\": \\\\"Allow\\\\",\\\\n      \\\\"Action\\\\": \\\\"*\\\\",\\\\n      \\\\"Principal\\\\": \\\\"*\\\\",\\\\n      \\\\"Resource\\\\": \\\\"*\\\\"\\\\n    }\\\\n  ]\\\\n}'),
       regionId?: string(name='RegionId', description='The region ID of the endpoint.', example='cn-huhehaote'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='1'),
       resourceOwner?: boolean(name='ResourceOwner', description='Indicates whether the endpoint and the endpoint service belong to the same Alibaba Cloud account. Valid values:
@@ -3702,10 +3760,10 @@ async function tagResources(request: TagResourcesRequest): TagResourcesResponse 
 model UntagResourcesRequest {
   all?: boolean(name='All', description='Specifies whether to remove all tags from the resource. Valid values:
 
-*   **true**: removes all tags from the resource.
-*   **false**: does not remove all tags from the resource.
+*   **true**
+*   **false**
 
->  If you specify both this parameter and **TagKey**, this parameter is invalid.', example='true'),
+>  If you specify both the All and TagKey.N parameters, the All parameter does not take effect.', example='true'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -3729,7 +3787,7 @@ This parameter is required.'),
 *   **vpcendpointservice**: endpoint service
 
 This parameter is required.', example='slb'),
-  tagKey?: [ string ](name='TagKey', description='The keys of the tags that you want to remove from the resource. You can specify up to 20 tag keys.'),
+  tagKey?: [ string ](name='TagKey', description='The keys of the tags that you want to remove from the resources. You can specify up to 20 tag keys.'),
 }
 
 model UntagResourcesResponseBody = {
@@ -3743,7 +3801,7 @@ model UntagResourcesResponse = {
 }
 
 /**
- * @summary Removes tags from resources. You can call the UntagResources operation to remove tags from one or more endpoints or endpoint services.
+ * @summary Removes tags from one or more endpoints or endpoint services at a time.
  *
  * @param request UntagResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3800,7 +3858,7 @@ async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime
 }
 
 /**
- * @summary Removes tags from resources. You can call the UntagResources operation to remove tags from one or more endpoints or endpoint services.
+ * @summary Removes tags from one or more endpoints or endpoint services at a time.
  *
  * @param request UntagResourcesRequest
  * @return UntagResourcesResponse
@@ -3828,7 +3886,27 @@ This parameter is required.', example='ep-hp33b2e43fays7s8****'),
   endpointName?: string(name='EndpointName', description='The name of the endpoint.
 
 The name must be 2 to 128 characters in length, and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.', example='test'),
-  policyDocument?: string(name='PolicyDocument'),
+  policyDocument?: string(name='PolicyDocument', example='{
+  "Version": "1",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "oss:List*",
+        "oss:PutObject",
+        "oss:GetObject"
+      ],
+      "Resource": [
+        "acs:oss:oss-*:*:pvl-policy-test/policy-test.txt"
+      ],
+      "Principal": {
+        "RAM": [
+          "acs:ram::14199xxxxxx:*"
+        ]
+      }
+    }
+  ]
+}'),
   regionId?: string(name='RegionId', description='The region ID of the endpoint whose attributes you want to modify. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/120468.html) operation to query the most recent region list.
 
 This parameter is required.', example='eu-west-1'),
