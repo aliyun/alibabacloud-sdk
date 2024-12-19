@@ -74,6 +74,86 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CancelActiveOperationTasksRequest {
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  securityToken?: string(name='SecurityToken'),
+  taskIds?: string(name='TaskIds', description='This parameter is required.', example='2355,2352'),
+}
+
+model CancelActiveOperationTasksResponseBody = {
+  requestId?: string(name='RequestId', example='25C70FF3-D49B-594D-BECE-0DE2BA1D8BBB'),
+  taskIds?: string(name='TaskIds', example='2355,2352'),
+}
+
+model CancelActiveOperationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelActiveOperationTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 用户侧取消任务
+ *
+ * @param request CancelActiveOperationTasksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CancelActiveOperationTasksResponse
+ */
+async function cancelActiveOperationTasksWithOptions(request: CancelActiveOperationTasksRequest, runtime: Util.RuntimeOptions): CancelActiveOperationTasksResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.securityToken)) {
+    query['SecurityToken'] = request.securityToken;
+  }
+  if (!Util.isUnset(request.taskIds)) {
+    query['TaskIds'] = request.taskIds;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelActiveOperationTasks',
+    version = '2017-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用户侧取消任务
+ *
+ * @param request CancelActiveOperationTasksRequest
+ * @return CancelActiveOperationTasksResponse
+ */
+async function cancelActiveOperationTasks(request: CancelActiveOperationTasksRequest): CancelActiveOperationTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelActiveOperationTasksWithOptions(request, runtime);
+}
+
 model CancelScheduleTasksRequest {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
@@ -672,8 +752,8 @@ model CreateAccountRequest {
 This parameter is required.', example='testacc'),
   accountPassword?: string(name='AccountPassword', description='The password of the account. The password must meet the following requirements:
 
-*   It must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.
-*   It must be 8 to 32 characters in length.
+*   The password must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.
+*   The password must be 8 to 32 characters in length.
 *   Special characters include `! @ # $ % ^ & * ( ) _ + - =`
 
 This parameter is required.', example='Test1111'),
@@ -695,14 +775,15 @@ This parameter is required.', example='Test1111'),
   accountType?: string(name='AccountType', description='The type of the account. Valid values:
 
 *   **Normal**: standard account
-*   **Super**: privileged account
+*   **Super**: privileged account.
 
 > 
 
 *   If you leave this parameter empty, the default value **Super** is used.
 
-*   You can create multiple privileged accounts for a PolarDB for Oracle or PolarDB for PostgreSQL cluster. A privileged account is granted more permissions than a standard account. For more information about how to create a database account, see [Create a database account](https://help.aliyun.com/document_detail/68508.html).
-*   You can create only one privileged account for a PolarDB for MySQL cluster. A privileged account is granted more permissions than a standard account. For more information about how to create a database account, see [Create a database account](https://help.aliyun.com/document_detail/68508.html).', example='Normal'),
+*   You can create multiple privileged accounts for a PolarDB for PostgreSQL (Compatible with Oracle) cluster or a PolarDB for PostgreSQL cluster. A privileged account has more permissions than a standard account. For more information, see [Create a database account](https://help.aliyun.com/document_detail/68508.html).
+
+*   You can create only one privileged account for a PolarDB for MySQL cluster. A privileged account has more permissions than a standard account. For more information, see [Create a database account](https://help.aliyun.com/document_detail/68508.html).', example='Normal'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value, but you must make sure that it is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length. The token is case-sensitive.', example='6000170000591aed949d0f54a343f1a4233c1e7d1c5c******'),
   DBClusterId?: string(name='DBClusterId', description='The ID of cluster.
 
@@ -712,16 +793,7 @@ This parameter is required.', example='pc-**************'),
 >  This parameter is valid only for standard accounts of PolarDB for MySQL clusters.', example='testdb'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  privForAllDB?: string(name='PrivForAllDB', description='Specifies whether to grant the specified account required permissions on all existing databases in the current cluster and databases that will be further created for the current cluster. Valid values:
-
-*   **0 or unspecified**: does not grant required permissions.
-*   **1**: grants required permissions.
-
-> 
-
-*   The parameter is valid only after you configure the `AccountPrivilege` parameter.
-
-*   If you set the parameter to `1`, the current account is granted to the required permissions on all databases in the current cluster that are specified by the `AccountPrivilege` parameter.', example='0'),
+  privForAllDB?: string(name='PrivForAllDB'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
@@ -4346,6 +4418,154 @@ async function describeActivationCodes(request: DescribeActivationCodesRequest):
   return describeActivationCodesWithOptions(request, runtime);
 }
 
+model DescribeActiveOperationTasksRequest {
+  allowCancel?: long(name='AllowCancel', example='-1'),
+  allowChange?: long(name='AllowChange', example='-1'),
+  changeLevel?: string(name='ChangeLevel', example='all'),
+  DBClusterId?: string(name='DBClusterId', example='pc-3ns***********d5d'),
+  DBType?: string(name='DBType', example='MySQL'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='30'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  securityToken?: string(name='SecurityToken'),
+  status?: long(name='Status', example='-1'),
+  taskType?: string(name='TaskType', example='DatabaseProxyUpgrading'),
+}
+
+model DescribeActiveOperationTasksResponseBody = {
+  items?: [ 
+    {
+      allowCancel?: long(name='AllowCancel', example='0'),
+      allowChange?: long(name='AllowChange', example='0'),
+      changeLevel?: string(name='ChangeLevel', example='S0'),
+      changeLevelEn?: string(name='ChangeLevelEn', example='System maintenance'),
+      changeLevelZh?: string(name='ChangeLevelZh'),
+      createdTime?: string(name='CreatedTime', example='2020-06-09T22:00:42Z'),
+      currentAVZ?: string(name='CurrentAVZ', example='cn-beijing-h'),
+      DBClusterId?: string(name='DBClusterId', example='pc-*****************'),
+      DBNodeIds?: [ string ](name='DBNodeIds'),
+      DBType?: string(name='DBType', example='MySQL'),
+      DBVersion?: string(name='DBVersion', example='8.0'),
+      deadline?: string(name='Deadline', example='2020-06-11T15:59:59Z'),
+      impact?: string(name='Impact', example='TransientDisconnection'),
+      impactEn?: string(name='ImpactEn', example='Transient instance disconnection'),
+      impactZh?: string(name='ImpactZh'),
+      insComment?: string(name='InsComment', example='test'),
+      modifiedTime?: string(name='ModifiedTime', example='2020-06-09T22:00:42Z'),
+      prepareInterval?: string(name='PrepareInterval', example='04:00:00'),
+      region?: string(name='Region', example='cn-hangzhou'),
+      resultInfo?: string(name='ResultInfo', example='userCancel'),
+      startTime?: string(name='StartTime', example='2023-05-19T02:48:17Z'),
+      status?: int32(name='Status', example='3'),
+      switchTime?: string(name='SwitchTime', example='2020-06-09T22:00:00Z'),
+      taskId?: int32(name='TaskId', example='107202351'),
+      taskParams?: string(name='TaskParams', example='{
+      "Action": "UpgradeDBInstance"
+}'),
+      taskType?: string(name='TaskType', example='DatabaseSoftwareUpgrading'),
+      taskTypeEn?: string(name='TaskTypeEn', example='Minor version update'),
+      taskTypeZh?: string(name='TaskTypeZh'),
+    }
+  ](name='Items'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='30'),
+  requestId?: string(name='RequestId', example='FAF88508-D5F8-52B1-8824-262601769E31'),
+  totalRecordCount?: int32(name='TotalRecordCount', example='1'),
+}
+
+model DescribeActiveOperationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeActiveOperationTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 用户侧查询运维任务
+ *
+ * @param request DescribeActiveOperationTasksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeActiveOperationTasksResponse
+ */
+async function describeActiveOperationTasksWithOptions(request: DescribeActiveOperationTasksRequest, runtime: Util.RuntimeOptions): DescribeActiveOperationTasksResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.allowCancel)) {
+    query['AllowCancel'] = request.allowCancel;
+  }
+  if (!Util.isUnset(request.allowChange)) {
+    query['AllowChange'] = request.allowChange;
+  }
+  if (!Util.isUnset(request.changeLevel)) {
+    query['ChangeLevel'] = request.changeLevel;
+  }
+  if (!Util.isUnset(request.DBClusterId)) {
+    query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!Util.isUnset(request.DBType)) {
+    query['DBType'] = request.DBType;
+  }
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.securityToken)) {
+    query['SecurityToken'] = request.securityToken;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.taskType)) {
+    query['TaskType'] = request.taskType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeActiveOperationTasks',
+    version = '2017-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用户侧查询运维任务
+ *
+ * @param request DescribeActiveOperationTasksRequest
+ * @return DescribeActiveOperationTasksResponse
+ */
+async function describeActiveOperationTasks(request: DescribeActiveOperationTasksRequest): DescribeActiveOperationTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeActiveOperationTasksWithOptions(request, runtime);
+}
+
 model DescribeAutoRenewAttributeRequest {
   DBClusterIds?: string(name='DBClusterIds', description='The ID of the cluster. If you need to specify multiple cluster IDs, separate the cluster IDs with commas (,).', example='pc-****************'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -6216,22 +6436,31 @@ model DescribeDBClusterMigrationResponseBody = {
 
 *   **Normal**: the standard endpoint
 *   **ReadWriteSplitting**: the read/write splitting endpoint', example='3306'),
-          SSLEnabled?: string(name='SSLEnabled', example='Enabled'),
+          SSLEnabled?: string(name='SSLEnabled', description='Indicates whether SSL encryption is enabled. Valid values:
+
+- **Enabled**
+- **Disabled**', example='Enabled'),
           VPCId?: string(name='VPCId', description='The instance type.', example='vpc-************'),
           vSwitchId?: string(name='VSwitchId', description='The IP address of the endpoint.', example='vsw-**************'),
         }
       ](name='AddressItems', description='The VPC ID.'),
-      custinsType?: string(name='CustinsType', example='ReadOnly
+      custinsType?: string(name='CustinsType', description='The instance type.', example='ReadOnly
 Maxscale
 Primary'),
-      DBEndpointId?: string(name='DBEndpointId', example='rm-************-normal'),
-      endpointType?: string(name='EndpointType', example='Normal'),
+      DBEndpointId?: string(name='DBEndpointId', description='The ID of the endpoint.', example='rm-************-normal'),
+      endpointType?: string(name='EndpointType', description='The type of the endpoint. Valid values:
+
+- **Normal**: the standard endpoint
+- **ReadWriteSplitting**: the read/write splitting endpoint', example='Normal'),
     }
-  ](name='RdsEndpointList', description='The port number.'),
+  ](name='RdsEndpointList', description='The endpoints of the ApsaraDB RDS instance.'),
   rdsReadWriteMode?: string(name='RdsReadWriteMode', description='The ID of the synchronous task.', example='rw'),
   requestId?: string(name='RequestId', description='The ID of the source ApsaraDB RDS instance.', example='F2A9EFA7-915F-4572-8299-85A307******'),
   sourceRDSDBInstanceId?: string(name='SourceRDSDBInstanceId', description='The endpoints of the ApsaraDB RDS instance.', example='rm-************'),
-  srcDbType?: string(name='SrcDbType', example='PolarDBMySQL'),
+  srcDbType?: string(name='SrcDbType', description='The type of the source database. Valid values:
+
+- **PolarDBMySQL**: The source database is a PolarDB for MySQL database when the major version of your PolarDB cluster is upgraded.
+- **RDS**: The source database is an ApsaraDB RDS database when data is migrated from ApsaraDB RDS to PolarDB for MySQL.', example='PolarDBMySQL'),
   topologies?: string(name='Topologies', description='The migration state of the PolarDB cluster. Valid values:
 
 *   **NO_MIGRATION**: No migration task is running.
@@ -6696,6 +6925,7 @@ model DescribeDBClusterSSLResponseBody = {
   items?: [ 
     {
       DBEndpointId?: string(name='DBEndpointId', description='The ID of the endpoint.', example='pe-************'),
+      SSLAutoRotate?: string(name='SSLAutoRotate'),
       SSLConnectionString?: string(name='SSLConnectionString', description='The SSL connection string.', example='pc-************.mysql.polardb.rds.aliyuncs.com'),
       SSLEnabled?: string(name='SSLEnabled', description='Indicates whether SSL encryption is enabled. Valid values:
 
@@ -6773,7 +7003,7 @@ async function describeDBClusterSSL(request: DescribeDBClusterSSLRequest): Descr
 }
 
 model DescribeDBClusterServerlessConfRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the serverless cluster.
+  DBClusterId?: string(name='DBClusterId', description='Serverless cluster ID.
 
 This parameter is required.', example='pc-bp10gr51qasnl****'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -6784,23 +7014,32 @@ This parameter is required.', example='pc-bp10gr51qasnl****'),
 
 model DescribeDBClusterServerlessConfResponseBody = {
   agileScaleMax?: string(name='AgileScaleMax'),
-  allowShutDown?: string(name='AllowShutDown', description='Indicates whether the no-activity suspension feature is enabled. Default value: false. Valid values:
+  allowShutDown?: string(name='AllowShutDown', description='Whether to enable idle shutdown. Values:
 
-*   **true**
-*   **false**', example='true'),
-  DBClusterId?: string(name='DBClusterId', description='The ID of the serverless cluster.', example='pc-bp10gr51qasnl****'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='5E71541A-6007-4DCC-A38A-F872C31FEB45'),
-  scaleApRoNumMax?: string(name='ScaleApRoNumMax'),
-  scaleApRoNumMin?: string(name='ScaleApRoNumMin'),
-  scaleMax?: string(name='ScaleMax', description='The maximum number of PCUs per node for scaling. Valid values: 1 PCU to 32 PCUs.', example='3'),
-  scaleMin?: string(name='ScaleMin', description='The minimum number of PCUs per node for scaling. Valid values: 1 PCU to 31 PCUs.', example='1'),
-  scaleRoNumMax?: string(name='ScaleRoNumMax', description='The maximum number of read-only nodes for scaling. Valid values: 0 to 15.', example='4'),
-  scaleRoNumMin?: string(name='ScaleRoNumMin', description='The minimum number of read-only nodes for scaling. Valid values: 0 to 15.', example='2'),
-  secondsUntilAutoPause?: string(name='SecondsUntilAutoPause', description='The detection period for no-activity suspension. Valid values: 300 to 86400. Unit: seconds. The value must be a multiple of 300.', example='10'),
-  serverlessRuleCpuEnlargeThreshold?: string(name='ServerlessRuleCpuEnlargeThreshold'),
-  serverlessRuleCpuShrinkThreshold?: string(name='ServerlessRuleCpuShrinkThreshold'),
-  serverlessRuleMode?: string(name='ServerlessRuleMode'),
-  switchs?: string(name='Switchs'),
+- **true**: Enable
+
+- **false**: Disable (default)', example='true'),
+  DBClusterId?: string(name='DBClusterId', description='Serverless cluster ID.', example='pc-bp10gr51qasnl****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='5E71541A-6007-4DCC-A38A-F872C31FEB45'),
+  scaleApRoNumMax?: string(name='ScaleApRoNumMax', description='Maximum limit for the number of read-only column storage nodes. Range: 0~7.', example='1'),
+  scaleApRoNumMin?: string(name='ScaleApRoNumMin', description='Minimum limit for the number of read-only column storage nodes. Range: 0~7.', example='1'),
+  scaleMax?: string(name='ScaleMax', description='Maximum scaling limit for a single node. Range: 1 PCU~32 PCU.', example='3'),
+  scaleMin?: string(name='ScaleMin', description='Minimum scaling limit for a single node. Range: 1 PCU~31 PCU.', example='1'),
+  scaleRoNumMax?: string(name='ScaleRoNumMax', description='Maximum scaling limit for the number of read-only nodes. Range: 0~15.', example='4'),
+  scaleRoNumMin?: string(name='ScaleRoNumMin', description='Minimum scaling limit for the number of read-only nodes. Range: 0~15.', example='2'),
+  secondsUntilAutoPause?: string(name='SecondsUntilAutoPause', description='Detection duration for idle shutdown. Range: 300~86,400. Unit: seconds. The detection duration must be a multiple of 300 seconds.', example='10'),
+  serverlessRuleCpuEnlargeThreshold?: string(name='ServerlessRuleCpuEnlargeThreshold', description='CPU upscale threshold.', example='60'),
+  serverlessRuleCpuShrinkThreshold?: string(name='ServerlessRuleCpuShrinkThreshold', description='CPU downscale threshold.', example='30'),
+  serverlessRuleMode?: string(name='ServerlessRuleMode', description='Elasticity sensitivity. Values:
+
+- normal: Standard
+
+- flexible: Sensitive', example='normal'),
+  switchs?: string(name='Switchs', description='Whether steady state is enabled. Values:
+
+1: Enabled
+
+0: Disabled', example='1'),
   traditionalScaleMaxThreshold?: string(name='TraditionalScaleMaxThreshold'),
 }
 
@@ -6811,7 +7050,7 @@ model DescribeDBClusterServerlessConfResponse = {
 }
 
 /**
- * @summary Queries the configurations of a serverless cluster.
+ * @summary Query serverless configuration.
  *
  * @param request DescribeDBClusterServerlessConfRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6853,7 +7092,7 @@ async function describeDBClusterServerlessConfWithOptions(request: DescribeDBClu
 }
 
 /**
- * @summary Queries the configurations of a serverless cluster.
+ * @summary Query serverless configuration.
  *
  * @param request DescribeDBClusterServerlessConfRequest
  * @return DescribeDBClusterServerlessConfResponse
@@ -9190,7 +9429,7 @@ model DescribeLicenseOrdersRequest {
   purchaseChannel?: string(name='PurchaseChannel', description='The purchase channel. Valid values: aliyun_market and aliyun_public. aliyun_market specifies Alibaba Cloud Marketplace. aliyun_public specifies the PolarDB buy page.', example='aliyun_market'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  virtualOrder?: boolean(name='VirtualOrder', description='Specifies whether to query only virtual orders.'),
+  virtualOrder?: boolean(name='VirtualOrder', description='Specifies whether to query only virtual orders.', example='true'),
 }
 
 model DescribeLicenseOrdersResponseBody = {
@@ -12241,6 +12480,94 @@ async function modifyAccountPassword(request: ModifyAccountPasswordRequest): Mod
   return modifyAccountPasswordWithOptions(request, runtime);
 }
 
+model ModifyActiveOperationTasksRequest {
+  immediateStart?: int32(name='ImmediateStart', example='0'),
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  securityToken?: string(name='SecurityToken'),
+  switchTime?: string(name='SwitchTime', example='2023-04-25T06:00:00Z'),
+  taskIds?: string(name='TaskIds', description='This parameter is required.', example='11111,22222'),
+}
+
+model ModifyActiveOperationTasksResponseBody = {
+  requestId?: string(name='RequestId', example='42CD2EF5-D77E-5AD4-961B-159330D98286'),
+  taskIds?: string(name='TaskIds', example='11111,22222'),
+}
+
+model ModifyActiveOperationTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyActiveOperationTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 用户侧修改任务
+ *
+ * @param request ModifyActiveOperationTasksRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyActiveOperationTasksResponse
+ */
+async function modifyActiveOperationTasksWithOptions(request: ModifyActiveOperationTasksRequest, runtime: Util.RuntimeOptions): ModifyActiveOperationTasksResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.immediateStart)) {
+    query['ImmediateStart'] = request.immediateStart;
+  }
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.securityToken)) {
+    query['SecurityToken'] = request.securityToken;
+  }
+  if (!Util.isUnset(request.switchTime)) {
+    query['SwitchTime'] = request.switchTime;
+  }
+  if (!Util.isUnset(request.taskIds)) {
+    query['TaskIds'] = request.taskIds;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyActiveOperationTasks',
+    version = '2017-08-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 用户侧修改任务
+ *
+ * @param request ModifyActiveOperationTasksRequest
+ * @return ModifyActiveOperationTasksResponse
+ */
+async function modifyActiveOperationTasks(request: ModifyActiveOperationTasksRequest): ModifyActiveOperationTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyActiveOperationTasksWithOptions(request, runtime);
+}
+
 model ModifyAutoRenewAttributeRequest {
   DBClusterIds?: string(name='DBClusterIds', description='The cluster ID. If you need to specify multiple cluster IDs, separate the cluster IDs with commas (,).
 
@@ -12862,6 +13189,7 @@ This parameter is required.', example='pc-****************'),
 *   If this parameter is empty, the upgrade task is immediately performed.', example='2021-01-14T09:00:00Z'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  standbyClusterIdListNeedToSync?: string(name='StandbyClusterIdListNeedToSync'),
 }
 
 model ModifyDBClusterAndNodesParametersResponseBody = {
@@ -12916,6 +13244,9 @@ async function modifyDBClusterAndNodesParametersWithOptions(request: ModifyDBClu
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.standbyClusterIdListNeedToSync)) {
+    query['StandbyClusterIdListNeedToSync'] = request.standbyClusterIdListNeedToSync;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
