@@ -111,8 +111,8 @@ model WafRuleConfig {
       protectionLevel?: int32(name='ProtectionLevel'),
     }
   ](name='ManagedRulesets'),
-  match?: WafRuleMatch(name='Match'),
   name?: string(name='Name'),
+  notes?: string(name='Notes'),
   rateLimit?: {
     characteristics?: WafRuleMatch2(name='Characteristics'),
     interval?: int32(name='Interval'),
@@ -134,6 +134,7 @@ model WafRuleConfig {
   status?: string(name='Status'),
   timer?: WafTimer(name='Timer'),
   type?: string(name='Type'),
+  value?: string(name='Value'),
 }
 
 model WafRuleMatch {
@@ -193,6 +194,26 @@ model WafSiteSettings {
   addSecurityHeaders?: {
     enable?: boolean(name='Enable'),
   }(name='AddSecurityHeaders'),
+  botManagement?: {
+    definiteBots?: {
+      action?: string(name='Action'),
+      id?: long(name='Id'),
+    }(name='DefiniteBots'),
+    effectOnStatic?: {
+      enable?: boolean(name='Enable'),
+    }(name='EffectOnStatic'),
+    JSDetection?: {
+      enable?: boolean(name='Enable'),
+    }(name='JSDetection'),
+    likelyBots?: {
+      action?: string(name='Action'),
+      id?: long(name='Id'),
+    }(name='LikelyBots'),
+    verifiedBots?: {
+      action?: string(name='Action'),
+      id?: long(name='Id'),
+    }(name='VerifiedBots'),
+  }(name='BotManagement'),
   clientIpIdentifier?: {
     headers?: [ string ](name='Headers'),
     mode?: string(name='Mode'),
@@ -560,99 +581,6 @@ async function batchCreateRecordsWithOptions(tmpReq: BatchCreateRecordsRequest, 
 async function batchCreateRecords(request: BatchCreateRecordsRequest): BatchCreateRecordsResponse {
   var runtime = new Util.RuntimeOptions{};
   return batchCreateRecordsWithOptions(request, runtime);
-}
-
-model BatchCreateWafRulesRequest {
-  configs?: [
-    WafRuleConfig
-  ](name='Configs', description='The configurations of the rules.'),
-  phase?: string(name='Phase', description='The WAF rule category.', example='http_custom'),
-  shared?: WafBatchRuleShared(name='Shared', description='The configurations shared by multiple rules.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model BatchCreateWafRulesShrinkRequest {
-  configsShrink?: string(name='Configs', description='The configurations of the rules.'),
-  phase?: string(name='Phase', description='The WAF rule category.', example='http_custom'),
-  sharedShrink?: string(name='Shared', description='The configurations shared by multiple rules.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model BatchCreateWafRulesResponseBody = {
-  ids?: [ long ](name='Ids', description='The IDs of the WAF rules.[](~~2850237~~)'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  rulesetId?: long(name='RulesetId', description='The ID of the WAF ruleset.[](~~2850233~~)', example='10000001'),
-}
-
-model BatchCreateWafRulesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: BatchCreateWafRulesResponseBody(name='body'),
-}
-
-/**
- * @summary Creates multiple rules of a specific Web Application Firewall (WAF) rule category at a time. You can also configure shared settings for the rules.
- *
- * @param tmpReq BatchCreateWafRulesRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return BatchCreateWafRulesResponse
- */
-async function batchCreateWafRulesWithOptions(tmpReq: BatchCreateWafRulesRequest, runtime: Util.RuntimeOptions): BatchCreateWafRulesResponse {
-  Util.validateModel(tmpReq);
-  var request = new BatchCreateWafRulesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.configs)) {
-    request.configsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.configs, 'Configs', 'json');
-  }
-  if (!Util.isUnset(tmpReq.shared)) {
-    request.sharedShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.shared, 'Shared', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.configsShrink)) {
-    body['Configs'] = request.configsShrink;
-  }
-  if (!Util.isUnset(request.phase)) {
-    body['Phase'] = request.phase;
-  }
-  if (!Util.isUnset(request.sharedShrink)) {
-    body['Shared'] = request.sharedShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'BatchCreateWafRules',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Creates multiple rules of a specific Web Application Firewall (WAF) rule category at a time. You can also configure shared settings for the rules.
- *
- * @param request BatchCreateWafRulesRequest
- * @return BatchCreateWafRulesResponse
- */
-async function batchCreateWafRules(request: BatchCreateWafRulesRequest): BatchCreateWafRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return batchCreateWafRulesWithOptions(request, runtime);
 }
 
 model BatchDeleteKvRequest {
@@ -1371,102 +1299,6 @@ async function batchPutKvWithHighCapacityAdvance(request: BatchPutKvWithHighCapa
   }
   var batchPutKvWithHighCapacityResp = batchPutKvWithHighCapacityWithOptions(batchPutKvWithHighCapacityReq, runtime);
   return batchPutKvWithHighCapacityResp;
-}
-
-model BatchUpdateWafRulesRequest {
-  configs?: [
-    WafRuleConfig
-  ](name='Configs', description='The configurations of rules.'),
-  phase?: string(name='Phase', description='The WAF rule category.', example='http_custom'),
-  rulesetId?: long(name='RulesetId', description='The ID of the WAF ruleset, which can be obtained by calling the [ListWafRulesets](https://help.aliyun.com/document_detail/2850233.html) operation.', example='10000001'),
-  shared?: WafBatchRuleShared(name='Shared', description='The configurations shared by multiple rules.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model BatchUpdateWafRulesShrinkRequest {
-  configsShrink?: string(name='Configs', description='The configurations of rules.'),
-  phase?: string(name='Phase', description='The WAF rule category.', example='http_custom'),
-  rulesetId?: long(name='RulesetId', description='The ID of the WAF ruleset, which can be obtained by calling the [ListWafRulesets](https://help.aliyun.com/document_detail/2850233.html) operation.', example='10000001'),
-  sharedShrink?: string(name='Shared', description='The configurations shared by multiple rules.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model BatchUpdateWafRulesResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model BatchUpdateWafRulesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: BatchUpdateWafRulesResponseBody(name='body'),
-}
-
-/**
- * @summary Modifies multiple rules in a specific Web Application Firewall (WAF) ruleset at a time.
- *
- * @param tmpReq BatchUpdateWafRulesRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return BatchUpdateWafRulesResponse
- */
-async function batchUpdateWafRulesWithOptions(tmpReq: BatchUpdateWafRulesRequest, runtime: Util.RuntimeOptions): BatchUpdateWafRulesResponse {
-  Util.validateModel(tmpReq);
-  var request = new BatchUpdateWafRulesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.configs)) {
-    request.configsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.configs, 'Configs', 'json');
-  }
-  if (!Util.isUnset(tmpReq.shared)) {
-    request.sharedShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.shared, 'Shared', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.configsShrink)) {
-    body['Configs'] = request.configsShrink;
-  }
-  if (!Util.isUnset(request.phase)) {
-    body['Phase'] = request.phase;
-  }
-  if (!Util.isUnset(request.rulesetId)) {
-    body['RulesetId'] = request.rulesetId;
-  }
-  if (!Util.isUnset(request.sharedShrink)) {
-    body['Shared'] = request.sharedShrink;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'BatchUpdateWafRules',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Modifies multiple rules in a specific Web Application Firewall (WAF) ruleset at a time.
- *
- * @param request BatchUpdateWafRulesRequest
- * @return BatchUpdateWafRulesResponse
- */
-async function batchUpdateWafRules(request: BatchUpdateWafRulesRequest): BatchUpdateWafRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return batchUpdateWafRulesWithOptions(request, runtime);
 }
 
 model BlockObjectRequest {
@@ -4075,97 +3907,6 @@ async function createUserDeliveryTask(request: CreateUserDeliveryTaskRequest): C
   return createUserDeliveryTaskWithOptions(request, runtime);
 }
 
-model CreateWafRuleRequest {
-  config?: WafRuleConfig(name='Config', description='The configuration of the rule that you want to create.'),
-  phase?: string(name='Phase', description='The WAF rule category.
-
-This parameter is required.', example='http_custom'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model CreateWafRuleShrinkRequest {
-  configShrink?: string(name='Config', description='The configuration of the rule that you want to create.'),
-  phase?: string(name='Phase', description='The WAF rule category.
-
-This parameter is required.', example='http_custom'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-}
-
-model CreateWafRuleResponseBody = {
-  id?: long(name='Id', description='The ID of the WAF rule.[](~~2850237~~)', example='20000001'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  rulesetId?: long(name='RulesetId', description='The ID of the WAF ruleset.[](~~2850233~~)', example='10000001'),
-}
-
-model CreateWafRuleResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: CreateWafRuleResponseBody(name='body'),
-}
-
-/**
- * @summary Creates a Web Application Firewall (WAF) rule. This allows you to configure fine-grained WAF settings to improve the security of your website or application.
- *
- * @param tmpReq CreateWafRuleRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return CreateWafRuleResponse
- */
-async function createWafRuleWithOptions(tmpReq: CreateWafRuleRequest, runtime: Util.RuntimeOptions): CreateWafRuleResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateWafRuleShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.config)) {
-    request.configShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.config, 'Config', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.configShrink)) {
-    body['Config'] = request.configShrink;
-  }
-  if (!Util.isUnset(request.phase)) {
-    body['Phase'] = request.phase;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'CreateWafRule',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Creates a Web Application Firewall (WAF) rule. This allows you to configure fine-grained WAF settings to improve the security of your website or application.
- *
- * @param request CreateWafRuleRequest
- * @return CreateWafRuleResponse
- */
-async function createWafRule(request: CreateWafRuleRequest): CreateWafRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return createWafRuleWithOptions(request, runtime);
-}
-
 model CreateWaitingRoomRequest {
   cookieName?: string(name='CookieName', description='The name of the custom cookie.
 
@@ -4691,15 +4432,19 @@ async function createWaitingRoomRule(request: CreateWaitingRoomRuleRequest): Cre
 }
 
 model DeleteCertificateRequest {
-  id?: string(name='Id', description='This parameter is required.', example='babaded901474b9693acf530e0fb1d95'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  id?: string(name='Id', description='The certificate ID.
+
+This parameter is required.', example='babaded901474b9693acf530e0fb1d95'),
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model DeleteCertificateResponseBody = {
-  id?: string(name='Id', example='babaded901474b9693acf530e0fb1d95'),
-  requestId?: string(name='RequestId', example='F32C57AA-7BF8-49AE-A2CC-9F42390F5A19'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
+  id?: string(name='Id', description='The certificate ID.', example='babaded901474b9693acf530e0fb1d95'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F32C57AA-7BF8-49AE-A2CC-9F42390F5A19'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
 }
 
 model DeleteCertificateResponse = {
@@ -4709,7 +4454,7 @@ model DeleteCertificateResponse = {
 }
 
 /**
- * @summary 删除证书
+ * @summary Deletes a certificate for a website.
  *
  * @param request DeleteCertificateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4736,7 +4481,7 @@ async function deleteCertificateWithOptions(request: DeleteCertificateRequest, r
 }
 
 /**
- * @summary 删除证书
+ * @summary Deletes a certificate for a website.
  *
  * @param request DeleteCertificateRequest
  * @return DeleteCertificateResponse
@@ -4747,15 +4492,19 @@ async function deleteCertificate(request: DeleteCertificateRequest): DeleteCerti
 }
 
 model DeleteClientCaCertificateRequest {
-  id?: string(name='Id', description='This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  id?: string(name='Id', description='The certificate ID.
+
+This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model DeleteClientCaCertificateResponseBody = {
-  id?: string(name='Id', example='baba39055622c008b90285a8838ed09a'),
-  requestId?: string(name='RequestId', example='CB1A380B-09F0-41BB-280B-72F8FD6DA2FE'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
+  id?: string(name='Id', description='The certificate ID.', example='baba39055622c008b90285a8838ed09a'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CB1A380B-09F0-41BB-280B-72F8FD6DA2FE'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
 }
 
 model DeleteClientCaCertificateResponse = {
@@ -4765,7 +4514,7 @@ model DeleteClientCaCertificateResponse = {
 }
 
 /**
- * @summary 删除客户端CA证书
+ * @summary Deletes a client CA certificate.
  *
  * @param request DeleteClientCaCertificateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4792,7 +4541,7 @@ async function deleteClientCaCertificateWithOptions(request: DeleteClientCaCerti
 }
 
 /**
- * @summary 删除客户端CA证书
+ * @summary Deletes a client CA certificate.
  *
  * @param request DeleteClientCaCertificateRequest
  * @return DeleteClientCaCertificateResponse
@@ -6031,142 +5780,6 @@ async function deleteUserDeliveryTask(request: DeleteUserDeliveryTaskRequest): D
   return deleteUserDeliveryTaskWithOptions(request, runtime);
 }
 
-model DeleteWafRuleRequest {
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
-
-This parameter is required.', example='20000001'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model DeleteWafRuleResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model DeleteWafRuleResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteWafRuleResponseBody(name='body'),
-}
-
-/**
- * @summary Deletes a Web Application Firewall (WAF) rule, including its configurations and match conditions.
- *
- * @param request DeleteWafRuleRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteWafRuleResponse
- */
-async function deleteWafRuleWithOptions(request: DeleteWafRuleRequest, runtime: Util.RuntimeOptions): DeleteWafRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.id)) {
-    body['Id'] = request.id;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteWafRule',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Deletes a Web Application Firewall (WAF) rule, including its configurations and match conditions.
- *
- * @param request DeleteWafRuleRequest
- * @return DeleteWafRuleResponse
- */
-async function deleteWafRule(request: DeleteWafRuleRequest): DeleteWafRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteWafRuleWithOptions(request, runtime);
-}
-
-model DeleteWafRulesetRequest {
-  id?: long(name='Id', description='The ID of the WAF ruleset, which can be obtained by calling the [ListWafRulesets](https://help.aliyun.com/document_detail/2850233.html) operation.
-
-This parameter is required.', example='10000001'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model DeleteWafRulesetResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model DeleteWafRulesetResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteWafRulesetResponseBody(name='body'),
-}
-
-/**
- * @summary Deletes a Web Application Firewall (WAF) ruleset that is no longer needed.
- *
- * @param request DeleteWafRulesetRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteWafRulesetResponse
- */
-async function deleteWafRulesetWithOptions(request: DeleteWafRulesetRequest, runtime: Util.RuntimeOptions): DeleteWafRulesetResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.id)) {
-    body['Id'] = request.id;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'DeleteWafRuleset',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Deletes a Web Application Firewall (WAF) ruleset that is no longer needed.
- *
- * @param request DeleteWafRulesetRequest
- * @return DeleteWafRulesetResponse
- */
-async function deleteWafRuleset(request: DeleteWafRulesetRequest): DeleteWafRulesetResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return deleteWafRulesetWithOptions(request, runtime);
-}
-
 model DeleteWaitingRoomRequest {
   siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
 
@@ -7352,32 +6965,36 @@ async function getClientCaCertificate(request: GetClientCaCertificateRequest): G
 }
 
 model GetClientCertificateRequest {
-  id?: string(name='Id', description='This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  id?: string(name='Id', description='The certificate ID.
+
+This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model GetClientCertificateResponseBody = {
-  certificate?: string(name='Certificate', example='-----BEGIN CERTIFICATE-----'),
-  requestId?: string(name='RequestId', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  certificate?: string(name='Certificate', description='The certificate content.', example='-----BEGIN CERTIFICATE-----'),
+  requestId?: string(name='RequestId', description='The request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
   result?: {
-    CACertificateId?: string(name='CACertificateId', example='babab9db65ee5efcca9f3d41d4b50d66'),
-    commonName?: string(name='CommonName', example='www.example.com'),
-    createTime?: string(name='CreateTime', example='2024-06-24 07:48:51'),
-    id?: string(name='Id', example='baba39055622c008b90285a8838ed09a'),
-    issuer?: string(name='Issuer', example='GlobalSign nv-sa'),
-    name?: string(name='Name', example='yourCertName'),
-    notAfter?: string(name='NotAfter', example='2024-03-31 02:08:00'),
-    notBefore?: string(name='NotBefore', example='2023-03-31 02:08:00'),
-    pubkeyAlgorithm?: string(name='PubkeyAlgorithm', example='RSA'),
-    SAN?: string(name='SAN', example='www.example.com,*.example.com'),
-    signatureAlgorithm?: string(name='SignatureAlgorithm', example='SHA256-RSA'),
-    status?: string(name='Status', example='active'),
-    type?: string(name='Type', example='dcdn'),
-    updateTime?: string(name='UpdateTime', example='2024-09-22 05:33:13'),
-  }(name='Result'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
-  status?: string(name='Status', example='active'),
+    CACertificateId?: string(name='CACertificateId', description='The ID of the CA certificate.', example='babab9db65ee5efcca9f3d41d4b50d66'),
+    commonName?: string(name='CommonName', description='The Common Name of the certificate.', example='www.example.com'),
+    createTime?: string(name='CreateTime', description='The time when the certificate was created.', example='2024-06-24 07:48:51'),
+    id?: string(name='Id', description='The certificate ID.', example='baba39055622c008b90285a8838ed09a'),
+    issuer?: string(name='Issuer', description='The certificate authority (CA) that issued the certificate.', example='GlobalSign nv-sa'),
+    name?: string(name='Name', description='The certificate name.', example='yourCertName'),
+    notAfter?: string(name='NotAfter', description='The time when the certificate expires.', example='2024-03-31 02:08:00'),
+    notBefore?: string(name='NotBefore', description='The time when the certificate takes effect.', example='2023-03-31 02:08:00'),
+    pubkeyAlgorithm?: string(name='PubkeyAlgorithm', description='The public-key algorithm of the certificate.', example='RSA'),
+    SAN?: string(name='SAN', description='The Subject Alternative Name (SAN) of the certificate.', example='www.example.com,*.example.com'),
+    signatureAlgorithm?: string(name='SignatureAlgorithm', description='The signature algorithm of the certificate.', example='SHA256-RSA'),
+    status?: string(name='Status', description='The certificate status.', example='active'),
+    type?: string(name='Type', description='The certificate type.', example='dcdn'),
+    updateTime?: string(name='UpdateTime', description='The time when the certificate was updated.', example='2024-09-22 05:33:13'),
+  }(name='Result', description='The certificate information.'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
+  status?: string(name='Status', description='The certificate status.', example='active'),
 }
 
 model GetClientCertificateResponse = {
@@ -7387,7 +7004,7 @@ model GetClientCertificateResponse = {
 }
 
 /**
- * @summary 获取客户端证书以及证书信息
+ * @summary Queries information about a client certificate.
  *
  * @param request GetClientCertificateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7414,7 +7031,7 @@ async function getClientCertificateWithOptions(request: GetClientCertificateRequ
 }
 
 /**
- * @summary 获取客户端证书以及证书信息
+ * @summary Queries information about a client certificate.
  *
  * @param request GetClientCertificateRequest
  * @return GetClientCertificateResponse
@@ -7425,16 +7042,18 @@ async function getClientCertificate(request: GetClientCertificateRequest): GetCl
 }
 
 model GetClientCertificateHostnamesRequest {
-  id?: string(name='Id', example='baba39055622c008b90285a8838ed09a'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  id?: string(name='Id', description='The certificate ID.', example='baba39055622c008b90285a8838ed09a'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model GetClientCertificateHostnamesResponseBody = {
-  hostnames?: [ string ](name='Hostnames'),
-  id?: string(name='Id', example='baba39055622c008b90285a8838ed09a'),
-  requestId?: string(name='RequestId', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
+  hostnames?: [ string ](name='Hostnames', description='The domain names with which the certificate is associated.'),
+  id?: string(name='Id', description='The ID of the client CA certificate.', example='baba39055622c008b90285a8838ed09a'),
+  requestId?: string(name='RequestId', description='The request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
 }
 
 model GetClientCertificateHostnamesResponse = {
@@ -7444,7 +7063,7 @@ model GetClientCertificateHostnamesResponse = {
 }
 
 /**
- * @summary 获取客户端证书绑定的域名列表
+ * @summary Queries domain names associated with a client CA certificate. If no certificate is specified, domain names associated with an Edge Security Acceleration(ESA)-managed CA certificate are returned.
  *
  * @param request GetClientCertificateHostnamesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7471,7 +7090,7 @@ async function getClientCertificateHostnamesWithOptions(request: GetClientCertif
 }
 
 /**
- * @summary 获取客户端证书绑定的域名列表
+ * @summary Queries domain names associated with a client CA certificate. If no certificate is specified, domain names associated with an Edge Security Acceleration(ESA)-managed CA certificate are returned.
  *
  * @param request GetClientCertificateHostnamesRequest
  * @return GetClientCertificateHostnamesResponse
@@ -9478,6 +9097,7 @@ async function getSiteLogDeliveryQuota(request: GetSiteLogDeliveryQuotaRequest):
 }
 
 model GetSiteWafSettingsRequest {
+  path?: string(name='Path'),
   siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
   siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
 }
@@ -9503,6 +9123,9 @@ model GetSiteWafSettingsResponse = {
 async function getSiteWafSettingsWithOptions(request: GetSiteWafSettingsRequest, runtime: Util.RuntimeOptions): GetSiteWafSettingsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.path)) {
+    query['Path'] = request.path;
+  }
   if (!Util.isUnset(request.siteId)) {
     query['SiteId'] = request.siteId;
   }
@@ -9997,156 +9620,6 @@ async function getWafQuota(request: GetWafQuotaRequest): GetWafQuotaResponse {
   return getWafQuotaWithOptions(request, runtime);
 }
 
-model GetWafRuleRequest {
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
-
-This parameter is required.', example='20000001'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-}
-
-model GetWafRuleResponseBody = {
-  config?: WafRuleConfig(name='Config', description='The configuration of the rule.'),
-  id?: long(name='Id', description='The ID of the WAF rule.[](~~2850237~~)', example='2000001'),
-  name?: string(name='Name', description='The rule name.
-
-This parameter is required.', example='example'),
-  phase?: string(name='Phase', description='The WAF rule category.
-
-This parameter is required.', example='http_custom'),
-  position?: long(name='Position', description='The order of the rule in the ruleset.', example='1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  status?: string(name='Status', description='Indicates whether the rule is enabled.', example='on'),
-  updateTime?: string(name='UpdateTime', description='The time when the rule was last modified.', example='2024-01-01T00:00:00Z'),
-}
-
-model GetWafRuleResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetWafRuleResponseBody(name='body'),
-}
-
-/**
- * @summary Queries the details of a Web Application Firewall (WAF) rule, such as its configuration and status.
- *
- * @param request GetWafRuleRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetWafRuleResponse
- */
-async function getWafRuleWithOptions(request: GetWafRuleRequest, runtime: Util.RuntimeOptions): GetWafRuleResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.id)) {
-    query['Id'] = request.id;
-  }
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetWafRule',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Queries the details of a Web Application Firewall (WAF) rule, such as its configuration and status.
- *
- * @param request GetWafRuleRequest
- * @return GetWafRuleResponse
- */
-async function getWafRule(request: GetWafRuleRequest): GetWafRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getWafRuleWithOptions(request, runtime);
-}
-
-model GetWafRulesetRequest {
-  id?: long(name='Id', description='The ID of the WAF ruleset, which can be obtained by calling the [ListWafRulesets](https://help.aliyun.com/document_detail/2850233.html) operation.', example='10000001'),
-  phase?: string(name='Phase', description='The WAF rule category of rulesets to query.', example='http_bot'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-}
-
-model GetWafRulesetResponseBody = {
-  id?: long(name='Id', description='The ruleset ID.', example='10000001'),
-  name?: string(name='Name', description='The ruleset name.
-
-This parameter is required.', example='example'),
-  phase?: string(name='Phase', description='The WAF rule category of the ruleset.
-
-This parameter is required.', example='http_bot'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  rules?: [
-    WafRuleConfig
-  ](name='Rules', description='The rule configurations in the ruleset.'),
-  shared?: WafBatchRuleShared(name='Shared', description='The configurations shared by the rules in the ruleset.'),
-  status?: string(name='Status', description='The ruleset status.', example='on'),
-  updateTime?: string(name='UpdateTime', description='The time when the ruleset was last modified.', example='2024-01-01T00:00:00Z'),
-}
-
-model GetWafRulesetResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetWafRulesetResponseBody(name='body'),
-}
-
-/**
- * @summary Queries the details of a Web Application Firewall (WAF) ruleset, such as the configuration and status.
- *
- * @param request GetWafRulesetRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetWafRulesetResponse
- */
-async function getWafRulesetWithOptions(request: GetWafRulesetRequest, runtime: Util.RuntimeOptions): GetWafRulesetResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.id)) {
-    query['Id'] = request.id;
-  }
-  if (!Util.isUnset(request.phase)) {
-    query['Phase'] = request.phase;
-  }
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetWafRuleset',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Queries the details of a Web Application Firewall (WAF) ruleset, such as the configuration and status.
- *
- * @param request GetWafRulesetRequest
- * @return GetWafRulesetResponse
- */
-async function getWafRuleset(request: GetWafRulesetRequest): GetWafRulesetResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getWafRulesetWithOptions(request, runtime);
-}
-
 model ListCacheReserveInstancesRequest {
   instanceId?: string(name='InstanceId', description='The ID of the cache reserve instance.', example='sp-xcdn-96wblslz****'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
@@ -10291,35 +9764,37 @@ async function listCiphers(request: ListCiphersRequest): ListCiphersResponse {
 }
 
 model ListClientCaCertificatesRequest {
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  pageNumber?: long(name='PageNumber', description='The page number. Valid values: 1 to 500.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Default value: 20. Valid values: 1 to 100.', example='20'),
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model ListClientCaCertificatesResponseBody = {
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='F61CDR30-E83C-4FDA-BF73-9A94CDD44229'),
+  pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F61CDR30-E83C-4FDA-BF73-9A94CDD44229'),
   result?: [ 
     {
-      commonName?: string(name='CommonName', example='www.example.com'),
-      createTime?: string(name='CreateTime', example='2024-06-24 07:48:51'),
-      id?: string(name='Id', example='babab9db65ee5efcca9f3d41d4b5****'),
-      issuer?: string(name='Issuer', example='GlobalSign nv-sa'),
-      name?: string(name='Name', example='yourCertName'),
-      notAfter?: string(name='NotAfter', example='2024-03-31 02:08:00'),
-      notBefore?: string(name='NotBefore', example='2023-03-31 02:08:00'),
-      pubkeyAlgorithm?: string(name='PubkeyAlgorithm', example='RSA'),
-      SAN?: string(name='SAN', example='www.example.com,*.example.com'),
-      signatureAlgorithm?: string(name='SignatureAlgorithm', example='SHA256-RSA'),
-      status?: string(name='Status', example='OK'),
-      type?: string(name='Type', example='upload'),
-      updateTime?: string(name='UpdateTime', example='2024-07-20 06:18:42'),
+      commonName?: string(name='CommonName', description='The Common Name of the certificate.', example='www.example.com'),
+      createTime?: string(name='CreateTime', description='The time when the certificate was created.', example='2024-06-24 07:48:51'),
+      id?: string(name='Id', description='The certificate ID.', example='babab9db65ee5efcca9f3d41d4b5****'),
+      issuer?: string(name='Issuer', description='The CA that issued the certificate.', example='GlobalSign nv-sa'),
+      name?: string(name='Name', description='The certificate name.', example='yourCertName'),
+      notAfter?: string(name='NotAfter', description='The time when the certificate expires.', example='2024-03-31 02:08:00'),
+      notBefore?: string(name='NotBefore', description='The time when the certificate takes effect.', example='2023-03-31 02:08:00'),
+      pubkeyAlgorithm?: string(name='PubkeyAlgorithm', description='The public-key algorithm of the certificate.', example='RSA'),
+      SAN?: string(name='SAN', description='The Subject Alternative Name (SAN) of the certificate.', example='www.example.com,*.example.com'),
+      signatureAlgorithm?: string(name='SignatureAlgorithm', description='The signature algorithm of the certificate.', example='SHA256-RSA'),
+      status?: string(name='Status', description='The certificate status.', example='OK'),
+      type?: string(name='Type', description='The certificate type.', example='upload'),
+      updateTime?: string(name='UpdateTime', description='The time when the certificate was updated.', example='2024-07-20 06:18:42'),
     }
-  ](name='Result'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
-  totalCount?: long(name='TotalCount', example='16'),
+  ](name='Result', description='The queried client CA certificates.'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
+  totalCount?: long(name='TotalCount', description='The total number of entries.', example='16'),
 }
 
 model ListClientCaCertificatesResponse = {
@@ -10329,7 +9804,7 @@ model ListClientCaCertificatesResponse = {
 }
 
 /**
- * @summary 查询站点下客户端CA证书列表
+ * @summary Queries a list of client certificate authority (CA) certificates for a website.
  *
  * @param request ListClientCaCertificatesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10356,7 +9831,7 @@ async function listClientCaCertificatesWithOptions(request: ListClientCaCertific
 }
 
 /**
- * @summary 查询站点下客户端CA证书列表
+ * @summary Queries a list of client certificate authority (CA) certificates for a website.
  *
  * @param request ListClientCaCertificatesRequest
  * @return ListClientCaCertificatesResponse
@@ -12139,7 +11614,7 @@ model ListSitesRequest {
 *   **global**: global
 *   **overseas**: outside the Chinese mainland', example='global'),
   onlyEnterprise?: boolean(name='OnlyEnterprise', description='Specifies whether to query only websites on Enterprise plans. Valid values: **true and false**.', example='false'),
-  orderBy?: string(name='OrderBy'),
+  orderBy?: string(name='OrderBy', example='visitTime'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **500**.', example='20'),
   planSubscribeType?: string(name='PlanSubscribeType', description='The plan type. Valid values:
@@ -12176,7 +11651,7 @@ model ListSitesShrinkRequest {
 *   **global**: global
 *   **overseas**: outside the Chinese mainland', example='global'),
   onlyEnterprise?: boolean(name='OnlyEnterprise', description='Specifies whether to query only websites on Enterprise plans. Valid values: **true and false**.', example='false'),
-  orderBy?: string(name='OrderBy'),
+  orderBy?: string(name='OrderBy', example='visitTime'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **500**.', example='20'),
   planSubscribeType?: string(name='PlanSubscribeType', description='The plan type. Valid values:
@@ -12230,7 +11705,7 @@ model ListSitesResponseBody = {
       tags?: map[string]any(name='Tags', description='The tags of the website.', example='{"tag1":"value1"}'),
       updateTime?: string(name='UpdateTime', description='The time when the website was updated. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-12-24T02:01:11Z'),
       verifyCode?: string(name='VerifyCode', description='The code that is used to verify the website domain ownership. As part of the verification TXT record, this parameter is returned for websites that use CNAME setup.', example='verify_d516cb3740f81f0cef77d162edd1****'),
-      visitTime?: string(name='VisitTime'),
+      visitTime?: string(name='VisitTime', example='2023-12-24T02:01:11Z'),
     }
   ](name='Sites', description='The queried websites.'),
   totalCount?: int32(name='TotalCount', description='The total number of websites.', example='40'),
@@ -12692,7 +12167,7 @@ model ListWafManagedRulesRequest {
 *   SEMA
 
 This parameter is required.', example='11'),
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](~~ListWafRules~~) operation.
+  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
 
 This parameter is required.', example='10000001'),
   language?: string(name='Language', description='The language of the response. Valid values:
@@ -12706,9 +12181,9 @@ This parameter is required.', example='10000001'),
     action?: string(name='Action', description='The action that you want WAF to perform on requests that match the rule.', example='deny'),
     idNameLike?: string(name='IdNameLike', description='The rule ID or name for fuzzy search.', example='example'),
     protectionLevels?: [ int32 ](name='ProtectionLevels', description='The protection levels of the rules.'),
-    status?: string(name='Status', description='The status.', example='on'),
+    status?: string(name='Status', description='The status of the rule.', example='on'),
   }(name='QueryArgs', description='The query conditions.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
 
 This parameter is required.', example='1'),
 }
@@ -12728,7 +12203,7 @@ model ListWafManagedRulesShrinkRequest {
 *   SEMA
 
 This parameter is required.', example='11'),
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](~~ListWafRules~~) operation.
+  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
 
 This parameter is required.', example='10000001'),
   language?: string(name='Language', description='The language of the response. Valid values:
@@ -12739,7 +12214,7 @@ This parameter is required.', example='10000001'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
   protectionLevel?: int32(name='ProtectionLevel'),
   queryArgsShrink?: string(name='QueryArgs', description='The query conditions.'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
 
 This parameter is required.', example='1'),
 }
@@ -12907,242 +12382,6 @@ async function listWafPhasesWithOptions(request: ListWafPhasesRequest, runtime: 
 async function listWafPhases(request: ListWafPhasesRequest): ListWafPhasesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listWafPhasesWithOptions(request, runtime);
-}
-
-model ListWafRulesRequest {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='http_custom'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1'),
-  phase?: string(name='Phase', description='The WAF rule category. You can filter rules of a specific category.', example='0'),
-  queryArgs?: {
-    desc?: boolean(name='Desc', description='Specifies whether to sort the returned data in descending order.', example='true'),
-    id?: long(name='Id', description='The ID of a WAF rule for exact search.', example='20000001'),
-    idNameLike?: string(name='IdNameLike', description='The ID or name of a WAF rule for fuzzy search.', example='example'),
-    nameLike?: string(name='NameLike', description='The name of a WAF rule for fuzzy search.', example='example'),
-    orderBy?: string(name='OrderBy', description='The column by which you want to sort the returned data.', example='position'),
-    rulesetId?: long(name='RulesetId', description='The ID of a WAF ruleset for exact search.', example='10000001'),
-    status?: string(name='Status', description='The status of a WAF rule for exact search.', example='on'),
-  }(name='QueryArgs', description='The filter conditions.', example='http_custom'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model ListWafRulesShrinkRequest {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='http_custom'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1'),
-  phase?: string(name='Phase', description='The WAF rule category. You can filter rules of a specific category.', example='0'),
-  queryArgsShrink?: string(name='QueryArgs', description='The filter conditions.', example='http_custom'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model ListWafRulesResponseBody = {
-  instanceUsage?: long(name='InstanceUsage', description='The rule usage of the instance that corresponds to the website in the WAF rule category.', example='10'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  rules?: [ 
-    {
-      action?: string(name='Action', description='The action triggered when requests match conditions defined in the rule.', example='deny'),
-      characteristicsFields?: [ string ](name='CharacteristicsFields', description='The fields in rate limiting rules.'),
-      config?: WafRuleConfig(name='Config', description='The configuration of the rule.'),
-      fields?: [ string ](name='Fields', description='The fields in the rule.'),
-      id?: long(name='Id', description='The rule ID.', example='20000001'),
-      name?: string(name='Name', description='The rule name.', example='example'),
-      phase?: string(name='Phase', description='The WAF rule category.', example='http_custom'),
-      position?: long(name='Position', description='The position of the rule in the ruleset.', example='1'),
-      rulesetId?: long(name='RulesetId', description='The ruleset ID.', example='10000001'),
-      skip?: string(name='Skip', description='The skip scope applied when requests match conditions defined in the whitelist rule.', example='part'),
-      status?: string(name='Status', description='Indicates whether the rule is enabled.', example='on'),
-      tags?: [ string ](name='Tags', description='The skipped WAF rule categories when requests match conditions defined in the whitelist rule.'),
-      timer?: WafTimer(name='Timer', description='The time when the rule takes effect.'),
-      type?: string(name='Type', description='The WAF rule type.', example='http_custom'),
-      updateTime?: string(name='UpdateTime', description='The time when the rule was modified.', example='2024-01-01T00:00:00Z'),
-    }
-  ](name='Rules', description='The rules returned.'),
-  siteUsage?: long(name='SiteUsage', description='The rule usage of the website.', example='5'),
-  totalCount?: long(name='TotalCount', description='The total number of filtered rules.', example='20'),
-}
-
-model ListWafRulesResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListWafRulesResponseBody(name='body'),
-}
-
-/**
- * @summary Lists all Web Application Firewall (WAF) rules or some of them based on specific conditions. You can call this operation to query the details of WAF rules by page.
- *
- * @param tmpReq ListWafRulesRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListWafRulesResponse
- */
-async function listWafRulesWithOptions(tmpReq: ListWafRulesRequest, runtime: Util.RuntimeOptions): ListWafRulesResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListWafRulesShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.queryArgs)) {
-    request.queryArgsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.queryArgs, 'QueryArgs', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.phase)) {
-    query['Phase'] = request.phase;
-  }
-  if (!Util.isUnset(request.queryArgsShrink)) {
-    query['QueryArgs'] = request.queryArgsShrink;
-  }
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListWafRules',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Lists all Web Application Firewall (WAF) rules or some of them based on specific conditions. You can call this operation to query the details of WAF rules by page.
- *
- * @param request ListWafRulesRequest
- * @return ListWafRulesResponse
- */
-async function listWafRules(request: ListWafRulesRequest): ListWafRulesResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listWafRulesWithOptions(request, runtime);
-}
-
-model ListWafRulesetsRequest {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  phase?: string(name='Phase', description='The WAF rule category of rulesets to query.', example='http_bot'),
-  queryArgs?: {
-    anyLike?: string(name='AnyLike', description='The ruleset ID, ruleset name, rule ID, or rule name for fuzzy search.', example='example'),
-    desc?: boolean(name='Desc', description='Specifies whether to sort the returned data in descending order.'),
-    nameLike?: string(name='NameLike', description='The ruleset name for fuzzy search.', example='example'),
-    orderBy?: string(name='OrderBy', description='The column by which you want to sort the returned data.', example='id'),
-  }(name='QueryArgs', description='The query arguments in the JSON format, which contain filter conditions.', example='http_bot'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model ListWafRulesetsShrinkRequest {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  phase?: string(name='Phase', description='The WAF rule category of rulesets to query.', example='http_bot'),
-  queryArgsShrink?: string(name='QueryArgs', description='The query arguments in the JSON format, which contain filter conditions.', example='http_bot'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-}
-
-model ListWafRulesetsResponseBody = {
-  instanceUsage?: long(name='InstanceUsage', description='The number of WAF rulesets that are used by the instance in the WAF rule category.', example='10'),
-  pageNumber?: int32(name='PageNumber', description='The page number returned.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-  rulesets?: [ 
-    {
-      fields?: [ string ](name='Fields', description='The matched objects.'),
-      id?: long(name='Id', description='The ID of the WAF ruleset.[](~~2850233~~)', example='10000001'),
-      name?: string(name='Name', description='The ruleset name.', example='example'),
-      phase?: string(name='Phase', description='The WAF rule category.', example='http_bot'),
-      status?: string(name='Status', description='The ruleset status.', example='on'),
-      target?: string(name='Target', description='The type of the protection target in the http_bot rule category.', example='web'),
-      types?: [ string ](name='Types', description='The types of rules.'),
-      updateTime?: string(name='UpdateTime', description='The time when the ruleset was last modified.', example='2024-01-01T00:00:00Z'),
-    }
-  ](name='Rulesets', description='The details of the rulesets.'),
-  siteUsage?: long(name='SiteUsage', description='The number of WAF rulesets that are used by the website in the WAF rule category.', example='5'),
-  totalCount?: long(name='TotalCount', description='The total number of filtered rulesets.', example='5'),
-}
-
-model ListWafRulesetsResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ListWafRulesetsResponseBody(name='body'),
-}
-
-/**
- * @summary Lists the rulesets in a Web Application Firewall (WAF) rule category. You can call this operation to query the basic information about and status of rulesets by page.
- *
- * @param tmpReq ListWafRulesetsRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return ListWafRulesetsResponse
- */
-async function listWafRulesetsWithOptions(tmpReq: ListWafRulesetsRequest, runtime: Util.RuntimeOptions): ListWafRulesetsResponse {
-  Util.validateModel(tmpReq);
-  var request = new ListWafRulesetsShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.queryArgs)) {
-    request.queryArgsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.queryArgs, 'QueryArgs', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.pageNumber)) {
-    query['PageNumber'] = request.pageNumber;
-  }
-  if (!Util.isUnset(request.pageSize)) {
-    query['PageSize'] = request.pageSize;
-  }
-  if (!Util.isUnset(request.phase)) {
-    query['Phase'] = request.phase;
-  }
-  if (!Util.isUnset(request.queryArgsShrink)) {
-    query['QueryArgs'] = request.queryArgsShrink;
-  }
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ListWafRulesets',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Lists the rulesets in a Web Application Firewall (WAF) rule category. You can call this operation to query the basic information about and status of rulesets by page.
- *
- * @param request ListWafRulesetsRequest
- * @return ListWafRulesetsResponse
- */
-async function listWafRulesets(request: ListWafRulesetsRequest): ListWafRulesetsResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return listWafRulesetsWithOptions(request, runtime);
 }
 
 model ListWafTemplateRulesRequest {
@@ -14476,15 +13715,19 @@ async function resetScheduledPreloadJob(request: ResetScheduledPreloadJobRequest
 }
 
 model RevokeClientCertificateRequest {
-  id?: string(name='Id', description='This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  id?: string(name='Id', description='The certificate ID.
+
+This parameter is required.', example='baba39055622c008b90285a8838ed09a'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model RevokeClientCertificateResponseBody = {
-  id?: string(name='Id', example='baba39055622c008b90285a8838ed09a'),
-  requestId?: string(name='RequestId', example='15C66C7B-671A-4297-9187-2C4477247A123425345'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
+  id?: string(name='Id', description='The certificate ID.', example='baba39055622c008b90285a8838ed09a'),
+  requestId?: string(name='RequestId', description='The request ID.', example='15C66C7B-671A-4297-9187-2C4477247A123425345'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
 }
 
 model RevokeClientCertificateResponse = {
@@ -14494,7 +13737,7 @@ model RevokeClientCertificateResponse = {
 }
 
 /**
- * @summary 吊销客户端证书
+ * @summary Revokes an activated client certificate.
  *
  * @param request RevokeClientCertificateRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14521,7 +13764,7 @@ async function revokeClientCertificateWithOptions(request: RevokeClientCertifica
 }
 
 /**
- * @summary 吊销客户端证书
+ * @summary Revokes an activated client certificate.
  *
  * @param request RevokeClientCertificateRequest
  * @return RevokeClientCertificateResponse
@@ -14705,22 +13948,30 @@ async function setCertificate(request: SetCertificateRequest): SetCertificateRes
 }
 
 model SetClientCertificateHostnamesRequest {
-  hostnames?: [ string ](name='Hostnames', description='This parameter is required.'),
-  id?: string(name='Id', example='babab9db65ee5efcca9f3d41d4b50d66'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  hostnames?: [ string ](name='Hostnames', description='The domain names to associate.
+
+This parameter is required.'),
+  id?: string(name='Id', description='The ID of the client CA certificate.', example='babab9db65ee5efcca9f3d41d4b50d66'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model SetClientCertificateHostnamesShrinkRequest {
-  hostnamesShrink?: string(name='Hostnames', description='This parameter is required.'),
-  id?: string(name='Id', example='babab9db65ee5efcca9f3d41d4b50d66'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  hostnamesShrink?: string(name='Hostnames', description='The domain names to associate.
+
+This parameter is required.'),
+  id?: string(name='Id', description='The ID of the client CA certificate.', example='babab9db65ee5efcca9f3d41d4b50d66'),
+  siteId?: long(name='SiteId', description='The website ID.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model SetClientCertificateHostnamesResponseBody = {
-  id?: string(name='Id', example='babab9db65ee5efcca9f3d41d4b50d66'),
-  requestId?: string(name='RequestId', example='ET5BF670-09D5-4D0B-BEBY-D96A2A528000'),
-  siteId?: long(name='SiteId', example='1234567890123'),
-  siteName?: string(name='SiteName', example='example.com'),
+  id?: string(name='Id', description='The ID of the client CA certificate.', example='babab9db65ee5efcca9f3d41d4b50d66'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ET5BF670-09D5-4D0B-BEBY-D96A2A528000'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
 }
 
 model SetClientCertificateHostnamesResponse = {
@@ -14730,7 +13981,7 @@ model SetClientCertificateHostnamesResponse = {
 }
 
 /**
- * @summary 为客户端证书绑定域名
+ * @summary Associates domain names with a client CA certificate. If no certificate is specified, domain names are associated with an Edge Security Acceleration (ESA)-managed CA certificate.
  *
  * @param tmpReq SetClientCertificateHostnamesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14773,7 +14024,7 @@ async function setClientCertificateHostnamesWithOptions(tmpReq: SetClientCertifi
 }
 
 /**
- * @summary 为客户端证书绑定域名
+ * @summary Associates domain names with a client CA certificate. If no certificate is specified, domain names are associated with an Edge Security Acceleration (ESA)-managed CA certificate.
  *
  * @param request SetClientCertificateHostnamesRequest
  * @return SetClientCertificateHostnamesResponse
@@ -16504,177 +15755,6 @@ async function updateUserDeliveryTaskStatusWithOptions(request: UpdateUserDelive
 async function updateUserDeliveryTaskStatus(request: UpdateUserDeliveryTaskStatusRequest): UpdateUserDeliveryTaskStatusResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateUserDeliveryTaskStatusWithOptions(request, runtime);
-}
-
-model UpdateWafRuleRequest {
-  config?: WafRuleConfig(name='Config', description='The configuration of the rule.'),
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
-
-This parameter is required.', example='20000001'),
-  position?: long(name='Position', description='The order of the rule in the ruleset.', example='1'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-  status?: string(name='Status', description='The status of the rule.', example='on'),
-}
-
-model UpdateWafRuleShrinkRequest {
-  configShrink?: string(name='Config', description='The configuration of the rule.'),
-  id?: long(name='Id', description='The ID of the WAF rule, which can be obtained by calling the [ListWafRules](https://help.aliyun.com/document_detail/2850237.html) operation.
-
-This parameter is required.', example='20000001'),
-  position?: long(name='Position', description='The order of the rule in the ruleset.', example='1'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
-
-This parameter is required.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='0'),
-  status?: string(name='Status', description='The status of the rule.', example='on'),
-}
-
-model UpdateWafRuleResponseBody = {
-  id?: long(name='Id', description='The ID of the WAF rule.[](~~2850237~~)', example='20000001'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model UpdateWafRuleResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: UpdateWafRuleResponseBody(name='body'),
-}
-
-/**
- * @summary Modifies the configuration or status of a Web Application Firewall (WAF) rule.
- *
- * @param tmpReq UpdateWafRuleRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateWafRuleResponse
- */
-async function updateWafRuleWithOptions(tmpReq: UpdateWafRuleRequest, runtime: Util.RuntimeOptions): UpdateWafRuleResponse {
-  Util.validateModel(tmpReq);
-  var request = new UpdateWafRuleShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.config)) {
-    request.configShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.config, 'Config', 'json');
-  }
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.configShrink)) {
-    body['Config'] = request.configShrink;
-  }
-  if (!Util.isUnset(request.id)) {
-    body['Id'] = request.id;
-  }
-  if (!Util.isUnset(request.position)) {
-    body['Position'] = request.position;
-  }
-  if (!Util.isUnset(request.status)) {
-    body['Status'] = request.status;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateWafRule',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Modifies the configuration or status of a Web Application Firewall (WAF) rule.
- *
- * @param request UpdateWafRuleRequest
- * @return UpdateWafRuleResponse
- */
-async function updateWafRule(request: UpdateWafRuleRequest): UpdateWafRuleResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateWafRuleWithOptions(request, runtime);
-}
-
-model UpdateWafRulesetRequest {
-  id?: long(name='Id', description='The ID of the WAF ruleset, which can be obtained by calling the [ListWafRulesets](https://help.aliyun.com/document_detail/2850233.html) operation.
-
-This parameter is required.', example='10000001'),
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.', example='1'),
-  siteVersion?: int32(name='SiteVersion', description='The version of the website.', example='1'),
-  status?: string(name='Status', description='The status to which you want to change the ruleset.', example='on'),
-}
-
-model UpdateWafRulesetResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
-}
-
-model UpdateWafRulesetResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: UpdateWafRulesetResponseBody(name='body'),
-}
-
-/**
- * @summary Updates a WAF ruleset based on its ID.
- *
- * @param request UpdateWafRulesetRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateWafRulesetResponse
- */
-async function updateWafRulesetWithOptions(request: UpdateWafRulesetRequest, runtime: Util.RuntimeOptions): UpdateWafRulesetResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.siteId)) {
-    query['SiteId'] = request.siteId;
-  }
-  if (!Util.isUnset(request.siteVersion)) {
-    query['SiteVersion'] = request.siteVersion;
-  }
-  var body : map[string]any = {};
-  if (!Util.isUnset(request.id)) {
-    body['Id'] = request.id;
-  }
-  if (!Util.isUnset(request.status)) {
-    body['Status'] = request.status;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApi.Params{
-    action = 'UpdateWafRuleset',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Updates a WAF ruleset based on its ID.
- *
- * @param request UpdateWafRulesetRequest
- * @return UpdateWafRulesetResponse
- */
-async function updateWafRuleset(request: UpdateWafRulesetRequest): UpdateWafRulesetResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return updateWafRulesetWithOptions(request, runtime);
 }
 
 model UpdateWaitingRoomRequest {
