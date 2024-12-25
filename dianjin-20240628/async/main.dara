@@ -76,15 +76,18 @@ async function createAnnualDocSummaryTask(request: CreateAnnualDocSummaryTaskReq
 model CreateDialogRequest {
   workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxxxx', position='Path'),
   channel: string(name='channel', description='This parameter is required.', example='taobao', position='Body'),
+  enableLibrary?: boolean(name='enableLibrary', position='Body'),
   metaData?: map[string]any(name='metaData', example='null', position='Body'),
   playCode: string(name='playCode', description='This parameter is required.', example='live_broadcast_qa', position='Body'),
-  qaLibraryList: [ string ](name='qaLibraryList', description='This parameter is required.', position='Body'),
+  qaLibraryList?: [ string ](name='qaLibraryList', position='Body'),
   requestId: string(name='requestId', description='This parameter is required.', example='ebf83826-dc1c-46f8-9759-0fb6da4c8xxx', position='Body'),
+  selfDirected?: boolean(name='selfDirected', position='Body'),
 }
 
 model CreateDialogResponseBody = {
   cost?: long(name='cost', example='null'),
   data?: {
+    openingRemarks?: string(name='openingRemarks'),
     sessionId?: string(name='sessionId', example='1728545917713234'),
   }(name='data'),
   dataType?: string(name='dataType', example='null'),
@@ -1419,6 +1422,87 @@ model ReIndexResponse = {
 async function reIndex(request: ReIndexRequest): ReIndexResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ReIndex', 'PUT', '/{workspaceId}/api/library/document/reIndex', 'json', false, 'json', request);
+}
+
+model RealTimeDialogRequest {
+  workspaceId: string(name='workspaceId', description='This parameter is required.', example='llm-xxxxx', position='Path'),
+  analysis?: boolean(name='analysis', example='false', position='Body'),
+  bizType?: string(name='bizType', example='mixIntentChat', position='Body'),
+  conversationModel: [ 
+    {
+      begin?: int32(name='begin', example='5'),
+      beginTime?: string(name='beginTime', example='2024-11-08 09:51:16'),
+      content: string(name='content', description='This parameter is required.'),
+      customerId?: string(name='customerId', example='98457834685635'),
+      customerServiceId?: string(name='customerServiceId', example='1374683645635'),
+      customerServiceType?: string(name='customerServiceType', example='0'),
+      end?: int32(name='end', example='10'),
+      role: int32(name='role', description='This parameter is required.', example='0'),
+      type: string(name='type', description='This parameter is required.', example='audio'),
+    }
+  ](name='conversationModel', description='This parameter is required.', position='Body'),
+  dialogMemoryTurns?: int32(name='dialogMemoryTurns', example='3', position='Body'),
+  metaData?: map[string]any(name='metaData', position='Body'),
+  recommend?: boolean(name='recommend', example='false', position='Body'),
+  sessionId: string(name='sessionId', description='This parameter is required.', example='237645726354', position='Body'),
+  stream?: boolean(name='stream', example='false', position='Body'),
+}
+
+model RealTimeDialogResponseBody = {
+  choices?: [ 
+    {
+      delta?: {
+        analysisProcess?: string(name='analysisProcess', example='null'),
+        callTime?: string(name='callTime', description='time', example='null'),
+        hangUpDialog?: boolean(name='hangUpDialog', example='false'),
+        intentionCode?: string(name='intentionCode', example='1853360771162058752'),
+        intentionName?: string(name='intentionName'),
+        intentionScript?: string(name='intentionScript'),
+        recommendIntention?: string(name='recommendIntention', example='null'),
+        recommendScript?: string(name='recommendScript', example='null'),
+        selfDirectedScript?: string(name='selfDirectedScript'),
+        selfDirectedScriptFullContent?: string(name='selfDirectedScriptFullContent'),
+      }(name='delta'),
+      finishReason?: string(name='finishReason', example='stop'),
+      index?: int32(name='index', example='0'),
+      message?: {
+        analysisProcess?: string(name='analysisProcess', example='null'),
+        callTime?: string(name='callTime', description='time', example='1735139569523'),
+        hangUpDialog?: boolean(name='hangUpDialog', example='false'),
+        intentionCode?: string(name='intentionCode', example='1853360771162058752'),
+        intentionName?: string(name='intentionName'),
+        intentionScript?: string(name='intentionScript'),
+        recommendIntention?: string(name='recommendIntention', example='null'),
+        recommendScript?: string(name='recommendScript', example='null'),
+        selfDirectedScript?: string(name='selfDirectedScript', example='null'),
+        selfDirectedScriptFullContent?: string(name='selfDirectedScriptFullContent'),
+      }(name='message'),
+    }
+  ](name='choices'),
+  created?: string(name='created', example='1735139569523'),
+  id?: string(name='id', example='eb2b6139-ddf1-91a0-a47f-df7617ae9032'),
+  requestId?: string(name='requestId', example='5E3FBAF1-17AF-53B7-AF0A-CDCEEB6DE658'),
+  success?: boolean(name='success', example='true'),
+}
+
+model RealTimeDialogResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RealTimeDialogResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RealTimeDialog  RealTimeDialogRequest
+  * @return RealTimeDialogResponse
+ */
+async function realTimeDialog(request: RealTimeDialogRequest): RealTimeDialogResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RealTimeDialog', 'POST', '/{workspaceId}/api/realtime/dialog/chat', 'json', false, 'json', request);
+}
+
+function realTimeDialogWithResponseIterable(request: RealTimeDialogRequest): iterator[RealTimeDialogResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'RealTimeDialog', 'POST', '/{workspaceId}/api/realtime/dialog/chat', 'json', false, 'json', request);
 }
 
 model RebuildTaskRequest {
