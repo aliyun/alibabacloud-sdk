@@ -661,11 +661,6 @@ model PointInt64 {
   y?: long(name='Y'),
 }
 
-model PresetReference {
-  name: string(name='Name', description='This parameter is required.'),
-  type: string(name='Type', description='This parameter is required.'),
-}
-
 model Project {
   createTime?: string(name='CreateTime'),
   datasetCount?: long(name='DatasetCount'),
@@ -1235,7 +1230,7 @@ model AttachOSSBucketRequest {
   OSSBucket: string(name='OSSBucket', description='The name of the OSS bucket in the same region as the project.
 
 This parameter is required.', example='examplebucket', position='Query'),
-  projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
+  projectName: string(name='ProjectName', description='The name of the project. For information about how to create a project, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
 
 This parameter is required.', example='immtest', position='Query'),
 }
@@ -1251,7 +1246,7 @@ model AttachOSSBucketResponse = {
 }
 
 /**
-  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).****
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
   * *   To use data processing capabilities of IMM based on the x-oss-process parameter, you must bind an OSS bucket to an IMM project. For more information, see [x-oss-process](https://help.aliyun.com/document_detail/2391270.html).
   * *   Make sure that the specified project exists in the current region. For more information, see [Project management](https://help.aliyun.com/document_detail/478152.html).
   * @param request  the request parameters of AttachOSSBucket  AttachOSSBucketRequest
@@ -1264,13 +1259,19 @@ async function attachOSSBucket(request: AttachOSSBucketRequest): AttachOSSBucket
 
 model BatchDeleteFileMetaRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
-  datasetName: string(name='DatasetName', description='This parameter is required.', position='Query'),
-  projectName: string(name='ProjectName', description='This parameter is required.', position='Query'),
-  URIs: [ string ](name='URIs', description='This parameter is required.', shrink='json', position='Query'),
+  datasetName: string(name='DatasetName', description='The name of the dataset. You can obtain the name of the dataset from the response of the [CreateDataset](https://help.aliyun.com/document_detail/478160.html) operation.
+
+This parameter is required.', example='test-dataset', position='Query'),
+  projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
+
+This parameter is required.', example='test-project', position='Query'),
+  URIs: [ string ](name='URIs', description='The URIs of the OSS buckets in which the files whose metadata you want to delete are stored. You can specify up to 100 URIs.
+
+This parameter is required.', shrink='json', position='Query'),
 }
 
 model BatchDeleteFileMetaResponseBody = {
-  requestId?: string(name='RequestId', example='3A82F6C9-5AC0-38F9-914F-F02623B3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3A82F6C9-5AC0-38F9-914F-F02623B3****'),
 }
 
 model BatchDeleteFileMetaResponse = {
@@ -1280,6 +1281,11 @@ model BatchDeleteFileMetaResponse = {
 }
 
 /**
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  * *   A successful deletion message is returned regardless of whether the metadata of the file exists in the dataset.
+  * > 
+  * *   If you delete the metadata of a file from a dataset, the file stored in Object Storage Service (OSS) or Photo and Drive Service is **not** deleted. If you want to delete the file, use the operations provided by OSS or Photo and Drive Service.
+  * *   Metadata deletion affects existing face groups and stories but does not affect existing spatiotemporal groups.
   * @param request  the request parameters of BatchDeleteFileMeta  BatchDeleteFileMetaRequest
   * @return BatchDeleteFileMetaResponse
  */
@@ -1374,7 +1380,7 @@ This parameter is required.', example='test-dataset', position='Query'),
   ](name='Files', description='The objects in Object Storage Service (OSS). Specify OSS objects by using a JSON array. You can specify up to 100 objects in an array.
 
 This parameter is required.', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html) topic.', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For more information, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html) topic.', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='test-project', position='Query'),
@@ -1493,12 +1499,76 @@ async function compareImageFaces(request: CompareImageFacesRequest): CompareImag
   return @handler.do('RPC', 'CompareImageFaces', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ContextualAnswerRequest {
+  regionId?: string(name='RegionId', example='区域', position='Host'),
+  files?: [
+    ContextualFile
+  ](name='Files', shrink='json', position='Body'),
+  messages: [
+    ContextualMessage
+  ](name='Messages', description='This parameter is required.', shrink='json', position='Body'),
+  projectName: string(name='ProjectName', description='This parameter is required.', example='test-project', position='Query'),
+}
+
+model ContextualAnswerResponseBody = {
+  answer?: Answer(name='Answer'),
+  requestId?: string(name='RequestId', example='22F081FB-90D7-525A-BFE4-D28DC906A28F'),
+}
+
+model ContextualAnswerResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ContextualAnswerResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ContextualAnswer  ContextualAnswerRequest
+  * @return ContextualAnswerResponse
+ */
+async function contextualAnswer(request: ContextualAnswerRequest): ContextualAnswerResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ContextualAnswer', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ContextualRetrievalRequest {
+  regionId?: string(name='RegionId', example='区域', position='Host'),
+  datasetName: string(name='DatasetName', description='This parameter is required.', example='test-dataset', position='Query'),
+  messages: [
+    ContextualMessage
+  ](name='Messages', description='This parameter is required.', shrink='json', position='Body'),
+  projectName: string(name='ProjectName', description='This parameter is required.', example='test-project', position='Query'),
+  recallOnly?: boolean(name='RecallOnly', example='false', position='Query'),
+  smartClusterIds?: [ string ](name='SmartClusterIds', shrink='json', position='Body'),
+}
+
+model ContextualRetrievalResponseBody = {
+  requestId?: string(name='RequestId', example='6E93D6C9-5AC0-49F9-914D-E02678D3****'),
+  results?: [
+    File
+  ](name='Results'),
+}
+
+model ContextualRetrievalResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ContextualRetrievalResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ContextualRetrieval  ContextualRetrievalRequest
+  * @return ContextualRetrievalResponse
+ */
+async function contextualRetrieval(request: ContextualRetrievalRequest): ContextualRetrievalResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ContextualRetrieval', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateArchiveFileInspectionTaskRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   password?: string(name='Password', description='The password that protects the package. If the package is password-protected, you must provide the password to view the contents of the package.', example='123456', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
@@ -1522,11 +1592,13 @@ model CreateArchiveFileInspectionTaskResponse = {
 }
 
 /**
-  * @description >  The operation is in public preview. For any inquires, join our DingTalk group (ID: 31690030817) and share your questions with us.
+  * @description >  The operation is in public preview. For any inquires, join our DingTalk chat group (ID: 31690030817) and share your questions with us.
   * *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
   * *   The operation supports a package that contains up to 80,000 files.
   * *   The operation supports ZIP or RAR packages up to 200 GB in size, or 7z packages up to 50 GB in size.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateArchiveFileInspectionTask  CreateArchiveFileInspectionTaskRequest
   * @return CreateArchiveFileInspectionTaskResponse
  */
@@ -1615,7 +1687,7 @@ model CreateBindingResponse = {
 }
 
 /**
-  * @description Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html?spm=a2c4g.475816.0.0.21db309dumhJPw) of Intelligent Media Management (IMM).****
+  * @description Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
   * Before you create a binding relationship, make sure that the project and the dataset that you want to use exist.
   * *   For information about how to create a project, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
   * *   For information about how to create a dataset, see [CreateDataset](https://help.aliyun.com/document_detail/478160.html).
@@ -1641,7 +1713,7 @@ This parameter is required.', example='octree', position='Query'),
 
 The configurations of authorization chains. This parameter is optional. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
   kdtreeOption?: KdtreeOption(name='KdtreeOption', description='The k-d tree compression options.', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   octreeOption?: OctreeOption(name='OctreeOption', description='The octree compression options.', shrink='json', position='Query'),
   pointCloudFields: [ string ](name='PointCloudFields', description='The PCD property fields and the compression order in which the data is decompressed after the compression is complete.
 
@@ -1681,8 +1753,10 @@ model CreateCompressPointCloudTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   File format: Only PCD files are supported.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](~~GetTask~~) and [ListTasks](~~ListTasks~~) operation to query the value of the returned `TaskId` and information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   This operation supports only Point Cloud Data (PCD) files.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications. >
   * @param request  the request parameters of CreateCompressPointCloudTask  CreateCompressPointCloudTaskRequest
   * @return CreateCompressPointCloudTaskResponse
  */
@@ -1719,10 +1793,10 @@ This parameter is required.', example='immtest', position='Body'),
   storyName: string(name='StoryName', description='The name of the story.
 
 This parameter is required.', example='name1', position='Body'),
-  storySubType: string(name='StorySubType', description='The subtype of the story. For information about valid subtypes, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).
+  storySubType: string(name='StorySubType', description='The subtype of the story. For information about valid subtypes, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).
 
 This parameter is required.', example='Solo', position='Body'),
-  storyType: string(name='StoryType', description='The type of the story. For information about valid types, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).
+  storyType: string(name='StoryType', description='The type of the story. For information about valid types, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).
 
 This parameter is required.', example='PeopleMemory', position='Body'),
 }
@@ -1782,10 +1856,10 @@ model CreateDatasetResponse = {
 }
 
 /**
-  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   A dataset name must be unique within the same project.[](~~478153~~)
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of IMM.****
+  * *   A dataset name must be unique within the same project.
   * *   A project has an upper limit on the number of datasets that can be created in the project. You can call the [GetProjcet](https://help.aliyun.com/document_detail/478155.html) operation to query the dataset limit of the project.
-  * *   After you create a dataset, you can call the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) operation to index metadata for efficient [data retrieval and statistics](https://help.aliyun.com/document_detail/2402363.html) and [intelligent data management](https://help.aliyun.com/document_detail/2402365.html).
+  * *   After creating a dataset, you can call the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) operation to index metadata. Metadata indexing enhances [data retrieval efficiency and statistics collection](https://help.aliyun.com/document_detail/478175.html), and enables intelligent data management.
   * @param request  the request parameters of CreateDataset  CreateDatasetRequest
   * @return CreateDatasetResponse
  */
@@ -1796,14 +1870,13 @@ async function createDataset(request: CreateDatasetRequest): CreateDatasetRespon
 
 model CreateDecodeBlindWatermarkTaskRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
-  imageQuality?: int32(name='ImageQuality', description='The quality of the output image. This parameter is also available in the earlier [DecodeBlindWatermark](https://help.aliyun.com/document_detail/444166.html) operation.
-
+  imageQuality?: int32(name='ImageQuality', description='The quality of the output image.
 The higher the quality, the larger the image size and the higher the watermark resolution quality.', example='90', position='Query'),
-  model?: string(name='Model', description='The watermark algorithm model. This parameter is also available in the earlier [DecodeBlindWatermark](https://help.aliyun.com/document_detail/444166.html) operation. Valid values: FFT, FFT_FULL, DWT, and DWT_IBG. Default value: FFT.
+  model?: string(name='Model', description='The watermark algorithm model.Valid values: FFT, FFT_FULL, DWT, and DWT_IBG. Default value: FFT.
 
 If this parameter is left empty, the DecodeBlindWatermark operation is called. Otherwise, the CreateDecodeBlindWatermarkTask operation is called.', example='FFT', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
-  originalImageURI?: string(name='OriginalImageURI', description='The OSS URI of the image before the blind watermark is added. This parameter is also available in the earlier [DecodeBlindWatermark](https://help.aliyun.com/document_detail/444166.html) operation.
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
+  originalImageURI?: string(name='OriginalImageURI', description='The OSS URI of the image before the blind watermark is added. 
 
 Do not specify this parameter when you set the Model parameter to DWT or DWT_IBG.
 
@@ -1817,8 +1890,7 @@ Specify the OSS URI in the `oss://<bucket>/<object>` format, where `<bucket>` is
 
 This parameter is required.', example='oss://target/sampleobject.jpg', position='Query'),
   strengthLevel?: string(name='StrengthLevel', description='The watermark strength level. The higher the strength level, the more resistant the watermarked image is to attacks, but the more the image is distorted. Valid values: low, medium, and high. Default value: low.', example='low', position='Query'),
-  targetURI?: string(name='TargetURI', description='The OSS URI of the output image. This parameter is also available in the earlier [DecodeBlindWatermark](https://help.aliyun.com/document_detail/444166.html) operation.
-
+  targetURI?: string(name='TargetURI', description='The OSS URI of the output image.
 Specify the OSS URI in the `oss://<bucket>/<object>` format, where `<bucket>` is the name of the bucket in the same region as the current project and `<object>` is the path of the object with the extension included.', example='oss://target/targetobject.jpg', position='Query'),
   watermarkType?: string(name='WatermarkType', description='The type of the watermark. Valid value: text.
 
@@ -1841,8 +1913,7 @@ model CreateDecodeBlindWatermarkTaskResponse = {
   * @description *   Before you call this operation, make sure that you are familiar with the billing of Intelligent Media Management (IMM).
   * *   Make sure that an IMM project is created. For information about how to create a project, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
   * *   A blind watermark can still be extracted even if attacks, such as compression, scaling, cropping, rotation, and color transformation, are performed on the image.
-  * *   This operation is compatible with its earlier version [DecodeBlindWatermark](https://help.aliyun.com/document_detail/444166.html).
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateDecodeBlindWatermarkTask  CreateDecodeBlindWatermarkTaskRequest
   * @return CreateDecodeBlindWatermarkTaskResponse
  */
@@ -1857,7 +1928,7 @@ model CreateFacesSearchingTaskRequest {
 
 This parameter is required.', example='test-dataset', position='Query'),
   maxResult?: long(name='MaxResult', description='The number of the most similar faces that you want to return. Valid values: 1 to 100. Default value: 5.', example='100', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='test-project', position='Query'),
@@ -1885,8 +1956,8 @@ model CreateFacesSearchingTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   The operation searches for faces within the face boundary in each input image. The face boundary is consistent with the boundary returned by [DetectImageFaces](https://help.aliyun.com/document_detail/444162.html).
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can obtain information about the task based on notifications.
+  * *   The operation searches for faces within the face boundary in each input image.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateFacesSearchingTask  CreateFacesSearchingTaskRequest
   * @return CreateFacesSearchingTaskResponse
  */
@@ -1900,7 +1971,7 @@ model CreateFigureClusteringTaskRequest {
   datasetName: string(name='DatasetName', description='The name of the dataset.[](~~478160~~)
 
 This parameter is required.', example='dataset001', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='immtest', position='Query'),
@@ -1922,11 +1993,13 @@ model CreateFigureClusteringTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the [CreateBinding](~~CreateBinding~~) operation or manually by calling the [IndexFileMeta](~~IndexFileMeta~~) or [BatchIndexFileMeta](~~BatchIndexFileMeta~~) operation.[](~~CreateDataset~~)
-  * *   Each call to the operation incrementally processes metadata in the dataset.[](~~CreateDataset~~) You can regularly call this operation to process incremental files.
-  * *   After the clustering task is completed, you can call the [GetFigureCluster](~~GetFigureCluster~~) or [BatchGetFigureCluster](~~BatchGetFigureCluster~~) operation to query information about a specific cluster. You can also call the [QueryFigureClusters](~~QueryFigureClusters~~) operation to query all face clusters of the specified dataset.
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the CreateBinding operation or manually by calling the IndexFileMeta or BatchIndexFileMeta operation.
+  * *   Each call to the operation incrementally processes metadata in the dataset. You can regularly call this operation to process incremental files.
+  *     After the clustering task is completed, you can call the GetFigureCluster or BatchGetFigureCluster  operation to query information about a specific cluster. You can also call the QueryFigureClusters operation to query all face clusters of the specified dataset.
   * *   Removing image information from the dataset causes changes to face clusters. When images that contain all faces in a cluster are removed, the cluster is deleted.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateFigureClusteringTask  CreateFigureClusteringTaskRequest
   * @return CreateFigureClusteringTaskResponse
  */
@@ -1942,7 +2015,7 @@ model CreateFigureClustersMergingTaskRequest {
 This parameter is required.', example='dataset001', position='Query'),
   from?: string(name='From', description='The ID of the source group. You must specify either From or Froms, but not both.', example='Cluster-2ab85905-23ba-4632-b2d8-1c21cfe****', position='Query'),
   froms?: [ string ](name='Froms', description='The IDs of source clustering groups. You must specify either From or Froms, but not both. You can specify up to 100 task IDs.', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, see "Notification". For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification message configurations. For more information, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html) topic.', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project. For more information, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
 
 This parameter is required.', example='immtest', position='Query'),
@@ -1967,9 +2040,9 @@ model CreateFigureClustersMergingTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   Before you call this operation, make sure that you have created a face clustering task by calling the [CreateFigureClusteringTask](https://help.aliyun.com/document_detail/478180.html) operation to cluster all faces in the dataset.
+  * *   Before you call this operation, make sure that you have called the [CreateFigureClusteringTask](https://help.aliyun.com/document_detail/478180.html) operation to cluster all faces in the dataset.
   * *   If you merge unrelated groups, the feature values of the target groups are affected. As a result, the incremental data may be inaccurately grouped when you create a face clustering task.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) and [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query the value of the returned `TaskId` and information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateFigureClustersMergingTask  CreateFigureClustersMergingTaskRequest
   * @return CreateFigureClustersMergingTaskResponse
  */
@@ -1986,7 +2059,7 @@ model CreateFileCompressionTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='immtest', position='Query'),
@@ -1997,15 +2070,15 @@ This parameter is required.', example='immtest', position='Query'),
     [{"URI":"oss://<bucket>/<object>", "Alias":"/new-dir/new-name"}]', example='oss://test-bucket/test-object.json', position='Query'),
   sources?: [ 
     {
-      alias?: string(name='Alias', description='Specifies the path of the compressed object in the package or renames the object.
+      alias?: string(name='Alias', description='Specifies the path of the object in the package, or renames the object in the package.
 
-*   Do not specify this parameter to retain the same directory path of the object in the package. For example, if the object is stored at `oss://test-bucket/test-dir/test-object.doc`, the path of the compressed object in the package is `/test-dir/test-object.doc` when you do not specify this parameter.
-*   Rename the object. For example, if the object is stored at `oss://test-bucket/test-object.jpg` and you set the **Alias** parameter to `test-rename-object.jpg`, the name of the compressed object in the package is `test-rename-object.jpg`.
-*   Specify a different path for the compressed object in the package. For example, if the directory to compress is `oss://test-bucket/test-dir/` and you set the **Alias** parameter to `/new-dir/`, all objects in the directory to compress are placed in the `/new-dir/` path in the package.
+*   Leave this parameter empty to retain the original directory structure of the object in the package. For example, if the object is stored at `oss://test-bucket/test-dir/test-object.doc` and you do not specify this parameter, the path of the object in the package is `/test-dir/test-object.doc`.
+*   Rename the object. For example, if the object is stored at `oss://test-bucket/test-object.jpg` and you set the **Alias** parameter to `test-rename-object.jpg`, the name of the object in the package is `test-rename-object.jpg`.
+*   Specify a different path for the object in the package. For example, if the directory to be packed is `oss://test-bucket/test-dir/` and you set the **Alias** parameter to `/new-dir/`, all objects in the directory are placed in the `/new-dir/` path in the package.
 *   Set the parameter to `/` to remove the original directory structure.
 
->  Duplicate object names may cause a failure in extracting the objects from the package, depending on the decompression tool that you use. We recommend that you avoid using duplicate object names when you rename objects in the compression task.', example='/new-dir/'),
-      mode?: string(name='Mode', description='The compression matching rule. Default value: `prefix`. Valid values:````
+>  Duplicate object names may cause a failure in extracting the objects from the package, depending on the packing tool that you use. We recommend that you avoid using duplicate object names when you rename objects in the packing task.', example='/new-dir/'),
+      mode?: string(name='Mode', description='The object matching rule. Valid values: `fullname` and `prefix`. Default value: `prefix`
 
 *   `prefix`: matches objects by object name prefix.
 *   `fullname`: exactly matches one single object by its full object name.', example='fullname'),
@@ -2013,12 +2086,13 @@ This parameter is required.', example='immtest', position='Query'),
 
 Specify the OSS URI in the oss://${Bucket}/${Object} format, where `${Bucket}` is the name of the bucket in the same region as the current project and `${Object}` is a directory or object:
 
-*   When you compress a directory, `${Object}` is the path of the directory.
-*   When you compress an object, `${Object}` is the path of the object with the extension included.', example='oss://test-bucket/test-object'),
-    }
-  ](name='Sources', description='The objects to compress and compression rules.
+When you pack a directory, `${Object}` is the path of the directory.
 
->  You must this parameter or the SourceManifestURI parameter. You can include up to 100 compression rules in the Sources parameter. If you want to include more than 100 compression rules, use the SourceManifestURI parameter.', shrink='json', position='Query'),
+*   When you pack an object, `${Object}` is the path of the object with the extension included.', example='oss://test-bucket/test-object'),
+    }
+  ](name='Sources', description='The objects to be packed and packing rules.
+
+>  You must specify this parameter or the SourceManifestURI parameter. The Sources parameter can hold up to 100 packing rules. If you want to include more than 100 packing rules, use the SourceManifestURI parameter.', shrink='json', position='Query'),
   targetURI: string(name='TargetURI', description='The OSS URI of the package. The object name part in the URI is used as the name of the package. Example: `name.zip`.
 
 Specify the OSS URI in the oss://${Bucket}/${Object} format, where `${Bucket}` is the name of the bucket in the same region as the current project and `${Object}` is the path of the object with the extension included.
@@ -2040,12 +2114,15 @@ model CreateFileCompressionTaskResponse = {
 }
 
 /**
-  * @description >  The operation is in public preview. For any inquires, join our DingTalk group (ID: 31690030817) and share your questions with us.
+  * @description >  The operation is in public preview. For any inquires, join our DingTalk group (ID: 88490020073) and share your questions with us.
+  * >  The operation supports file packing only. Compression support will be added later.
   * *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   The operation can compress up to 80,000 objects into a package.
-  * *   The total size of all objects to compress into a package cannot exceed 200 GB.
-  * *   The operation can compress only Standard objects in Object Storage Service (OSS). To compress an object in another storage class, you must first [convert the storage class of the object](https://help.aliyun.com/document_detail/90090.html).
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   A call to the operation can pack up to 80,000 objects into a package.
+  * *   The total size of all objects to be packed into a package cannot exceed 200 GB.
+  * *   The operation can pack only Standard objects in Object Storage Service (OSS). To pack an object in another storage class, you must first [convert the storage class of the object](https://help.aliyun.com/document_detail/90090.html).
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateFileCompressionTask  CreateFileCompressionTaskRequest
   * @return CreateFileCompressionTaskResponse
  */
@@ -2059,7 +2136,7 @@ model CreateFileUncompressionTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   password?: string(name='Password', description='The password that protects the package.', example='123456', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
@@ -2089,12 +2166,14 @@ model CreateFileUncompressionTaskResponse = {
 }
 
 /**
-  * @description >  The operation is in public preview. For any inquires, join our DingTalk group (ID: 31690030817) and share your questions with us.
+  * @description >  The operation is in public preview. For any inquires, join our DingTalk group (ID: 88490020073) and share your questions with us.
   * *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
   * *   The operation supports a package that contains up to 80,000 files.
   * *   The operation supports ZIP or RAR packages up to 200 GB in size, or 7z packages up to 50 GB in size.
   * *   The operation extracts files in streams to the specified directory. If the file extraction task is interrupted by a corrupt file, files that have been extracted are not deleted.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateFileUncompressionTask  CreateFileUncompressionTaskRequest
   * @return CreateFileUncompressionTaskResponse
  */
@@ -2108,7 +2187,7 @@ model CreateImageModerationTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='The authorization chain. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
   interval?: long(name='Interval', description='The time interval between two consecutive frames in a GIF or long image. Default value: 1.', example='2', position='Query'),
   maxFrames?: long(name='MaxFrames', description='The maximum number of frames that can be captured in a GIF or long image. Default value: 1.', example='10', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
 
 This parameter is required.', example='immtest', position='Query'),
@@ -2136,22 +2215,20 @@ model CreateImageModerationTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   The detection result is sent as an asynchronous notification.
-  *     *
-  *     *
-  *     *
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
   * *   The image for which you want to create a content moderation task must meet the following requirements:
   *     *   The image URL supports the HTTP and HTTPS protocols.
-  *     *   The image is in one of the following formats: PNG, JPG, JPEG, BMP, GIF, and WEBP.
+  *     *   The image is in one of the following formats: PNG, JPG, JPEG, BMP, GIF, and WebP
   *     *   The image size is limited to 20 MB for synchronous and asynchronous calls, with a maximum height or width of 30,000 pixels. The total number of pixels cannot exceed 250 million. GIF images are limited to 4,194,304 pixels, with a maximum height or width of 30,000 pixels.
-  *     *   The image must be downloaded within 3 seconds. If the download takes longer, a timeout error occurs.
+  *     *   The image download time is limited to 3 seconds. If the download takes longer, a timeout error occurs.
   *     *   To ensure effective moderation, we recommend that you submit an image with dimensions of at least 256 × 256 pixels.
-  *     *   The response time of the CreateImageModerationTask operation varies based on the duration of the image download. Make sure that the image is saved in a stable and reliable location. We recommend that you use Alibaba Cloud Object Storage Service (OSS) or Alibaba Cloud CDN Cache as the storage medium.
-  * *   The CreateImageModerationTask operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period elapses, the task information is no longer retrievable. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can also obtain information about the task based on notifications.
-  * >  The Suggestion parameter in asynchronous notifications supports the following values:
+  *     *   The response time of the CreateImageModerationTask operation varies based on the duration of the image download. Make sure that the image is stored in a stable and reliable service. We recommend that you store images on Alibaba Cloud Object Storage Service (OSS) or cache them on Alibaba Cloud CDN.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478241.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can also obtain information about the task based on notifications.
+  * >  The detection result is sent as an asynchronous notification. The Suggestion field of the notification can have one of the following values:
   * *   pass: No non-compliant content is found.
-  * *   block: Non-compliant content is found in the Categories field. For information about categories, see "Content moderation results".
-  * *   review: A manual review is needed before an asynchronous notification is sent to inform you about the result.
+  * *   block: Non-compliant content is detected. The Categories field value indicates the non-compliance categories. For more information, see Content moderation results.
+  * *   review: A manual review is needed. After the manual review is finished, another asynchronous notification is sent to inform you about the review result. >
   * @param request  the request parameters of CreateImageModerationTask  CreateImageModerationTaskRequest
   * @return CreateImageModerationTaskResponse
  */
@@ -2180,7 +2257,7 @@ model CreateImageSplicingTaskRequest {
 *   png
 *   webp', example='jpg', position='Query'),
   margin?: long(name='Margin', description='The empty space or border around the edges of the output image. Default value: 0. Unit: px.', example='2', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   padding?: long(name='Padding', description='The space between component images in the output image. Default value: 0. Unit: px.', example='2', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
 
@@ -2238,7 +2315,7 @@ model CreateImageSplicingTaskResponse = {
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).****
   * *   Make sure that the project that you want to use exists in the current region. For more information, see [Project management](https://help.aliyun.com/document_detail/478152.html).
   * *   You can call this operation to splice up to eight images. Each side of an image cannot exceed 32,876 pixels, and the total number of pixels of the image cannot exceed 1 billion.
-  * *   The CreateImageSplicingTask operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period elapses, the task information is no longer retrievable. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can also obtain information about the task based on notifications.
+  * *   The CreateImageSplicingTask operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period elapses, the task information is no longer retrievable. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can also obtain information about the task based on notifications.
   * @param request  the request parameters of CreateImageSplicingTask  CreateImageSplicingTaskRequest
   * @return CreateImageSplicingTaskResponse
  */
@@ -2252,7 +2329,7 @@ model CreateImageToPDFTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='test-project', position='Query'),
@@ -2302,7 +2379,7 @@ model CreateImageToPDFTaskResponse = {
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).****
   * *   Make sure that the specified project exists in the current region. For more information, see [Project management](https://help.aliyun.com/document_detail/478152.html).
   * *   You can specify up to 100 images in a call to the operation.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateImageToPDFTask  CreateImageToPDFTaskRequest
   * @return CreateImageToPDFTaskResponse
  */
@@ -2354,7 +2431,7 @@ This parameter is required.'),
 >  Adjusting these configurations affects existing spatiotemporal clusters for the dataset.
 
 This parameter is required.', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification message configurations. For more information, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html) topic.', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='test-project', position='Query'),
@@ -2378,11 +2455,13 @@ model CreateLocationDateClusteringTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
   * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the [CreateBinding](https://help.aliyun.com/document_detail/478202.html) operation or manually by calling the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) or [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html) operation.
   * *   Each call to the operation incrementally processes metadata in the dataset.****`` You can regularly call this operation to process incremental files.
   * *   After a spatiotemporal clustering task is complete, you can call the [QueryLocationDateClusters](https://help.aliyun.com/document_detail/478189.html) operation to query the spatiotemporal clustering result.
-  * *   Removing metadata from a dataset does not affect existing spatiotemporal clusters for the dataset. To delete an existing spatiotemporal cluster, call the [DeleteLocationDateCluster](https://help.aliyun.com/document_detail/478191.html) operation.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   Removing metadata from a dataset does not affect existing spatiotemporal clusters for the dataset. To delete a spatiotemporal cluster, call the [DeleteLocationDateCluster](https://help.aliyun.com/document_detail/478191.html) operation.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateLocationDateClusteringTask  CreateLocationDateClusteringTaskRequest
   * @return CreateLocationDateClusteringTaskResponse
  */
@@ -2397,7 +2476,7 @@ model CreateMediaConvertTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The authorization chain. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, see "Notification". For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For more information, see "Notification". For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
 
 This parameter is required.', example='immtest', position='Query'),
@@ -2484,11 +2563,15 @@ model CreateMediaConvertTaskResponse = {
 }
 
 /**
-  * @description *   **Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).**
-  * *   In addition, make sure that the specified project exists in the current region. For more information, see [Project management](https://help.aliyun.com/document_detail/478152.html).
-  * *   By default, only one type of video, audio, and subtitle streams is processed when you call this operation to process media transcoding. However, you can specify the number of each type of stream that you want to process.
-  * *   When you use this operation to execute a media splicing task, up to 11 media files are supported. In this case, the parameters that involve media transcoding and frame capturing apply to the spliced media data.
-  * *   The CreateMediaConvertTask operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can obtain information about the task based on notifications.
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).****
+  * *   Make sure that the specified project exists in the current region. For more information, see [Project management](https://help.aliyun.com/document_detail/478152.html).
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   By default, only one type of video, audio, and subtitle streams is processed when you call this operation to process media transcoding. However, you can specify the number of video, audio, or subtitle streams that you want to process.
+  * *   When you use this operation to execute a media merging task, up to 11 media files are supported. In this case, the parameters that involve media transcoding and frame capturing apply to the merged media data.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
+  *     **
+  *     ****
   * @param request  the request parameters of CreateMediaConvertTask  CreateMediaConvertTaskRequest
   * @return CreateMediaConvertTaskResponse
  */
@@ -2501,7 +2584,7 @@ model CreateOfficeConversionTaskRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
-The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
+The authorization chain settings. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
   endPage?: long(name='EndPage', description='The end page of the conversion. The default value is -1, which converts the file until the last page of the file.
 
 > 
@@ -2526,7 +2609,7 @@ The configurations of authorization chains. For more information, see [Use autho
   longText?: boolean(name='LongText', example='false', position='Query'),
   maxSheetColumn?: long(name='MaxSheetColumn', example='10', position='Query'),
   maxSheetRow?: long(name='MaxSheetRow', example='10', position='Query'),
-  notification?: Notification(name='Notification', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   pages?: string(name='Pages', example='1,2-4,7', position='Query'),
   paperHorizontal?: boolean(name='PaperHorizontal', example='false', position='Query'),
   paperSize?: string(name='PaperSize', example='A4', position='Query'),
@@ -2538,9 +2621,12 @@ The configurations of authorization chains. For more information, see [Use autho
   sheetIndex?: long(name='SheetIndex', example='1', position='Query'),
   showComments?: boolean(name='ShowComments', example='false', position='Query'),
   sourceType?: string(name='SourceType', example='doc', position='Query'),
-  sourceURI?: string(name='SourceURI', example='oss://test-bucket/test-object', position='Query'),
+  sourceURI?: string(name='SourceURI', description='The storage address of the source data.
+
+Specify the OSS URI in the oss://${Bucket}/${Object} format, where `${Bucket}` is the name of the bucket in the same region as the current project and `${Object}` is the path of the object with the extension included.', example='oss://test-bucket/test-object', position='Query'),
   sources?: [ 
     {
+      rotate?: long(name='Rotate'),
       URI?: string(name='URI'),
     }
   ](name='Sources', shrink='json', position='Body'),
@@ -2563,7 +2649,7 @@ Specify the URI in the `oss://{bucket}/{tags.custom}/{dirname}/{barename}.{autoe
 Specify the prefix in the `oss://${Bucket}/${Prefix}/` format, where `${Bucket}` is the name of the bucket in the same region as the current project and `${Prefix}` is the URI prefix of the output file.
 
 >  TargetURI and TargetURIPrefix cannot be empty at the same time.', example='oss://bucket1/', position='Query'),
-  trimPolicy?: TrimPolicy(name='TrimPolicy', shrink='json', position='Query'),
+  trimPolicy?: TrimPolicy(name='TrimPolicy', description='The trim policy for converting a table file. Empty rows and columns may generate blank spaces in the output file if no appropriate trim policy is specified.', shrink='json', position='Query'),
   userData?: string(name='UserData', example='{"file_id": "abc"}', position='Query'),
 }
 
@@ -2580,6 +2666,25 @@ model CreateOfficeConversionTaskResponse = {
 }
 
 /**
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   The operation supports the following input formats:
+  *     *   Word documents: doc, docx, wps, wpss, docm, dotm, dot, dotx, and html.
+  *     *   Presentation documents: pptx, ppt, pot, potx, pps, ppsx, dps, dpt, pptm, potm, ppsm, and dpss.
+  *     *   Table documents: xls, xlt, et, ett, xlsx, xltx, csv, xlsb, xlsm, xltm, and ets.
+  *     *   PDF documents: pdf.
+  * *   The operation supports the following output formats:
+  *     *   Image files: png and jpg.
+  *     *   Text files: txt.
+  *     *   PDF files: pdf.
+  * *   The operation supports an input document that is up to 200 MB in size.
+  * *   The maximum amount of conversion time allowed is 120 seconds. If you convert a file that is relatively large or contains complex content, the conversion may time out.
+  * *   The operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can use one of the following methods to query task information:
+  *     *   Call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.``
+  *     *   In the region in which the IMM project is located, configure a Simple Message Queue (SMQ) subscription to receive task information notifications. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html). For more information about SMQ SDKs, see [Use queues](https://help.aliyun.com/document_detail/32449.html).
+  *     *   In the region in which the IMM project is located, create an ApsaraMQ for RocketMQ 4.0 instance, a topic, and a group to receive task notifications. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html). For more information about how to use ApsaraMQ for RocketMQ, see [Call HTTP SDKs to send and subscribe to messages](https://help.aliyun.com/document_detail/169009.html).
+  *     *   In the region in which the IMM project is located, use [EventBridge](https://www.aliyun.com/product/aliware/eventbridge) to receive task information notifications. For more information, see [IMM events](https://help.aliyun.com/document_detail/205730.html).
   * @param request  the request parameters of CreateOfficeConversionTask  CreateOfficeConversionTaskRequest
   * @return CreateOfficeConversionTaskResponse
  */
@@ -2610,7 +2715,7 @@ model CreateProjectRequest {
 This parameter is required.', example='test-project', position='Query'),
   serviceRole?: string(name='ServiceRole', description='The name of the Resource Access Management (RAM) role. You must attach the RAM role to IMM to allow IMM to access other cloud resources, such as Object Storage Service (OSS). Default value: `AliyunIMMDefaultRole`.
 
-You can also create a custom role in the RAM console and grant the required permissions to the role based on your business requirements. For more information, see [Create a regular service role](https://help.aliyun.com/document_detail/116800.html) and [Grant permissions to a role](https://help.aliyun.com/document_detail/116147.html).', example='AliyunIMMDefaultRole', position='Query'),
+You can also create a custom role in the RAM console and grant the required permissions to the role based on your business requirements. For more information, see [Grant permissions to a RAM user](https://help.aliyun.com/document_detail/477257.html).', example='AliyunIMMDefaultRole', position='Query'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key.', example='TestKey'),
@@ -2633,7 +2738,7 @@ model CreateProjectResponse = {
 
 /**
   * @description *   The name of a project must be unique in a region.
-  * *   You can create up to 100 projects. If you want to request a quota increase, submit a ticket or join DingTalk Group 31690030817.
+  * *   By default, you can create up to 100 projects in a region. If you want to request a quota increase to create more projects, submit a ticket or join the DingTalk chat group (ID: 88490020073).
   * *   After you create a project, you can create other Intelligent Media Management (IMM) resources in the project. For more information, see the following links:
   *     *   [CreateDataset](https://help.aliyun.com/document_detail/478160.html)
   *     *   [CreateTrigger](https://help.aliyun.com/document_detail/479912.html)
@@ -2652,7 +2757,7 @@ model CreateSimilarImageClusteringTaskRequest {
   datasetName: string(name='DatasetName', description='The name of the dataset.[](~~478160~~)
 
 This parameter is required.', example='test-dataset', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='test-project', position='Query'),
@@ -2676,11 +2781,13 @@ model CreateSimilarImageClusteringTaskResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  *     **
+  *     **Note that** Asynchronous processing does not guarantee timely task completion.
   * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the [CreateBinding](https://help.aliyun.com/document_detail/478202.html) operation or manually by calling the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) or [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html) operation.
   * *   Each call to the operation incrementally processes metadata in the dataset.****`` You can regularly call this operation to process incremental files.
   * *   After clustering is completed, you can call the [QuerySimilarImageClusters](https://help.aliyun.com/document_detail/611304.html) operation to query image clustering results.
   * *   An image cluster contains at lest two images. Removing similar images from the dataset affects existing image clusters. If image deletion reduces the number of images in a cluster to less than 2, the cluster is automatically deleted.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](~~GetTask~~) or [ListTasks](~~ListTasks~~) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateSimilarImageClusteringTask  CreateSimilarImageClusteringTaskRequest
   * @return CreateSimilarImageClusteringTaskResponse
  */
@@ -2701,7 +2808,7 @@ model CreateStoryRequest {
 This parameter is required.', example='test-dataset', position='Body'),
   maxFileCount?: long(name='MaxFileCount', description='The maximum number of photo files in the story. The actual number of photo files ranges from the value of MinFileCount to the value of MaxFileCount. The value of this parameter must be an integer greater than the value of MinFileCount. To provide the desired effect, the algorithm limits the maximum number of photo files to 1,500. If you set MaxFileCount to a value greater than 1,500, this parameter does not take effect.', example='3', position='Body'),
   minFileCount?: long(name='MinFileCount', description='The minimum number of photo files in the story. The actual number of photo files ranges from the value of MinFileCount to the value of MaxFileCount. The value of this parameter must be an integer greater than 1. If the actual number of candidate photos is less than the value of this parameter, a null story is returned.', example='1', position='Body'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, see "Notification". For information about the asynchronous notification format, see [Asynchronous notification format](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   notifyTopicName?: string(name='NotifyTopicName', description='The topic name of the asynchronous reverse notification.', example='test-topic', position='Body'),
   objectId?: string(name='ObjectId', description='The ID of the story. This parameter is optional. If you leave this parameter empty, IMM assigns a unique identifier to the story. You can query and update a story based on its ID. You can also manually create an ID for a story. After you create an ID for a story, you must specify this parameter to pass the ID into the system. This way, IMM can record the ID as the unique identifier of the story. If you pass an existing ID into the system, IMM updates the story that corresponds to the ID.', example='id1', position='Body'),
   projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
@@ -2710,8 +2817,8 @@ This parameter is required.', example='test-project', position='Body'),
   storyEndTime?: string(name='StoryEndTime', description='The end time of the photo collection for which you want to create the story. StoryStartTime and StoryEndTime form a time interval based on which IMM filters candidate photos to generate a story. The value must be a string in the RFC3339 format.', example='2021-12-30T16:00:00Z', position='Body'),
   storyName?: string(name='StoryName', description='The name of the story.', example='name1', position='Body'),
   storyStartTime?: string(name='StoryStartTime', description='The start time of the photo collection for which you want to create the story. StoryStartTime and StoryEndTime form a time interval based on which IMM filters candidate photos to generate a story. The value must be a string in the RFC3339 format.', example='2016-12-30T16:00:00Z', position='Body'),
-  storySubType?: string(name='StorySubType', description='The subtype of the story. For information about valid subtypes, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).', example='Solo', position='Body'),
-  storyType: string(name='StoryType', description='The type of the story. For information about valid types, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).
+  storySubType?: string(name='StorySubType', description='The subtype of the story. For information about valid subtypes, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).', example='Solo', position='Body'),
+  storyType: string(name='StoryType', description='The type of the story. For information about valid types, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).
 
 This parameter is required.', example='PeopleMemory', position='Body'),
   tags?: map[string]any(name='Tags', description='The tags. You can specify this parameter in one of the following scenarios:
@@ -2735,9 +2842,9 @@ model CreateStoryResponse = {
 }
 
 /**
-  * @description *   **Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).**
-  * *   In addition, make sure the file that you want to use is indexed into the dataset that you want to use. To index a file into a dataset, you can call one of the following operations: [CreateBinding](https://help.aliyun.com/document_detail/478202.html), [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html), and [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html).
-  * *   The CreateStory.operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/611278.html), you can obtain information about the task based on notifications.
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
+  * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the [CreateBinding](https://help.aliyun.com/document_detail/478202.html) operation or manually by calling the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) or [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html) operation.
+  * *   The operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) to query information about the task. If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateStory  CreateStoryRequest
   * @return CreateStoryResponse
  */
@@ -2801,18 +2908,26 @@ async function createTrigger(request: CreateTriggerRequest): CreateTriggerRespon
 
 model CreateVideoLabelClassificationTaskRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='消息通知配置，支持使用MNS、RocketMQ接收异步消息通知。', shrink='json', position='Query'),
-  projectName: string(name='ProjectName', description='This parameter is required.', example='immtest', position='Query'),
-  sourceURI: string(name='SourceURI', description='This parameter is required.', example='oss://bucket1/object', position='Query'),
-  tags?: map[string]any(name='Tags', example='{"test":"val1"}', shrink='json', position='Query'),
-  userData?: string(name='UserData', example='{"ID": "user1","Name": "test-user1","Avatar": "http://example.com?id=user1"}', position='Query'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
+
+The configurations of authorization chains. This parameter is optional. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
+  projectName: string(name='ProjectName', description='The name of the project. For more information, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
+
+This parameter is required.', example='immtest', position='Query'),
+  sourceURI: string(name='SourceURI', description='The OSS URI of the video file.
+
+Specify the value in the oss://${Bucket}/${Object} format. `${Bucket}` specifies the name of the OSS bucket that resides in the same region as the current project. `${Object}` specifies the path of the object with the extension included.
+
+This parameter is required.', example='oss://bucket1/object', position='Query'),
+  tags?: map[string]any(name='Tags', description='The custom tags, which can be used to search for and filter asynchronous tasks.', example='{"test":"val1"}', shrink='json', position='Query'),
+  userData?: string(name='UserData', description='The custom data, which is returned in an asynchronous notification and facilitates notification management. The maximum length is 2,048 bytes.', example='{"ID": "user1","Name": "test-user1","Avatar": "http://example.com?id=user1"}', position='Query'),
 }
 
 model CreateVideoLabelClassificationTaskResponseBody = {
-  eventId?: string(name='EventId', example='03F-1Qt1Yn5RZZ0Zh3ZdYlDblv7****'),
-  requestId?: string(name='RequestId', example='CA995EFD-083D-4F40-BE8A-BDF75FFFE0B6'),
-  taskId?: string(name='TaskId', example='VideoLabelClassification-2f157087-91df-4fda-8c3e-232407ec*****'),
+  eventId?: string(name='EventId', description='The event ID of the current task. You can use [EventBridge](https://www.alibabacloud.com/en/product/eventbridge) to query the ID and obtain the task information notification.', example='03F-1Qt1Yn5RZZ0Zh3ZdYlDblv7****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CA995EFD-083D-4F40-BE8A-BDF75FFFE0B6'),
+  taskId?: string(name='TaskId', description='The ID of the current task. You can call the [GetTask](~~GetTask~~) operation to view the task information or the [GetVideoLabelClassificationResult](https://help.aliyun.com/document_detail/478224.html) operation to obtain the result of the video label detection task.', example='VideoLabelClassification-2f157087-91df-4fda-8c3e-232407ec*****'),
 }
 
 model CreateVideoLabelClassificationTaskResponse = {
@@ -2822,6 +2937,13 @@ model CreateVideoLabelClassificationTaskResponse = {
 }
 
 /**
+  * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/2747104.html) of Intelligent Media Management (IMM).****
+  * *   Before you call this operation, make sure that an IMM project is created. For information about how to create a project, see [CreateProject](https://help.aliyun.com/document_detail/478153.html).
+  *     **
+  *     **Note** Asynchronous processing does not guarantee timely task completion.
+  * *   For more information about video label detection, see [Video label detection](https://help.aliyun.com/document_detail/477189.html).
+  * *   This operation supports multiple video formats, such as MP4, MPEG-TS, MKV, MOV, AVI, FLV, and M3U8.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is retained only for seven days and cannot be retrieved when the retention period elapses. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateVideoLabelClassificationTask  CreateVideoLabelClassificationTaskRequest
   * @return CreateVideoLabelClassificationTaskResponse
  */
@@ -2835,7 +2957,7 @@ model CreateVideoModerationTaskRequest {
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
   interval?: long(name='Interval', description='The interval of capturing video frames. Unit: seconds. Valid values: 1 to 600. Default value: 1.', example='1', position='Query'),
   maxFrames?: long(name='MaxFrames', description='The maximum number of frames that can be captured from the video. Valid values: 5 to 3600. Default value: 200.', example='200', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html) topic.', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For information about the asynchronous notification format, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html) topic.', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
 
 This parameter is required.', example='immtest', position='Query'),
@@ -2865,7 +2987,7 @@ model CreateVideoModerationTaskResponse = {
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/88317.html) of Intelligent Media Management (IMM).****
   * *   The detection result is sent as an asynchronous notification. The Suggestion parameter in asynchronous notifications supports the following values:
   *     *   pass: No non-compliant content is found.
-  *     *   block: Non-compliant content is detected. The Categories field value indicates the non-compliance category. For more information, see [Content moderation results](https://help.aliyun.com/document_detail/477109.html).
+  *     *   block: Non-compliant content is detected. The Categories field value indicates the non-compliance category. For more information, see [Content moderation results](https://help.aliyun.com/document_detail/2743995.html).
   *     *   review: A manual review is needed before an asynchronous notification is sent to inform you about the result.
   * *   The following video frame requirements apply:
   *     *   The URLs for video frames must use HTTP or HTTPS.
@@ -2873,7 +2995,7 @@ model CreateVideoModerationTaskResponse = {
   *     *   The size of a video frame cannot exceed 10 MB.
   *     *   The recommended resolution for video frames is not lower than 256 × 256 pixels. A frame resolution lower than the recommended resolution may affect detection accuracy.
   *     *   The response time of the operation varies based on the amount of time required to download frames. Make sure that video frames to detect are stored in a reliable and stable service. We recommend that you store video frames in OSS or cache video frames on Alibaba Cloud CDN.
-  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/471456.html), you can obtain information about the task based on notifications.
+  * *   This operation is an asynchronous operation. After a task is executed, the task information is saved only for seven days. When the retention period ends, the task information can no longer be retrieved. You can call the [GetTask](https://help.aliyun.com/document_detail/478241.html) or [ListTasks](https://help.aliyun.com/document_detail/478242.html) operation to query information about the task.`` If you specify [Notification](https://help.aliyun.com/document_detail/2743997.html), you can obtain information about the task based on notifications.
   * @param request  the request parameters of CreateVideoModerationTask  CreateVideoModerationTaskRequest
   * @return CreateVideoModerationTaskResponse
  */
@@ -2951,10 +3073,10 @@ async function deleteBinding(request: DeleteBindingRequest): DeleteBindingRespon
 
 model DeleteDatasetRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
-  datasetName: string(name='DatasetName', description='The name of the dataset.[](~~478160~~)
+  datasetName: string(name='DatasetName', description='The name of the dataset.[](https://help.aliyun.com/zh/imm/user-guide/create-datasets?spm=a2c4g.11186623.0.0.453e3cbf9vcZrq)
 
 This parameter is required.', example='dataset001', position='Query'),
-  projectName: string(name='ProjectName', description='The name of the project.[](~~478153~~)
+  projectName: string(name='ProjectName', description='The name of the project.[](https://help.aliyun.com/zh/imm/getting-started/create-a-project-1?spm=a2c4g.11186623.0.i30)
 
 This parameter is required.', example='immtest', position='Query'),
 }
@@ -2970,8 +3092,8 @@ model DeleteDatasetResponse = {
 }
 
 /**
-  * @description *   Before you call the [DeleteDataset](https://help.aliyun.com/document_detail/478257.html) operation to delete a dataset, make sure that you have [deleted all indexes](https://help.aliyun.com/document_detail/477173.html) in the dataset. For more information about how to delete indexes, see [DeleteFileMeta](https://help.aliyun.com/document_detail/478172.html) and [BatchDeleteFileMeta](https://help.aliyun.com/document_detail/478173.html).
-  * *   Before you call the [DeleteDataset](https://help.aliyun.com/document_detail/478257.html) operation to delete a dataset, make sure that you have deleted all bindings between the dataset and Object Storage Service (OSS) buckets. For more information about how to delete a binding, see [DeleteBinding](https://help.aliyun.com/document_detail/478205.html). The [DeleteBinding](https://help.aliyun.com/document_detail/478205.html) operation does not delete an index that is manually created, even if you set the `Cleanup` parameter to `true`. To delete indexes that are manually created, you must call the [DeleteFileMeta](https://help.aliyun.com/document_detail/478172.html) or [BatchDeleteFileMeta](https://help.aliyun.com/document_detail/478173.html) operation. For more information about the differences between automatically and manually created indexes, see [Create a metadata index](https://help.aliyun.com/document_detail/477173.html).
+  * @description *   Before you delete a dataset, make sure that you have deleted all indexes in the dataset. For more information about how to delete indexes, see [DeleteFileMeta](https://help.aliyun.com/document_detail/478172.html) and [BatchDeleteFileMeta](https://help.aliyun.com/document_detail/478173.html).
+  * *   Before you [delete a dataset](https://help.aliyun.com/document_detail/478160.html), make sure that you have deleted all bindings between the dataset and Object Storage Service (OSS) buckets. For more information about how to delete a binding, see [DeleteBinding](https://help.aliyun.com/document_detail/478205.html). The [DeleteBinding](https://help.aliyun.com/document_detail/478205.html) operation does not delete an index that is manually created, even if you set the `Cleanup` parameter to `true`. To delete indexes that are manually created, you must call the [DeleteFileMeta](https://help.aliyun.com/document_detail/478172.html) or [BatchDeleteFileMeta](https://help.aliyun.com/document_detail/478173.html) operation. For more information about the differences between automatically and manually created indexes, see [Create a metadata index](https://help.aliyun.com/document_detail/478166.html).
   * @param request  the request parameters of DeleteDataset  DeleteDatasetRequest
   * @return DeleteDatasetResponse
  */
@@ -3074,7 +3196,7 @@ model DeleteProjectResponse = {
 }
 
 /**
-  * @description *   Before you delete a project, make sure that all resources in the project, such as datasets, bindings, batch processing tasks, and triggers, are deleted. For more information, see [DeleteDataset](https://help.aliyun.com/document_detail/478164.html), [DeleteBinding](https://help.aliyun.com/document_detail/478205.html), [DeleteBatch](https://help.aliyun.com/document_detail/479918.html), and [DeleteTrigger](https://help.aliyun.com/document_detail/479915.html).
+  * @description *   Before you delete a project, make sure that all resources in the project, such as datasets, bindings, batch processing tasks, and triggers, are deleted. For more information, see [DeleteDataset](https://help.aliyun.com/document_detail/478164.html), [DeleteBatch](https://help.aliyun.com/document_detail/479918.html), and [DeleteTrigger](https://help.aliyun.com/document_detail/479915.html).
   * *   After a project is deleted, all resources used by the project are recycled, and all related data is lost and cannot be recovered.
   * @param request  the request parameters of DeleteProject  DeleteProjectRequest
   * @return DeleteProjectResponse
@@ -3246,7 +3368,7 @@ model DetectImageCarsResponse = {
 }
 
 /**
-  * @description *   For information about the image encoding formats supported by this operation, see [Limits on images](https://help.aliyun.com/document_detail/475569.html?spm=a2c4g.611302.0.0.7f371b2erm2dxG#a6ec99e06ahno).
+  * @description *   For information about the image encoding formats supported by this operation, see [Limits on images](https://help.aliyun.com/document_detail/475569.html).
   * @param request  the request parameters of DetectImageCars  DetectImageCarsRequest
   * @return DetectImageCarsResponse
  */
@@ -3620,9 +3742,13 @@ Image size limit: 10,000 px maximum and 80 px x 80 px minimum.
 
 This parameter is required.', example='oss://test-bucket/test-object.jpg', position='Query'),
   strengthLevel?: string(name='StrengthLevel', description='The watermark strength level. The higher the strength, the more resistant the watermarked image is to attacks, but the more the image is distorted. Default value: low. Valid values: [low, medium, high].', example='low', position='Query'),
-  targetURI: string(name='TargetURI', description='The OSS URI of the output image.
+  targetURI: string(name='TargetURI', description='The URI of the output image in OSS.
 
-Specify the value in the oss://${Bucket}/${Object} format. `${Bucket}` specifies the name of the OSS bucket that resides in the same region with the current project. `${Object}` specifies the path of the object with the extension included.
+Specify the URI in the oss://${Bucket}/${Object} format, where `${Bucket}` is the name of the bucket in the same region as the current project and `${Object}` is the path of the object with the extension included.
+
+> 
+
+*   The format of the output image is the same as that of the input image.
 
 This parameter is required.', example='oss://test-bucket/target-object.jpg', position='Query'),
 }
@@ -3729,7 +3855,7 @@ This parameter is required.', example='test-project', position='Query'),
   query: string(name='Query', description='The query content. The value can be up to 1 MB in size.
 
 This parameter is required.', position='Query'),
-  sort?: string(name='Sort', description='The sort field. For more information, see [Supported fields and operators](https://help.aliyun.com/document_detail/252856.html).
+  sort?: string(name='Sort', description='The sort field. For more information, see [Supported fields and operators](https://help.aliyun.com/document_detail/2743991.html).
 
 *   Separate multiple sort fields with commas (,). Example: `Size,Filename`.
 *   You can specify up to five sort fields.
@@ -3762,9 +3888,9 @@ model FuzzyQueryResponse = {
 
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of IMM.****
-  * *   Before you call this operation, make sure that the file that you want to use is indexed into the dataset that you use. To index a file into a dataset, you can call one of the following operations: [CreateBinding](https://help.aliyun.com/document_detail/478202.html), [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html), and [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html).
-  * *   The response in this example is provided only for reference. The categories and content of metadata vary based on the configurations of [workflow templates](https://help.aliyun.com/document_detail/466304.html). If you have questions, join the DingTalk group 31690030817.
-  * *   For information about the fields that you can use as query conditions, see [Supported fields and operators](https://help.aliyun.com/document_detail/252856.html).
+  * *   Before you call this operation, make sure that you have indexed file metadata into the dataset automatically by calling the [CreateBinding](https://help.aliyun.com/document_detail/478202.html) operation or manually by calling the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) or [BatchIndexFileMeta](https://help.aliyun.com/document_detail/478167.html) operation.
+  * *   The sample response is provided for reference only. The metadata type and content in your response may differ based on factors such as the [workflow template configurations](https://help.aliyun.com/document_detail/466304.html). For any inquiries, join the DingTalk chat group (ID: 88490020073) and share your questions with us.
+  * *   For information about the fields that you can use as query conditions, see [Supported fields and operators](https://help.aliyun.com/document_detail/2743991.html).
   * @param request  the request parameters of FuzzyQuery  FuzzyQueryRequest
   * @return FuzzyQueryResponse
  */
@@ -3783,7 +3909,7 @@ The authorization chain settings. For more information, see [Use authorization c
 The OSS path must be in the oss://${Bucket}/${Object} format. ${Bucket} specifies the name of the OSS bucket that is in the same region as the current project. ${Object} specifies the full path of the file that is suffixed with .m3u8.
 
 >  If a playlist contains subtitles or multiple outputs, the MasterURI parameter is required and the URI of subtitle files or outputs must be in the directory specified by the MasterURI parameter or its subdirectory.', example='oss://bucket/object/master.m3u8', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. To view details, click Notification. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html).', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. To view details, click Notification. For information about the asynchronous notification format, see [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html).', shrink='json', position='Query'),
   overwritePolicy?: string(name='OverwritePolicy', description='The overwrite policy when the media playlist exists. Valid values:
 
 *   overwrite (default): overwrites an existing media playlist.
@@ -3912,9 +4038,9 @@ model GenerateVideoPlaylistResponse = {
   * *   Make sure that the project that you want to use is available in the current region. For more information, see [Project Management](https://help.aliyun.com/document_detail/478152.html).
   * *   By default, you can call this operation to process only one video, audio, or subtitle track. You can specify the number of the video, audio, or subtitle tracks that you want to process.
   * *   You can call this operation to generate a media playlist and a master playlist. For more information, see the parameter description.
-  * *   This operation is a synchronous operation. Synchronous or asynchronous transcoding is triggered only during playback or pre-transcoding. You can configure the [Notification](https://help.aliyun.com/document_detail/471456.html) parameter to obtain the transcoding task result.
+  * *   This operation is a synchronous operation. Synchronous or asynchronous transcoding is triggered only during playback or pre-transcoding. You can configure the [Notification](https://help.aliyun.com/document_detail/2743997.html) parameter to obtain the transcoding task result.
   * *   For information about the feature description of this operation, see [Live transcoding](https://help.aliyun.com/document_detail/477192.html).
-  * *   The data processing capability of Object Storage Service (OSS) also provides the playlist generation feature. However, this feature can generate only a media playlist, and related parameters are simplified. For more information, see [Generate playlists](https://help.aliyun.com/document_detail/2709281.html).
+  * *   The data processing capability of Object Storage Service (OSS) also provides the playlist generation feature. However, this feature can generate only a media playlist, and related parameters are simplified.
   * @param request  the request parameters of GenerateVideoPlaylist  GenerateVideoPlaylistRequest
   * @return GenerateVideoPlaylistResponse
  */
@@ -3932,7 +4058,9 @@ model GenerateWebofficeTokenRequest {
 
 >  The pricing for document previews varies based on whether cache preview is enabled or disabled.
 
->  If you specify this parameter, the Pemission.copy parameter does not take effect.', example='false', position='Query'),
+>  If you specify this parameter, the Pemission.copy parameter does not take effect. >
+
+>  Printing is not supported during cache preview.', example='false', position='Query'),
   credentialConfig?: CredentialConfig(name='CredentialConfig', description='**If you have no special requirements, leave this parameter empty.**
 
 The configurations of authorization chains. For more information, see [Use authorization chains to access resources of other entities](https://help.aliyun.com/document_detail/465340.html).', shrink='json', position='Query'),
@@ -3949,32 +4077,34 @@ Supported extensions (only preview supported for .pdf):
 *   Table documents: .et, .xls, .xlt, .xlsx, .xlsm, .xltx, .xltm, and .csv
 *   PDF documents: .pdf', example='test.pptx', position='Query'),
   hidecmb?: boolean(name='Hidecmb', example='false', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. Only Simple Message Queue messages are supported. For more information, see [WebOffice message example](https://help.aliyun.com/zh/imm/developer-reference/weboffice-notification-message-examples?spm=a2c4g.11186623.0.0.7ee46295bRAbGt).
+  notification?: Notification(name='Notification', description='The notification settings. Only Simple Message Queue messages are supported. For more information, see [WebOffice message example](https://help.aliyun.com/document_detail/2743999.html).
 
 >  A notification is sent after the document is saved or renamed.', shrink='json', position='Query'),
   notifyTopicName?: string(name='NotifyTopicName', example='topic1', position='Query'),
   password?: string(name='Password', example='123456', position='Query'),
   permission?: WebofficePermission(name='Permission', description='The user permission settings in the JSON format.
 
-The parameter supports the following permission options:
+The parameter supports the following permission fields:
 
-Each option is of type Boolean and can have a value of true and false (the default value):
+Each field is of type Boolean and can have a value of true and false (the default value):
 
-*   Readonly: grants the permission to preview the document.
-*   Rename: grants the permission to rename the document. Notification messages of a rename event can be sent only by using Simple Message Queue.
-*   History: grants the permission to view historical versions.
-*   Copy: grants the permission to copy the document.
-*   Export: grants the permission to export the PDF document.
-*   Print: grants the permission to print the document.
+*   Readonly: grants the permission to preview the document. This field is optional.
+*   Rename: grants the permission to rename the document. Notification messages of a rename event can be sent only by using SMQ. This field is optional.
+*   History: grants the permission to view historical versions. This field is optional.
+*   Copy: grants the permission to copy the document. This field is optional.
+*   Export: grants the permission to export the document as a PDF file. This field is optional.
+*   Print: grants the permission to print the document. This field is optional.
 
->  Only online preview is supported for PDF documents. When you call the operation on a PDF document, you can set the Readonly option only to true.
+>  Only online preview is supported for PDF documents. When you call the operation on a PDF document, you can set Readonly only to true.
 
->  To manage multiple versions of the document, you must enable versioning for the bucket that stores the document and set the History parameter to true.', shrink='json', position='Query'),
+>  To manage multiple versions of the document, you must enable versioning for the bucket that stores the document and set the History parameter to true.
+
+>  Printing is not supported during cache preview.', shrink='json', position='Query'),
   previewPages?: long(name='PreviewPages', example='5', position='Query'),
   projectName: string(name='ProjectName', description='This parameter is required.', example='immtest', position='Query'),
   referer?: string(name='Referer', example='*', position='Query'),
   sourceURI: string(name='SourceURI', description='This parameter is required.', example='oss://imm-test/test.pptx', position='Query'),
-  user?: WebofficeUser(name='User', description='The user information that you want to display on the WebOffice page. If you do not specify this parameter, the user name displayed is Unknown.', shrink='json', position='Query'),
+  user?: WebofficeUser(name='User', description='The user information. The user information that you want to display on the WebOffice page. If you do not specify this parameter, the user name displayed is Unknown.', shrink='json', position='Query'),
   userData?: string(name='UserData', description='The user-defined data that you want to return in asynchronous messages. This parameter takes effect only when you specify the MNS settings in the Notification parameter. The maximum length of the value is 2,048 bytes.', example='{"file_id": "abc"}', position='Query'),
   watermark?: WebofficeWatermark(name='Watermark', shrink='json', position='Query'),
 }
@@ -3997,17 +4127,16 @@ model GenerateWebofficeTokenResponse = {
 /**
   * @description *   Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
   * *   The operation generates an access token that is valid for 30 minutes and a refresh token that is valid for 1 day.
-  * *   The returned expiration time is in UTC, which is 8 hours earlier than the UTC+8 time zone that is used in China.
-  * *   The operation supports the following document types:
-  *     *   Word documents: .doc, .docx, .txt, .dot, .wps, .wpt, .dotx, .docm, .dotm, and .rtf
-  *     *   Presentations: .ppt, .pptx, .pptm, .ppsx, .ppsm, .pps, .potx, .potm, .dpt, and .dps
-  *     *   Table documents: .et, .xls, .xlt, .xlsx, .xlsm, .xltx, .xltm, and .csv
-  *     *   PDF documents: .pdf
+  * *   The returned expiration time is in UTC.
+  * *   The operation supports the following input formats:
+  *     *   Word files: .doc, .docx, .txt, .dot, .wps, .wpt, .dotx, .docm, .dotm, and .rtf
+  *     *   Presentation files: .ppt, .pptx, .pptm, .ppsx, .ppsm, .pps, .potx, .potm, .dpt, and .dps
+  *     *   Spreadsheet documents: .et, .xls, .xlt, .xlsx, .xlsm, .xltx, .xltm, and .csv
+  *     *   PDF files: .pdf
   * *   The operation supports an input document that is up to 200 MB in size.
   * *   The operation supports an input document that contains up to 5,000 pages.
-  * *   For a project created before December 1, 2023, you are charged for previewing and editing a document in the project based on the number of times the document is opened. For a project created on December 1, 2023 or later, you are charged for previewing and editing a document in the project based on the number of API operation calls. If you want to switch to API call-based billing for document previewing and editing in an earlier project, use a project created on or after December 1, 2023. In API call-based billing, one API call allows only one user to use the feature. If multiple users use the information returned by the API call, only the last user has access to the document and the access permissions of other users are revoked.
-  * *   You can use the NotifyTopicName parameter to specify a Simple Message Queue topic in the same region as the IMM project for getting notified of file save operations. For more information, see [Use queues](https://help.aliyun.com/document_detail/32449.html). For more information about the JSON example of the Message field, see [WebOffice message example](https://help.aliyun.com/zh/imm/developer-reference/weboffice-notification-message-examples?spm=a2c4g.11186623.0.0.7ee46295bRAbGt).
-  * >  Only online preview is supported for PDF documents. When you call the operation on a PDF document, you can set the Readonly option only to true.
+  * *   For a project created before December 1, 2023, you are charged for previewing or editing a document in the project based on the number of times the document is opened. For a project created on or after December 1, 2023, you are charged based on the number of API operation calls made for previewing or editing a document. If you want to switch to API call-based billing for document previewing and editing, use a project created on or after December 1, 2023. In API call-based billing, one API call allows only one user to use the feature. If multiple users use the information returned by the API call, only the last user has access to the document and the access permissions of other users are revoked.
+  * *   You can use the NotifyTopicName parameter to specify a Simple Message Queue (SMQ) topic in the same region as the IMM project for getting notified of file save operations. For more information, see [Use queues](https://help.aliyun.com/document_detail/32449.html). For more information about the JSON example of the Message field, see [WebOffice message example](https://help.aliyun.com/document_detail/2743999.html).
   * >  To manage multiple versions of the document, you must enable versioning for the bucket that stores the document and set the History parameter to true.
   * @param request  the request parameters of GenerateWebofficeToken  GenerateWebofficeTokenRequest
   * @return GenerateWebofficeTokenResponse
@@ -4455,7 +4584,7 @@ This parameter is required.', example='immtest', position='Query'),
   taskId: string(name='TaskId', description='The ID of the task. You can obtain the ID of a task after you create the task.
 
 This parameter is required.', example='c2b277b9-0d30-4882-ad6d-ad661382****', position='Query'),
-  taskType: string(name='TaskType', description='The type of the task. For information about valid values, see [Task types](https://help.aliyun.com/document_detail/475313.html).
+  taskType: string(name='TaskType', description='The type of the task. For information about valid values, see [Task types](https://help.aliyun.com/document_detail/2743993.html).
 
 This parameter is required.', example='VideoLabelClassification', position='Query'),
 }
@@ -4484,7 +4613,7 @@ model GetTaskResponseBody = {
 	"TargetURI":"oss://test-bucket/output/test.zip",
 	"Sources":[{"URI":"oss://test-bucket/input/test.jpg"}]
 }'),
-  taskType?: string(name='TaskType', description='The type of the task. For more information, see [Task types](https://help.aliyun.com/document_detail/475313.html).', example='VideoLabelClassification'),
+  taskType?: string(name='TaskType', description='The type of the task. For more information, see [Task types](https://help.aliyun.com/document_detail/2743993.html).', example='VideoLabelClassification'),
   userData?: string(name='UserData', description='The user data of the task.', example='{"ID": "user1","Name": "test-user1","Avatar": "http://example.com?id=user1"}'),
 }
 
@@ -4640,7 +4769,7 @@ This parameter is required.', example='test-dataset', position='Query'),
   file: InputFile(name='File', description='The file for which you want to create an index. The value must be in the JSON format.
 
 This parameter is required.', shrink='json', position='Query'),
-  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the formats of asynchronous notifications, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/471456.html) topic.', shrink='json', position='Query'),
+  notification?: Notification(name='Notification', description='The notification settings. For more information, click Notification. For information about the formats of asynchronous notifications, see the "Metadata indexing" section of the [Asynchronous message examples](https://help.aliyun.com/document_detail/2743997.html) topic.', shrink='json', position='Query'),
   projectName: string(name='ProjectName', description='The name of the project. You can obtain the name of the project from the response of the [CreateProject](https://help.aliyun.com/document_detail/478153.html) operation.
 
 This parameter is required.', example='test-project', position='Query'),
@@ -4666,7 +4795,7 @@ model IndexFileMetaResponse = {
   * *   After you create an index from metadata, you can try [simple query](https://help.aliyun.com/document_detail/478175.html) to retrieve data. For information about other query capabilities, see [Query and statistics](https://help.aliyun.com/document_detail/2402363.html). You can also [create a face clustering task](https://help.aliyun.com/document_detail/478180.html) to group faces. For information about other clustering capabilities, see [Intelligent management](https://help.aliyun.com/document_detail/2402365.html).
   * **
   * **Usage notes**
-  * *   The IndexFileMeta operation is asynchronous, indicating that it takes some time to process the data after a request is submitted. After the processing is complete, the metadata is stored in your dataset. The amount of time it takes for this process varies based on [the workflow template, the operator](https://help.aliyun.com/document_detail/466304.html), and the content of the file, ranging from several seconds to several minutes or even longer. You can subscribe to [Simple Message Service](https://help.aliyun.com/document_detail/603317.html) for task completion notifications.
+  * *   The IndexFileMeta operation is asynchronous, indicating that it takes some time to process the data after a request is submitted. After the processing is complete, the metadata is stored in your dataset. The amount of time it takes for this process varies based on [the workflow template, the operator](https://help.aliyun.com/document_detail/466304.html), and the content of the file, ranging from several seconds to several minutes or even longer. You can subscribe to [Simple Message Service](https://help.aliyun.com/document_detail/2743997.html) for task completion notifications.
   * @param request  the request parameters of IndexFileMeta  IndexFileMetaRequest
   * @return IndexFileMetaResponse
  */
@@ -5199,8 +5328,8 @@ This parameter is required.', example='test-project', position='Query'),
   storyEndTimeRange?: TimeRange(name='StoryEndTimeRange', description='The time range for the creation time of the last photo or video in the story.', shrink='json', position='Query'),
   storyName?: string(name='StoryName', description='The name of the story.', example='name1', position='Query'),
   storyStartTimeRange?: TimeRange(name='StoryStartTimeRange', description='The time range for the creation time of the first photo or video in the story.', shrink='json', position='Query'),
-  storySubType?: string(name='StorySubType', description='The subtype of the story. For a list of valid values, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).', example='SeasonHighlights', position='Query'),
-  storyType?: string(name='StoryType', description='The type of the story. For a list of valid values, see [Story types and subtypes](https://help.aliyun.com/document_detail/475311.html).', example='TimeMemory', position='Query'),
+  storySubType?: string(name='StorySubType', description='The subtype of the story. For a list of valid values, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).', example='SeasonHighlights', position='Query'),
+  storyType?: string(name='StoryType', description='The type of the story. For a list of valid values, see [Story types and subtypes](https://help.aliyun.com/document_detail/2743998.html).', example='TimeMemory', position='Query'),
   withEmptyStories?: boolean(name='WithEmptyStories', description='Specifies whether to return empty stories. Valid values:
 
 *   true (The default value)
@@ -5258,12 +5387,12 @@ model RefreshWebofficeTokenResponse = {
 }
 
 /**
-  * @description Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of Intelligent Media Management (IMM).****
-  * *   For more information, see [WebOffice billing](https://help.aliyun.com/zh/imm/user-guide/weboffice-billing-instructions?spm=a2c4g.11186623.0.0.7d5668caevtblL).
+  * @description Before you call this operation, make sure that you are familiar with the [billing](https://help.aliyun.com/document_detail/477042.html) of IMM.****
+  * *   For more information, see [WebOffice billing](https://help.aliyun.com/document_detail/2639703.html).
   * *   The access token returned by this operation is valid for 30 minutes. After the access token expires, you cannot use it to access the document.
   * *   The refresh token returned by this operation is valid for one day. You need to use the refresh token for the next call to the operation before the refresh token expires. After the validity period elapses, the refresh token is invalid.
-  * *   The returned expiration time is in UTC, which is 8 hours earlier than the UTC+8 time zone that is used in China.
-  * >  The access token is used in actual access to the document, whereas the refresh token is used to avoid repeated access configurations.
+  * *   The returned expiration time is displayed in UTC.
+  * >  An access token is used to actually access a document, whereas a refresh token is used to avoid repeated access configurations.
   * @param request  the request parameters of RefreshWebofficeToken  RefreshWebofficeTokenRequest
   * @return RefreshWebofficeTokenResponse
  */
@@ -5478,7 +5607,7 @@ model SimpleQueryRequest {
   regionId?: string(name='RegionId', example='区域', position='Host'),
   aggregations?: [ 
     {
-      field?: string(name='Field', description='The name of the field. For more information about supported fields, see [Supported fields and operators](https://help.aliyun.com/document_detail/252856.html).', example='Size'),
+      field?: string(name='Field', description='The name of the field. For more information about supported fields, see [Supported fields and operators](https://help.aliyun.com/document_detail/2743991.html).', example='Size'),
       operation?: string(name='Operation', description='The operator.
 
 Enumerated values:
@@ -5510,8 +5639,6 @@ You do not need to specify this parameter in your initial request.', example='MT
 *   asc: sorts the results in ascending order.
 *   desc: sorts the results in descending order. This is the default value.
 
-> 
-
 *   You can specify multiple sort orders that are separated by commas. Example: asc,desc.
 
 *   The number of elements in the Order parameter must be less than or equal to the number of elements in the Sort parameter. For example, if the value of the Sort parameter is Size,Filename, you can set the Order parameter to desc,asc.
@@ -5521,7 +5648,7 @@ You do not need to specify this parameter in your initial request.', example='MT
 
 This parameter is required.', example='test-project', position='Query'),
   query?: SimpleQuery(name='Query', description='The query conditions.', shrink='json', position='Query'),
-  sort?: string(name='Sort', description='The sort fields. For more information, see [Supported fields and operators](https://help.aliyun.com/document_detail/252856.html).
+  sort?: string(name='Sort', description='The sort fields. For more information, see [Supported fields and operators](https://help.aliyun.com/document_detail/2743991.html).
 
 > 
 
@@ -5676,7 +5803,6 @@ model SimpleQueryResponse = {
   *       "Operation":"and"
   *     }
   * You can also perform aggregate operations to collect and analyze different data based on the specified conditions. For example, you can calculate the sum, count, average value, or maximum value of all files that meet the query conditions. You can also calculate the size distribution of images that meet the query conditions.
-  * For more information, see [Query metadata](https://help.aliyun.com/document_detail/477174.html).
   * @param request  the request parameters of SimpleQuery  SimpleQueryRequest
   * @return SimpleQueryResponse
  */
@@ -5706,7 +5832,7 @@ model SuspendBatchResponse = {
 }
 
 /**
-  * @description You can suspend a batch processing task that is in the Running state. You can call the [ResumeBatch](~~ResumeBatch~~) operation to resume a batch processing task that is suspended.
+  * @description You can suspend a batch processing task that is in the Running state. You can call the [ResumeBatch](https://help.aliyun.com/document_detail/479914.html) operation to resume a batch processing task that is suspended.
   * @param request  the request parameters of SuspendBatch  SuspendBatchRequest
   * @return SuspendBatchResponse
  */
@@ -6047,7 +6173,7 @@ model UpdateTriggerResponse = {
 
 /**
   * @description *   You can update only a trigger that is in the Ready or Failed state. The update operation does not change the trigger status.
-  * *   If you update a trigger that is in progress, the trigger is not automatically resumed after you complete the update. You must call the [ResumeTrigger](~~ResumeTrigger~~) operation to resume the execution of the trigger.
+  * *   After you update a trigger, the uncompleted tasks under the original trigger are no longer executed. You can call the [ResumeTrigger](https://help.aliyun.com/document_detail/479916.html) operation to resume the execution of the trigger.
   * @param request  the request parameters of UpdateTrigger  UpdateTriggerRequest
   * @return UpdateTriggerResponse
  */
