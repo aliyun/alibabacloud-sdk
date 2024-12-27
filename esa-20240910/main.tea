@@ -338,6 +338,69 @@ async function activateClientCertificate(request: ActivateClientCertificateReque
   return activateClientCertificateWithOptions(request, runtime);
 }
 
+model ApplyCertificateRequest {
+  domains?: string(name='Domains', description='This parameter is required.', example='www.example.com,blog.example.com'),
+  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  type?: string(name='Type'),
+}
+
+model ApplyCertificateResponseBody = {
+  requestId?: string(name='RequestId', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+  result?: [ 
+    {
+      domain?: string(name='Domain', example='*.example.com'),
+      id?: string(name='Id', example='30000478'),
+      status?: string(name='Status', example='Applying'),
+    }
+  ](name='Result'),
+  siteName?: string(name='SiteName', example='example.com'),
+  totalCount?: long(name='TotalCount', example='2'),
+}
+
+model ApplyCertificateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ApplyCertificateResponseBody(name='body'),
+}
+
+/**
+ * @summary 申请免费证书
+ *
+ * @param request ApplyCertificateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ApplyCertificateResponse
+ */
+async function applyCertificateWithOptions(request: ApplyCertificateRequest, runtime: Util.RuntimeOptions): ApplyCertificateResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ApplyCertificate',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 申请免费证书
+ *
+ * @param request ApplyCertificateRequest
+ * @return ApplyCertificateResponse
+ */
+async function applyCertificate(request: ApplyCertificateRequest): ApplyCertificateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return applyCertificateWithOptions(request, runtime);
+}
+
 model BatchCreateRecordsRequest {
   recordList?: [ 
     {
@@ -2438,6 +2501,102 @@ async function createList(request: CreateListRequest): CreateListResponse {
   return createListWithOptions(request, runtime);
 }
 
+model CreateOriginPoolRequest {
+  enabled?: boolean(name='Enabled'),
+  name?: string(name='Name', description='This parameter is required.', example='CreateOriginPool'),
+  origins?: [ 
+    {
+      address?: string(name='Address'),
+      authConf?: {
+        accessKey?: string(name='AccessKey'),
+        authType?: string(name='AuthType'),
+        region?: string(name='Region'),
+        secretKey?: string(name='SecretKey'),
+        version?: string(name='Version'),
+      }(name='AuthConf'),
+      enabled?: boolean(name='Enabled'),
+      header?: any(name='Header'),
+      name?: string(name='Name'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
+    }
+  ](name='Origins'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model CreateOriginPoolShrinkRequest {
+  enabled?: boolean(name='Enabled'),
+  name?: string(name='Name', description='This parameter is required.', example='CreateOriginPool'),
+  originsShrink?: string(name='Origins'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model CreateOriginPoolResponseBody = {
+  id?: long(name='Id'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model CreateOriginPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateOriginPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary 新增源地址池
+ *
+ * @param tmpReq CreateOriginPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateOriginPoolResponse
+ */
+async function createOriginPoolWithOptions(tmpReq: CreateOriginPoolRequest, runtime: Util.RuntimeOptions): CreateOriginPoolResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateOriginPoolShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.origins)) {
+    request.originsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.origins, 'Origins', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.enabled)) {
+    query['Enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.originsShrink)) {
+    query['Origins'] = request.originsShrink;
+  }
+  if (!Util.isUnset(request.siteId)) {
+    query['SiteId'] = request.siteId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateOriginPool',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 新增源地址池
+ *
+ * @param request CreateOriginPoolRequest
+ * @return CreateOriginPoolResponse
+ */
+async function createOriginPool(request: CreateOriginPoolRequest): CreateOriginPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createOriginPoolWithOptions(request, runtime);
+}
+
 model CreateOriginProtectionRequest {
   siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
 
@@ -3678,6 +3837,7 @@ This parameter is required.', example='cn'),
 6.  aws3cmpt: S3-compatible storage service.
 
 This parameter is required.', example='sls'),
+  details?: string(name='Details'),
   discardRate?: float(name='DiscardRate', description='The discard rate. Default value: 0.', example='0'),
   fieldName?: string(name='FieldName', description='The log field. If you specify multiple fields, separate them with commas (,).
 
@@ -3769,6 +3929,7 @@ This parameter is required.', example='cn'),
 6.  aws3cmpt: S3-compatible storage service.
 
 This parameter is required.', example='sls'),
+  details?: string(name='Details'),
   discardRate?: float(name='DiscardRate', description='The discard rate. Default value: 0.', example='0'),
   fieldName?: string(name='FieldName', description='The log field. If you specify multiple fields, separate them with commas (,).
 
@@ -3844,6 +4005,9 @@ async function createUserDeliveryTaskWithOptions(tmpReq: CreateUserDeliveryTaskR
   }
   if (!Util.isUnset(request.deliveryType)) {
     body['DeliveryType'] = request.deliveryType;
+  }
+  if (!Util.isUnset(request.details)) {
+    body['Details'] = request.details;
   }
   if (!Util.isUnset(request.discardRate)) {
     body['DiscardRate'] = request.discardRate;
@@ -5020,6 +5184,65 @@ async function deleteListWithOptions(request: DeleteListRequest, runtime: Util.R
 async function deleteList(request: DeleteListRequest): DeleteListResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteListWithOptions(request, runtime);
+}
+
+model DeleteOriginPoolRequest {
+  id?: long(name='Id', description='This parameter is required.', example='DeleteOriginPool'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model DeleteOriginPoolResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model DeleteOriginPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteOriginPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除源地址池
+ *
+ * @param request DeleteOriginPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteOriginPoolResponse
+ */
+async function deleteOriginPoolWithOptions(request: DeleteOriginPoolRequest, runtime: Util.RuntimeOptions): DeleteOriginPoolResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.siteId)) {
+    query['SiteId'] = request.siteId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteOriginPool',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除源地址池
+ *
+ * @param request DeleteOriginPoolRequest
+ * @return DeleteOriginPoolResponse
+ */
+async function deleteOriginPool(request: DeleteOriginPoolRequest): DeleteOriginPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteOriginPoolWithOptions(request, runtime);
 }
 
 model DeleteOriginProtectionRequest {
@@ -6828,6 +7051,98 @@ async function getCacheReserveSpecification(): GetCacheReserveSpecificationRespo
   return getCacheReserveSpecificationWithOptions(runtime);
 }
 
+model GetCertificateRequest {
+  id?: string(name='Id', description='The certificate ID.
+
+This parameter is required.', example='babaded901474b9693acf530e0fb1d95'),
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+
+This parameter is required.', example='1234567890123'),
+}
+
+model GetCertificateResponseBody = {
+  certificate?: string(name='Certificate', description='The certificate content.', example='-----BEGIN CERTIFICATE-----'),
+  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  result?: {
+    applyCode?: long(name='ApplyCode', example='2'),
+    applyMessage?: string(name='ApplyMessage', example='canceled'),
+    casId?: string(name='CasId', description='The certificate ID on Certificate Management Service.', example='30000478'),
+    commonName?: string(name='CommonName', description='The Common Name of the certificate.', example='www.example.com'),
+    createTime?: string(name='CreateTime', description='The time when the certificate was created.', example='2020-05-12 02:00:53'),
+    DCV?: [ 
+      {
+        id?: string(name='Id', description='DCV ID。', example='bababf7cdd1546a2ad04c0def1f4c980'),
+        key?: string(name='Key', example='http://www.example.com/.well-known/acme-challenge/pH20CqwS5L3ZnvkhI436DCzadKFuG7QcUcvB_4KsAow'),
+        status?: string(name='Status', example='pending'),
+        type?: string(name='Type', example='HTTP'),
+        value?: string(name='Value', example='pH20CqwS5L3ZnvkhI436DCzadKFuG7QcUcvB_4KsAow.KfzYo4LH3EgOt7a73G-RqZkbR0eYtLfEUmtmqGmr4FQ'),
+      }
+    ](name='DCV'),
+    fingerprintSha256?: string(name='FingerprintSha256', description='The SHA-256 fingerprint of the certificate.', example='1dc5fc9af4eead2570c70d94b416130baeb6d4429b51fd3557379588456aca66'),
+    id?: string(name='Id', description='The certificate ID on ESA.', example='babaded901474b9693acf530e0fb1d95'),
+    issuer?: string(name='Issuer', description='The certificate authority (CA) that issued the certificate.', example='DigiCert'),
+    issuerCN?: string(name='IssuerCN', description='The Common Name of the CA that issued the certificate.', example='DigiCert Global Root CA'),
+    name?: string(name='Name', description='The certificate name.', example='yourCertName'),
+    notAfter?: string(name='NotAfter', description='The time when the certificate expires.', example='2023-11-26T16:00:00Z'),
+    notBefore?: string(name='NotBefore', description='The time when the certificate takes effect.', example='2023-11-26T16:00:00Z'),
+    pubAlg?: string(name='PubAlg', description='The public-key algorithm of the certificate.', example='ECDSA'),
+    region?: string(name='Region', description='The region.', example='cn-hangzhou'),
+    SAN?: string(name='SAN', description='The Subject Alternative Name (SAN) of the certificate.', example='www.example.com,*.example.com'),
+    serialNumber?: string(name='SerialNumber', description='The serial number of the certificate.', example='babaded901474b9693acf530e0fb1daa'),
+    sigAlg?: string(name='SigAlg', description='The signature algorithm of the certificate.', example='ECDSA-SHA1'),
+    status?: string(name='Status', description='The certificate status.', example='OK'),
+    type?: string(name='Type', description='The certificate type.', example='free'),
+    updateTime?: string(name='UpdateTime', description='The time when the certificate was updated.', example='2022-09-22 05:33:13'),
+  }(name='Result', description='The certificate information.'),
+  siteId?: long(name='SiteId', description='The website ID.', example='1234567890123'),
+  siteName?: string(name='SiteName', description='The website name.', example='example.com'),
+  status?: string(name='Status', description='The certificate status.', example='OK'),
+}
+
+model GetCertificateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCertificateResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries certificate information about a website.
+ *
+ * @param request GetCertificateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCertificateResponse
+ */
+async function getCertificateWithOptions(request: GetCertificateRequest, runtime: Util.RuntimeOptions): GetCertificateResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCertificate',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries certificate information about a website.
+ *
+ * @param request GetCertificateRequest
+ * @return GetCertificateResponse
+ */
+async function getCertificate(request: GetCertificateRequest): GetCertificateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getCertificateWithOptions(request, runtime);
+}
+
 model GetCertificateQuotaRequest {
   siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
   type?: string(name='Type', description='This parameter is required.', example='free'),
@@ -7653,70 +7968,6 @@ async function getEdgeContainerTerminal(request: GetEdgeContainerTerminalRequest
   return getEdgeContainerTerminalWithOptions(request, runtime);
 }
 
-model GetErServiceRequest {
-  ownerId?: long(name='OwnerId'),
-  securityToken?: string(name='SecurityToken'),
-}
-
-model GetErServiceResponseBody = {
-  planName?: string(name='PlanName', description='The billing mode. Valid values:
-
-*   er_paymode: billed for customers on the China site.
-*   er_freemode: free for customers on the China site.
-*   er_paymodeintl: billed for customers on the International site.
-*   err_freemodeintl: free for customers on the International site', example='er_paymode'),
-  requestId?: string(name='RequestId', description='The request ID.', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
-  status?: string(name='Status', description='The service status. Valid values:
-
-*   Creating
-*   Running
-*   NotOpened', example='Running'),
-}
-
-model GetErServiceResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetErServiceResponseBody(name='body'),
-}
-
-/**
- * @summary Checks the status of Edge Routine.
- *
- * @param request GetErServiceRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetErServiceResponse
- */
-async function getErServiceWithOptions(request: GetErServiceRequest, runtime: Util.RuntimeOptions): GetErServiceResponse {
-  Util.validateModel(request);
-  var query = OpenApiUtil.query(Util.toMap(request));
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'GetErService',
-    version = '2024-09-10',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'GET',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-/**
- * @summary Checks the status of Edge Routine.
- *
- * @param request GetErServiceRequest
- * @return GetErServiceResponse
- */
-async function getErService(request: GetErServiceRequest): GetErServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getErServiceWithOptions(request, runtime);
-}
-
 model GetKvRequest {
   base64?: boolean(name='Base64', description='Specifies whether to decode the value by using Base 64. If you call the [PutKv](https://help.aliyun.com/document_detail/2850482.html) operation and set the Base64 parameter to true, set this parameter to true to read the original content.', example='true'),
   key?: string(name='Key', description='The key name for the query.
@@ -7976,8 +8227,107 @@ async function getList(request: GetListRequest): GetListResponse {
   return getListWithOptions(request, runtime);
 }
 
+model GetOriginPoolRequest {
+  id?: long(name='Id', description='This parameter is required.', example='GetOriginPool'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model GetOriginPoolResponseBody = {
+  enabled?: boolean(name='Enabled'),
+  id?: long(name='Id'),
+  name?: string(name='Name'),
+  origins?: [ 
+    {
+      address?: string(name='Address'),
+      authConf?: {
+        accessKey?: string(name='AccessKey'),
+        authType?: string(name='AuthType'),
+        region?: string(name='Region'),
+        secretKey?: string(name='SecretKey'),
+        version?: string(name='Version'),
+      }(name='AuthConf'),
+      enabled?: boolean(name='Enabled'),
+      header?: any(name='Header'),
+      id?: long(name='Id'),
+      name?: string(name='Name'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
+    }
+  ](name='Origins'),
+  recordName?: string(name='RecordName'),
+  referenceLBCount?: int32(name='ReferenceLBCount'),
+  references?: {
+    dnsRecords?: [ 
+      {
+        id?: long(name='Id'),
+        name?: string(name='Name'),
+      }
+    ](name='DnsRecords'),
+    IPARecords?: [ 
+      {
+        id?: long(name='Id'),
+        name?: string(name='Name'),
+      }
+    ](name='IPARecords'),
+    loadBalancers?: [ 
+      {
+        id?: long(name='Id'),
+        name?: string(name='Name'),
+      }
+    ](name='LoadBalancers'),
+  }(name='References'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+  siteId?: long(name='SiteId'),
+}
+
+model GetOriginPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOriginPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询特定源地址池
+ *
+ * @param request GetOriginPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOriginPoolResponse
+ */
+async function getOriginPoolWithOptions(request: GetOriginPoolRequest, runtime: Util.RuntimeOptions): GetOriginPoolResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOriginPool',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询特定源地址池
+ *
+ * @param request GetOriginPoolRequest
+ * @return GetOriginPoolResponse
+ */
+async function getOriginPool(request: GetOriginPoolRequest): GetOriginPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getOriginPoolWithOptions(request, runtime);
+}
+
 model GetOriginProtectionRequest {
-  siteId?: long(name='SiteId', description='The website ID. You can call the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation to obtain the ID.', example='123456789****'),
+  siteId?: long(name='SiteId', description='The website ID. You can call the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation to obtain the ID.
+
+This parameter is required.', example='123456789****'),
 }
 
 model GetOriginProtectionResponseBody = {
@@ -9247,6 +9597,7 @@ model GetUserDeliveryTaskResponseBody = {
 *   oss: Alibaba Cloud Object Storage Service (OSS).
 *   kafka: Kafka.
 *   aws3cmpt: S3-compatible storage service.', example='oss'),
+  details?: string(name='Details'),
   discardRate?: float(name='DiscardRate', description='The discard rate.', example='0'),
   fieldList?: string(name='FieldList', description='The fields.', example='ClientRequestID,ClientRequestHost'),
   filterRules?: string(name='FilterRules', description='The filtering rules.', example='[{"ClientSSLProtocol": {"equals": ["TLSv1.3"]}}]'),
@@ -9706,6 +10057,100 @@ async function listCacheReserveInstancesWithOptions(request: ListCacheReserveIns
 async function listCacheReserveInstances(request: ListCacheReserveInstancesRequest): ListCacheReserveInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listCacheReserveInstancesWithOptions(request, runtime);
+}
+
+model ListCertificatesRequest {
+  keyword?: string(name='Keyword', example='example'),
+  pageNumber?: long(name='PageNumber', example='3'),
+  pageSize?: long(name='PageSize', example='10'),
+  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  validOnly?: boolean(name='ValidOnly', example='1'),
+}
+
+model ListCertificatesResponseBody = {
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  requestId?: string(name='RequestId', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  result?: [ 
+    {
+      applyCode?: long(name='ApplyCode'),
+      applyMessage?: string(name='ApplyMessage'),
+      casId?: string(name='CasId', example='30000569'),
+      commonName?: string(name='CommonName', example='www.example.com'),
+      createTime?: string(name='CreateTime', example='2022-06-24 07:48:51'),
+      DCV?: [ 
+        {
+          id?: string(name='Id'),
+          key?: string(name='Key'),
+          status?: string(name='Status'),
+          type?: string(name='Type'),
+          value?: string(name='Value'),
+        }
+      ](name='DCV'),
+      fingerprintSha256?: string(name='FingerprintSha256', example='1dc5fc9af4eead2570c70d94b416130baeb6d4429b51fd3557379588456a****'),
+      id?: string(name='Id', example='baba39055622c008b90285a8838e****'),
+      issuer?: string(name='Issuer', example='GlobalSign nv-sa'),
+      issuerCN?: string(name='IssuerCN', example='GlobalSign Organization Validation CA - SHA256 - G3'),
+      name?: string(name='Name', example='yourCertName'),
+      notAfter?: string(name='NotAfter', example='2024-03-31 02:08:00'),
+      notBefore?: string(name='NotBefore', example='2023-03-31 02:08:00'),
+      pubAlg?: string(name='PubAlg', example='RSA'),
+      region?: string(name='Region', example='cn-hangzhou'),
+      SAN?: string(name='SAN', example='www.example.com,*.example.com'),
+      serialNumber?: string(name='SerialNumber', example='babab022c5e9b27bf9c64d7f4b16****'),
+      sigAlg?: string(name='SigAlg', example='SHA256-RSA'),
+      status?: string(name='Status', example='OK'),
+      type?: string(name='Type', example='free'),
+      updateTime?: string(name='UpdateTime', example='2023-04-20 06:18:42'),
+    }
+  ](name='Result'),
+  siteId?: long(name='SiteId', example='1234567890123'),
+  siteName?: string(name='SiteName', example='example.com'),
+  totalCount?: long(name='TotalCount', example='10'),
+}
+
+model ListCertificatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCertificatesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询站点下证书列表
+ *
+ * @param request ListCertificatesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCertificatesResponse
+ */
+async function listCertificatesWithOptions(request: ListCertificatesRequest, runtime: Util.RuntimeOptions): ListCertificatesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCertificates',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询站点下证书列表
+ *
+ * @param request ListCertificatesRequest
+ * @return ListCertificatesResponse
+ */
+async function listCertificates(request: ListCertificatesRequest): ListCertificatesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listCertificatesWithOptions(request, runtime);
 }
 
 model ListCiphersRequest {
@@ -11016,6 +11461,115 @@ async function listManagedRulesGroupsWithOptions(request: ListManagedRulesGroups
 async function listManagedRulesGroups(request: ListManagedRulesGroupsRequest): ListManagedRulesGroupsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listManagedRulesGroupsWithOptions(request, runtime);
+}
+
+model ListOriginPoolsRequest {
+  matchType?: string(name='MatchType'),
+  name?: string(name='Name'),
+  orderBy?: string(name='OrderBy'),
+  pageNumber?: int32(name='PageNumber', example='ListOriginPools'),
+  pageSize?: int32(name='PageSize'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model ListOriginPoolsResponseBody = {
+  originPools?: [ 
+    {
+      enabled?: boolean(name='Enabled'),
+      id?: long(name='Id'),
+      name?: string(name='Name'),
+      origins?: [ 
+        {
+          address?: string(name='Address'),
+          authConf?: {
+            accessKey?: string(name='AccessKey'),
+            authType?: string(name='AuthType'),
+            region?: string(name='Region'),
+            secretKey?: string(name='SecretKey'),
+            version?: string(name='Version'),
+          }(name='AuthConf'),
+          enabled?: boolean(name='Enabled'),
+          header?: any(name='Header'),
+          id?: long(name='Id'),
+          name?: string(name='Name'),
+          type?: string(name='Type'),
+          weight?: int32(name='Weight'),
+        }
+      ](name='Origins'),
+      recordName?: string(name='RecordName'),
+      referenceLBCount?: int32(name='ReferenceLBCount'),
+      references?: {
+        dnsRecords?: [ 
+          {
+            id?: long(name='Id'),
+            name?: string(name='Name'),
+          }
+        ](name='DnsRecords'),
+        IPARecords?: [ 
+          {
+            id?: long(name='Id'),
+            name?: string(name='Name'),
+          }
+        ](name='IPARecords'),
+        loadBalancers?: [ 
+          {
+            id?: long(name='Id'),
+            name?: string(name='Name'),
+          }
+        ](name='LoadBalancers'),
+      }(name='References'),
+      siteId?: long(name='SiteId'),
+    }
+  ](name='OriginPools'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+  totalPage?: int32(name='TotalPage'),
+}
+
+model ListOriginPoolsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOriginPoolsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询源地址池列表
+ *
+ * @param request ListOriginPoolsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOriginPoolsResponse
+ */
+async function listOriginPoolsWithOptions(request: ListOriginPoolsRequest, runtime: Util.RuntimeOptions): ListOriginPoolsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListOriginPools',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询源地址池列表
+ *
+ * @param request ListOriginPoolsRequest
+ * @return ListOriginPoolsResponse
+ */
+async function listOriginPools(request: ListOriginPoolsRequest): ListOriginPoolsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listOriginPoolsWithOptions(request, runtime);
 }
 
 model ListPagesRequest {
@@ -14599,6 +15153,102 @@ async function updateKvNamespace(request: UpdateKvNamespaceRequest): UpdateKvNam
   return updateKvNamespaceWithOptions(request, runtime);
 }
 
+model UpdateOriginPoolRequest {
+  enabled?: boolean(name='Enabled'),
+  id?: long(name='Id', description='This parameter is required.', example='UpdateOriginPool'),
+  origins?: [ 
+    {
+      address?: string(name='Address'),
+      authConf?: {
+        accessKey?: string(name='AccessKey'),
+        authType?: string(name='AuthType'),
+        region?: string(name='Region'),
+        secretKey?: string(name='SecretKey'),
+        version?: string(name='Version'),
+      }(name='AuthConf'),
+      enabled?: boolean(name='Enabled'),
+      header?: any(name='Header'),
+      name?: string(name='Name'),
+      type?: string(name='Type'),
+      weight?: int32(name='Weight'),
+    }
+  ](name='Origins'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model UpdateOriginPoolShrinkRequest {
+  enabled?: boolean(name='Enabled'),
+  id?: long(name='Id', description='This parameter is required.', example='UpdateOriginPool'),
+  originsShrink?: string(name='Origins'),
+  siteId?: long(name='SiteId', description='This parameter is required.'),
+}
+
+model UpdateOriginPoolResponseBody = {
+  id?: long(name='Id'),
+  requestId?: string(name='RequestId', description='Id of the request'),
+}
+
+model UpdateOriginPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateOriginPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改监视器
+ *
+ * @param tmpReq UpdateOriginPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateOriginPoolResponse
+ */
+async function updateOriginPoolWithOptions(tmpReq: UpdateOriginPoolRequest, runtime: Util.RuntimeOptions): UpdateOriginPoolResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateOriginPoolShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.origins)) {
+    request.originsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.origins, 'Origins', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.enabled)) {
+    query['Enabled'] = request.enabled;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.originsShrink)) {
+    query['Origins'] = request.originsShrink;
+  }
+  if (!Util.isUnset(request.siteId)) {
+    query['SiteId'] = request.siteId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateOriginPool',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改监视器
+ *
+ * @param request UpdateOriginPoolRequest
+ * @return UpdateOriginPoolResponse
+ */
+async function updateOriginPool(request: UpdateOriginPoolRequest): UpdateOriginPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateOriginPoolWithOptions(request, runtime);
+}
+
 model UpdateOriginProtectionRequest {
   originConverge?: string(name='OriginConverge', description='The IP convergence status.
 
@@ -14732,7 +15382,9 @@ This parameter is required.', example='PGh0bWw+aGVsbG8gcGFnZTwvaHRtbD4='),
 *   application/json
 
 This parameter is required.', example='text/html'),
-  description?: string(name='Description', description='The description of the custom error page.', example='a custom deny page'),
+  description?: string(name='Description', description='The description of the custom error page.
+
+This parameter is required.', example='a custom deny page'),
   id?: long(name='Id', description='The ID of the custom error page, which can be obtained by calling the [ListPages](https://help.aliyun.com/document_detail/2850223.html) operation.
 
 This parameter is required.', example='50000001'),
@@ -15540,6 +16192,7 @@ model UpdateUserDeliveryTaskRequest {
 *   dcdn_log_er: Edge Routine logs.
 *   dcdn_log_waf: firewall logs.
 *   dcdn_log_ipa: TCP/UDP proxy logs.', example='dcdn_log_er'),
+  details?: string(name='Details'),
   discardRate?: float(name='DiscardRate', description='The discard rate. Default value: 0.', example='0'),
   fieldName?: string(name='FieldName', description='The log fields that you want to include in logs to be delivered. Separate the log fields with commas (,).
 
@@ -15571,6 +16224,9 @@ async function updateUserDeliveryTaskWithOptions(request: UpdateUserDeliveryTask
   var body : map[string]any = {};
   if (!Util.isUnset(request.businessType)) {
     body['BusinessType'] = request.businessType;
+  }
+  if (!Util.isUnset(request.details)) {
+    body['Details'] = request.details;
   }
   if (!Util.isUnset(request.discardRate)) {
     body['DiscardRate'] = request.discardRate;
