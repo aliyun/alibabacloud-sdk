@@ -9360,6 +9360,7 @@ model ListOperationPlansResponseBody = {
 *   Canceled', example='scheduled'),
       targetId?: string(name='target_id', description='The target ID.', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
       targetType?: string(name='target_type', description='The target type.', example='cluster'),
+      taskId?: string(name='task_id'),
       type?: string(name='type', description='The plan type. Valid values:
 
 *   cluster_upgrade', example='cluster_upgrade'),
@@ -9708,13 +9709,13 @@ async function migrateCluster(clusterId: string, request: MigrateClusterRequest)
 }
 
 model ModifyClusterRequest {
-  accessControlList?: [ string ](name='access_control_list', description='The network access control lists (ACLs) of the SLB instance associated with the API server if the cluster is a registered cluster.'),
+  accessControlList?: [ string ](name='access_control_list', description='The network access control list (ACL) of the SLB instance associated with the API server if the cluster is a registered cluster.'),
   apiServerCustomCertSans?: {
     action?: string(name='action', description='Specifies whether to overwrite or add SANs. Valid values:
 
 *   overwrite: overwrites SANs.
 *   append: adds SANs.', example='append'),
-    subjectAlternativeNames?: [ string ](name='subject_alternative_names', description='The SANs.'),
+    subjectAlternativeNames?: [ string ](name='subject_alternative_names', description='The list of SANs.'),
   }(name='api_server_custom_cert_sans', description='The custom subject alternative names (SANs) for the API server certificate to accept requests from specified IP addresses or domain names. This parameter is available only for ACK managed clusters.'),
   apiServerEip?: boolean(name='api_server_eip', description='Specifies whether to associate an elastic IP address (EIP) with the cluster. This EIP is used to enable access to the API server over the Internet. Valid values:
 
@@ -9725,37 +9726,94 @@ model ModifyClusterRequest {
 
 The cluster name must be 1 to 63 characters in length, and can contain digits, letters, and hyphens (-). The cluster name cannot start with a hyphen (-).', example='cluster-new-name'),
   controlPlaneConfig?: {
-    autoRenew?: boolean(name='auto_renew'),
-    autoRenewPeriod?: long(name='auto_renew_period'),
-    chargeType?: string(name='charge_type'),
-    cloudMonitorFlags?: boolean(name='cloud_monitor_flags'),
-    cpuPolicy?: string(name='cpu_policy'),
-    deploymentsetId?: string(name='deploymentset_id'),
-    imageId?: string(name='image_id'),
-    imageType?: string(name='image_type'),
-    instanceTypes?: [ string ](name='instance_types'),
-    keyPair?: string(name='key_pair'),
-    loginPassword?: string(name='login_password'),
-    nodePortRange?: string(name='node_port_range'),
-    period?: long(name='period'),
-    periodUnit?: string(name='period_unit'),
-    runtime?: string(name='runtime'),
-    securityHardeningOs?: boolean(name='security_hardening_os'),
-    size?: long(name='size'),
-    socEnabled?: boolean(name='soc_enabled'),
-    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled'),
-    systemDiskCategory?: string(name='system_disk_category'),
-    systemDiskPerformanceLevel?: string(name='system_disk_performance_level'),
-    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops'),
-    systemDiskSize?: long(name='system_disk_size'),
-    systemDiskSnapshotPolicyId?: string(name='system_disk_snapshot_policy_id'),
-  }(name='control_plane_config'),
-  deletionProtection?: boolean(name='deletion_protection', description='Specifies whether to enable cluster deletion protection. If this option is enabled, the cluster cannot be deleted in the console or by calling API operations. Valid values:
+    autoRenew?: boolean(name='auto_renew', description='Specifies whether to enable auto-renewal for the instance. This parameter takes effect only when `charge_type` is set to `PrePaid`. Valid values:
+
+*   `true`: enables auto-renewal.
+*   `false`: disables auto-renewal.
+
+Default value: `false`.', example='true'),
+    autoRenewPeriod?: long(name='auto_renew_period', description='The auto-renewal period of the instance. Valid values: 1, 2, 3, 6, and 12.
+
+Default value: 1.', example='1'),
+    chargeType?: string(name='charge_type', description='The billing method of the instance. Valid values:
+
+*   `PrePaid`: subscription.
+*   `PostPaid`: pay-as-you-go.
+
+Default value: `PostPaid`.', example='PrePaid'),
+    cloudMonitorFlags?: boolean(name='cloud_monitor_flags', description='Specifies whether to install the CloudMonitor agent. Valid values:
+
+*   `true`: installs the CloudMonitor agent.
+*   `false`: does not install the CloudMonitor agent.', example='true'),
+    cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later:
+
+*   `static`: allows pods with specific resource characteristics on the node to be granted with enhanced CPU affinity and exclusivity.
+*   `none`: specifies that the default CPU affinity is used.
+
+Default value: `none`.', example='none'),
+    deploymentsetId?: string(name='deploymentset_id', description='The ID of the deployment set.', example='ds-bp10b35imuam5amw****'),
+    imageId?: string(name='image_id', description='The custom image ID. You must configure this parameter if you use a custom image.', example='aliyun_3_x64_20G_alibase_20240819.vhd'),
+    imageType?: string(name='image_type', description='The type of the OS image. Valid values:
+
+*   `AliyunLinux3`: Alibaba Cloud Linux 3.
+*   `Custom`: the custom image.', example='AliyunLinux3'),
+    instanceTypes?: [ string ](name='instance_types', description='The instance type. For more information, see [Overview of ECS instance families](https://help.aliyun.com/document_detail/25378.html).'),
+    keyPair?: string(name='key_pair', description='The name of the key pair. You must configure either this parameter or the `login_password` parameter.', example='ack'),
+    loginPassword?: string(name='login_password', description='The password for SSH logon. You must configure either this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters. To log on with a password, you must specify this parameter during the scale-out.', example='Ack@2000.'),
+    nodePortRange?: string(name='node_port_range', description='The node port range.', example='30000-32767'),
+    period?: long(name='period', description='The subscription duration of the instance. This parameter takes effect and is required only when `charge_type` is set to `PrePaid`.
+
+If `PeriodUnit=Month` is specified, the valid values are 1, 2, 3, 6, 12, 24, 36, 48, and 60.', example='1'),
+    periodUnit?: string(name='period_unit', description='The billing cycle of the instance. This parameter takes effect only when `instance_charge_type` is set to `PrePaid`.
+
+Valid value: `Month`.', example='Month'),
+    runtime?: string(name='runtime', description='The type of the container runtime. Valid values:
+
+*   `containerd`: supports all Kubernetes versions. We recommend that you set the parameter to this value.
+
+Default value: containerd.', example='containerd'),
+    securityHardeningOs?: boolean(name='security_hardening_os', description='Specifies whether to enable Alibaba Cloud Linux Security Hardening. Valid values:
+
+*   `true`: enables Alibaba Cloud Linux Security Hardening.
+*   `false`: disables Alibaba Cloud Linux Security Hardening.
+
+Default value: `false`.', example='true'),
+    size?: long(name='size', description='The number of control plane nodes. If you want to scale out the control plane in an ACK dedicated cluster, set this parameter to the desired number of nodes. This parameter must be greater than the current number of nodes.', example='5'),
+    socEnabled?: boolean(name='soc_enabled', description='Specifies whether to enable Multi-Level Protection Scheme (MLPS) security hardening. For more information, see [ACK security hardening based on MLPS](https://help.aliyun.com/document_detail/196148.html).
+
+Valid values:
+
+*   `true`: enables MLPS security hardening.
+*   `false`: disables MLPS security hardening.
+
+Default value: `false`.', example='false'),
+    systemDiskBurstingEnabled?: boolean(name='system_disk_bursting_enabled', description='Specifies whether to enable the burst feature for the system disk. Valid values:
+
+*   `true`: enables the burst feature.
+*   `false`: disables the burst feature.
+
+This parameter is effective only when `system_disk_category` is set to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='true'),
+    systemDiskCategory?: string(name='system_disk_category', description='The type of the node system disk. Valid values:
+
+*   `cloud`: basic disk.
+*   `cloud_efficiency`: ultra disk.
+*   `cloud_ssd`: standard SSD.
+*   `cloud_essd`: enhanced SSD (ESSD).
+*   `cloud_auto`: ESSD AutoPL disk.
+*   `cloud_essd_entry`: ESSD Entry disk.', example='cloud_essd'),
+    systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter is effective only for ESSDs. This parameter is related to the disk size. For more information, see [ESSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL1'),
+    systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', description='The preset read/write input/output operations per second (IOPS) of the system disk. Valid values: 0 to min{50,000, 1,000 × Capacity - Baseline IOPS} Baseline IOPS = min{1,800 + 50 × Capacity, 50,000}.
+
+This parameter is effective only when `system_disk_category` is set to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='1000'),
+    systemDiskSize?: long(name='system_disk_size', description='The type of the system disk. Valid values: [40,500]. Unit: GiB.', example='120'),
+    systemDiskSnapshotPolicyId?: string(name='system_disk_snapshot_policy_id', description='The ID of the automatic snapshot policy applied to the node system disk.', example='sp-2zej1nogjvovnz4z****'),
+  }(name='control_plane_config', description='The control plane configurations of an ACK dedicated cluster.'),
+  deletionProtection?: boolean(name='deletion_protection', description='Specifies whether to enable cluster deletion protection. If you enable this option, the cluster cannot be deleted in the console or by calling API operations. Valid values:
 
 *   `true`: enables cluster deletion protection.
 *   `false`: disables cluster deletion protection.
 
-Default value: `false`', example='true'),
+Default value: `false`.', example='true'),
   enableRrsa?: boolean(name='enable_rrsa', description='Specifies whether to enable the RAM Roles for Service Accounts (RRSA) feature. This parameter is available only for ACK managed clusters. Valid values:
 
 *   `true`: enables the RRSA feature.
@@ -9765,38 +9823,38 @@ Default value: `false`', example='true'),
 *   `true`: remaps the test domain name of the cluster.
 *   `false`: does not remap the test domain name of the cluster.
 
-Default value: `false`', example='true'),
+Default value: `false`.', example='true'),
   ingressLoadbalancerId?: string(name='ingress_loadbalancer_id', description='The ID of the Server Load Balancer (SLB) instance of the cluster to be modified.', example='lb-wz97kes8tnndkpodw****'),
   instanceDeletionProtection?: boolean(name='instance_deletion_protection', description='Specifies whether to enable instance deletion protection. If you enable this option, the instance cannot be deleted in the console or by calling API operations. Valid values:
 
 *   `true`: enables instance deletion protection.
 *   `false`: disables instance deletion protection.
 
-Default value: `false`', example='true'),
+Default value: `false`.', example='true'),
   maintenanceWindow?: MaintenanceWindow(name='maintenance_window', description='The cluster maintenance window. This feature takes effect only for ACK Pro clusters.'),
   operationPolicy?: {
     clusterAutoUpgrade?: {
-      channel?: string(name='channel', description='The automatic update frequency. For more information, see [Update frequency](https://help.aliyun.com/document_detail/2712866.html).
+      channel?: string(name='channel', description='The frequency of automatic cluster updates. For more information, see [Update frequency](https://help.aliyun.com/document_detail/2712866.html).
 
 Valid values:
 
-*   patch: specifies the latest patch version.
+*   patch: the latest patch version.
 *   stables: the second-latest minor version.
 *   rapid: the latest minor version.', example='patch'),
       enabled?: boolean(name='enabled', description='Specifies whether to enable automatic update.', example='true'),
     }(name='cluster_auto_upgrade', description='The configurations of automatic update.'),
   }(name='operation_policy', description='The automatic O\\\\&M policy of the cluster.'),
-  resourceGroupId?: string(name='resource_group_id', description='The cluster resource group ID.', example='rg-acfmyvw3wjm****'),
+  resourceGroupId?: string(name='resource_group_id', description='The resource group ID of the cluster.', example='rg-acfmyvw3wjm****'),
   systemEventsLogging?: {
     enabled?: boolean(name='enabled', description='Specifies whether to enable system event storage.', example='true'),
     loggingProject?: string(name='logging_project', description='The name of the Simple Log Service project that stores system events.', example='k8s-log-cb95aa626a47740afbf6aa099b65****'),
   }(name='system_events_logging', description='The storage configurations of system events.'),
-  vswitchIds?: [ string ](name='vswitch_ids', description='The vSwitches of the control planes. This parameter can be used to change the vSwitches of the control planes in an ACK managed cluster. Take note of the following items:
+  vswitchIds?: [ string ](name='vswitch_ids', description='The vSwitches of the control plane. This parameter can be used to change the vSwitches of the control plane in an ACK managed cluster. Take note of the following items:
 
-*   This parameter overwrites the existing configuration. You must specify all vSwitches of the control planes.
-*   The control planes restart during the update process. Exercise caution when you perform this operation.
-*   Make sure that all security groups of the cluster, including the security groups of the control planes, all node pools, and container network, are allowed to access the CIDR blocks of the new vSwitches. This ensures that the nodes and containers can connect to the API server.
-*   If the new vSwitches of the control planes are configured with an access control list (ACL), ensure that the ACL allows communication between the new vSwitches and the CIDR blocks of cluster nodes and container networks.'),
+*   This parameter overwrites the existing configuration. You must specify all vSwitches of the control plane.
+*   The control plane restarts during the change process. Exercise caution when you perform this operation.
+*   Ensure that all security groups of the cluster, including the security groups of the control plane, all node pools, and container network, are allowed to access the CIDR blocks of the new vSwitches. This ensures that the nodes and containers can connect to the API server.
+*   If the new vSwitches of the control plane are configured with an ACL, ensure that the ACL allows communication between the new vSwitches and CIDR blocks such as those of the cluster nodes and the container network.'),
 }
 
 model ModifyClusterResponseBody = {
