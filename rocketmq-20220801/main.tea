@@ -32,6 +32,7 @@ model DataTopicLagMapValue = {
   readyCount?: long(name='readyCount', description='Ready message count', example='1'),
   inflightCount?: long(name='inflightCount', description='The number of messages being consumed.', example='1'),
   deliveryDuration?: long(name='deliveryDuration', description='Delivery delay time, in seconds', example='12'),
+  lastConsumeTimestamp?: long(name='lastConsumeTimestamp'),
 }
 
 model AddDisasterRecoveryItemRequest {
@@ -1070,6 +1071,60 @@ async function deleteConsumerGroupSubscription(instanceId: string, consumerGroup
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteConsumerGroupSubscriptionWithOptions(instanceId, consumerGroupId, request, headers, runtime);
+}
+
+model DeleteDisasterRecoveryPlanResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail'),
+  code?: string(name='code'),
+  data?: boolean(name='data'),
+  dynamicCode?: string(name='dynamicCode'),
+  dynamicMessage?: string(name='dynamicMessage'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model DeleteDisasterRecoveryPlanResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteDisasterRecoveryPlanResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除容灾计划
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteDisasterRecoveryPlanResponse
+ */
+async function deleteDisasterRecoveryPlanWithOptions(planId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteDisasterRecoveryPlanResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteDisasterRecoveryPlan',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/disaster_recovery/${OpenApiUtil.getEncodeParam(planId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除容灾计划
+ *
+ * @return DeleteDisasterRecoveryPlanResponse
+ */
+async function deleteDisasterRecoveryPlan(planId: string): DeleteDisasterRecoveryPlanResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteDisasterRecoveryPlanWithOptions(planId, headers, runtime);
 }
 
 model DeleteInstanceResponseBody = {
@@ -3374,6 +3429,87 @@ async function listMessages(instanceId: string, topicName: string, request: List
   return listMessagesWithOptions(instanceId, topicName, request, headers, runtime);
 }
 
+model ListMetricMetaRequest {
+  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+}
+
+model ListMetricMetaResponseBody = {
+  code?: string(name='code', example='Topic.NotFound'),
+  data?: {
+    list?: [ 
+      {
+        category?: string(name='category', example='Bug'),
+        description?: string(name='description', example='Using Serverless Devs to deploy the infrastructure of project:get-userinfo-v1-infrastructure-as-template-project'),
+        metricName?: string(name='metricName', example='SendMessageCountPerInstance'),
+      }
+    ](name='list'),
+    pageNumber?: long(name='pageNumber', example='1'),
+    pageSize?: long(name='pageSize', example='10'),
+    totalCount?: long(name='totalCount', example='1'),
+  }(name='data'),
+  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', example='200'),
+  message?: string(name='message', example='The topic already exists.'),
+  requestId?: string(name='requestId', example='8B459455-4A35-5796-BA9D-98EF1AB9A931'),
+  success?: boolean(name='success', example='true'),
+}
+
+model ListMetricMetaResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMetricMetaResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询监控项列表
+ *
+ * @param request ListMetricMetaRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMetricMetaResponse
+ */
+async function listMetricMetaWithOptions(request: ListMetricMetaRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListMetricMetaResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListMetricMeta',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/monitor/metrics/meta`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询监控项列表
+ *
+ * @param request ListMetricMetaRequest
+ * @return ListMetricMetaResponse
+ */
+async function listMetricMeta(request: ListMetricMetaRequest): ListMetricMetaResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMetricMetaWithOptions(request, headers, runtime);
+}
+
 model ListRegionsResponseBody = {
   code?: string(name='code', description='The error code.', example='MissingPageNumber'),
   data?: [ 
@@ -3991,6 +4127,114 @@ async function resetConsumeOffset(instanceId: string, consumerGroupId: string, t
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return resetConsumeOffsetWithOptions(instanceId, consumerGroupId, topicName, request, headers, runtime);
+}
+
+model StartDisasterRecoveryItemResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail'),
+  code?: string(name='code'),
+  data?: boolean(name='data'),
+  dynamicCode?: string(name='dynamicCode'),
+  dynamicMessage?: string(name='dynamicMessage'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model StartDisasterRecoveryItemResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StartDisasterRecoveryItemResponseBody(name='body'),
+}
+
+/**
+ * @summary 启用容灾计划条目
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartDisasterRecoveryItemResponse
+ */
+async function startDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StartDisasterRecoveryItemResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'StartDisasterRecoveryItem',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/disaster_recovery/${OpenApiUtil.getEncodeParam(planId)}/items/${OpenApiUtil.getEncodeParam(itemId)}/start`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 启用容灾计划条目
+ *
+ * @return StartDisasterRecoveryItemResponse
+ */
+async function startDisasterRecoveryItem(planId: string, itemId: string): StartDisasterRecoveryItemResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startDisasterRecoveryItemWithOptions(planId, itemId, headers, runtime);
+}
+
+model StopDisasterRecoveryItemResponseBody = {
+  accessDeniedDetail?: string(name='accessDeniedDetail'),
+  code?: string(name='code'),
+  data?: boolean(name='data'),
+  dynamicCode?: string(name='dynamicCode'),
+  dynamicMessage?: string(name='dynamicMessage'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  message?: string(name='message'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model StopDisasterRecoveryItemResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopDisasterRecoveryItemResponseBody(name='body'),
+}
+
+/**
+ * @summary 停用容灾计划条目
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopDisasterRecoveryItemResponse
+ */
+async function stopDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopDisasterRecoveryItemResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'StopDisasterRecoveryItem',
+    version = '2022-08-01',
+    protocol = 'HTTPS',
+    pathname = `/disaster_recovery/${OpenApiUtil.getEncodeParam(planId)}/items/${OpenApiUtil.getEncodeParam(itemId)}/stop`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 停用容灾计划条目
+ *
+ * @return StopDisasterRecoveryItemResponse
+ */
+async function stopDisasterRecoveryItem(planId: string, itemId: string): StopDisasterRecoveryItemResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopDisasterRecoveryItemWithOptions(planId, itemId, headers, runtime);
 }
 
 model TagResourcesRequest {
