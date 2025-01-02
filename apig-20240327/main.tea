@@ -44,12 +44,16 @@ model AkSkIdentityConfig {
 }
 
 model ApiKeyIdentityConfig {
-  apikey?: string(name='apikey'),
   apikeySource?: {
     source?: string(name='source'),
     value?: string(name='value'),
   }(name='apikeySource'),
-  generateMode?: string(name='generateMode'),
+  credentials?: [ 
+    {
+      apikey?: string(name='apikey'),
+      generateMode?: string(name='generateMode'),
+    }
+  ](name='credentials'),
   type?: string(name='type'),
 }
 
@@ -100,6 +104,11 @@ model Attachment {
   environmentId?: string(name='environmentId'),
   gatewayId?: string(name='gatewayId'),
   policyAttachmentId?: string(name='policyAttachmentId'),
+}
+
+model AuthConfig {
+  authMode?: string(name='authMode'),
+  authType?: string(name='authType'),
 }
 
 model AuthorizationResourceInfo {
@@ -176,11 +185,13 @@ model GatewayLogConfig {
 
 model HttpApiApiInfo {
   aiProtocols?: [ string ](name='aiProtocols'),
+  authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs'),
   description?: string(name='description'),
+  enabelAuth?: boolean(name='enabelAuth'),
   environments?: [ 
     {
       alias?: string(name='alias', example='test'),
@@ -298,7 +309,9 @@ model HttpApiMockContract {
 }
 
 model HttpApiOperation {
+  authConfig?: AuthConfig(name='authConfig'),
   description?: string(name='description', example='获取用户信息'),
+  enableAuth?: boolean(name='enableAuth'),
   method?: string(name='method', description='This parameter is required.', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name?: string(name='name', description='This parameter is required.', example='GetUserInfo'),
@@ -308,8 +321,10 @@ model HttpApiOperation {
 }
 
 model HttpApiOperationInfo {
+  authConfig?: AuthConfig(name='authConfig'),
   createTimestamp?: long(name='createTimestamp', example='1719386834548'),
   description?: string(name='description', example='获取用户信息'),
+  enableAuth?: boolean(name='enableAuth'),
   method?: string(name='method', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name?: string(name='name', example='GetUserInfo'),
@@ -786,6 +801,77 @@ async function addGatewaySecurityGroupRule(gatewayId: string, request: AddGatewa
   return addGatewaySecurityGroupRuleWithOptions(gatewayId, request, headers, runtime);
 }
 
+model ChangeResourceGroupRequest {
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzdrfx2xdnaja'),
+  resourceId?: string(name='ResourceId', example='gw-ct4i14um1hkn0tpqfae0'),
+  resourceType?: string(name='ResourceType', example='gateway'),
+  service?: string(name='Service', example='apig'),
+}
+
+model ChangeResourceGroupResponseBody = {
+  requestId?: string(name='RequestId', example='59F86F37-787A-52DB-9475-DB5A255517F0'),
+}
+
+model ChangeResourceGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChangeResourceGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary 资源转组
+ *
+ * @param request ChangeResourceGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChangeResourceGroupResponse
+ */
+async function changeResourceGroupWithOptions(request: ChangeResourceGroupRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ChangeResourceGroupResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!Util.isUnset(request.service)) {
+    query['Service'] = request.service;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ChangeResourceGroup',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/move-resource-group`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 资源转组
+ *
+ * @param request ChangeResourceGroupRequest
+ * @return ChangeResourceGroupResponse
+ */
+async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return changeResourceGroupWithOptions(request, headers, runtime);
+}
+
 model CreateDomainRequest {
   caCertIdentifier?: string(name='caCertIdentifier', description='CA Certificate Identifier.', example='1ef1da5f-38ed-69b3-****-037781890265'),
   certIdentifier?: string(name='certIdentifier', description='Certificate Unique Identifier.', example='1ef1da5f-38ed-69b3-****-037781890265'),
@@ -800,8 +886,8 @@ This parameter is required.', example='abc.com'),
 - HTTPS: Supports only HTTPS protocol.
 
 This parameter is required.', example='HTTP'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzoiafjtr7zyq'),
+  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The TLS cipher suites config.'),
   tlsMax?: string(name='tlsMax', description='Maximum TLS protocol version, supports up to TLS 1.3.', example='TLS1.3'),
   tlsMin?: string(name='tlsMin', description='Minimum TLS protocol version, supports down to TLS 1.0.', example='TLS1.0'),
 }
@@ -908,7 +994,7 @@ This parameter is required.', example='gw-cq7l5s5lhtgi6qasrdc0'),
   name?: string(name='name', description='Environment name.
 
 This parameter is required.', example='test'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-acfmycs5expl7oq'),
 }
 
 model CreateEnvironmentResponseBody = {
@@ -988,12 +1074,14 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 }
 
 model CreateHttpApiRequest {
-  aiProtocols?: [ string ](name='aiProtocols'),
+  aiProtocols?: [ string ](name='aiProtocols', description='The AI protocols list.'),
+  authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', description='Base path of the API, which must start with a \\\\"/\\\\".', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs'),
+  ](name='deployConfigs', description='The deploy configs.'),
   description?: string(name='description', description='Description of the API.', example='测试专用API。'),
+  enableAuth?: boolean(name='enableAuth'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cq146allhtgk***'),
     ingressClass?: string(name='ingressClass', description='Ingress Class being listened to.', example='mse'),
@@ -1005,7 +1093,7 @@ model CreateHttpApiRequest {
 
 This parameter is required.', example='test-api'),
   protocols?: [ string ](name='protocols', description='List of API access protocols.'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzgvmlotionbi'),
   type?: string(name='type', description='Type of the HTTP API.
 - Http
 - Rest
@@ -1044,6 +1132,9 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
   if (!Util.isUnset(request.aiProtocols)) {
     body['aiProtocols'] = request.aiProtocols;
   }
+  if (!Util.isUnset(request.authConfig)) {
+    body['authConfig'] = request.authConfig;
+  }
   if (!Util.isUnset(request.basePath)) {
     body['basePath'] = request.basePath;
   }
@@ -1052,6 +1143,9 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
   }
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.enableAuth)) {
+    body['enableAuth'] = request.enableAuth;
   }
   if (!Util.isUnset(request.ingressConfig)) {
     body['ingressConfig'] = request.ingressConfig;
@@ -1170,6 +1264,107 @@ async function createHttpApiOperation(httpApiId: string, request: CreateHttpApiO
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createHttpApiOperationWithOptions(httpApiId, request, headers, runtime);
+}
+
+model CreateHttpApiRouteRequest {
+  backendConfig?: {
+    scene?: string(name='scene', description='Backend service scenario.
+- SingleService: Single service.
+- MultiServiceByRatio: Multiple services with ratio-based canary release.
+- Mock: Mock service.
+- Redirect: Redirect service.', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', description='Service port, not provided for dynamic ports.', example='8080'),
+        protocol?: string(name='protocol', description='Service protocol:
+- HTTP.
+- HTTPS.', example='HTTP'),
+        serviceId?: string(name='serviceId', description='Service ID.', example='svc-crbgq0dlhtgr***'),
+        version?: string(name='version', description='Service version, valid only in label-based scenarios.', example='v1'),
+        weight?: int32(name='weight', description='Percentage value of traffic distribution.', example='49'),
+      }
+    ](name='services', description='List of backend services.'),
+  }(name='backendConfig', description='Backend service configuration for the route.'),
+  description?: string(name='description', description='Route description.', example='用户登陆路由。'),
+  domainIds?: [ string ](name='domainIds', description='Domain IDs.'),
+  environmentId?: string(name='environmentId', description='Environment ID.', example='env-cpqnr6tlhtgubcv***'),
+  match?: HttpRouteMatch(name='match', description='Route match rules.'),
+  name?: string(name='name', description='Route name.', example='login'),
+}
+
+model CreateHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    routeId?: string(name='routeId', description='Route ID。', example='hr-cr82undlhtgrlej***'),
+  }(name='data', description='Response data.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+}
+
+model CreateHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+ * @summary Create a route for HttpApi
+ *
+ * @param request CreateHttpApiRouteRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateHttpApiRouteResponse
+ */
+async function createHttpApiRouteWithOptions(httpApiId: string, request: CreateHttpApiRouteRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateHttpApiRouteResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.backendConfig)) {
+    body['backendConfig'] = request.backendConfig;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.domainIds)) {
+    body['domainIds'] = request.domainIds;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    body['environmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.match)) {
+    body['match'] = request.match;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateHttpApiRoute',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/routes`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Create a route for HttpApi
+ *
+ * @param request CreateHttpApiRouteRequest
+ * @return CreateHttpApiRouteResponse
+ */
+async function createHttpApiRoute(httpApiId: string, request: CreateHttpApiRouteRequest): CreateHttpApiRouteResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createHttpApiRouteWithOptions(httpApiId, request, headers, runtime);
 }
 
 model DeleteDomainResponseBody = {
@@ -1316,6 +1511,67 @@ async function deleteGateway(gatewayId: string): DeleteGatewayResponse {
   return deleteGatewayWithOptions(gatewayId, headers, runtime);
 }
 
+model DeleteGatewaySecurityGroupRuleRequest {
+  cascadingDelete?: boolean(name='cascadingDelete', description='Whether to cascade delete the security group rules.', example='true'),
+}
+
+model DeleteGatewaySecurityGroupRuleResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='8F94B3CC-F4BA-511E-8367-ECBBE486E595'),
+}
+
+model DeleteGatewaySecurityGroupRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteGatewaySecurityGroupRuleResponseBody(name='body'),
+}
+
+/**
+ * @summary Delete the security group rule of a gateway
+ *
+ * @param request DeleteGatewaySecurityGroupRuleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteGatewaySecurityGroupRuleResponse
+ */
+async function deleteGatewaySecurityGroupRuleWithOptions(gatewayId: string, securityGroupRuleId: string, request: DeleteGatewaySecurityGroupRuleRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteGatewaySecurityGroupRuleResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.cascadingDelete)) {
+    query['cascadingDelete'] = request.cascadingDelete;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteGatewaySecurityGroupRule',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/security-group-rules/${OpenApiUtil.getEncodeParam(securityGroupRuleId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Delete the security group rule of a gateway
+ *
+ * @param request DeleteGatewaySecurityGroupRuleRequest
+ * @return DeleteGatewaySecurityGroupRuleResponse
+ */
+async function deleteGatewaySecurityGroupRule(gatewayId: string, securityGroupRuleId: string, request: DeleteGatewaySecurityGroupRuleRequest): DeleteGatewaySecurityGroupRuleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteGatewaySecurityGroupRuleWithOptions(gatewayId, securityGroupRuleId, request, headers, runtime);
+}
+
 model DeleteHttpApiResponseBody = {
   code?: string(name='code', description='Response status code.', example='Ok'),
   message?: string(name='message', description='Response message.', example='success'),
@@ -1412,6 +1668,210 @@ async function deleteHttpApiOperation(httpApiId: string, operationId: string): D
   return deleteHttpApiOperationWithOptions(httpApiId, operationId, headers, runtime);
 }
 
+model DeleteHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='0F138FFC-6E2B-56C1-9BAB-A67462E339D1'),
+}
+
+model DeleteHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+ * @summary Delete the route of an HttpApi
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteHttpApiRouteResponse
+ */
+async function deleteHttpApiRouteWithOptions(httpApiId: string, routeId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteHttpApiRouteResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteHttpApiRoute',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/routes/${OpenApiUtil.getEncodeParam(routeId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Delete the route of an HttpApi
+ *
+ * @return DeleteHttpApiRouteResponse
+ */
+async function deleteHttpApiRoute(httpApiId: string, routeId: string): DeleteHttpApiRouteResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
+}
+
+model ExportHttpApiResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    specContentBase64?: string(name='specContentBase64', description='Base64编码的API定义。', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  }(name='data', description='API definition information.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='4BACB05C-3FE2-588F-9148-700C5C026B74'),
+}
+
+model ExportHttpApiResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExportHttpApiResponseBody(name='body'),
+}
+
+/**
+ * @summary Export HTTP API
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExportHttpApiResponse
+ */
+async function exportHttpApiWithOptions(httpApiId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ExportHttpApiResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ExportHttpApi',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/export`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Export HTTP API
+ *
+ * @return ExportHttpApiResponse
+ */
+async function exportHttpApi(httpApiId: string): ExportHttpApiResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return exportHttpApiWithOptions(httpApiId, headers, runtime);
+}
+
+model GetDashboardRequest {
+  acceptLanguage?: string(name='acceptLanguage', example='zh'),
+  apiId?: string(name='apiId'),
+  filter?: {
+    routeName?: string(name='routeName', example='test-route'),
+  }(name='filter'),
+  name?: string(name='name', example='PLUGIN'),
+  pluginClassId?: string(name='pluginClassId', example='pls-dn82a9djd8z****'),
+  source?: string(name='source', example='SLS'),
+}
+
+model GetDashboardShrinkRequest {
+  acceptLanguage?: string(name='acceptLanguage', example='zh'),
+  apiId?: string(name='apiId'),
+  filterShrink?: string(name='filter'),
+  name?: string(name='name', example='PLUGIN'),
+  pluginClassId?: string(name='pluginClassId', example='pls-dn82a9djd8z****'),
+  source?: string(name='source', example='SLS'),
+}
+
+model GetDashboardResponseBody = {
+  code?: int32(name='code', example='200'),
+  data?: {
+    gatewayId?: string(name='gatewayId', example='gw-co370icmjeu****'),
+    name?: string(name='name', example='PLUGIN'),
+    title?: string(name='title', example='APIG Plugin'),
+    url?: string(name='url', example='https://sls.console.aliyun.com/lognext/project/xxxxx'),
+  }(name='data'),
+  errorCode?: string(name='errorCode', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32AF2C'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetDashboardResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDashboardResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取监控/日志大盘接口
+ *
+ * @param tmpReq GetDashboardRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDashboardResponse
+ */
+async function getDashboardWithOptions(gatewayId: string, tmpReq: GetDashboardRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetDashboardResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetDashboardShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'filter', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['acceptLanguage'] = request.acceptLanguage;
+  }
+  if (!Util.isUnset(request.apiId)) {
+    query['apiId'] = request.apiId;
+  }
+  if (!Util.isUnset(request.filterShrink)) {
+    query['filter'] = request.filterShrink;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+  if (!Util.isUnset(request.pluginClassId)) {
+    query['pluginClassId'] = request.pluginClassId;
+  }
+  if (!Util.isUnset(request.source)) {
+    query['source'] = request.source;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetDashboard',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/dashboards`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取监控/日志大盘接口
+ *
+ * @param request GetDashboardRequest
+ * @return GetDashboardResponse
+ */
+async function getDashboard(gatewayId: string, request: GetDashboardRequest): GetDashboardResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDashboardWithOptions(gatewayId, request, headers, runtime);
+}
+
 model GetDomainRequest {
   withStatistics?: boolean(name='withStatistics'),
 }
@@ -1506,8 +1966,8 @@ async function getDomain(domainId: string, request: GetDomainRequest): GetDomain
 }
 
 model GetEnvironmentRequest {
-  withStatistics?: boolean(name='withStatistics'),
-  withVpcInfo?: boolean(name='withVpcInfo', description='Option for vpc info.'),
+  withStatistics?: boolean(name='withStatistics', description='Indicates whether to return online resource info.', example='true'),
+  withVpcInfo?: boolean(name='withVpcInfo', description='Option for vpc info.', example='true'),
 }
 
 model GetEnvironmentResponseBody = {
@@ -1520,13 +1980,13 @@ model GetEnvironmentResponseBody = {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cq7l5s5lhtgi6qasrdc0'),
     gatewayInfo?: GatewayInfo(name='gatewayInfo', description='Gateway information'),
     name?: string(name='name', description='Environment name.', example='test'),
-    resourceGroupId?: string(name='resourceGroupId'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzzzntl5njbpi'),
     statisticsInfo?: {
       resourceStatistics?: [
         ResourceStatistic
-      ](name='resourceStatistics'),
-      totalCount?: int32(name='totalCount'),
-    }(name='statisticsInfo'),
+      ](name='resourceStatistics', description='The array of related resource information.'),
+      totalCount?: int32(name='totalCount', description='The total number of entries returned.', example='4'),
+    }(name='statisticsInfo', description='Related resource information.'),
     subDomainInfos?: [
       SubDomainInfo
     ](name='subDomainInfos', description='List of subdomains.'),
@@ -1639,7 +2099,7 @@ model GetGatewayResponseBody = {
     ](name='loadBalancers', description='List of entry addresses for the gateway.'),
     name?: string(name='name', description='Gateway name.', example='itemcenter-gateway'),
     replicas?: string(name='replicas', description='Number of gateway instance nodes.', example='2'),
-    resourceGroupId?: string(name='resourceGroupId'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aek2s3cvc4jzfxi'),
     securityGroup?: {
       name?: string(name='name', description='Security group name.', example='APIG-sg-gw-cq7ke5ll***'),
       securityGroupId?: string(name='securityGroupId', description='Security group ID.', example='sg-bp16tafq9***'),
@@ -1658,10 +2118,10 @@ model GetGatewayResponseBody = {
 - DeleteFailed: Deletion failed.', example='Running'),
     tags?: [ 
       {
-        key?: string(name='key'),
-        value?: string(name='value'),
+        key?: string(name='key', description='The tag key of the resource.', example='owner'),
+        value?: string(name='value', description='The tag value of the resource.', example='zhangsan'),
       }
-    ](name='tags'),
+    ](name='tags', description='The resource tags.'),
     targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with the current version, an upgrade can be performed.', example='2.0.2'),
     updateTimestamp?: long(name='updateTimestamp', description='Update timestamp. Unit: milliseconds.', example='1719386834548'),
     vSwitch?: {
@@ -1829,10 +2289,10 @@ async function getHttpApiOperation(httpApiId: string, operationId: string): GetH
 }
 
 model GetHttpApiRouteResponseBody = {
-  code?: string(name='code', example='Ok'),
-  data?: HttpRoute(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: HttpRoute(name='data', description='Route detail data.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
 }
 
 model GetHttpApiRouteResponse = {
@@ -1842,7 +2302,7 @@ model GetHttpApiRouteResponse = {
 }
 
 /**
- * @summary 获取HttpApi的路由详情
+ * @summary Get the details of an HttpApi route
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1867,7 +2327,7 @@ async function getHttpApiRouteWithOptions(httpApiId: string, routeId: string, he
 }
 
 /**
- * @summary 获取HttpApi的路由详情
+ * @summary Get the details of an HttpApi route
  *
  * @return GetHttpApiRouteResponse
  */
@@ -1877,12 +2337,284 @@ async function getHttpApiRoute(httpApiId: string, routeId: string): GetHttpApiRo
   return getHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
 }
 
+model GetResourceOverviewResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    api?: {
+      publishedCount?: long(name='publishedCount', example='1'),
+      totalCount?: long(name='totalCount', example='1'),
+    }(name='api'),
+    gateway?: {
+      runningCount?: long(name='runningCount', example='1'),
+      totalCount?: long(name='totalCount', example='1'),
+    }(name='gateway'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='DD19A442-93C5-5C97-AFA0-B9C57EBD781B'),
+}
+
+model GetResourceOverviewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetResourceOverviewResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取资源概览信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetResourceOverviewResponse
+ */
+async function getResourceOverviewWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceOverviewResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetResourceOverview',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/overview/resources`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取资源概览信息
+ *
+ * @return GetResourceOverviewResponse
+ */
+async function getResourceOverview(): GetResourceOverviewResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getResourceOverviewWithOptions(headers, runtime);
+}
+
+model GetTraceConfigRequest {
+  acceptLanguage?: string(name='acceptLanguage', example='zh'),
+}
+
+model GetTraceConfigResponseBody = {
+  code?: int32(name='code', example='200'),
+  data?: {
+    enable?: boolean(name='enable', example='true'),
+    sampleRatio?: int32(name='sampleRatio', example='50'),
+    serviceId?: string(name='serviceId', example='ss-co370icmjeu****'),
+    servicePort?: string(name='servicePort', example='8090'),
+    traceType?: string(name='traceType', example='SKYWALKING'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32AF2C'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetTraceConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTraceConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取链路追踪配置
+ *
+ * @param request GetTraceConfigRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTraceConfigResponse
+ */
+async function getTraceConfigWithOptions(gatewayId: string, request: GetTraceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTraceConfigResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.acceptLanguage)) {
+    query['acceptLanguage'] = request.acceptLanguage;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTraceConfig',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/trace`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取链路追踪配置
+ *
+ * @param request GetTraceConfigRequest
+ * @return GetTraceConfigResponse
+ */
+async function getTraceConfig(gatewayId: string, request: GetTraceConfigRequest): GetTraceConfigResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTraceConfigWithOptions(gatewayId, request, headers, runtime);
+}
+
+model ImportHttpApiRequest {
+  description?: string(name='description', description='The description of the imported API. If not provided, it will be extracted from the API definition. The length is limited to 255 bytes.', example='测试专用API'),
+  dryRun?: boolean(name='dryRun', description='Pre-import check. If enabled, only the check will be performed without importing the API.', example='false'),
+  name?: string(name='name', description='The name of the imported API. If not provided, it will be extracted from the API definition file. If the API name and version configuration already exist, this import will update the existing API definition based on the `strategy` field.', example='import-test'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-acfm3q4zjh7fkki'),
+  specContentBase64?: string(name='specContentBase64', description='Base64 encoded API definition, supporting OAS2.0 and OAS3.0 specifications, in YAML or JSON format. It has a higher priority than the `specFileUrl` parameter. If the file size exceeds 10MB, please use the `specFileUrl` parameter to transfer.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  specFileUrl?: string(name='specFileUrl', description='Download URL for the API definition file, which must be accessible from the public network or via an internal OSS download address within the same region. The file URL must have download permissions. For non-publicly readable OSS file links, refer to the documentation at https://help.aliyun.com/zh/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects, and provide a URL with download permissions. Currently, only API definition files stored on OSS are supported.', example='https://my-bucket.oss-cn-hangzhou.aliyuncs.com/my-api/api.yaml'),
+  specOssConfig?: {
+    bucketName?: string(name='bucketName', description='The name of the Object Storage Service (OSS) bucket that stores the dictionary file.', example='api-1'),
+    objectKey?: string(name='objectKey', description='The file path.', example='/test/swagger.json'),
+    regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  }(name='specOssConfig', description='The oss config info.'),
+  strategy?: string(name='strategy', description='When the imported API name and version management match an existing API, you need to specify an update strategy.
+- SpecOnly: Completely based on the imported file.
+- SpecFirst: Prioritize the imported file, add new interfaces and update existing ones, while keeping interfaces not mentioned in the file unchanged.
+- ExistFirst: Prioritize the existing API, only add new interfaces without updating existing ones.
+If not specified, the default strategy is ExistFirst.', example='ExistFirst'),
+  targetHttpApiId?: string(name='targetHttpApiId', description='If this field is specified, this import will update the specified API instead of importing or searching for an existing API based on the API name and version management configuration. The target API must be of REST type.', example='api-xxxx'),
+  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='API versioning configuration. If versioning is enabled, and the version number and API name match an existing API, this import will be treated as an update. If versioning is not enabled, and the API name matches an existing API, this import will also be treated as an update.'),
+}
+
+model ImportHttpApiResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    dryRunInfo?: {
+      errorMessages?: [ string ](name='errorMessages', description='Error messages. If there are any error messages, the API cannot be imported successfully.'),
+      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='已存在的API信息。若该字段非空，则导入动作将更新该API。'),
+      failureComponents?: [ 
+        {
+          errorMessage?: string(name='errorMessage', description='Error message.', example='数据结构定义有误。'),
+          name?: string(name='name', description='数据结构名称。', example='orderDTO'),
+        }
+      ](name='failureComponents', description='List of data structures that failed the precheck.'),
+      failureOperations?: [ 
+        {
+          errorMessage?: string(name='errorMessage', description='Error message', example='缺少响应定义。'),
+          method?: string(name='method', description='API method.', example='GET'),
+          path?: string(name='path', description='API path.', example='/v1/orders'),
+        }
+      ](name='failureOperations', description='List of APIs that failed the precheck.'),
+      successComponents?: [ 
+        {
+          action?: string(name='action', description='Action to be executed after the precheck.
+- Create: Create
+- Update: Update', example='Create'),
+          name?: string(name='name', description='Data structure name.', example='userDTO'),
+        }
+      ](name='successComponents', description='List of data structures that passed the precheck.'),
+      successOperations?: [ 
+        {
+          action?: string(name='action', description='Action to be executed after the precheck.
+- Create: Create
+- Update: Update', example='Create'),
+          method?: string(name='method', description='API method.', example='POST'),
+          name?: string(name='name', description='API name.', example='CreateUser'),
+          path?: string(name='path', description='API path.', example='/v1/users'),
+        }
+      ](name='successOperations', description='List of successfully pre-checked interfaces.'),
+      warningMessages?: [ string ](name='warningMessages', description='Warning messages. If there are any warning messages, some interfaces or data interfaces may not be imported successfully.'),
+    }(name='dryRunInfo', description='Pre-import check result.'),
+    httpApiId?: string(name='httpApiId', description='HTTP API ID.', example='api-xxx'),
+    name?: string(name='name', description='API name.', example='import-test'),
+  }(name='data', description='API information.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='CE857A85-251D-5018-8103-A38957D71E20'),
+}
+
+model ImportHttpApiResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ImportHttpApiResponseBody(name='body'),
+}
+
+/**
+ * @summary Import HttpApi
+ *
+ * @param request ImportHttpApiRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ImportHttpApiResponse
+ */
+async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ImportHttpApiResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.dryRun)) {
+    body['dryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body['resourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.specContentBase64)) {
+    body['specContentBase64'] = request.specContentBase64;
+  }
+  if (!Util.isUnset(request.specFileUrl)) {
+    body['specFileUrl'] = request.specFileUrl;
+  }
+  if (!Util.isUnset(request.specOssConfig)) {
+    body['specOssConfig'] = request.specOssConfig;
+  }
+  if (!Util.isUnset(request.strategy)) {
+    body['strategy'] = request.strategy;
+  }
+  if (!Util.isUnset(request.targetHttpApiId)) {
+    body['targetHttpApiId'] = request.targetHttpApiId;
+  }
+  if (!Util.isUnset(request.versionConfig)) {
+    body['versionConfig'] = request.versionConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ImportHttpApi',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/import`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Import HttpApi
+ *
+ * @param request ImportHttpApiRequest
+ * @return ImportHttpApiResponse
+ */
+async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return importHttpApiWithOptions(request, headers, runtime);
+}
+
 model ListDomainsRequest {
   gatewayId?: string(name='gatewayId', description='Gateway Id.', example='gw-xxx'),
   nameLike?: string(name='nameLike', description='Domain name, fuzzy search.', example='test'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1'),
   pageSize?: int32(name='pageSize', description='Number of items per page, default is 10.', example='10'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-ahr5uil8raz0rq3b'),
 }
 
 model ListDomainsResponseBody = {
@@ -1969,7 +2701,7 @@ model ListEnvironmentsRequest {
   nameLike?: string(name='nameLike', description='Environment name, fuzzy search.', example='test'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1'),
   pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10'),
-  resourceGroupId?: string(name='resourceGroupId'),
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-aek2sy66mftleiq'),
 }
 
 model ListEnvironmentsResponseBody = {
@@ -2056,28 +2788,28 @@ async function listEnvironments(request: ListEnvironmentsRequest): ListEnvironme
 }
 
 model ListGatewaysRequest {
-  gatewayId?: string(name='gatewayId', description='Query exactly by gateway ID.', example='gw-cpv4sqdl****'),
+  gatewayId?: string(name='gatewayId', description='Query exactly by Gateway ID.', example='gw-cpv4sqdl****'),
   keyword?: string(name='keyword', description='Keyword, search with full match, case-insensitive.', example='dev'),
-  name?: string(name='name', description='Query exactly by gateway name.', example='itemcenter-gateway'),
+  name?: string(name='name', description='Query exactly by Gateway name.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='Page number.', example='1'),
   pageSize?: int32(name='pageSize', description='Page size.', example='10'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  tags?: [ 
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-aekz3wes3hnre5a'),
+  tag?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', description='The key of the tag.', example='owner'),
+      value?: string(name='value', description='The value of the tag.', example='zhangsan'),
     }
-  ](name='tags'),
+  ](name='tag', description='Filter list by tags'),
 }
 
 model ListGatewaysShrinkRequest {
-  gatewayId?: string(name='gatewayId', description='Query exactly by gateway ID.', example='gw-cpv4sqdl****'),
+  gatewayId?: string(name='gatewayId', description='Query exactly by Gateway ID.', example='gw-cpv4sqdl****'),
   keyword?: string(name='keyword', description='Keyword, search with full match, case-insensitive.', example='dev'),
-  name?: string(name='name', description='Query exactly by gateway name.', example='itemcenter-gateway'),
+  name?: string(name='name', description='Query exactly by Gateway name.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='Page number.', example='1'),
   pageSize?: int32(name='pageSize', description='Page size.', example='10'),
-  resourceGroupId?: string(name='resourceGroupId'),
-  tagsShrink?: string(name='tags'),
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-aekz3wes3hnre5a'),
+  tagShrink?: string(name='tag', description='Filter list by tags'),
 }
 
 model ListGatewaysResponseBody = {
@@ -2092,7 +2824,7 @@ model ListGatewaysResponseBody = {
         createFrom?: string(name='createFrom', description='Source of gateway creation:
 - Console: Console.', example='Console'),
         createTimestamp?: long(name='createTimestamp', description='Creation timestamp, in milliseconds.', example='1719386834548'),
-        expireTimestamp?: long(name='expireTimestamp', description='Expiration timestamp for the prepaid (annual or monthly) plan. Unit: milliseconds.', example='172086834548'),
+        expireTimestamp?: long(name='expireTimestamp', description='Expiration timestamp for prepaid (annual or monthly) subscriptions. Unit: milliseconds.', example='172086834548'),
         gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cpv54p5***'),
         loadBalancers?: [ 
           {
@@ -2105,7 +2837,7 @@ model ListGatewaysResponseBody = {
 - Intranet: Private network.', example='Internet'),
             gatewayDefault?: boolean(name='gatewayDefault', description='Indicates whether this is the default entry address for the gateway.', example='true'),
             loadBalancerId?: string(name='loadBalancerId', description='Load balancer ID.', example='nlb-xqwioje1c91r***'),
-            mode?: string(name='mode', description='Mode of load balancer provision for the gateway:
+            mode?: string(name='mode', description='Load balancer provision mode for the gateway:
 - Managed: Managed by the Cloud Native API Gateway.', example='Managed'),
             ports?: [ 
               {
@@ -2125,9 +2857,9 @@ model ListGatewaysResponseBody = {
         ](name='loadBalancers', description='List of gateway entry addresses.'),
         name?: string(name='name', description='Gateway name.', example='itemcenter-gateway'),
         replicas?: string(name='replicas', description='Number of gateway instance nodes.', example='2'),
-        resourceGroupId?: string(name='resourceGroupId'),
+        resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-xxx'),
         securityGroup?: {
-          securityGroupId?: string(name='securityGroupId', description='The Security Group ID.'),
+          securityGroupId?: string(name='securityGroupId', description='The Security Group ID.', example='sg-xxxx'),
         }(name='securityGroup', description='The Security Group.'),
         spec?: string(name='spec', description='Gateway specification:
 - apigw.small.x1: Small specification.', example='apigw.small.x1'),
@@ -2143,33 +2875,33 @@ model ListGatewaysResponseBody = {
 - DeleteFailed: Deletion failed.', example='Running'),
         tags?: [ 
           {
-            tagKey?: string(name='tagKey'),
-            tagValue?: string(name='tagValue'),
+            key?: string(name='key', description='The key of the tag.', example='owner'),
+            value?: string(name='value', description='The value of the tag.', example='zhangsan'),
           }
-        ](name='tags'),
-        targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with `version`, a version upgrade can be performed.', example='2.0.2'),
+        ](name='tags', description='Array of tags.'),
+        targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with the current `version`, an upgrade can be performed.', example='2.0.2'),
         updateTimestamp?: long(name='updateTimestamp', description='Update timestamp. Unit: milliseconds.', example='1719386834548'),
         vSwitch?: {
           vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
-        }(name='vSwitch'),
+        }(name='vSwitch', description='The vSwtich.'),
         version?: string(name='version', description='Gateway version.', example='2.0.2'),
         vpc?: {
           vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxxxx'),
-        }(name='vpc'),
+        }(name='vpc', description='The VPC.'),
         zones?: [ 
           {
             vSwitch?: {
               vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
             }(name='vSwitch', description='The vSwitch.'),
-            zoneId?: string(name='zoneId', description='The ID of the current zone.', example='cn-hangzhou'),
+            zoneId?: string(name='zoneId', description='The ID of the current zone.', example='cn-hangzhou-f'),
           }
-        ](name='zones'),
+        ](name='zones', description='The Zones.'),
       }
     ](name='items', description='Gateway list'),
     pageNumber?: int32(name='pageNumber', description='Page number.', example='1'),
     pageSize?: int32(name='pageSize', description='Page size.', example='10'),
     totalSize?: long(name='totalSize', description='Total count.', example='6'),
-  }(name='data', description='Result of the gateway list query.'),
+  }(name='data', description='Result of gateway list query.'),
   message?: string(name='message', description='Response message.', example='success'),
   requestId?: string(name='requestId', description='Request ID.', example='5B626361-070A-56A7-B127-ADAC8F3655DB'),
 }
@@ -2192,8 +2924,8 @@ async function listGatewaysWithOptions(tmpReq: ListGatewaysRequest, headers: map
   Util.validateModel(tmpReq);
   var request = new ListGatewaysShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.tags)) {
-    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  if (!Util.isUnset(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'tag', 'json');
   }
   var query : map[string]any = {};
   if (!Util.isUnset(request.gatewayId)) {
@@ -2214,8 +2946,8 @@ async function listGatewaysWithOptions(tmpReq: ListGatewaysRequest, headers: map
   if (!Util.isUnset(request.resourceGroupId)) {
     query['resourceGroupId'] = request.resourceGroupId;
   }
-  if (!Util.isUnset(request.tagsShrink)) {
-    query['tags'] = request.tagsShrink;
+  if (!Util.isUnset(request.tagShrink)) {
+    query['tag'] = request.tagShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -2258,7 +2990,7 @@ model ListHttpApiOperationsRequest {
   pathLike?: string(name='pathLike', description='Search operations by path prefix.', example='/v1'),
   withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='Each operation information in the response carries a list of authorization rules for the specified consumer under the specified environment ID. The withConsumerInEnvironmentId field needs to be additionally specified.', example='env-xxx'),
   withConsumerInfoById?: string(name='withConsumerInfoById', description='Each operation information in the response carries a list of authorization rules for the specified consumer under the specified environment ID. The withConsumerInEnvironmentId field needs to be additionally specified.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Plugin ID, use this plugin ID to retrieve the plugin release information.', example='pl-xxx'),
 }
 
 model ListHttpApiOperationsResponseBody = {
@@ -2370,6 +3102,7 @@ model ListHttpApisRequest {
   withConsumerInfoById?: string(name='withConsumerInfoById', description='Each API information in the response carries a list of authorization rules for the specified consumer ID.', example='cs-xxx'),
   withEnvironmentInfo?: boolean(name='withEnvironmentInfo'),
   withEnvironmentInfoById?: string(name='withEnvironmentInfoById'),
+  withIngressInfo?: boolean(name='withIngressInfo'),
   withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId'),
 }
 
@@ -2440,6 +3173,9 @@ async function listHttpApisWithOptions(request: ListHttpApisRequest, headers: ma
   if (!Util.isUnset(request.withEnvironmentInfoById)) {
     query['withEnvironmentInfoById'] = request.withEnvironmentInfoById;
   }
+  if (!Util.isUnset(request.withIngressInfo)) {
+    query['withIngressInfo'] = request.withIngressInfo;
+  }
   if (!Util.isUnset(request.withPluginAttachmentByPluginId)) {
     query['withPluginAttachmentByPluginId'] = request.withPluginAttachmentByPluginId;
   }
@@ -2474,9 +3210,278 @@ async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse 
   return listHttpApisWithOptions(request, headers, runtime);
 }
 
+model ListPolicyClassesRequest {
+  attachResourceType?: string(name='attachResourceType', example='Operation'),
+  direction?: string(name='direction', example='InBound'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  type?: string(name='type', example='FlowControl'),
+}
+
+model ListPolicyClassesResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [
+      PolicyClassInfo
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='10'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='23B45FA9-7208-5E55-B5CE-B6B2567DD822'),
+}
+
+model ListPolicyClassesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPolicyClassesResponseBody(name='body'),
+}
+
+/**
+ * @summary ListPolicyClasses。
+ *
+ * @param request ListPolicyClassesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPolicyClassesResponse
+ */
+async function listPolicyClassesWithOptions(request: ListPolicyClassesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPolicyClassesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.attachResourceType)) {
+    query['attachResourceType'] = request.attachResourceType;
+  }
+  if (!Util.isUnset(request.direction)) {
+    query['direction'] = request.direction;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPolicyClasses',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/policy-classes`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListPolicyClasses。
+ *
+ * @param request ListPolicyClassesRequest
+ * @return ListPolicyClassesResponse
+ */
+async function listPolicyClasses(request: ListPolicyClassesRequest): ListPolicyClassesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPolicyClassesWithOptions(request, headers, runtime);
+}
+
+model ListSslCertsRequest {
+  certNameLike?: string(name='certNameLike', example='ali'),
+  domainName?: string(name='domainName', example='fun.iot.evideocloud.com.cn'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListSslCertsResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [
+      SslCertMetaInfo
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='2'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='AADF7197-3384-52AF-A2DE-A66696734129'),
+}
+
+model ListSslCertsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSslCertsResponseBody(name='body'),
+}
+
+/**
+ * @summary ListSslCerts。
+ *
+ * @param request ListSslCertsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSslCertsResponse
+ */
+async function listSslCertsWithOptions(request: ListSslCertsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSslCertsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.certNameLike)) {
+    query['certNameLike'] = request.certNameLike;
+  }
+  if (!Util.isUnset(request.domainName)) {
+    query['domainName'] = request.domainName;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSslCerts',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/ssl/certs`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListSslCerts。
+ *
+ * @param request ListSslCertsRequest
+ * @return ListSslCertsResponse
+ */
+async function listSslCerts(request: ListSslCertsRequest): ListSslCertsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSslCertsWithOptions(request, headers, runtime);
+}
+
+model ListZonesResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        zoneId?: string(name='zoneId', example='cn-shenzhen-c'),
+      }
+    ](name='items'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='E8079207-B651-592A-A565-23E9EE5673B0'),
+}
+
+model ListZonesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListZonesResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取云原生API网关region下的可用区
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListZonesResponse
+ */
+async function listZonesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): ListZonesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListZones',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/zones`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取云原生API网关region下的可用区
+ *
+ * @return ListZonesResponse
+ */
+async function listZones(): ListZonesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listZonesWithOptions(headers, runtime);
+}
+
+model RestartGatewayResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model RestartGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RestartGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary Gateway Restart
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RestartGatewayResponse
+ */
+async function restartGatewayWithOptions(gatewayId: string, headers: map[string]string, runtime: Util.RuntimeOptions): RestartGatewayResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'RestartGateway',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/restart`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Gateway Restart
+ *
+ * @return RestartGatewayResponse
+ */
+async function restartGateway(gatewayId: string): RestartGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return restartGatewayWithOptions(gatewayId, headers, runtime);
+}
+
 model UpdateDomainRequest {
-  caCertIndentifier?: string(name='caCertIndentifier', description='Cloud Shield CA certificate identifier.', example='123455-cn-hangzhou'),
-  certIndentifier?: string(name='certIndentifier', description='Cloud Shield certificate identifier.', example='123458-cn-hangzhou'),
+  caCertIdentifier?: string(name='caCertIdentifier'),
+  certIdentifier?: string(name='certIdentifier'),
   forceHttps?: boolean(name='forceHttps', description='Set the HTTPS protocol type, whether to enable forced HTTPS redirection.', example='false'),
   http2Option?: string(name='http2Option', description='HTTP/2 settings.', example='Open'),
   protocol?: string(name='protocol', description='The protocol type supported by the domain.
@@ -2485,7 +3490,7 @@ model UpdateDomainRequest {
 - HTTPS: Supports only HTTPS protocol.
 
 This parameter is required.', example='HTTP'),
-  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig'),
+  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='TLS Cipher Suite Configuration.'),
   tlsMax?: string(name='tlsMax', description='Maximum TLS protocol version, supports up to TLS 1.3.', example='TLS 1.3'),
   tlsMin?: string(name='tlsMin', description='Minimum TLS protocol version, supports down to TLS 1.0.', example='TLS 1.0'),
 }
@@ -2516,11 +3521,11 @@ model UpdateDomainResponse = {
 async function updateDomainWithOptions(domainId: string, request: UpdateDomainRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateDomainResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
-  if (!Util.isUnset(request.caCertIndentifier)) {
-    body['caCertIndentifier'] = request.caCertIndentifier;
+  if (!Util.isUnset(request.caCertIdentifier)) {
+    body['caCertIdentifier'] = request.caCertIdentifier;
   }
-  if (!Util.isUnset(request.certIndentifier)) {
-    body['certIndentifier'] = request.certIndentifier;
+  if (!Util.isUnset(request.certIdentifier)) {
+    body['certIdentifier'] = request.certIdentifier;
   }
   if (!Util.isUnset(request.forceHttps)) {
     body['forceHttps'] = request.forceHttps;
@@ -2638,15 +3643,139 @@ async function updateEnvironment(environmentId: string, request: UpdateEnvironme
   return updateEnvironmentWithOptions(environmentId, request, headers, runtime);
 }
 
+model UpdateGatewayFeatureRequest {
+  value?: string(name='value', description='Parameter value.', example='"true"'),
+}
+
+model UpdateGatewayFeatureResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='043360DA-ED3B-5386-9B7A-D94DECF99A30'),
+}
+
+model UpdateGatewayFeatureResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayFeatureResponseBody(name='body'),
+}
+
+/**
+ * @summary Get the feature configuration of the gateway
+ *
+ * @param request UpdateGatewayFeatureRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateGatewayFeatureResponse
+ */
+async function updateGatewayFeatureWithOptions(gatewayId: string, name: string, request: UpdateGatewayFeatureRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateGatewayFeatureResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.value)) {
+    body['value'] = request.value;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateGatewayFeature',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/gateway-features/${OpenApiUtil.getEncodeParam(name)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get the feature configuration of the gateway
+ *
+ * @param request UpdateGatewayFeatureRequest
+ * @return UpdateGatewayFeatureResponse
+ */
+async function updateGatewayFeature(gatewayId: string, name: string, request: UpdateGatewayFeatureRequest): UpdateGatewayFeatureResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGatewayFeatureWithOptions(gatewayId, name, request, headers, runtime);
+}
+
+model UpdateGatewayNameRequest {
+  name?: string(name='name', description='Gateway name.', example='dev-itemcenter-router'),
+}
+
+model UpdateGatewayNameResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model UpdateGatewayNameResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayNameResponseBody(name='body'),
+}
+
+/**
+ * @summary Change the name of a gateway instance
+ *
+ * @param request UpdateGatewayNameRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateGatewayNameResponse
+ */
+async function updateGatewayNameWithOptions(gatewayId: string, request: UpdateGatewayNameRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateGatewayNameResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.name)) {
+    query['name'] = request.name;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateGatewayName',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/name`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Change the name of a gateway instance
+ *
+ * @param request UpdateGatewayNameRequest
+ * @return UpdateGatewayNameResponse
+ */
+async function updateGatewayName(gatewayId: string, request: UpdateGatewayNameRequest): UpdateGatewayNameResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGatewayNameWithOptions(gatewayId, request, headers, runtime);
+}
+
 model UpdateHttpApiRequest {
-  aiProtocols?: [ string ](name='aiProtocols'),
+  aiProtocols?: [ string ](name='aiProtocols', description='List of AI protocols.'),
+  authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', description='Base path of the API, which must start with a \\\\"/\\\\".
 
 This parameter is required.', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs'),
+  ](name='deployConfigs', description='List of API deployment configurations.'),
   description?: string(name='description', description='API description.', example='更新API描述'),
+  enableAuth?: boolean(name='enableAuth'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cr6ql0tlhtgmc****'),
     ingressClass?: string(name='ingressClass', description='Ingress Class being listened to.', example='mse'),
@@ -2684,6 +3813,9 @@ async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpAp
   if (!Util.isUnset(request.aiProtocols)) {
     body['aiProtocols'] = request.aiProtocols;
   }
+  if (!Util.isUnset(request.authConfig)) {
+    body['authConfig'] = request.authConfig;
+  }
   if (!Util.isUnset(request.basePath)) {
     body['basePath'] = request.basePath;
   }
@@ -2692,6 +3824,9 @@ async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpAp
   }
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.enableAuth)) {
+    body['enableAuth'] = request.enableAuth;
   }
   if (!Util.isUnset(request.ingressConfig)) {
     body['ingressConfig'] = request.ingressConfig;
@@ -2792,5 +3927,156 @@ async function updateHttpApiOperation(httpApiId: string, operationId: string, re
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateHttpApiOperationWithOptions(httpApiId, operationId, request, headers, runtime);
+}
+
+model UpdateHttpApiRouteRequest {
+  backendConfig?: {
+    scene?: string(name='scene', description='Backend service scenario.', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', description='Service port, do not pass in for dynamic ports.', example='8080'),
+        protocol?: string(name='protocol', description='Service protocol:
+- HTTP.
+- HTTPS.', example='HTTP'),
+        serviceId?: string(name='serviceId', description='Service ID.', example='svc-cr6pk4tlhtgm58e***'),
+        version?: string(name='version', description='Service version.', example='v1'),
+        weight?: int32(name='weight', description='Percentage value of traffic ratio.', example='49'),
+      }
+    ](name='services', description='List of backend services.'),
+  }(name='backendConfig', description='Backend service configuration for the route.'),
+  description?: string(name='description', description='Route description.', example='test route'),
+  domainIds?: [ string ](name='domainIds', description='List of domain IDs.'),
+  environmentId?: string(name='environmentId', description='Environment ID.', example='env-cquqsollhtgid***'),
+  match?: HttpRouteMatch(name='match', description='Route match rule.'),
+}
+
+model UpdateHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='CBEEB8C1-108E-50F0-9BEA-DED79553C309'),
+}
+
+model UpdateHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+ * @summary Update the route of HttpApi
+ *
+ * @param request UpdateHttpApiRouteRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateHttpApiRouteResponse
+ */
+async function updateHttpApiRouteWithOptions(httpApiId: string, routeId: string, request: UpdateHttpApiRouteRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateHttpApiRouteResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.backendConfig)) {
+    body['backendConfig'] = request.backendConfig;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!Util.isUnset(request.domainIds)) {
+    body['domainIds'] = request.domainIds;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    body['environmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.match)) {
+    body['match'] = request.match;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateHttpApiRoute',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${OpenApiUtil.getEncodeParam(httpApiId)}/routes/${OpenApiUtil.getEncodeParam(routeId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Update the route of HttpApi
+ *
+ * @param request UpdateHttpApiRouteRequest
+ * @return UpdateHttpApiRouteResponse
+ */
+async function updateHttpApiRoute(httpApiId: string, routeId: string, request: UpdateHttpApiRouteRequest): UpdateHttpApiRouteResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateHttpApiRouteWithOptions(httpApiId, routeId, request, headers, runtime);
+}
+
+model UpgradeGatewayRequest {
+  version?: string(name='version', description='Gateway version.', example='2.0.2'),
+}
+
+model UpgradeGatewayResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='043360DA-ED3B-5386-9B7A-D94DECF99A30'),
+}
+
+model UpgradeGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpgradeGatewayResponseBody(name='body'),
+}
+
+/**
+ * @summary Upgrade the gateway version
+ *
+ * @param request UpgradeGatewayRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpgradeGatewayResponse
+ */
+async function upgradeGatewayWithOptions(gatewayId: string, request: UpgradeGatewayRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpgradeGatewayResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.version)) {
+    query['version'] = request.version;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpgradeGateway',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${OpenApiUtil.getEncodeParam(gatewayId)}/upgrade`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Upgrade the gateway version
+ *
+ * @param request UpgradeGatewayRequest
+ * @return UpgradeGatewayResponse
+ */
+async function upgradeGateway(gatewayId: string, request: UpgradeGatewayRequest): UpgradeGatewayResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return upgradeGatewayWithOptions(gatewayId, request, headers, runtime);
 }
 
