@@ -336,8 +336,8 @@ model CreateServiceRequest {
   buildParameters?: string(name='BuildParameters', description='The parameters for building the service', example='{ "ServiceTemplateId": "st-xxxxx"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.', example='10CM943JP0EN9D51H', position='Query'),
   complianceMetadata?: {
-    compliancePacks?: [ string ](name='CompliancePacks'),
-  }(name='ComplianceMetadata', shrink='json', position='Query'),
+    compliancePacks?: [ string ](name='CompliancePacks', description='The compliance package selected.'),
+  }(name='ComplianceMetadata', description='Compliance check metadata.', shrink='json', position='Query'),
   deployMetadata?: string(name='DeployMetadata', description='The storage configurations of the service. The format in which the deployment information of a service is stored varies based on the deployment type of the service. In this case, the deployment information is stored in the JSON string format.', example='{\\"TemplateConfigs\\":[{\\"Name\\":\\"模板1\\",\\"Url\\":\\"oss://computenest-test/template" 
             + ".json?RegionId=cn-beijing\\",\\"PredefinedParameters\\":[{\\"Name\\":\\"低配版\\"," 
             + "\\"Parameters\\":{\\"InstanceType\\":\\"ecs.g5.large\\",\\"DataDiskSize\\":40}},{\\"Name\\":\\"高配版\\"," 
@@ -351,7 +351,10 @@ model CreateServiceRequest {
 *   operation: The service is deployed by using a hosted O\\&M service.
 
 This parameter is required.', example='ros', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run for the request to check information. Valid values:
+
+*   true: performs a dry run for the request, but does not create a service.
+*   false: performs a dry run for the request, and create a service if the request passes the dry run.', example='true', position='Query'),
   duration?: long(name='Duration', description='The duration for which hosted O\\&M is implemented. Unit: seconds.', example='0', position='Query'),
   isSupportOperated?: boolean(name='IsSupportOperated', description='Specifies whether to enable the hosted O\\&M feature for the service. Default value: false. Valid values:
 
@@ -391,10 +394,10 @@ This parameter is required.', example='TiDB Database'),
       shortDescription?: string(name='ShortDescription', description='The description of the service.', example='TiDB是A公司自主设计、研发的开源分布式关系型数据库。'),
       softwares?: [ 
         {
-          name?: string(name='Name'),
-          version?: string(name='Version'),
+          name?: string(name='Name', description='The name of the software.', example='MySQL'),
+          version?: string(name='Version', description='The version of the software.', example='5.7'),
         }
-      ](name='Softwares'),
+      ](name='Softwares', description='The list of the software in the service.'),
     }
   ](name='ServiceInfo', description='The service details.', position='Query'),
   serviceType?: string(name='ServiceType', description='The service type. Valid values:
@@ -432,14 +435,29 @@ model CreateServiceResponseBody = {
     rolePolicy?: {
       missingPolicy?: [ 
         {
-          action?: [ string ](name='Action'),
-          resource?: string(name='Resource'),
-          serviceName?: string(name='ServiceName'),
+          action?: [ string ](name='Action', description='The Actions.'),
+          resource?: string(name='Resource', description='Resource in ram policy.', example='*'),
+          serviceName?: string(name='ServiceName', description='The service name in ram policy.', example='ecs'),
         }
-      ](name='MissingPolicy'),
-      policy?: string(name='Policy'),
-    }(name='RolePolicy'),
-  }(name='DryRunResult'),
+      ](name='MissingPolicy', description='The missing ram policy for deploying role.'),
+      policy?: string(name='Policy', description='The required ram policy for deploying role.', example='{
+	"Statement": [{
+		"Action": ["oos:CancelExecutions", "oos:DeleteExecutions", "oos:GetTemplate", "oos:ListExecutions", "oos:ListTemplates", "oos:NotifyExecution", "oos:StartExecution"],
+		"Effect": "Allow",
+		"Resource": "*"
+	}, {
+		"Action": ["ram:PassRole"],
+		"Effect": "Allow",
+		"Resource": "*"
+	}, {
+		"Action": ["ros:CreateStack", "ros:GetStack", "ros:UpdateStack", "ros:ListStackEvents", "ros:ListStackResources", "ros:ListStackResources", "ros:DeleteStack", "ram:GetRole"],
+		"Effect": "Allow",
+		"Resource": "*"
+	}],
+	"Version": "1"
+}'),
+    }(name='RolePolicy', description='The required ram policy for deploying role.'),
+  }(name='DryRunResult', description='The dry run result.'),
   requestId?: string(name='RequestId', description='The request ID.', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D550C'),
   serviceId?: string(name='ServiceId', description='The service ID.', example='service-0e6fca6a51a544xxxxxx'),
   status?: string(name='Status', description='The status of the service.', example='Created'),
@@ -675,6 +693,49 @@ model DeployServiceInstanceResponse = {
 async function deployServiceInstance(request: DeployServiceInstanceRequest): DeployServiceInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeployServiceInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model GenerateServicePolicyRequest {
+  operationTypes?: [ string ](name='OperationTypes', description='The type of operation N for which you want to generate the policy information.', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  serviceId: string(name='ServiceId', description='The service ID.
+
+This parameter is required.', example='service-6c20f0f8085645xxxxxx', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', description='The service version.', example='1', position='Query'),
+  templateName?: string(name='TemplateName', description='The template name.', example='模板1', position='Query'),
+  trialType?: string(name='TrialType', description='The trial policy. Valid values:
+
+*   Trial: Trials are supported.
+*   NotTrial: Trials are not supported.', example='NotTrial', position='Query'),
+}
+
+model GenerateServicePolicyResponseBody = {
+  missingPolicy?: [ 
+    {
+      action?: [ string ](name='Action', description='Operations on specific resources.'),
+      resource?: string(name='Resource', description='The specific objects authorized. An asterisk (*) denotes all resources.', example='*'),
+      serviceName?: string(name='ServiceName', description='The name of the service.', example='ecs'),
+    }
+  ](name='MissingPolicy', description='The policies that are missing.'),
+  policy?: string(name='Policy', description='The RAM policy.', example='{Statement": [{ "Action": ["oos:*"], "Effect": "Allow", "Resource": "*"},{ "Action": ["ecs:DescribeInstances"], "Effect": "Allow", "Resource": "*"},{ "Action": ["ecs:RunInstance"], "Effect": "Allow", "Resource": "*"}], "Version": "1"}'),
+  requestId?: string(name='RequestId', description='The request ID.', example='5040BE9E-8DA2-5C9D-9B70-0EE6027A14BC'),
+}
+
+model GenerateServicePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GenerateServicePolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GenerateServicePolicy  GenerateServicePolicyRequest
+  * @return GenerateServicePolicyResponse
+ */
+async function generateServicePolicy(request: GenerateServicePolicyRequest): GenerateServicePolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GenerateServicePolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetArtifactRequest {
@@ -1354,6 +1415,80 @@ async function getServiceInstance(request: GetServiceInstanceRequest): GetServic
   return @handler.do('RPC', 'GetServiceInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model GetServiceProvisionsRequest {
+  parameters?: map[string]any(name='Parameters', description='The parameters that are specified to deploy the service instance.', example='{\\"RegionId\\":\\"cn-hangzhou\\"}', shrink='json', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  serviceId: string(name='ServiceId', description='The service ID.
+
+This parameter is required.', example='service-20b8a396048346xxxxxx', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', description='The service version.', example='1', position='Query'),
+  templateName?: string(name='TemplateName', description='The template name.', example='模板1', position='Query'),
+}
+
+model GetServiceProvisionsResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='DB1FA13E-1087-5654-84D5-58A0ACAD1B18'),
+  serviceProvisions?: [ 
+    {
+      autoEnableService?: boolean(name='AutoEnableService', description='Indicates whether automatic activation for the service is defined in the template. Valid values:
+
+*   true: Automatic activation for the service is defined in the template.
+*   false: Manual activation for the service is defined in the template.', example='true'),
+      enableURL?: string(name='EnableURL', description='The URL that points to the activation page of the service.
+
+> This parameter is returned if Status is set to Disabled.', example='https://common-buy.aliyun.com/?commodityCode=sls'),
+      roleProvision?: {
+        authorizationURL?: string(name='AuthorizationURL', description='The authorization URL of the RAM role.
+
+> This parameter is returned if Created is set to false.', example='https://ram.console.aliyun.com/role/authorization?request={"Services":[{"Service":"CS","Roles":[{"RoleName":"AliyunCSManagedVKRole","TemplateId":"AliyunCSManagedVKRole"},{"RoleName":"AliyunCSDefaultRole","TemplateId":"Default"}]}],"ReturnUrl":"https://cs.console.aliyun.com/"}'),
+        roles?: [ 
+          {
+            apiForCreation?: {
+              apiName?: string(name='ApiName', description='The name of the API operation.', example='GetServiceProvisions'),
+              apiProductId?: string(name='ApiProductId', description='The ID of the Alibaba Cloud service to which the API operation belongs.', example='ComputeNest'),
+              apiType?: string(name='ApiType', description='The type of the API operation. Valid values:
+
+*   Open: public
+*   Inner: private', example='Open'),
+              parameters?: map[string]any(name='Parameters', description='The parameters of the API operation. ${Variable name} indicates a dynamic parameter.', example='{ "ServiceLinkedRole": "AliyunServiceRoleForRdsPgsqlOnEcs", "RegionId": "${RegionId}" }'),
+            }(name='ApiForCreation', description='The information about the API operation that is used to create the RAM role.'),
+            created?: boolean(name='Created', description='Indicates whether the RAM role is created. Valid values:
+
+*   true
+*   false', example='true'),
+            function?: string(name='Function', description='The purpose for which the RAM role is used. Default value: Default. A value of Default indicates that the RAM role is the default role of the service.', example='Default'),
+            roleName?: string(name='RoleName', description='The name of the role.', example='AliyunServiceRole'),
+          }
+        ](name='Roles', description='The RAM roles.'),
+      }(name='RoleProvision', description='The information about the RAM roles of the cloud service. If this parameter is empty, no RAM roles is associated with the service.'),
+      serviceName?: string(name='ServiceName', description='The name of the cloud service.', example='db'),
+      status?: string(name='Status', description='The activation status of the cloud service. Valid values:
+
+- Enabled: The cloud service is activated.
+- EnabledByDefault: The cloud service is activated by default.
+- Disabled: The cloud service is not activated.
+- Unknown: The activation status of the cloud service is unknown.', example='Enabled'),
+      statusReason?: string(name='StatusReason', description='The reason why the service is in the Disabled or Unknown state.
+
+> This parameter is returned if Status is set to Disabled or Unknown.', example='resource(Eip) import info missing'),
+    }
+  ](name='ServiceProvisions', description='The information about the cloud services.'),
+}
+
+model GetServiceProvisionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceProvisionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetServiceProvisions  GetServiceProvisionsRequest
+  * @return GetServiceProvisionsResponse
+ */
+async function getServiceProvisions(request: GetServiceProvisionsRequest): GetServiceProvisionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetServiceProvisions', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GetServiceTemplateParameterConstraintsRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.', example='10CM943JP0EN9D51H', position='Query'),
   deployRegionId: string(name='DeployRegionId', description='The ID of the region in which the service instance is deployed.
@@ -1524,7 +1659,10 @@ model ListAcrImageRepositoriesResponseBody = {
       modifiedTime?: string(name='ModifiedTime', description='The time when the image was modified.', example='2021-05-20T00:00:00Z'),
       repoId?: string(name='RepoId', description='The image repo ID.', example='crr-3gqhkza0wbxxxxxx'),
       repoName?: string(name='RepoName', description='The image repo name.', example='wordpress'),
-      repoType?: string(name='RepoType'),
+      repoType?: string(name='RepoType', description='The type of the repository. Valid values:
+
+*   `Private`: a private repository
+*   `Public`: a public repository', example='Private'),
     }
   ](name='Repositories', description='The images.'),
   requestId?: string(name='RequestId', description='The request ID.', example='C4A145D8-6F6C-532A-9001-9730CDA27578'),
@@ -2170,6 +2308,78 @@ async function listServices(request: ListServicesRequest): ListServicesResponse 
   return @handler.do('RPC', 'ListServices', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListTagKeysRequest {
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='AAAAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. Valid values:
+
+- service
+- serviceinstance
+- artifact
+
+This parameter is required.', example='service', position='Query'),
+}
+
+model ListTagKeysResponseBody = {
+  keys?: [ string ](name='Keys', description='The tag keys.'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='AAAAAZ9FmxgN6wKfeK/GOKRnnjU='),
+  requestId?: string(name='RequestId', description='The request ID.', example='8872ACE6-0297-54A4-8AAD-3A8623EC6C5D'),
+}
+
+model ListTagKeysResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagKeysResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTagKeys  ListTagKeysRequest
+  * @return ListTagKeysResponse
+ */
+async function listTagKeys(request: ListTagKeysRequest): ListTagKeysResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagKeys', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListTagValuesRequest {
+  key: string(name='Key', description='The tag key.
+
+This parameter is required.', example='ECS', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='AAAAAfmTH5rcd4YFfob4P0uDAAc=', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. Valid values: 
+- service
+- service instance
+- artifact
+
+This parameter is required.', example='service', position='Query'),
+}
+
+model ListTagValuesResponseBody = {
+  nextToken?: string(name='NextToken', description='A pagination token.', example='AAAAAVz7BQqj2xtiNSC3d3RAD38='),
+  requestId?: string(name='RequestId', description='The request ID.', example='0631D623-D917-1C2D-ACD6-5B3B19XXXXXX'),
+  values?: [ string ](name='Values', description='The information of the tag values.'),
+}
+
+model ListTagValuesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagValuesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTagValues  ListTagValuesRequest
+  * @return ListTagValuesResponse
+ */
+async function listTagValues(request: ListTagValuesRequest): ListTagValuesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagValues', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyServiceInstanceResourcesRequest {
   resources?: string(name='Resources', description='The imported resources.', example='{
   "RegionId": "cn-hangzhou",
@@ -2419,7 +2629,9 @@ This parameter is required.', example='service-0e6fca6a51a54420****', position='
 
 *   SharedAccount: The service is shared by multiple accounts.
 *   Reseller: The service is distributed.', example='SharedAccount', position='Query'),
-  userAliUids: [ long ](name='UserAliUids', description='This parameter is required.', position='Query'),
+  userAliUids: [ long ](name='UserAliUids', description='Whitelist accounts for service sharing.
+
+This parameter is required.', position='Query'),
 }
 
 model RemoveServiceSharedAccountsResponseBody = {
@@ -2473,15 +2685,35 @@ async function restartServiceInstance(request: RestartServiceInstanceRequest): R
 }
 
 model RollbackServiceInstanceRequest {
-  clientToken?: string(name='ClientToken', example='10CM943JP0EN9D51H', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  serviceInstanceId?: string(name='ServiceInstanceId', example='si-3a8f9a75da074f52b969', position='Query'),
+  clientToken?: string(name='ClientToken', description='Ensures idempotence of the request. Generate a value from your client to ensure it is unique across different requests. **ClientToken** supports only ASCII characters and cannot exceed 64 characters.', example='10CM943JP0EN9D51H', position='Query'),
+  regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou', position='Query'),
+  serviceInstanceId?: string(name='ServiceInstanceId', description='Service instance ID.
+
+You can obtain the service instance ID by calling [ListServiceInstances - Query Service Instance List](https://help.aliyun.com/document_detail/396200.html).', example='si-3a8f9a75da074f52b969', position='Query'),
 }
 
 model RollbackServiceInstanceResponseBody = {
-  requestId?: string(name='RequestId', example='EE9EF87D-46F8-5AF6-9A65-6B034E204136'),
-  serviceInstanceId?: string(name='ServiceInstanceId', example='si-5289e1d6d0c14397881d'),
-  status?: string(name='Status', example='UpgradeRollbacking'),
+  requestId?: string(name='RequestId', description='Request ID.', example='EE9EF87D-46F8-5AF6-9A65-6B034E204136'),
+  serviceInstanceId?: string(name='ServiceInstanceId', description='Service instance ID.', example='si-5289e1d6d0c14397881d'),
+  status?: string(name='Status', description='The deployment status of the service instance. Possible values:
+
+- Created: Created
+
+- Deploying: Deploying
+
+- DeployedFailed: Deployment Failed
+
+- Deployed: Deployed
+
+- Upgrading: Upgrading
+
+- UpgradeRollbacking: Rolling Back
+
+- Deleting: Deleting
+
+- Deleted: Deleted
+
+- DeletedFailed: Deletion Failed', example='UpgradeRollbacking'),
 }
 
 model RollbackServiceInstanceResponse = {
@@ -2561,6 +2793,88 @@ async function stopServiceInstance(request: StopServiceInstanceRequest): StopSer
   return @handler.do('RPC', 'StopServiceInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model TagResourcesRequest {
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The resource IDs. You can specify at most 50 resource IDs in each call.
+
+This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='The resource type. Valid value:
+- service
+- serviceinstance
+- artifact
+
+This parameter is required.', example='service', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='The tag key.', example='Key1'),
+      value?: string(name='Value', description='The tag value.', example='Value1'),
+    }
+  ](name='Tag', description='The tags.', position='Query'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TagResources  TagResourcesRequest
+  * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UnTagResourcesRequest {
+  all?: boolean(name='All', description='Specifies whether to remove all tags from the resource. Valid values:
+
+*   **true**
+*   **false**
+
+>  If you specify both the All and TagKey.N parameters, the All parameter does not take effect.', example='false', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='The resource IDs. You can specify at most 50 resource IDs in each call.
+
+This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='The type of the resource. valid value:
+
+- service
+- serviceinstance
+- artifact
+
+This parameter is required.', example='service', position='Query'),
+  tagKey?: [ string ](name='TagKey', description='The tag keys. You can specify 1 to 20 tag keys.', position='Query'),
+}
+
+model UnTagResourcesResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='06BF8F22-02DC-4750-83DF-3FFC11C065EA'),
+}
+
+model UnTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnTagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UnTagResources  UnTagResourcesRequest
+  * @return UnTagResourcesResponse
+ */
+async function unTagResources(request: UnTagResourcesRequest): UnTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UnTagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpdateArtifactRequest {
   artifactBuildProperty?: {
     buildArgs?: [ 
@@ -2626,10 +2940,18 @@ This parameter is required.', example='artifact-eea08d1e2d3a43aexxxx', position=
     regionId?: string(name='RegionId', description='The region ID.
 
 >  This parameter is available only if the deployment package is an image.', example='cn-hangzhou'),
-    repoId?: string(name='RepoId'),
-    repoName?: string(name='RepoName'),
-    repoType?: string(name='RepoType'),
-    tag?: string(name='Tag'),
+    repoId?: string(name='RepoId', description='The ID of the Container Registry  repository.
+>  This parameter is available only if the deployment package is a container image or of the Helm chart type.', example='crr-yy4g68uhi39ttkm8'),
+    repoName?: string(name='RepoName', description='The name of the Container Registry repository.
+>  This parameter is available only if the deployment package is a container image or of the Helm chart type.', example='volcanosh/vc-webhook-manager'),
+    repoType?: string(name='RepoType', description='The type of the repository.Valid values:
+
+*   `Public`: a public repository.
+*   `Private`: a private repository.
+>  This parameter is available only if the deployment package is a container image or of the Helm chart type.', example='Public'),
+    tag?: string(name='Tag', description='The version tag of the image repository.
+
+>  This parameter is available only if the deployment package is a container image or of the Helm chart type.', example='v1'),
     url?: string(name='Url', description='The URL of the deployment package object.
 
 
@@ -2637,7 +2959,7 @@ This parameter is required.', example='artifact-eea08d1e2d3a43aexxxx', position=
   }(name='ArtifactProperty', description='The properties of the deployment package.
 
 This parameter is required.', shrink='json', position='Query'),
-  clientToken?: string(name='ClientToken', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='10CM943JP0EN9D51H', position='Query'),
   description?: string(name='Description', description='The description of the deployment package.', example='Description', position='Query'),
   supportRegionIds?: [ string ](name='SupportRegionIds', description='The IDs of the regions that support the deployment package.', position='Query'),
   versionName: string(name='VersionName', description='The version name of the deployment package.
@@ -2688,98 +3010,107 @@ async function updateArtifact(request: UpdateArtifactRequest): UpdateArtifactRes
 }
 
 model UpdateServiceRequest {
-  alarmMetadata?: string(name='AlarmMetadata', description='Is need to update the artifacts', example='{\\"CmsTemplateId\\":1162921,\\"TemplateUrl\\":\\"https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1760465342xxxxxx/template/c072ef50-6c03-4d9c-8f0e-d1c440xxxxxx.json\\"}', position='Query'),
-  approvalType?: string(name='ApprovalType', description='The service type. Valid values:
+  alarmMetadata?: string(name='AlarmMetadata', description='The alert configurations of the service.
 
-*   private: The service is a private service and is deployed within the account of a customer.
-*   managed: The service is a fully managed service and is deployed within the account of a service provider.
-*   operation: The service is a hosted O\\&M service.
-*   poc: The service is a trial service.', example='Manual', position='Query'),
-  clientToken?: string(name='ClientToken', description='The options for update the service.', example='788E7CP0EN9D51P', position='Query'),
+>  This parameter takes effect only when you specify an alert policy for **PolicyNames**.', example='{\\"CmsTemplateId\\":1162921,\\"TemplateUrl\\":\\"https://service-info-private.oss-cn-hangzhou.aliyuncs.com/1760465342xxxxxx/template/c072ef50-6c03-4d9c-8f0e-d1c440xxxxxx.json\\"}', position='Query'),
+  approvalType?: string(name='ApprovalType', description='The approval type of the service usage application. Valid values:
+
+*   Manual: The application is manually approved.
+*   AutoPass: The application is automatically approved.', example='Manual', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='788E7CP0EN9D51P', position='Query'),
   commodity?: {
     componentsMappings?: [ 
       {
-        mappings?: map[string]string(name='Mappings', description='The language of the service. Valid values:
-
-*   zh-CN: Chinese
-*   en-US: English'),
-        templateName?: string(name='TemplateName', description='{ "Logstores": [ { "LogstoreName": "access-log", "LogPath": "/home/admin/app/logs", # This parameter is not required for containers. Configure the parameter in the YAML file. "FilePattern": "access.log\\*" # This parameter is not required for containers. Configure the parameter in the YAML file. } ] }', example='此参数不对外开放'),
+        mappings?: map[string]string(name='Mappings', description='This parameter is not available to the public.'),
+        templateName?: string(name='TemplateName', description='This parameter is not available to the public.', example='This parameter is not available to the public.'),
       }
-    ](name='ComponentsMappings', description='The ID of the entity.'),
+    ](name='ComponentsMappings', description='This parameter is not available to the public.'),
     meteringEntityExtraInfos?: [ 
       {
-        entityId?: string(name='EntityId', description='The description of the service.', example='cmgj0006xxxx-Memory-1'),
-        metricName?: string(name='MetricName', description='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)', example='VirtualCpu/ecs.InstanceType'),
-        promql?: string(name='Promql', description='The service details.', example='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
-        type?: string(name='Type', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Pay-As-You-Go Use)', example='Custom'),
+        entityId?: string(name='EntityId', description='Metering entity ID.', example='cmgj0006xxxx-Memory-1'),
+        metricName?: string(name='MetricName', description='Metric name, required when type is ComputeNestBill or ComputeNestPrometheus.', example='VirtualCpu/ecs.InstanceType'),
+        promql?: string(name='Promql', description='Promql statement.', example='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
+        type?: string(name='Type', description='Type. Valid values:
+
+- Custom
+- ComputeNestBill
+- ComputeNestPrometheus
+- ComputeNestTime', example='Custom'),
       }
-    ](name='MeteringEntityExtraInfos', description='This parameter is not publicly accessible.'),
+    ](name='MeteringEntityExtraInfos', description='Metering entity extra information.'),
     meteringEntityMappings?: [ 
       {
-        entityIds?: [ string ](name='EntityIds', description='计量项ID'),
-        specificationName?: string(name='SpecificationName', description='套餐名称', example='This parameter is not publicly accessible.'),
-        templateName?: string(name='TemplateName', description='模板名称', example='The service ID.'),
+        entityIds?: [ string ](name='EntityIds', description='Metering entity IDs.'),
+        specificationName?: string(name='SpecificationName', description='The specification name.', example='This parameter is not publicly accessible.'),
+        templateName?: string(name='TemplateName', description='The template name.', example='The service ID.'),
       }
-    ](name='MeteringEntityMappings', description='The template name.'),
-    saasBoostConfig?: string(name='SaasBoostConfig', description='SaaS Boost配置信息', example='{}'),
+    ](name='MeteringEntityMappings', description='Binding relationship between templates/specifications and metering dimensions (marketplace - PayAsYouGo)'),
+    saasBoostConfig?: string(name='SaasBoostConfig', description='SaaS Boost configuration.', example='{}'),
     specificationMappings?: [ 
       {
-        specificationCode?: string(name='SpecificationCode', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='yuncode5767800001'),
-        specificationName?: string(name='SpecificationName', description='套餐名称', example='Type, value：
+        specificationCode?: string(name='SpecificationCode', description='Specification code.', example='yuncode5767800001'),
+        specificationName?: string(name='SpecificationName', description='The name of the package specification.', example='Type, value：
 
 * **Custom**
 * **ComputeNestBill**
 * **ComputeNestPrometheus**
 * **ComputeNestTime**'),
-        templateName?: string(name='TemplateName', description='模板名称', example='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Subscription/Permanent Use)'),
+        templateName?: string(name='TemplateName', description='The template name.', example='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Subscription/Permanent Use)'),
       }
-    ](name='SpecificationMappings', description='avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace=~"ALIYUN::StackName"}[2m]))[1h:10s])'),
-  }(name='Commodity', description='This parameter is not publicly accessible.', shrink='json', position='Query'),
+    ](name='SpecificationMappings', description='Product specifications and template/package mappings (Used in marketplace - subscription scenario)'),
+  }(name='Commodity', description='The commodity details.', shrink='json', position='Query'),
   complianceMetadata?: {
-    compliancePacks?: [ string ](name='CompliancePacks', description='The compliance package is selected.'),
+    compliancePacks?: [ string ](name='CompliancePacks', description='The compliance pack.'),
   }(name='ComplianceMetadata', description='Compliance check metadata.', shrink='json', position='Query'),
-  deployMetadata?: string(name='DeployMetadata', description='The policy name. The name can be up to 128 characters in length. Separate multiple names with commas (,). Only hosted O\\&M policies are supported.', example='{\\"EstimateTime\\":null,\\"SupplierDeployMetadata\\":{\\"DeployTimeout\\":7200},\\"EnableVnc\\":false}', position='Query'),
-  deployType?: string(name='DeployType', description='WB01286039', example='ros', position='Query'),
+  deployMetadata?: string(name='DeployMetadata', description='The deployment configurations of the service. The format in which the deployment information of a service is stored varies based on the deployment type of the service. In this case, the deployment information is stored in the JSON string format.', example='{\\"EstimateTime\\":null,\\"SupplierDeployMetadata\\":{\\"DeployTimeout\\":7200},\\"EnableVnc\\":false}', position='Query'),
+  deployType?: string(name='DeployType', description='The deployment type of the service. Valid values:
+
+ros: The service is deployed by using Resource Orchestration Service (ROS).
+terraform: The service is deployed by using Terraform.
+ack: The service is deployed by using Container Service for Kubernetes (ACK).
+spi: The service is deployed by calling a service provider interface (SPI).
+operation: The service is deployed by using a hosted O&M service.', example='ros', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run for the request to check information such as the permissions and instance status. Valid values:
 
 *   true: performs a dry run for the request, but does not update a service.
 *   false: performs a dry run for the request, and update a service if the request passes the dry run.', example='false', position='Query'),
-  duration?: long(name='Duration', description='The deployment type of the service. Valid values:
+  duration?: long(name='Duration', description='The duration for which hosted O\\&M is implemented. Unit: seconds.', example='259200', position='Query'),
+  isSupportOperated?: boolean(name='IsSupportOperated', description='Specifies whether to enable the hosted O\\&M feature for the service. Default value: false. Valid values:
 
-*   ros: The service is deployed by using Resource Orchestration Service (ROS).
-*   terraform: The service is deployed by using Terraform.
-*   spi: The service is deployed by calling a service provider interface (SPI).
-*   operation: The service is deployed by using a hosted O\\&M service.
-*   container: The service is deployed by using a container.
-*   pkg: The service is deployed by using a package.', example='259200', position='Query'),
-  isSupportOperated?: boolean(name='IsSupportOperated', description='The version name.', example='false', position='Query'),
-  licenseMetadata?: string(name='LicenseMetadata', description='The duration for which hosted O\\&M is implemented. Unit: seconds.', example='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)', position='Query'),
-  logMetadata?: string(name='LogMetadata', description='This parameter is not publicly accessible.', example='Specifies whether to support distribution. Valid values:
+*   true
+*   false
+
+>  This parameter is required if you set **ServiceType** to **private**.', example='false', position='Query'),
+  licenseMetadata?: string(name='LicenseMetadata', description='The license metadata.', example='Metering Item Configuration Information (Cloud Marketplace - Pay-As-You-Go Use)', position='Query'),
+  logMetadata?: string(name='LogMetadata', description='The logging configurations.', example='Specifies whether to support distribution. Valid values:
 
 *   false
 *   true', position='Query'),
-  operationMetadata?: string(name='OperationMetadata', description='{\\"RetentionDays\\":3}', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}', position='Query'),
-  policyNames?: string(name='PolicyNames', description='The package name.', example='policyName1, policyName2', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
-  resellable?: boolean(name='Resellable', description='The alert configurations of the service.
+  operationMetadata?: string(name='OperationMetadata', description='The hosted O\\&M configurations.', example='{\\"PrometheusConfigMap\\":{\\"Custom_Image_Ecs\\":{\\"EnablePrometheus\\":false}}}', position='Query'),
+  policyNames?: string(name='PolicyNames', description='The policy name. The name can be up to 128 characters in length. Separate multiple names with commas (,). Only hosted O\\&M policies are supported.', example='policyName1, policyName2', position='Query'),
+  regionId: string(name='RegionId', description='Region ID.
 
->  This parameter takes effect only when you specify an alert policy for **PolicyNames**.', example='false', position='Query'),
-  serviceId: string(name='ServiceId', description='TemplaceName
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  resellable?: boolean(name='Resellable', description='Whether resell is supported.', example='false', position='Query'),
+  serviceId: string(name='ServiceId', description='The service ID.
 
 This parameter is required.', example='service-1dda29c3eca648xxxxxx', position='Query'),
   serviceInfo?: [ 
     {
       agreements?: [ 
         {
-          name?: string(name='Name', description='Saas boost config information', example='Name'),
-          url?: string(name='Url', description='VirtualCpu/ecs.InstanceType', example='https://aliyun.com/xxxxxxxx.html'),
+          name?: string(name='Name', description='Protocol name.', example='Name'),
+          url?: string(name='Url', description='Protocol url.', example='https://aliyun.com/xxxxxxxx.html'),
         }
-      ](name='Agreements', description='The ID of the entity.'),
-      image?: string(name='Image', description='packageOne', example='http://img.tidb.oss.url'),
-      locale?: string(name='Locale', description='Bind Commodity Information', example='zh-CN'),
-      longDescriptionUrl?: string(name='LongDescriptionUrl', description='Protocol document information about the service.', example='http://description.tidb.oss.url'),
-      name?: string(name='Name', description='packageOne', example='Metric Name, filled in when Type is ComputeNestBill or ComputeNestPrometheus'),
-      shortDescription?: string(name='ShortDescription', description='The region ID.', example='The URL of the detailed description of the service.'),
+      ](name='Agreements', description='Protocol document information about the service.'),
+      image?: string(name='Image', description='The URL of the service icon.', example='http://img.tidb.oss.url'),
+      locale?: string(name='Locale', description='The language of the service. Valid values:
+
+*   zh-CN: Chinese
+*   en-US: English', example='zh-CN'),
+      longDescriptionUrl?: string(name='LongDescriptionUrl', description='The URL of the detailed description of the service.', example='http://description.tidb.oss.url'),
+      name?: string(name='Name', description='The service name.', example='Metric Name, filled in when Type is ComputeNestBill or ComputeNestPrometheus'),
+      shortDescription?: string(name='ShortDescription', description='The description of the service.', example='The URL of the detailed description of the service.'),
       softwares?: [ 
         {
           name?: string(name='Name', description='The name of the software.', example='MySQL'),
@@ -2787,28 +3118,34 @@ This parameter is required.', example='service-1dda29c3eca648xxxxxx', position='
         }
       ](name='Softwares', description='The list of the software in the service.'),
     }
-  ](name='ServiceInfo', description='The ID of the entity.', position='Query'),
-  serviceType?: string(name='ServiceType', description='Custom prometheus query', example='private', position='Query'),
-  serviceVersion?: string(name='ServiceVersion', description='The storage configurations of the service. The format in which the deployment information of a service is stored varies based on the deployment type of the service. In this case, the deployment information is stored in the JSON string format.', example='1', position='Query'),
-  shareType?: string(name='ShareType', description='共享类型。可能的值：
+  ](name='ServiceInfo', description='The service details.', position='Query'),
+  serviceType?: string(name='ServiceType', description='The service type. Valid values:
 
-- Public：公开的，正式部署和试用部署都不受限。
+*   private: The service is a private service and is deployed within the account of a customer.
+*   managed: The service is a fully managed service and is deployed within the account of a service provider.
+*   operation: The service is a hosted O\\&M service.', example='private', position='Query'),
+  serviceVersion?: string(name='ServiceVersion', description='The service version.', example='1', position='Query'),
+  shareType?: string(name='ShareType', description='The permission type of the deployment URL. Valid values:
 
-- Restricted：受限的，正式部署和试用部署都受限。
+*   Public: All users can go to the URL to create a service instance or a trial service instance.
+*   Restricted: Only users in the whitelist can go to the URL to create a service instance or a trial service instance.
+*   OnlyFormalRestricted: Only users in the whitelist can go to the URL to create a service instance.
+*   OnlyTrailRestricted: Only users in the whitelist can go to the URL to create a trial service instance.
+*   Hidden: Users not in the whitelist cannot see the service details page when they go to the URL and cannot request deployment permissions.', example='Public', position='Query'),
+  tenantType?: string(name='TenantType', description='The type of the tenant. Valid values:
 
-- OnlyFormalRestricted：仅正式部署受限。
-
-- OnlyTrailRestricted：仅试用部署受限。
-
-- Hidden：隐藏的，不可见且不可申请部署权限。', example='Public', position='Query'),
-  tenantType?: string(name='TenantType', description='Product Specifications and Template/specification mapping Relationships (Cloud Marketplace - Pay-As-You-Go Use)', example='SingleTenant', position='Query'),
-  trialDuration?: int32(name='TrialDuration', description='This parameter is not publicly accessible.', example='7', position='Query'),
+*   SingleTenant
+*   MultiTenant', example='SingleTenant', position='Query'),
+  trialDuration?: int32(name='TrialDuration', description='The trial duration. Unit: day. The maximum trial duration cannot exceed 30 days.', example='7', position='Query'),
   updateOption?: {
-    updateArtifact?: boolean(name='UpdateArtifact', description='The service version.', example='true'),
-    updateFrom?: string(name='UpdateFrom', description='Protocol url.', example='PARAMETERS'),
-  }(name='UpdateOption', description='cmgj0006xxxx-Memory-1', shrink='json', position='Query'),
+    updateArtifact?: boolean(name='UpdateArtifact', description='Whether to update artifact.', example='true'),
+    updateFrom?: string(name='UpdateFrom', description='Update from. Valid values:
+
+- CODE
+- PARAMETERS', example='PARAMETERS'),
+  }(name='UpdateOption', description='The update option.', shrink='json', position='Query'),
   upgradeMetadata?: string(name='UpgradeMetadata', description='The metadata about the upgrade.', example='{\\"Description\\":\\"xxx\\",\\"SupportRollback\\":true,\\"SupportUpgradeFromVersions\\":[],\\"UpgradeComponents\\":[\\"Configuration\\"]}', position='Query'),
-  versionName?: string(name='VersionName', description='TemplaceName', example='Draft', position='Query'),
+  versionName?: string(name='VersionName', description='The version name.', example='Draft', position='Query'),
 }
 
 model UpdateServiceResponseBody = {
