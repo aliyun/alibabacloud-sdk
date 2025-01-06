@@ -578,7 +578,6 @@ You can use the client to generate the token, but you must make sure that the to
 *   **North-America**: North America
 *   **Asia-Pacific**: Asia Pacific
 *   **Europe**: Europe
-*   **Australia**: Australia
 
 This parameter is required.', example='China', position='Query'),
   geographicRegionBId: string(name='GeographicRegionBId', description='The area where the other network instance is deployed. Valid values: Valid values:
@@ -587,7 +586,6 @@ This parameter is required.', example='China', position='Query'),
 *   **North-America**: North America
 *   **Asia-Pacific**: Asia Pacific
 *   **Europe**: Europe
-*   **Australia**: Australia
 
 This parameter is required.', example='China', position='Query'),
   name?: string(name='Name', description='The name of the bandwidth plan.
@@ -762,7 +760,10 @@ async function createCenChildInstanceRouteEntryToCen(request: CreateCenChildInst
 }
 
 model CreateCenInterRegionTrafficQosPolicyRequest {
-  bandwidthGuaranteeMode?: string(name='BandwidthGuaranteeMode', position='Query'),
+  bandwidthGuaranteeMode?: string(name='BandwidthGuaranteeMode', description='The allocation mode of the guaranteed bandwidth. You can specify an absolute bandwidth value or a bandwidth percentage. Valid values:
+
+*   **byBandwidth**: allocates an absolute bandwidth value for the QoS queue.
+*   **byBandwidthPercent** (default): allocates a bandwidth percentage for the OoS queue.', example='byBandwidthPercent', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the value, but you must make sure that it is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-426655****', position='Query'),
@@ -782,13 +783,19 @@ This parameter is optional. If you enter a description, it must be 1 to 256 char
 The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='nametest', position='Query'),
   trafficQosQueues?: [ 
     {
-      bandwidth?: string(name='Bandwidth'),
+      bandwidth?: string(name='Bandwidth', description='The absolute bandwidth that can be consumed by the QoS queue. Unit: Mbit/s.
+
+Each QoS policy supports at most 10 queues. You can specify a valid bandwidth value for each queue.
+
+For example, a value of 1 specifies that the queue can consume 1 Mbit/s of the inter-region bandwidth.
+
+>  The sum of the absolute bandwidth values of all the queues in a QoS policy cannot exceed the total bandwidth of the inter-region connection.', example='1'),
       dscps?: [ int32 ](name='Dscps', description='The Differentiated Services Code Point (DSCP) value that matches the current queue.
 
 Each QoS policy supports at most three queues. You can specify at most 60 DSCP values for each queue. Separate multiple DCSP values with commas (,).'),
       qosQueueDescription?: string(name='QosQueueDescription', description='The description of the current queue.
 
-Each QoS policy supports at most three queues. You can specify a description for each queue.
+Each QoS policy supports at most 10 queues. You can specify a description for each queue.
 
 This parameter is optional. If you enter a description, it must be 1 to 256 characters in length and cannot start with http:// or https://.', example='desctest'),
       qosQueueName?: string(name='QosQueueName', description='The name of the current queue.
@@ -798,7 +805,7 @@ Each QoS policy supports at most three queues. You can specify a name for each q
 The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='nametest'),
       remainBandwidthPercent?: string(name='RemainBandwidthPercent', description='The percentage of the inter-region bandwidth that can be used by the queue.
 
-Each QoS policy supports at most three queues. You can specify a valid percentage for each queue.
+Each QoS policy supports at most 10 queues. You can specify a valid percentage for each queue.
 
 For example, a value of **1** specifies that the queue can consume 1% of the inter-region bandwidth.
 
@@ -833,7 +840,7 @@ model CreateCenInterRegionTrafficQosPolicyResponse = {
   * *   **CreateCenInterRegionTrafficQosPolicy** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the **ListCenInterRegionTrafficQosPolicies** operation to query the status of the task.
   *     *   If the QoS policy is in the **Creating** state, the QoS policy is being created. You can query the QoS policy but cannot perform other operations on the QoS policy.
   *     *   If the QoS policy is in the **Active** state, the QoS policy is created.
-  * ## [](#)Prerequisite
+  * ### [](#)Prerequisites
   * Before you call the **CreateCenInterRegionTrafficQosPolicy** operation, make sure that the following requirements are met:
   * *   An inter-region connection is created. For more information, see [CreateTransitRouterPeerAttachment](https://help.aliyun.com/document_detail/261363.html).
   * *   A traffic marking policy is created. For more information, see [CreateTrafficMarkingPolicy](https://help.aliyun.com/document_detail/419025.html).
@@ -846,23 +853,46 @@ async function createCenInterRegionTrafficQosPolicy(request: CreateCenInterRegio
 }
 
 model CreateCenInterRegionTrafficQosQueueRequest {
-  bandwidth?: long(name='Bandwidth', position='Query'),
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426****', position='Query'),
-  dryRun?: boolean(name='DryRun', example='false', position='Query'),
-  dscps: [ int32 ](name='Dscps', description='This parameter is required.', position='Query'),
+  bandwidth?: long(name='Bandwidth', description='The maximum absolute bandwidth value that can be allocated to the queue. Unit: Mbit/s.
+
+- The value specifies an absolute bandwidth. For example, a value of 20 specifies that the queue can consume at most 20 Mbit/s of bandwidth.
+- The sum of the bandwidth values specified for all queues that belong to the same inter-region connection cannot exceed the maximum bandwidth of the inter-region connection.', example='20', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
+
+> If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-426****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
+
+- **true**: performs a dry run. The system checks the required parameters, the request format, and the service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+- **false** (default): performs a dry run and sends the request.', example='false', position='Query'),
+  dscps: [ int32 ](name='Dscps', description='The differentiated services code point (DSCP) value that matches the current queue.
+
+You can specify at most 20 DSCP values for a queue in each call. Separate DSCP values with commas (,).
+
+This parameter is required.', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  qosQueueDescription?: string(name='QosQueueDescription', example='desctest', position='Query'),
-  qosQueueName?: string(name='QosQueueName', example='nametest', position='Query'),
-  remainBandwidthPercent?: string(name='RemainBandwidthPercent', example='20', position='Query'),
+  qosQueueDescription?: string(name='QosQueueDescription', description='The description of the queue.
+
+This parameter is optional. If you enter a description, it must be 1 to 256 characters in length and cannot start with http:// or https://.', example='desctest', position='Query'),
+  qosQueueName?: string(name='QosQueueName', description='The name of the queue.
+
+The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='nametest', position='Query'),
+  remainBandwidthPercent?: string(name='RemainBandwidthPercent', description='The maximum percentage of inter-region bandwidth that can be allocated to the queue.
+
+- Unit: percentage. For example, a value of 20 specifies that the queue can consume at most 20% of inter-region bandwidth.
+- The sum of the percentage values specified for all queues that belong to the same inter-region connection cannot exceed 100%.', example='20', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  trafficQosPolicyId: string(name='TrafficQosPolicyId', description='This parameter is required.', example='qos-qdvybn468kaoxx****', position='Query'),
+  trafficQosPolicyId: string(name='TrafficQosPolicyId', description='The ID of the QoS policy.
+
+This parameter is required.', example='qos-qdvybn468kaoxx****', position='Query'),
 }
 
 model CreateCenInterRegionTrafficQosQueueResponseBody = {
-  qosQueueId?: string(name='QosQueueId', example='qos-queue-irqhi8k5fdyuu5****'),
-  requestId?: string(name='RequestId', example='845F66F6-5C27-53A1-9428-B859086237B2'),
+  qosQueueId?: string(name='QosQueueId', description='The ID of the queue.', example='qos-queue-irqhi8k5fdyuu5****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='845F66F6-5C27-53A1-9428-B859086237B2'),
 }
 
 model CreateCenInterRegionTrafficQosQueueResponse = {
@@ -872,7 +902,9 @@ model CreateCenInterRegionTrafficQosQueueResponse = {
 }
 
 /**
-  * @description The ID of the request.
+  * @description The **CreateCenInterRegionTrafficQosQueue** operation is an asynchronous operation. After you send a request, the system returns a request ID and runs the task in the background. You can call the **ListCenInterRegionTrafficQosPolicies** operation to query the status of the QoS policy to determine the status of the queue. When you call this operation, you must set the **TrafficQosPolicyId** parameter.
+  * - If a QoS policy is in the **Modifying** state, the queue is being created. In this case, you can query the QoS policy and queue but cannot perform other operations.
+  * - If a QoS policy is in the **Active** state, the queue is created.
   * @param request  the request parameters of CreateCenInterRegionTrafficQosQueue  CreateCenInterRegionTrafficQosQueueRequest
   * @return CreateCenInterRegionTrafficQosQueueResponse
  */
@@ -1102,13 +1134,18 @@ You can use the client to generate the value, but you must make sure that it is 
 >  If you do not set this parameter, ClientToken is set to the value of RequestId. The value of RequestId for each API request may be different.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
   description?: string(name='Description', description='The description of the flow log.
 
-The description must be 2 to 256 characters in length. It must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
-  flowLogName?: string(name='FlowLogName', description='The name of the flow log.
+The description is optional. If you enter a description, it must be 1 to 256 characters in length, and cannot start with http:// or https://.', example='myFlowlog', position='Query'),
+  flowLogName?: string(name='FlowLogName', description='The flow log name.
 
-The name must be 2 to 128 characters in length, and can contain digits, periods (.), underscores (_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='myFlowlog', position='Query'),
+The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='myFlowlog', position='Query'),
   interval?: long(name='Interval', description='The time window for collecting log data. Unit: seconds. Valid values: **60** and **600**. Default value: **600**.', example='600', position='Query'),
-  logFormatString?: string(name='LogFormatString', maxLength=1000, position='Query'),
-  logStoreName: string(name='LogStoreName', description='The Logstore where the flow log is stored.
+  logFormatString?: string(name='LogFormatString', description='The strings that define the fields in the flow log.
+
+Format: `${Field 1}${Field 2}${Field 3}...{Field n}`
+
+*   If you do not configure this parameter, all fields are included in the flow log.
+*   If you configure this parameter, start the string with `${srcaddr}${dstaddr}${bytes}` because `${srcaddr}${dstaddr}${bytes}` are required variables. For more information about the fields supported by flow logs, see [Configure a flow log](https://help.aliyun.com/document_detail/339822.html).', example='${srcaddr}${dstaddr}${bytes}', maxLength=1000, position='Query'),
+  logStoreName: string(name='LogStoreName', description='The Logstore that stores the captured traffic data.
 
 *   If a Logstore is already created in the selected region, enter the name of the Logstore.
 
@@ -1117,23 +1154,23 @@ The name must be 2 to 128 characters in length, and can contain digits, periods 
     *   The name must be unique in a project.
     *   The name can contain only lowercase letters, digits, hyphens (-), and underscores (_).
     *   The name must start and end with a lowercase letter or a digit.
-    *   The name must be 3 to 63 characters in length.
+    *   The name must be 3 to 63 characters in length,
 
 This parameter is required.', example='FlowLogStore', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  projectName: string(name='ProjectName', description='The Log Service project where the flow log is stored.
+  projectName: string(name='ProjectName', description='The project that stores the captured traffic data.
 
 *   If a project is already created in the selected region, enter the name of the project.
 
 *   If no projects are created in the selected region, enter a name and the system automatically creates a project.
 
-    The project name must be unique in a region. You cannot change the name after you create the project. The naming conventions are:
+    The project name must be unique in a region. You cannot change the name after the project is created. The name must meet the following requirements:
 
     *   The name must be globally unique.
     *   The name can contain only lowercase letters, digits, and hyphens (-).
     *   The name must start and end with a lowercase letter or a digit.
-    *   The name must be 3 to 63 characters in length.
+    *   The name must be 3 to 63 characters in length,
 
 This parameter is required.', example='FlowLogProject', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the flow log is deployed.
@@ -1145,24 +1182,24 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key.
+      key?: string(name='Key', description='The tag keys.
 
-The tag key cannot be an empty string. The tag key can be up to 64 characters in length and cannot start with `acs:` or `aliyun`. It cannot contain `http://` or `https://`.
+The tag keys cannot be an empty string. The tag keys can be up to 64 characters in length. The tag keys cannot start with `aliyun` or `acs:` and cannot contain `http://` or `https://`.
 
-You can specify at most 20 tag keys.', example='TagKey'),
-      value?: string(name='Value', description='The tag value.
+You can specify at most 20 tag keys in each call.', example='TagKey'),
+      value?: string(name='Value', description='The tag values.
 
-The tag value can be 0 to 128 characters in length, and cannot start with `aliyun` or `acs:`. It cannot contain `http://` or `https://`.
+The tag values can be an empty string or up to 128 characters in length. The tag values cannot start with `aliyun` or `acs:` and cannot contain `http://` or `https://`.
 
-Each tag key must have a unique tag value. You can specify at most 20 tag values in each call.', example='TagValue'),
+Each key-value must be unique. You can specify at most 20 tag values in each call.', example='TagValue'),
     }
-  ](name='Tag', description='The information about the tags.
+  ](name='Tag', description='The tags.
 
-You can specify at most 20 tags in each call.', position='Query'),
-  transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the inter-region connection or the VBR connection.
+You can specify at most 20 tags.', position='Query'),
+  transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the VPC connection, VPN connection, VBR connection, ECR connection, or inter-region connection.
 
-> This parameter is required.', example='tr-attach-r6g0m3epjehw57****', position='Query'),
-  transitRouterId?: string(name='TransitRouterId', position='Query'),
+If you create the flow log for a transfer router, skip this parameter.', example='tr-attach-r6g0m3epjehw57****', position='Query'),
+  transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-bp1rmwxnk221e3fas****', position='Query'),
 }
 
 model CreateFlowlogResponseBody = {
@@ -1181,16 +1218,22 @@ model CreateFlowlogResponse = {
 }
 
 /**
-  * @description Flow logs are used to capture the information about network traffic between transit routers and between virtual border routers (VBRs). Before you create a flow log, take note of the following items:
+  * @description Flow logs can be used to capture traffic information about transit routers and network instance connections, including inter-region connections, virtual private cloud (VPC) connections, VPN connections, Express Connect Router (ECR) connections, and virtual border router (VBR) connections. Before you create a flow log, take note of the following items:
   * *   Flow logs are supported only by Enterprise Edition transit routers.
-  * *   Only flow logs in some regions can capture the information about network traffic over VBR connections. For more information, see [Limits](https://help.aliyun.com/document_detail/339822.html).
-  * *   Flow logs are used to capture the information about outbound traffic on transit routers. Information about inbound traffic on transit routers is not captured.
-  *     For example, an Elastic Compute Service (ECS) instance in the US (Silicon Valley) region accesses an ECS instance in the US (Virginia) region through CEN. After you enable the flow log feature for the transit router in the US (Virginia) region, you can check the log entries about packets sent from the ECS instance in the US (Virginia) region to the ECS instance in the US (Silicon Valley) region. However, packets sent from the ECS instance in the US (Silicon Valley) region to the ECS instance in the US (Virginia) region are not recorded. If you want to record the packets sent from the ECS instance in the US (Silicon Valley) region to the ECS instance in the US (Virginia) region, you must also enable the flow log feature on the transit router that is in the US (Silicon Valley) region.
-  * *   `CreateFlowLog` is an asynchronous operation. After you send a request, the system returns a flow log ID and runs the task in the background. You can call the `DescribeFlowLogs` operation to query the status of a flow log.
-  *     *   If a flow log is in the **Creating** state, the flow log is being created. In this case, you can query the flow log but cannot perform other operations.
-  *     *   If a flow log is in the **Active** state, the flow log is created.
-  * # Prerequisites
-  * An inter-region connection or a VBR connection is created. For more information, see [CreateTransitRouterPeerAttachment](https://help.aliyun.com/document_detail/261363.html) or [CreateTransitRouterVbrAttachment](https://help.aliyun.com/document_detail/261361.html).
+  * *   Flow logs are used to capture information about outbound traffic on transit routers. Information about inbound traffic on transit routers is not captured.
+  *     For example, an Elastic Compute Service (ECS) instance in the US (Silicon Valley) region accesses an ECS instance in the US (Virginia) region through Cloud Enterprise Network (CEN). After you enable the flow log feature for the transit router in the US (Virginia) region, you can check the log entries about packets sent from the ECS instance in the US (Virginia) region to the ECS instance in the US (Silicon Valley) region. However, packets sent from the ECS instance in the US (Silicon Valley) region to the ECS instance in the US (Virginia) region are not recorded. If you want to record the packets sent from the ECS instance in the US (Silicon Valley) region to the ECS instance in the US (Virginia) region, you must also enable the flow log feature on the transit router that is in the US (Silicon Valley) region.
+  * *   If you use a flow log to capture traffic information about VPC connections, the flow log captures information only about traffic on the elastic network interface (ENI) of the transit router. For more information about how to view traffic information about other ENIs in the VPC, see [VPC flow log overview](https://help.aliyun.com/document_detail/127150.html).
+  * *   `CreateFlowLog` is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the `DescribeFlowlogs` operation to query the status of a flow log.
+  *     *   If the flow log is in the **Creating** state, the flow log is being created. In this case, you can query the flow log but cannot perform other operations.
+  *     *   If the flow log is in the **Active** state, the flow log is created.
+  * ### [](#)Prerequisites
+  * Required resources are created. For more information about how to create resources, see the following topics:
+  * *   [CreateTransitRouterVpcAttachment](https://help.aliyun.com/document_detail/468237.html)
+  * *   [CreateTransitRouterEcrAttachment](https://help.aliyun.com/document_detail/2715446.html)
+  * *   [CreateTransitRouterVpnAttachment](https://help.aliyun.com/document_detail/468249.html)
+  * *   [CreateTransitRouterVbrAttachment](https://help.aliyun.com/document_detail/468243.html)
+  * *   [CreateTransitRouterPeerAttachment](https://help.aliyun.com/document_detail/468270.html)
+  * *   [CreateTransitRouter](https://help.aliyun.com/document_detail/468222.html)
   * @param request  the request parameters of CreateFlowlog  CreateFlowlogRequest
   * @return CreateFlowlogResponse
  */
@@ -1657,6 +1700,9 @@ You can use the client to generate the value, but you must make sure that it is 
 
 *   **true**: performs a dry run. The system checks the required parameters, request format, and limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
 *   **false** (default): performs a dry run and sends the request.', example='false', position='Query'),
+  options?: {
+    igmpv2Support?: string(name='Igmpv2Support'),
+  }(name='Options', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId?: string(name='RegionId', description='The region ID of the transit router.
@@ -2134,7 +2180,7 @@ The description must be 1 to 256 characters in length, and cannot start with htt
 
 The name must be 1 to 128 characters in length, and cannot start with http:// or https://. You can also leave this parameter empty.', example='testname', position='Query'),
   transitRouterId?: string(name='TransitRouterId', description='The ID of the Enterprise Edition transit router.', example='tr-bp1su1ytdxtataupl****', position='Query'),
-  transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions', shrink='json', position='Query'),
+  transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions', description='Feature configurations of the VPC connection.', shrink='json', position='Query'),
   vpcId: string(name='VpcId', description='The VPC ID.
 
 This parameter is required.', example='vpc-bp1kbjcre9vtsebo1****', position='Query'),
@@ -2175,18 +2221,18 @@ model CreateTransitRouterVpcAttachmentResponse = {
 }
 
 /**
-  * @description *   You can use the following methods to attach a VPC to an Enterprise Edition transit router:
-  *     *   If an Enterprise Edition transit router is already created in the region where you want to create a VPC connection, set **VpcId**, **ZoneMappings.N.VSwitchId**, **ZoneMappings.N.ZoneId**, and **TransitRouterId**.
-  *     *   If no Enterprise Edition transit router is created in the region where you want to create a VPC connection, set **VpcId**, **ZoneMappings.N.VSwitchId**, **ZoneMappings.N.ZoneId**, **CenId**, and **RegionId**. When you create a VPC connection, the system automatically creates an Enterprise Edition transit router in the specified region.
-  * *   **CreateTransitRouterVpcAttachment** is an asynchronous operation. After you send a request, the VPC connection ID is returned but the operation is still being performed in the system background. You can call the [ListTransitRouterVpcAttachments](https://help.aliyun.com/document_detail/261222.html) operation to query the status of a VPC connection.
-  *     *   If a VPC connection is in the **Attaching** state, the VPC connection is being created. You can query the VPC connection but cannot perform other operations.
-  *     *   If a VPC connection is in the **Attached** state, the VPC connection is created.
+  * @description *   You can use the following methods to create a VPC connection from an Enterprise Edition transit router:
+  *     *   If an Enterprise Edition transit router is already created in the region where you want to create a VPC connection, configure the **VpcId**, **ZoneMappings.N.VSwitchId**, **ZoneMappings.N.ZoneId**, **TransitRouterId**, and **RegionId** parameters.
+  *     *   If no Enterprise Edition transit router is created in the region where you want to create a VPC connection, configure the **VpcId**, **ZoneMappings.N.VSwitchId**, **ZoneMappings.N.ZoneId**, **CenId**, and **RegionId** parameters. Then, the system automatically creates an Enterprise Edition transit router in the specified region.
+  * *   **CreateTransitRouterVpcAttachment** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [ListTransitRouterVpcAttachments](https://help.aliyun.com/document_detail/261222.html) operation to query the status of a VPC connection.
+  *     *   If the VPC connection is in the **Attaching** state, the VPC connection is being created. You can query the VPC connection but cannot perform other operations.
+  *     *   If the VPC connection is in the **Attached** state, the VPC connection is created.
   * *   By default, route learning and associated forwarding are disabled between transit router route tables and VPC connections.
-  * ## Prerequisites
+  * ### [](#)Prerequisites
   * Before you call this operation, make sure that the following requirements are met:
-  * *   At least one vSwitch is deployed for the VPC in the zones supported by Enterprise Edition transit routers. Each vSwitch must have at least one idle IP address. For more information, see [Regions and zones supported by Enterprise Edition transit routers](https://help.aliyun.com/document_detail/181681.html).
-  * *   To connect to a network instance that belongs to another Alibaba Cloud account, you must first acquire the required permissions from the account. For more information, see [Acquire permissions to connect to a network instance that belongs to another account](https://help.aliyun.com/document_detail/181553.html).
-  * *   VPC connections incur fees. Take note of the billing rules of VPC connections before you create a VPC connection. For more information, see [Billing](https://help.aliyun.com/document_detail/189836.html).
+  * *   The VPC in the zones of the Enterprise Edition transit router contains at least one vSwitch. Each vSwitch must have at least one idle IP address. For more information, see [Regions and zones supported by Enterprise Edition transit routers](https://help.aliyun.com/document_detail/181681.html).
+  * *   To connect to a network instance that belongs to another Alibaba Cloud account, you must first acquire the permissions from the account. For more information, see [Acquire permissions to connect to a network instance that belongs to another account](https://help.aliyun.com/document_detail/181553.html).
+  * *   VPC connections incur fees. Make sure that you understand the billing rules of VPC connections before you create a VPC connection. For more information, see [Billing](https://help.aliyun.com/document_detail/189836.html).
   * @param request  the request parameters of CreateTransitRouterVpcAttachment  CreateTransitRouterVpcAttachmentRequest
   * @return CreateTransitRouterVpcAttachmentResponse
  */
@@ -3669,14 +3715,12 @@ model DescribeCenBandwidthPackagesResponseBody = {
 *   **china**: Chinese mainland.
 *   **asia-pacific**: Asia Pacific
 *   **europe**: Europe
-*   **australia**: Australia
 *   **north-america**: North America', example='china'),
       geographicRegionBId?: string(name='GeographicRegionBId', description='The ID of the other area connected by the bandwidth plan. Valid values:
 
 *   **china**: Chinese mainland.
 *   **asia-pacific**: Asia Pacific
 *   **europe**: Europe
-*   **australia**: Australia
 *   **north-america**: North America', example='north-america'),
       geographicSpanId?: string(name='GeographicSpanId', description='The ID of the connected area.', example='north-america_china'),
       hasReservationData?: string(name='HasReservationData', description='Indicates whether renewal data is included.
@@ -3760,6 +3804,7 @@ You can call the [DescribeChildInstanceRegions](https://help.aliyun.com/document
 *   **VPC**: virtual private cloud (VPC)
 *   **VBR**: virtual border router (VBR)
 *   **CCN**: Cloud Connect Network (CCN) instance
+*   **ECR**: Express Connect Router (ECR)
 
 This parameter is required.', example='VPC', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -3802,9 +3847,10 @@ model DescribeCenChildInstanceRouteEntriesResponseBody = {
           instanceId?: string(name='InstanceId', description='The ID of the peer network instance on which the overlapping routes are found.', example='ccn-0q3b7oviikmm9h****'),
           instanceType?: string(name='InstanceType', description='The type of the peer network instance on which the overlapping routes are found. Valid values:
 
-*   **VPC**
-*   **VBR**
-*   **CCN**', example='CCN'),
+*   **VPC**: VPC
+*   **VBR**: VBR
+*   **CCN**: CCN instance
+*   **ECR**: ECR', example='CCN'),
           regionId?: string(name='RegionId', description='The region ID of the peer network instance on which the overlapping routes are found.', example='ccn-cn-shanghai'),
           status?: string(name='Status', description='The cause of the route error. Valid values:
 
@@ -3894,7 +3940,6 @@ This parameter is required.', example='cen-nh98vzx8gfhlwn****', position='Query'
 *   **North-America**: North America
 *   **Asia-Pacific**: Asia Pacific
 *   **Europe**: Europe
-*   **Australia**: Australia
 
 This parameter is required.', example='China', position='Query'),
   geographicRegionBId: string(name='GeographicRegionBId', description='The ID of the other area connected by the bandwidth plan. Valid values:
@@ -3903,7 +3948,6 @@ This parameter is required.', example='China', position='Query'),
 *   **North-America**: North America
 *   **Asia-Pacific**: Asia Pacific
 *   **Europe**: Europe
-*   **Australia**: Australia
 
 This parameter is required.', example='North-America', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
@@ -4585,14 +4629,16 @@ The description is optional. If you enter a description, it must be 1 to 256 cha
   flowLogName?: string(name='FlowLogName', description='The name of the flow log.
 
 The name is optional. If you enter a name, it must be 1 to 128 characters in length, and cannot start with http:// or https://.', example='myFlowlog', position='Query'),
-  flowLogVersion?: string(name='FlowLogVersion', position='Query'),
-  interval?: int32(name='Interval', position='Query'),
+  flowLogVersion?: string(name='FlowLogVersion', description='The flow log version.
+
+Flow logs are automatically created in the latest version, which is **3**.', example='3', position='Query'),
+  interval?: int32(name='Interval', description='The time window for collecting log data. Unit: seconds Valid values: **60** or **600** Default value: **600**.', example='600', position='Query'),
   logStoreName?: string(name='LogStoreName', description='The name of the Logstore where the flow log is stored.
 
 The name must be 3 to 63 characters in length, and can contain lowercase letters, digits, underscores (_), and hyphens (-). It must start or end with a lowercase letter or a digit.', example='FlowLogStore', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the page to return. Default value: **1**.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Minimum value: **1**. Default value: **20**.', example='20', position='Query'),
   projectName?: string(name='ProjectName', description='The name of the project where the flow log is stored.
 
@@ -4623,7 +4669,7 @@ Each tag key must have a unique tag value. You can specify at most 20 tag values
 
 You can specify at most 20 tags in each call.', position='Query'),
   transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the network instance connection.', example='tr-attach-qieks13jnt1cchy****', position='Query'),
-  transitRouterId?: string(name='TransitRouterId', position='Query'),
+  transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-uf654ttymmljlvh2x****', position='Query'),
 }
 
 model DescribeFlowlogsResponseBody = {
@@ -4637,9 +4683,13 @@ The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The t
       description?: string(name='Description', description='The description of the flow log.', example='myFlowlog'),
       flowLogId?: string(name='FlowLogId', description='The ID of the flow log.', example='flowlog-m5evbtbpt****'),
       flowLogName?: string(name='FlowLogName', description='The name of the flow log.', example='myFlowlog'),
-      flowLogVersion?: string(name='FlowLogVersion'),
+      flowLogVersion?: string(name='FlowLogVersion', description='The flow log version.
+
+Flow logs are automatically created in the latest version, which is **3**.', example='3'),
       interval?: long(name='Interval', description='The time window for collecting log data. Unit: seconds. Valid values: **60** or **600** Default value: **600**.', example='60'),
-      logFormatString?: string(name='LogFormatString'),
+      logFormatString?: string(name='LogFormatString', description='The string that defines the format of the flow log. Format:
+
+`${Field 1}${Field 2}${Field 3}`', example='${srcaddr}${dstaddr}${bytes}'),
       logStoreName?: string(name='LogStoreName', description='The Logstore that stores the captured traffic data.', example='FlowLogStore'),
       projectName?: string(name='ProjectName', description='The name of the project that stores the captured traffic data.', example='FlowLogProject'),
       regionId?: string(name='RegionId', description='The region ID of the flow log.', example='cn-hangzhou'),
@@ -4654,9 +4704,9 @@ The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The t
           value?: string(name='Value', description='The tag value.', example='TagValue'),
         }
       ](name='Tag')
-      }(name='Tags', description='A list of tags.'),
+      }(name='Tags', description='The tags.'),
       transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the network instance connection', example='tr-attach-5x4o4ynzuqbv6g****'),
-      transitRouterId?: string(name='TransitRouterId'),
+      transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router.', example='tr-bp1g9313sx675zr1lajmj'),
     }
   ](name='FlowLog')
   }(name='FlowLogs', description='The information about the flow log.'),
@@ -4686,27 +4736,36 @@ async function describeFlowlogs(request: DescribeFlowlogsRequest): DescribeFlowl
 }
 
 model DescribeGeographicRegionMembershipRequest {
-  geographicRegionId: string(name='GeographicRegionId', description='This parameter is required.', example='china', position='Query'),
+  geographicRegionId: string(name='GeographicRegionId', description='The ID of the area that you want to query. Valid values:
+
+*   **china**: the Chinese mainland
+*   **asia-pacific**: Asia Pacific
+*   **europe**: Europe
+*   **north-america**: North America
+
+This parameter is required.', example='china', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
 }
 
 model DescribeGeographicRegionMembershipResponseBody = {
-  pageNumber?: int32(name='PageNumber', example='10'),
-  pageSize?: int32(name='PageSize', example='2'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='2'),
   regionIds?: {
     regionId?: [ 
     {
-      regionId?: string(name='RegionId', example='us-west-1'),
+      regionId?: string(name='RegionId', description='The ID of the region.
+
+You can call the [DescribeChildInstanceRegions](https://help.aliyun.com/document_detail/132080.html) operation to query the most recent region list.', example='us-west-1'),
     }
   ](name='RegionId')
-  }(name='RegionIds'),
-  requestId?: string(name='RequestId', example='DC9EB0C9-60AF-4A09-A36C-608F70130274'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  }(name='RegionIds', description='The list of regions.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='DC9EB0C9-60AF-4A09-A36C-608F70130274'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
 model DescribeGeographicRegionMembershipResponse = {
@@ -5730,9 +5789,10 @@ model ListCenInterRegionTrafficQosPoliciesResponseBody = {
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
   trafficQosPolicies?: [ 
     {
-      bandwidthGuaranteeMode?: string(name='BandwidthGuaranteeMode', description='带宽保障类型。
-- **byBandwidth**：按带宽绝对值模式配置QoS队列。
-- **byBandwidthPercent**：按带宽百分比模式配置QoS队列。', example='byBandwidthPercent'),
+      bandwidthGuaranteeMode?: string(name='BandwidthGuaranteeMode', description='The guaranteed bandwidth mode.
+
+*   **byBandwidth**: allocates absolute bandwidth values to QoS queues.
+*   **byBandwidthPercent**: assigns bandwidth percentages to QoS queues.', example='byBandwidthPercent'),
       trafficQosPolicyDescription?: string(name='TrafficQosPolicyDescription', description='The description of the QoS policy.', example='desctest'),
       trafficQosPolicyId?: string(name='TrafficQosPolicyId', description='The ID of the QoS policy.', example='qos-rnghap5gc8155x****'),
       trafficQosPolicyName?: string(name='TrafficQosPolicyName', description='The name of the QoS policy.', example='nametest'),
@@ -5744,13 +5804,13 @@ model ListCenInterRegionTrafficQosPoliciesResponseBody = {
 *   **Deleting**: The QoS policy is being deleted.', example='Creating'),
       trafficQosQueues?: [ 
         {
-          bandwidth?: string(name='Bandwidth', description='带宽保障类型为按绝对值模式时，当前队列分配的跨地域带宽的值。', example='1'),
+          bandwidth?: string(name='Bandwidth', description='If the QoS queues are assigned absolute bandwidth values, this parameter indicates the absolute bandwidth value that is allocated to the queue.', example='1'),
           dscps?: [ int32 ](name='Dscps', description='The differentiated services code point (DSCP) value that is used to match packets.'),
-          effectiveBandwidth?: string(name='EffectiveBandwidth', description='当前队列实际生效的带宽值。', example='1.35'),
+          effectiveBandwidth?: string(name='EffectiveBandwidth', description='The actual bandwidth value of the current queue.', example='1.35'),
           qosQueueDescription?: string(name='QosQueueDescription', description='The description of the queue.', example='desctest'),
           qosQueueId?: string(name='QosQueueId', description='The queue ID.', example='qos-queue-njcrmr9fiu1jii****'),
           qosQueueName?: string(name='QosQueueName', description='The name of the queue.', example='namtest'),
-          remainBandwidthPercent?: int32(name='RemainBandwidthPercent', description='The percentage of the inter-region bandwidth that can be used by the queue.', example='1'),
+          remainBandwidthPercent?: int32(name='RemainBandwidthPercent', description='If the QoS queues are assigned bandwidth percentages, this parameter indicates the percentage of bandwidth that is allocated to the queue.', example='1'),
         }
       ](name='TrafficQosQueues', description='A list of queues.'),
       transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The ID of the network instance connection.', example='tr-attach-q7ct7c06jpw***'),
@@ -5781,9 +5841,9 @@ async function listCenInterRegionTrafficQosPolicies(request: ListCenInterRegionT
 
 model ListCenInterRegionTrafficQosQueuesRequest {
   effectiveBandwidthFilter?: {
-    gte?: long(name='Gte', description='实际生效带宽大于或等于指定带宽值。', example='50'),
-    lte?: long(name='Lte', description='实际生效带宽小于或等于指定带宽值。', example='20'),
-  }(name='EffectiveBandwidthFilter', description='按照实际的生效带宽值进行过滤，只允许输入正整数，单位Mbps。', position='Query'),
+    gte?: long(name='Gte', description='The actual bandwidth is equal to or larger than the specified value.', example='50'),
+    lte?: long(name='Lte', description='The actual bandwidth is equal to or smaller than the specified value.', example='20'),
+  }(name='EffectiveBandwidthFilter', description='The filter works based on the actual bandwidth. Enter a positive integer. Unit: Mbit/s.', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: **1** to **100**. Default value: **20**.', example='20', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
 
@@ -5813,12 +5873,12 @@ model ListCenInterRegionTrafficQosQueuesResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='1D1E15D2-416D-54F3-BDD9-BC27DE4C6352'),
   trafficQosQueues?: [ 
     {
-      bandwidth?: string(name='Bandwidth', description='带宽保障类型为按绝对值模式时，当前队列分配跨地域带宽的值。
+      bandwidth?: string(name='Bandwidth', description='The absolute bandwidth value that can be allocated to the current queue.
 
-例如，**1**表示符合当前队列的流量报文最多只能使用1Mbps的跨地域带宽。', example='1'),
+A value of **1** indicates that the QoS queue can consume at most 1 Mbit/s of inter-region bandwidth.', example='1'),
       dscps?: [ int32 ](name='Dscps', description='The Differentiated Services Code Point (DSCP) value that matches the current QoS queue.'),
-      effectiveBandwidth?: string(name='EffectiveBandwidth', description='当前队列实际生效的带宽值。', example='1.35'),
-      remainBandwidthPercent?: int32(name='RemainBandwidthPercent', description='The percentage of the inter-region bandwidth that can be consumed by the QoS queue.
+      effectiveBandwidth?: string(name='EffectiveBandwidth', description='The actual bandwidth of the current queue.', example='1.35'),
+      remainBandwidthPercent?: int32(name='RemainBandwidthPercent', description='The percentage of bandwidth that can be allocated to the current queue.
 
 A value of **1** indicates that the QoS queue can consume at most 1% of the inter-region bandwidth.', example='1'),
       status?: string(name='Status', description='The status of the QoS queue. Valid values:
@@ -6143,8 +6203,8 @@ A lower value indicates a higher priority.', example='5'),
 *   **Deleting**: The policy is being deleted.', example='Creating'),
       trafficMatchRules?: [ 
         {
-          addressFamily?: string(name='AddressFamily'),
-          dstCidr?: string(name='DstCidr', description='The destination CIDR block that is used to match packets.', example='192.168.120.0/24'),
+          addressFamily?: string(name='AddressFamily', description='The address family. You can set the value to IPv4 or IPv6, or leave the value empty.', example='IPv4'),
+          dstCidr?: string(name='DstCidr', description='The destination CIDR block of packets. IPv4 and IPv6 addresses are supported.', example='192.168.120.0/24'),
           dstPortRange?: [ int32 ](name='DstPortRange', description='The destination port range used to match data packets.'),
           matchDscp?: int32(name='MatchDscp', description='The DSCP value used to match data packets.
 
@@ -6152,7 +6212,7 @@ A lower value indicates a higher priority.', example='5'),
           protocol?: string(name='Protocol', description='The protocol that is used to match packets.
 
 >  Traffic marking policies support multiple protocols. For more information, see the documentation of CEN.', example='HTTP'),
-          srcCidr?: string(name='SrcCidr', description='The source CIDR block that is used to match packets.', example='192.168.10.0/24'),
+          srcCidr?: string(name='SrcCidr', description='The source CIDR block of packets. IPv6 and IPv4 addresses are supported.', example='192.168.10.0/24'),
           srcPortRange?: [ int32 ](name='SrcPortRange', description='The source port range used to match data packets.'),
           trafficMatchRuleDescription?: string(name='TrafficMatchRuleDescription', description='The description of the traffic classification rule.', example='desctest'),
           trafficMatchRuleId?: string(name='TrafficMatchRuleId', description='The ID of the traffic classification rule.', example='tm-rule-fa9kgq1e90rmhc****'),
@@ -6633,6 +6693,9 @@ model ListTransitRouterMulticastDomainsResponseBody = {
   transitRouterMulticastDomains?: [ 
     {
       cenId?: string(name='CenId', description='The CEN instance ID.', example='cen-a7syd349kne38g****'),
+      options?: {
+        igmpv2Support?: string(name='Igmpv2Support'),
+      }(name='Options'),
       regionId?: string(name='RegionId', description='The region ID of the transit router.
 
 You can call the [DescribeChildInstanceRegions](https://help.aliyun.com/document_detail/132080.html) operation to query the most recent region list.', example='cn-hangzhou'),
@@ -7580,12 +7643,12 @@ Only **VPC** may be returned, which indicates VPCs.', example='VPC'),
           key?: string(name='Key', description='The tag key.', example='test'),
           value?: string(name='Value', description='The tag value.', example='test'),
         }
-      ](name='Tags', description='The tag key.'),
+      ](name='Tags', description='The tags.'),
       transitRouterAttachmentDescription?: string(name='TransitRouterAttachmentDescription', description='The description of the VPC connection.', example='testdesc'),
       transitRouterAttachmentId?: string(name='TransitRouterAttachmentId', description='The VPC connection ID.', example='tr-attach-nls9fzkfat8934****'),
       transitRouterAttachmentName?: string(name='TransitRouterAttachmentName', description='The name of the VPC connection.', example='testname'),
       transitRouterId?: string(name='TransitRouterId', description='The description of the Enterprise Edition transit router.', example='tr-bp1su1ytdxtataupl****'),
-      transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions'),
+      transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions', description='The features of the VPC connection.'),
       vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-bp1h8vbrbcgohcju5****'),
       vpcOwnerId?: long(name='VpcOwnerId', description='The ID of the Alibaba Cloud account to which the VPC belongs.', example='1250123456123456'),
       vpcRegionId?: string(name='VpcRegionId', description='The region ID of the VPC.', example='cn-hangzhou'),
@@ -7974,10 +8037,10 @@ async function modifyCenBandwidthPackageSpec(request: ModifyCenBandwidthPackageS
 }
 
 model ModifyCenRouteMapRequest {
-  asPathMatchMode?: string(name='AsPathMatchMode', description='The match method that is used to match routes against the AS paths. Valid values:
+  asPathMatchMode?: string(name='AsPathMatchMode', description='The match method that is used to match routes based on the AS path. Valid values:
 
-*   **Include**: fuzzy match. A route meets the match condition if the AS path of the route overlaps with the AS paths specified in the match condition.
-*   **Complete**: exact match. A route is a match only if the AS path of the route is the same as an AS path specified in the match condition.', example='Include', position='Query'),
+*   **Include**: fuzzy match. A route is a match if the AS path of the route overlaps with the AS path in the match conditions.
+*   **Complete**: exact match. A route is a match only if the AS path of the route matches the AS path in the match conditions.', example='Include', position='Query'),
   cenId: string(name='CenId', description='The ID of the CEN instance.
 
 This parameter is required.', example='cen-7qthudw0ll6jmc****', position='Query'),
@@ -7990,16 +8053,16 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 
 *   **Include**: fuzzy match. A route is a match if the route prefix is included in the match conditions.
 
-    For example, if you set the match condition to 10.10.0.0/16 and fuzzy match is enabled, the route whose prefix is 10.10.1.0/24 is a match.
+For example, if you set the match condition to 10.10.0.0/16 and fuzzy match is applied, the route whose prefix is 10.10.1.0/24 meets the match condition.
 
 *   **Complete**: exact match. A route is a match only if the route prefix is the same as the prefix specified in the match condition.
 
-    For example, if you set the match condition to 10.10.0.0/16 and exact match is enabled, a route is a match only if the prefix is 10.10.0.0/16.', example='Include', position='Query'),
-  communityMatchMode?: string(name='CommunityMatchMode', description='The match method that is sed to match routes based on the community. Valid values:
+For example, if you set the match condition to 10.10.0.0/16 and exact match is applied, only the route whose prefix is 10.10.0.0/16 meets the match condition.', example='Include', position='Query'),
+  communityMatchMode?: string(name='CommunityMatchMode', description='The match method that is used to match routes based on the community. Valid values:
 
-*   **Include**: fuzzy match. A route meets the match condition if the community of the route overlaps with the community specified in the match condition.
-*   **Complete**: exact match. A route meets the match condition only if the community of the route is the same as the community specified in the match condition.', example='Include', position='Query'),
-  communityOperateMode?: string(name='CommunityOperateMode', description='The action that is performed on the community. Valid values:
+*   **Include**: fuzzy match. A route is a match if the community of the route overlaps with the community in the match conditions.
+*   **Complete**: exact match. A route is a match only if the community of the route matches the community in the match conditions.', example='Include', position='Query'),
+  communityOperateMode?: string(name='CommunityOperateMode', description='The action to be performed on the community. Valid values:
 
 *   **Additive**: adds the community to the route.
 *   **Replace**: replaces the original community of the route.
@@ -8007,7 +8070,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 This parameter specifies the action to be performed when a route meets the match condition.', example='Additive', position='Query'),
   description?: string(name='Description', description='The description of the routing policy.
 
-The description cannot start with `http://` or `https://`. It must start with a letter and can contain letters, digits, hyphens (-), periods (.), and underscores (_).', example='desctest', position='Query'),
+This parameter is optional. If you enter a description, it must be 1 to 256 characters in length and cannot start with http:// or https://.', example='desctest', position='Query'),
   destinationChildInstanceTypes?: [ string ](name='DestinationChildInstanceTypes', description='The types of destination network instance to which the routes belong. The following types of network instances are supported:
 
 *   **VPC**: VPC
@@ -8035,15 +8098,15 @@ You must specify the IP addresses in CIDR notation. You can enter at most 32 CID
 You can enter at most 32 IDs.
 
 > The destination instance IDs take effect only when Direction is set to Export from Regional Gateway and the destination instances are deployed in the current region.', example='vpc-avcdsg34ds****', position='Query'),
-  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='Specifies whether to exclude the destination network instance IDs. Valid values:
+  destinationInstanceIdsReverseMatch?: boolean(name='DestinationInstanceIdsReverseMatch', description='Specifies whether to exclude destination instance IDs. Valid values:
 
-*   **false** (default value): A route is a match if its destination network instance ID is in the list specified by **DestinationInstanceIds.N**.
-*   **true**: A route meets the match condition if its destination network instance ID is not in the list specified by **DestinationInstanceIds.N**.', example='false', position='Query'),
-  destinationRegionIds?: [ string ](name='DestinationRegionIds', position='Query'),
+*   **false** (default): A route is a match if the destination instance ID is included in the list specified by **SourceInstanceIds.N**.
+*   **true**: A route is a match if the destination network instance ID is not in the list specified by **SourceInstanceIds.N**.', example='false', position='Query'),
+  destinationRegionIds?: [ string ](name='DestinationRegionIds', description='The destination region IDs of the route. You can specify at most 32 region IDs.', position='Query'),
   destinationRouteTableIds?: [ string ](name='DestinationRouteTableIds', description='The IDs of the destination route tables to which the routes belong. You can enter at most 32 route table IDs.
 
 > The destination route table IDs take effect only when Direction is set to Export from Regional Gateway and the destination route tables belong to network instances deployed in the current region.', example='vtb-adfg53c322v****', position='Query'),
-  mapResult: string(name='MapResult', description='The action to be performed on a route that meets all match conditions. Valid values:
+  mapResult: string(name='MapResult', description='The action to be performed on a route that meets all the match conditions. Valid values:
 
 *   **Permit**: the route is permitted.
 *   **Deny**: the route is denied.
@@ -8128,10 +8191,10 @@ This parameter is required.', example='cenrmap-abcdedfghij****', position='Query
 *   The ID of the IPsec-VPN connection.
 
 You can enter at most 32 IDs.', example='vpc-afsfdf5435vcvc****', position='Query'),
-  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='Specifies whether to exclude the source network instance IDs. Valid values:
+  sourceInstanceIdsReverseMatch?: boolean(name='SourceInstanceIdsReverseMatch', description='Specifies whether to exclude source instance IDs. Valid values:
 
-*   **false** (default value): A route is a match if its source network instance ID is in the list specified by **SourceInstanceIds.N**.
-*   **true**: A route is a match if its source network instance ID is not in the list specified by **SourceInstanceIds.N**.', example='false', position='Query'),
+*   **false** (default): A route is a match if the source instance ID is included in the list specified by **SourceInstanceIds.N**.
+*   **true**: A route is a match if the source network instance ID is not in the list specified by **SourceInstanceIds.N**.', example='false', position='Query'),
   sourceRegionIds?: [ string ](name='SourceRegionIds', description='The IDs of the source regions to which the routes belong. You can enter at most 32 region IDs.
 
 You can call the [DescribeChildInstanceRegions](https://help.aliyun.com/document_detail/132080.html) operation to query the most recent region list.', example='cn-beijing', position='Query'),
@@ -8161,7 +8224,7 @@ async function modifyCenRouteMap(request: ModifyCenRouteMapRequest): ModifyCenRo
 }
 
 model ModifyFlowLogAttributeRequest {
-  cenId?: string(name='CenId', description='The ID of the CEN instance.', example='cen-7qthudw0ll6jmc****', position='Query'),
+  cenId?: string(name='CenId', description='The CEN instance ID.', example='cen-7qthudw0ll6jmc****', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the value, but you must make sure that the value is unique among different requests. The client token can contain only ASCII characters.
@@ -8176,7 +8239,7 @@ This parameter is required.', example='flowlog-m5evbtbpt****', position='Query')
   flowLogName?: string(name='FlowLogName', description='The new name of the flow log.
 
 The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='myFlowlog', position='Query'),
-  interval?: long(name='Interval', position='Query'),
+  interval?: long(name='Interval', description='The time window for collecting log data. Unit: seconds. Valid values: **60** or **600** Default value: **600**.', example='600', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the flow log is deployed.
@@ -8215,20 +8278,35 @@ async function modifyFlowLogAttribute(request: ModifyFlowLogAttributeRequest): M
 }
 
 model ModifyTrafficMatchRuleToTrafficMarkingPolicyRequest {
-  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
-  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+
+>  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and sends the request.', example='false', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  trafficMarkingPolicyId: string(name='TrafficMarkingPolicyId', description='This parameter is required.', example='tm-u9nxup5kww5po8****', position='Query'),
-  trafficMatchRuleDescription?: string(name='TrafficMatchRuleDescription', example='descriptiontest', position='Query'),
-  trafficMatchRuleId: string(name='TrafficMatchRuleId', description='This parameter is required.', example='tm-rule-fa9kgq1e90rmhc****', position='Query'),
-  trafficMatchRuleName?: string(name='TrafficMatchRuleName', example='nametest', position='Query'),
+  trafficMarkingPolicyId: string(name='TrafficMarkingPolicyId', description='The ID of the traffic marking policy.
+
+This parameter is required.', example='tm-u9nxup5kww5po8****', position='Query'),
+  trafficMatchRuleDescription?: string(name='TrafficMatchRuleDescription', description='The description of the traffic classification rule.
+
+This parameter is optional. If you enter a description, it must be 1 to 256 characters in length, and cannot start with http:// or https://.', example='descriptiontest', position='Query'),
+  trafficMatchRuleId: string(name='TrafficMatchRuleId', description='The ID of the traffic classification rule.
+
+This parameter is required.', example='tm-rule-fa9kgq1e90rmhc****', position='Query'),
+  trafficMatchRuleName?: string(name='TrafficMatchRuleName', description='The name of the traffic classification rule.
+
+The name can be empty or 1 to 128 characters in length, and cannot start with http:// or https://.', example='nametest', position='Query'),
 }
 
 model ModifyTrafficMatchRuleToTrafficMarkingPolicyResponseBody = {
-  requestId?: string(name='RequestId', example='13526224-5780-4426-8ADF-BC8B08700F23'),
+  requestId?: string(name='RequestId', description='The request ID.', example='13526224-5780-4426-8ADF-BC8B08700F23'),
 }
 
 model ModifyTrafficMatchRuleToTrafficMarkingPolicyResponse = {
@@ -8322,6 +8400,9 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error code is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
 *   **false** (default): performs a dry run and performs the actual request.', example='false', position='Query'),
+  options?: {
+    igmpv2Support?: string(name='Igmpv2Support'),
+  }(name='Options', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -9207,9 +9288,9 @@ async function updateCenInterRegionTrafficQosPolicyAttribute(request: UpdateCenI
 }
 
 model UpdateCenInterRegionTrafficQosQueueAttributeRequest {
-  bandwidth?: long(name='Bandwidth', description='按带宽绝对值模式分配时，当前队列可使用的跨地域带宽的绝对值，单位Mbps。
+  bandwidth?: long(name='Bandwidth', description='The absolute bandwidth value that can be allocated to the current queue. Unit: Mbit/s.
 
-输入数字即可，无需输入单位。', example='1', position='Query'),
+Enter a number. You do not need to enter a unit.', example='1', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-426655****', position='Query'),
@@ -9229,7 +9310,7 @@ This parameter is required.', example='qos-queue-nv2vfzqkewhk4t****', position='
   qosQueueName?: string(name='QosQueueName', description='The new name of the queue.
 
 The name must be 1 to 128 characters in length, and cannot start with http:// or https://. You can also leave this parameter empty.', example='nametest', position='Query'),
-  remainBandwidthPercent?: string(name='RemainBandwidthPercent', description='The percentage of the inter-region bandwidth that can be used by the queue.
+  remainBandwidthPercent?: string(name='RemainBandwidthPercent', description='The percentage of bandwidth that can be allocated to the current queue.
 
 Enter a number. You do not need to enter a percent sign (%).', example='1', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -9731,9 +9812,7 @@ This parameter is required.', example='tr-attach-nls9fzkfat8934****', position='
   transitRouterAttachmentName?: string(name='TransitRouterAttachmentName', description='The name of the VPC connection.
 
 The name must be 2 to 128 characters in length, and can contain letters, digits, underscores (_), and hyphens (-). It must start with a letter.', example='testname', position='Query'),
-  transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions', description='Feature configurations of the VPC connection.
-
-*   ipv6Support: specifies whether to enable IPv6. Valid values: true and false. The default value is the status of the VPC connection.', shrink='json', position='Query'),
+  transitRouterVPCAttachmentOptions?: map[string]string(name='TransitRouterVPCAttachmentOptions', description='The features of the VPC connection.', shrink='json', position='Query'),
 }
 
 model UpdateTransitRouterVpcAttachmentAttributeResponseBody = {
