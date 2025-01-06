@@ -404,6 +404,76 @@ async function getDocumentSplit(workspaceName: string, serviceId: string, reques
   return getDocumentSplitWithOptions(workspaceName, serviceId, request, headers, runtime);
 }
 
+model GetEmbeddingTuningRequest {
+  input?: [[ float ]  ](name='input'),
+  parameters?: map[string]any(name='parameters'),
+}
+
+model GetEmbeddingTuningResponseBody = {
+  latency?: int32(name='latency'),
+  requestId?: string(name='request_id'),
+  result?: {
+    output?: [[ float ]    ](name='output'),
+  }(name='result'),
+  usage?: {
+    docCount?: int32(name='doc_count'),
+  }(name='usage'),
+}
+
+model GetEmbeddingTuningResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEmbeddingTuningResponseBody(name='body'),
+}
+
+/**
+ * @summary 向量微调
+ *
+ * @param request GetEmbeddingTuningRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEmbeddingTuningResponse
+ */
+async function getEmbeddingTuningWithOptions(workspaceName: string, serviceId: string, request: GetEmbeddingTuningRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetEmbeddingTuningResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.input)) {
+    body['input'] = request.input;
+  }
+  if (!Util.isUnset(request.parameters)) {
+    body['parameters'] = request.parameters;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEmbeddingTuning',
+    version = '2024-05-29',
+    protocol = 'HTTPS',
+    pathname = `/v3/openapi/workspaces/${workspaceName}/embedding-tuning/${serviceId}`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 向量微调
+ *
+ * @param request GetEmbeddingTuningRequest
+ * @return GetEmbeddingTuningResponse
+ */
+async function getEmbeddingTuning(workspaceName: string, serviceId: string, request: GetEmbeddingTuningRequest): GetEmbeddingTuningResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEmbeddingTuningWithOptions(workspaceName, serviceId, request, headers, runtime);
+}
+
 model GetImageAnalyzeTaskStatusRequest {
   taskId?: string(name='task_id', description='This parameter is required.'),
 }
@@ -476,6 +546,68 @@ async function getImageAnalyzeTaskStatus(workspaceName: string, serviceId: strin
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getImageAnalyzeTaskStatusWithOptions(workspaceName, serviceId, request, headers, runtime);
+}
+
+model GetPredictionHeaders {
+  commonHeaders?: map[string]string,
+  token?: string(name='Token'),
+}
+
+model GetPredictionRequest {
+  body?: string(name='body'),
+}
+
+model GetPredictionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 获取推理结果
+ *
+ * @param request GetPredictionRequest
+ * @param headers GetPredictionHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetPredictionResponse
+ */
+async function getPredictionWithOptions(deploymentId: string, request: GetPredictionRequest, headers: GetPredictionHeaders, runtime: Util.RuntimeOptions): GetPredictionResponse {
+  Util.validateModel(request);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.token)) {
+    realHeaders['Token'] = Util.toJSONString(headers.token);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = request.body,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPrediction',
+    version = '2024-05-29',
+    protocol = 'HTTPS',
+    pathname = `/v3/openapi/deployments/${deploymentId}/predict`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 获取推理结果
+ *
+ * @param request GetPredictionRequest
+ * @return GetPredictionResponse
+ */
+async function getPrediction(deploymentId: string, request: GetPredictionRequest): GetPredictionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new GetPredictionHeaders{};
+  return getPredictionWithOptions(deploymentId, request, headers, runtime);
 }
 
 model GetQueryAnalysisRequest {
