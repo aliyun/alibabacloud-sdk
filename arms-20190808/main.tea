@@ -3162,7 +3162,7 @@ model CreateOrUpdateAlertRuleResponseBody = {
 *   \\\\-1: custom PromQL
 *   1: Kubernetes load
 *   15: Kubernetes node', example='-1'),
-    alertId?: float(name='AlertId', description='The ID of the alert rule.', example='5510445'),
+    alertId?: long(name='AlertId', description='The alert rule ID.', example='5510445'),
     alertName?: string(name='AlertName', description='The name of the alert rule.', example='arms-test'),
     alertRuleContent?: {
       alertRuleItems?: [ 
@@ -4459,7 +4459,7 @@ model CreatePrometheusInstanceRequest {
 This parameter is required.', example='remote-write'),
   duration?: int32(name='Duration', description='The data storage duration. Unit: days.', example='90'),
   grafanaInstanceId?: string(name='GrafanaInstanceId', description='The ID of the Grafana dedicated instance. This parameter is available if you set the ClusterType parameter to ecs.', example='grafana-bp1*****'),
-  paymentType?: string(name='PaymentType'),
+  paymentType?: string(name='PaymentType', description='The billing mode. Valid values: POSTPAY: charges fees based on the amount of reported metric data. POSTPAY_GB: charges fees based on the amount of written metric data. Empty value: The user-defined default billing mode is used. If no such a billing mode is available, you are charged based on the amount of reported metric data.'),
   regionId?: string(name='RegionId', description='The ID of the region. If you use a Prometheus instance to monitor an Alibaba Cloud service in China, this parameter must be set to cn-shanghai.
 
 This parameter is required.', example='cn-shanghai'),
@@ -10328,6 +10328,7 @@ Notice: The preceding features are still in canary release and are disabled by d
 *
 
 This parameter is required.', example='QueryTopo'),
+  regionId?: string(name='RegionId'),
 }
 
 model DoInsightsActionResponseBody = {
@@ -10443,6 +10444,10 @@ model DoInsightsActionResponse = {
  */
 async function doInsightsActionWithOptions(request: DoInsightsActionRequest, runtime: Util.RuntimeOptions): DoInsightsActionResponse {
   Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.data)) {
     body['Data'] = request.data;
@@ -10451,6 +10456,7 @@ async function doInsightsActionWithOptions(request: DoInsightsActionRequest, run
     body['Module'] = request.module;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -12194,7 +12200,7 @@ model GetPrometheusInstanceResponseBody = {
 
 *   PREPAY: subscription
 *   POSTPAY: pay-as-you-go', example='PREPAY'),
-    paymentTypeUpdateTime?: string(name='PaymentTypeUpdateTime'),
+    paymentTypeUpdateTime?: string(name='PaymentTypeUpdateTime', description='The time when the billing method was modified.'),
     product?: string(name='Product', description='The product to which the Prometheus instance belongs. Valid values: arms and cms.', example='arms'),
     pushGatewayInterUrl?: string(name='PushGatewayInterUrl', description='The public URL for Pushgateway.', example='https://cn-beijing.arms.aliyuncs.com/prometheus/xxx/api/v2'),
     pushGatewayIntraUrl?: string(name='PushGatewayIntraUrl', description='The internal URL for Pushgateway.', example='http://cn-beijing-intranet.arms.aliyuncs.com/prometheus/xxx/api/v2'),
@@ -12219,7 +12225,7 @@ model GetPrometheusInstanceResponseBody = {
     vSwitchId?: string(name='VSwitchId', description='The vSwitch ID. This parameter is returned only for Prometheus instances for ECS.', example='vsw-f8z73vcja1tqnw90aav5a'),
     version?: string(name='Version'),
     vpcId?: string(name='VpcId', description='The VPC ID. This parameter is returned only for Prometheus instances for ECS.', example='vpc-8vb02uk57qbcktqcvqqqj'),
-  }(name='Data', description='The returned message.'),
+  }(name='Data', description='The response parameters.'),
   message?: string(name='Message', description='The message returned.', example='message'),
   requestId?: string(name='RequestId', description='Id of the request', example='52C422FD-6B43-524D-B8A1-A4693294318C'),
 }
@@ -17190,7 +17196,7 @@ model ListEnvironmentAddonsResponseBody = {
         environments?: [ 
           {
             dependencies?: {
-              clusterTypes?: [ string ](name='ClusterTypes'),
+              clusterTypes?: [ string ](name='ClusterTypes', description='The cluster type.'),
               features?: map[string]boolean(name='Features', description='The feature that can be installed in the environment.'),
               services?: [ string ](name='Services', description='The services.'),
             }(name='Dependencies', description='The dependencies of the environment.'),
@@ -17201,11 +17207,11 @@ model ListEnvironmentAddonsResponseBody = {
             policies?: {
               alertDefaultStatus?: string(name='AlertDefaultStatus', description='The default alert status.', example='default'),
               defaultInstall?: boolean(name='DefaultInstall', description='The default installation status.', example='false'),
-              enableServiceAccount?: boolean(name='EnableServiceAccount'),
+              enableServiceAccount?: boolean(name='EnableServiceAccount', description='Indicates whether a service account is enabled.', example='true'),
               metricCheckRule?: {
-                promQL?: [ string ](name='PromQL'),
-              }(name='MetricCheckRule'),
-              needRestartAfterIntegration?: boolean(name='NeedRestartAfterIntegration'),
+                promQL?: [ string ](name='PromQL', description='The PromQL statements.'),
+              }(name='MetricCheckRule', description='The metric check rule.'),
+              needRestartAfterIntegration?: boolean(name='NeedRestartAfterIntegration', description='Indicates whether a restart is required after the installation.', example='true'),
               protocols?: [ 
                 {
                   description?: string(name='Description', description='The description of the protocol.', example='ARMS'),
@@ -17287,27 +17293,32 @@ async function listEnvironmentAddons(request: ListEnvironmentAddonsRequest): Lis
 }
 
 model ListEnvironmentAlertRulesRequest {
-  addonName?: string(name='AddonName', example='mysql'),
-  environmentId?: string(name='EnvironmentId', description='This parameter is required.', example='env-xxx'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  scene?: string(name='Scene', example='database'),
+  addonName?: string(name='AddonName', description='The name of the add-on. You must specify AddonName or Scene.', example='mysql'),
+  environmentId?: string(name='EnvironmentId', description='The environment ID.
+
+This parameter is required.', example='env-xxx'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  scene?: string(name='Scene', description='The scenario of the add-on. You must specify AddonName or Scene.', example='database'),
 }
 
 model ListEnvironmentAlertRulesResponseBody = {
-  code?: int32(name='Code', example='200'),
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful. Other status codes indicate that the request failed.', example='200'),
   data?: {
-    groups?: [ string ](name='Groups'),
+    groups?: [ string ](name='Groups', description='The queried alert groups.'),
     rules?: [ 
       {
-        alertId?: long(name='AlertId', example='9502571'),
-        name?: string(name='Name', example='mysql-CS-MySQLInnoDBLogWaits_lu'),
+        alertId?: long(name='AlertId', description='The ID of the alert rule.', example='9502571'),
+        name?: string(name='Name', description='The name of the alert rule.', example='mysql-CS-MySQLInnoDBLogWaits_lu'),
       }
-    ](name='Rules'),
-    total?: long(name='Total', example='26'),
-  }(name='Data'),
-  message?: string(name='Message', example='message'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4C518054-852F-4023-ABC1-4AF95FF7****'),
-  success?: boolean(name='Success', example='true'),
+    ](name='Rules', description='The queried rules.'),
+    total?: long(name='Total', description='The total number of entries returned.', example='26'),
+  }(name='Data', description='The struct returned.'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4C518054-852F-4023-ABC1-4AF95FF7****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model ListEnvironmentAlertRulesResponse = {
@@ -17317,7 +17328,7 @@ model ListEnvironmentAlertRulesResponse = {
 }
 
 /**
- * @summary 环境的告警组列表
+ * @summary Queries the alert groups of an environment instance.
  *
  * @param request ListEnvironmentAlertRulesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17356,7 +17367,7 @@ async function listEnvironmentAlertRulesWithOptions(request: ListEnvironmentAler
 }
 
 /**
- * @summary 环境的告警组列表
+ * @summary Queries the alert groups of an environment instance.
  *
  * @param request ListEnvironmentAlertRulesRequest
  * @return ListEnvironmentAlertRulesResponse
@@ -17556,34 +17567,42 @@ async function listEnvironmentFeatures(request: ListEnvironmentFeaturesRequest):
 }
 
 model ListEnvironmentKubeResourcesRequest {
-  environmentId?: string(name='EnvironmentId', description='This parameter is required.', example='env-xxx'),
-  kind?: string(name='Kind', description='This parameter is required.', example='Pod'),
-  labelSelectors?: map[string]string(name='LabelSelectors'),
-  namespace?: string(name='Namespace', example='default'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  environmentId?: string(name='EnvironmentId', description='The environment ID.
+
+This parameter is required.', example='env-xxx'),
+  kind?: string(name='Kind', description='The resource type. Valid values: Pod, Deployment, and Service.
+
+This parameter is required.', example='Pod'),
+  labelSelectors?: map[string]string(name='LabelSelectors', description='The tags.'),
+  namespace?: string(name='Namespace', description='The namespace.', example='default'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEnvironmentKubeResourcesShrinkRequest {
-  environmentId?: string(name='EnvironmentId', description='This parameter is required.', example='env-xxx'),
-  kind?: string(name='Kind', description='This parameter is required.', example='Pod'),
-  labelSelectorsShrink?: string(name='LabelSelectors'),
-  namespace?: string(name='Namespace', example='default'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  environmentId?: string(name='EnvironmentId', description='The environment ID.
+
+This parameter is required.', example='env-xxx'),
+  kind?: string(name='Kind', description='The resource type. Valid values: Pod, Deployment, and Service.
+
+This parameter is required.', example='Pod'),
+  labelSelectorsShrink?: string(name='LabelSelectors', description='The tags.'),
+  namespace?: string(name='Namespace', description='The namespace.', example='default'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEnvironmentKubeResourcesResponseBody = {
-  code?: int32(name='Code', example='200'),
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful. Other status codes indicate that the request failed.', example='200'),
   data?: [ 
     {
-      apiVersion?: string(name='ApiVersion', example='v1'),
-      kind?: string(name='Kind', example='Pod'),
+      apiVersion?: string(name='ApiVersion', description='The version number of the API.', example='v1'),
+      kind?: string(name='Kind', description='The resource type.', example='Pod'),
       metadata?: {
-        annotations?: map[string]string(name='Annotations'),
-        labels?: map[string]string(name='Labels'),
-        name?: string(name='Name', example='arms-prometheus-ack-arms-prometheus-c577b6cc8-mvdwd'),
-        namespace?: string(name='Namespace', example='arms-prom'),
-      }(name='Metadata'),
-      spec?: any(name='Spec', example='{
+        annotations?: map[string]string(name='Annotations', description='The annotations.'),
+        labels?: map[string]string(name='Labels', description='The tags.'),
+        name?: string(name='Name', description='The resource name.', example='arms-prometheus-ack-arms-prometheus-c577b6cc8-mvdwd'),
+        namespace?: string(name='Namespace', description='The namespace.', example='arms-prom'),
+      }(name='Metadata', description='The metadata.'),
+      spec?: any(name='Spec', description='The resource specifications.', example='{
         "dnsPolicy": "ClusterFirst",
         "nodeName": "cn-hangzhou.172.16.0.60",
         "terminationGracePeriodSeconds": 30,
@@ -17597,12 +17616,15 @@ model ListEnvironmentKubeResourcesResponseBody = {
               "defaultMode": 420
             }
           }'),
-      status?: any(name='Status', example='run'),
+      status?: any(name='Status', description='The status of the resource.', example='run'),
     }
-  ](name='Data'),
-  message?: string(name='Message', example='message'),
-  requestId?: string(name='RequestId', description='Id of the request', example='C21AB7CF-B7AF-410F-BD61-82D1567F****'),
-  success?: boolean(name='Success', example='true'),
+  ](name='Data', description='The returned struct.'),
+  message?: string(name='Message', description='The returned message.', example='message'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C21AB7CF-B7AF-410F-BD61-82D1567F****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   `true`
+*   `false`', example='true'),
 }
 
 model ListEnvironmentKubeResourcesResponse = {
@@ -17612,7 +17634,7 @@ model ListEnvironmentKubeResourcesResponse = {
 }
 
 /**
- * @summary 环境中的kube资源列表
+ * @summary Queries the Kubernetes resources of an environment.
  *
  * @param tmpReq ListEnvironmentKubeResourcesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17659,7 +17681,7 @@ async function listEnvironmentKubeResourcesWithOptions(tmpReq: ListEnvironmentKu
 }
 
 /**
- * @summary 环境中的kube资源列表
+ * @summary Queries the Kubernetes resources of an environment.
  *
  * @param request ListEnvironmentKubeResourcesRequest
  * @return ListEnvironmentKubeResourcesResponse
@@ -17670,46 +17692,51 @@ async function listEnvironmentKubeResources(request: ListEnvironmentKubeResource
 }
 
 model ListEnvironmentMetricTargetsRequest {
-  environmentId?: string(name='EnvironmentId', description='This parameter is required.', example='env-xxx'),
-  jobName?: string(name='JobName', example='blackbox'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  environmentId?: string(name='EnvironmentId', description='The environment ID.
+
+This parameter is required.', example='env-xxx'),
+  jobName?: string(name='JobName', description='The job name.', example='blackbox'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model ListEnvironmentMetricTargetsResponseBody = {
-  code?: int32(name='Code', example='200'),
+  code?: int32(name='Code', description='The status code. The status code 200 indicates that the request was successful.', example='200'),
   data?: {
     activeTargets?: [ 
       {
-        discoveredLabels?: map[string]string(name='DiscoveredLabels'),
-        globalUrl?: string(name='GlobalUrl', example='http://xxx'),
-        health?: string(name='Health', example='up'),
-        labels?: map[string]string(name='Labels'),
-        lastError?: string(name='LastError', example='Get \\\\"http://172.16.0.86:9104/metrics\\\\": dial tcp 172.16.0.86:9104: connect: connection refused'),
-        lastScrape?: string(name='LastScrape', example='2023-10-12T07:15:47.306691514Z'),
-        lastScrapeDuration?: double(name='LastScrapeDuration', example='0.00127593'),
-        lastScrapeSeries?: long(name='LastScrapeSeries', example='122'),
-        scrapePool?: string(name='ScrapePool', example='arms-prom/mysql-exporter-mysql-1694429267986-sm/0"'),
-        scrapeUrl?: string(name='ScrapeUrl', example='http://xxxx'),
+        discoveredLabels?: map[string]string(name='DiscoveredLabels', description='The tags used for service discovery.'),
+        globalUrl?: string(name='GlobalUrl', description='The URL of the target.', example='http://xxx'),
+        health?: string(name='Health', description='The health status.', example='up'),
+        labels?: map[string]string(name='Labels', description='The tags.'),
+        lastError?: string(name='LastError', description='The last error message.', example='Get \\\\"http://172.16.0.86:9104/metrics\\\\": dial tcp 172.16.0.86:9104: connect: connection refused'),
+        lastScrape?: string(name='LastScrape', description='The last collection time.', example='2023-10-12T07:15:47.306691514Z'),
+        lastScrapeDuration?: double(name='LastScrapeDuration', description='The duration of the last collection.', example='0.00127593'),
+        lastScrapeSeries?: long(name='LastScrapeSeries', description='The amount of metrics in the last collection.', example='122'),
+        scrapePool?: string(name='ScrapePool', description='The name of the collection.', example='arms-prom/mysql-exporter-mysql-1694429267986-sm/0"'),
+        scrapeUrl?: string(name='ScrapeUrl', description='The URL of the collection.', example='http://xxxx'),
       }
-    ](name='ActiveTargets'),
+    ](name='ActiveTargets', description='The active targets.'),
     droppedTargets?: [ 
       {
-        discoveredLabels?: map[string]string(name='DiscoveredLabels'),
-        globalUrl?: string(name='GlobalUrl', example='http://xxx'),
-        health?: string(name='Health', example='up'),
-        labels?: map[string]string(name='Labels'),
-        lastError?: string(name='LastError', example='Get \\\\"http://172.16.0.86:9104/metrics\\\\": dial tcp 172.16.0.86:9104: connect: connection refused'),
-        lastScrape?: string(name='LastScrape', example='2023-10-12T07:15:47.306691514Z'),
-        lastScrapeDuration?: double(name='LastScrapeDuration', example='0.00127593'),
-        lastScrapeSeries?: long(name='LastScrapeSeries', example='122'),
-        scrapePool?: string(name='ScrapePool', example='arms-prom/mysql-exporter-mysql-1694429267986-sm/0"'),
-        scrapeUrl?: string(name='ScrapeUrl', example='http://xxxx'),
+        discoveredLabels?: map[string]string(name='DiscoveredLabels', description='The tags used for service discovery.'),
+        globalUrl?: string(name='GlobalUrl', description='The URL of the target.', example='http://xxx'),
+        health?: string(name='Health', description='The health status.', example='up'),
+        labels?: map[string]string(name='Labels', description='The tags.'),
+        lastError?: string(name='LastError', description='The last error message.', example='Get \\\\"http://172.16.0.86:9104/metrics\\\\": dial tcp 172.16.0.86:9104: connect: connection refused'),
+        lastScrape?: string(name='LastScrape', description='The last collection time.', example='2023-10-12T07:15:47.306691514Z'),
+        lastScrapeDuration?: double(name='LastScrapeDuration', description='The duration of the last collection.', example='0.00127593'),
+        lastScrapeSeries?: long(name='LastScrapeSeries', description='The amount of metrics in the last collection.', example='122'),
+        scrapePool?: string(name='ScrapePool', description='The name of the collection.', example='arms-prom/mysql-exporter-mysql-1694429267986-sm/0"'),
+        scrapeUrl?: string(name='ScrapeUrl', description='The URL of the collection.', example='http://xxxx'),
       }
-    ](name='DroppedTargets'),
-  }(name='Data'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='16AF921B-8187-489F-9913-43C808B4****'),
-  success?: boolean(name='Success', example='true'),
+    ](name='DroppedTargets', description='The deleted targets.'),
+  }(name='Data', description='The struct returned.'),
+  message?: string(name='Message', description='The returned message.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='16AF921B-8187-489F-9913-43C808B4****'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   `true`
+*   `false`', example='true'),
 }
 
 model ListEnvironmentMetricTargetsResponse = {
@@ -17719,7 +17746,7 @@ model ListEnvironmentMetricTargetsResponse = {
 }
 
 /**
- * @summary 环境指标target列表
+ * @summary Queries the targets of an environment.
  *
  * @param request ListEnvironmentMetricTargetsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17755,7 +17782,7 @@ async function listEnvironmentMetricTargetsWithOptions(request: ListEnvironmentM
 }
 
 /**
- * @summary 环境指标target列表
+ * @summary Queries the targets of an environment.
  *
  * @param request ListEnvironmentMetricTargetsRequest
  * @return ListEnvironmentMetricTargetsResponse
@@ -20942,7 +20969,7 @@ This parameter is required.', example='appstat.host'),
 *   `DESC`: descending order
 
 > If you do not specify the parameter, data is not sorted.', example='ASC'),
-  orderBy?: string(name='OrderBy', description='The dimension from which metrics are sorted. You can set this parameter to a supported dimension.', example='pid'),
+  orderBy?: string(name='OrderBy', description='The dimension for arranging metrics in sequence. For more information, see the supplementary metrics.', example='pid'),
   pageSize?: int32(name='PageSize', description='This parameter is no longer supported. The number of entries per page.', example='10'),
   startTime?: long(name='StartTime', description='The start of the time range to query. Unit: milliseconds.
 
@@ -25183,7 +25210,7 @@ This parameter is required.', example='vpc-xxx'),
   enableAuthFreeRead?: boolean(name='EnableAuthFreeRead', description='Specifies whether to enable password-free read.', nullable=true),
   enableAuthFreeWrite?: boolean(name='EnableAuthFreeWrite', description='Specifies whether to enable password-free write.', nullable=true),
   enableAuthToken?: boolean(name='EnableAuthToken', description='Specifies whether to enable access token authentication.', nullable=true),
-  paymentType?: string(name='PaymentType'),
+  paymentType?: string(name='PaymentType', description='The billing mode. Valid values: POSTPAY: charges fees based on the amount of reported metric data. POSTPAY_GB: charges fees based on the amount of written metric data.'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou'),
