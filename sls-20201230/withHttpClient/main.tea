@@ -362,6 +362,8 @@ model MaxComputeExportConfiguration {
 
 model MaxComputeExportConfigurationSink {
   fields?: [ string ](name='fields', description='This parameter is required.'),
+  filterInvalid?: boolean(name='filterInvalid', example='true'),
+  mode?: string(name='mode', example='stream'),
   odpsAccessKeyId?: string(name='odpsAccessKeyId', example='asdfghjk', deprecated=true),
   odpsAccessSecret?: string(name='odpsAccessSecret', example='esasdfghjkl', deprecated=true),
   odpsEndpoint?: string(name='odpsEndpoint', description='This parameter is required.', example='http://service.cn-hangzhou.maxcompute.aliyun-inc.com/api'),
@@ -919,7 +921,7 @@ model ConsumerGroupUpdateCheckPointResponse = {
 }
 
 /**
- * @summary Updates the data consumption progress.
+ * @summary Updates the checkpoint of a shard for a consumer group.
  *
  * @description *   If you do not specify a consumer, you must set **forceSuccess** to **true**. Otherwise, the checkpoint cannot be updated.
  * *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
@@ -973,7 +975,7 @@ async function consumerGroupUpdateCheckPointWithOptions(project: string, logstor
 }
 
 /**
- * @summary Updates the data consumption progress.
+ * @summary Updates the checkpoint of a shard for a consumer group.
  *
  * @description *   If you do not specify a consumer, you must set **forceSuccess** to **true**. Otherwise, the checkpoint cannot be updated.
  * *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
@@ -2024,19 +2026,46 @@ async function createLogging(project: string, request: CreateLoggingRequest): Cr
 }
 
 model CreateLogtailPipelineConfigRequest {
-  aggregators?: [  map[string]any ](name='aggregators', description='The aggregation plug-ins.'),
+  aggregators?: [  map[string]any ](name='aggregators', description='The aggregation plug-ins.
+
+>  This parameter takes effect only when extended plug-ins are used. You can use only one aggregation plug-in.'),
   configName?: string(name='configName', description='The name of the configuration.
 
+>  The name of the configuration must be unique in the project to which the configuration belongs. After the configuration is created, you cannot change the name of the configuration. The name must meet the following requirements:
+
+*   The name can contain only lowercase letters, digits, hyphens (-), and underscores (_).
+
+*   The name must start and end with a lowercase letter or a digit.
+
+*   The name must be 2 to 128 characters in length.
+
 This parameter is required.', example='test-config'),
-  flushers?: [  map[string]any ](name='flushers', description='The data output plug-ins.
+  flushers?: [  map[string]any ](name='flushers', description='The output plug-ins.
+
+>  You can configure only one output plug-in.
 
 This parameter is required.'),
-  global?: map[string]any(name='global', description='The global configuration.'),
-  inputs?: [  map[string]any ](name='inputs', description='The data source plug-ins.
+  global?: map[string]any(name='global', description='The global settings.'),
+  inputs?: [  map[string]any ](name='inputs', description='The input plug-ins.
+
+>  You can configure only one input plug-in.
 
 This parameter is required.'),
-  logSample?: string(name='logSample', description='The sample log.', example='2022-06-14 11:13:29.796 | DEBUG    | __main__:<module>:1 - hello world'),
-  processors?: [  map[string]any ](name='processors', description='The processing plug-ins.'),
+  logSample?: string(name='logSample', description='The sample log. You can specify multiple sample logs.', example='2022-06-14 11:13:29.796 | DEBUG    | __main__:<module>:1 - hello world'),
+  processors?: [  map[string]any ](name='processors', description='The processing plug-ins.
+
+>  Logtail plug-ins for data processing are classified into native plug-ins and extended plug-ins. For more information, see [Overview of Logtail plug-ins for data processing](https://help.aliyun.com/document_detail/64957.html).
+
+> 
+
+*   You can use native plug-ins only to collect text logs.
+
+*   You cannot add native plug-ins and extended plug-ins at a time.
+
+*   When you add native plug-ins, take note of the following items:
+
+    *   You must add one of the following Logtail plug-ins for data processing as the first plug-in: Data Parsing (Regex Mode), Data Parsing (Delimiter Mode), Data Parsing (JSON Mode), Data Parsing (NGINX Mode), Data Parsing (Apache Mode), and Data Parsing (IIS Mode).
+    *   After you add the first plug-in, you can add one Time Parsing plug-in, one Data Filtering plug-in, and multiple Data Masking plug-ins.'),
 }
 
 model CreateLogtailPipelineConfigResponse = {
@@ -2467,11 +2496,17 @@ async function createOSSHDFSExport(project: string, request: CreateOSSHDFSExport
 }
 
 model CreateOSSIngestionRequest {
-  configuration?: OSSIngestionConfiguration(name='configuration', description='This parameter is required.'),
-  description?: string(name='description'),
-  displayName?: string(name='displayName', description='This parameter is required.'),
-  name?: string(name='name', description='This parameter is required.', example='ingest-oss-123456'),
-  schedule?: Schedule(name='schedule'),
+  configuration?: OSSIngestionConfiguration(name='configuration', description='The configurations of the OSS data import job.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the job.'),
+  displayName?: string(name='displayName', description='The display name.
+
+This parameter is required.'),
+  name?: string(name='name', description='The name of the OSS data import job.
+
+This parameter is required.', example='ingest-oss-123456'),
+  schedule?: Schedule(name='schedule', description='The scheduling type. By default, you do not need to specify this parameter. If you want to import data at regular intervals, such as importing data every Monday at 08: 00., you can specify a cron expression.'),
 }
 
 model CreateOSSIngestionResponse = {
@@ -2843,7 +2878,16 @@ model CreateSavedSearchResponse = {
  * @summary Creates a saved search.
  *
  * @description ### Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * * An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O&#x26;M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * * The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong, the region of the project, and the name of the Logstore to which the logs belong. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html) and [Manage a Logstore](https://help.aliyun.com/document_detail/48990.html).
+ * * Limits are imposed when you use Simple Log Service to query logs. We recommend that you specify query statements and query time ranges based on the limits. For more information, see [Log search overview](https://help.aliyun.com/document_detail/43772.html) and [Log analysis overview](https://help.aliyun.com/document_detail/53608.html).
+ * ### Authentication resources
+ * The following table describes the authorization information that is required for this operation. You can add the information to the Action element of a RAM policy statement to grant a RAM user or a RAM role the permissions to call this operation.
+ * |Action|Resource|
+ * |:---|:---|
+ * |`log:CreateSavedSearch`|`acs:log:{#regionId}:{#accountId}:project/{#ProjectName}/savedsearch/{#SavedSearchName}`|
  *
  * @param request CreateSavedSearchRequest
  * @param headers map
@@ -2894,7 +2938,16 @@ async function createSavedSearchWithOptions(project: string, request: CreateSave
  * @summary Creates a saved search.
  *
  * @description ### Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * * An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O&#x26;M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * * The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong, the region of the project, and the name of the Logstore to which the logs belong. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html) and [Manage a Logstore](https://help.aliyun.com/document_detail/48990.html).
+ * * Limits are imposed when you use Simple Log Service to query logs. We recommend that you specify query statements and query time ranges based on the limits. For more information, see [Log search overview](https://help.aliyun.com/document_detail/43772.html) and [Log analysis overview](https://help.aliyun.com/document_detail/53608.html).
+ * ### Authentication resources
+ * The following table describes the authorization information that is required for this operation. You can add the information to the Action element of a RAM policy statement to grant a RAM user or a RAM role the permissions to call this operation.
+ * |Action|Resource|
+ * |:---|:---|
+ * |`log:CreateSavedSearch`|`acs:log:{#regionId}:{#accountId}:project/{#ProjectName}/savedsearch/{#SavedSearchName}`|
  *
  * @param request CreateSavedSearchRequest
  * @return CreateSavedSearchResponse
@@ -5701,7 +5754,7 @@ model GetDownloadJobResponseBody = {
     progress?: long(name='progress', description='下载进度', example='100'),
   }(name='executionDetails', description='任务执行细节'),
   name?: string(name='name', description='代表资源名称的资源属性字段', example='download-123'),
-  status?: string(name='status', description='代表资源状态的资源属性字段', example='running'),
+  status?: string(name='status', description='The status of the log download task.', example='running'),
 }
 
 model GetDownloadJobResponse = {
@@ -7557,7 +7610,7 @@ async function listAgentInstanceConfigs(request: ListAgentInstanceConfigsRequest
 model ListAlertsRequest {
   logstore?: string(name='logstore', example='ali-test-logstore'),
   offset?: int32(name='offset', example='0'),
-  size?: int32(name='size', example='10'),
+  size?: int32(name='size', description='The number of entries per page. Maximum value: 200. Default value: 10.', example='10'),
 }
 
 model ListAlertsResponseBody = {
@@ -7832,7 +7885,7 @@ model ListCollectionPoliciesRequest {
   instanceId?: string(name='instanceId', example='your-test-bucket1'),
   offset?: int32(name='offset', example='0'),
   policyName?: string(name='policyName', example='your_log_policy'),
-  productCode?: string(name='productCode', example='oss'),
+  productCode?: string(name='productCode', description='The code of the service.', example='oss'),
   size?: int32(name='size', example='50'),
 }
 
@@ -8321,9 +8374,9 @@ model ListDownloadJobsResponseBody = {
         progress?: long(name='progress', description='下载进度', example='100'),
       }(name='executionDetails', description='任务执行细节'),
       name?: string(name='name', description='代表资源名称的资源属性字段', example='download-123'),
-      status?: string(name='status', example='running'),
+      status?: string(name='status', description='The task status.', example='running'),
     }
-  ](name='results'),
+  ](name='results', description='The log download tasks.'),
   total?: int32(name='total', example='10'),
 }
 
@@ -8468,7 +8521,7 @@ model ListLogStoresRequest {
 *   **standard**: Standard Logstore. This type of Logstore supports the log analysis feature and is suitable for scenarios such as real-time monitoring and interactive analysis. You can also use this type of Logstore to build a comprehensive observability system.
 *   **query**: Query Logstore. This type of Logstore supports high-performance queries. The index traffic fee of a Query Logstore is approximately half that of a Standard Logstore. Query Logstores do not support SQL analysis. Query Logstores are suitable for scenarios in which the volume of data is large, the log retention period is long, or log analysis is not required. Log retention periods of weeks or months are considered long.', example='standard'),
   offset?: int32(name='offset', description='The line from which the query starts. Default value: 0.', example='0'),
-  size?: int32(name='size', description='The number of entries per page. Maximum value: 500. Default value: 500.', example='10'),
+  size?: int32(name='size', description='The number of entries per page. Maximum value: 500. Default value: 200.', example='10'),
   telemetryType?: string(name='telemetryType', description='The type of the data that you want to query. Valid values:
 
 *   None: logs
@@ -8888,7 +8941,7 @@ async function listMetricStores(project: string, request: ListMetricStoresReques
 model ListOSSExportsRequest {
   logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
-  size?: int32(name='size', example='100'),
+  size?: int32(name='size', description='The number of entries to return. Default value: 10.', example='100'),
 }
 
 model ListOSSExportsResponseBody = {
@@ -8962,7 +9015,7 @@ async function listOSSExports(project: string, request: ListOSSExportsRequest): 
 model ListOSSHDFSExportsRequest {
   logstore?: string(name='logstore'),
   offset?: int32(name='offset', example='0'),
-  size?: int32(name='size', example='100'),
+  size?: int32(name='size', description='The number of entries to return. Default value: 10.', example='100'),
 }
 
 model ListOSSHDFSExportsResponseBody = {
@@ -9271,7 +9324,7 @@ async function listSavedSearch(project: string, request: ListSavedSearchRequest)
 model ListScheduledSQLsRequest {
   logstore?: string(name='logstore', description='The name of the Logstore.', example='ali-test-logstore'),
   offset?: long(name='offset', example='0'),
-  size?: long(name='size', example='100'),
+  size?: long(name='size', description='The number of entries to return. Default value: 10.', example='100'),
 }
 
 model ListScheduledSQLsResponseBody = {
@@ -9490,8 +9543,8 @@ model ListTagResourcesRequest {
 *   project
 *   logstore
 *   dashboard
-*   MachineGroup
-*   LogtailConfig
+*   machinegroup
+*   logtailconfig
 
 This parameter is required.', example='project'),
   tags?: [ 
@@ -9513,8 +9566,8 @@ model ListTagResourcesShrinkRequest {
 *   project
 *   logstore
 *   dashboard
-*   MachineGroup
-*   LogtailConfig
+*   machinegroup
+*   logtailconfig
 
 This parameter is required.', example='project'),
   tagsShrink?: string(name='tags', description='The tags that you want to use to filter resources based on exact match. Each tag is a key-value pair. You must specify at least one of resourceId and tags.
@@ -9676,7 +9729,7 @@ model OpenSlsServiceResponse = {
 }
 
 /**
- * @summary Activates Simple Log Service. You must activate Simple Log Service before you can use it to collect and manage logs.
+ * @summary Activates Simple Log Service. You must use the endpoint for Simple Log Service only in the China (Shanghai) or Singapore region.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -9701,7 +9754,7 @@ async function openSlsServiceWithOptions(headers: map[string]string, runtime: Ut
 }
 
 /**
- * @summary Activates Simple Log Service. You must activate Simple Log Service before you can use it to collect and manage logs.
+ * @summary Activates Simple Log Service. You must use the endpoint for Simple Log Service only in the China (Shanghai) or Singapore region.
  *
  * @return OpenSlsServiceResponse
  */
@@ -11629,13 +11682,15 @@ async function updateLogStore(project: string, logstore: string, request: Update
 }
 
 model UpdateLogStoreEncryptionRequest {
-  enable?: boolean(name='enable', description='This parameter is required.', example='true'),
-  encryptType?: string(name='encryptType', example='default'),
+  enable?: boolean(name='enable', description='Specifies whether to enable the encryption feature. After you update the encryption configuration of the Logstore, you can modify only the enable parameter in subsequent update requests. You cannot modify the encryptType or userCmkInfo parameters.
+
+This parameter is required.', example='true'),
+  encryptType?: string(name='encryptType', description='The encryption algorithm. Valid values: default, m4, sm4_ecb, sm4_cbc, sm4_gcm, aes_ecb, aes_cbc, aes_cfb, aes_ofb, and aes_gcm.', example='default'),
   userCmkInfo?: {
-    keyId?: string(name='keyId', example='f5136b95-2420-ab31-xxxxxxxxx'),
-    regionId?: string(name='regionId', example='cn-hangzhou'),
-    roleArn?: string(name='roleArn', example='acs:ram::12344***:role/xxxxx'),
-  }(name='userCmkInfo'),
+    keyId?: string(name='keyId', description='The ID of the CMK to which the BYOK key belongs. You can create a CMK in KMS. The CMK must be in the same region as the endpoint of Simple Log Service.', example='f5136b95-2420-ab31-xxxxxxxxx'),
+    regionId?: string(name='regionId', description='The region ID. Example: cn-hangzhou.', example='cn-hangzhou'),
+    roleArn?: string(name='roleArn', description='The Alibaba Cloud Resource Name (ARN) of the Resource Access Management (RAM) role.The value is in the acs:ram::12344\\\\*\\\\*\\\\*:role/xxxxx format. To use a BYOK key to encrypt logs, you must create a RAM role and grant the AliyunKMSReadOnlyAccess and AliyunKMSCryptoUserAccess permissions to the RAM role. You must grant the API caller the PassRole permission on the RAM role.', example='acs:ram::12344***:role/xxxxx'),
+  }(name='userCmkInfo', description='Optional. If you use a BYOK key to encrypt logs, you must specify this parameter. If you use the service key of Simple Log Service to encrypt logs, you do not need to specify this parameter.'),
 }
 
 model UpdateLogStoreEncryptionResponse = {
@@ -11644,7 +11699,17 @@ model UpdateLogStoreEncryptionResponse = {
 }
 
 /**
- * @summary 更新日志库的加密配置
+ * @summary Updates the encryption configuration of a Logstore. You can create encryption configurations for the Logstore and enable or disable the encryption feature.
+ *
+ * @description ## [](#)Limits
+ * If you specify a data encryption method when you configure data encryption settings, you cannot switch to the other method after the configuration. In addition, you cannot change the encryption algorithm or the encryption type. You can only enable or disable the encryption feature by using the enable parameter. If you specify the encryption method by using the service key of Simple Log Service when you configure data encryption settings, you cannot switch to the encryption method by using Bring Your Own Key (BYOK) keys after the configuration.
+ * ## [](#)Create encryption configurations
+ * ### [](#)Encryption by using service keys
+ * Simple Log Service is fully responsible for data encryption and key management. No additional operations are required. When you create encryption configurations for the Logstore, you must specify the enable and encryptType parameters.
+ * ### [](#byok)Encryption by using BYOK keys
+ * You must create a customer master key (CMK) in Key Management Service (KMS). Then, Simple Log Service encrypts logs by using the CMK. When you create encryption configurations for the Logstore, you must specify the enable, encryptType, and userCmkInfo parameters.
+ * ## [](#)Enable or disable the encryption feature
+ * After you create encryption configurations for the Logstore, you cannot modify the encryptType or userCmkInfo parameters. However, you can enable and disable the encryption feature by using the enable parameter.
  *
  * @param request UpdateLogStoreEncryptionRequest
  * @param headers map
@@ -11686,7 +11751,17 @@ async function updateLogStoreEncryptionWithOptions(project: string, logstore: st
 }
 
 /**
- * @summary 更新日志库的加密配置
+ * @summary Updates the encryption configuration of a Logstore. You can create encryption configurations for the Logstore and enable or disable the encryption feature.
+ *
+ * @description ## [](#)Limits
+ * If you specify a data encryption method when you configure data encryption settings, you cannot switch to the other method after the configuration. In addition, you cannot change the encryption algorithm or the encryption type. You can only enable or disable the encryption feature by using the enable parameter. If you specify the encryption method by using the service key of Simple Log Service when you configure data encryption settings, you cannot switch to the encryption method by using Bring Your Own Key (BYOK) keys after the configuration.
+ * ## [](#)Create encryption configurations
+ * ### [](#)Encryption by using service keys
+ * Simple Log Service is fully responsible for data encryption and key management. No additional operations are required. When you create encryption configurations for the Logstore, you must specify the enable and encryptType parameters.
+ * ### [](#byok)Encryption by using BYOK keys
+ * You must create a customer master key (CMK) in Key Management Service (KMS). Then, Simple Log Service encrypts logs by using the CMK. When you create encryption configurations for the Logstore, you must specify the enable, encryptType, and userCmkInfo parameters.
+ * ## [](#)Enable or disable the encryption feature
+ * After you create encryption configurations for the Logstore, you cannot modify the encryptType or userCmkInfo parameters. However, you can enable and disable the encryption feature by using the enable parameter.
  *
  * @param request UpdateLogStoreEncryptionRequest
  * @return UpdateLogStoreEncryptionResponse
@@ -11854,14 +11929,10 @@ model UpdateLogtailPipelineConfigRequest {
 This parameter is required.', example='test-config'),
   flushers?: [  map[string]any ](name='flushers', description='The output plug-ins.
 
->  You can use only one Simple Log Service output plug-in.
+>  You can configure only one output plug-in.
 
 This parameter is required.'),
-  global?: map[string]any(name='global', description='The global settings.
-
-**
-
-****'),
+  global?: map[string]any(name='global', description='The global settings.'),
   inputs?: [  map[string]any ](name='inputs', description='The input plug-ins.
 
 >  You can configure only one input plug-in.
@@ -11870,13 +11941,13 @@ This parameter is required.'),
   logSample?: string(name='logSample', description='The sample log. You can specify multiple sample logs.', example='2022-06-14 11:13:29.796 | DEBUG    | __main__:<module>:1 - hello world'),
   processors?: [  map[string]any ](name='processors', description='The processing plug-ins.
 
->  Logtail supports native plug-ins and extended plug-ins for data processing. For more information, see [Logtail plug-ins overview](https://help.aliyun.com/document_detail/64957.html).
+>  Logtail plug-ins for data processing are classified into native plug-ins and extended plug-ins. For more information, see [Overview of Logtail plug-ins for data processing](https://help.aliyun.com/document_detail/64957.html).
 
 > 
 
 *   You can use native plug-ins only to collect text logs.
 
-*   You cannot add native plug-ins and extended plug-ins at the same time.
+*   You cannot add native plug-ins and extended plug-ins at a time.
 
 *   When you add native plug-ins, take note of the following items:
 
@@ -13074,19 +13145,19 @@ model UpsertCollectionPolicyRequest {
   centralizeEnabled?: boolean(name='centralizeEnabled', example='false'),
   dataCode?: string(name='dataCode', description='This parameter is required.', example='access_log'),
   dataConfig?: {
-    dataRegion?: string(name='dataRegion'),
+    dataRegion?: string(name='dataRegion', example='cn-beijing'),
   }(name='dataConfig'),
   enabled?: boolean(name='enabled', description='This parameter is required.', example='true'),
   policyConfig?: {
     instanceIds?: [ string ](name='instanceIds'),
     regions?: [ string ](name='regions'),
     resourceMode?: string(name='resourceMode', description='This parameter is required.', example='all'),
-    resourceTags?: map[string]any(name='resourceTags'),
+    resourceTags?: map[string]any(name='resourceTags', example='{"tag1":"value1",“tag2":"value2"}'),
   }(name='policyConfig', description='This parameter is required.'),
   policyName?: string(name='policyName', description='This parameter is required.', example='your_log_policy'),
   productCode?: string(name='productCode', description='This parameter is required.', example='oss'),
   resourceDirectory?: {
-    accountGroupType?: string(name='accountGroupType'),
+    accountGroupType?: string(name='accountGroupType', example='all,custom'),
     members?: [ string ](name='members'),
   }(name='resourceDirectory'),
 }
