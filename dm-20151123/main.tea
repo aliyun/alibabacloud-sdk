@@ -167,6 +167,7 @@ model BatchSendMailRequest {
   accountName?: string(name='AccountName', description='This parameter is required.', example='test@example.com'),
   addressType?: int32(name='AddressType', description='This parameter is required.', example='1'),
   clickTrace?: string(name='ClickTrace', example='0'),
+  headers?: string(name='Headers'),
   ownerId?: long(name='OwnerId'),
   receiversName?: string(name='ReceiversName', description='This parameter is required.', example='test2'),
   replyAddress?: string(name='ReplyAddress'),
@@ -208,6 +209,9 @@ async function batchSendMailWithOptions(request: BatchSendMailRequest, runtime: 
   }
   if (!Util.isUnset(request.clickTrace)) {
     query['ClickTrace'] = request.clickTrace;
+  }
+  if (!Util.isUnset(request.headers)) {
+    query['Headers'] = request.headers;
   }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
@@ -707,15 +711,15 @@ async function createTag(request: CreateTagRequest): CreateTagResponse {
 }
 
 model CreateUserSuppressionRequest {
-  address?: string(name='Address'),
+  address?: string(name='Address', description='Email address or domain name', example='test@example.net'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model CreateUserSuppressionResponseBody = {
-  requestId?: string(name='RequestId', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
-  suppressionId?: string(name='SuppressionId', example='59511'),
+  requestId?: string(name='RequestId', description='Request ID', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
+  suppressionId?: string(name='SuppressionId', description='Invalid address number', example='59511'),
 }
 
 model CreateUserSuppressionResponse = {
@@ -725,7 +729,7 @@ model CreateUserSuppressionResponse = {
 }
 
 /**
- * @summary 创建用户无效地址
+ * @summary Create User\\"s Invalid Address
  *
  * @param request CreateUserSuppressionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -764,7 +768,7 @@ async function createUserSuppressionWithOptions(request: CreateUserSuppressionRe
 }
 
 /**
- * @summary 创建用户无效地址
+ * @summary Create User\\"s Invalid Address
  *
  * @param request CreateUserSuppressionRequest
  * @return CreateUserSuppressionResponse
@@ -1262,24 +1266,28 @@ model DescAccountSummaryRequest {
 }
 
 model DescAccountSummaryResponseBody = {
-  dailyQuota?: int32(name='DailyQuota', example='2000'),
-  dailyRemainFreeQuota?: int32(name='DailyRemainFreeQuota'),
-  dayuStatus?: int32(name='DayuStatus', example='0'),
-  domains?: int32(name='Domains', example='1'),
-  enableTimes?: int32(name='EnableTimes', example='0'),
-  mailAddresses?: int32(name='MailAddresses', example='0'),
-  maxQuotaLevel?: int32(name='MaxQuotaLevel', example='10'),
-  monthQuota?: int32(name='MonthQuota', example='60000'),
-  quotaLevel?: int32(name='QuotaLevel', example='2'),
-  receivers?: int32(name='Receivers', example='0'),
-  remainFreeQuota?: int32(name='RemainFreeQuota'),
-  requestId?: string(name='RequestId', example='82B295BB-7E69-491F-9896-ECEAFF09E1A4'),
-  smsRecord?: int32(name='SmsRecord', example='0'),
-  smsSign?: int32(name='SmsSign', example='0'),
-  smsTemplates?: int32(name='SmsTemplates', example='0'),
-  tags?: int32(name='Tags', example='0'),
-  templates?: int32(name='Templates', example='1'),
-  userStatus?: int32(name='UserStatus', example='0'),
+  dailyQuota?: int32(name='DailyQuota', description='Daily quota', example='2000'),
+  dailyRemainFreeQuota?: int32(name='DailyRemainFreeQuota', description='remaining amount of daily free quota', example='100'),
+  dayuStatus?: int32(name='DayuStatus', description='Dayu status (deprecated, retained for compatibility reasons.)', example='0'),
+  domains?: int32(name='Domains', description='Number of domains', example='1'),
+  enableTimes?: int32(name='EnableTimes', description='Effective time', example='0'),
+  mailAddresses?: int32(name='MailAddresses', description='Number of sending addresses', example='0'),
+  maxQuotaLevel?: int32(name='MaxQuotaLevel', description='Maximum level', example='10'),
+  monthQuota?: int32(name='MonthQuota', description='Monthly quota', example='60000'),
+  quotaLevel?: int32(name='QuotaLevel', description='Credit level', example='2'),
+  receivers?: int32(name='Receivers', description='Number of recipients', example='0'),
+  remainFreeQuota?: int32(name='RemainFreeQuota', description='Remaining amount of total free quota', example='1910'),
+  requestId?: string(name='RequestId', description='Request ID', example='82B295BB-7E69-491F-9896-ECEAFF09E1A4'),
+  smsRecord?: int32(name='SmsRecord', description='Deprecated, retained for compatibility reasons.', example='0'),
+  smsSign?: int32(name='SmsSign', description='Deprecated, retained for compatibility reasons.', example='0'),
+  smsTemplates?: int32(name='SmsTemplates', description='Deprecated, retained for compatibility reasons.', example='0'),
+  tags?: int32(name='Tags', description='Number of tags', example='0'),
+  templates?: int32(name='Templates', description='Number of templates', example='1'),
+  userStatus?: int32(name='UserStatus', description='User status:
+1 Frozen
+2 In arrears
+4 Restricted from sending
+8 Logically deleted', example='0'),
 }
 
 model DescAccountSummaryResponse = {
@@ -1289,6 +1297,8 @@ model DescAccountSummaryResponse = {
 }
 
 /**
+ * @summary Retrieve account information.
+ *
  * @param request DescAccountSummaryRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescAccountSummaryResponse
@@ -1323,6 +1333,8 @@ async function descAccountSummaryWithOptions(request: DescAccountSummaryRequest,
 }
 
 /**
+ * @summary Retrieve account information.
+ *
  * @param request DescAccountSummaryRequest
  * @return DescAccountSummaryResponse
  */
@@ -1332,43 +1344,55 @@ async function descAccountSummary(request: DescAccountSummaryRequest): DescAccou
 }
 
 model DescDomainRequest {
-  domainId?: int32(name='DomainId', description='This parameter is required.', example='13464'),
+  domainId?: int32(name='DomainId', description='The ID of the domain name.
+
+This parameter is required.', example='13464'),
   ownerId?: long(name='OwnerId'),
-  requireRealTimeDnsRecords?: boolean(name='RequireRealTimeDnsRecords'),
+  requireRealTimeDnsRecords?: boolean(name='RequireRealTimeDnsRecords', description='Determine whether to perform real-time DNS resolution', example='true'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
 }
 
 model DescDomainResponseBody = {
-  cnameAuthStatus?: string(name='CnameAuthStatus', example='1'),
-  cnameConfirmStatus?: string(name='CnameConfirmStatus', example='0'),
-  cnameRecord?: string(name='CnameRecord', example='dmtrace'),
-  createTime?: string(name='CreateTime', example='2019-09-29T12:49Z'),
-  defaultDomain?: string(name='DefaultDomain', example='0'),
-  dkimAuthStatus?: string(name='DkimAuthStatus'),
-  dkimPublicKey?: string(name='DkimPublicKey'),
-  dkimRR?: string(name='DkimRR'),
-  dmarcAuthStatus?: int32(name='DmarcAuthStatus'),
-  dmarcHostRecord?: string(name='DmarcHostRecord'),
-  dmarcRecord?: string(name='DmarcRecord'),
-  dnsDmarc?: string(name='DnsDmarc'),
-  dnsMx?: string(name='DnsMx', example='abc-com.xxxx.com'),
-  dnsSpf?: string(name='DnsSpf', example='v=xxxx'),
-  dnsTxt?: string(name='DnsTxt', example='121309ohdsa'),
-  domainId?: string(name='DomainId', example='158910'),
-  domainName?: string(name='DomainName', example='abc.com'),
-  domainStatus?: string(name='DomainStatus', example='1'),
-  domainType?: string(name='DomainType', example='0c40d5f125af4e42892a'),
-  hostRecord?: string(name='HostRecord'),
-  icpStatus?: string(name='IcpStatus', example='1'),
-  mxAuthStatus?: string(name='MxAuthStatus', example='1'),
-  mxRecord?: string(name='MxRecord', example='mx01.dm.aliyun.com'),
-  requestId?: string(name='RequestId', example='51B74264-46B4-43C8-A9A0-6B8E8BC04F34'),
-  spfAuthStatus?: string(name='SpfAuthStatus', example='1'),
-  spfRecord?: string(name='SpfRecord', example='include:spf1.dm.aliyun.com'),
-  spfRecordV2?: string(name='SpfRecordV2'),
-  tlDomainName?: string(name='TlDomainName', example='abc.com'),
-  tracefRecord?: string(name='TracefRecord', example='tracedm.aliyuncs.com'),
+  cnameAuthStatus?: string(name='CnameAuthStatus', description='Track verification', example='1'),
+  cnameConfirmStatus?: string(name='CnameConfirmStatus', description='CName verification flag, success: 0, failure: 1.', example='0'),
+  cnameRecord?: string(name='CnameRecord', description='CNAME records', example='dmtrace'),
+  createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T12:49Z'),
+  defaultDomain?: string(name='DefaultDomain', description='Default domain name', example='0'),
+  dkimAuthStatus?: string(name='DkimAuthStatus', description='DKIM validation flag, success: 0, failure: 1.', example='0'),
+  dkimPublicKey?: string(name='DkimPublicKey', description='DKIM public key', example='v=DKIM1; k=rsa; p=MIGfMA0GCSqGSI...'),
+  dkimRR?: string(name='DkimRR', description='DKIM HostRecord', example='aliyun-cn-hangzhou._domainkey.hangzhou26'),
+  dmarcAuthStatus?: int32(name='DmarcAuthStatus', description='DMARC validation flag, success: 0, failure: 1.', example='1'),
+  dmarcHostRecord?: string(name='DmarcHostRecord', description='DMARC host record', example='_dmarc.xxx'),
+  dmarcRecord?: string(name='DmarcRecord', description='DMARC record', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
+  dnsDmarc?: string(name='DnsDmarc', description='dmarc record value resolved through public DNS', example='v=DMARC1;p=none;rua=mailto:dmarc_report@service.aliyun.com'),
+  dnsMx?: string(name='DnsMx', description='MX record value resolved through public DNS', example='abc-com.xxxx.com'),
+  dnsSpf?: string(name='DnsSpf', description='SPF record value resolved through public DNS', example='v=xxxx'),
+  dnsTxt?: string(name='DnsTxt', description='TXT record value resolved through public DNS.', example='121309ohdsa'),
+  domainId?: string(name='DomainId', description='The ID of the domain name.', example='158910'),
+  domainName?: string(name='DomainName', description='domain', example='example.net'),
+  domainStatus?: string(name='DomainStatus', description='The status of the domain name. Indicates whether the domain name is verified and available. Valid values:
+
+0: indicates that the domain name is verified and available.
+
+1: indicates that the domain name fails to be verified and is unavailable.
+
+2: indicates that the domain name is available, but not filed or configured with a CNAME record.
+
+3: indicates that the domain name is available but not filed.
+
+4: indicates that the domain name is available but not configured with a CNAME record.', example='1'),
+  domainType?: string(name='DomainType', description='TXT records provided by the Direct Mail console.', example='0c40d5f125af4e42892a'),
+  hostRecord?: string(name='HostRecord', description='host record', example='xxx'),
+  icpStatus?: string(name='IcpStatus', description='Filing status. 1 indicates that it has been filed, and 0 indicates that it has not been filed.', example='1'),
+  mxAuthStatus?: string(name='MxAuthStatus', description='MX validation flag, success: 0, failure: 1.', example='1'),
+  mxRecord?: string(name='MxRecord', description='MX record', example='mx01.dm.aliyun.com'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='51B74264-46B4-43C8-A9A0-6B8E8BC04F34'),
+  spfAuthStatus?: string(name='SpfAuthStatus', description='SPF validation flag, success: 0, failure: 1.', example='1'),
+  spfRecord?: string(name='SpfRecord', description='Spf record', example='include:spf1.dm.aliyun.com'),
+  spfRecordV2?: string(name='SpfRecordV2', description='SpfRecord', example='v=spf1 include:spf1.dm.aliyun.com -all'),
+  tlDomainName?: string(name='TlDomainName', description='The primary domain name.', example='example.net'),
+  tracefRecord?: string(name='TracefRecord', description='The CNAME verification record provided by the Direct Mail console.', example='tracedm.aliyuncs.com'),
 }
 
 model DescDomainResponse = {
@@ -1883,9 +1907,9 @@ async function getTrackListByMailFromAndTagName(request: GetTrackListByMailFromA
 
 model GetUserResponseBody = {
   data?: {
-    enableEventbridge?: boolean(name='EnableEventbridge', example='true'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+    enableEventbridge?: boolean(name='EnableEventbridge', description='Whether EventBridge is enabled', example='true'),
+  }(name='Data', description='Returned Content'),
+  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
 }
 
 model GetUserResponse = {
@@ -1895,7 +1919,7 @@ model GetUserResponse = {
 }
 
 /**
- * @summary 获取账号详情
+ * @summary Get Account Details
  *
  * @param request GetUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1918,7 +1942,7 @@ async function getUserWithOptions(runtime: Util.RuntimeOptions): GetUserResponse
 }
 
 /**
- * @summary 获取账号详情
+ * @summary Get Account Details
  *
  * @return GetUserResponse
  */
@@ -1928,35 +1952,36 @@ async function getUser(): GetUserResponse {
 }
 
 model ListUserSuppressionRequest {
-  address?: string(name='Address', example='test@example.net'),
-  endBounceTime?: int32(name='EndBounceTime', example='1715669077'),
-  endCreateTime?: int32(name='EndCreateTime', example='1715669077'),
+  address?: string(name='Address', description='Email address or domain name', example='test@example.net'),
+  endBounceTime?: int32(name='EndBounceTime', description='End time of the last bounce hit, timestamp, accurate to the second. The span between start and end times cannot exceed 7 days.', example='1715669077'),
+  endCreateTime?: int32(name='EndCreateTime', description='End creation time, timestamp, accurate to the second. The span between start and end times cannot exceed 7 days.', example='1715669077'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
+  pageNo?: int32(name='PageNo', description='Current page number', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startBounceTime?: int32(name='StartBounceTime', example='1715668852'),
-  startCreateTime?: int32(name='StartCreateTime', example='1715668852'),
+  startBounceTime?: int32(name='StartBounceTime', description='Start time of the last bounce hit, timestamp, accurate to the second.', example='1715668852'),
+  startCreateTime?: int32(name='StartCreateTime', description='Start creation time, timestamp, accurate to the second.', example='1715668852'),
 }
 
 model ListUserSuppressionResponseBody = {
   data?: {
     userSuppressions?: [ 
     {
-      address?: string(name='Address', example='test@example.net'),
-      createTime?: int32(name='CreateTime', example='1715667435'),
-      lastBounceTime?: int32(name='LastBounceTime', example='1715667451'),
-      suppressionId?: int32(name='SuppressionId', example='59511'),
-      type?: string(name='Type', example='- system
-- user'),
+      address?: string(name='Address', description='Email address or domain name', example='test@example.net'),
+      createTime?: int32(name='CreateTime', description='Creation time, timestamp, accurate to the second.', example='1715667435'),
+      lastBounceTime?: int32(name='LastBounceTime', description='Last bounce hit time, timestamp, accurate to the second.', example='1715667451'),
+      suppressionId?: int32(name='SuppressionId', description='Invalid address ID', example='59511'),
+      type?: string(name='Type', description='Source of entry, invalid address type
+- system
+- user', example='user'),
     }
   ](name='UserSuppressions')
-  }(name='Data'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
-  totalCount?: int32(name='TotalCount', example='2'),
+  }(name='Data', description='Returned results.'),
+  pageNumber?: int32(name='PageNumber', description='Page number', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size', example='10'),
+  requestId?: string(name='RequestId', description='Request ID', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
+  totalCount?: int32(name='TotalCount', description='Total count', example='2'),
 }
 
 model ListUserSuppressionResponse = {
@@ -1966,7 +1991,7 @@ model ListUserSuppressionResponse = {
 }
 
 /**
- * @summary 列出用户无效地址
+ * @summary List User Invalid Addresses.
  *
  * @param request ListUserSuppressionRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2023,7 +2048,7 @@ async function listUserSuppressionWithOptions(request: ListUserSuppressionReques
 }
 
 /**
- * @summary 列出用户无效地址
+ * @summary List User Invalid Addresses.
  *
  * @param request ListUserSuppressionRequest
  * @return ListUserSuppressionResponse
@@ -2918,11 +2943,11 @@ model RemoveUserSuppressionRequest {
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  suppressionIds?: string(name='SuppressionIds'),
+  suppressionIds?: string(name='SuppressionIds', example='59511'),
 }
 
 model RemoveUserSuppressionResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='1A846D66-5EC7-551B-9687-5BF1963DCFC1'),
 }
 
 model RemoveUserSuppressionResponse = {
@@ -3250,36 +3275,41 @@ async function senderStatisticsByTagNameAndBatchID(request: SenderStatisticsByTa
 }
 
 model SenderStatisticsDetailByParamRequest {
-  accountName?: string(name='AccountName', example='s***@example.net'),
-  endTime?: string(name='EndTime', example='2021-04-29 00:00'),
-  length?: int32(name='Length', example='5'),
-  nextStart?: string(name='NextStart', example='90f0243616#203#a***@example.net-1658817837#a***@example.net.247475288187'),
+  accountName?: string(name='AccountName', description='Sending address. Not filled in represents all addresses.', example='s***@example.net'),
+  endTime?: string(name='EndTime', description='The end time. The difference between the start time and the end time cannot exceed 30 days. Format: yyyy-MM-dd.', example='2021-04-29 00:00'),
+  length?: int32(name='Length', description='The number of entries to return in the request. Valid values: 1 to 100.', example='5'),
+  nextStart?: string(name='NextStart', description='The start position of the next page. The offset for the request. If you want to obtain more records, specify the return value of the NextStart parameter for this parameter.', example='90f0243616#203#a***@example.net-1658817837#a***@example.net.247475288187'),
   ownerId?: long(name='OwnerId'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', example='2021-04-28 00:00'),
-  status?: int32(name='Status', example='0'),
-  tagName?: string(name='TagName', example='EmailQuestionnaireHelioscam'),
-  toAddress?: string(name='ToAddress', example='b***@example.net'),
+  startTime?: string(name='StartTime', description='The start time. The start time can be up to 30 days earlier than the current time. Format: yyyy-MM-dd.', example='2021-04-28 00:00'),
+  status?: int32(name='Status', description='The delivery status. If you leave this parameter empty, all states are included. Valid values: 0: successful, 2 invalid email address, 3: spam, and 4: failed.', example='0'),
+  tagName?: string(name='TagName', description='The email tag. If you leave this parameter empty, all email tags are included.', example='EmailQuestionnaireHelioscam'),
+  toAddress?: string(name='ToAddress', description='The recipient address. If you leave this parameter empty, all recipient addresses are included.', example='b***@example.net'),
 }
 
 model SenderStatisticsDetailByParamResponseBody = {
-  nextStart?: string(name='NextStart', example='90f0243616#203#a***@example.net-1658817689#a***@example.net.247141122178'),
-  requestId?: string(name='RequestId', example='B5AB8EBB-EE64-4BB2-B085-B92CC5DEDC41'),
+  nextStart?: string(name='NextStart', description='The start position of the next page. The return value of the NextStart parameter indicates the start position of the next page. If you want to obtain more records, specify the return value in the next request.', example='90f0243616#203#a***@example.net-1658817689#a***@example.net.247141122178'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='B5AB8EBB-EE64-4BB2-B085-B92CC5DEDC41'),
   data?: {
     mailDetail?: [ 
     {
-      accountName?: string(name='AccountName', example='s***@example.net'),
-      errorClassification?: string(name='ErrorClassification'),
-      lastUpdateTime?: string(name='LastUpdateTime', example='2021-04-28T17:11Z'),
-      message?: string(name='Message', example='250 Send Mail OK'),
-      status?: int32(name='Status', example='0'),
-      subject?: string(name='Subject'),
-      toAddress?: string(name='ToAddress', example='b***@example.net'),
-      utcLastUpdateTime?: string(name='UtcLastUpdateTime', example='1619601108'),
+      accountName?: string(name='AccountName', description='The sender address.', example='s***@example.net'),
+      errorClassification?: string(name='ErrorClassification', description='Detailed classification of error causes:
+
+- SendOk
+- SmtpNxBox
+
+etc.', example='SendOk'),
+      lastUpdateTime?: string(name='LastUpdateTime', description='The most recent update time.', example='2021-04-28T17:11Z'),
+      message?: string(name='Message', description='The details of the email.', example='250 Send Mail OK'),
+      status?: int32(name='Status', description='The delivery status. Valid values: 0: successful, 2 invalid email address, 3: spam, and 4: failed.', example='0'),
+      subject?: string(name='Subject', description='the subject of email.', example='test subject'),
+      toAddress?: string(name='ToAddress', description='The recipient address.', example='b***@example.net'),
+      utcLastUpdateTime?: string(name='UtcLastUpdateTime', description='The most recent update time (timestamp format)', example='1619601108'),
     }
   ](name='mailDetail')
-  }(name='data'),
+  }(name='data', description='The response parameters.'),
 }
 
 model SenderStatisticsDetailByParamResponse = {
@@ -3432,6 +3462,7 @@ model SingleSendMailRequest {
   addressType?: int32(name='AddressType', description='This parameter is required.', example='1'),
   clickTrace?: string(name='ClickTrace', example='0'),
   fromAlias?: string(name='FromAlias'),
+  headers?: string(name='Headers'),
   htmlBody?: string(name='HtmlBody', example='body'),
   ownerId?: long(name='OwnerId'),
   replyAddress?: string(name='ReplyAddress', example='111@aliyun.com'),
@@ -3479,6 +3510,9 @@ async function singleSendMailWithOptions(request: SingleSendMailRequest, runtime
   }
   if (!Util.isUnset(request.fromAlias)) {
     query['FromAlias'] = request.fromAlias;
+  }
+  if (!Util.isUnset(request.headers)) {
+    query['Headers'] = request.headers;
   }
   if (!Util.isUnset(request.htmlBody)) {
     query['HtmlBody'] = request.htmlBody;
@@ -3616,12 +3650,12 @@ async function updateIpProtection(request: UpdateIpProtectionRequest): UpdateIpP
 
 model UpdateUserRequest {
   user?: {
-    enableEventbridge?: boolean(name='EnableEventbridge', example='true'),
-  }(name='User'),
+    enableEventbridge?: boolean(name='EnableEventbridge', description='Whether EventBridge is enabled', example='true'),
+  }(name='User', description='User Information'),
 }
 
 model UpdateUserShrinkRequest {
-  userShrink?: string(name='User'),
+  userShrink?: string(name='User', description='User Information'),
 }
 
 model UpdateUserResponseBody = {
@@ -3635,7 +3669,7 @@ model UpdateUserResponse = {
 }
 
 /**
- * @summary 更新帐号信息
+ * @summary Update account information
  *
  * @param tmpReq UpdateUserRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3670,7 +3704,7 @@ async function updateUserWithOptions(tmpReq: UpdateUserRequest, runtime: Util.Ru
 }
 
 /**
- * @summary 更新帐号信息
+ * @summary Update account information
  *
  * @param request UpdateUserRequest
  * @return UpdateUserResponse
