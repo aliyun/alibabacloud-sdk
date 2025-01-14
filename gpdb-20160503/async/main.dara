@@ -453,6 +453,30 @@ async function createAccount(request: CreateAccountRequest): CreateAccountRespon
   return @handler.do('RPC', 'CreateAccount', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateBackupRequest {
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
+}
+
+model CreateBackupResponseBody = {
+  backupJobId?: long(name='BackupJobId', example='123'),
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+}
+
+model CreateBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateBackupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateBackup  CreateBackupRequest
+  * @return CreateBackupResponse
+ */
+async function createBackup(request: CreateBackupRequest): CreateBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateBackup', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CreateCollectionRequest {
   collection: string(name='Collection', description='The name of the collection that you want to create.
 
@@ -472,7 +496,8 @@ This parameter is required.', example='document', position='Query'),
 *   0: uses segmented paging storage to create indexes. This method uses the shared buffer of PostgreSQL for caching and supports the delete and update operations.
 
 *   1: uses the memory mapping technology to create indexes. This method does not support the delete or update operation.', example='0', position='Query'),
-  fullTextRetrievalFields?: string(name='FullTextRetrievalFields', description='Fields used for full-text search, separated by commas (,). These fields must be keys defined in Metadata.', example='title,content', position='Query'),
+  fullTextRetrievalFields?: string(name='FullTextRetrievalFields', description='The fields used for full-text search. Separate multiple fields with commas (,). These fields must be keys defined in Metadata.', example='title,content', position='Query'),
+  hnswEfConstruction?: string(name='HnswEfConstruction', position='Query'),
   hnswM?: int32(name='HnswM', description='The maximum number of neighbors for the Hierarchical Navigable Small World (HNSW) algorithm. Valid values: 1 to 1000. In most cases, this parameter is automatically configured based on the value of the Dimension parameter. You do not need to configure this parameter.
 
 >  We recommend that you configure this parameter based on the value of the Dimension parameter.
@@ -505,13 +530,12 @@ This parameter is required.', example='testpassword', position='Query'),
 **Warning** Reserved fields such as id, vector, to_tsvector, and source cannot be used.
 
 This parameter is required.', example='{"title":"text","content":"text","response":"int"}', position='Query'),
-  metadataIndices?: string(name='MetadataIndices', position='Query'),
-  metrics?: string(name='Metrics', description='Method used when building the vector index.
+  metadataIndices?: string(name='MetadataIndices', description='The scalar index fields. Separate multiple fields with commas (,). These fields must be keys defined in Metadata.', example='title', position='Query'),
+  metrics?: string(name='Metrics', description='The method that is used to create vector indexes. Valid values:
 
-Value description:
-- **l2**: Euclidean distance.
-- **ip**: Inner product (dot product) distance.
-- **cosine** (default): Cosine similarity.', example='cosine', position='Query'),
+*   l2: Euclidean distance.
+*   ip: inner product distance.
+*   cosine: cosine similarity.', example='cosine', position='Query'),
   namespace?: string(name='Namespace', description='The name of the namespace.
 
 >  You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to query a list of namespaces.', example='mynamespace', position='Query'),
@@ -528,7 +552,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model CreateCollectionResponseBody = {
-  message?: string(name='Message', description='Return message.', example='create successfully'),
+  message?: string(name='Message', description='The returned message.', example='create successfully'),
   requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
   status?: string(name='Status', description='The status of the operation. Valid values:
 
@@ -908,82 +932,110 @@ async function createDBResourceGroup(request: CreateDBResourceGroupRequest): Cre
 }
 
 model CreateDocumentCollectionRequest {
-  collection: string(name='Collection', description='Name of the document library to be created.
+  collection: string(name='Collection', description='The name of the document collection that you want to create.
 
 > The name must comply with PostgreSQL object naming restrictions.
 
 This parameter is required.', example='document', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='Instance ID.
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
 > You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/86911.html) API to view details of all AnalyticDB for PostgreSQL instances in the target region, including the instance ID.
 
 This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
-  embeddingModel?: string(name='EmbeddingModel', description='Vectorization algorithm.
+  embeddingModel?: string(name='EmbeddingModel', description='The vectorization algorithm.
 
-> Supported algorithms:
-> - text-embedding-v1: 1536 dimensions
-> - text-embedding-v2: 1536 dimensions
-> - text2vec: 1024 dimensions
-> - m3e-base: 768 dimensions
-> - m3e-small: 512 dimensions
-> - clip-vit-b-32: CLIP ViT-B/32 model, 512 dimensions, image vectorization algorithm
-> - clip-vit-b-16: CLIP ViT-B/16 model, 512 dimensions, image vectorization algorithm
-> - clip-vit-l-14: CLIP ViT-L/14 model, 768 dimensions, image vectorization algorithm
-> - clip-vit-l-14-336px: CLIP ViT-L/14@336px model, 768 dimensions, image vectorization algorithm
-> - clip-rn50: CLIP RN50 model, 1024 dimensions, image vectorization algorithm
-> - clip-rn101: CLIP RN101 model, 512 dimensions, image vectorization algorithm
-> - clip-rn50x4: CLIP RN50x4 model, 640 dimensions, image vectorization algorithm
-> - clip-rn50x16: CLIP RN50x16 model, 768 dimensions, image vectorization algorithm
-> - clip-rn50x64: CLIP RN50x64 model, 1024 dimensions, image vectorization algorithm', example='text-embedding-v1', position='Query'),
-  externalStorage?: int32(name='ExternalStorage', description='Whether to use mmap to build HNSW index, default is 0. If the data does not need to be deleted and there are requirements for the speed of uploading data, it is recommended to set this to 1.
+>  Supported algorithms:
+
+*   text-embedding-v1: the algorithm that produces 1536-dimensional vectors.
+
+*   text-embedding-v2: the algorithm that produces 1536-dimensional vectors.
+
+*   text2vec: the algorithm that produces 1024-dimensional vectors.
+
+*   m3e-base: the algorithm that produces 768-dimensional vectors.
+
+*   m3e-small: the algorithm that produces 512-dimensional vectors.
+
+*   clip-vit-b-32: the image vectorization algorithm that uses the Contrastive Language-Image Pre-Training (CLIP) ViT-B/32 model and produces 512-dimensional vectors.
+
+*   clip-vit-b-16: the image vectorization algorithm that uses the CLIP ViT-B/16 model and produces 512-dimensional vectors.
+
+*   clip-vit-l-14: the image vectorization algorithm that uses the CLIP ViT-L/14 model and produces 768-dimensional vectors.
+
+*   clip-vit-l-14-336px: the image vectorization algorithm that uses the CLIP ViT-L/14@336px model and produces 768-dimensional vectors.
+
+*   clip-rn50: the image vectorization algorithm that uses the CLIP RN50 model and produces 1024-dimensional vectors.
+
+*   clip-rn101: the image vectorization algorithm that uses the CLIP RN101 model and produces 512-dimensional vectors.
+
+*   clip-rn50x4: the image vectorization algorithm that uses the CLIP RN50x4 model and produces 640-dimensional vectors.
+
+*   clip-rn50x16: the image vectorization algorithm that uses the CLIP RN50x16 model and produces 768-dimensional vectors.
+
+*   clip-rn50x64: the image vectorization algorithm that uses the CLIP RN50x64 model and produces 1024-dimensional vectors.', example='text-embedding-v1', position='Query'),
+  externalStorage?: int32(name='ExternalStorage', description='Specifies whether to use the memory mapping technology to create HNSW indexes. Valid values: 0 and 1. Default value: 0. We recommend that you set the value to 1 in scenarios that require upload speed but not data deletion.
 
 > 
-> - When set to 0, segment-page storage will be used by default to build the index. This mode can use PostgreSQL\\"s shared_buffer as a cache and supports operations such as deletion and updates.
-> - When set to 1, the index will be built using mmap. This mode does not support deletion or update operations.', example='0', position='Query'),
-  fullTextRetrievalFields?: string(name='FullTextRetrievalFields', description='Fields used for full-text search, separated by commas (,). These fields must be keys defined in Metadata.', example='title,page', position='Query'),
-  hnswM?: int32(name='HnswM', description='The maximum number of neighbors in the HNSW algorithm, ranging from 1 to 1000. The interface will automatically set this value based on the vector dimension, and it generally does not need to be manually configured.
-> It is recommended to set according to the vector dimension: >- For dimensions less than or equal to 384: 16 >- For dimensions greater than 384 but less than or equal to 768: 32 >- For dimensions greater than 768 but less than or equal to 1024: 64 >- For dimensions greater than 1024: 128', example='64', minimum=0, maximum=1000, position='Query'),
-  managerAccount: string(name='ManagerAccount', description='Name of the management account with rds_superuser permissions.
+
+*   0: uses segmented paging storage to create indexes. This method uses the shared buffer of PostgreSQL for caching and supports the delete and update operations.
+
+*   1: uses the memory mapping technology to create indexes. This method does not support the delete or update operation.', example='0', position='Query'),
+  fullTextRetrievalFields?: string(name='FullTextRetrievalFields', description='The fields used for full-text search. Separate multiple fields with commas (,). These fields must be keys defined in Metadata.', example='title,page', position='Query'),
+  hnswEfConstruction?: string(name='HnswEfConstruction', position='Query'),
+  hnswM?: int32(name='HnswM', description='The maximum number of neighbors for the Hierarchical Navigable Small World (HNSW) algorithm. Valid values: 1 to 1000. In most cases, this parameter is automatically configured based on the value of the Dimension parameter. You do not need to configure this parameter.
+
+>  We recommend that you configure this parameter based on the value of the Dimension parameter.
+
+*   If you set Dimension to a value less than or equal to 384, set the value of HnswM to 16.
+
+*   If you set Dimension to a value greater than 384 and less than or equal to 768, set the value of HnswM to 32.
+
+*   If you set Dimension to a value greater than 768 and less than or equal to 1024, set the value of HnswM to 64.
+
+*   If you set Dimension to a value greater than 1024, set the value of HnswM to 128.', example='64', minimum=0, maximum=1000, position='Query'),
+  managerAccount: string(name='ManagerAccount', description='The name of the manager account that has the rds_superuser permission.
 
 > You can create an account through the console -> Account Management, or by using the [CreateAccount](https://help.aliyun.com/document_detail/2361789.html) API.
 
 This parameter is required.', example='testaccount', position='Query'),
-  managerAccountPassword: string(name='ManagerAccountPassword', description='Management account password.
+  managerAccountPassword: string(name='ManagerAccountPassword', description='The password of the management account.
 
 This parameter is required.', example='testpassword', position='Query'),
-  metadata?: string(name='Metadata', description='Metadata of vector data, in the form of a MAP JSON string. The key represents the field name, and the value represents the data type.
+  metadata?: string(name='Metadata', description='The metadata of the vector data, which is a JSON string in the MAP format. The key specifies the field name, and the value specifies the data type.
 
-> Supported data types
-> - For a list of data types, see: [Data Types](https://www.alibabacloud.com/help/en/analyticdb/analyticdb-for-postgresql/developer-reference/data-types-1/).
-> - The money type is not supported at this time.
+> Supported data types:
+> - For information about data types, see: [Data Types](https://www.alibabacloud.com/help/en/analyticdb/analyticdb-for-postgresql/developer-reference/data-types-1/).
+> - The money type is not supported.
 
 >Warning: The fields id, vector, doc_name, content, loader_metadata, source, and to_tsvector are reserved and should not be used.', example='{"title":"text","page":"int"}', position='Query'),
-  metadataIndices?: string(name='MetadataIndices', position='Query'),
-  metrics?: string(name='Metrics', description='Method used when building the vector index.
+  metadataIndices?: string(name='MetadataIndices', example='title', position='Query'),
+  metrics?: string(name='Metrics', description='The method that is used to create vector indexes.
 
-Value description:
-- **l2**: Euclidean distance.
-- **ip**: Inner product (dot product) distance.
-- **cosine** (default): Cosine similarity.', example='cosine', position='Query'),
-  namespace?: string(name='Namespace', description='Namespace, default is public.
+Valid values:
 
-> You can create a namespace using the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) API and view the list using the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) API.', example='mynamespace', position='Query'),
+*   **l2**: Euclidean distance.
+*   **ip**: inner product distance.
+*   **cosine** (default): cosine similarity.', example='cosine', position='Query'),
+  namespace?: string(name='Namespace', description='The name of the namespace. Default value: public.
+
+>  You can call the [CreateNamespace](https://help.aliyun.com/document_detail/2401495.html) operation to create a namespace and call the [ListNamespaces](https://help.aliyun.com/document_detail/2401502.html) operation to query a list of namespaces.', example='mynamespace', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  parser?: string(name='Parser', description='Tokenizer used for full-text search, default is zh_cn.', example='zh_cn', position='Query'),
-  pqEnable?: int32(name='PqEnable', description='Whether to enable PQ (Product Quantization) algorithm for index acceleration. It is recommended to enable this when the data volume exceeds 500,000. Value description:
-- 0: Disabled.
-- 1: Enabled (default).', example='1', position='Query'),
-  regionId: string(name='RegionId', description='ID of the region where the instance is located.
+  parser?: string(name='Parser', description='The analyzer that is used for full-text search. Default value: zh_cn.', example='zh_cn', position='Query'),
+  pqEnable?: int32(name='PqEnable', description='Specifies whether to enable the product quantization (PQ) feature for index acceleration. We recommend that you enable this feature for more than 500,000 rows of data. Valid values:
+
+*   0: no.
+*   1 (default): yes.', example='1', position='Query'),
+  regionId: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model CreateDocumentCollectionResponseBody = {
-  message?: string(name='Message', description='Return message.', example='Successful'),
-  requestId?: string(name='RequestId', description='Request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
-  status?: string(name='Status', description='API execution status, with the following values:
-- **success**: Execution succeeded.
-- **fail**: Execution failed.', example='successs'),
+  message?: string(name='Message', description='The returned message.', example='Successful'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  status?: string(name='Status', description='The status of the operation. Valid values:
+- **success**
+- **fail**', example='successs'),
 }
 
 model CreateDocumentCollectionResponse = {
@@ -1707,6 +1759,7 @@ This parameter is required.', example='1024', position='Query'),
 > 
 > - When set to 0, the segment-page storage mode is used to build the index, which can use the shared_buffer in PostgreSQL for caching and supports deletion and update operations.
 > - When set to 1, the index is built using mmap, which does not support deletion and update operations.', example='0', position='Query'),
+  hnswEfConstruction?: int32(name='HnswEfConstruction', position='Query'),
   hnswM?: int32(name='HnswM', description='The maximum number of neighbors in the HNSW algorithm, ranging from 1 to 1000. The API will automatically set this value based on the vector dimension, and it generally does not need to be manually set.
 
 > It is suggested to set this based on the vector dimension as follows:
@@ -1787,6 +1840,30 @@ model DeleteAccountResponse = {
 async function deleteAccount(request: DeleteAccountRequest): DeleteAccountResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteAccount', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteBackupRequest {
+  backupId: string(name='BackupId', description='This parameter is required.', example='1111111111', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
+}
+
+model DeleteBackupResponseBody = {
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+}
+
+model DeleteBackupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteBackupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteBackup  DeleteBackupRequest
+  * @return DeleteBackupResponse
+ */
+async function deleteBackup(request: DeleteBackupRequest): DeleteBackupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteBackup', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DeleteCollectionRequest {
@@ -2667,6 +2744,36 @@ model DescribeAvailableResourcesResponse = {
 async function describeAvailableResources(request: DescribeAvailableResourcesRequest): DescribeAvailableResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeAvailableResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeBackupJobRequest {
+  backupJobId: long(name='BackupJobId', description='This parameter is required.', example='123', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
+}
+
+model DescribeBackupJobResponseBody = {
+  backupId?: string(name='BackupId', example='1111111111'),
+  backupJobId?: string(name='BackupJobId', example='123'),
+  backupMode?: string(name='BackupMode', example='Automated'),
+  backupStatus?: string(name='BackupStatus', example='backup'),
+  process?: string(name='Process', example='50%'),
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+  startTime?: string(name='StartTime', example='2023-01-03T16:00:00Z'),
+}
+
+model DescribeBackupJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeBackupJobResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeBackupJob  DescribeBackupJobRequest
+  * @return DescribeBackupJobResponse
+ */
+async function describeBackupJob(request: DescribeBackupJobRequest): DescribeBackupJobResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeBackupJob', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeBackupPolicyRequest {
@@ -7100,6 +7207,41 @@ model InitVectorDatabaseResponse = {
 async function initVectorDatabase(request: InitVectorDatabaseRequest): InitVectorDatabaseResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'InitVectorDatabase', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListBackupJobsRequest {
+  backupMode?: string(name='BackupMode', example='Automated', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='gp-xxxxxxxxx', position='Query'),
+}
+
+model ListBackupJobsResponseBody = {
+  items?: {
+    backupJob?: [ 
+    {
+      backupJobId?: string(name='BackupJobId', example='123'),
+      backupMode?: string(name='BackupMode', example='Automated'),
+      backupStatus?: string(name='BackupStatus', example='Success'),
+      process?: string(name='Process', example='50%'),
+      startTime?: string(name='StartTime', example='2022-08-11T09:26:43Z'),
+    }
+  ](name='BackupJob')
+  }(name='Items'),
+  requestId?: string(name='RequestId', example='ABB39CC3-4488-4857-905D-2E4A051D0521'),
+}
+
+model ListBackupJobsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListBackupJobsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListBackupJobs  ListBackupJobsRequest
+  * @return ListBackupJobsResponse
+ */
+async function listBackupJobs(request: ListBackupJobsRequest): ListBackupJobsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListBackupJobs', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ListCollectionsRequest {
