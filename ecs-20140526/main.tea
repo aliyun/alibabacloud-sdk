@@ -6724,8 +6724,13 @@ Default value: x86_64.', example='x86_64'),
     }
   ](name='DiskDeviceMapping', description='The information about the custom image.'),
   features?: {
-    imdsSupport?: string(name='ImdsSupport', example='v2'),
-  }(name='Features'),
+    imdsSupport?: string(name='ImdsSupport', description='The image metadata access mode. Valid values:
+
+*   v1: You cannot set the image metadata access mode to security hardening when you create instances from the image.
+*   v2: You can set the image metadata access mode to security hardening when you create instances from the image.
+
+When you use a snapshot to create instances, the default value is set to 1. If you use an instance to create an image, the value of the ImdsSupport parameter is used by default.', example='v2'),
+  }(name='Features', description='The attributes of the custom image.'),
   imageFamily?: string(name='ImageFamily', description='The name of the image family. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with acs: or aliyun. The name cannot contain http:// or https://. The name can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='hangzhou-daily-update'),
   imageName?: string(name='ImageName', description='The name of the custom image. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with http:// or https://. The name can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='TestCentOS'),
   imageVersion?: string(name='ImageVersion', description='The image version.
@@ -7077,12 +7082,13 @@ async function createImageComponent(request: CreateImageComponentRequest): Creat
 
 model CreateImagePipelineRequest {
   addAccount?: [ long ](name='AddAccount', description='The IDs of Alibaba Cloud accounts to which to share the image that will be created based on the image template. You can specify up to 20 account IDs.', example='1234567890'),
+  advancedOptions?: {
+    retainCloudAssistant?: boolean(name='RetainCloudAssistant'),
+  }(name='AdvancedOptions'),
   baseImage?: string(name='BaseImage', description='The source image.
 
 *   If you set `BaseImageType` to IMAGE, set the BaseImage parameter to the ID of a custom image.
-*   If you set `BaseImageType` to IMAGE_FAMILY, set the BaseImage parameter to the name of an image family.
-
-This parameter is required.', example='m-bp67acfmxazb4p****'),
+*   If you set `BaseImageType` to IMAGE_FAMILY, set the BaseImage parameter to the name of an image family.', example='m-bp67acfmxazb4p****'),
   baseImageType?: string(name='BaseImageType', description='The type of the source image. Valid values:
 
 *   IMAGE: image
@@ -7104,6 +7110,25 @@ Default value: true.
   imageName?: string(name='ImageName', description='The prefix of the image name. The prefix must be 2 to 64 characters in length. The prefix must start with a letter and cannot start with `http://` or `https://`. The prefix can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
 The system generates the final complete image name that consists of the specified prefix and the ID of the build task (`ExecutionId`) in the format of `{ImageName}_{ExecutionId}`.', example='testImageName'),
+  importImageOptions?: {
+    architecture?: string(name='Architecture'),
+    bootMode?: string(name='BootMode'),
+    diskDeviceMappings?: [ 
+      {
+        diskImageSize?: int32(name='DiskImageSize'),
+        format?: string(name='Format'),
+        OSSBucket?: string(name='OSSBucket'),
+        OSSObject?: string(name='OSSObject'),
+      }
+    ](name='DiskDeviceMappings'),
+    features?: {
+      nvmeSupport?: string(name='NvmeSupport'),
+    }(name='Features'),
+    licenseType?: string(name='LicenseType'),
+    OSType?: string(name='OSType'),
+    platform?: string(name='Platform'),
+    retainImportedImage?: boolean(name='RetainImportedImage'),
+  }(name='ImportImageOptions'),
   instanceType?: string(name='InstanceType', description='The instance type. You can call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/25620.html) to query instance types.
 
 If you do not configure this parameter, an instance type that provides the fewest vCPUs and memory resources is automatically selected. This configuration is subject to resource availability of instance types. For example, the ecs.g6.large instance type is automatically selected. If available ecs.g6.large resources are insufficient, the ecs.g6.xlarge instance type is selected.', example='ecs.g6.large'),
@@ -7113,6 +7138,7 @@ Default value: 0.', example='0'),
   name?: string(name='Name', description='The name of the launch template. The name must be 2 to 128 characters in length. The name must start with a letter and cannot start with `http://` or `https://`. The name can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
 >  If you do not specify `Name`, the return value of `ImagePipelineId` is used.', example='testImagePipeline'),
+  nvmeSupport?: string(name='NvmeSupport'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
@@ -7136,7 +7162,7 @@ Valid values:
     Supported check items in Windows operating systems:
 
     *   GUESTOS.Virtio
-    *   GUESTOS.Updat
+    *   GUESTOS.Update
     *   GUESTOS.Hotfix
     *   GUESTOS.Server
 
@@ -7196,6 +7222,9 @@ async function createImagePipelineWithOptions(request: CreateImagePipelineReques
   if (!Util.isUnset(request.addAccount)) {
     query['AddAccount'] = request.addAccount;
   }
+  if (!Util.isUnset(request.advancedOptions)) {
+    query['AdvancedOptions'] = request.advancedOptions;
+  }
   if (!Util.isUnset(request.baseImage)) {
     query['BaseImage'] = request.baseImage;
   }
@@ -7220,6 +7249,9 @@ async function createImagePipelineWithOptions(request: CreateImagePipelineReques
   if (!Util.isUnset(request.imageName)) {
     query['ImageName'] = request.imageName;
   }
+  if (!Util.isUnset(request.importImageOptions)) {
+    query['ImportImageOptions'] = request.importImageOptions;
+  }
   if (!Util.isUnset(request.instanceType)) {
     query['InstanceType'] = request.instanceType;
   }
@@ -7228,6 +7260,9 @@ async function createImagePipelineWithOptions(request: CreateImagePipelineReques
   }
   if (!Util.isUnset(request.name)) {
     query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.nvmeSupport)) {
+    query['NvmeSupport'] = request.nvmeSupport;
   }
   if (!Util.isUnset(request.ownerAccount)) {
     query['OwnerAccount'] = request.ownerAccount;
@@ -9257,9 +9292,13 @@ This parameter is left empty by default.', example='testNetworkInterfaceName'),
   networkInterfaceTrafficConfig?: {
     networkInterfaceTrafficMode?: string(name='NetworkInterfaceTrafficMode', description='The communication mode of the ENI.', example='HighPerformance'),
     queueNumber?: int32(name='QueueNumber', description='The number of queues supported by the ENI.', example='8'),
-    queuePairNumber?: int32(name='QueuePairNumber', description='The number of queues supported by the elastic RDMA interface (ERI).', example='8'),
-    rxQueueSize?: int32(name='RxQueueSize', description='The receive (Rx) queue depth of the ENI.', example='8192'),
-    txQueueSize?: int32(name='TxQueueSize', description='The transmit (Tx) queue depth of the ENI.', example='8192'),
+    queuePairNumber?: int32(name='QueuePairNumber', description='The number of queues supported by the ERI.', example='8'),
+    rxQueueSize?: int32(name='RxQueueSize', description='The Rx queue depth of the ENI.
+
+>  This parameter is not publicly available.', example='8192'),
+    txQueueSize?: int32(name='TxQueueSize', description='The Tx queue depth of the ENI.
+
+>  This parameter is not publicly available.', example='8192'),
   }(name='NetworkInterfaceTrafficConfig', description='The communication settings of the ENI.'),
   networkInterfaceTrafficMode?: string(name='NetworkInterfaceTrafficMode', description='The communication mode of the ENI. Valid values:
 
@@ -9282,7 +9321,11 @@ The specified IP address must be an idle IP address within the CIDR block of the
 When you attach the ENI to an instance, make sure that the value of this parameter is less than the maximum number of queues per ENI that is allowed for the instance type. To view the maximum number of queues per ENI allowed for an instance type, you can call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/25620.html) operation and then check the return value of `MaximumQueueNumberPerEni`.
 
 This parameter is left empty by default. If you do not specify this parameter, the default number of queues per ENI for the instance type of an instance is used when you attach the ENI to the instance. To view the default number of queues per ENI for an instance type, you can call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/25620.html) operation and then check the return value of `SecondaryEniQueueNumber`.', example='1'),
-  queuePairNumber?: int32(name='QueuePairNumber', description='> This parameter is in invitational preview and is not publicly available.', example='22'),
+  queuePairNumber?: int32(name='QueuePairNumber', description='The number of queue pair (QP) queues supported by the elastic RDMA interface (ERI).
+
+If you want to attach multiple ERIs to an instance, we recommend that you specify QueuePairNumber for each ERI based on the value of `QueuePairNumber` supported by the instance type and the number of ERIs that you want to use. Make sure that the total number of QP queues of all ERIs does not exceed the maximum number of QP queues supported by the instance type. For information about the maximum number of QP queues supported by an instance type, see [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html).
+
+>  If you do not specify QueuePairNumber for an ERI, the maximum number of QP queues supported by the instance type may be used as the number of QP queues supported by the ERI. In this case, you cannot attach an additional ERI to the instance. However, you can attach other types of ENIs to the instance.', example='22'),
   regionId?: string(name='RegionId', description='The region in which to create the ENI. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou'),
@@ -9291,10 +9334,12 @@ This parameter is required.', example='cn-hangzhou'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   rxQueueSize?: int32(name='RxQueueSize', description='The receive (Rx) queue depth of the ENI.
 
-Take note of the following items:
+When you specify this parameter, take note of the following items:
 
 *   The Rx queue depth of an ENI must be the same as the Tx queue depth of the ENI. Valid values: powers of 2 in the range of 8192 to 16384.
-*   A larger Rx queue depth yields higher inbound throughput but consumes more memory.', example='8192'),
+*   A larger Rx queue depth yields higher inbound throughput but consumes more memory.
+
+>  This parameter is not publicly available.', example='8192'),
   secondaryPrivateIpAddressCount?: int32(name='SecondaryPrivateIpAddressCount', description='The number of private IP addresses to be assigned by ECS. Valid values: 1 to 49.', example='1'),
   securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group to which to assign the ENI. The security group and the ENI must belong to the same VPC.
 
@@ -9311,11 +9356,15 @@ Take note of the following items:
   ](name='Tag', description='The tags to add to the ENI.'),
   txQueueSize?: int32(name='TxQueueSize', description='The transmit (Tx) queue depth of the ENI.
 
-Take note of the following items:
+When you specify this parameter, take note of the following items:
 
 *   The Tx queue depth of an ENI must be the same as the Rx queue depth of the ENI. Valid values: powers of 2 in the range of 8192 to 16384.
-*   A larger Tx queue depth yields higher outbound throughput but consumes more memory.', example='8192'),
-  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch with which to associate the ENI. Private IP addresses are assigned to the ENI from within the CIDR block of the vSwitch.
+*   A larger Tx queue depth yields higher outbound throughput but consumes more memory.
+
+>  This parameter is not publicly available.', example='8192'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which to connect the ENI. Private IP addresses are assigned to the ENI from within the CIDR block of the vSwitch.
+
+>  A secondary ENI can be attached to only an instance that is in the same zone as the ENI. The instance and the ENI can be connected to different vSwitches.
 
 This parameter is required.', example='vsw-bp1s5fnvk4gn2tws03****'),
   visible?: boolean(name='Visible', description='> This parameter is no longer used.', example='null'),
@@ -21472,6 +21521,9 @@ model DescribeImagePipelinesResponseBody = {
       addAccounts?: {
         addAccount?: [ string ](name='AddAccount')
       }(name='AddAccounts', description='The IDs of Alibaba Cloud accounts to which to share the image that will be created based on the image template.'),
+      advancedOptions?: {
+        retainCloudAssistant?: boolean(name='RetainCloudAssistant'),
+      }(name='AdvancedOptions'),
       baseImage?: string(name='BaseImage', description='The source image.
 
 *   When `BaseImageType` is set to IMAGE, the value of this parameter is the ID of a custom image.
@@ -21487,9 +21539,31 @@ model DescribeImagePipelinesResponseBody = {
       imageFamily?: string(name='ImageFamily', description='The image family.', example='null'),
       imageName?: string(name='ImageName', description='The name prefix of the image to be created based on the image template.', example='testImageName'),
       imagePipelineId?: string(name='ImagePipelineId', description='The ID of the image template.', example='ip-2ze5tsl5bp6nf2b3****'),
+      importImageOptions?: {
+        architecture?: string(name='Architecture'),
+        bootMode?: string(name='BootMode'),
+        diskDeviceMappings?: {
+          diskDeviceMapping?: [ 
+          {
+            diskImageSize?: int32(name='DiskImageSize'),
+            format?: string(name='Format'),
+            OSSBucket?: string(name='OSSBucket'),
+            OSSObject?: string(name='OSSObject'),
+          }
+        ](name='DiskDeviceMapping')
+        }(name='DiskDeviceMappings'),
+        features?: {
+          nvmeSupport?: string(name='NvmeSupport'),
+        }(name='Features'),
+        licenseType?: string(name='LicenseType'),
+        OSType?: string(name='OSType'),
+        platform?: string(name='Platform'),
+        retainImportedImage?: boolean(name='RetainImportedImage'),
+      }(name='ImportImageOptions'),
       instanceType?: string(name='InstanceType', description='The instance type.', example='ecs.g6.large'),
       internetMaxBandwidthOut?: int32(name='InternetMaxBandwidthOut', description='The size of the outbound public bandwidth for the intermediate instance. Unit: Mbit/s.', example='0'),
       name?: string(name='Name', description='The name of the image template.', example='testImagePipeline'),
+      nvmeSupport?: string(name='NvmeSupport'),
       repairMode?: string(name='RepairMode', description='The repair mode of the image template.
 
 Valid values:
@@ -35089,6 +35163,81 @@ async function enablePhysicalConnectionWithOptions(request: EnablePhysicalConnec
 async function enablePhysicalConnection(request: EnablePhysicalConnectionRequest): EnablePhysicalConnectionResponse {
   var runtime = new Util.RuntimeOptions{};
   return enablePhysicalConnectionWithOptions(request, runtime);
+}
+
+model EndTerminalSessionRequest {
+  ownerAccount?: string(name='OwnerAccount'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  sessionId?: string(name='SessionId', description='This parameter is required.', example='s-hz023od0x9****'),
+}
+
+model EndTerminalSessionResponseBody = {
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+}
+
+model EndTerminalSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EndTerminalSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary 关闭会话数据连接
+ *
+ * @param request EndTerminalSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EndTerminalSessionResponse
+ */
+async function endTerminalSessionWithOptions(request: EndTerminalSessionRequest, runtime: Util.RuntimeOptions): EndTerminalSessionResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ownerAccount)) {
+    query['OwnerAccount'] = request.ownerAccount;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['SessionId'] = request.sessionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'EndTerminalSession',
+    version = '2014-05-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 关闭会话数据连接
+ *
+ * @param request EndTerminalSessionRequest
+ * @return EndTerminalSessionResponse
+ */
+async function endTerminalSession(request: EndTerminalSessionRequest): EndTerminalSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return endTerminalSessionWithOptions(request, runtime);
 }
 
 model ExportImageRequest {
@@ -50215,7 +50364,7 @@ When you specify this parameter, take note of the following items:
 *   The value of N cannot exceed the maximum number of ENIs per instance that the instance type supports. For the maximum number of ENIs per instance that an instance type supports, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html) or call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html) operation.
 *   The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.
 *   If you set `NetworkInterface.N.InstanceType` to `Primary`, you do not need to specify this parameter.', example='Network_Description'),
-      instanceType?: string(name='InstanceType', description='The type of ENI N. The value of N cannot exceed the maximum number of ENIs per instance that the instance type supports. For the maximum number of ENIs per instance that an instance type supports, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html) or call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html) operation.
+      instanceType?: string(name='InstanceType', description='The type of ENI N. The value of the first N in this parameter cannot exceed the maximum number of ENIs per instance that the instance type supports. For the maximum number of ENIs per instance that an instance type supports, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html) or call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html) operation.
 
 Valid values:
 
@@ -50244,7 +50393,9 @@ When you specify this parameter, take note of the following items:
 *   You can specify network card indexes only for instances of specific instance types.
 *   If you set NetworkInterface.N.InstanceType to Primary, you can set NetworkInterface.N.NetworkCardIndex only to 0 for instance types that support network cards.
 *   If you set NetworkInterface.N.InstanceType to Secondary or leave the parameter empty, you can specify NetworkInterface.N.NetworkCardIndex based on instance types if the instance types support network cards. For more information, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html).', example='0'),
-      networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of ENI N to attach to the instance.
+      networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI to attach to the instance.
+
+If you specify this parameter, you must set `Amount` to 1.
 
 >  This parameter takes effect only for secondary ENIs. After you specify an existing secondary ENI, you cannot specify other ENI creation parameters.', example='eni-bp1gn106np8jhxhj****'),
       networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of ENI N. The name must be 2 to 128 characters in length and can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
@@ -50270,7 +50421,7 @@ When you specify this parameter, take note of the following items:
     *   If the value of N is 1, you can configure a primary or secondary ENI. If you specify this parameter, set `Amount` to a numeric value greater than 1, and set NetworkInterface.N.InstanceType to Primary, the specified number of instances are created and consecutive primary IP addresses starting from the specified IP address are assigned to the instances. In this case, you cannot attach secondary ENIs to the instances.
     *   If you specify this parameter, set `Amount` to a numeric value greater than 1, and set NetworkInterface.N.InstanceType to Primary, you cannot set `NetworkInterface.2.InstanceType` to Secondary to attach a secondary ENI.
 
-*   If you set `NetworkInterface.N.InstanceType` to `Primary`, this parameter is equivalent to `PrivateIpAddress`. You cannot specify both this parameter and `PrivateIpAddress` in the same request.
+*   If you set `NetworkInterface.N.InstanceType` to `Primary`, this parameter is equivalent to `PrivateIpAddress`. You cannot specify this parameter and `PrivateIpAddress` in the same request.
 
 *   If you set `NetworkInterface.N.InstanceType` to `Secondary` or leave NetworkInterface.N.InstanceType empty, the specified primary IP address is assigned to the secondary ENI. The default value is an IP address that is randomly selected from within the CIDR block of the vSwitch to which to connect the secondary ENI.
 
@@ -50301,8 +50452,8 @@ When you specify this parameter, take note of the following items:
 *   If you set `NetworkInterface.N.InstanceType` to `Secondary` or leave NetworkInterface.N.InstanceType empty, you do not need to specify this parameter. The default value is the ID of the security group to which to assign the instance.', example='sg-bp67acfmxazb4p****'),
       securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of security groups to which to assign ENI N.
 
-*   The value of the first N cannot exceed the maximum number of ENIs per instance that the instance type supports. For the maximum number of ENIs per instance that an instance type supports, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html) or call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html) operation.
-*   The second N indicates that one or more security group IDs can be specified. The valid values of the second N vary based on the maximum number of security groups to which an instance can belong. For more information, see the [Security group limits](~~25412#SecurityGroupQuota1~~) section of the "Limits" topic.
+*   The value of the first N in this parameter cannot exceed the maximum number of ENIs per instance that the instance type supports. For the maximum number of ENIs per instance that an instance type supports, see [Overview of instance families](https://help.aliyun.com/document_detail/25378.html) or call the [DescribeInstanceTypes](https://help.aliyun.com/document_detail/2679699.html) operation.
+*   The second N in this parameter indicates that one or more security group IDs can be specified. The valid values of the second N vary based on the maximum number of security groups to which an instance can belong. For more information, see the [Security group limits](~~25412#SecurityGroupQuota1~~) section of the "Limits" topic.
 
 When you specify this parameter, take note of the following items:
 
@@ -50491,12 +50642,13 @@ model RunInstancesResponse = {
 /**
  * @summary Creates pay-as-you-go or subscription Elastic Compute Service (ECS) instances. This operation provides a wide array of features and functions and helps simplify the procedure to create and manage ECS instances. When you call this operation, you can choose to create multiple ECS instances at a time, automatically start the instances, and assign public IP addresses to them. You can also use the features provided by the operation, such as configuring an automatic release time for instances, using a launch template, and configuring custom CPU options, to customize instance configurations for better management of instances.
  *
- * @description **Before you call this operation, familiarize yourself with the billing rules and [pricing](https://www.alibabacloud.com/zh/pricing-calculator#/commodity/vm_intl) of ECS resources.**
+ * @description **Before you call this operation, familiarize yourself with the billing and [pricing](https://www.alibabacloud.com/zh/pricing-calculator#/commodity/vm_intl) of ECS resources.**
  * This operation is an asynchronous operation. After a request to create ECS instances is sent, ECS instance IDs are returned but the creation and startup of the instances may be incomplete. You can call the [DescribeInstanceStatus](https://help.aliyun.com/document_detail/2679688.html) operation to query the status of the instances. When the status of an instance is `Running` in the DescribeInstanceStatus response, the instance is created and started.
  * ### [](#)Considerations
- * *   Make sure that the number of ECS instances you create or the number of vCPUs on ECS instances of all instance types you create does not exceed the corresponding quota. Go to the [Quota Center](https://quotas.console.aliyun.com/products/ecs/quotas) to view the quotas.
+ * *   Make sure that the number of ECS instances you created or the number of vCPUs on ECS instances of all instance types you created does not exceed the corresponding quota. Go to the [Quota Center](https://quotas.console.aliyun.com/products/ecs/quotas) to view the quotas.
  * *   Before you create ECS instances of the Virtual Private Cloud (VPC) type in a region, create a VPC in the region. For more information, see [Create a VPC](https://help.aliyun.com/document_detail/65430.html).
  * ### [](#)Precautions
+ * *   If you create a subscription instance (`PrePaid`), available coupons in your account are used by default.
  * *   You can call the RunInstances operation to create up to 100 ECS instances at a time. To create more than 100 ECS instances, we recommend that you initiate multiple requests in batches or concurrently.
  * *   If you set `InternetMaxBandwidthOut` to a value greater than 0, public IP addresses are automatically assigned to the ECS instances to be created.
  * >  For the limits on the sum of maximum public bandwidths of ECS instances that use the pay-by-bandwidth billing method for network usage per region per Alibaba Cloud account, see the [Public bandwidth limits](~~25412#BandwidthQuota~~) section of the "Limits" topic.
@@ -50509,39 +50661,46 @@ model RunInstancesResponse = {
  * *   **Enabling of Jumbo Frames**: Set `NetworkOptions.EnableJumboFrame` to true to enable the `Jumbo Frames` feature when you create ECS instances. For more information, see [MTUs](https://help.aliyun.com/document_detail/200512.html).
  * ## [](#)Sample requests
  * Use a specific image to create ECS instances of a specific instance type in the China (Hangzhou) region. The instances use disks with a specific capacity as the system disk and data disks and are automatically assigned public IP addresses. The instances have user-defined names and logon passwords. The instances are assigned to a specific security group and connected to a specific vSwitch. Request parameters:
- *     RegionId: Set the region ID to cn-hangzhou, which indicates the China (Hangzhou) region.
- *     ImageId: Set the image ID to aliyun_3_x64_20G_alibase_20221102.vhd.
- *     InstanceType: Set the instance type to ecs.g7.large.SecurityGroupId: Set the security group ID to sg-bp150uqocpf9jj70****.
- *     VSwitchId: Set the vSwitch ID to vsw-bp1qo7s91cbch5i4l****.
- *     SystemDisk.Category: Set the system disk category to cloud_essd, which specifies the Enterprise SSD (ESSD) category.
- *     SystemDisk.Size: Set the system disk size to 40. Unit: GiB.
- *     DataDisk.Category: Set the data disk category to cloud_essd, which specifies the ESSD category.
- *     DataDisk.Size: Set the data disk size to 100. Unit: GiB.
- *     HostName: Set the instance hostname to ECS-test.
- *     Password: Set the logon password to ECS@test1234.
- *     InternetMaxBandwidthOut: Set the outbound public bandwidth to 10. Unit: Mbit/s.
+ *     RegionId:"cn-hangzhou", //Set the region ID to cn-hangzhou, which specifies the China (Hangzhou) region.
+ *     ImageId:"aliyun_3_x64_20G_alibase_20221102.vhd", //Set the image ID to aliyun_3_x64_20G_alibase_20221102.vhd.
+ *     InstanceType:"ecs.g7.large", //Set the instance type to ecs.g7.large.
+ *     SecurityGroupId:"sg-bp150uqocpf9jj70****", //Set the security group ID to sg-bp150uqocpf9jj70****.
+ *     VSwitchId:"vsw-bp1qo7s91cbch5i4l****", //Set the vSwitch ID to vsw-bp1qo7s91cbch5i4l****.
+ *     SystemDisk:{
+ *       Category:"cloud_essd", //Set the system disk category to cloud_essd, which specifies the Enterprise SSD (ESSD) category.
+ *       Size:40, //Set the system disk size to 40. Unit: GiB.
+ *     },
+ *     DataDisk:[
+ *       {
+ *         Category:"cloud_essd", //Set the data disk category to cloud_essd, which specifies the ESSD category.
+ *         Size:100, //Set the data disk size to 100. Unit: GiB.
+ *       }
+ *     ],
+ *     HostName:"ECS-test", //Set the instance hostname to ECS-test.
+ *     Password:"ECS@test1234", //Set the logon password to ECS@test1234.
+ *     InternetMaxBandwidthOut:10 //Set the outbound public bandwidth to 10. Unit: Mbit/s.
  * Examples on how to create instances of different types based on the preceding parameters:
  * **Example: Create five subscription ECS instances for which auto-renewal is enabled**
- *     Amount: Set the number of ECS instances that you want to create to 5.
- *     InstanceChargeType: Set the billing method to PrePaid, which specifies the subscription billing method.
- *     PeriodUnit: Set the period unit to Month.
- *     Period: Set the subscription period to 1. The unit is specified by PeriodUnit, which is Month in this example.
- *     AutoRenew: Set this parameter to true to enable auto-renewal.
- *     AutoRenewPeriod: Set the renewal period to 1. The unit is specified by PeriodUnit, which is Month in this example.
+ *     Amount:5, //Set the number of ECS instances that you want to create to 5.
+ *     InstanceChargeType:"PrePaid", //Set the billing method to PrePaid, which specifies the subscription billing method.
+ *     PeriodUnit:"Month", //Set the subscription period unit to Month.
+ *     Period:1, //Set the subscription period to 1. The unit is specified by PeriodUnit, which is Month in this example.
+ *     AutoRenew:true, //Set this parameter to true to enable auto-renewal.
+ *     AutoRenewPeriod:1 //Set the renewal period to 1. The unit is specified by PeriodUnit, which is Month in this example.
  * **Example: Create 10 pay-as-you-go ECS instances**
- *     Amount: Set the number of ECS instances that you want to create to 10.
- *     InstanceChargeType: Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
- *     SpotStrategy: Set this parameter to NoSpot, which is the default value and specifies that the instances are created as pay-as-you-go instances.
- * **Example: Create 20 preemptible instances that have a specified bidding policy and a protection period**
- *     Amount: Set the number of ECS instances that you want to create to 20.
- *     InstanceChargeType: Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
- *     SpotStrategy: Set the bidding policy to SpotAsPriceGo, which specifies that the instances are created as preemptible instances for which the market price at the time of purchase is automatically used as the bid price.
- *     SpotDuration: Set the protection period of the preemptible instances to 1. Unit: hours.
- * Call the [CreateLaunchTemplate](https://help.aliyun.com/document_detail/2679729.html) operation to create a launch template. Then, use the launch template to create ECS instances in the China (Hangzhou) region. Sample request:
+ *     Amount:10, //Set the number of ECS instances that you want to create to 10.
+ *     InstanceChargeType:"PostPaid", //Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
+ *     SpotStrategy:"NoSpot" //Set this parameter to NoSpot, which is the default value and specifies that the instances are created as pay-as-you-go instances.
+ * **Example: Create 20 preemptible instances that use a specified bidding policy and a protection period**
+ *     Amount:20, //Set the number of ECS instances that you want to create to 20.
+ *     InstanceChargeType:"PostPaid",
+ *     SpotStrategy:"SpotAsPriceGo", //Set the bidding policy to SpotAsPriceGo, which specifies that the instances are created as preemptible instances for which the market price at the time of purchase is automatically used as the bid price.
+ *     SpotDuration:1 //Set the protection period of the preemptible instances to 1. Unit: hours.
+ * Call the [CreateLaunchTemplate](https://help.aliyun.com/document_detail/2679729.html) operation to create a launch template. Then, use the launch template to create ECS instances in the China (Hangzhou) region. Examples:
  * **Example: Create 10 ECS instances based on a launch template**
- *     RegionId: Set RegionId to cn-hangzhou, which indicates the China (Hangzhou) region.
- *     Amount: Set the number of ECS instances that you want to create to 10.
- *     LaunchTemplateId: Set the launch template ID to lt-bp14xczpoxvb6rre****.
+ *     RegionId:"cn-hangzhou", //Set the region ID to cn-hangzhou, which specifies the China (Hangzhou) region.
+ *     Amount:10, //Set the number of ECS instances that you want to create to 10.
+ *     LaunchTemplateId:"lt-bp14xczpoxvb6rre****" //Set the launch template ID to lt-bp14xczpoxvb6rre****.
  * >  If a parameter is specified both in the launch template that you reference in a request and in the instance parameters of the same request, the value specified in the instance parameters takes precedence. For example, if you set InstanceChargeType in the launch template to PrePaid (subscription) and set InstanceChargeType in the instance parameters to PostPaid (pay-as-you-go), the created instances are pay-as-you-go instances.
  *
  * @param request RunInstancesRequest
@@ -50805,12 +50964,13 @@ async function runInstancesWithOptions(request: RunInstancesRequest, runtime: Ut
 /**
  * @summary Creates pay-as-you-go or subscription Elastic Compute Service (ECS) instances. This operation provides a wide array of features and functions and helps simplify the procedure to create and manage ECS instances. When you call this operation, you can choose to create multiple ECS instances at a time, automatically start the instances, and assign public IP addresses to them. You can also use the features provided by the operation, such as configuring an automatic release time for instances, using a launch template, and configuring custom CPU options, to customize instance configurations for better management of instances.
  *
- * @description **Before you call this operation, familiarize yourself with the billing rules and [pricing](https://www.alibabacloud.com/zh/pricing-calculator#/commodity/vm_intl) of ECS resources.**
+ * @description **Before you call this operation, familiarize yourself with the billing and [pricing](https://www.alibabacloud.com/zh/pricing-calculator#/commodity/vm_intl) of ECS resources.**
  * This operation is an asynchronous operation. After a request to create ECS instances is sent, ECS instance IDs are returned but the creation and startup of the instances may be incomplete. You can call the [DescribeInstanceStatus](https://help.aliyun.com/document_detail/2679688.html) operation to query the status of the instances. When the status of an instance is `Running` in the DescribeInstanceStatus response, the instance is created and started.
  * ### [](#)Considerations
- * *   Make sure that the number of ECS instances you create or the number of vCPUs on ECS instances of all instance types you create does not exceed the corresponding quota. Go to the [Quota Center](https://quotas.console.aliyun.com/products/ecs/quotas) to view the quotas.
+ * *   Make sure that the number of ECS instances you created or the number of vCPUs on ECS instances of all instance types you created does not exceed the corresponding quota. Go to the [Quota Center](https://quotas.console.aliyun.com/products/ecs/quotas) to view the quotas.
  * *   Before you create ECS instances of the Virtual Private Cloud (VPC) type in a region, create a VPC in the region. For more information, see [Create a VPC](https://help.aliyun.com/document_detail/65430.html).
  * ### [](#)Precautions
+ * *   If you create a subscription instance (`PrePaid`), available coupons in your account are used by default.
  * *   You can call the RunInstances operation to create up to 100 ECS instances at a time. To create more than 100 ECS instances, we recommend that you initiate multiple requests in batches or concurrently.
  * *   If you set `InternetMaxBandwidthOut` to a value greater than 0, public IP addresses are automatically assigned to the ECS instances to be created.
  * >  For the limits on the sum of maximum public bandwidths of ECS instances that use the pay-by-bandwidth billing method for network usage per region per Alibaba Cloud account, see the [Public bandwidth limits](~~25412#BandwidthQuota~~) section of the "Limits" topic.
@@ -50823,39 +50983,46 @@ async function runInstancesWithOptions(request: RunInstancesRequest, runtime: Ut
  * *   **Enabling of Jumbo Frames**: Set `NetworkOptions.EnableJumboFrame` to true to enable the `Jumbo Frames` feature when you create ECS instances. For more information, see [MTUs](https://help.aliyun.com/document_detail/200512.html).
  * ## [](#)Sample requests
  * Use a specific image to create ECS instances of a specific instance type in the China (Hangzhou) region. The instances use disks with a specific capacity as the system disk and data disks and are automatically assigned public IP addresses. The instances have user-defined names and logon passwords. The instances are assigned to a specific security group and connected to a specific vSwitch. Request parameters:
- *     RegionId: Set the region ID to cn-hangzhou, which indicates the China (Hangzhou) region.
- *     ImageId: Set the image ID to aliyun_3_x64_20G_alibase_20221102.vhd.
- *     InstanceType: Set the instance type to ecs.g7.large.SecurityGroupId: Set the security group ID to sg-bp150uqocpf9jj70****.
- *     VSwitchId: Set the vSwitch ID to vsw-bp1qo7s91cbch5i4l****.
- *     SystemDisk.Category: Set the system disk category to cloud_essd, which specifies the Enterprise SSD (ESSD) category.
- *     SystemDisk.Size: Set the system disk size to 40. Unit: GiB.
- *     DataDisk.Category: Set the data disk category to cloud_essd, which specifies the ESSD category.
- *     DataDisk.Size: Set the data disk size to 100. Unit: GiB.
- *     HostName: Set the instance hostname to ECS-test.
- *     Password: Set the logon password to ECS@test1234.
- *     InternetMaxBandwidthOut: Set the outbound public bandwidth to 10. Unit: Mbit/s.
+ *     RegionId:"cn-hangzhou", //Set the region ID to cn-hangzhou, which specifies the China (Hangzhou) region.
+ *     ImageId:"aliyun_3_x64_20G_alibase_20221102.vhd", //Set the image ID to aliyun_3_x64_20G_alibase_20221102.vhd.
+ *     InstanceType:"ecs.g7.large", //Set the instance type to ecs.g7.large.
+ *     SecurityGroupId:"sg-bp150uqocpf9jj70****", //Set the security group ID to sg-bp150uqocpf9jj70****.
+ *     VSwitchId:"vsw-bp1qo7s91cbch5i4l****", //Set the vSwitch ID to vsw-bp1qo7s91cbch5i4l****.
+ *     SystemDisk:{
+ *       Category:"cloud_essd", //Set the system disk category to cloud_essd, which specifies the Enterprise SSD (ESSD) category.
+ *       Size:40, //Set the system disk size to 40. Unit: GiB.
+ *     },
+ *     DataDisk:[
+ *       {
+ *         Category:"cloud_essd", //Set the data disk category to cloud_essd, which specifies the ESSD category.
+ *         Size:100, //Set the data disk size to 100. Unit: GiB.
+ *       }
+ *     ],
+ *     HostName:"ECS-test", //Set the instance hostname to ECS-test.
+ *     Password:"ECS@test1234", //Set the logon password to ECS@test1234.
+ *     InternetMaxBandwidthOut:10 //Set the outbound public bandwidth to 10. Unit: Mbit/s.
  * Examples on how to create instances of different types based on the preceding parameters:
  * **Example: Create five subscription ECS instances for which auto-renewal is enabled**
- *     Amount: Set the number of ECS instances that you want to create to 5.
- *     InstanceChargeType: Set the billing method to PrePaid, which specifies the subscription billing method.
- *     PeriodUnit: Set the period unit to Month.
- *     Period: Set the subscription period to 1. The unit is specified by PeriodUnit, which is Month in this example.
- *     AutoRenew: Set this parameter to true to enable auto-renewal.
- *     AutoRenewPeriod: Set the renewal period to 1. The unit is specified by PeriodUnit, which is Month in this example.
+ *     Amount:5, //Set the number of ECS instances that you want to create to 5.
+ *     InstanceChargeType:"PrePaid", //Set the billing method to PrePaid, which specifies the subscription billing method.
+ *     PeriodUnit:"Month", //Set the subscription period unit to Month.
+ *     Period:1, //Set the subscription period to 1. The unit is specified by PeriodUnit, which is Month in this example.
+ *     AutoRenew:true, //Set this parameter to true to enable auto-renewal.
+ *     AutoRenewPeriod:1 //Set the renewal period to 1. The unit is specified by PeriodUnit, which is Month in this example.
  * **Example: Create 10 pay-as-you-go ECS instances**
- *     Amount: Set the number of ECS instances that you want to create to 10.
- *     InstanceChargeType: Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
- *     SpotStrategy: Set this parameter to NoSpot, which is the default value and specifies that the instances are created as pay-as-you-go instances.
- * **Example: Create 20 preemptible instances that have a specified bidding policy and a protection period**
- *     Amount: Set the number of ECS instances that you want to create to 20.
- *     InstanceChargeType: Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
- *     SpotStrategy: Set the bidding policy to SpotAsPriceGo, which specifies that the instances are created as preemptible instances for which the market price at the time of purchase is automatically used as the bid price.
- *     SpotDuration: Set the protection period of the preemptible instances to 1. Unit: hours.
- * Call the [CreateLaunchTemplate](https://help.aliyun.com/document_detail/2679729.html) operation to create a launch template. Then, use the launch template to create ECS instances in the China (Hangzhou) region. Sample request:
+ *     Amount:10, //Set the number of ECS instances that you want to create to 10.
+ *     InstanceChargeType:"PostPaid", //Set the billing method to PostPaid, which specifies the pay-as-you-go billing method.
+ *     SpotStrategy:"NoSpot" //Set this parameter to NoSpot, which is the default value and specifies that the instances are created as pay-as-you-go instances.
+ * **Example: Create 20 preemptible instances that use a specified bidding policy and a protection period**
+ *     Amount:20, //Set the number of ECS instances that you want to create to 20.
+ *     InstanceChargeType:"PostPaid",
+ *     SpotStrategy:"SpotAsPriceGo", //Set the bidding policy to SpotAsPriceGo, which specifies that the instances are created as preemptible instances for which the market price at the time of purchase is automatically used as the bid price.
+ *     SpotDuration:1 //Set the protection period of the preemptible instances to 1. Unit: hours.
+ * Call the [CreateLaunchTemplate](https://help.aliyun.com/document_detail/2679729.html) operation to create a launch template. Then, use the launch template to create ECS instances in the China (Hangzhou) region. Examples:
  * **Example: Create 10 ECS instances based on a launch template**
- *     RegionId: Set RegionId to cn-hangzhou, which indicates the China (Hangzhou) region.
- *     Amount: Set the number of ECS instances that you want to create to 10.
- *     LaunchTemplateId: Set the launch template ID to lt-bp14xczpoxvb6rre****.
+ *     RegionId:"cn-hangzhou", //Set the region ID to cn-hangzhou, which specifies the China (Hangzhou) region.
+ *     Amount:10, //Set the number of ECS instances that you want to create to 10.
+ *     LaunchTemplateId:"lt-bp14xczpoxvb6rre****" //Set the launch template ID to lt-bp14xczpoxvb6rre****.
  * >  If a parameter is specified both in the launch template that you reference in a request and in the instance parameters of the same request, the value specified in the instance parameters takes precedence. For example, if you set InstanceChargeType in the launch template to PrePaid (subscription) and set InstanceChargeType in the instance parameters to PostPaid (pay-as-you-go), the created instances are pay-as-you-go instances.
  *
  * @param request RunInstancesRequest
