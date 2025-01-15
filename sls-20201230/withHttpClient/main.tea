@@ -363,7 +363,6 @@ model MaxComputeExportConfiguration {
 model MaxComputeExportConfigurationSink {
   fields?: [ string ](name='fields', description='This parameter is required.'),
   filterInvalid?: boolean(name='filterInvalid', example='true'),
-  mode?: string(name='mode', example='stream'),
   odpsAccessKeyId?: string(name='odpsAccessKeyId', example='asdfghjk', deprecated=true),
   odpsAccessSecret?: string(name='odpsAccessSecret', example='esasdfghjkl', deprecated=true),
   odpsEndpoint?: string(name='odpsEndpoint', description='This parameter is required.', example='http://service.cn-hangzhou.maxcompute.aliyun-inc.com/api'),
@@ -659,6 +658,7 @@ model Project {
   dataRedundancyType?: string(name='dataRedundancyType', example='LRS'),
   description?: string(name='description', description='This parameter is required.'),
   lastModifyTime?: string(name='lastModifyTime'),
+  location?: string(name='location'),
   owner?: string(name='owner'),
   projectName?: string(name='projectName', description='This parameter is required.'),
   quota?: map[string]any(name='quota'),
@@ -2244,6 +2244,8 @@ async function createMachineGroup(project: string, request: CreateMachineGroupRe
 
 model CreateMetricStoreRequest {
   autoSplit?: boolean(name='autoSplit', description='Specifies whether to enable automatic sharding.', example='true'),
+  hotTtl?: int32(name='hot_ttl'),
+  infrequentAccessTTL?: int32(name='infrequentAccessTTL'),
   maxSplitShard?: int32(name='maxSplitShard', description='The maximum number of shards into which existing shards can be automatically split. This parameter is valid only when you set the autoSplit parameter to true.', example='64'),
   metricType?: string(name='metricType', description='The type of the metric data. Example: prometheus.', example='prometheus'),
   mode?: string(name='mode', description='The type of the Metricstore. For example, you can set the parameter to standard to query Standard Metricstores.', example='standard'),
@@ -2286,6 +2288,12 @@ async function createMetricStoreWithOptions(project: string, request: CreateMetr
   var body : map[string]any = {};
   if (!Util.isUnset(request.autoSplit)) {
     body['autoSplit'] = request.autoSplit;
+  }
+  if (!Util.isUnset(request.hotTtl)) {
+    body['hot_ttl'] = request.hotTtl;
+  }
+  if (!Util.isUnset(request.infrequentAccessTTL)) {
+    body['infrequentAccessTTL'] = request.infrequentAccessTTL;
   }
   if (!Util.isUnset(request.maxSplitShard)) {
     body['maxSplitShard'] = request.maxSplitShard;
@@ -3178,8 +3186,11 @@ async function createStoreView(project: string, request: CreateStoreViewRequest)
 }
 
 model CreateTicketRequest {
-  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', example='600'),
-  expirationTime?: long(name='expirationTime', description='The validity period of the ticket that is used for logon-free access. Unit: seconds. Default value: 86400. Maximum value: 2592000. The value 86400 specifies one day.', example='86400'),
+  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='*   The validity period of the access token. Unit: seconds. Default value: 86400, which specifies one day. Valid values: 0 to 86400.
+*   The validity period of the access token is the smaller value between accessTokenExpirationTime and expirationTime.
+*   If you use a Security Token Service (STS) token to call this operation, the validity period of the access token is the smallest value among accessTokenExpirationTime, expirationTime, and the validity period of the STS token.', example='600'),
+  expirationTime?: long(name='expirationTime', description='*   You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the CreateTicket operation. After you obtain the ticket, you can use the ticket regardless of the region.
+*   The validity period for the URL of the console page that you want to embed. Unit: seconds. Default value: 86400, which specifies one day. Valid values: 0 to 2592000. The value 2592000 specifies 30 days.', example='86400'),
 }
 
 model CreateTicketResponseBody = {
@@ -3193,7 +3204,7 @@ model CreateTicketResponse = {
 }
 
 /**
- * @summary Creates a ticket to enable logon-free access to the Simple Log Service console or embed console pages into a third-party system.
+ * @summary Obtains a ticket. Simple Log Service allows you to share the query and analysis pages and dashboard pages with other users and embed the console pages into third-party systems. This way, other users can view your logs in password-free mode. The URLs of the shared pages are referred to as password-free URLs. You can call the CreateTicket operation to obtain a ticket and generate a password-free URL based on the ticket and the URL of the console page that you want to share.
  *
  * @param request CreateTicketRequest
  * @param headers map
@@ -3229,7 +3240,7 @@ async function createTicketWithOptions(request: CreateTicketRequest, headers: ma
 }
 
 /**
- * @summary Creates a ticket to enable logon-free access to the Simple Log Service console or embed console pages into a third-party system.
+ * @summary Obtains a ticket. Simple Log Service allows you to share the query and analysis pages and dashboard pages with other users and embed the console pages into third-party systems. This way, other users can view your logs in password-free mode. The URLs of the shared pages are referred to as password-free URLs. You can call the CreateTicket operation to obtain a ticket and generate a password-free URL based on the ticket and the URL of the console page that you want to share.
  *
  * @param request CreateTicketRequest
  * @return CreateTicketResponse
@@ -3482,7 +3493,7 @@ model DeleteCollectionPolicyResponse = {
 /**
  * @summary Deletes a log collection policy from a cloud service.
  *
- * @description You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the operation.
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request DeleteCollectionPolicyRequest
  * @param headers map
@@ -3520,7 +3531,7 @@ async function deleteCollectionPolicyWithOptions(policyName: string, request: De
 /**
  * @summary Deletes a log collection policy from a cloud service.
  *
- * @description You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the operation.
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request DeleteCollectionPolicyRequest
  * @return DeleteCollectionPolicyResponse
@@ -5273,22 +5284,22 @@ model GetCollectionPolicyResponseBody = {
     centralizeEnabled?: boolean(name='centralizeEnabled', example='false'),
     dataCode?: string(name='dataCode', example='access_log'),
     dataConfig?: {
-      dataProject?: string(name='dataProject'),
-      dataRegion?: string(name='dataRegion'),
+      dataProject?: string(name='dataProject', example='""'),
+      dataRegion?: string(name='dataRegion', example='cn-beijing'),
     }(name='dataConfig'),
     enabled?: boolean(name='enabled', example='true'),
-    internalPolicy?: boolean(name='internalPolicy'),
+    internalPolicy?: boolean(name='internalPolicy', example='false'),
     policyConfig?: {
       instanceIds?: [ string ](name='instanceIds'),
       regions?: [ string ](name='regions'),
       resourceMode?: string(name='resourceMode', example='all'),
-      resourceTags?: map[string]any(name='resourceTags'),
+      resourceTags?: map[string]any(name='resourceTags', example='{"tag1":"value1","tag2":"value2"}'),
     }(name='policyConfig'),
     policyName?: string(name='policyName', example='your_log_policy'),
-    policyUid?: string(name='policyUid'),
+    policyUid?: string(name='policyUid', example='148***********50'),
     productCode?: string(name='productCode', example='oss'),
     resourceDirectory?: {
-      accountGroupType?: string(name='accountGroupType'),
+      accountGroupType?: string(name='accountGroupType', example='all,custom'),
       members?: [ string ](name='members'),
     }(name='resourceDirectory'),
   }(name='collectionPolicy'),
@@ -5302,6 +5313,8 @@ model GetCollectionPolicyResponse = {
 
 /**
  * @summary 调用GetCollectionPolicy获取对应的规则
+ *
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request GetCollectionPolicyRequest
  * @param headers map
@@ -5338,6 +5351,8 @@ async function getCollectionPolicyWithOptions(policyName: string, request: GetCo
 
 /**
  * @summary 调用GetCollectionPolicy获取对应的规则
+ *
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request GetCollectionPolicyRequest
  * @return GetCollectionPolicyResponse
@@ -6743,6 +6758,8 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
 model GetMetricStoreResponseBody = {
   autoSplit?: boolean(name='autoSplit', description='Indicates whether the automatic sharding feature is enabled.', example='true'),
   createTime?: long(name='createTime', description='The creation time. The value is a UNIX timestamp.', example='1698933894'),
+  hotTtl?: int32(name='hot_ttl'),
+  infrequentAccessTTL?: int32(name='infrequentAccessTTL'),
   lastModifyTime?: long(name='lastModifyTime', description='The last update time. The value is a UNIX timestamp.', example='1712023974'),
   maxSplitShard?: int32(name='maxSplitShard', description='The maximum number of shards into which existing shards can be automatically split.', example='64'),
   metricType?: string(name='metricType', description='The metric type of the Metricstore. Example: prometheus.', example='prometheus'),
@@ -7945,7 +7962,7 @@ model ListCollectionPoliciesResponse = {
 /**
  * @summary Queries a list of log collection policies for cloud services.
  *
- * @description You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the operation.
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request ListCollectionPoliciesRequest
  * @param headers map
@@ -7998,7 +8015,7 @@ async function listCollectionPoliciesWithOptions(request: ListCollectionPolicies
 /**
  * @summary Queries a list of log collection policies for cloud services.
  *
- * @description You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the operation.
+ * @description You must use the Simple Log Service endpoint for the China (Shanghai), Singapore, or Heyuan ACDR Auto region to call the operation.
  *
  * @param request ListCollectionPoliciesRequest
  * @return ListCollectionPoliciesResponse
@@ -9785,7 +9802,10 @@ model PullLogsResponse = {
 /**
  * @summary Queries logs based on the specified cursors. You can call this operation to obtain raw logs. To query and analyze logs, you can call the GetLogsV2 operation.
  *
- * @description You cannot call this operation in OpenAPI Explorer. You can use Simple Log Service SDK to call this operation. For more information, see [SLS SDK Reference](https://help.aliyun.com/document_detail/29063.html).
+ * @description You cannot call this operation by using Alibaba Cloud SDKs. You can use Simple Log Service (SLS) SDKs to call this operation. For more information, see [Overview of Simple Log Service SDKs](https://help.aliyun.com/document_detail/29063.html).
+ * *   You must specify a shard when you query logs.
+ * *   You can query only logs in the Protocol Buffers (Protobuf) format. For more information, see [Data encoding](https://help.aliyun.com/document_detail/29055.html).
+ * *   The value of Host consists of a project name and an SLS endpoint. You must specify a project in Host.
  *
  * @param request PullLogsRequest
  * @param headers PullLogsHeaders
@@ -9836,7 +9856,10 @@ async function pullLogsWithOptions(project: string, logStore: string, shardId: s
 /**
  * @summary Queries logs based on the specified cursors. You can call this operation to obtain raw logs. To query and analyze logs, you can call the GetLogsV2 operation.
  *
- * @description You cannot call this operation in OpenAPI Explorer. You can use Simple Log Service SDK to call this operation. For more information, see [SLS SDK Reference](https://help.aliyun.com/document_detail/29063.html).
+ * @description You cannot call this operation by using Alibaba Cloud SDKs. You can use Simple Log Service (SLS) SDKs to call this operation. For more information, see [Overview of Simple Log Service SDKs](https://help.aliyun.com/document_detail/29063.html).
+ * *   You must specify a shard when you query logs.
+ * *   You can query only logs in the Protocol Buffers (Protobuf) format. For more information, see [Data encoding](https://help.aliyun.com/document_detail/29055.html).
+ * *   The value of Host consists of a project name and an SLS endpoint. You must specify a project in Host.
  *
  * @param request PullLogsRequest
  * @return PullLogsResponse
@@ -9929,9 +9952,16 @@ model PutLogsResponse = {
 }
 
 /**
- * @summary Sends logs to Simple Log Service.
+ * @summary Writes logs to a Logstore.
  *
- * @description You cannot call this operation by using cloud service SDKs that are provided by Alibaba Cloud OpenAPI Portal. You can use Simple Log Service SDK to call this operation. For more information, see [SLS SDK Reference](https://help.aliyun.com/document_detail/29063.html).
+ * @description You cannot call this operation by using Alibaba Cloud SDKs. You can use Simple Log Service (SLS) SDKs to call this operation. For more information, see [Overview of Simple Log Service SDKs](https://help.aliyun.com/document_detail/29063.html).
+ * *   When you call the PutLogs operation to write logs to SLS, SLS checks the format of the logs. If a log does not meet the format requirements, the request fails and no logs are written to SLS.
+ * *   You can write logs only in the Protocol Buffers (Protobuf) format as log groups. For more information, see [Data encoding](https://help.aliyun.com/document_detail/29055.html).
+ * *   You can write logs in one of the following modes:
+ *     *   LoadBalance mode: Logs are automatically written to all the writable shards in the specified Logstore. This mode delivers high availability for write operations and is suitable for data consumption scenarios in which you do not need to preserve the order of logs.
+ *     *   KeyHash: Logs are written to a specific shard based on the hash key specified in the URL. The hash key is optional. If you do not specify a hash key, logs are written to shards in LoadBalance mode. For example, you can use the KeyHash mode to write data from a producer, such as an instance, to the shard whose hash value range includes the hash value of the producer name. This ensures that the data that is written to the shard is ordered and the data in the shard is consumed based on the order. This way, when a shard is split or when shards are merged, the data that is associated with the same hash key is stored only in one shard at a point in time. For more information, see [Shard](https://help.aliyun.com/document_detail/28976.html).
+ * *   You can call the PutLogs operation to write up to 10 MB of raw logs at a time. We recommend that you keep the total size of the values for each log in a log group to or below 1 MB. Historical versions of SDKs may have different limits. We recommend that you upgrade your SDK to the latest version.
+ * *   The references for SLS SDK for Java and SLS SDK for Python provide examples on how to call the PutLogs operation. For more information, see [Get started with Simple Log Service SDK for Java](https://help.aliyun.com/document_detail/279525.html) and [Get started with Simple Log Service SDK for Python](https://help.aliyun.com/document_detail/284638.html).
  *
  * @param request PutLogsRequest
  * @param headers PutLogsHeaders
@@ -9969,9 +9999,16 @@ async function putLogsWithOptions(project: string, logstore: string, request: Pu
 }
 
 /**
- * @summary Sends logs to Simple Log Service.
+ * @summary Writes logs to a Logstore.
  *
- * @description You cannot call this operation by using cloud service SDKs that are provided by Alibaba Cloud OpenAPI Portal. You can use Simple Log Service SDK to call this operation. For more information, see [SLS SDK Reference](https://help.aliyun.com/document_detail/29063.html).
+ * @description You cannot call this operation by using Alibaba Cloud SDKs. You can use Simple Log Service (SLS) SDKs to call this operation. For more information, see [Overview of Simple Log Service SDKs](https://help.aliyun.com/document_detail/29063.html).
+ * *   When you call the PutLogs operation to write logs to SLS, SLS checks the format of the logs. If a log does not meet the format requirements, the request fails and no logs are written to SLS.
+ * *   You can write logs only in the Protocol Buffers (Protobuf) format as log groups. For more information, see [Data encoding](https://help.aliyun.com/document_detail/29055.html).
+ * *   You can write logs in one of the following modes:
+ *     *   LoadBalance mode: Logs are automatically written to all the writable shards in the specified Logstore. This mode delivers high availability for write operations and is suitable for data consumption scenarios in which you do not need to preserve the order of logs.
+ *     *   KeyHash: Logs are written to a specific shard based on the hash key specified in the URL. The hash key is optional. If you do not specify a hash key, logs are written to shards in LoadBalance mode. For example, you can use the KeyHash mode to write data from a producer, such as an instance, to the shard whose hash value range includes the hash value of the producer name. This ensures that the data that is written to the shard is ordered and the data in the shard is consumed based on the order. This way, when a shard is split or when shards are merged, the data that is associated with the same hash key is stored only in one shard at a point in time. For more information, see [Shard](https://help.aliyun.com/document_detail/28976.html).
+ * *   You can call the PutLogs operation to write up to 10 MB of raw logs at a time. We recommend that you keep the total size of the values for each log in a log group to or below 1 MB. Historical versions of SDKs may have different limits. We recommend that you upgrade your SDK to the latest version.
+ * *   The references for SLS SDK for Java and SLS SDK for Python provide examples on how to call the PutLogs operation. For more information, see [Get started with Simple Log Service SDK for Java](https://help.aliyun.com/document_detail/279525.html) and [Get started with Simple Log Service SDK for Python](https://help.aliyun.com/document_detail/284638.html).
  *
  * @param request PutLogsRequest
  * @return PutLogsResponse
@@ -10199,7 +10236,9 @@ async function putWebtracking(project: string, logstoreName: string, request: Pu
 }
 
 model RefreshTokenRequest {
-  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', example='600'),
+  accessTokenExpirationTime?: long(name='accessTokenExpirationTime', description='*   The validity period of the access token. Unit: seconds. Default value: 86400, which specifies one day. Valid values: 0 to 86400.
+*   The validity period of the access token is the smaller value between accessTokenExpirationTime and expirationTime.
+*   If you use a Security Token Service (STS) token to call this operation, the validity period of the access token is the smallest value among accessTokenExpirationTime, expirationTime, and the validity period of the STS token.', example='600'),
   ticket?: string(name='ticket', description='The ticket that is used for logon-free access.', example='eyJ***************.eyJ******************.KUT****************'),
 }
 
@@ -12189,6 +12228,8 @@ async function updateMachineGroupMachine(project: string, machineGroup: string, 
 
 model UpdateMetricStoreRequest {
   autoSplit?: boolean(name='autoSplit', description='Specifies whether to enable automatic sharding.', example='true'),
+  hotTtl?: int32(name='hot_ttl'),
+  infrequentAccessTTL?: int32(name='infrequentAccessTTL'),
   maxSplitShard?: int32(name='maxSplitShard', description='The maximum number of shards into which existing shards can be automatically split. This parameter is valid only when you set the autoSplit parameter to true.', example='64'),
   mode?: string(name='mode', description='The type of the Metricstore.', example='standard'),
   ttl?: int32(name='ttl', description='The retention period of the metric data. Unit: days.', example='7'),
@@ -12223,6 +12264,12 @@ async function updateMetricStoreWithOptions(project: string, name: string, reque
   var body : map[string]any = {};
   if (!Util.isUnset(request.autoSplit)) {
     body['autoSplit'] = request.autoSplit;
+  }
+  if (!Util.isUnset(request.hotTtl)) {
+    body['hot_ttl'] = request.hotTtl;
+  }
+  if (!Util.isUnset(request.infrequentAccessTTL)) {
+    body['infrequentAccessTTL'] = request.infrequentAccessTTL;
   }
   if (!Util.isUnset(request.maxSplitShard)) {
     body['maxSplitShard'] = request.maxSplitShard;
@@ -13137,29 +13184,45 @@ async function updateStoreView(project: string, name: string, request: UpdateSto
 
 model UpsertCollectionPolicyRequest {
   centralizeConfig?: {
-    destLogstore?: string(name='destLogstore', example='your-sls-logstore-in-beijing'),
-    destProject?: string(name='destProject', example='your-sls-project-in-beijing'),
-    destRegion?: string(name='destRegion', example='cn-beijing'),
-    destTTL?: int32(name='destTTL', example='your-sls-logstore-ttl'),
-  }(name='centralizeConfig'),
-  centralizeEnabled?: boolean(name='centralizeEnabled', example='false'),
-  dataCode?: string(name='dataCode', description='This parameter is required.', example='access_log'),
+    destLogstore?: string(name='destLogstore', description='The destination logstore for centralized storage. Make sure that the region of the destination logstore is consistent with the region specified by destRegion and the destination logstore belongs to the destination project specified by destProject.', example='your-sls-logstore-in-beijing'),
+    destProject?: string(name='destProject', description='The destination project for centralized storage. Make sure that the region of the destination project is consistent with the region specified by destRegion.', example='your-sls-project-in-beijing'),
+    destRegion?: string(name='destRegion', description='The destination region for centralized storage.', example='cn-beijing'),
+    destTTL?: int32(name='destTTL', description='The data retention period for centralized storage. Unit: days. This parameter takes effect only when you use an existing logstore for centralized storage.', example='your-sls-logstore-ttl'),
+  }(name='centralizeConfig', description='The configurations of centralized storage.'),
+  centralizeEnabled?: boolean(name='centralizeEnabled', description='Specifies whether to enable centralized storage. Default value: false.', example='false'),
+  dataCode?: string(name='dataCode', description='The code of the log type.
+
+This parameter is required.', example='access_log'),
   dataConfig?: {
-    dataRegion?: string(name='dataRegion', example='cn-beijing'),
-  }(name='dataConfig'),
-  enabled?: boolean(name='enabled', description='This parameter is required.', example='true'),
+    dataRegion?: string(name='dataRegion', description='The region for storing the global logs that are collected for the first time.', example='cn-beijing'),
+  }(name='dataConfig', description='The data configurations. The configuration is returned only for global logs. For example, if productCode is set to sls, the configuration is returned.'),
+  enabled?: boolean(name='enabled', description='Specifies whether to enable the policy.
+
+This parameter is required.', example='true'),
   policyConfig?: {
-    instanceIds?: [ string ](name='instanceIds'),
-    regions?: [ string ](name='regions'),
-    resourceMode?: string(name='resourceMode', description='This parameter is required.', example='all'),
-    resourceTags?: map[string]any(name='resourceTags', example='{"tag1":"value1",“tag2":"value2"}'),
-  }(name='policyConfig', description='This parameter is required.'),
-  policyName?: string(name='policyName', description='This parameter is required.', example='your_log_policy'),
-  productCode?: string(name='productCode', description='This parameter is required.', example='oss'),
+    instanceIds?: [ string ](name='instanceIds', description='The IDs of the instances. This parameter takes effect only when resourceMode is set to instanceMode. Logs are collected only from instances that use the specified IDs.'),
+    regions?: [ string ](name='regions', description='The regions of the instances. This parameter takes effect only when resourceMode is set to attributeMode. Wildcard characters are supported. If you leave this parameter empty, region-based filtering is not performed. The system considers that all instances are matched. If you specify a value for this parameter, logs of instances that reside in the specified regions are collected. Logs are collected from an instance only if the resource tags and region of the instance match the specified conditions.'),
+    resourceMode?: string(name='resourceMode', description='The resource collection mode. Valid values: all, attributeMode, and instanceMode. The value all specifies that logs of all instances within your account are collected to the default logstore. The value attributeMode specifies that logs are collected based on the regions of instances and resource tags. The value instanceMode specifies that logs are collected based on instance IDs.
+
+This parameter is required.', example='all'),
+    resourceTags?: map[string]any(name='resourceTags', description='The resource tags. This parameter takes effect only when resourceMode is set to attributeMode. If you leave this parameter empty, resource tag-based filtering is not performed. The system considers that all instances are matched. If you specify a value for this parameter, logs of instances that use the specified resource tags are collected. Logs are collected from an instance only if the resource tags and region of the instance match the specified conditions.', example='{"tag1":"value1",“tag2":"value2"}'),
+  }(name='policyConfig', description='The configurations of the policy.
+
+This parameter is required.'),
+  policyName?: string(name='policyName', description='The name must meet the following requirements:
+
+*   The name can contain only lowercase letters, digits, hyphens (-), and underscores (_).
+*   The name must start with a letter.
+*   The name must be 3 to 63 characters in length.
+
+This parameter is required.', example='your_log_policy'),
+  productCode?: string(name='productCode', description='The code of the service.
+
+This parameter is required.', example='oss'),
   resourceDirectory?: {
-    accountGroupType?: string(name='accountGroupType', example='all,custom'),
-    members?: [ string ](name='members'),
-  }(name='resourceDirectory'),
+    accountGroupType?: string(name='accountGroupType', description='The mode of the resource directory. Valid values: all and custom.', example='all,custom'),
+    members?: [ string ](name='members', description='The members. If accountGroupType is set to custom, the members are returned.'),
+  }(name='resourceDirectory', description='The configurations of the resource directory. The account must have activated the resource directory and be a management account or a delegated administrator of the resource directory.'),
 }
 
 model UpsertCollectionPolicyResponse = {
