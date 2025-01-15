@@ -85,13 +85,20 @@ model DataDisk {
 }
 
 model InstancePatterns {
-  architectures?: [ string ](name='architectures'),
-  burstPerformanceOption?: string(name='burst_performance_option', example='Exclude'),
-  core?: long(name='core', example='4'),
+  architectures?: [ string ](name='architectures', deprecated='true'),
+  burstPerformanceOption?: string(name='burst_performance_option', example='Exclude', deprecated='true'),
+  core?: long(name='core', example='4', deprecated='true'),
+  cores?: long(name='cores', example='4'),
+  cpuArchitectures?: [ string ](name='cpu_architectures'),
   excludedInstanceTypes?: [ string ](name='excluded_instance_types'),
+  instanceCategories?: [ string ](name='instance_categories'),
   instanceFamilyLevel?: string(name='instance_family_level', example='EnterpriseLevel'),
-  maxPrice?: float(name='max_price', example='2'),
+  maxCpuCores?: long(name='max_cpu_cores', example='8'),
+  maxMemorySize?: float(name='max_memory_size', example='16'),
+  maxPrice?: float(name='max_price', example='2', deprecated='true'),
   memory?: float(name='memory', example='8'),
+  minCpuCores?: long(name='min_cpu_cores', example='4'),
+  minMemorySize?: float(name='min_memory_size', example='8'),
 }
 
 model KubeletConfig {
@@ -99,6 +106,8 @@ model KubeletConfig {
   clusterDNS?: [ string ](name='clusterDNS'),
   containerLogMaxFiles?: long(name='containerLogMaxFiles', example='5'),
   containerLogMaxSize?: string(name='containerLogMaxSize', example='10Mi'),
+  containerLogMaxWorkers?: int32(name='containerLogMaxWorkers', example='1'),
+  containerLogMonitorInterval?: string(name='containerLogMonitorInterval', example='10s'),
   cpuCFSQuota?: boolean(name='cpuCFSQuota', example='true'),
   cpuCFSQuotaPeriod?: string(name='cpuCFSQuotaPeriod', example='100ms'),
   cpuManagerPolicy?: string(name='cpuManagerPolicy', example='none'),
@@ -678,6 +687,7 @@ This parameter is required.', example='c0XXXXXXX10', position='Path'),
 A scale-in activity is performed only when the CPU utilization, memory utilization, and GPU utilization of a GPU-accelerated node are lower than the scale-in threshold of GPU utilization.', example='0.5', position='Body'),
   maxGracefulTerminationSec?: int32(name='max_graceful_termination_sec', description='The maximum amount of time to wait for pods on a node to terminate during a scale-in activity. Unit: seconds.', example='14400s', position='Body'),
   minReplicaCount?: int32(name='min_replica_count', description='The minimum number of pods allowed in each ReplicaSet before a scale-in activity is performed.', example='0', position='Body'),
+  priorities?: map[string][ string ](name='priorities', position='Body'),
   recycleNodeDeletionEnabled?: boolean(name='recycle_node_deletion_enabled', description='Specifies whether to delete the corresponding Kubernetes node objects after nodes are removed in swift mode. For more information about the swift mode, see [Scaling mode](https://help.aliyun.com/document_detail/119099.html). Default value: false Valid values:
 
 *   `true`: deletes the corresponding Kubernetes node objects after nodes are removed in swift mode. We recommend that you do not set the value to true because data inconsistency may occur in Kubernetes objects.
@@ -5323,7 +5333,7 @@ model GetClusterCheckRequest {
   clusterId: string(name='cluster_id', description='The cluster ID.
 
 This parameter is required.', example='ce0da5a1d627e4e9e9f96cae8ad07****', position='Path'),
-  checkId: string(name='check_id', description='The ID of the cluster check task.
+  checkId: string(name='check_id', description='The ID of the cluster check task. You can call the [RunClusterCheck](https://help.aliyun.com/document_detail/2667902.html) operation to obtain the check_id.
 
 This parameter is required.', example='1697100584236600453-ce0da5a1d627e4e9e9f96cae8ad07****-clustercheck-lboto', position='Path'),
 }
@@ -5356,7 +5366,7 @@ async function getClusterCheck(request: GetClusterCheckRequest): GetClusterCheck
 model GetClusterDiagnosisCheckItemsRequest {
   clusterId?: string(name='cluster_id', description='The cluster ID.', example='cb95aa626a47740afbf6aa099b650****', position='Path'),
   diagnosisId?: string(name='diagnosis_id', description='The diagnostic ID.', example='6f719f23098240818eb26fe3a37d****', position='Path'),
-  language?: string(name='language', description='查询语言。', example='zh_CN', position='Query'),
+  language?: string(name='language', description='The query language.', example='zh_CN', position='Query'),
 }
 
 model GetClusterDiagnosisCheckItemsResponseBody = {
@@ -5401,7 +5411,7 @@ async function getClusterDiagnosisCheckItems(request: GetClusterDiagnosisCheckIt
 model GetClusterDiagnosisResultRequest {
   clusterId?: string(name='cluster_id', description='The cluster ID.', example='c8155823d057948c69a****', position='Path'),
   diagnosisId?: string(name='diagnosis_id', description='The diagnostic ID.', example='6f719f23098240818eb26fe3a37d****', position='Path'),
-  language?: string(name='language', description='查询语言。', example='zh_CN', position='Query'),
+  language?: string(name='language', description='The query language.', example='zh_CN', position='Query'),
 }
 
 model GetClusterDiagnosisResultResponseBody = {
@@ -5630,8 +5640,8 @@ This parameter is required.', example='v1.0.0.2-cc3b2d6-aliyun'),
 
 model InstallClusterAddonsResponseBody = {
   clusterId?: string(name='cluster_id', description='The ID of the cluster.', example='c82e6987e2961451182edacd74faf****'),
-  requestId?: string(name='request_id', description='The request ID.', example='48BD70F6-A7E6-543D-9F23-08DEB764C92E'),
-  taskId?: string(name='task_id', description='The ID of the job.', example='T-5a54309c80282e39ea00002f'),
+  requestId?: string(name='request_id', description='The ID of the request.', example='48BD70F6-A7E6-543D-9F23-08DEB764C92E'),
+  taskId?: string(name='task_id', description='The ID of the task.', example='T-5a54309c80282e39ea00002f'),
 }
 
 model InstallClusterAddonsResponse = {
@@ -5844,12 +5854,12 @@ model ListOperationPlansResponseBody = {
 *   Canceled', example='scheduled'),
       targetId?: string(name='target_id', description='The target ID.', example='c29ced64b3dfe4f33b57ca0aa9f68****'),
       targetType?: string(name='target_type', description='The target type.', example='cluster'),
-      taskId?: string(name='task_id'),
+      taskId?: string(name='task_id', description='The ID of the task generated by the execution plan.', example='T-6764d027be846d01310006b1'),
       type?: string(name='type', description='The plan type. Valid values:
 
 *   cluster_upgrade', example='cluster_upgrade'),
     }
-  ](name='plans', description='The operation plans.'),
+  ](name='plans', description='The list of auto O\\&M execution plans.'),
 }
 
 model ListOperationPlansResponse = {
@@ -7358,9 +7368,9 @@ This parameter is required.', example='c5b5e80b0b64a4bf6939d2d8fbbc5****', posit
 }
 
 model UnInstallClusterAddonsResponseBody = {
-  clusterId?: string(name='cluster_id', description='集群ID。'),
-  requestId?: string(name='request_id', description='请求ID。'),
-  taskId?: string(name='task_id', description='任务ID。'),
+  clusterId?: string(name='cluster_id', description='The ID of the cluster.', example='c5b5e80b0b64a4bf6939d2d8fbbc5****'),
+  requestId?: string(name='request_id', description='The ID of the request.', example='74D1512F-67DA-54E8-99EA-4D50EB4898F4'),
+  taskId?: string(name='task_id', description='The ID of the task.', example='T-66e39b39c0fdd001320005c0'),
 }
 
 model UnInstallClusterAddonsResponse = {
@@ -7418,15 +7428,15 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 
 model UpdateClusterAuditLogConfigRequest {
   clusterid?: string(name='clusterid', description='The cluster ID.', example='c82e6987e2961451182edacd74faf****', position='Path'),
-  disable?: boolean(name='disable', description='Enable or disable the audit log feature.
+  disable?: boolean(name='disable', description='Enable or disable audit logging.
 
-*   false: enables the audit log feature or updates the audit log configuration.
-*   true: disables the audit log feature.', example='false', position='Body'),
-  slsProjectName?: string(name='sls_project_name', description='The [SLS project](https://help.aliyun.com/zh/sls/product-overview/project?spm=a2c4g.11186623.0.i3) to which the [Logstore](https://help.aliyun.com/zh/sls/product-overview/logstore?spm=a2c4g.11186623.0.0.48287ce0jAUWWM) belongs.
+*   false: enables audit logging or updates the audit logging configurations.
+*   true: disables audit logging.', example='false', position='Body'),
+  slsProjectName?: string(name='sls_project_name', description='The [Simple Log Service project](https://help.aliyun.com/document_detail/48873.html) to which the [Logstore](https://help.aliyun.com/document_detail/48873.html) that stores the cluster audit logs belongs.
 
 *   Default value: k8s-log-{clusterid}.
 *   After the cluster audit log feature is enabled, a Logstore is created in the specified SLS project to store the cluster audit logs.
-*   If you want to change the project after the cluster audit log feature is enabled, you can use this parameter to specify another SLS project. You can perform this operation only in ACK managed clusters.', example='k8s-log-c82e6987e2961451182edacd74faf****', position='Body'),
+*   If you want to change the project after audit logging is enabled for the cluster, you can use this parameter to specify another project. You can perform this operation only in ACK managed clusters.', example='k8s-log-c82e6987e2961451182edacd74faf****', position='Body'),
 }
 
 model UpdateClusterAuditLogConfigResponseBody = {
@@ -7442,7 +7452,7 @@ model UpdateClusterAuditLogConfigResponse = {
 }
 
 /**
-  * @description Before you call this operation, ensure that you understand the billing methods and pricing of [Simple Log Service](https://www.aliyun.com/price/product#/sls/detail/sls) (SLS).
+  * @description Before you call this operation, ensure that you understand the billing methods and pricing of [Simple Log Service](https://www.alibabacloud.com/product/log-service/pricing) (SLS).
   * @param request  the request parameters of UpdateClusterAuditLogConfig  UpdateClusterAuditLogConfigRequest
   * @return UpdateClusterAuditLogConfigResponse
  */
