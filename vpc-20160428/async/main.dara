@@ -1549,13 +1549,18 @@ The CIDR block must meet the following requirements:
 *   The CIDR block cannot overlap with the primary CIDR block or an existing secondary CIDR block of the VPC.
 
 >  You must and can specify only one of **SecondaryCidrBlock** and **Ipv6CidrBlock**.', example='192.168.0.0/16', position='Query'),
-  secondaryCidrMask?: int32(name='SecondaryCidrMask', position='Query'),
+  secondaryCidrMask?: int32(name='SecondaryCidrMask', description='Add secondary CIDR blocks to the VPC from the IPAM pool by entering a mask.
+
+> 
+> To add a secondary CIDR block to the VPC using the specified IPAM pool, you must specify at least one of the parameters, SecondaryCidrBlock or SecondaryCidrMask.', example='16', position='Query'),
   vpcId: string(name='VpcId', description='The ID of the VPC to which you want to add a secondary CIDR block.
 
 This parameter is required.', example='vpc-o6wrloqsdqc9io3mg****', position='Query'),
 }
 
 model AssociateVpcCidrBlockResponseBody = {
+  cidrBlock?: string(name='CidrBlock'),
+  ipVersion?: string(name='IpVersion'),
   requestId?: string(name='RequestId', description='The request ID.', example='C1221A1F-2ACD-4592-8F27-474E02883159'),
 }
 
@@ -5202,7 +5207,6 @@ Make sure that the number of IP addresses in the client CIDR block is at least f
 
 For example, if you specify 192.168.0.0/24 as the client CIDR block, the system first divides a subnet CIDR block with a subnet mask of 30 from 192.168.0.0/24, such as 192.168.0.4/30. This subnet provides up to four IP addresses. Then, the system allocates an IP address from 192.168.0.4/30 to the client and uses the other three IP addresses to ensure network communication. In this case, one client consumes four IP addresses. Therefore, to ensure that an IP address is assigned to your client, you must make sure that the number of IP addresses in the client CIDR block is at least four times the maximum number of SSL-VPN connections supported by the VPN gateway with which the SSL server is associated.
 </details>
-
 <details>
 <summary>Click to view the CIDR blocks that are not supported.</summary>
 
@@ -5212,7 +5216,6 @@ For example, if you specify 192.168.0.0/24 as the client CIDR block, the system 
 *   224.0.0.0~239.255.255.255
 *   255.0.0.0~255.255.255.255
 </details>
-
 <details>
 <summary>Click to view the recommended client CIDR blocks for different numbers of SSL-VPN connections.</summary>
 
@@ -5227,9 +5230,9 @@ For example, if you specify 192.168.0.0/24 as the client CIDR block, the system 
 </details>
 
 > - The subnet mask of the client CIDR block must be 16 to 29 bits in length.
-> - Make sure that the local CIDR block and the client CIDR block do not overlap with each other.
+> - Make sure that the client CIDR block does not overlap with the local CIDR block, the VPC CIDR block, or route CIDR blocks associated with the client.
 > - We recommend that you use 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, or one of their subnets as the client CIDR block. If you want to specify a public CIDR block as the client CIDR block, you must specify the public CIDR block as the user CIDR block of the virtual private cloud (VPC). This way, the VPC can access the public CIDR block. For more information, see [VPC FAQ](https://help.aliyun.com/document_detail/185311.html).
-> - After you create an SSL server, the system automatically adds routes that point to the client CIDR block to the VPC route table, which is not displayed in the console by default. Do not add routes that point to the client CIDR block to the VPC route table again. Otherwise, SSL-VPN connections cannot work as expected.
+> - After you create an SSL server, the system automatically adds routes that point to the client CIDR block to the VPC route table. Do not add routes that point to the client CIDR block to the VPC route table again. Otherwise, SSL-VPN connections cannot work as expected.
 
 This parameter is required.', example='192.168.1.0/24', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
@@ -5243,14 +5246,12 @@ You can use the client to generate the token, but you must make sure that the to
 *   **false** (default)', example='false', position='Query'),
   enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Specifies whether to enable two-factor authentication. To enable two-factor authentication, you need to specify `IDaaSInstanceId`, `IDaaSRegionId`, and `IDaaSApplicationId`. Valid values:
 
-*   **true**
-*   **false** (default)
+*   **true**: enables this feature.
+*   **false** (default): disables this feature.
 
-> 
-
-*   If you use two-factor authentication for the first time, you need to complete [authorization](https://ram.console.aliyun.com/role/authorization?request=%7B%22Services%22%3A%5B%7B%22Service%22%3A%22VPN%22%2C%22Roles%22%3A%5B%7B%22RoleName%22%3A%22AliyunVpnAccessingIdaasRole%22%2C%22TemplateId%22%3A%22IdaasRole%22%7D%5D%7D%5D%2C%22ReturnUrl%22%3A%22https%3A%2F%2Fvpc.console.aliyun.com%2Fsslvpn%2Fcn-shanghai%2Fvpn-servers%22%7D) before you create an SSL server.
-
-*   IDaaS EIAM 1.0 instances are no longer available for purchase. If your Alibaba Cloud account has IDaaS EIAM 1.0 instances, IDaaS EIAM 1.0 instances can be associated after two-factor authentication is enabled. If your Alibaba Cloud account does not have IDaaS EIAM 1.0 instances, only IDaaS EIAM 2.0 instances can be associated after two-factor authentication is enabled.', example='false', position='Query'),
+> - If you use two-factor authentication for the first time, you must first complete [authorization](https://ram.console.aliyun.com/role/authorization?request=%7B%22Services%22%3A%5B%7B%22Service%22%3A%22VPN%22%2C%22Roles%22%3A%5B%7B%22RoleName%22%3A%22AliyunVpnAccessingIdaasRole%22%2C%22TemplateId%22%3A%22IdaasRole%22%7D%5D%7D%5D%2C%22ReturnUrl%22%3A%22https%3A%2F%2Fvpc.console.aliyun.com%2Fsslvpn%2Fcn-shanghai%2Fvpn-servers%22%7D).
+> - When you create an SSL server in the UAE (Dubai) region, we recommend that you associate the SSL server with an IDaaS EIAM 2.0 instance in Singapore to reduce latency.
+> - IDaaS EIAM 1.0 instances are no longer for purchase. If your Alibaba Cloud account has IDaaS EIAM 1.0 instances, the IDaaS EIAM 1.0 instances can be associated after two-factor authentication is enabled. If your Alibaba Cloud account does not have IDaaS EIAM 1.0 instances, only IDaaS EIAM 2.0 instances can be associated after two-factor authentication is enabled.', example='false', position='Query'),
   iDaaSApplicationId?: string(name='IDaaSApplicationId', description='The ID of the IDaaS application.
 
 *   If an IDaaS EIAM 2.0 instance is associated, you need to specify an IDaaS application ID.
@@ -5265,7 +5266,6 @@ This value can be the CIDR block of a VPC, a vSwitch, a data center that is conn
 
 The subnet mask of the specified local CIDR block must be 8 to 32 bits in length. You cannot specify the following CIDR blocks as the local CIDR blocks:
 
-*   100.64.0.0~100.127.255.255
 *   127.0.0.0~127.255.255.255
 *   169.254.0.0~169.254.255.255
 *   224.0.0.0~239.255.255.255
@@ -9202,7 +9202,11 @@ async function deleteVirtualBorderRouter(request: DeleteVirtualBorderRouterReque
 }
 
 model DeleteVpcRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
+
+>  If you do not specify this parameter, the system automatically uses the **RequestId** as the **ClientToken**. The **RequestId** may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
 
 - **true**: performs a dry run. The system checks the required parameters, request syntax, and limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
@@ -12108,7 +12112,11 @@ async function describeIPv6Translators(request: DescribeIPv6TranslatorsRequest):
 }
 
 model DescribeIpv6AddressesRequest {
-  addressType?: string(name='AddressType', position='Query'),
+  addressType?: string(name='AddressType', description='The type of IP address. Valid values:
+
+- IPv6Address (default): indicates an IPv6 instance used to query a single IPv6 address.
+
+- IPv6Prefix: indicates an IPv6 instance used to query prefix CIDR blocks.', example='IPv6Address', position='Query'),
   associatedInstanceId?: string(name='AssociatedInstanceId', description='The ID of the instance that is assigned the IPv6 address.', example='i-2ze72wuqj4y3jl4f****', position='Query'),
   associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of instance associated with the IPv6 address. Valid values:
 
@@ -12123,15 +12131,15 @@ model DescribeIpv6AddressesRequest {
   ipv6InternetBandwidthId?: string(name='Ipv6InternetBandwidthId', description='The ID of the Internet bandwidth that you purchased for the IPv6 address.', example='ipv6bw-uf6hcyzu65v98v3du****', position='Query'),
   name?: string(name='Name', description='The name of the IPv6 address that you want to query.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='test', position='Query'),
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
   networkType?: string(name='NetworkType', description='The type of communication supported by the IPv6 address. Valid values:
 
 *   **Private**
 *   **Public**', example='Private', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Maximum value: **50**. Default value: **10**.', example='10', minimum=1, maximum=100, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **50**. Default value: **10**.', example='10', minimum=1, maximum=100, position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which you want to query IPv6 addresses. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-huhehaote', position='Query'),
@@ -12164,7 +12172,10 @@ model DescribeIpv6AddressesResponseBody = {
   ipv6Addresses?: {
     ipv6Address?: [ 
     {
-      addressType?: string(name='AddressType'),
+      addressType?: string(name='AddressType', description='The type of IPv6 address. Valid values:
+
+*   IPv6Address (default): indicates a single IPv6 IP.
+*   IPv6Prefix: indicates IPv6 CIDR.', example='IPv6Address'),
       allocationTime?: string(name='AllocationTime', description='The time when the IPv6 address was created.', example='2020-12-20T14:56:09Z'),
       associatedInstanceId?: string(name='AssociatedInstanceId', description='The ID of the instance associated with the IPv6 address.', example='i-2ze72wuqj4y3jl4f****'),
       associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of instance associated with the IPv6 address.', example='EcsInstance'),
@@ -14467,8 +14478,8 @@ model DescribeSslVpnClientsResponse = {
 }
 
 /**
-  * @description If your VPN gateway was created before December 10, 2022, you must upgrade your VPN gateway to the latest version before you can view connection information about SSL clients. For more information, see [Upgrade a VPN gateway](https://help.aliyun.com/document_detail/2671058.html).
-  * If your VPN gateway was created after December 10, 2022, you can view connection information about SSL clients by default.
+  * @description If your VPN gateway was created before December 10, 2022, you need to upgrade the VPN gateway to the latest version to view the connection information about SSL clients. For more information, see [Upgrade a VPN gateway](https://help.aliyun.com/document_detail/2671058.html).
+  * If your VPN gateway was created after December 10, 2022, you can view the connection information about SSL clients by default.
   * @param request  the request parameters of DescribeSslVpnClients  DescribeSslVpnClientsRequest
   * @return DescribeSslVpnClientsResponse
  */
@@ -21640,7 +21651,7 @@ You can use the client to generate the value, but you must make sure that it is 
 >  If you do not specify this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='02fb3da4-130e-11e9-8e44-0016e0****', position='Query'),
   description?: string(name='Description', description='The description of the HAVIP.
 
-The description must be 1 to 256 characters in length and cannot start with `http://` or `https://`.', example='This is my HaVip.', position='Query'),
+The description must be 1 to 255 characters in length and cannot start with `http://` or `https://`.', example='This is my HaVip.', position='Query'),
   haVipId: string(name='HaVipId', description='The ID of the HAVIP.
 
 This parameter is required.', example='havip-2zeo05qre24nhrqp****', position='Query'),
@@ -21669,7 +21680,7 @@ model ModifyHaVipAttributeResponse = {
 }
 
 /**
-  * @description You cannot repeatedly call the **ModifyHaVipAttribute** operation to modify the name and description of an HAVIP within the specified period of time.
+  * @description You cannot repeatedly call the **ModifyHaVipAttribute** operation to modify the name and description of an HAVIP within the specified periods of time.
   * @param request  the request parameters of ModifyHaVipAttribute  ModifyHaVipAttributeRequest
   * @return ModifyHaVipAttributeResponse
  */
@@ -22418,7 +22429,11 @@ You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063
 This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  routePropagationEnable?: boolean(name='RoutePropagationEnable', position='Query'),
+  routePropagationEnable?: boolean(name='RoutePropagationEnable', description='Indicates whether to enable route propagation to receive dynamic routes. Valid values:
+
+- **true** (default): enables route propagation.
+
+- **false**: disables route propagation.', example='true', position='Query'),
   routeTableId: string(name='RouteTableId', description='The ID of the route table.
 
 This parameter is required.', example='vtb-bp145q7glnuzdvzu2****', position='Query'),
@@ -22700,16 +22715,19 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
-  enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Specifies whether to enable two-factor authentication. If you enable two-factor authentication, you must also specify an IDaaS instance ID. Valid values:
+  enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Specifies whether to enable two-factor authentication. If you enable two-factor authentication, you must also specify an IDaaS EIAM instance ID and an IDaaS application ID. Valid values:
 
 *   **true**
 *   **false**
 
-> *   Two-factor authentication supports only IDaaS instances of earlier versions. If you do not have and cannot create IDaaS instances of earlier versions, you cannot enable two-factor authentication.
-> *   For existing SSL servers, if two-factor authentication is already enabled, you can continue to use two-factor authentication.', example='false', position='Query'),
-  iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****', position='Query'),
-  iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the Identity as a Service (IDaaS) instance.', example='idaas-cn-hangzhou-****', position='Query'),
-  iDaaSRegionId?: string(name='IDaaSRegionId', description='The ID of the region where the IDaaS instance is created.', example='cn-hangzhou', position='Query'),
+> - If you use two-factor authentication for the first time, you must first complete [authorization](https://ram.console.aliyun.com/role/authorization?request=%7B%22Services%22%3A%5B%7B%22Service%22%3A%22VPN%22%2C%22Roles%22%3A%5B%7B%22RoleName%22%3A%22AliyunVpnAccessingIdaasRole%22%2C%22TemplateId%22%3A%22IdaasRole%22%7D%5D%7D%5D%2C%22ReturnUrl%22%3A%22https%3A%2F%2Fvpc.console.aliyun.com%2Fsslvpn%2Fcn-shanghai%2Fvpn-servers%22%7D).
+> - IDaaS EIAM 1.0 instances are no longer for purchase. If your Alibaba Cloud account has IDaaS EIAM 1.0 instances, the IDaaS EIAM 1.0 instances can be associated after two-factor authentication is enabled. If your Alibaba Cloud account does not have IDaaS EIAM 1.0 instances, only IDaaS EIAM 2.0 instances can be associated after two-factor authentication is enabled.', example='false', position='Query'),
+  iDaaSApplicationId?: string(name='IDaaSApplicationId', description='The ID of the IDaaS application.
+
+*   If an IDaaS EIAM 2.0 instance is associated, you need to specify an IDaaS application ID.
+*   If an IDaaS EIAM 1.0 instance is associated, you do not need to specify an IDaaS application ID.', example='app_my6g4qmvnwxzj2f****', position='Query'),
+  iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS EIAM instance.', example='idaas-cn-hangzhou-****', position='Query'),
+  iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS EIAM instance.', example='cn-hangzhou', position='Query'),
   localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24', position='Query'),
   name?: string(name='Name', description='The name of the SSL server.
 
@@ -22745,9 +22763,12 @@ model ModifySslVpnServerResponseBody = {
 
 *   **true**
 *   **false** (default)', example='false'),
-  iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****'),
-  iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS instance.', example='idaas-cn-hangzhou-****'),
-  iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', example='EIAM 2.0'),
+  iDaaSApplicationId?: string(name='IDaaSApplicationId', description='The ID of the IDaaS application.', example='app_my6g4qmvnwxzj2f****'),
+  iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS EIAM instance.', example='idaas-cn-hangzhou-****'),
+  iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', description='The version of the IDaaS EIAM instance.
+
+*   This parameter is returned only if the SSL server is associated with an IDaaS EIAM 2.0 instance. Only **EIAM 2.0** is returned.
+*   If the SSL server is associated with an IDaaS EIAM 1.0 instance, no value is returned.', example='EIAM 2.0'),
   internetIp?: string(name='InternetIp', description='The public IP address.', example='47.98.XX.XX'),
   localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24'),
   maxConnections?: int32(name='MaxConnections', description='The maximum number of connections.', example='5'),
@@ -22770,11 +22791,12 @@ model ModifySslVpnServerResponse = {
 }
 
 /**
-  * @description *   If you modify only the **name** of the SSL server, the operation is synchronous. If you also modify other configurations besides the **name**, the operation is asynchronous.
-  * *   When **ModifySslVpnServer** is an asynchronous operation, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) to query the status of the task.
-  *     *   If a VPN gateway is in the **updating** state, the configurations of the SSL server are being modified.
-  *     *   If a VPN gateway is in the **active** state, the configurations of the SSL server are modified.
-  * *   You cannot repeatedly call **ModifySslVpnServer** to modify the configurations of an SSL server within the specified period of time.
+  * @description *   To enable two-factor authentication for an SSL server, make sure that the VPN gateway supports two-factor authentication. You may need to upgrade the VPN gateway. For more information, see [Two-factor authentication supports IDaaS EIAM 2.0](https://help.aliyun.com/document_detail/2785320.html).
+  * *   If you modify only **Name**, this operation is synchronous. If you modify other parameters besides **Name**, this operation is asynchronous.
+  * *   **ModifySslVpnServer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) operation to query the status of the task.
+  *     *   If the VPN gateway is in the **updating** state, the SSL server is being modified.
+  *     *   If the VPN gateway is in the **active** state, the SSL server is modified.
+  * *   You cannot repeatedly call **ModifySslVpnServer** within the specified period of time.
   * @param request  the request parameters of ModifySslVpnServer  ModifySslVpnServerRequest
   * @return ModifySslVpnServerResponse
  */
@@ -23238,7 +23260,10 @@ You can specify a larger or smaller IPv4 CIDR block than the IPv4 CIDR block of 
   description?: string(name='Description', description='The new description of the VPC.
 
 The description must be 1 to 256 characters in length, and cannot start with `http://` or `https://`.', example='This is my VPC.', position='Query'),
-  enableDnsHostname?: boolean(name='EnableDnsHostname', position='Query'),
+  enableDnsHostname?: boolean(name='EnableDnsHostname', description='Indicates whether the DNS hostname feature is enabled. Valid values:
+
+*   **false** (default): disabled.
+*   **true**: enabled.', example='false', position='Query'),
   enableIPv6?: boolean(name='EnableIPv6', description='Specifies whether to enable IPv6 CIDR blocks. Valid values:
 
 *   **true**
