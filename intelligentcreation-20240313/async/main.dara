@@ -77,6 +77,7 @@ model IllustrationTaskCreateCmd {
   dstHeight?: int32(name='dstHeight', example='1024'),
   dstWidth?: int32(name='dstWidth', example='1024'),
   idempotentId?: string(name='idempotentId', example='28274623764834'),
+  imageUrls?: [ string ](name='imageUrls'),
   nums?: int32(name='nums', example='4'),
   ossPaths?: [ string ](name='ossPaths'),
   stickerText?: string(name='stickerText'),
@@ -137,7 +138,7 @@ model TextTask {
   nums: int32(name='nums', description='This parameter is required.', example='1'),
   point?: string(name='point', example='xxx'),
   referenceTag?: ReferenceTag(name='referenceTag'),
-  relatedRagId?: int32(name='relatedRagId'),
+  relatedRagIds?: [ long ](name='relatedRagIds'),
   style: string(name='style', description='This parameter is required.'),
   target?: string(name='target'),
   textIds?: [ long ](name='textIds'),
@@ -232,6 +233,32 @@ model AddTextFeedbackResponse = {
 async function addTextFeedback(request: AddTextFeedbackRequest): AddTextFeedbackResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AddTextFeedback', 'POST', '/yic/yic-console/openService/v1/addTextFeedback', 'json', false, 'json', request);
+}
+
+model BatchCreateAICoachTaskRequest {
+  requestId?: string(name='requestId', example='7915125A-0D96-5A25-A54B-D3B739A86AFC', position='Body'),
+  scriptRecordId?: string(name='scriptRecordId', example='1', position='Body'),
+  studentIds?: [ string ](name='studentIds', position='Body'),
+}
+
+model BatchCreateAICoachTaskResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='10923AA3-F7A1-5EA0-ACCA-D704269EAA78'),
+  taskIds?: [ string ](name='taskIds'),
+}
+
+model BatchCreateAICoachTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchCreateAICoachTaskResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of BatchCreateAICoachTask  BatchCreateAICoachTaskRequest
+  * @return BatchCreateAICoachTaskResponse
+ */
+async function batchCreateAICoachTask(request: BatchCreateAICoachTaskRequest): BatchCreateAICoachTaskResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchCreateAICoachTask', 'POST', '/yic/yic-console/openService/v1/aicoach/batchCreateTask', 'json', false, 'json', request);
 }
 
 model BatchGetProjectTaskRequest {
@@ -961,9 +988,11 @@ function interactTextWithResponseIterable(request: InteractTextRequest): iterato
 }
 
 model ListAICoachScriptPageRequest {
+  name?: string(name='name', position='Query'),
   pageNumber?: int32(name='pageNumber', example='1', position='Query'),
   pageSize?: int32(name='pageSize', example='10', position='Query'),
   status?: int32(name='status', example='1', position='Query'),
+  type?: int32(name='type', position='Query'),
 }
 
 model ListAICoachScriptPageResponseBody = {
@@ -971,12 +1000,16 @@ model ListAICoachScriptPageResponseBody = {
   errorMessage?: string(name='errorMessage', example='SYSTEM_ERROR'),
   list?: [ 
     {
+      appendQuestionFlag?: string(name='appendQuestionFlag'),
+      assessmentScope?: string(name='assessmentScope'),
       completeStrategy?: {
         clickCompleteAutoEnd?: boolean(name='clickCompleteAutoEnd', example='true'),
         duration?: int32(name='duration', example='75'),
         fullCoverageAutoEnd?: boolean(name='fullCoverageAutoEnd', example='false'),
       }(name='completeStrategy'),
       coverUrl?: string(name='coverUrl', example='https://oss-ata.alibaba.com/front/live/banner1.png'),
+      dialogueTipFlag?: boolean(name='dialogueTipFlag'),
+      evaluateReportFlag?: boolean(name='evaluateReportFlag'),
       expressiveness?: map[string]string(name='expressiveness'),
       gmtCreate?: string(name='gmtCreate', example='2024-12-25 14:00:00'),
       gmtModified?: string(name='gmtModified', example='2024-12-25 14:00:00'),
@@ -984,6 +1017,7 @@ model ListAICoachScriptPageResponseBody = {
       interactionType?: string(name='interactionType', example='4'),
       introduce?: string(name='introduce'),
       name?: string(name='name', example='prod-ydsf'),
+      orderAckFlag?: boolean(name='orderAckFlag'),
       sampleDialogueList?: [ 
         {
           message?: string(name='message'),
@@ -991,10 +1025,17 @@ model ListAICoachScriptPageResponseBody = {
         }
       ](name='sampleDialogueList'),
       scriptRecordId?: string(name='scriptRecordId', example='1'),
+      sparringTipContent?: string(name='sparringTipContent'),
+      sparringTipTitle?: string(name='sparringTipTitle'),
       status?: int32(name='status', example='1'),
+      studentThinkTimeFlag?: boolean(name='studentThinkTimeFlag'),
+      type?: int32(name='type'),
       weights?: {
         assessmentPoint?: int32(name='assessmentPoint', example='50'),
         expressiveness?: int32(name='expressiveness', example='30'),
+        expressivenessEnabled?: boolean(name='expressivenessEnabled'),
+        pointDeductionRule?: int32(name='pointDeductionRule'),
+        pointDeductionRuleEnabled?: boolean(name='pointDeductionRuleEnabled'),
         standard?: int32(name='standard', example='20'),
         standardEnabled?: boolean(name='standardEnabled', example='true'),
       }(name='weights'),
@@ -1439,6 +1480,7 @@ model SaveAvatarProjectRequest {
   projectId?: string(name='projectId', example='787594567117586432', position='Body'),
   projectName?: string(name='projectName', example='df_cs_471437', position='Body'),
   resSpecType?: string(name='resSpecType', example='STANDARD', position='Body'),
+  resolution?: string(name='resolution', position='Body'),
   scaleType?: string(name='scaleType', example='9:16', position='Body'),
 }
 
@@ -1599,7 +1641,9 @@ async function sendTextMsg(request: SendTextMsgRequest): SendTextMsgResponse {
 }
 
 model StartAvatarSessionRequest {
+  channelToken?: string(name='channelToken', position='Body'),
   customPushUrl?: string(name='customPushUrl', position='Body'),
+  customUserId?: string(name='customUserId', position='Body'),
   projectId?: string(name='projectId', example='13534711288320', position='Body'),
   requestId?: string(name='requestId', example='15ED6083-B0B8-5B2A-BEDB-94A5C687C812', position='Body'),
 }
