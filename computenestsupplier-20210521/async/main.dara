@@ -110,6 +110,36 @@ async function approveServiceUsage(request: ApproveServiceUsageRequest): Approve
   return @handler.do('RPC', 'ApproveServiceUsage', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CancelServiceRegistrationRequest {
+  clientToken?: string(name='ClientToken', description='Client token, used to ensure the idempotence of requests. Generate a unique value for this parameter from your client to ensure it is unique across different requests. ClientToken supports only ASCII characters.', example='AAAAAWns8w4MmhzeptXVRG0PUEU=', position='Query'),
+  regionId: string(name='RegionId', description='Region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  registrationId: string(name='RegistrationId', description='Service registration ID.
+
+This parameter is required.', example='sr-540930183f93xxxxxx', position='Query'),
+}
+
+model CancelServiceRegistrationResponseBody = {
+  requestId?: string(name='RequestId', description='Request ID.', example='C4A145D8-6F6C-532A-9001-9730CDA27578'),
+}
+
+model CancelServiceRegistrationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelServiceRegistrationResponseBody(name='body'),
+}
+
+/**
+  * @description Only service registration in the Submitted status can be canceled.
+  * @param request  the request parameters of CancelServiceRegistration  CancelServiceRegistrationRequest
+  * @return CancelServiceRegistrationResponse
+ */
+async function cancelServiceRegistration(request: CancelServiceRegistrationRequest): CancelServiceRegistrationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CancelServiceRegistration', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ContinueDeployServiceInstanceRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
   dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run for the request to check information such as the permissions and instance status. Valid values:
@@ -2123,6 +2153,70 @@ async function listServiceInstances(request: ListServiceInstancesRequest): ListS
   return @handler.do('RPC', 'ListServiceInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListServiceRegistrationsRequest {
+  filter?: [ 
+    {
+      name?: string(name='Name', description='Name of the filter field. Allowed values:
+
+- ServiceId: Service ID.
+
+- RegistrationId: Registration ID.
+
+- Status: Registration status. Allowed values: Submitted, Approved, Rejected, Canceled, and Executed.', example='Canceled'),
+      value?: [ string ](name='Value', description='List of filter values.'),
+    }
+  ](name='Filter', description='Filter.', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The number of items to return per page during a paginated query. The maximum is 100, and the default is 20.', example='10', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='BBBAAfu+XtuBE55iRLHEYYuojI4=', position='Query'),
+  regionId: string(name='RegionId', description='Region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+}
+
+model ListServiceRegistrationsResponseBody = {
+  maxResults?: int32(name='MaxResults', description='Number of items per page in a paginated query. The maximum is 100, and the default is 20.', example='20'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='AAAAAfu+XtuBE55iRLHEYYuojI4='),
+  requestId?: string(name='RequestId', description='Request ID.', example='51945B04-6AA6-410D-93BA-236E0248B104'),
+  serviceRegistrations?: [ 
+    {
+      comment?: string(name='Comment', description='Comment.', example='some info is missing'),
+      finishTime?: string(name='FinishTime', description='Finish time.', example='2021-05-23T00:00:00Z'),
+      registrationId?: string(name='RegistrationId', description='Registration ID.', example='sr-001'),
+      serviceId?: string(name='ServiceId', description='Service ID.', example='service-f4c0026a254bxxxxxxxx'),
+      status?: string(name='Status', description='Registration status. Allowed values:
+
+- Submitted
+
+- Approved
+
+- Rejected
+
+- Canceled
+
+- Executed
+
+- Executed: Executed.', example='Rejected'),
+      submitTime?: string(name='SubmitTime', description='Submit time.', example='2021-05-22T00:00:00Z'),
+    }
+  ](name='ServiceRegistrations', description='Service registration information.'),
+  totalCount?: int32(name='TotalCount', description='Total number of records that meet the criteria.', example='100'),
+}
+
+model ListServiceRegistrationsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListServiceRegistrationsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListServiceRegistrations  ListServiceRegistrationsRequest
+  * @return ListServiceRegistrationsResponse
+ */
+async function listServiceRegistrations(request: ListServiceRegistrationsRequest): ListServiceRegistrationsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListServiceRegistrations', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListServiceSharedAccountsRequest {
   filter?: [ 
     {
@@ -3362,6 +3456,52 @@ async function updateServiceInstanceSpec(request: UpdateServiceInstanceSpecReque
   return @handler.do('RPC', 'UpdateServiceInstanceSpec', 'POST', '/', 'json', false, 'json', request);
 }
 
+model UpdateSharedAccountPermissionRequest {
+  clientToken?: string(name='ClientToken', description='Client token, used to ensure the idempotence of requests. Generate a unique value for this parameter from your client to ensure it is unique across different requests. ClientToken supports only ASCII characters.', example='10CM943JP0EN9D51H', position='Query'),
+  permission: string(name='Permission', description='Permission type. Possible values:
+- Deployable: Can be deployed.
+- Accessible: Can be accessed.
+- AccessibleIncludeBeta: Can access all versions, including Beta versions.
+- DeployableIncludeBeta: Can deploy all versions, including Beta versions.
+- Authorized: Authorized (for reselling scenarios)
+- Unauthorized: Unauthorized (for reselling scenarios)
+
+This parameter is required.', example='Deployable', position='Query'),
+  regionId: string(name='RegionId', description='Region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  serviceId: string(name='ServiceId', description='Service ID.
+
+This parameter is required.', example='service-0d6e1d846e4c4axxxxxx', position='Query'),
+  type?: string(name='Type', description='Service sharing type, with a default value of SharedAccount. Available options:
+
+- SharedAccount: Regular sharing type.
+
+- Reseller: Reselling sharing type.', example='SharedAccount', position='Query'),
+  userAliUid: long(name='UserAliUid', description='Whitelist account for service sharing.
+
+This parameter is required.', example='1563457855xxxxxx', minimum=0, position='Query'),
+}
+
+model UpdateSharedAccountPermissionResponseBody = {
+  requestId?: string(name='RequestId', description='RequestId', example='C68B41B4-A646-5680-8A33-67884E3823A8'),
+}
+
+model UpdateSharedAccountPermissionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSharedAccountPermissionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateSharedAccountPermission  UpdateSharedAccountPermissionRequest
+  * @return UpdateSharedAccountPermissionResponse
+ */
+async function updateSharedAccountPermission(request: UpdateSharedAccountPermissionRequest): UpdateSharedAccountPermissionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateSharedAccountPermission', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UpgradeServiceInstanceRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='10CM943JP0EN9D51H', position='Query'),
   dryRun?: string(name='DryRun', description='Specifies whether to perform only a dry run for the request to check information such as the permissions and instance status. Valid values:
@@ -3405,5 +3545,37 @@ model UpgradeServiceInstanceResponse = {
 async function upgradeServiceInstance(request: UpgradeServiceInstanceRequest): UpgradeServiceInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpgradeServiceInstance', 'POST', '/', 'json', false, 'json', request);
+}
+
+model WithdrawServiceRequest {
+  clientToken?: string(name='ClientToken', description='Client token, used to ensure the idempotence of requests. Generate a unique value for this parameter from your client to ensure it is unique across different requests. ClientToken supports only ASCII characters.', example='788E7CP0EN9D51P', position='Query'),
+  regionId: string(name='RegionId', description='Region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  serviceId: string(name='ServiceId', description='Service ID.
+
+This parameter is required.', example='service-0e6fca6a51a544xxxxxx', position='Query'),
+  serviceVersion: string(name='ServiceVersion', description='Service version.
+
+This parameter is required.', example='1.0', position='Query'),
+}
+
+model WithdrawServiceResponseBody = {
+  requestId?: string(name='RequestId', description='Request ID.', example='4DB0F536-B3BE-4F0D-BD29-E83FB56D550C'),
+}
+
+model WithdrawServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: WithdrawServiceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of WithdrawService  WithdrawServiceRequest
+  * @return WithdrawServiceResponse
+ */
+async function withdrawService(request: WithdrawServiceRequest): WithdrawServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'WithdrawService', 'POST', '/', 'json', false, 'json', request);
 }
 
