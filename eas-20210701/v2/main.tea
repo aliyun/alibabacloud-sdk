@@ -137,6 +137,12 @@ model ResourceInstance {
   instanceUsedGpu?: float(name='InstanceUsedGpu'),
   instanceUsedGpuMemory?: string(name='InstanceUsedGpuMemory'),
   instanceUsedMemory?: string(name='InstanceUsedMemory'),
+  labels?: [ 
+    {
+      labelKey?: string(name='LabelKey'),
+      labelValue?: string(name='LabelValue'),
+    }
+  ](name='Labels'),
   region?: string(name='Region'),
   resourceId?: string(name='ResourceId'),
   zone?: string(name='Zone'),
@@ -1016,6 +1022,7 @@ model CreateResourceRequest {
   ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.
 
 >  This parameter is required when the ResourceType parameter is set to Dedicated.', example='ecs.c6.8xlarge'),
+  labels?: map[string]string(name='Labels'),
   resourceType?: string(name='ResourceType', description='The type of the resource group. Valid values:
 
 *   Dedicated: the dedicated resource group.
@@ -1090,6 +1097,9 @@ async function createResourceWithOptions(request: CreateResourceRequest, headers
   if (!$isNull(request.ecsInstanceType)) {
     body['EcsInstanceType'] = request.ecsInstanceType;
   }
+  if (!$isNull(request.labels)) {
+    body['Labels'] = request.labels;
+  }
   if (!$isNull(request.resourceType)) {
     body['ResourceType'] = request.resourceType;
   }
@@ -1156,6 +1166,7 @@ This parameter is required.', example='5'),
   ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.
 
 This parameter is required.', example='ecs.s6-c1m2.xlarge'),
+  labels?: map[string]string(name='Labels'),
   systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system disk. Unit: GiB. Valid values: 200 to 2000. Default value: 200.', example='200'),
   userData?: string(name='UserData', description='The user-defined information. This parameter is not in use.', example='x112223333'),
   zone?: string(name='Zone', description='The zone to which the instance belongs.', example='cn-shanghai-f'),
@@ -1195,6 +1206,9 @@ async function createResourceInstancesWithOptions(ClusterId: string, ResourceId:
   }
   if (!$isNull(request.ecsInstanceType)) {
     body['EcsInstanceType'] = request.ecsInstanceType;
+  }
+  if (!$isNull(request.labels)) {
+    body['Labels'] = request.labels;
   }
   if (!$isNull(request.systemDiskSize)) {
     body['SystemDiskSize'] = request.systemDiskSize;
@@ -2372,6 +2386,92 @@ async function deleteResourceDLink(ClusterId: string, ResourceId: string): Delet
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteResourceDLinkWithOptions(ClusterId, ResourceId, headers, runtime);
+}
+
+model DeleteResourceInstanceLabelRequest {
+  allInstances?: boolean(name='AllInstances'),
+  instanceIds?: [ string ](name='InstanceIds'),
+  keys?: [ string ](name='Keys'),
+}
+
+model DeleteResourceInstanceLabelShrinkRequest {
+  allInstances?: boolean(name='AllInstances'),
+  instanceIdsShrink?: string(name='InstanceIds'),
+  keysShrink?: string(name='Keys'),
+}
+
+model DeleteResourceInstanceLabelResponseBody = {
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82********'),
+}
+
+model DeleteResourceInstanceLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteResourceInstanceLabelResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除资源组实例标签
+ *
+ * @param tmpReq DeleteResourceInstanceLabelRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteResourceInstanceLabelResponse
+ */
+async function deleteResourceInstanceLabelWithOptions(ClusterId: string, ResourceId: string, tmpReq: DeleteResourceInstanceLabelRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteResourceInstanceLabelResponse {
+  tmpReq.validate();
+  var request = new DeleteResourceInstanceLabelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.instanceIds)) {
+    request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'InstanceIds', 'simple');
+  }
+  if (!$isNull(tmpReq.keys)) {
+    request.keysShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.keys, 'Keys', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.allInstances)) {
+    query['AllInstances'] = request.allInstances;
+  }
+  if (!$isNull(request.instanceIdsShrink)) {
+    query['InstanceIds'] = request.instanceIdsShrink;
+  }
+  if (!$isNull(request.keysShrink)) {
+    query['Keys'] = request.keysShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteResourceInstanceLabel',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/resources/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ResourceId)}/label`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 删除资源组实例标签
+ *
+ * @param request DeleteResourceInstanceLabelRequest
+ * @return DeleteResourceInstanceLabelResponse
+ */
+async function deleteResourceInstanceLabel(ClusterId: string, ResourceId: string, request: DeleteResourceInstanceLabelRequest): DeleteResourceInstanceLabelResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteResourceInstanceLabelWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 model DeleteResourceInstancesRequest {
@@ -5465,6 +5565,198 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='Ready'),
+  label?: map[string]string(name='Label'),
+  order?: string(name='Order', description='The sorting order.
+
+Valid values:
+
+*   asc: The instances are sorted in ascending order.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   desc
+
+    <!-- -->
+
+    : The instances are sorted in descending order.
+
+    <!-- -->
+
+    <!-- -->', example='desc'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 100.', example='20'),
+  sort?: string(name='Sort', description='The field that you use to sort the query results.
+
+Valid values:
+
+*   CreateTime
+
+    <!-- -->
+
+    : The instances are sorted based on the time when the instances were created.
+
+    <!-- -->
+
+    <!-- -->
+
+*   MemoryUsed
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instances are sorted based on the memory usage of the instances
+
+    <!-- -->
+
+    .
+
+*   GpuUsed
+
+    <!-- -->
+
+    : The instances are sorted based on the
+
+    <!-- -->
+
+    GPU usage of the instances.
+
+    <!-- -->
+
+*   ExpireTime: The instances are sorted based on the time when the instances expired.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->
+
+*   CpuUsed
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instances are sorted based on the CPU utilization of the instances.
+
+    <!-- -->', example='CreateTime'),
+}
+
+model ListResourceInstancesShrinkRequest {
+  chargeType?: string(name='ChargeType', description='The billing method of the instance. Valid values:
+
+*   PrePaid: subscription.
+*   PostPaid: pay-as-you-go.', example='PrePaid'),
+  filter?: string(name='Filter', description='The keyword used to query instances. Instances can be queried by instance ID or instance IP address.', example='10.224.xx.xx'),
+  instanceIP?: string(name='InstanceIP', description='The IP address of the instance.', example='10.224.xx.xx'),
+  instanceId?: string(name='InstanceId', description='The instance ID. For more information about how to query the instance ID, see [ListResourceInstances](https://help.aliyun.com/document_detail/412129.html).', example='i-bp1jd6x3uotsv****'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='e-xxxx***'),
+  instanceStatus?: string(name='InstanceStatus', description='The instance state.
+
+Valid values:
+
+*   Ready-SchedulingDisabled
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instance is available but unschedulable
+
+    <!-- -->
+
+    .
+
+*   Ready
+
+    <!-- -->
+
+    : The instance
+
+    <!-- -->
+
+    is running
+
+    <!-- -->
+
+    .
+
+*   NotReady
+
+    <!-- -->
+
+    : The instance is unready.
+
+    <!-- -->
+
+    <!-- -->
+
+*   Stopped
+
+    <!-- -->
+
+    : The instance has stopped.
+
+    <!-- -->
+
+    <!-- -->
+
+*   NotReady-SchedulingDisabled
+
+    <!-- -->
+
+    :
+
+    <!-- -->
+
+    The instance is unavailable and unschedulable
+
+    <!-- -->
+
+    .
+
+*   Attaching
+
+    <!-- -->
+
+    : The instance
+
+    <!-- -->
+
+    is starting
+
+    <!-- -->
+
+    .
+
+*   Deleting
+
+    <!-- -->
+
+    : The instance is being deleted.
+
+    <!-- -->
+
+    <!-- -->
+
+*   CreateFailed: The instance failed to be created.
+
+    <!-- -->
+
+    <!-- -->
+
+    <!-- -->', example='Ready'),
+  labelShrink?: string(name='Label'),
   order?: string(name='Order', description='The sorting order.
 
 Valid values:
@@ -5568,13 +5860,18 @@ model ListResourceInstancesResponse = {
 /**
  * @summary Queries a list of instances in a dedicated resource group.
  *
- * @param request ListResourceInstancesRequest
+ * @param tmpReq ListResourceInstancesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListResourceInstancesResponse
  */
-async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: string, request: ListResourceInstancesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListResourceInstancesResponse {
-  request.validate();
+async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: string, tmpReq: ListResourceInstancesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListResourceInstancesResponse {
+  tmpReq.validate();
+  var request = new ListResourceInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.label)) {
+    request.labelShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.label, 'Label', 'json');
+  }
   var query : map[string]any = {};
   if (!$isNull(request.chargeType)) {
     query['ChargeType'] = request.chargeType;
@@ -5593,6 +5890,9 @@ async function listResourceInstancesWithOptions(ClusterId: string, ResourceId: s
   }
   if (!$isNull(request.instanceStatus)) {
     query['InstanceStatus'] = request.instanceStatus;
+  }
+  if (!$isNull(request.labelShrink)) {
+    query['Label'] = request.labelShrink;
   }
   if (!$isNull(request.order)) {
     query['Order'] = request.order;
@@ -7795,6 +8095,92 @@ async function updateResourceInstance(ClusterId: string, ResourceId: string, Ins
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateResourceInstanceWithOptions(ClusterId, ResourceId, InstanceId, request, headers, runtime);
+}
+
+model UpdateResourceInstanceLabelRequest {
+  allInstances?: boolean(name='AllInstances', example='false'),
+  instanceIds?: [ string ](name='InstanceIds'),
+  labels?: map[string]string(name='Labels'),
+}
+
+model UpdateResourceInstanceLabelShrinkRequest {
+  allInstances?: boolean(name='AllInstances', example='false'),
+  instanceIdsShrink?: string(name='InstanceIds'),
+  labels?: map[string]string(name='Labels'),
+}
+
+model UpdateResourceInstanceLabelResponseBody = {
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model UpdateResourceInstanceLabelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateResourceInstanceLabelResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新资源组实例标签
+ *
+ * @param tmpReq UpdateResourceInstanceLabelRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateResourceInstanceLabelResponse
+ */
+async function updateResourceInstanceLabelWithOptions(ClusterId: string, ResourceId: string, tmpReq: UpdateResourceInstanceLabelRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateResourceInstanceLabelResponse {
+  tmpReq.validate();
+  var request = new UpdateResourceInstanceLabelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.instanceIds)) {
+    request.instanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.instanceIds, 'InstanceIds', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.allInstances)) {
+    query['AllInstances'] = request.allInstances;
+  }
+  if (!$isNull(request.instanceIdsShrink)) {
+    query['InstanceIds'] = request.instanceIdsShrink;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.labels)) {
+    body['Labels'] = request.labels;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateResourceInstanceLabel',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/resources/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(ResourceId)}/label`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 更新资源组实例标签
+ *
+ * @param request UpdateResourceInstanceLabelRequest
+ * @return UpdateResourceInstanceLabelResponse
+ */
+async function updateResourceInstanceLabel(ClusterId: string, ResourceId: string, request: UpdateResourceInstanceLabelRequest): UpdateResourceInstanceLabelResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateResourceInstanceLabelWithOptions(ClusterId, ResourceId, request, headers, runtime);
 }
 
 model UpdateServiceRequest {
