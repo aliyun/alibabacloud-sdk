@@ -168,6 +168,7 @@ async function createDB(request: CreateDBRequest): CreateDBResponse {
 model CreateDBInstanceRequest {
   clientToken?: string(name='ClientToken', example='AB', position='Query'),
   DBInstanceDescription?: string(name='DBInstanceDescription', position='Query'),
+  deploySchema?: string(name='DeploySchema', position='Query'),
   engine?: string(name='Engine', description='The engine type.', example='clickhouse', position='Query'),
   engineVersion?: string(name='EngineVersion', example='23.8', position='Query'),
   multiZone?: [ 
@@ -443,7 +444,7 @@ model DescribeDBInstanceAttributeResponseBody = {
     engineMinorVersion?: string(name='EngineMinorVersion', example='23.8.1.41495_6'),
     engineVersion?: string(name='EngineVersion', example='23.8'),
     expireTime?: string(name='ExpireTime', example='2024-04-17T08:14:48Z'),
-    latestEngineMinorVersion?: string(name='LatestEngineMinorVersion'),
+    latestEngineMinorVersion?: string(name='LatestEngineMinorVersion', example='23.8.1.41495_6'),
     lockMode?: string(name='LockMode', example='0'),
     lockReason?: string(name='LockReason', example='nolock'),
     maintainEndTime?: string(name='MaintainEndTime', example='21:00'),
@@ -451,7 +452,7 @@ model DescribeDBInstanceAttributeResponseBody = {
     nodes?: [ 
       {
         nodeStatus?: string(name='NodeStatus', example='active'),
-        zoneId?: string(name='ZoneId'),
+        zoneId?: string(name='ZoneId', example='cn-hangzhou-h'),
       }
     ](name='Nodes'),
     objectStoreSize?: string(name='ObjectStoreSize', example='13'),
@@ -471,7 +472,7 @@ model DescribeDBInstanceAttributeResponseBody = {
     vSwitchId?: string(name='VSwitchId', example='vsw-uf67ij56zm9x4uc6hmilg'),
     vpcId?: string(name='VpcId', description='VPC ID。', example='vpc-wz9duj8xd6r1gzhsg*****'),
     zoneId?: string(name='ZoneId', example='cn-hangzhou-h'),
-  }(name='Data'),
+  }(name='Data', description='The result returned.'),
   requestId?: string(name='RequestId', example='2FED790E-FB61-4721-8C1C-07C627FA5A19'),
 }
 
@@ -642,34 +643,40 @@ async function describeEndpoints(request: DescribeEndpointsRequest): DescribeEnd
 }
 
 model DescribeProcessListRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-xxxxx', position='Query'),
-  initialQueryId?: string(name='InitialQueryId', example='1', position='Query'),
-  initialUser?: string(name='InitialUser', example='testuser', position='Query'),
-  keyword?: string(name='Keyword', example='SELECT', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='30', position='Query'),
-  queryDurationMs?: string(name='QueryDurationMs', example='1000', position='Query'),
-  queryOrder?: long(name='QueryOrder', example='id', position='Query'),
-  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-xxxxx', position='Query'),
+  initialQueryId?: string(name='InitialQueryId', description='The query ID.', example='1', position='Query'),
+  initialUser?: string(name='InitialUser', description='The user who executes the query statement.', example='testuser', position='Query'),
+  keyword?: string(name='Keyword', description='The keyword of the query statement.', example='SELECT', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
+  queryDurationMs?: string(name='QueryDurationMs', description='The execution duration of slow SQL queries. Minimum value: 1000. Unit: milliseconds.', example='1000', position='Query'),
+  queryOrder?: long(name='QueryOrder', description='Specifies the columns by which the query results are sorted in descending order.
+
+*   0: The query results are sorted by the query_duration_ms column.
+*   1: The query results are sorted by the query_duration_ms and query_start_time columns.
+*   2: The query results are sorted by the query_duration_ms, query_start_time, and user columns.', example='id', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-beijing', position='Query'),
 }
 
 model DescribeProcessListResponseBody = {
   data?: {
-    DBInstanceID?: int32(name='DBInstanceID', example='cc-xxxx'),
-    DBInstanceName?: string(name='DBInstanceName'),
+    DBInstanceID?: int32(name='DBInstanceID', description='The cluster ID.', example='cc-xxxx'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
     resultSet?: [ 
       {
-        initialAddress?: string(name='InitialAddress', example='0:0:0:0:0:ffff:1edd65ea'),
-        initialQueryId?: string(name='InitialQueryId', example='\\"79f7e40b-87e2-4ef4-b6df-21889a3a030e\\"'),
-        initialUser?: string(name='InitialUser', example='bany'),
-        query?: string(name='Query', example='select * from test'),
-        queryDurationMs?: long(name='QueryDurationMs', example='1000'),
-        queryStartTime?: string(name='QueryStartTime', example='2023-07-23T10:13:23Z'),
+        initialAddress?: string(name='InitialAddress', description='The address to which the query statement is sent.', example='0:0:0:0:0:ffff:1edd65ea'),
+        initialQueryId?: string(name='InitialQueryId', description='The query ID.', example='\\"79f7e40b-87e2-4ef4-b6df-21889a3a030e\\"'),
+        initialUser?: string(name='InitialUser', description='The user who executes the query statement.', example='bany'),
+        query?: string(name='Query', description='The query statement that is running.', example='select * from test'),
+        queryDurationMs?: long(name='QueryDurationMs', description='The minimum query duration. Minimum value: **1000**. Unit: milliseconds.', example='1000'),
+        queryStartTime?: string(name='QueryStartTime', description='The beginning of the time range to query. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-07-23T10:13:23Z'),
       }
-    ](name='ResultSet'),
-    totalCount?: int32(name='TotalCount', example='1'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='xxx-xxx-xxx'),
+    ](name='ResultSet', description='The result sets.'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='xxx-xxx-xxx'),
 }
 
 model DescribeProcessListResponse = {
@@ -688,25 +695,27 @@ async function describeProcessList(request: DescribeProcessListRequest): Describ
 }
 
 model DescribeSecurityIPListRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model DescribeSecurityIPListResponseBody = {
   data?: {
-    DBInstanceID?: int32(name='DBInstanceID', example='cc-bp100p4q1g9z3****'),
-    DBInstanceName?: string(name='DBInstanceName'),
+    DBInstanceID?: int32(name='DBInstanceID', description='The cluster ID.', example='cc-bp100p4q1g9z3****'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
     groupItems?: [ 
       {
-        groupName?: string(name='GroupName', example='default'),
-        groupTag?: string(name='GroupTag', example='test'),
-        securityIPList?: string(name='SecurityIPList', example='127.0.XX.XX'),
-        securityIPType?: string(name='SecurityIPType', example='ipv4'),
-        whitelistNetType?: string(name='WhitelistNetType', example='mix'),
+        groupName?: string(name='GroupName', description='The name of the whitelist.', example='default'),
+        groupTag?: string(name='GroupTag', description='The tag of the whitelist.', example='test'),
+        securityIPList?: string(name='SecurityIPList', description='The IP addresses and CIDR blocks in the whitelist.', example='127.0.XX.XX'),
+        securityIPType?: string(name='SecurityIPType', description='The IP address type.', example='ipv4'),
+        whitelistNetType?: string(name='WhitelistNetType', description='The network type of the whitelist.', example='mix'),
       }
-    ](name='GroupItems'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='D0CEC6AC-7760-409A-A0D5-E6CD8660E9CC'),
+    ](name='GroupItems', description='The details about the whitelists.'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D0CEC6AC-7760-409A-A0D5-E6CD8660E9CC'),
 }
 
 model DescribeSecurityIPListResponse = {
@@ -725,37 +734,43 @@ async function describeSecurityIPList(request: DescribeSecurityIPListRequest): D
 }
 
 model DescribeSlowLogRecordsRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
-  endTime?: string(name='EndTime', example='2023-09-15 16:00:00', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='30', position='Query'),
-  queryDurationMs?: string(name='QueryDurationMs', example='3000', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
-  startTime?: string(name='StartTime', example='2023-09-11 16:00:00', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the yyyy-MM-dd hh:mm:ss format. The time must be in UTC.', example='2023-09-15 16:00:00', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values:
+
+*   30 (default)
+*   50
+*   100', example='30', position='Query'),
+  queryDurationMs?: string(name='QueryDurationMs', description='The execution duration of slow SQL queries. Minimum value: **1000**. Unit: milliseconds.', example='3000', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the yyyy-MM-dd hh:mm:ss format. The time must be in UTC.', example='2023-09-11 16:00:00', position='Query'),
 }
 
 model DescribeSlowLogRecordsResponseBody = {
   data?: {
-    DBInstanceID?: int32(name='DBInstanceID', example='cc-bp100p4q1g9z32****'),
-    DBInstanceName?: string(name='DBInstanceName'),
+    DBInstanceID?: int32(name='DBInstanceID', description='The cluster ID.', example='cc-bp100p4q1g9z32****'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
     resultSet?: [ 
       {
-        initialAddress?: string(name='InitialAddress', example='0:0:0:0:0:ffff:1edd65ea'),
-        initialQueryId?: string(name='InitialQueryId', example='\\"ae915a3ad30e77e67a7215d05b658cc6\\"'),
-        initialUser?: string(name='InitialUser', example='bany'),
-        memoryUsage?: long(name='MemoryUsage', example='4941696'),
-        query?: string(name='Query', example='select * from test'),
-        queryDurationMs?: long(name='QueryDurationMs', example='3000'),
-        queryStartTime?: string(name='QueryStartTime', example='2023-09-11 16:00:00'),
-        readBytes?: long(name='ReadBytes', example='4507128020832'),
-        readRows?: long(name='ReadRows', example='10'),
-        resultBytes?: long(name='ResultBytes', example='10'),
-        type?: string(name='Type', example='ExceptionWhileProcessing'),
+        initialAddress?: string(name='InitialAddress', description='The address to which the query statement is sent.', example='0:0:0:0:0:ffff:1edd65ea'),
+        initialQueryId?: string(name='InitialQueryId', description='The query ID.', example='\\"ae915a3ad30e77e67a7215d05b658cc6\\"'),
+        initialUser?: string(name='InitialUser', description='The user who executes the query statement.', example='bany'),
+        memoryUsage?: long(name='MemoryUsage', description='The peak memory usage for the query. Unit: bytes.', example='4941696'),
+        query?: string(name='Query', description='The query statement that is running.', example='select * from test'),
+        queryDurationMs?: long(name='QueryDurationMs', description='The execution duration of slow SQL queries. Minimum value: **1000**. Unit: milliseconds.', example='3000'),
+        queryStartTime?: string(name='QueryStartTime', description='The beginning of the time range to query. The time is in the yyyy-MM-dd hh:mm:ss format. The time is displayed in UTC.', example='2023-09-11 16:00:00'),
+        readBytes?: long(name='ReadBytes', description='The size of the data that is scanned. Unit: bytes.', example='4507128020832'),
+        readRows?: long(name='ReadRows', description='The number of read rows.', example='10'),
+        resultBytes?: long(name='ResultBytes', description='The size of the result data. Unit: bytes.', example='10'),
+        type?: string(name='Type', description='The type of the slow query logs.', example='ExceptionWhileProcessing'),
       }
-    ](name='ResultSet'),
-    totalCount?: int32(name='TotalCount', example='1'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='DF203CC8-5F68-5E3F-8050-3C77DD65731A'),
+    ](name='ResultSet', description='The result sets.'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DF203CC8-5F68-5E3F-8050-3C77DD65731A'),
 }
 
 model DescribeSlowLogRecordsResponse = {
@@ -1017,7 +1032,7 @@ model ModifyDBInstanceConnectionStringResponseBody = {
     DBInstanceID?: int32(name='DBInstanceID', description='The cluster ID.', example='cc-xxxxx'),
     DBInstanceName?: string(name='DBInstanceName', description='The cluster name.', example='cc-xxxxx'),
     disabledPorts?: string(name='DisabledPorts'),
-  }(name='Data', description='The data returned.'),
+  }(name='Data', description='The returned data.'),
   requestId?: string(name='RequestId', description='The request ID.', example='xxx-xxx-xxx'),
 }
 
@@ -1105,17 +1120,19 @@ async function resetAccountPassword(request: ResetAccountPasswordRequest): Reset
 }
 
 model RestartDBInstanceRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model RestartDBInstanceResponseBody = {
   data?: {
-    DBInstanceID?: long(name='DBInstanceID', example='cc-bp100p4q1g9z3****'),
-    DBInstanceName?: string(name='DBInstanceName'),
-    taskId?: long(name='TaskId', example='100001080'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='D0CEC6AC-7760-409A-A0D5-E6CD8660E9CC'),
+    DBInstanceID?: long(name='DBInstanceID', description='The cluster ID.', example='cc-bp100p4q1g9z3****'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
+    taskId?: long(name='TaskId', description='The task ID.', example='100001080'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D0CEC6AC-7760-409A-A0D5-E6CD8660E9CC'),
 }
 
 model RestartDBInstanceResponse = {
@@ -1134,17 +1151,19 @@ async function restartDBInstance(request: RestartDBInstanceRequest): RestartDBIn
 }
 
 model StartDBInstanceRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model StartDBInstanceResponseBody = {
   data?: {
-    DBInstanceID?: long(name='DBInstanceID', example='cc-bp100p4q1g9z3****'),
-    DBInstanceName?: string(name='DBInstanceName'),
-    taskId?: long(name='TaskId', example='100000837'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='F5178C10-1407-4987-9133-DE4DC9119F76'),
+    DBInstanceID?: long(name='DBInstanceID', description='The cluster ID.', example='cc-bp100p4q1g9z3****'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
+    taskId?: long(name='TaskId', description='The task ID.', example='100000837'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F5178C10-1407-4987-9133-DE4DC9119F76'),
 }
 
 model StartDBInstanceResponse = {
@@ -1163,17 +1182,19 @@ async function startDBInstance(request: StartDBInstanceRequest): StartDBInstance
 }
 
 model StopDBInstanceRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
-  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The cluster ID.
+
+This parameter is required.', example='cc-bp100p4q1g9z3****', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
 model StopDBInstanceResponseBody = {
   data?: {
-    DBInstanceID?: long(name='DBInstanceID', example='cc-bp100p4q1g9z3****'),
-    DBInstanceName?: string(name='DBInstanceName'),
-    taskId?: long(name='TaskId', example='100000785'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='2FED790E-FB61-4721-8C1C-07C627FA5A19'),
+    DBInstanceID?: long(name='DBInstanceID', description='The cluster ID.', example='cc-bp100p4q1g9z3****'),
+    DBInstanceName?: string(name='DBInstanceName', description='The cluster name.'),
+    taskId?: long(name='TaskId', description='The task ID.', example='100000785'),
+  }(name='Data', description='The data returned.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2FED790E-FB61-4721-8C1C-07C627FA5A19'),
 }
 
 model StopDBInstanceResponse = {
