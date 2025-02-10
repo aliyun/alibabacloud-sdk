@@ -875,7 +875,10 @@ async function allocateIpv6Address(request: AllocateIpv6AddressRequest): Allocat
 }
 
 model AllocateIpv6InternetBandwidthRequest {
-  bandwidth: int32(name='Bandwidth', description='The Internet bandwidth of the IPv6 gateway. Unit: Mbit/s. Valid values: **1 to 5000**.
+  bandwidth: int32(name='Bandwidth', description='The Internet bandwidth of the IPv6 address. Unit: Mbit/s.
+
+*   If you set **InternetChargeType** to **PayByTraffic**, valid values are **1** to **1000**.
+*   If you set **InternetChargeType** to **PayByBandwidth**, valid values are **1** to **2000**.
 
 This parameter is required.', example='2', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
@@ -916,7 +919,8 @@ model AllocateIpv6InternetBandwidthResponse = {
 }
 
 /**
-  * @description You cannot repeatedly call the **AllocateIpv6InternetBandwidth** operation within a specific time period.
+  * @description *   Before you call this operation, make sure that an ECS instance that supports IPv6 is created in a VPC that has an IPv6 CIDR block. For more information, see [Create a VPC with an IPv6 CIDR block](https://help.aliyun.com/document_detail/100540.html).
+  * *   You cannot repeatedly call **AllocateIpv6InternetBandwidth** within the specified period of time.
   * @param request  the request parameters of AllocateIpv6InternetBandwidth  AllocateIpv6InternetBandwidthRequest
   * @return AllocateIpv6InternetBandwidthResponse
  */
@@ -1904,7 +1908,7 @@ model CheckVpnBgpEnabledRequest {
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
->  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
+> If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
 
@@ -2355,11 +2359,14 @@ async function createCommonBandwidthPackage(request: CreateCommonBandwidthPackag
 }
 
 model CreateCustomerGatewayRequest {
-  asn?: string(name='Asn', description='The autonomous system number (ASN) of the gateway device in the data center.
+  asn?: string(name='Asn', description='The autonomous system number (ASN) of the gateway device in your data center. This parameter is required If you want to use Border Gateway Protocol (BGP) for the IPsec-VPN connection. Valid values: 1 to 4294967295. 45104 is not supported.
 
-**Asn** is a 4-byte number. You can enter the number in two segments and separate the first 16 bits from the following 16 bits with a period (.). Enter the number in each segment in the decimal format.
+**Asn** is a 4-byte number. You can enter it in two segments and separate the first 16 bits from the following 16 bits with a period (.). Enter the number in each segment in decimal format.
 
-For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.', example='65530', position='Query'),
+For example, if you enter 123.456, the ASN is 8061384. The ASN is calculated by using the following formula: 123 × 65536 + 456 = 8061384.
+
+> - We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. For information about the range of private ASNs, see the relevant documentation.
+> - 45104 is a unique identifier assigned by IANA to Alibaba Cloud. It is used to identify Alibaba Cloud during route selection and data transmission over the Internet.', example='65530', position='Query'),
   authKey?: string(name='AuthKey', description='The authentication key of the BGP routing protocol for the gateway device in the data center.
 
 The key must be 1 to 64 characters in length. It can contain only ASCII characters and cannot contain spaces or question marks (?).', example='AuthKey****', position='Query'),
@@ -2371,7 +2378,18 @@ You can use the client to generate the token, but you must make sure that the to
   description?: string(name='Description', description='The description of the customer gateway.
 
 The description must be 1 to 100 characters in length, and cannot start with `http://` or `https://`.', example='desctest', position='Query'),
-  ipAddress: string(name='IpAddress', description='The public IP address of the gateway device in the data center.
+  ipAddress: string(name='IpAddress', description='The static IP address of the gateway device in the data center.
+
+*   If you want to create a public IPsec-VPN connection, enter a public IP address.
+*   If you want to create a private IPsec-VPN connection, enter a private IP address.
+
+You cannot use the following IP addresses. Otherwise, a IPsec-VPN connection cannot be established:
+
+*   100.64.0.0~100.127.255.255
+*   127.0.0.0~127.255.255.255
+*   169.254.0.0~169.254.255.255
+*   224.0.0.0~239.255.255.255
+*   255.0.0.0~255.255.255.255
 
 This parameter is required.', example='101.12.XX.XX', position='Query'),
   name?: string(name='Name', description='The name of the customer gateway.
@@ -2417,7 +2435,7 @@ model CreateCustomerGatewayResponseBody = {
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1493363486000'),
   customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway.', example='cgw-bp1jrawp82av6bws9****'),
   description?: string(name='Description', description='The description of the customer gateway.', example='desctest'),
-  ipAddress?: string(name='IpAddress', description='The public IP address of the gateway device in the data center.', example='101.12.XX.XX'),
+  ipAddress?: string(name='IpAddress', description='The static IP address of the gateway device in the on-premises data center.', example='101.12.XX.XX'),
   name?: string(name='Name', description='The name of the customer gateway.', example='nametest'),
   requestId?: string(name='RequestId', description='The request ID.', example='D32B3C26-6C6C-4988-93E9-D2A6444CE6AE'),
 }
@@ -3299,7 +3317,7 @@ You can use the client to generate the value, but you must make sure that the va
 >  If you do not specify this parameter, **ClientToken** is set to the value of **RequestId**. The value of **RequestId** for each API request may be different.', example='0c593ea1-3bea-11e9-b96b-88e9fe637760', position='Query'),
   description?: string(name='Description', description='The description of the HAVIP.
 
-The description must be 1 to 256 characters in length and cannot start with `http://` or `https://`.', example='This is my HaVip.', position='Query'),
+The description must be 1 to 255 characters in length and cannot start with `http://` or `https://`.', example='This is my HaVip.', position='Query'),
   ipAddress?: string(name='IpAddress', description='The IP address of the HAVIP.
 
 The specified IP address must be an idle IP address that falls within the CIDR block of the vSwitch. If this parameter is not set, an idle IP address from the CIDR block of the vSwitch is randomly assigned to the HAVIP.', example='192.XX.XX.10', position='Query'),
@@ -3688,11 +3706,11 @@ Multiple CIDR blocks are separated with commas (,). Example: 192.168.1.0/24,192.
 This parameter is required.', example='192.168.0.0/24', position='Query'),
   psk?: string(name='Psk', description='The pre-shared key.
 
-The pre-shared key is used for identity authentication between the IPsec server and the client. The key must be 1 to 100 characters in length.
+The pre-shared key that is used for authentication between the IPsec-VPN server and the client. It must be 1 to 100 characters in length.
 
-If you do not specify a pre-shared key, the system randomly generates a 16-character string as the pre-shared key. You can call the [ListIpsecServers](https://help.aliyun.com/document_detail/2794120.html) operation to query the pre-shared keys that are generated by the system.
+If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call [ListIpsecServers](https://help.aliyun.com/document_detail/2794120.html) to query keys generated by the system.
 
->  The pre-shared key of the IPsec server must be the same as the client key. Otherwise, the IPsec server cannot be connected to the client.', example='Cfd123****', position='Query'),
+> The pre-shared key of the IPsec server key must be the same as that of the client. Otherwise, the connection between the IPsec server and the client cannot be established.', example='Cfd123****', position='Query'),
   pskEnabled?: boolean(name='PskEnabled', description='Indicates whether pre-shared key authentication is enabled. If you set the value to **true**, pre-shared key authentication is enabled.
 
 >  This parameter is required.', example='true', position='Query'),
@@ -3812,7 +3830,7 @@ You can use the client to generate a token, but you must make sure that the toke
 >  If you do not specify this parameter, the system automatically uses the value of RequestId as the client token. The value of RequestId is different for each API request.', example='0c593ea1-3bea-11e9-b96b-88e9fe637760', position='Query'),
   description?: string(name='Description', description='The description of the egress-only rule.
 
-The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='ruledescription', position='Query'),
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='ruledescription', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the IPv6 address for which you want to create an egress-only rule.
 
 This parameter is required.', example='ipv6-hp3nxjkfxn5pnhgl5****', position='Query'),
@@ -3824,7 +3842,7 @@ Default value: **Ipv6Address**', example='Ipv6Address', position='Query'),
 This parameter is required.', example='ipv6gw-hp3c2paq0ywauasza****', position='Query'),
   name?: string(name='Name', description='The name of the egress-only rule.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='rulename', position='Query'),
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='rulename', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which the IPv6 gateway is deployed.
@@ -3868,10 +3886,10 @@ You can use the client to generate the token, but you must make sure that the to
 >  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='0c593ea1-3bea-11e9-b96b-88e9fe637760', position='Query'),
   description?: string(name='Description', description='The description of the IPv6 gateway.
 
-The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.', example='ipv6gatewayforVPC1', position='Query'),
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='ipv6gatewayforVPC1', position='Query'),
   name?: string(name='Name', description='The name of the IPv6 gateway.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter but cannot start with `http://` or `https://`.', example='ipv6GW', position='Query'),
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='ipv6GW', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the IPv6 gateway. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -5196,17 +5214,18 @@ model CreateSslVpnServerRequest {
     *   **none**', example='AES-128-CBC', position='Query'),
   clientIpPool: string(name='ClientIpPool', description='The client CIDR block.
 
-It is the CIDR block from which an IP address is allocated to the virtual network interface controller (NIC) of the client. It is not the private CIDR block of the client.
+The CIDR block from which an IP address is allocated to the virtual network interface controller (NIC) of the client, rather than the private CIDR block.
 
-If the client accesses the SSL server over an SSL-VPN connection, the VPN gateway assigns an IP address from the specified client CIDR block to the client. The client uses the assigned IP address to access cloud resources.
+If the client accesses the SSL server over an SSL-VPN connection, the VPN gateway assigns an IP address from the specified client CIDR block for the client to access cloud resources.
 
 Make sure that the number of IP addresses in the client CIDR block is at least four times the maximum number of SSL-VPN connections supported by the VPN gateway.
 
 <details>
 <summary>Click to view the reason.</summary>
 
-For example, if you specify 192.168.0.0/24 as the client CIDR block, the system first divides a subnet CIDR block with a subnet mask of 30 from 192.168.0.0/24, such as 192.168.0.4/30. This subnet provides up to four IP addresses. Then, the system allocates an IP address from 192.168.0.4/30 to the client and uses the other three IP addresses to ensure network communication. In this case, one client consumes four IP addresses. Therefore, to ensure that an IP address is assigned to your client, you must make sure that the number of IP addresses in the client CIDR block is at least four times the maximum number of SSL-VPN connections supported by the VPN gateway with which the SSL server is associated.
+For example, if you specify 192.168.0.0/24 as the client CIDR block, the system first divides a subnet CIDR block with a subnet mask of 30 from 192.168.0.0/24, such as 192.168.0.4/30. This subnet provides up to four IP addresses. Then, the system allocates an IP address from 192.168.0.4/30 to the client and uses the other three IP addresses to ensure network communication. In this case, one client consumes four IP addresses. Therefore, to ensure that an IP address is assigned to your client, the number of IP addresses in the client CIDR block must be at least four times the maximum number of SSL-VPN connections supported by the VPN gateway with which the SSL server is associated.
 </details>
+
 <details>
 <summary>Click to view the CIDR blocks that are not supported.</summary>
 
@@ -5219,6 +5238,7 @@ For example, if you specify 192.168.0.0/24 as the client CIDR block, the system 
 <details>
 <summary>Click to view the recommended client CIDR blocks for different numbers of SSL-VPN connections.</summary>
 
+
 *   If the number of SSL-VPN connections is 5, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 27 bits in length. Examples: 10.0.0.0/27 and 10.0.0.0/26.
 *   If the number of SSL-VPN connections is 10, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 26 bits in length. Examples: 10.0.0.0/26 and 10.0.0.0/25.
 *   If the number of SSL-VPN connections is 20, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 25 bits in length. Examples: 10.0.0.0/25 and 10.0.0.0/24.
@@ -5229,10 +5249,10 @@ For example, if you specify 192.168.0.0/24 as the client CIDR block, the system 
 *   If the number of SSL-VPN connections is 1,000, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 20 bits in length. Examples: 10.0.0.0/20 and 10.0.0.0/19.
 </details>
 
-> - The subnet mask of the client CIDR block must be 16 to 29 bits in length.
+>  - The subnet mask of the client CIDR block must be 16 to 29 bits in length.
 > - Make sure that the client CIDR block does not overlap with the local CIDR block, the VPC CIDR block, or route CIDR blocks associated with the client.
-> - We recommend that you use 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, or one of their subnets as the client CIDR block. If you want to specify a public CIDR block as the client CIDR block, you must specify the public CIDR block as the user CIDR block of the virtual private cloud (VPC). This way, the VPC can access the public CIDR block. For more information, see [VPC FAQ](https://help.aliyun.com/document_detail/185311.html).
-> - After you create an SSL server, the system automatically adds routes that point to the client CIDR block to the VPC route table. Do not add routes that point to the client CIDR block to the VPC route table again. Otherwise, SSL-VPN connections cannot work as expected.
+> - We recommend that you use 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, or one of their subnets as the client CIDR block. If you want to specify a public CIDR block as the client CIDR block, you must specify the public CIDR block as the user CIDR block of the virtual private cloud (VPC). This way, the VPC can access the public CIDR block. For more information, see [VPC FAQs](https://help.aliyun.com/document_detail/185311.html).
+> - After you create an SSL server, the system automatically adds routes that point to the client CIDR block to the VPC route table. Do not manually add routes that point to the client CIDR block. Otherwise, SSL-VPN connections cannot work as expected.
 
 This parameter is required.', example='192.168.1.0/24', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
@@ -5260,7 +5280,7 @@ You can use the client to generate the token, but you must make sure that the to
   iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS EIAM instance.', example='cn-hangzhou', position='Query'),
   localSubnet: string(name='LocalSubnet', description='The local CIDR block.
 
-It is the CIDR block that your client needs to access by using the SSL-VPN connection.
+The CIDR block that your client needs to access by using the SSL-VPN connection.
 
 This value can be the CIDR block of a VPC, a vSwitch, a data center that is connected to a VPC by using an Express Connect circuit, or an Alibaba Cloud service such as Object Storage Service (OSS).
 
@@ -5857,7 +5877,7 @@ You can use the client to generate the token, but you must make sure that the to
 This parameter is required.', example='vco-p0w2jpkhi2eeop6q6****', position='Query'),
   overlayMode?: string(name='OverlayMode', description='The tunneling protocol. Set the value to **Ipsec**, which specifies the IPsec tunneling protocol.', example='Ipsec', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region where the IPsec-VPN connection is established.
+  regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
@@ -6404,48 +6424,62 @@ model CreateVpnAttachmentRequest {
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
-  bgpConfig?: string(name='BgpConfig', description='The Border Gateway Protocol (BGP) configurations:
+  bgpConfig?: string(name='BgpConfig', description='This parameter is supported when you create an IPsec-VPN connection in single-tunnel mode.
 
-*   **BgpConfig.EnableBgp**: specifies whether to enable BGP. Valid values: **true** and **false**. Default value: false.
+BGP configuration:
+
+*   **BgpConfig.EnableBgp**: specifies whether to enable BGP. Valid values: **true** and **false** (default).
 
 *   **BgpConfig.LocalAsn**: the ASN on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
 
-    You can enter the ASN in two segments. Separate the first 16 bits of the ASN from the remaining 16 bits with a period (.). Enter the number in each segment in decimal format.
+    You can enter a value in two segments separated by a period (.). Each segment is 16 bits in length. Enter the number in each segment in decimal format.
 
-    For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.
+    For example, if you enter 123.456, the ASN is 8061384. The ASN is calculated by using the following formula: 123 × 65536 + 456 = 8061384.
 
-*   **BgpConfig.TunnelCidr**: the CIDR block of the IPsec tunnel. The CIDR block falls within 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
+*   **BgpConfig.TunnelCidr**: The CIDR block of the IPsec tunnel. The CIDR block must fall into 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
 
-*   **LocalBgpIp:** the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block range of the IPsec tunnel.
+*   **LocalBgpIp**: the BGP address on the Alibaba Cloud side. It must be an IP address that falls within the CIDR block of the IPsec tunnel.
 
-> *   Before you configure BGP, we recommend that you learn about how BGP works and the limits. For more information, see [BGP dynamic routing ](https://help.aliyun.com/document_detail/170235.html).
-> *   We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+> - Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/445767.html).
+> - We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
 > If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
-  customerGatewayId?: string(name='CustomerGatewayId', description='The customer gateway ID.', example='cgw-p0w2jemrcj5u61un8****', position='Query'),
+  customerGatewayId?: string(name='CustomerGatewayId', description='The customer gateway ID.
+
+>  This parameter is required only when you create a single-tunnel IPsec-VPN connection.', example='cgw-p0w2jemrcj5u61un8****', position='Query'),
   effectImmediately?: boolean(name='EffectImmediately', description='Specifies whether to immediately start IPsec negotiations after the configuration takes effect. Valid values:
 
 *   **true**: immediately starts IPsec negotiations after the configuration is complete.
 *   **false** (default): starts IPsec negotiations when inbound traffic is received.', example='false', position='Query'),
-  enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable the dead peer detection (DPD) feature. Valid values:
+  enableDpd?: boolean(name='EnableDpd', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
 
-*   **true** (default) The initiator of the IPsec-VPN connection sends DPD packets to verify the existence and availability of the peer. If no response is received from the peer within a specified period of time, the connection fails. ISAKMP SAs and IPsec SAs are deleted. The IPsec tunnel is also deleted.
-*   **false**', example='true', position='Query'),
-  enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal. Valid values:
+Specifies whether to enable DPD. Valid values: Valid values:
 
-*   **true** (default) After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the VPN tunnel.
-*   **false**', example='true', position='Query'),
-  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp', position='Query'),
-  healthCheckConfig?: string(name='HealthCheckConfig', description='The health check configuration:
+*   **true** (default): enables DPD. The initiator of the IPsec-VPN connection sends DPD packets to check the existence and availability of the peer. If no feedback is received from the peer within the specified period of time, the connection fails. In this case, ISAKMP SA and IPsec SA are deleted along with the security tunnel.
+*   **false**: disables DPD. The initiator of the IPsec-VPN connection does not send DPD packets.', example='true', position='Query'),
+  enableNatTraversal?: boolean(name='EnableNatTraversal', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
 
-*   **HealthCheckConfig.enable**: specifies whether to enable health checks. Valid values: **true** and **false**. Default value: false.
+Specifies whether to enable NAT traversal. Valid values:
 
-*   **HealthCheckConfig.dip**: the destination IP address configured for health checks. Enter the IP address on the data center side that the VPC can communicate with through the IPsec-VPN connection.
+*   **true** (default): enables NAT traversal. After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
+*   **false**: disables NAT traversal.', example='true', position='Query'),
+  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp', description='This parameter is available if you create an IPsec-VPN connection in dual-tunnel mode.
 
-*   **HealthCheckConfig.sip**: the source IP address configured for health checks. Enter the IP address on the VPC side that the data center can communicate with through the IPsec-VPN connection.
+Specifies whether to enable the BGP feature for the tunnel. Valid values: **true** and **false**. Default value: false.
+
+>  Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/445767.html)', example='false', position='Query'),
+  healthCheckConfig?: string(name='HealthCheckConfig', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
+
+The health check configurations:
+
+*   **HealthCheckConfig.enable**: indicates whether the health check is enabled. Valid values: **true** and **false** (default).
+
+*   **HealthCheckConfig.dip**: the destination IP address configured for health checks. Enter the IP address of the on-premises data center that the VPC can access through the IPsec connection.
+
+*   **HealthCheckConfig.sip**: the source IP address configured for health checks. Enter the IP address of the VPC that the on-premises data center can access through the IPsec connection.
 
 *   **HealthCheckConfig.interval**: the time interval of health check retries. Unit: seconds. Default value: **3**.
 
@@ -6455,11 +6489,13 @@ You can use the client to generate the token, but you must make sure that the to
 
     *   **revoke_route** (default): withdraws published routes.
     *   **reserve_route**: does not withdraw published routes.', example='{"enable":"true","dip":"192.168.1.1","sip":"10.1.1.1","interval":"3","retry":"3","Policy": "revoke_route"}', position='Query'),
-  ikeConfig?: string(name='IkeConfig', description='The configurations of Phase 1 negotiations:
+  ikeConfig?: string(name='IkeConfig', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
+
+The configurations of Phase 1 negotiations:
 
 *   **IkeConfig.Psk**: the pre-shared key that is used for identity authentication between the VPN gateway and the on-premises data center.
 
-    *   The key must be 1 to 100 characters in length and can contain digits, letters, and the following special characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+    *   The key cannot contain space characters. The key must be 1 to 100 characters in length, and can contain digits, letters, and the following special characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
     *   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/2526951.html) operation to query the pre-shared key that is automatically generated by the system.
 
     > The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
@@ -6476,15 +6512,17 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **IkeConfig.IkeLifetime**: the SA lifetime as a result of Phase 1 negotiations. Unit: seconds. Valid values: **0** to **86400**. Default value: **86400**.
 
-*   **IkeConfig.LocalIdIPsec**: the identifier on the Alibaba Cloud side. The identifier cannot exceed 100 characters in length. This parameter is left empty by default.
+*   **IkeConfig.LocalId**: the identifier on the Alibaba Cloud side. The identifier cannot exceed 100 characters in length and cannot contain space characters. This parameter is empty by default.
 
-*   **IkeConfig.RemoteId**: the identifier on the data center side. The identifier cannot exceed 100 characters in length. The default value is the IP address of the customer gateway.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
-  ipsecConfig?: string(name='IpsecConfig', description='The configurations of Phase 2 negotiations:
+*   **IkeConfig.RemoteId**: the identifier on the data center side. The identifier cannot exceed 100 characters in length and cannot contain space characters. The default value is the IP address of the customer gateway.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
+  ipsecConfig?: string(name='IpsecConfig', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
+
+The configurations of Phase 2 negotiations:
 
 *   **IpsecConfig.IpsecEncAlg**: the encryption algorithm that is used in Phase 2 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**. Default value: **aes**.
 *   **IpsecConfig. IpsecAuthAlg**: the authentication algorithm that is used in Phase 2 negotiations. Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**. Default value: **md5**.
-*   **IpsecConfig. IpsecPfs**: the Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**. Default value: **group2**.
-*   **IpsecConfig. IpsecLifetime**: the SA lifetime that is determined by Phase 2 negotiations. Unit: seconds. Valid values: **0** to **86400**. Default value: **86400**.', example='{"IpsecEncAlg":"aes","IpsecAuthAlg":"sha1","IpsecPfs":"group2","IpsecLifetime":86400}', position='Query'),
+*   **IpsecConfig. IpsecPfs**: The Diffie-Hellman key exchange algorithm used in the second phase negotiation. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**. Default value: **group2**.
+*   **IkeConfig.IkeLifetime**: the SA lifetime determined by Phase 2 negotiations. Unit: seconds. Valid values: **0** to **86400**. Default value: **86400**.', example='{"IpsecEncAlg":"aes","IpsecAuthAlg":"sha1","IpsecPfs":"group2","IpsecLifetime":86400}', position='Query'),
   localSubnet: string(name='LocalSubnet', description='The CIDR block on the VPC side. The CIDR block is used in Phase 2 negotiations.
 
 Separate multiple CIDR blocks with commas (,). Example: 192.168.1.0/24,192.168.2.0/24.
@@ -6545,34 +6583,77 @@ The tag value can be an empty string and cannot exceed 128 characters in length.
 Each tag key corresponds to one tag value. You can specify up to 20 tag values in each call.', position='Query'),
   tunnelOptionsSpecification?: [ 
     {
-      customerGatewayId?: string(name='CustomerGatewayId'),
-      enableDpd?: boolean(name='EnableDpd'),
-      enableNatTraversal?: boolean(name='EnableNatTraversal'),
+      customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway that is associated with the tunnel.
+
+>  This parameter is required when you create a dual-tunnel IPsec-VPN connection.', example='cgw-p0w2jemrcj5u61un8****'),
+      enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable the DPD feature for the tunnel. Valid values:
+
+*   **true** (default): enables DPD. The initiator of the IPsec-VPN connection sends DPD packets to check the existence and availability of the peer. If no feedback is received from the peer within the specified period of time, the connection fails. In this case, ISAKMP SA and IPsec SA are deleted along with the security tunnel.
+*   **false**: disables DPD. The initiator of the IPsec-VPN connection does not send DPD packets.', example='true'),
+      enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal for the tunnel. Valid values:
+
+*   **true** (default): enables NAT traversal. After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
+*   **false**: disables NAT traversal.', example='true'),
       tunnelBgpConfig?: {
-        localAsn?: long(name='LocalAsn'),
-        localBgpIp?: string(name='LocalBgpIp'),
-        tunnelCidr?: string(name='TunnelCidr'),
-      }(name='TunnelBgpConfig'),
+        localAsn?: long(name='LocalAsn', description='The ANS of the tunnel on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
+
+>  We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='65530'),
+        localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel on the Alibaba Cloud side. The address is an IP address that falls within the BGP CIDR block.', example='169.254.10.1'),
+        tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel. The CIDR block must fall into 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
+
+>  The two tunnels of an IPsec-VPN connection must use different CIDR blocks.', example='169.254.10.0/30'),
+      }(name='TunnelBgpConfig', description='The BGP configurations of the tunnel.
+
+>  If you enable BGP for an IPsec-VPN connection, you must set **EnableTunnelsBgp** parameter to **true**.'),
       tunnelIkeConfig?: {
-        ikeAuthAlg?: string(name='IkeAuthAlg'),
-        ikeEncAlg?: string(name='IkeEncAlg'),
-        ikeLifetime?: long(name='IkeLifetime'),
-        ikeMode?: string(name='IkeMode'),
-        ikePfs?: string(name='IkePfs'),
-        ikeVersion?: string(name='IkeVersion'),
-        localId?: string(name='LocalId'),
-        psk?: string(name='Psk'),
-        remoteId?: string(name='RemoteId'),
-      }(name='TunnelIkeConfig'),
-      tunnelIndex?: int32(name='TunnelIndex'),
+        ikeAuthAlg?: string(name='IkeAuthAlg', description='The authentication algorithm that is used in Phase 1 negotiations. Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**. Default value: **sha1**.', example='sha1'),
+        ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm that is used in Phase 1 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**. Default value: **aes**.', example='aes'),
+        ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime as a result of Phase 1 negotiations. Unit: seconds.
+
+Valid values: **0** to **86400**. Default value: **86400**.', example='86400'),
+        ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values: **main** and **aggressive**. Default value: **main**.
+
+*   **main:** This mode offers higher security during negotiations.
+*   **aggressive**: This mode is faster with a higher success rate.', example='main'),
+        ikePfs?: string(name='IkePfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Default value: **group2**.\\
+Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+        ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol. Valid values: **ikev1** and **ikev2**. Default value: **ikev2**.
+
+Compared with IKEv1, IKEv2 simplifies the SA negotiation process and provides better support for scenarios with multiple CIDR blocks.', example='ikev2'),
+        localId?: string(name='LocalId', description='The identifier of the tunnel on the Alibaba Cloud side, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain spaces. The default value is the IP address of the tunnel.
+
+**LocalId** supports fully qualified domain names (FQDNs). If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.XX.XX.1'),
+        psk?: string(name='Psk', description='The pre-shared key that is used for identity authentication between the tunnel and the tunnel peer.
+
+*   The key cannot contain spaces. The key must be 1 to 100 characters in length, and can contain digits, letters, and the following special characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+*   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnAttachments](https://help.aliyun.com/document_detail/2526939.html) operation to query the pre-shared key that is automatically generated by the system.
+
+>  The tunnel and the tunnel peer must use the same pre-shared key. Otherwise, the tunnel cannot be established.', example='123456****'),
+        remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain spaces. The default value is the IP address of the customer gateway that is associated with the tunnel.
+
+**RemoteId** supports FQDNs. If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.XX.XX.2'),
+      }(name='TunnelIkeConfig', description='The configurations of Phase 1 negotiations.'),
+      tunnelIndex?: int32(name='TunnelIndex', description='The order in which the tunnel was created.
+
+*   **1**: Tunnel 1.
+*   **2**: Tunnel 2.', example='1'),
       tunnelIpsecConfig?: {
-        ipsecAuthAlg?: string(name='IpsecAuthAlg'),
-        ipsecEncAlg?: string(name='IpsecEncAlg'),
-        ipsecLifetime?: long(name='IpsecLifetime'),
-        ipsecPfs?: string(name='IpsecPfs'),
-      }(name='TunnelIpsecConfig'),
+        ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm that is used in Phase 2 negotiations.
+
+Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**. Default value: **sha1**.', example='sha1'),
+        ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm that is used in Phase 2 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**. Default value: **aes**.', example='aes'),
+        ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime as a result of Phase 2 negotiations. Unit: seconds.
+
+Valid values: **0** to **86400**. Default value: **86400**.', example='86400'),
+        ipsecPfs?: string(name='IpsecPfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations. Default value: **group2**.
+
+Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+      }(name='TunnelIpsecConfig', description='The configurations of Phase 2 negotiations.'),
     }
-  ](name='TunnelOptionsSpecification', position='Body'),
+  ](name='TunnelOptionsSpecification', description='The tunnel configurations.
+
+*   You can specify parameters in the **TunnelOptionsSpecification** array when you create an IPsec-VPN connection in dual tunnel mode.
+*   When you create a IPsec-VPN connection in dual-tunnel mode, you must add both tunnels to IPsec-VPN connection to ensure that the IPsec-VPN connection has connection redundancy. Each IPsec-VPN connection supports only two tunnels.', position='Body'),
 }
 
 model CreateVpnAttachmentResponseBody = {
@@ -6597,9 +6678,12 @@ model CreateVpnAttachmentResponse = {
 }
 
 /**
-  * @description By default, an IPsec-VPN connection created by calling the `CreateVpnAttachment` operation is not associated with a resource. You can associate an IPsec-VPN connection with a transit router by calling the [CreateTransitRouterVpnAttachment](https://help.aliyun.com/document_detail/443993.html) operation.
+  * @description *   By default, the IPsec-VPN connection created by calling the `CreateVpnAttachment` operation is not bound to any resources. You can call the [CreateTransitRouterVpnAttachment](https://help.aliyun.com/document_detail/443993.html) operation to bind the IPsec-VPN connection to a transit router.
+  * *   If you want to associate an IPsec-VPN connection with a transit router, you can create a dual-tunnel connection in some regions. For more information, see [Dual-tunnel IPsec-VPN connections](https://help.aliyun.com/document_detail/2853535.html).
+  *     *   When you create a IPsec-VPN connection in dual tunnel mode, you can configure the following request parameters in addition to the required parameters: **ClientToken**, **Name**, **NetworkType**, **EffectImmediately**, **AutoConfigRoute**, **Tags** array, **ResourceGroupId**, **TunnelOptionsSpecification** array, and **EnableTunnelsBgp**.
+  *     *   When you create a IPsec-VPN connection in single tunnel mode, you can configure the following request parameters in addition to the required parameters: **ClientToken**, **CustomerGatewayId**, **NetworkType**, **Name**, **EffectImmediately**, **IkeConfig**, **IpsecConfig**, **HealthCheckConfig**, **AutoConfigRoute**, **EnableDpd**, **EnableNatTraversal**, **BgpConfig**, **Tags** array, and **ResourceGroupId**.
   * ### [](#)Prerequisites
-  * Before you create an IPsec-VPN connection, make sure that you created a customer gateway in the region where you want to create the IPsec-VPN connection. For more information, see [CreateCustomerGateway](https://help.aliyun.com/document_detail/120368.html).
+  * Before you create an IPsec-VPN connection, you must create a customer gateway in the region where you want to create the IPsec-VPN connection. For more information, see [CreateCustomerGateway](https://help.aliyun.com/document_detail/120368.html).
   * If you want to add BGP configurations to an IPsec-VPN connection, make sure that an autonomous system number (ASN) is assigned to the customer gateway.
   * @param request  the request parameters of CreateVpnAttachment  CreateVpnAttachmentRequest
   * @return CreateVpnAttachmentResponse
@@ -6614,7 +6698,7 @@ model CreateVpnConnectionRequest {
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
-  bgpConfig?: string(name='BgpConfig', description='This parameter is supported when you create an IPsec-VPN connection in single-tunnel mode.
+  bgpConfig?: string(name='BgpConfig', description='This parameter is supported if you create an IPsec-VPN connection in single-tunnel mode.
 
 BGP configuration:
 
@@ -6626,14 +6710,14 @@ BGP configuration:
 
     For example, if you enter 123.456, the ASN is 8061384. The ASN is calculated by using the following formula: 123 × 65536 + 456 = 8061384.
 
-*   **BgpConfig.TunnelCidr**: The CIDR block of the IPsec tunnel. The CIDR block must belong to 169.254.0.0/16 and the subnet mask is 30 bits in length.
+*   **BgpConfig.TunnelCidr**: The CIDR block of the IPsec tunnel. The CIDR block must fall within 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
 
-    >The CIDR block of the IPsec tunnel for each IPsec-VPN connection on a VPN gateway must be unique.
+    > The CIDR block of the IPsec tunnel for each IPsec-VPN connection on a VPN gateway must be unique.
 
 *   **LocalBgpIp**: the BGP address on the Alibaba Cloud side. It must be an IP address that falls within the CIDR block of the IPsec tunnel.
 
-> *   Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [VPN Gateway supports BGP dynamic routing](https://help.aliyun.com/document_detail/170235.html).
-> *   We recommend that you use private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+> - Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/2638220.html).
+> - We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
@@ -6676,13 +6760,11 @@ The configurations of Phase 1 negotiations:
 
 *   **IkeConfig.Psk**: the pre-shared key that is used for identity authentication between the VPN gateway and the on-premises data center.
 
-    *   The key must be 1 to 100 characters in length and can contain digits, letters, and the following special characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+    *   The key cannot contain spaces. The key must be 1 to 100 characters in length, and can contain digits, letters, and the following special characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
 
     *   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/2526951.html) operation to query the pre-shared key that is automatically generated by the system.
 
-        **
-
-        **Note** The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
+        > The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
 
 *   **IkeConfig.IkeVersion**: the version of the Internet Key Exchange (IKE) protocol. Valid values: **ikev1** and **ikev2**. Default value: **ikev1**.
 
@@ -6691,7 +6773,7 @@ The configurations of Phase 1 negotiations:
 *   **IkeConfig.IkeMode**: the negotiation mode of IKE. Valid values: **main** and **aggressive**. Default value: **main**.
 
     *   **main:** This mode offers higher security during negotiations.
-    *   **aggressive**: This mode supports faster negotiations and a higher success rate.
+    *   **aggressive:** This mode is faster and has a higher success rate.
 
 *   **IkeConfig.IkeEncAlg**: the encryption algorithm that is used in Phase 1 negotiations.
 
@@ -6703,11 +6785,11 @@ The configurations of Phase 1 negotiations:
 
 *   **IkeConfig.IkePfs**: the Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**. Default value: **group2**.
 
-*   **IkeConfig.IkeLifetime**: the SA lifetime as a result of Phase 1 negotiations. Unit: seconds. Valid values: **0** to **86400**. Default value: **86400**.
+*   **IkeConfig.IkeLifetime**: the SA lifetime as a result of Phase 1 negotiations. Unit: seconds Valid values: **0** to **86400**. Default value: **86400**.
 
-*   **IkeConfig.LocalId**: the identifier of the VPN gateway. It can contain at most 100 characters. The default value is the IP address of the VPN gateway.
+*   **IkeConfig.LocalId**: the identifier of the VPN gateway. It can be up to 100 characters in length and cannot contain space characters. The default value is the IP address of the VPN gateway.
 
-*   **IkeConfig.RemoteId**: the identifier of the customer gateway. It can contain at most 100 characters. The default value is the IP address of the customer gateway.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
+*   **IkeConfig.RemoteId**: the identifier of the customer gateway. It can be up to 100 characters in length and cannot contain space characters. The default value is the IP address of the customer gateway.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
   ipsecConfig?: string(name='IpsecConfig', description='This parameter is available if you create an IPsec-VPN connection in single-tunnel mode.
 
 The configurations of Phase 2 negotiations:
@@ -6796,20 +6878,18 @@ Each tag key corresponds to one tag value. You can specify up to 20 tag values i
 
 *   If the VPN gateway uses an SM certificate, this parameter is required.
 *   If the VPN gateway does not use an SM certificate, leave this parameter empty.', example='-----BEGIN CERTIFICATE----- MIIB7zCCAZW**** -----END CERTIFICATE-----'),
-      role?: string(name='Role', description='The role of the tunnel. Valid values: Valid values:
+      role?: string(name='Role', description='The role of the tunnel. Valid values:
 
 *   **master**: The tunnel is an active tunnel.
 *   **slave**: The tunnel is a standby tunnel.', example='master'),
       tunnelBgpConfig?: {
         localAsn?: long(name='LocalAsn', description='The autonomous system number (ASN) of the tunnel on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
 
- 
-
 > - If you set **EnableTunnelsBgp** to **true**, you must set this parameter.
-> - Before you add BGP configurations, we recommend that you learn about how BGP dynamic routing works and the limits. For more information, see [VPN Gateway supports BGP dynamic routing](https://help.aliyun.com/document_detail/170235.html).
+> - Before you add BGP configurations, we recommend that you learn about how BGP dynamic routing works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/2638220.html).
 > - We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. For information about the range of private ASNs, see the relevant documentation.', example='65530'),
         localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel on the Alibaba Cloud side. The address is an IP address that falls within the BGP CIDR block.', example='169.254.10.1'),
-        tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel. The CIDR block must fall within the 169.254.0.0/16 range. The subnet mask of the CIDR block must be 30 bits in length.
+        tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel. The CIDR block must fall within 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
 
 >  The BGP CIDR block of each tunnel must be unique on a VPN gateway.', example='169.254.10.0/30'),
       }(name='TunnelBgpConfig', description='The Border Gateway Protocol (BGP) configurations of the tunnel.'),
@@ -6820,28 +6900,28 @@ Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**. Default
         ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm that is used in Phase 1 negotiations.
 
 Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**. Default value: **aes**.', example='aes'),
-        ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime as a result of Phase 1 negotiations. Unit: seconds.
+        ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime as a result of Phase 1 negotiations. Unit: seconds
 
 Valid values: **0** to **86400**. Default value: **86400**.', example='86400'),
         ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values: **main** and **aggressive**. Default value: **main**.
 
 *   **main:** This mode offers higher security during negotiations.
-*   **aggressive**: This mode supports faster negotiations and a higher success rate.', example='main'),
+*   **aggressive:** This mode is faster and has a higher success rate.', example='main'),
         ikePfs?: string(name='IkePfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Default value: **group2**.\\
 Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
         ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol. Valid values: **ikev1** and **ikev2**. Default value: **ikev1**.
 
 Compared with IKEv1, IKEv2 simplifies the SA negotiation process and provides better support for scenarios with multiple CIDR blocks.', example='ikev1'),
-        localId?: string(name='LocalId', description='The identifier of the tunnel on the Alibaba Cloud side, which is used in Phase 1 negotiations. It can contain at most 100 characters. The default value is the IP address of the tunnel.
+        localId?: string(name='LocalId', description='The identifier of the tunnel on the Alibaba Cloud side, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain space characters. The default value is the IP address of the tunnel.
 
 **LocalId** supports fully qualified domain names (FQDNs). If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.21.XX.XX'),
         psk?: string(name='Psk', description='The pre-shared key that is used for identity authentication between the tunnel and the tunnel peer.
 
-*   The key must be 1 to 100 characters in length and can contain digits, letters, and the following special characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+*   The key cannot contain spaces. The key must be 1 to 100 characters in length, and can contain digits, letters, and the following special characters: ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
 *   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/2526951.html) operation to query the pre-shared key that is automatically generated by the system.
 
 >  The tunnel and the tunnel peer must use the same pre-shared key. Otherwise, the tunnel cannot be established.', example='123456****'),
-        remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer, which is used in Phase 1 negotiations. It can contain at most 100 characters. The default value is the IP address of the customer gateway that is associated with the tunnel.
+        remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain space characters. The default value is the IP address of the customer gateway that is associated with the tunnel.
 
 **RemoteId** supports FQDNs. If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.42.XX.XX'),
       }(name='TunnelIkeConfig', description='The configurations of Phase 1 negotiations.'),
@@ -6852,7 +6932,7 @@ Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**. Default
         ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm that is used in Phase 2 negotiations.
 
 Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**. Default value: **aes**.', example='aes'),
-        ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime as a result of Phase 2 negotiations. Unit: seconds.
+        ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime as a result of Phase 2 negotiations. Unit: seconds
 
 Valid values: **0** to **86400**. Default value: **86400**.', example='86400'),
         ipsecPfs?: string(name='IpsecPfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations. Default value: **group2**.
@@ -8015,9 +8095,9 @@ model DeleteIpsecServerResponse = {
 
 /**
   * @description *   **DeleteIpsecServer** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) to query the status of the task.
-  *     *   If a VPN gateway is in the **updating** state, the IPsec server is being deleted.
-  *     *   If a VPN gateway is in the **active** state, the IPsec server is deleted.
-  * *   You cannot repeatedly call **DeleteIpsecServer** to delete an IPsec server from a VPN gateway within the specified period of time.
+  *     *   If the VPN gateway is in the **updating** state, the IPsec server is being deleted.
+  *     *   If the VPN gateway is in the **active** state, the IPsec server is deleted.
+  * *   You cannot call **DeleteIpsecServer** within the specified period of time.
   * @param request  the request parameters of DeleteIpsecServer  DeleteIpsecServerRequest
   * @return DeleteIpsecServerResponse
  */
@@ -8118,8 +8198,15 @@ async function deleteIpv6EgressOnlyRule(request: DeleteIpv6EgressOnlyRuleRequest
 }
 
 model DeleteIpv6GatewayRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+
+> If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false', position='Query'),
   ipv6GatewayId: string(name='Ipv6GatewayId', description='The ID of the IPv6 gateway that you want to delete.
 
 This parameter is required.', example='ipv6gw-hp3y0l3ln89j8****', position='Query'),
@@ -8157,8 +8244,11 @@ async function deleteIpv6Gateway(request: DeleteIpv6GatewayRequest): DeleteIpv6G
 }
 
 model DeleteIpv6InternetBandwidthRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters. If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='true', position='Query'),
   ipv6AddressId?: string(name='Ipv6AddressId', description='The ID of the IPv6 address.
 
 >  You must specify one of **Ipv6AddressId** and **Ipv6InternetBandwidthId**.', example='ipv6-2zen5j4axcp5l5qyy****', position='Query'),
@@ -9118,7 +9208,7 @@ You can use the client to generate the token, but you must make sure that the to
 This parameter is required.', example='vco-p0w5112fgnl2ihlmf****', position='Query'),
   overlayMode?: string(name='OverlayMode', description='The tunneling protocol. Set the value to **Ipsec**, which specifies the IPsec tunneling protocol.', example='Ipsec', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region where the IPsec-VPN connection is established.
+  regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
@@ -10160,7 +10250,7 @@ model DescribeCustomerGatewayResponseBody = {
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
   customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway.', example='cgw-bp1pvpl9r9adju6l5****'),
   description?: string(name='Description', description='The description of the customer gateway.', example='desctest'),
-  ipAddress?: string(name='IpAddress', description='The public IP address of the gateway device in the data center.', example='139.32.XX.XX'),
+  ipAddress?: string(name='IpAddress', description='The IP address of the gateway device in the data center.', example='139.32.XX.XX'),
   name?: string(name='Name', description='The name of the customer gateway.', example='nametest'),
   requestId?: string(name='RequestId', description='The request ID.', example='A0457BC9-6C0F-4437-AB9D-FB2EABC1D6A2'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the customer gateway belongs.
@@ -10169,8 +10259,8 @@ You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/15
   tags?: {
     tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N.', example='TagKey'),
-      value?: string(name='Value', description='The value of tag N.', example='TagValue'),
+      key?: string(name='Key', description='The tag key.', example='TagKey'),
+      value?: string(name='Value', description='The tag value.', example='TagValue'),
     }
   ](name='Tag')
   }(name='Tags', description='The list of tags added to the customer gateway.'),
@@ -10553,6 +10643,7 @@ If your services are deployed in China East 1 Finance, **BGP_FinanceCloud** is r
       segmentInstanceId?: string(name='SegmentInstanceId', description='The ID of the contiguous EIP group.
 
 This value is returned only when you query contiguous EIPs.', example='eipsg-t4nr90yik5oy38xd****'),
+      serviceID?: long(name='ServiceID'),
       serviceManaged?: int32(name='ServiceManaged', description='Indicates whether the resource is created by the service account. Valid values:
 
 *   **0**
@@ -12273,9 +12364,10 @@ async function describeIpv6Addresses(request: DescribeIpv6AddressesRequest): Des
 
 model DescribeIpv6EgressOnlyRulesRequest {
   instanceId?: string(name='InstanceId', description='The ID of the instance that is associated with the IPv6 address to which the egress-only rule is applied.', example='ipv6gw-bp1rhhs9zjlxukc5e****', position='Query'),
-  instanceType?: string(name='InstanceType', description='The type of the instance to which you want to apply the egress-only rule. Set the value to
+  instanceType?: string(name='InstanceType', description='The type of the instance to which you want to apply the egress-only rule. Valid values:
 
-**Ipv6Address**, which specifies that the egress-only rule applies to an IPv6 address.', example='Ipv6Address', position='Query'),
+*   IPv6Address (default)
+*   IPv6Prefix', example='Ipv6Address', position='Query'),
   ipv6EgressOnlyRuleId?: string(name='Ipv6EgressOnlyRuleId', description='The ID of the egress-only rule that you want to query.', example='ipv6py-bp1rr7fq1md8pbb3k****', position='Query'),
   ipv6GatewayId: string(name='Ipv6GatewayId', description='The ID of the IPv6 gateway.
 
@@ -12283,8 +12375,8 @@ This parameter is required.', example='ipv6gw-bp1rhhs9zjlxukc5e****', position='
   name?: string(name='Name', description='The name of the rule.', example='rulename', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: **50**. Default value: **10**.', example='10', minimum=1, maximum=50, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **50**. Default value: **10**.', example='10', minimum=1, maximum=50, position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the IPv6 gateway is deployed. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-huhehaote', position='Query'),
@@ -14373,8 +14465,7 @@ You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063
 This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the SSL client certificate belongs.
 
-The SSL client certificate is the same as the resource group of the SSL server associated with it.
-You can call the [DescribeSslVpnServers](https://help.aliyun.com/document_detail/2794078.html) operation to query the ID of the resource group to which the SSL server belongs.', example='rg-acfmzs372yg****', position='Query'),
+The SSL client certificate and its associated SSL server belong to the same resource group. You can call the [DescribeSslVpnServers](https://help.aliyun.com/document_detail/2794078.html) operation to query the ID of the resource group to which the SSL server belongs.', example='rg-acfmzs372yg****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   sslVpnClientCertId?: string(name='SslVpnClientCertId', description='The ID of the SSL client certificate.', example='vsc-bp1n8wcf134yl0osr****', position='Query'),
@@ -14388,22 +14479,22 @@ model DescribeSslVpnClientCertsResponseBody = {
   sslVpnClientCertKeys?: {
     sslVpnClientCertKey?: [ 
     {
-      createTime?: long(name='CreateTime', description='The timestamp that indicates when the SSL client certificate was created. Unit: millisecond.
+      createTime?: long(name='CreateTime', description='The timestamp generated when the SSL client certificate was created. Unit: milliseconds.
 
-This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
-      endTime?: long(name='EndTime', description='The timestamp that indicates when the SSL client certificate expires. Unit: millisecond.
+This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1492747187000'),
+      endTime?: long(name='EndTime', description='The timestamp generated when the SSL client certificate expires. Unit: milliseconds.
 
-This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1494966335000'),
+This value is a UNIX timestamp representing the number of milliseconds that have elapsed since January 1, 1970, 00:00:00 UTC.', example='1494966335000'),
       name?: string(name='Name', description='The name of the SSL client certificate.', example='cert1'),
-      regionId?: string(name='RegionId', description='The region where the SSL client certificate is created.', example='cn-hangzhou'),
+      regionId?: string(name='RegionId', description='The region ID of the SSL client certificate.', example='cn-hangzhou'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the SSL client certificate belongs.
 
-You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/158855.html) operation to query the resource group information.', example='rg-acfmzs372yg****'),
+You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/158855.html) operation to query resource groups.', example='rg-acfmzs372yg****'),
       sslVpnClientCertId?: string(name='SslVpnClientCertId', description='The ID of the SSL client certificate.', example='vsc-bp1n8wcf134yl0osr****'),
       sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL server.', example='vss-bp18q7hzj6largv4v****'),
       status?: string(name='Status', description='The status of the SSL client certificate. Valid values:
 
-*   **expiring-soon**
+*   **expiring-soon**: The certificate expires in one week.
 *   **normal**
 *   **expired**', example='normal'),
     }
@@ -14501,11 +14592,9 @@ The name must be 1 to 100 characters in length and cannot start with `http://` o
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the SSL server belongs.
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID of the SSL server.
 
-The SSL server has the same resource group as its associated VPN gateway instance.
-
-You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2526915.html) operation to query the ID of the resource group to which the VPN gateway instance belongs.', example='rg-acfmzs372yg****', position='Query'),
+The SSL server and its associated VPN gateway belong to the same resource group. You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) operation to query the ID of the resource group to which the VPN gateway belongs.', example='rg-acfmzs372yg****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL server.', example='vss-bp15j3du13gq1dgey****', position='Query'),
@@ -14531,25 +14620,28 @@ model DescribeSslVpnServersResponseBody = {
 
 *   **true**
 *   **false** (default)', example='true'),
-      iDaaSApplicationId?: string(name='IDaaSApplicationId', example='app_my6g4qmvnwxzj2f****'),
-      iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS instance.', example='idaas-cn-hangzhou-****'),
-      iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', example='EIAM 2.0'),
-      iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS instance.', example='cn-hangzhou'),
+      iDaaSApplicationId?: string(name='IDaaSApplicationId', description='The ID of the IDaaS application.', example='app_my6g4qmvnwxzj2f****'),
+      iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS EIAM instance.', example='idaas-cn-hangzhou-****'),
+      iDaaSInstanceVersion?: string(name='IDaaSInstanceVersion', description='The version of the IDaaS EIAM instance.
+
+*   This parameter is returned only if the SSL server is associated with an IDaaS EIAM 2.0 instance. Only **EIAM 2.0** is returned.
+*   If the SSL server is associated with an IDaaS EIAM 1.0 instance, no value is returned.', example='EIAM 2.0'),
+      iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS EIAM instance.', example='cn-hangzhou'),
       internetIp?: string(name='InternetIp', description='The public IP address of the VPN gateway.', example='47.5.XX.XX'),
       localSubnet?: string(name='LocalSubnet', description='The local CIDR block.', example='192.168.0.0/24'),
       maxConnections?: int32(name='MaxConnections', description='The maximum number of connections.', example='5'),
-      name?: string(name='Name', description='The name of the SSL-VPN server.', example='test'),
+      name?: string(name='Name', description='The name of the SSL server.', example='test'),
       port?: int32(name='Port', description='The port that is used by the SSL-VPN server.', example='1194'),
-      proto?: string(name='Proto', description='The protocol that is used by the SSL-VPN server.', example='UDP'),
-      regionId?: string(name='RegionId', description='The region ID of the SSL-VPN server.', example='cn-hangzhou'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID of the SSL-VPN server.
+      proto?: string(name='Proto', description='The protocol that is used by the SSL server.', example='UDP'),
+      regionId?: string(name='RegionId', description='The region ID of the SSL server.', example='cn-hangzhou'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID of the SSL server.
 
 You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/158855.html) operation to query resource groups.', example='rg-acfmzs372yg****'),
-      sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL-VPN server.', example='vss-bp15j3du13gq1dgey****'),
+      sslVpnServerId?: string(name='SslVpnServerId', description='The ID of the SSL server.', example='vss-bp15j3du13gq1dgey****'),
       vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1on0xae9d771ggi****'),
     }
   ](name='SslVpnServer')
-  }(name='SslVpnServers', description='The detailed information about the SSL-VPN server.'),
+  }(name='SslVpnServers', description='The detailed information about the SSL-VPN servers.'),
   totalCount?: int32(name='TotalCount', description='The number of entries returned.', example='1'),
 }
 
@@ -15097,7 +15189,10 @@ model DescribeVcoRouteEntriesResponseBody = {
 
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1658217008000'),
       nextHop?: string(name='NextHop', description='The next hop of the route.', example='vco-p0w2jpkhi2eeop6q6****'),
-      nextHopTunnelIdList?: [ string ](name='NextHopTunnelIdList'),
+      nextHopTunnelIdList?: [ string ](name='NextHopTunnelIdList', description='The list of next hops.
+
+> - This parameter is returned only by dual-tunnel IPsec connections.
+> - This parameter is returned only when the tunnel status is **Phase 2 Negotiation Successful**.'),
       routeDest?: string(name='RouteDest', description='The destination CIDR block of the route.', example='192.168.10.0/24'),
       routeEntryType?: string(name='RouteEntryType', description='The route type. Valid values:
 
@@ -15112,19 +15207,26 @@ This value is a UNIX timestamp representing the number of milliseconds that have
 *   **published**: indicates that the current route is advertised to the transit router.
 *   **Active**: indicates that the current BGP route is available.', example='published'),
       vpnConnectionId?: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.', example='vco-p0w2jpkhi2eeop6q6****'),
-      weight?: int32(name='Weight', description='The weight of the destination-based route. Valid values:
+      weight?: int32(name='Weight', description='The weight of the destination-based route.
 
-*   **0**: a low priority
-*   **100**: a high priority', example='100'),
+>  The current parameter has no effect.', example='100'),
     }
-  ](name='VcoRouteEntries', description='The list of routes.'),
+  ](name='VcoRouteEntries', description='The list of route entries.'),
   vpnRouteCounts?: [ 
     {
-      routeCount?: int32(name='RouteCount'),
-      routeEntryType?: string(name='RouteEntryType'),
-      source?: string(name='Source'),
+      routeCount?: int32(name='RouteCount', description='The number of route entries.', example='3'),
+      routeEntryType?: string(name='RouteEntryType', description='The route type. Valid values:
+
+*   **custom**: destination-based route.
+*   **bgp**: BGP route.', example='bgp'),
+      source?: string(name='Source', description='The source of the BGP route. Valid values:
+
+*   **CLOUD**: The current BGP route is learned by the IPsec connection from the transit router.
+*   **VPN_BGP**: The current BGP route is learned by the IPsec connection from the data center.', example='VPN_BGP'),
     }
-  ](name='VpnRouteCounts'),
+  ](name='VpnRouteCounts', description='The information on route entries of the dual-tunnel IPsec connection.
+
+>  This parameter is returned only for IPsec connections in dual-tunnel mode.'),
 }
 
 model DescribeVcoRouteEntriesResponse = {
@@ -15810,13 +15912,20 @@ model DescribeVpnAttachmentsResponseBody = {
       description?: string(name='Description', description='The description of the IPsec-VPN connection.', example='desctest'),
       instanceId?: string(name='InstanceId', description='The ID of the IPsec-VPN connection.', example='vco-p0w2jpkhi2eeop6q6****'),
       name?: string(name='Name', description='The name of the IPsec-VPN connection.', example='nametest1'),
-      tag?: string(name='Tag'),
+      tag?: string(name='Tag', description='The system tags of the IPsec-VPN connection.
+
+You can check whether an IPsec-VPN connection supports BGP based on the system tags.
+
+**BGPSupport**: indicates whether the IPsec-VPN connection supports BGP.
+
+*   **true**
+*   **false**', example='{\\"description\\":\\"forwarding 1.7.22\\",\\"VisuallySsl\\":\\"true\\",\\"PbrPriority\\":\\"true\\",\\"BGPSupport\\":\\"true\\",\\"IDaaSNewVersion\\":\\"true\\"}'),
       tags?: [ 
         {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
+          key?: string(name='Key', description='The tag key of the IPsec-VPN connection.', example='TagKey'),
+          value?: string(name='Value', description='The tag value of the IPsec-VPN connection.', example='TagValue'),
         }
-      ](name='Tags'),
+      ](name='Tags', description='The list of tags to be added to the IPsec-VPN connection.'),
       transitRouterId?: string(name='TransitRouterId', description='The ID of the transit router with which the IPsec-VPN connection is associated.', example='tr-p0wkh4yryb1dnanqw****'),
       transitRouterName?: string(name='TransitRouterName', description='The name of the transit router.', example='nametest2'),
     }
@@ -16016,7 +16125,12 @@ This parameter is returned only if the VPN gateway is of the ShangMi (SM) type.'
         psk?: string(name='Psk', description='The pre-shared key.', example='123456****'),
         remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer.', example='47.42.XX.XX'),
       }(name='TunnelIkeConfig', description='The configuration of Phase 1 negotiations.'),
-      tunnelIndex?: int32(name='TunnelIndex'),
+      tunnelIndex?: int32(name='TunnelIndex', description='The order in which the tunnel is created.
+
+*   **1**: Tunnel 1.
+*   **2**: Tunnel 2.
+
+>  This parameter is returned only if the IPsec-VPN connection is associated with a transit router.', example='1'),
       tunnelIpsecConfig?: {
         ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm in the IPsec phase.', example='sha1'),
         ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm in the IPsec phase.', example='aes'),
@@ -16028,9 +16142,9 @@ This parameter is returned only if the VPN gateway is of the ShangMi (SM) type.'
 You can call [DescribeZones](https://help.aliyun.com/document_detail/36064.html) to query zone IDs.', example='cn-hangzhou-i'),
     }
   ](name='TunnelOptions')
-  }(name='TunnelOptionsSpecification', description='The tunnel configuration of the IPsec-VPN connection.
+  }(name='TunnelOptionsSpecification', description='The tunnel configurations of the IPsec-VPN connection.
 
-Parameters in **TunnelOptionsSpecification** are returned only if you query IPsec-VPN connections in dual-tunnel mode.'),
+Parameters in **TunnelOptionsSpecification** are returned only if you query an IPsec-VPN connection in dual-tunnel mode.'),
   vcoHealthCheck?: {
     dip?: string(name='Dip', description='The destination IP address.', example='10.0.0.1'),
     enable?: string(name='Enable', description='Indicates whether the health check feature is enabled for the IPsec-VPN connection. Valid values:
@@ -16149,8 +16263,8 @@ model DescribeVpnConnectionsRequest {
   customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway.', example='cgw-bp1mvj4g9kogw****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the page to return. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned on each page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the IPsec-VPN connection is created.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -16356,7 +16470,12 @@ This parameter is returned only if the VPN gateway is of the SM type.', example=
             psk?: string(name='Psk', description='The pre-shared key.', example='123456****'),
             remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer.', example='47.42.XX.XX'),
           }(name='TunnelIkeConfig', description='The configuration of Phase 1 negotiations.'),
-          tunnelIndex?: int32(name='TunnelIndex'),
+          tunnelIndex?: int32(name='TunnelIndex', description='The order in which the tunnel is created.
+
+*   **1**: Tunnel 1.
+*   **2**: Tunnel 2.
+
+>  This parameter is returned only if the IPsec-VPN connection is associated with a transit router.', example='1'),
           tunnelIpsecConfig?: {
             ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm in the IPsec phase.', example='sha1'),
             ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm in the IPsec phase.', example='aes'),
@@ -16366,9 +16485,9 @@ This parameter is returned only if the VPN gateway is of the SM type.', example=
           zoneNo?: string(name='ZoneNo', description='The zone of the tunnel.', example='ap-southeast-5a'),
         }
       ](name='TunnelOptions')
-      }(name='TunnelOptionsSpecification', description='The tunnel configuration of the IPsec-VPN connection.
+      }(name='TunnelOptionsSpecification', description='The tunnel configurations of the IPsec-VPN connection.
 
-Parameters in **TunnelOptionsSpecification** are returned only if you query IPsec-VPN connections in dual-tunnel mode.'),
+Parameters in **TunnelOptionsSpecification** are returned only if you query an IPsec-VPN connection in dual-tunnel mode.'),
       vcoHealthCheck?: {
         dip?: string(name='Dip', description='The destination IP address.', example='192.168.0.1'),
         enable?: string(name='Enable', description='Indicates whether the health check feature is enabled.
@@ -16403,7 +16522,7 @@ Parameters in **TunnelOptionsSpecification** are returned only if you query IPse
       vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1q8bgx4xnkm****'),
     }
   ](name='VpnConnection')
-  }(name='VpnConnections', description='The information about the IPsec-VPN connection.'),
+  }(name='VpnConnections', description='The information about the IPsec-VPN connections.'),
 }
 
 model DescribeVpnConnectionsResponse = {
@@ -16424,15 +16543,15 @@ async function describeVpnConnections(request: DescribeVpnConnectionsRequest): D
 model DescribeVpnCrossAccountAuthorizationsRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
-You can use the client to generate the value, but you must make sure that it is unique among different requests. ClientToken can contain only ASCII characters.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
->  If you do not set this parameter, the system automatically uses **RequestId** as **ClientToken**. **RequestId** of each API request may be different.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return per page. Default value: **10**. Valid values: **1** to **50**.', example='10', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region to which the IPsec-VPN connection belongs.
 
-You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
+You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
@@ -16447,19 +16566,19 @@ model DescribeVpnCrossAccountAuthorizationsResponseBody = {
     {
       aliUid?: long(name='AliUid', description='The ID of the Alibaba Cloud account to which the IPsec-VPN connection belongs.', example='1250123456123456'),
       bindInstance?: string(name='BindInstance', description='The ID of the CEN instance.', example='cen-vv8h0t3klfpaae****'),
-      bindProduct?: string(name='BindProduct', description='The resource type of the authorization.
+      bindProduct?: string(name='BindProduct', description='The type of resource that can be associated with the IPsec-VPN connection.
 
-The value is set to **CEN**, which indicates that the IPsec-VPN connection can be associated with a transit router of a Cloud Enterprise Network (CEN) instance that belongs to another Alibaba Cloud account.', example='CEN'),
-      bindUid?: long(name='BindUid', description='The ID of the Alibaba Cloud account whose resource the IPsec-VPN connection can be associated with.', example='1210123456123456'),
-      creationTime?: long(name='CreationTime', description='The timestamp when the authorization for the IPsec-VPN connection was created.
+Only **CEN** can be returned, which indicates that the IPsec-VPN connection is authorized to be associated with the transit router of a Cloud Enterprise Network (CEN) instance that belongs to another Alibaba Cloud account.', example='CEN'),
+      bindUid?: long(name='BindUid', description='The ID of the Alibaba Cloud account whose resources the IPsec-VPN connection is authorized to be associated with.', example='1210123456123456'),
+      creationTime?: long(name='CreationTime', description='The time when the authorization for the IPsec-VPN connection was created.
 
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1658201810000'),
       vpnConnectionId?: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.', example='vco-p0w2jpkhi2eeop6q6****'),
     }
   ](name='CrossAccountAuthorizations', description='The cross-account authorization information about the IPsec-VPN connection.'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='DB04E39A-6F0C-36AC-BCA0-B6D371B90062'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DB04E39A-6F0C-36AC-BCA0-B6D371B90062'),
   totalCount?: int32(name='TotalCount', description='The number of entries returned.', example='1'),
 }
 
@@ -17070,9 +17189,7 @@ model DescribeVpnSslServerLogsResponseBody = {
   count?: int32(name='Count', description='The number of log entries.', example='10'),
   data?: {
     logs?: [ string ](name='Logs')
-  }(name='Data', description='An array of strings.
-
-Each item in the array is a log entry.'),
+  }(name='Data', description='Log information list.'),
   isCompleted?: boolean(name='IsCompleted', description='Indicates whether the log is accurate. Valid values:
 
 *   **true**: accurate
@@ -17255,10 +17372,10 @@ model DiagnoseVpnGatewayRequest {
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='02fb3da4-130e-11e9-8e44-001****', position='Query'),
-  iPsecExtendInfo?: string(name='IPsecExtendInfo', description='The configuration when you check the connectivity of the IPsec-VPN connection. Valid values:
+  iPsecExtendInfo?: string(name='IPsecExtendInfo', description='Check the connectivity of the destination address. Valid values:
 
-*   **PrivateSourceIp**: the source IP address used when you check the connectivity of the IPsec-VPN connection. The source IP address must be on the VPC side.
-*   **PrivateDestinationIp**: the destination IP address used when you check the connectivity of the IPsec-VPN connection. The destination IP address must be on the data center side.', example='{"PrivateSourceIp":"192.168.1.1","PrivateDestinationIp":"192.168.0.1"}', position='Query'),
+*   **PrivateSourceIp**: the source IP address. The source IP address must be on the VPC side.
+*   **PrivateDestinationIp**: the destination IP address. The destination IP address must be on the data center side.', example='{"PrivateSourceIp":"192.168.1.1","PrivateDestinationIp":"192.168.0.1"}', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the VPN gateway.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -17278,7 +17395,9 @@ This parameter is required.', example='vpn-m5efhj0k1p47ctuhl****', position='Que
 }
 
 model DiagnoseVpnGatewayResponseBody = {
-  diagnoseId?: string(name='DiagnoseId', description='The ID of the diagnostic.', example='vpndgn-uf6kuxbe3iv028k3s****'),
+  diagnoseId?: string(name='DiagnoseId', description='The diagnostic ID.
+
+After a diagnostic ID is returned, you can call [GetVpnGatewayDiagnoseResult](https://help.aliyun.com/document_detail/2521963.html) to query the diagnostic report.', example='vpndgn-uf6kuxbe3iv028k3s****'),
   requestId?: string(name='RequestId', description='The request ID.', example='0ED8D006-F706-4D23-88ED-E11ED28DCAC0'),
 }
 
@@ -17289,7 +17408,7 @@ model DiagnoseVpnGatewayResponse = {
 }
 
 /**
-  * @description Only VPN gateways in specific regions support the quick diagnostics feature. For more information about the supported regions, see [Supported regions](https://help.aliyun.com/document_detail/430697.html).
+  * @description VPN网关发起诊断
   * @param request  the request parameters of DiagnoseVpnGateway  DiagnoseVpnGatewayRequest
   * @return DiagnoseVpnGatewayResponse
  */
@@ -19156,9 +19275,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 
 model ListIpsecServerLogsResponseBody = {
   count?: int32(name='Count', description='The number of entries on the current page.', example='10'),
-  data?: [ string ](name='Data', description='An array of strings.
-
-Each item in the array is a log entry.'),
+  data?: [ string ](name='Data', description='Log information list.'),
   isCompleted?: boolean(name='IsCompleted', description='Indicates whether the log is accurate. Valid values:
 
 *   **true**: accurate
@@ -21906,17 +22023,24 @@ async function modifyIPv6TranslatorEntry(request: ModifyIPv6TranslatorEntryReque
 }
 
 model ModifyIpv6AddressAttributeRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+
+> If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='d7d24a21-f4ba-4454-9173-b3828dae492b', position='Query'),
   description?: string(name='Description', description='The description of the IPv6 address.
 
-It must be 2 to 256 characters in length, and can contain letters, digits, periods (.), underscores (_), and hyphens (-). It must start with a letter. The name must start with a letter and cannot start with `http://` or `https://`.', example='test', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false', position='Query'),
   ipv6AddressId: string(name='Ipv6AddressId', description='The ID of the IPv6 address.
 
 This parameter is required.', example='ipv6-hp32vv2klzw4yerdf****', position='Query'),
   name?: string(name='Name', description='The name of the IPv6 address.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (_), and hyphens (-). The name must start with a letter. The name must start with a letter and cannot start with `http://` or `https://`.', example='test', position='Query'),
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the IPv6 address. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -21946,15 +22070,24 @@ async function modifyIpv6AddressAttribute(request: ModifyIpv6AddressAttributeReq
 }
 
 model ModifyIpv6GatewayAttributeRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
-  description?: string(name='Description', description='The description of the IPv6 gateway.', example='ipv6description', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
+
+> If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='02fb3da4-130e-11e9-8e44-0016e04115b', position='Query'),
+  description?: string(name='Description', description='The description of the IPv6 gateway.
+
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='ipv6description', position='Query'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including invalid AccessKey pairs, unauthorized RAM users, and missing parameter values. If the request fails the dry run, an error message is returned. If the request passes dry run, the `DryRunOperation` error code is returned.
+*   **false**: sends the API request. After the request passes the check, a 2XX HTTP status code is returned and the gateway endpoint is associated with the route table. This is the default value.', example='false', position='Query'),
   ipv6GatewayId: string(name='Ipv6GatewayId', description='The ID of the IPv6 gateway that you want to modify.
 
 This parameter is required.', example='ipv6gw-hp39kh1ya51yzp2lu****', position='Query'),
   name?: string(name='Name', description='The name of the IPv6 gateway.
 
-It must be 2 to 256 characters in length, and can contain letters, digits, periods (.), underscores (_), and hyphens (-). It must start with a letter. The name must start with a letter and cannot start with `http://` or `https://`.', example='ipv6name', position='Query'),
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='ipv6name', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The region ID of the IPv6 gateway. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -22705,7 +22838,45 @@ model ModifySslVpnServerRequest {
 *   **AES-192-CBC**
 *   **AES-256-CBC**
 *   **none**', example='AES-128-CBC', position='Query'),
-  clientIpPool?: string(name='ClientIpPool', description='The client IP address pool.', example='10.30.30.0/24', position='Query'),
+  clientIpPool?: string(name='ClientIpPool', description='The client CIDR block.
+
+The CIDR block from which an IP address is allocated to the virtual network interface controller (NIC) of the client, rather than the private CIDR block.
+
+If the client accesses the SSL server over an SSL-VPN connection, the VPN gateway assigns an IP address from the specified client CIDR block for the client to access cloud resources.
+
+Make sure that the number of IP addresses in the client CIDR block is at least four times the maximum number of SSL-VPN connections supported by the VPN gateway.
+
+<details>
+<summary>Click to view the reason.</summary>
+
+For example, if you specify 192.168.0.0/24 as the client CIDR block, the system first divides a subnet CIDR block with a subnet mask of 30 from 192.168.0.0/24, such as 192.168.0.4/30. This subnet provides up to four IP addresses. Then, the system allocates an IP address from 192.168.0.4/30 to the client and uses the other three IP addresses to ensure network communication. In this case, one client consumes four IP addresses. Therefore, to ensure that an IP address is assigned to your client, the number of IP addresses in the client CIDR block must be at least four times the maximum number of SSL-VPN connections supported by the VPN gateway with which the SSL server is associated.
+</details>
+<details>
+<summary>Click to view the CIDR blocks that are not supported.</summary>
+
+*   100.64.0.0~100.127.255.255
+*   127.0.0.0~127.255.255.255
+*   169.254.0.0~169.254.255.255
+*   224.0.0.0~239.255.255.255
+*   255.0.0.0~255.255.255.255
+</details>
+<details>
+<summary>Click to view the recommended client CIDR blocks for different numbers of SSL-VPN connections.</summary>
+
+*   If the number of SSL-VPN connections is 5, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 27 bits in length. Examples: 10.0.0.0/27 and 10.0.0.0/26.
+*   If the number of SSL-VPN connections is 10, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 26 bits in length. Examples: 10.0.0.0/26 and 10.0.0.0/25.
+*   If the number of SSL-VPN connections is 20, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 25 bits in length. Examples: 10.0.0.0/25 and 10.0.0.0/24.
+*   If the number of SSL-VPN connections is 50, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 24 bits in length. Examples: 10.0.0.0/24 and 10.0.0.0/23.
+*   If the number of SSL-VPN connections is 100, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 23 bits in length. Examples: 10.0.0.0/23 and 10.0.0.0/22.
+*   If the number of SSL-VPN connections is 200, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 22 bits in length. Examples: 10.0.0.0/22 and 10.0.0.0/21.
+*   If the number of SSL-VPN connections is 500, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 21 bits in length. Examples: 10.0.0.0/21 and 10.0.0.0/20.
+*   If the number of SSL-VPN connections is 1,000, we recommend that you specify a client CIDR block with a subnet mask that is less than or equal to 20 bits in length. Examples: 10.0.0.0/20 and 10.0.0.0/19.
+</details>
+
+> - The subnet mask of the client CIDR block must be 16 to 29 bits in length.
+> -  Make sure that the client CIDR block does not overlap with the local CIDR block, the VPC CIDR block, or route CIDR blocks associated with the client.
+> - We recommend that you use 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, or one of their subnets as the client CIDR block. If you want to specify a public CIDR block as the client CIDR block, you must specify the public CIDR block as the user CIDR block of the virtual private cloud (VPC). This way, the VPC can access the public CIDR block. For more information, see [VPC FAQs](https://help.aliyun.com/document_detail/185311.html).
+> - After you create an SSL server, the system automatically adds routes that point to the client CIDR block to the VPC route table. Do not manually add routes that point to the client CIDR block. Otherwise, SSL-VPN connections cannot work as expected.', example='10.30.30.0/24', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
@@ -22715,20 +22886,32 @@ You can use the client to generate the token, but you must make sure that the to
 
 *   **true** (default)
 *   **false**', example='true', position='Query'),
-  enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Specifies whether to enable two-factor authentication. If you enable two-factor authentication, you must also specify an IDaaS EIAM instance ID and an IDaaS application ID. Valid values:
+  enableMultiFactorAuth?: boolean(name='EnableMultiFactorAuth', description='Specifies whether to enable two-factor authentication. To enable two-factor authentication, you need to specify **IDaaSInstanceId**, **IDaaSRegionId**, and **IDaaSApplicationId**. Valid values:
 
-*   **true**
-*   **false**
+*   **true**: enables the feature.
+*   **false**: disables the feature.
 
-> - If you use two-factor authentication for the first time, you must first complete [authorization](https://ram.console.aliyun.com/role/authorization?request=%7B%22Services%22%3A%5B%7B%22Service%22%3A%22VPN%22%2C%22Roles%22%3A%5B%7B%22RoleName%22%3A%22AliyunVpnAccessingIdaasRole%22%2C%22TemplateId%22%3A%22IdaasRole%22%7D%5D%7D%5D%2C%22ReturnUrl%22%3A%22https%3A%2F%2Fvpc.console.aliyun.com%2Fsslvpn%2Fcn-shanghai%2Fvpn-servers%22%7D).
-> - IDaaS EIAM 1.0 instances are no longer for purchase. If your Alibaba Cloud account has IDaaS EIAM 1.0 instances, the IDaaS EIAM 1.0 instances can be associated after two-factor authentication is enabled. If your Alibaba Cloud account does not have IDaaS EIAM 1.0 instances, only IDaaS EIAM 2.0 instances can be associated after two-factor authentication is enabled.', example='false', position='Query'),
+> -  If you use two-factor authentication for the first time, you must first complete [authorization](https://ram.console.aliyun.com/role/authorization?request=%7B%22Services%22%3A%5B%7B%22Service%22%3A%22VPN%22%2C%22Roles%22%3A%5B%7B%22RoleName%22%3A%22AliyunVpnAccessingIdaasRole%22%2C%22TemplateId%22%3A%22IdaasRole%22%7D%5D%7D%5D%2C%22ReturnUrl%22%3A%22https%3A%2F%2Fvpc.console.aliyun.com%2Fsslvpn%2Fcn-shanghai%2Fvpn-servers%22%7D).
+> - When you create an SSL server in the UAE (Dubai) region, we recommend that you associate the SSL server with an IDaaS EIAM 2.0 instance in Singapore to reduce latency.
+> - IDaaS EIAM 1.0 instances are no longer available for purchase. If your Alibaba Cloud account has IDaaS EIAM 1.0 instances, the IDaaS EIAM 1.0 instances can be associated after two-factor authentication is enabled. If your Alibaba Cloud account does not have IDaaS EIAM 1.0 instances, only IDaaS EIAM 2.0 instances can be associated after two-factor authentication is enabled.', example='false', position='Query'),
   iDaaSApplicationId?: string(name='IDaaSApplicationId', description='The ID of the IDaaS application.
 
 *   If an IDaaS EIAM 2.0 instance is associated, you need to specify an IDaaS application ID.
 *   If an IDaaS EIAM 1.0 instance is associated, you do not need to specify an IDaaS application ID.', example='app_my6g4qmvnwxzj2f****', position='Query'),
   iDaaSInstanceId?: string(name='IDaaSInstanceId', description='The ID of the IDaaS EIAM instance.', example='idaas-cn-hangzhou-****', position='Query'),
   iDaaSRegionId?: string(name='IDaaSRegionId', description='The region ID of the IDaaS EIAM instance.', example='cn-hangzhou', position='Query'),
-  localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24', position='Query'),
+  localSubnet?: string(name='LocalSubnet', description='The local CIDR block.
+
+The CIDR block that your client needs to access by using the SSL-VPN connection.
+
+This value can be the CIDR block of a VPC, a vSwitch, a data center that is connected to a VPC by using an Express Connect circuit, or an Alibaba Cloud service such as Object Storage Service (OSS).
+
+The subnet mask of the specified local CIDR block must be 8 to 32 bits in length. You cannot specify the following CIDR blocks as the local CIDR blocks:
+
+*   127.0.0.0~127.255.255.255
+*   169.254.0.0~169.254.255.255
+*   224.0.0.0~239.255.255.255
+*   255.0.0.0~255.255.255.255', example='10.20.20.0/24', position='Query'),
   name?: string(name='Name', description='The name of the SSL server.
 
 The name must be 1 to 100 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
@@ -22755,7 +22938,7 @@ This parameter is required.', example='vss-bp18q7hzj6largv4v****', position='Que
 
 model ModifySslVpnServerResponseBody = {
   cipher?: string(name='Cipher', description='The encryption algorithm.', example='AES-128-CBC'),
-  clientIpPool?: string(name='ClientIpPool', description='The client IP address pool.', example='10.30.30.0/24'),
+  clientIpPool?: string(name='ClientIpPool', description='The client CIDR block.', example='10.30.30.0/24'),
   compress?: boolean(name='Compress', description='Indicates whether data compression is enabled.', example='false'),
   connections?: int32(name='Connections', description='The total number of current connections.', example='0'),
   createTime?: long(name='CreateTime', description='The time when the SSL server was created.', example='1492753580000'),
@@ -22770,7 +22953,7 @@ model ModifySslVpnServerResponseBody = {
 *   This parameter is returned only if the SSL server is associated with an IDaaS EIAM 2.0 instance. Only **EIAM 2.0** is returned.
 *   If the SSL server is associated with an IDaaS EIAM 1.0 instance, no value is returned.', example='EIAM 2.0'),
   internetIp?: string(name='InternetIp', description='The public IP address.', example='47.98.XX.XX'),
-  localSubnet?: string(name='LocalSubnet', description='The CIDR block of the client.', example='10.20.20.0/24'),
+  localSubnet?: string(name='LocalSubnet', description='The local CIDR block.', example='10.20.20.0/24'),
   maxConnections?: int32(name='MaxConnections', description='The maximum number of connections.', example='5'),
   name?: string(name='Name', description='The name of the SSL server.', example='test'),
   port?: int32(name='Port', description='The port that is used by the SSL server.', example='1194'),
@@ -22822,22 +23005,22 @@ You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063
 
 This parameter is required.', example='tun-gbyz2e070xzo93****', position='Query'),
   tunnelOptionsSpecification?: {
-    customerGatewayId?: string(name='CustomerGatewayId'),
-    enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable the dead peer detection (DPD) feature. Valid values:
+    customerGatewayId?: string(name='CustomerGatewayId', example='cgw-1nmwbpgrp7ssqm1yn****'),
+    enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable dead peer detection (DPD). Valid values: Valid values:
 
-*   **true**: DPD is enabled. The IPsec initiator sends DPD packets to verify the existence and availability of the IPsec peer. If no response is received from the peer within a specified period of time, the IPsec peer is considered disconnected. Then, the ISAKMP SA, IPsec SA, and IPsec tunnel are deleted.
+*   **true** The IPsec initiator sends DPD packets to verify the existence and availability of the IPsec peer. If no response is received from the peer within a specified period of time, the IPsec peer is considered disconnected. Then, the ISAKMP SA, IPsec SA, and IPsec tunnel are deleted.
 *   **false**: DPD is disabled. The IPsec initiator does not send DPD packets.', example='true'),
     enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal. Valid values:
 
-*   **true**: NAT traversal is enabled. After NAT traversal is enabled, the initiator does not check the UDP ports during Internet Key Exchange (IKE) negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
-*   **false**: NAT traversal is disabled.', example='true'),
+*   **true**: enables NAT traversal. After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
+*   **false**: disables NAT traversal.', example='true'),
     remoteCaCertificate?: string(name='RemoteCaCertificate', description='The peer certificate authority (CA) certificate when you want to attach the IPsec connection to a virtual private network (VPN) gateway that uses a ShangMi (SM) certificate.', example='-----BEGIN CERTIFICATE----- MIIB7zCCAZW**** -----END CERTIFICATE-----'),
     tunnelBgpConfig?: {
       localAsn?: long(name='LocalAsn', description='The local autonomous system number (ASN). Valid values: **1** to **4294967295**.', example='65530'),
       localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel. The IP address must fall into the **CIDR block** of the tunnel.', example='169.254.11.1'),
       tunnelCidr?: string(name='TunnelCidr', description='The CIDR block of the tunnel.
 
-The CIDR block must fall into 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.', example='169.254.11.0/30'),
+The CIDR block must fall within the 169.254.0.0/16 range. The subnet mask of the CIDR block must be 30 bits in length.', example='169.254.11.0/30'),
     }(name='TunnelBgpConfig', description='The Border Gateway Protocol (BGP) configurations of the tunnel.
 
 If the BGP feature is not enabled for the tunnel, you must call the [ModifyVpnConnectionAttribute](https://help.aliyun.com/document_detail/120381.html) operation to enable the BGP feature for the tunnel and configure BGP.'),
@@ -22848,22 +23031,22 @@ If the BGP feature is not enabled for the tunnel, you must call the [ModifyVpnCo
 *   Valid values when the IPsec connection is attached to a VPN gateway that uses an SM certificate: **sm3**.', example='sha1'),
       ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm that is used in IKE Phase 1 negotiations.
 
-*   Valid values when the IPsec connection is attached to a standard VPN gateway: **aes**, **aes192**, **sha256**, **des**, and **3des**.
-*   Valid values when the IPsec connection is attached to a VPN gateway that uses an SM certificate: **sm4**.', example='aes'),
-      ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime that is used in IKE Phase 1 negotiations. Unit: seconds. Valid values: **0 to 86400**.', example='86400'),
-      ikeMode?: string(name='IkeMode', description='The IKE negotiation mode. Valid values:
+*   Valid values when the IPsec connection is attached to a standard VPN gateway: **aes**, **aes192**, **aes256**, **des**, and **3des**.
+*   If the IPsec connection is attached to a VPN gateway that uses an SM certificate, set the value to **sm4**.', example='aes'),
+      ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime as a result of Phase 1 negotiations. Unit: seconds. Valid values: **0 to 86400**.', example='86400'),
+      ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values:
 
 *   **main:** This mode offers higher security during negotiations.
-*   **aggressive:** This mode is faster and has a higher success rate.', example='main'),
-      ikePfs?: string(name='IkePfs', description='The Diffie-Hellman (DH) key exchange algorithm that is used in IKE Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
-      ikeVersion?: string(name='IkeVersion', description='The IKE version. Valid values: **ikev1** and **ikev2**.', example='ikev2'),
-      localId?: string(name='LocalId', description='The tunnel identifier. The identifier can be up to 100 characters in length, and supports fully qualified domain names (FQDNs) and IP addresses. The default identifier is the tunnel IP address.', example='47.XX.XX.87'),
+*   **aggressive**: This mode is faster and has a higher success rate.', example='main'),
+      ikePfs?: string(name='IkePfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+      ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol. Valid values: **ikev1** and **ikev2**.', example='ikev2'),
+      localId?: string(name='LocalId', description='The tunnel identifier. The identifier can be up to 100 characters in length, and supports FQDNs and IP addresses. The default value is the IP address of the tunnel.', example='47.XX.XX.87'),
       psk?: string(name='Psk', description='The pre-shared key that is used to verify identities between the tunnel and peer.
 
-*   It must be 1 to 100 characters in length, and can contain letters, digits, and the following characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
-*   If you do not specify a pre-shared key, the system generates a random 16-character string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/120374.html) operation to query the pre-shared key that is generated by the system.
+*   The key must be 1 to 100 characters in length and can contain digits, letters, and the following special characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+*   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/120374.html) operation to query the pre-shared key that is automatically generated by the system.
 
->  The pre-shared key that is configured for the tunnel and the tunnel peer must be the same. Otherwise, the system cannot establish the tunnel.', example='123456****'),
+> The pre-shared key that is configured for the tunnel and the tunnel peer must be the same. Otherwise, the system cannot establish the tunnel.', example='123456****'),
       remoteId?: string(name='RemoteId', description='The peer identifier. The identifier can be up to 100 characters in length, and supports FQDNs and IP addresses. The default identifier is the IP address of the customer gateway associated with the tunnel.', example='47.XX.XX.207'),
     }(name='TunnelIkeConfig', description='The configurations of IKE Phase 1.'),
     tunnelIpsecConfig?: {
@@ -22873,10 +23056,10 @@ If the BGP feature is not enabled for the tunnel, you must call the [ModifyVpnCo
 *   Valid values when the IPsec connection is attached to a VPN gateway that uses an SM certificate: **sm3**.', example='sha1'),
       ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm that is used in IPsec Phase 2 negotiations.
 
-*   Valid values when the IPsec connection is attached to a standard VPN gateway: **aes**, **aes192**, **sha256**, **des**, and **3des**.
-*   Valid values when the IPsec connection is attached to a VPN gateway that uses an SM certificate: **sm4**.', example='aes'),
-      ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime that is used in IPsec Phase 2 negotiations. Unit: seconds. Valid values: **0 to 86400**.', example='86400'),
-      ipsecPfs?: string(name='IpsecPfs', description='The DH key exchange algorithm that is used in IPsec Phase 2 negotiations. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+*   Valid values when the IPsec connection is attached to a standard VPN gateway: **aes**, **aes192**, **aes256**, **des**, and **3des**.
+*   If the IPsec connection is attached to a VPN gateway that uses an SM certificate, set the value to **sm4**.', example='aes'),
+      ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime as a result of Phase 2 negotiations. Unit: seconds. Valid values: **0 to 86400**.', example='86400'),
+      ipsecPfs?: string(name='IpsecPfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.', example='group2'),
     }(name='TunnelIpsecConfig', description='The configurations of IPsec Phase 2.'),
   }(name='TunnelOptionsSpecification', description='The tunnel configurations.', position='Query'),
   vpnConnectionId: string(name='VpnConnectionId', description='The ID of the IPsec connection.
@@ -23111,7 +23294,7 @@ This parameter is required.', example='0', position='Query'),
 This parameter is required.', example='vco-p0w2jpkhi2eeop6q6****', position='Query'),
   overlayMode?: string(name='OverlayMode', description='The tunneling protocol. Set the value to **Ipsec**, which specifies the IPsec tunneling protocol.', example='Ipsec', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the region where the IPsec-VPN connection is established.
+  regionId: string(name='RegionId', description='The region ID of the IPsec-VPN connection.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
@@ -23388,7 +23571,9 @@ model ModifyVpnAttachmentAttributeRequest {
 
 *   **true**
 *   **false**', example='true', position='Query'),
-  bgpConfig?: string(name='BgpConfig', description='The Border Gateway Protocol (BGP) configuration:
+  bgpConfig?: string(name='BgpConfig', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
+
+BGP configuration:
 
 *   **BgpConfig.EnableBgp**: specifies whether to enable BGP. Valid values:
 
@@ -23397,45 +23582,57 @@ model ModifyVpnAttachmentAttributeRequest {
 
 *   **BgpConfig.LocalAsn**: the autonomous system number (ASN) on the Alibaba Cloud side. Valid values: **1** to **4294967295**.
 
-    You can enter the ASN in two segments. Separate the first 16 bits of the ASN from the remaining 16 bits with a period (.). Enter the number in each segment in decimal format.
+    You can enter a value in two segments separated by a period (.). Each segment is 16 bits in length. Enter the number in each segment in decimal format.
 
-    For example, if you enter 123.456, the ASN is: 123 × 65536 + 456 = 8061384.
+    For example, if you enter 123.456, the ASN is 8061384. The ASN is calculated by using the following formula: 123 × 65536 + 456 = 8061384.
 
-*   **BgpConfig.TunnelCidr:** the CIDR block of the IPsec tunnel. The CIDR block falls within 169.254.0.0/16. The subnet mask of the CIDR block must be 30 bits in length.
+*   **BgpConfig.TunnelCidr**: The CIDR block of the IPsec tunnel. The CIDR block must fall into 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
 
-*   **LocalBgpIp:** the BGP IP address on the Alibaba Cloud side. This IP address must fall within the CIDR block of the IPsec tunnel.
+*   **LocalBgpIp**: the BGP address on the Alibaba Cloud side. It must be an IP address that falls within the CIDR block of the IPsec tunnel.
 
-> - Before you configure BGP, we recommend that you learn how BGP dynamic routing works and the limits of using BGP dynamic routing. For more information, see [BGP dynamic routing ](https://help.aliyun.com/document_detail/170235.html).
-> - We recommend that you use a private ASN to establish a connection with Alibaba Cloud over BGP. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
+> - Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/445767.html).
+> - We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='{"EnableBgp":"true","LocalAsn":"45104","TunnelCidr":"169.254.11.0/30","LocalBgpIp":"169.254.11.1"}', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
 
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the value of **RequestId** as the value of **ClientToken**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
-  customerGatewayId?: string(name='CustomerGatewayId', description='The customer gateway associated with the IPsec-VPN connection.', example='cgw-p0w2jemrcj5u61un8****', position='Query'),
+  customerGatewayId?: string(name='CustomerGatewayId', description='The customer gateways to be associated with the IPsec-VPN connections.
+
+>  Only single-tunnel IPsec-VPN connections support this parameter.', example='cgw-p0w2jemrcj5u61un8****', position='Query'),
   effectImmediately?: boolean(name='EffectImmediately', description='Specifies whether to immediately start IPsec negotiations after the configuration takes effect. Valid values:
 
 *   **true**: immediately starts IPsec negotiations after the configuration is complete.
 *   **false**: starts IPsec negotiations when inbound traffic is detected.', example='false', position='Query'),
-  enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable the dead peer detection (DPD) feature. Valid values:
+  enableDpd?: boolean(name='EnableDpd', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
 
-*   **true**: enables the DPD feature. The initiator of the IPsec-VPN connection sends DPD packets to check the existence and availability of the peer. If no feedback is received from the peer within a specific period of time, the connection fails. Then, the ISAKMP SA, IPsec SA, and IPsec tunnel are deleted.
-*   **false**: disables the DPD feature. The initiator of the IPsec-VPN connection does not send DPD packets.', example='true', position='Query'),
-  enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal. Valid values:
+Specifies whether to enable dead peer detection (DPD). Valid values:
 
-*   **true** After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec tunnel.
-*   **false**', example='true', position='Query'),
-  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp', position='Query'),
-  healthCheckConfig?: string(name='HealthCheckConfig', description='The health check configurations:
+*   **true**: enables DPD. The initiator of the IPsec-VPN connection sends DPD packets to check the existence and availability of the peer. If no feedback is received from the peer within the specified period of time, the connection fails. In this case, ISAKMP SA and IPsec SA are deleted, along with the security tunnel.
+*   **false**: disables DPD. The initiator of the IPsec-VPN connection does not send DPD packets.', example='true', position='Query'),
+  enableNatTraversal?: boolean(name='EnableNatTraversal', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
+
+Specifies whether to enable NAT traversal. Valid values:
+
+*   **true**: enables NAT traversal. After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
+*   **false**: disables NAT traversal.', example='true', position='Query'),
+  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp', description='You can specify this parameter if you modify the configuration of a dual-tunnel IPsec-VPN connection.
+
+Specifies whether to enable the BGP feature for the tunnel. Valid values: **true** and **false**.
+
+>  Before you add BGP configurations, we recommend that you learn about how BGP works and the limits. For more information, see [Configure BGP dynamic routing](https://help.aliyun.com/document_detail/445767.html).', example='false', position='Query'),
+  healthCheckConfig?: string(name='HealthCheckConfig', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
+
+The health check configurations:
 
 *   **HealthCheckConfig.enable**: specifies whether to enable the health check feature. Valid values:
 
     *   **true**
     *   **false**
 
-*   **HealthCheckConfig.dip**: the destination IP address that is used for health checks. Enter the IP address on the data center side that the VPC can communicate with through the IPsec-VPN connection.
+*   **HealthCheckConfig.dip**: the destination IP address configured for health checks. Specify the IP address of the data center with which the VPC can access through the IPsec-VPN connection.
 
-*   **HealthCheckConfig.sip**: the source IP address that is used for health checks. Enter the IP address on the VPC side that the data center can communicate with through the IPsec-VPN connection.
+*   **HealthCheckConfig.sip**: the source IP address configured for health checks. The IP address of the VPC with which the data center can access through the IPsec-VPN connection.
 
 *   **HealthCheckConfig.interval**: the interval between two consecutive health checks. Unit: seconds.
 
@@ -23445,36 +23642,40 @@ You can use the client to generate the token, but you must make sure that the to
 
     *   **revoke_route**
     *   **reserve_route**', example='{"enable":"true","dip":"192.168.1.1","sip":"10.1.1.1","interval":"3","retry":"3","Policy": "revoke_route"}', position='Query'),
-  ikeConfig?: string(name='IkeConfig', description='The configuration of Phase 1 negotiations:
+  ikeConfig?: string(name='IkeConfig', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
 
-*   **IkeConfig.Psk**: The pre-shared key that is used for authentication between the VPN gateway and the data center.
+The configuration of Phase 1 negotiations:
 
-    *   The pre-shared key must be 1 to 100 characters in length and can contain letters, digits, and the following characters: ``~ ! ` @ # $ % ^ & * () _ - + = {} [] | ; : \\" , . < > / ?``
-    *   If you do not specify a pre-shared key, the system generates a random 16-character string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/120374.html) operation to query the pre-shared key that is generated by the system.
+*   **IkeConfig.Psk**: The pre-shared key that is used for identity authentication between the Alibaba Cloud IPsec connection and the on-premises data center.
 
-    >The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the data center. Otherwise, you cannot establish a connection between the data center and the VPN gateway.
+    *   The key must be 1 to 100 characters in length, and can contain digits, and letters. The key cannot contain spaces. ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+    *   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/120374.html) operation to query the pre-shared key that is automatically generated by the system.
 
-*   **IkeConfig.IkeVersion**: the Internet Key Exchange (IKE) version. Valid values: **ikev1** and **ikev2**.
+    > The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
+
+*   **IkeConfig.IkeVersion**: the version of the Internet Key Exchange (IKE) protocol. Valid values: **ikev1** and **ikev2**.
 
 *   **IkeConfig.IkeMode**: the negotiation mode. Valid values: **main** and **aggressive**.
 
-*   **IkeConfig.IkeEncAlg**: the encryption algorithm that is used in Phase 1 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.
+*   **IkeConfig.IkeEncAlg:** the encryption algorithm that is used in Phase 1 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.
 
 *   **IkeConfig.IkeAuthAlg**: the authentication algorithm that is used in Phase 1 negotiations. Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**.
 
-*   **IkeConfig.IkePfs**: the Diffie-Hellman (DH) key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.
+*   **IkeConfig.IkePfs**: the Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.
 
-*   **IkeConfig.IkeLifetime**: the security association (SA) lifetime determined by Phase 1 negotiations. Unit: seconds. Valid values: **0** to **86400**.
+*   **IkeConfig.IkeLifetime**: the SA lifetime as a result of Phase 1 negotiations. Unit: seconds. Valid values: **0** to **86400**.
 
-*   **IkeConfig.LocalIdIPsec**: the identifier of the IPsec-VPN connection on the Alibaba Cloud side. The identifier can be up to 100 characters in length.
+*   **IkeConfig.LocalId**: the identifier on the Alibaba Cloud side. The identifier cannot exceed 100 characters in length and cannot contain spaces.
 
-*   **IkeConfig.RemoteId**: the identifier of the IPsec-VPN connection on the data center side. The identifier can be up to 100 characters in length.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
-  ipsecConfig?: string(name='IpsecConfig', description='The configuration of Phase 2 negotiations:
+*   **IkeConfig.RemoteId**: the identifier of the data center. It cannot exceed 100 characters in length and cannot contain spaces.', example='{"Psk":"1234****","IkeVersion":"ikev1","IkeMode":"main","IkeEncAlg":"aes","IkeAuthAlg":"sha1","IkePfs":"group2","IkeLifetime":86400,"LocalId":"47.XX.XX.1","RemoteId":"47.XX.XX.2"}', position='Query'),
+  ipsecConfig?: string(name='IpsecConfig', description='This parameter is supported if you modify the configurations of an IPsec-VPN connection in single-tunnel mode.
+
+The configuration of Phase 2 negotiations:
 
 *   **IpsecConfig.IpsecEncAlg:** the encryption algorithm that is used in Phase 2 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.
 *   **IpsecConfig. IpsecAuthAlg:** the authentication algorithm that is used in Phase 2 negotiations. Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**.
-*   **IpsecConfig. IpsecPfs:** the DH key exchange algorithm that is used in Phase 2 negotiations. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.
-*   **IpsecConfig. IpsecLifetime**: the SA lifetime determined by Phase 2 negotiations. Unit: seconds. Valid values: **0** to **86400**.', example='{"IpsecEncAlg":"aes","IpsecAuthAlg":"sha1","IpsecPfs":"group2","IpsecLifetime":86400}', position='Query'),
+*   **IpsecConfig. IpsecPfs:** the Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations. Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.
+*   **IkeConfig.IkeLifetime**: the SA lifetime determined by Phase 2 negotiations. Unit: seconds. Valid values: **0** to **86400**.', example='{"IpsecEncAlg":"aes","IpsecAuthAlg":"sha1","IpsecPfs":"group2","IpsecLifetime":86400}', position='Query'),
   localSubnet?: string(name='LocalSubnet', description='The CIDR block of the virtual private cloud (VPC) that communicates with the data center. The CIDR block is used in Phase 2 negotiations.
 
 Separate multiple CIDR blocks with commas (,). Example: 192.168.1.0/24,192.168.2.0/24.
@@ -23509,35 +23710,76 @@ The following routing modes are supported:
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   tunnelOptionsSpecification?: [ 
     {
-      customerGatewayId?: string(name='CustomerGatewayId'),
-      enableDpd?: boolean(name='EnableDpd'),
-      enableNatTraversal?: boolean(name='EnableNatTraversal'),
+      customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway that is associated with the tunnel.
+
+>  This parameter is only supported in dual-tunnel IPsec-VPN connections.', example='cgw-p0w2jemrcj5u61un8****'),
+      enableDpd?: boolean(name='EnableDpd', description='Specifies whether to enable the Dead Peer Detection (DPD) feature for the tunnel. Valid values:
+
+*   **true**: enables DPD. The initiator of the IPsec-VPN connection sends DPD packets to check the existence and availability of the peer. If no feedback is received from the peer within the specified period of time, the connection fails. In this case, ISAKMP SA and IPsec SA are deleted along with the security tunnel.
+*   **false**: disables DPD. The initiator of the IPsec-VPN connection does not send DPD packets.', example='true'),
+      enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal for the tunnel. Valid values:
+
+*   **true**: enables NAT traversal. After NAT traversal is enabled, the initiator does not check the UDP ports during IKE negotiations and can automatically discover NAT gateway devices along the IPsec-VPN tunnel.
+*   **false**: disables NAT traversal.', example='true'),
       tunnelBgpConfig?: {
-        localAsn?: long(name='LocalAsn'),
-        localBgpIp?: string(name='LocalBgpIp'),
-        tunnelCidr?: string(name='TunnelCidr'),
-      }(name='TunnelBgpConfig'),
-      tunnelId?: string(name='TunnelId'),
+        localAsn?: long(name='LocalAsn', description='The autonomous system number (ASN) of the tunnel on the Alibaba Cloud side. Valid values: **1** to **4294967295**. Default value: **45104**.
+
+>  We recommend that you use a private ASN to establish BGP connections to Alibaba Cloud. Refer to the relevant documentation for the private ASN range.', example='65530'),
+        localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel on the Alibaba Cloud side. The address is an IP address that falls within the BGP CIDR block.', example='169.254.10.1'),
+        tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel. The CIDR block must fall within 169.254.0.0/16 and the mask of the CIDR block must be 30 bits in length. The CIDR block cannot be 169.254.0.0/30, 169.254.1.0/30, 169.254.2.0/30, 169.254.3.0/30, 169.254.4.0/30, 169.254.5.0/30, 169.254.6.0/30, or 169.254.169.252/30.
+
+>  The two tunnels of an IPsec connection must use different CIDR blocks.', example='169.254.10.0/30'),
+      }(name='TunnelBgpConfig', description='Add BGP configurations for the tunnel.
+
+>  If you enable BGP for an IPsec-VPN connection, you must set **EnableTunnelsBgp** parameter to **true**.'),
+      tunnelId?: string(name='TunnelId', description='The tunnel ID.', example='tun-0jod7plwf2a0o9lvu****'),
       tunnelIkeConfig?: {
-        ikeAuthAlg?: string(name='IkeAuthAlg'),
-        ikeEncAlg?: string(name='IkeEncAlg'),
-        ikeLifetime?: long(name='IkeLifetime'),
-        ikeMode?: string(name='IkeMode'),
-        ikePfs?: string(name='IkePfs'),
-        ikeVersion?: string(name='IkeVersion'),
-        localId?: string(name='LocalId'),
-        psk?: string(name='Psk'),
-        remoteId?: string(name='RemoteId'),
-      }(name='TunnelIkeConfig'),
-      tunnelIndex?: int32(name='TunnelIndex'),
+        ikeAuthAlg?: string(name='IkeAuthAlg', description='The authentication algorithm that is used in Phase 1 negotiations. Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**.', example='sha1'),
+        ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm that is used in Phase 1 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.', example='aes'),
+        ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime as a result of Phase 1 negotiations. Unit: seconds.
+
+Valid values: **0** to **86400**.', example='86400'),
+        ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values: **main** and **aggressive**.
+
+*   **main:** This mode offers higher security during negotiations.
+*   **aggressive**: This mode is faster with a higher success rate.', example='main'),
+        ikePfs?: string(name='IkePfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 1 negotiations. Valid values: **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+        ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol. Valid values: **ikev1** and **ikev2**.
+
+Compared with IKEv1, IKEv2 simplifies the SA negotiation process and provides better support for scenarios with multiple CIDR blocks.', example='ikev2'),
+        localId?: string(name='LocalId', description='The identifier of the tunnel on the Alibaba Cloud side, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain spaces.
+
+**LocalId** supports fully qualified domain names (FQDNs). If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.XX.XX.1'),
+        psk?: string(name='Psk', description='The pre-shared key that is used for identity authentication between the tunnel and the tunnel peer.
+
+*   The key must be 1 to 100 characters in length, and can contain digits, and letters. The key cannot contain spaces. ``~!\\`@#$%^&*()_-+={}[]|;:\\",.<>/?``
+*   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnAttachments](https://help.aliyun.com/document_detail/2526939.html) operation to query the pre-shared key that is automatically generated by the system.
+
+>  The tunnel and the tunnel peer must use the same pre-shared key. Otherwise, the tunnel cannot be established.', example='123456****'),
+        remoteId?: string(name='RemoteId', description='The identifier of the tunnel peer, which is used in Phase 1 negotiations. The identifier cannot exceed 100 characters in length and cannot contain spaces.
+
+**RemoteId** supports FQDNs. If you use an FQDN, we recommend that you set the negotiation mode to **aggressive**.', example='47.XX.XX.2'),
+      }(name='TunnelIkeConfig', description='The configuration of Phase 1 negotiations.'),
+      tunnelIndex?: int32(name='TunnelIndex', description='The order in which the tunnel was created.
+
+*   **1**: Tunnel 1.
+*   **2**: Tunnel 2.', example='1'),
       tunnelIpsecConfig?: {
-        ipsecAuthAlg?: string(name='IpsecAuthAlg'),
-        ipsecEncAlg?: string(name='IpsecEncAlg'),
-        ipsecLifetime?: int32(name='IpsecLifetime'),
-        ipsecPfs?: string(name='IpsecPfs'),
-      }(name='TunnelIpsecConfig'),
+        ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm that is used in Phase 2 negotiations.
+
+Valid values: **md5**, **sha1**, **sha256**, **sha384**, and **sha512**.', example='sha1'),
+        ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm that is used in Phase 2 negotiations. Valid values: **aes**, **aes192**, **aes256**, **des**, and **3des**.', example='aes'),
+        ipsecLifetime?: int32(name='IpsecLifetime', description='The SA lifetime as a result of Phase 2 negotiations. Unit: seconds.
+
+Valid values: **0** to **86400**.', example='86400'),
+        ipsecPfs?: string(name='IpsecPfs', description='The Diffie-Hellman key exchange algorithm that is used in Phase 2 negotiations.
+
+Valid values: **disabled**, **group1**, **group2**, **group5**, and **group14**.', example='group2'),
+      }(name='TunnelIpsecConfig', description='The configuration of Phase 2 negotiations.'),
     }
-  ](name='TunnelOptionsSpecification', position='Body'),
+  ](name='TunnelOptionsSpecification', description='The tunnel configurations.
+
+You can specify parameters in the **TunnelOptionsSpecification** array when you modify the configurations of an IPsec-VPN connection in dual-tunnel mode. You can modify the configurations of the two tunnels of the IPsec-VPN connection.', position='Body'),
   vpnConnectionId: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.
 
 This parameter is required.', example='vco-p0w5112fgnl2ihlmf****', position='Query'),
@@ -23553,47 +23795,70 @@ model ModifyVpnAttachmentAttributeResponseBody = {
   createTime?: long(name='CreateTime', description='The timestamp generated when the IPsec-VPN connection was established. Unit: milliseconds.
 
 This value is a UNIX timestamp representing the number of milliseconds that have elapsed since the epoch time January 1, 1970, 00:00:00 UTC.', example='1658201810000'),
-  customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway associated with the IPsec-VPN connection.', example='cgw-p0w2jemrcj5u61un8****'),
+  customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway associated with the IPsec-VPN connection.
+
+This parameter is returned only for single-tunnel IPsec-VPN connections.', example='cgw-p0w2jemrcj5u61un8****'),
   description?: string(name='Description', description='The description of the IPsec-VPN connection.', example='desctest'),
   effectImmediately?: boolean(name='EffectImmediately', description='Indicates whether IPsec negotiations immediately start after the configuration takes effect. Valid values:
 
 *   **true**
 *   **false**', example='false'),
-  enableDpd?: boolean(name='EnableDpd', description='Indicates whether the DPD feature is enabled for the IPsec-VPN connection. Valid values:
+  enableDpd?: boolean(name='EnableDpd', description='Indicates whether the DPD feature is enabled for the IPsec-VPN connection.
 
-*   **true**
-*   **false**', example='true'),
-  enableNatTraversal?: boolean(name='EnableNatTraversal', description='Indicates whether NAT traversal is enabled for the IPsec-VPN connection. Valid values:
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.
 
-*   **true**
-*   **false**', example='true'),
-  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp'),
+This parameter is returned only for single-tunnel IPsec-VPN connections.', example='true'),
+  enableNatTraversal?: boolean(name='EnableNatTraversal', description='Specifies whether to enable NAT traversal for the IPsec-VPN connection.
+
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.
+
+This parameter is returned only for single-tunnel IPsec-VPN connections.', example='true'),
+  enableTunnelsBgp?: boolean(name='EnableTunnelsBgp', description='Specifies whether to enable Border Gateway Protocol (BGP) for tunnels.
+
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.
+
+This parameter is returned only by dual-tunnel IPsec-VPN connections.', example='false'),
   ikeConfig?: {
     ikeAuthAlg?: string(name='IkeAuthAlg', description='The authentication algorithm that is used in Phase 1 negotiations.', example='sha1'),
     ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm that is used in Phase 1 negotiations.', example='aes'),
     ikeLifetime?: long(name='IkeLifetime', description='The SA lifetime that is determined by Phase 1 negotiations. Unit: seconds.', example='86400'),
-    ikeMode?: string(name='IkeMode', description='The negotiation mode.', example='main'),
-    ikePfs?: string(name='IkePfs', description='The DH key exchange algorithm that is used in Phase 1 negotiations.', example='group2'),
-    ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol.', example='ikev1'),
-    localId?: string(name='LocalId', description='The identifier of the IPsec-VPN connection on the Alibaba Cloud side.', example='47.XX.XX.1'),
-    psk?: string(name='Psk', description='The pre-shared key that is used for identity authentication between the VPN gateway and the data center.
+    ikeMode?: string(name='IkeMode', description='The IKE negotiation mode.
 
->  The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the data center. Otherwise, you cannot establish a connection between the data center and the VPN gateway.', example='1234***'),
+*   **main:** This mode offers higher security during negotiations.
+*   **aggressive**: This mode is faster with a higher success rate.', example='main'),
+    ikePfs?: string(name='IkePfs', description='The DH key exchange algorithm that is used in Phase 1 negotiations.', example='group2'),
+    ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol.
+
+*   **ikev1**
+*   **ikev2**
+
+Compared with IKEv1, IKEv2 simplifies the SA negotiation process and provides better support for scenarios with multiple CIDR blocks.', example='ikev1'),
+    localId?: string(name='LocalId', description='The identifier of the IPsec-VPN connection on the Alibaba Cloud side.', example='47.XX.XX.1'),
+    psk?: string(name='Psk', description='Enter a pre-shared key that is used for identity authentication between Alibaba Cloud and the data center.
+
+>  The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and Alibaba Cloud cannot be established.', example='1234***'),
     remoteId?: string(name='RemoteId', description='The identifier of the IPsec-VPN connection on the data center side.', example='47.XX.XX.2'),
-  }(name='IkeConfig', description='The configuration of Phase 1 negotiations.'),
+  }(name='IkeConfig', description='The configuration of Phase 1 negotiations.
+
+**IkeConfig** parameters are returned only for single-tunnel IPsec-VPN connections.'),
   ipsecConfig?: {
     ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm that is used in Phase 2 negotiations.', example='md5'),
     ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm that is used in Phase 2 negotiations.', example='aes'),
     ipsecLifetime?: long(name='IpsecLifetime', description='The SA lifetime that is determined by Phase 2 negotiations. Unit: seconds.', example='86400'),
     ipsecPfs?: string(name='IpsecPfs', description='The DH key exchange algorithm that is used in Phase 2 negotiations.', example='group2'),
-  }(name='IpsecConfig', description='The configuration of Phase 2 negotiations.'),
-  localSubnet?: string(name='LocalSubnet', description='The CIDR block of the VPC with which the data center can communicate.', example='10.1.1.0/24,10.1.2.0/24'),
+  }(name='IpsecConfig', description='The configuration of Phase 2 negotiations.
+
+**IpsecConfig** parameters are returned only for single-tunnel IPsec-VPN connections.'),
+  localSubnet?: string(name='LocalSubnet', description='The CIDR block on the Alibaba Cloud side that communicates with the on-premises data center is required, such as CIDR blocks of VPCs.', example='10.1.1.0/24,10.1.2.0/24'),
   name?: string(name='Name', description='The name of the IPsec-VPN connection.', example='nametest'),
   networkType?: string(name='NetworkType', description='The network type of the IPsec-VPN connection. Valid values:
 
 *   **public**: an encrypted connection over the Internet
 *   **private**: an encrypted connection over private networks', example='public'),
-  remoteSubnet?: string(name='RemoteSubnet', description='The CIDR block of the data center with which the VPC can communicate.', example='10.1.3.0/24,10.1.4.0/24'),
+  remoteSubnet?: string(name='RemoteSubnet', description='The CIDR block of the on-premises data center that communicates with Alibaba Cloud is required.', example='10.1.3.0/24,10.1.4.0/24'),
   requestId?: string(name='RequestId', description='The request ID.', example='35822A84-867F-3936-A2E6-A4C4E3ED11C0'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IPsec-VPN connection belongs.
 
@@ -23609,40 +23874,61 @@ A value of **M** in the response indicates **Mbit/s**.', example='1000M'),
 *   **ipsec_sa_established**: Phase 2 negotiations succeeded.', example='ike_sa_not_established'),
   tunnelOptionsSpecification?: [ 
     {
-      customerGatewayId?: string(name='CustomerGatewayId'),
-      enableDpd?: boolean(name='EnableDpd'),
-      enableNatTraversal?: boolean(name='EnableNatTraversal'),
-      internetIp?: string(name='InternetIp'),
-      role?: string(name='Role'),
-      state?: string(name='State'),
+      customerGatewayId?: string(name='CustomerGatewayId', description='The ID of the customer gateway that is associated with the tunnel.', example='cgw-p0w2jemrcj5u61un8****'),
+      enableDpd?: boolean(name='EnableDpd', description='Whether the DPD feature is enabled for the tunnel.
+
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.', example='true'),
+      enableNatTraversal?: boolean(name='EnableNatTraversal', description='Indicates whether traversal feature is enabled for the tunnel. Valid values:
+
+*   **true**: The feature is enabled.
+*   **false**: The feature is disabled.', example='true'),
+      internetIp?: string(name='InternetIp', description='The IP address on the Alibaba Cloud side.', example='47.XX.XX.66'),
+      role?: string(name='Role', description='The tunnel role. Valid values:
+
+*   **master**: The tunnel is an active tunnel.
+*   **slave**: The tunnel is a standby tunnel.', example='master'),
+      state?: string(name='State', description='The status of the tunnel. Valid values:
+
+*   **active**: The tunnel is active.
+*   **updating**: The tunnel is being updated.
+*   **deleting:** The tunnel is being deleted.', example='active'),
       tunnelBgpConfig?: {
-        localAsn?: long(name='LocalAsn'),
-        localBgpIp?: string(name='LocalBgpIp'),
-        peerAsn?: long(name='PeerAsn'),
-        peerBgpIp?: string(name='PeerBgpIp'),
-        tunnelCidr?: string(name='TunnelCidr'),
-      }(name='TunnelBgpConfig'),
-      tunnelId?: string(name='TunnelId'),
+        localAsn?: long(name='LocalAsn', description='The ASN on the Alibaba Cloud side.', example='65530'),
+        localBgpIp?: string(name='LocalBgpIp', description='The BGP IP address of the tunnel on the Alibaba Cloud side.', example='169.254.10.1'),
+        peerAsn?: long(name='PeerAsn', description='The ASN of the tunnel peer.', example='65531'),
+        peerBgpIp?: string(name='PeerBgpIp', description='The BGP IP address of the tunnel peer.', example='169.254.10.2'),
+        tunnelCidr?: string(name='TunnelCidr', description='The BGP CIDR block of the tunnel.', example='169.254.10.0/30'),
+      }(name='TunnelBgpConfig', description='BGP configuration.'),
+      tunnelId?: string(name='TunnelId', description='The tunnel ID.', example='tun-0jod7plwf2a0o9lvu****'),
       tunnelIkeConfig?: {
-        ikeAuthAlg?: string(name='IkeAuthAlg'),
-        ikeEncAlg?: string(name='IkeEncAlg'),
-        ikeLifetime?: long(name='IkeLifetime'),
-        ikeMode?: string(name='IkeMode'),
-        ikePfs?: string(name='IkePfs'),
-        ikeVersion?: string(name='IkeVersion'),
-        localId?: string(name='LocalId'),
-        psk?: string(name='Psk'),
-        remoteId?: string(name='RemoteId'),
-      }(name='TunnelIkeConfig'),
-      tunnelIndex?: int32(name='TunnelIndex'),
+        ikeAuthAlg?: string(name='IkeAuthAlg', description='The authentication algorithm in the IKE phase.', example='sha1'),
+        ikeEncAlg?: string(name='IkeEncAlg', description='The encryption algorithm in the IKE phase.', example='aes'),
+        ikeLifetime?: long(name='IkeLifetime', description='The lifetime in the IKE phase. Unit: seconds.', example='86400'),
+        ikeMode?: string(name='IkeMode', description='The negotiation mode of IKE. Valid values:
+
+*   **main:** This mode offers higher security during negotiations.
+*   **aggressive**: This mode is faster with a higher success rate.', example='main'),
+        ikePfs?: string(name='IkePfs', description='The Diffie-Hellman (DH) group in the IKE phase.', example='group2'),
+        ikeVersion?: string(name='IkeVersion', description='The version of the IKE protocol.', example='ikev2'),
+        localId?: string(name='LocalId', description='The identifier of the tunnel on the Alibaba Cloud side.', example='47.XX.XX.1'),
+        psk?: string(name='Psk', description='The pre-shared key.', example='123456****'),
+        remoteId?: string(name='RemoteId', description='The peer identifier.', example='47.XX.XX.2'),
+      }(name='TunnelIkeConfig', description='The configurations of Phase 1 negotiations.'),
+      tunnelIndex?: int32(name='TunnelIndex', description='The order in which the tunnel was created.
+
+*   **1**: Tunnel 1.
+*   **2**: Tunnel 2.', example='1'),
       tunnelIpsecConfig?: {
-        ipsecAuthAlg?: string(name='IpsecAuthAlg'),
-        ipsecEncAlg?: string(name='IpsecEncAlg'),
-        ipsecLifetime?: long(name='IpsecLifetime'),
-        ipsecPfs?: string(name='IpsecPfs'),
-      }(name='TunnelIpsecConfig'),
+        ipsecAuthAlg?: string(name='IpsecAuthAlg', description='The authentication algorithm in the IPsec phase.', example='sha1'),
+        ipsecEncAlg?: string(name='IpsecEncAlg', description='The encryption algorithm in the IPsec phase.', example='aes'),
+        ipsecLifetime?: long(name='IpsecLifetime', description='The lifetime in the IPsec phase. Unit: seconds.', example='86400'),
+        ipsecPfs?: string(name='IpsecPfs', description='The DH group in the IPsec phase.', example='group2'),
+      }(name='TunnelIpsecConfig', description='The configurations of Phase 2 negotiations.'),
     }
-  ](name='TunnelOptionsSpecification'),
+  ](name='TunnelOptionsSpecification', description='The tunnel configurations of the IPsec-VPN connection.
+
+**TunnelOptionsSpecification** parameters are returned only for dual-tunnel IPsec-VPN connections.'),
   vcoHealthCheck?: {
     dip?: string(name='Dip', description='The destination IP address that is used for health checks.', example='192.168.1.1'),
     enable?: string(name='Enable', description='Indicates whether the health check feature is enabled for the IPsec-VPN connection. Valid values:
@@ -23656,7 +23942,9 @@ A value of **M** in the response indicates **Mbit/s**.', example='1000M'),
 *   **reserve_route**: Advertised routes are not withdrawn.', example='revoke_route'),
     retry?: int32(name='Retry', description='The maximum number of health check retries.', example='3'),
     sip?: string(name='Sip', description='The source IP address that is used for health checks.', example='10.1.1.1'),
-  }(name='VcoHealthCheck', description='The health check configuration of the IPsec-VPN connection.'),
+  }(name='VcoHealthCheck', description='The health check configurations of the IPsec-VPN connection.
+
+**VcoHealthCheck** parameters are returned only for single-tunnel IPsec-VPC connections.'),
   vpnBgpConfig?: {
     enableBgp?: string(name='EnableBgp', description='Indicates whether BGP is enabled for the IPsec-VPN connection. Valid values:
 
@@ -23671,9 +23959,13 @@ A value of **M** in the response indicates **Mbit/s**.', example='1000M'),
 *   **success**: normal
 *   **false**: abnormal', example='false'),
     tunnelCidr?: string(name='TunnelCidr', description='The CIDR block of the IPsec tunnel.', example='169.254.11.0/30'),
-  }(name='VpnBgpConfig', description='The BGP configuration of the IPsec-VPN connection.'),
+  }(name='VpnBgpConfig', description='The BGP configurations of the IPsec-VPN connection.
+
+**VpnBgpConfig** parameters are returned only for single-tunnel IPsec-VPN connections.'),
   vpnConnectionId?: string(name='VpnConnectionId', description='The ID of the IPsec-VPN connection.', example='vco-p0w5112fgnl2ihlmf****'),
-  vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway associated with the IPsec-VPN connection.', example='vpn-p0wa1c1018pmeb6cu****'),
+  vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway that is associated with the IPsec-VPN connection.
+
+**vpn-not-exist**: The IPsec-VPN connection is not associated with a VPN Gateway.', example='vpn-p0wa1c1018pmeb6cu****'),
 }
 
 model ModifyVpnAttachmentAttributeResponse = {
@@ -23683,13 +23975,13 @@ model ModifyVpnAttachmentAttributeResponse = {
 }
 
 /**
-  * @description *   **ModifyVpnAttachmentAttribute** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task to modify the configuration of an IPsec-VPN connection in the background. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/53046.html) operation to query the status of the task.
-  *     *   If the IPsec-VPN connection is in the **updating** state, the configuration of the IPsec-VPN connection is being modified.
-  *     *   If the IPsec-VPN connection is in the **attached** state, the configuration of the IPsec-VPN connection is modified.
-  * *   You cannot call the **ModifyVpnAttachmentAttribute** operation again on the same IPsec-VPN connection before the previous operation is complete.
-  * *   When you call the **ModifyVpnAttachmentAttribute** operation, take note of the following items:
-  *     *   If the IPsec-VPN connection is associated with a transit router, you cannot change the type of the gateway connected to the IPsec-VPN connection.
-  *     *   If the IPsec-VPN connection is not associated with a resource, you cannot change the type of the gateway connected to the IPsec-VPN connection or the customer gateway connected to the IPsec-VPN connection.
+  * @description *   When you modify a IPsec-VPN connection in dual-tunnel mode, you can configure the following parameters in addition to the required request parameters: **ClientToken**, **Name**, **LocalSubnet**, **RemoteSubnet**, **EffectImmediately**, **AutoConfigRoute**, **TunnelOptionsSpecification** array, and **EnableTunnelsBgp**.
+  * *   When you modify a IPsec-VPN connection in single tunnel mode, you can configure the following parameters in addition to the required request parameters: **ClientToken**, **Name**, **LocalSubnet**, **RemoteSubnet**, **EffectImmediately**, **IkeConfig**, **IpsecConfig**, **HealthCheckConfig**, **AutoConfigRoute**, **EnableDpd**, **EnableNatTraversal**, **BgpConfig**, and **CustomerGatewayId**.
+  * *   **ModifyVpnAttachmentAttribute** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/53046.html) operation to query the status of the task:
+  *     *   If the IPsec-VPN connection is in the **updating** state, the IPsec-VPN connection is being modified.
+  *     *   If the IPsec-VPN connection is in the **attached** state, the IPsec-VPN connection is modified.
+  * *   You cannot concurrently call **ModifyVpnAttachmentAttribute** within the specified period of time.
+  * *   You cannot call **ModifyVpnAttachmentAttribute** to modify the gateway type of an IPsec-VPN connection.
   * @param request  the request parameters of ModifyVpnAttachmentAttribute  ModifyVpnAttachmentAttributeRequest
   * @return ModifyVpnAttachmentAttributeResponse
  */
@@ -23766,9 +24058,7 @@ The configurations of Phase 1 negotiations:
     *   The key cannot contain space characters. The key must be 1 to 100 characters in length, and can contain digits, letters, and the following special characters: ``~!`@#$%^&*()_-+={}[]|;:\\",.<>/?``
     *   If you do not specify a pre-shared key, the system randomly generates a 16-bit string as the pre-shared key. You can call the [DescribeVpnConnection](https://help.aliyun.com/document_detail/2526951.html) operation to query the pre-shared key that is automatically generated by the system.
 
-    **
-
-    **Description** The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
+    > The pre-shared key of the IPsec-VPN connection must be the same as the authentication key of the on-premises data center. Otherwise, connections between the on-premises data center and the VPN gateway cannot be established.
 
 *   **IkeConfig.IkeVersion**: the version of the Internet Key Exchange (IKE) protocol. Valid values: **ikev1** and **ikev2**.
 
@@ -24117,9 +24407,9 @@ model ModifyVpnGatewayAttributeRequest {
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-4266****', position='Query'),
-  description?: string(name='Description', description='The new description of the VPN gateway.
+  description?: string(name='Description', description='The new description of the VPN connection.
 
-The description must be 1 to 100 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
+The description must be 1 to 100 characters in length.', example='test', position='Query'),
   name?: string(name='Name', description='The new name of the VPN gateway.
 
 The name must be 2 to 100 characters in length and cannot start with `http://` or `https://`. It must start with a letter and can contain letters, digits, underscores (_), hyphens (-), and periods (.). Other characters are not supported.', example='myvpn', position='Query'),
@@ -24168,12 +24458,10 @@ This value is a UNIX timestamp representing the number of milliseconds that have
     If the VPN gateway supports IPsec-VPN connections in dual-tunnel mode, the system assigns two IP addresses to the VPN gateway to create two encrypted tunnels.', example='116.62.XX.XX'),
   intranetIp?: string(name='IntranetIp', description='The IP address of the VPN gateway.
 
-This parameter is returned only when the VPN gateway is a private VPN gateway and supports only the single-tunnel mode.', example='172.27.30.24'),
+This parameter is returned only if the VPN gateway supports IPsec-VPN connections in single-tunnel mode.', example='172.27.30.24'),
   name?: string(name='Name', description='The name of the VPN gateway.', example='test'),
   requestId?: string(name='RequestId', description='The request ID.', example='54B48E3D-DF70-471B-AA93-08E683A1B457'),
-  resourceGroupId?: string(name='ResourceGroupId', description='VPN网关实例所属的资源组ID。
-
-您可以调用[ListResourceGroups](https://help.aliyun.com/document_detail/158855.html)接口查询资源组信息。', example='rg-acfmzs372yg****'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzs372yg****'),
   spec?: string(name='Spec', description='The maximum bandwidth of the VPN gateway. Unit: Mbit/s.', example='5M'),
   sslVpnInternetIp?: string(name='SslVpnInternetIp', description='The IP address of the SSL-VPN connection.
 
@@ -26498,11 +26786,11 @@ It must be 1 to 100 characters in length.', example='test', maxLength=100, posit
 Multiple CIDR blocks are separated with commas (,). Example: 192.168.1.0/24,192.168.2.0/24.', example='192.168.0.0/24,172.17.0.0/16', position='Query'),
   psk?: string(name='Psk', description='The pre-shared key.
 
-The pre-shared key that is used for authentication between the IPsec-VPN server and the client. It must be 1 to 100 characters in length.
+The pre-shared key that is used for authentication between the IPsec server and the client. The key must be 1 to 100 characters in length.
 
 You can call [ListIpsecServers](https://help.aliyun.com/document_detail/2794120.html) to query keys generated by the system.
 
->  The pre-shared key of the IPsec server key must be the same as that of the client. Otherwise, the connection between the IPsec server and the client cannot be established.', example='Cfd123****', position='Query'),
+> The pre-shared key of the IPsec server key must be the same as that of the client. Otherwise, the connection between the IPsec server and the client cannot be established.', example='Cfd123****', position='Query'),
   pskEnabled?: boolean(name='PskEnabled', description='Specifies whether to enable pre-shared key authentication. If you set the value to **true**, pre-shared key authentication is enabled.', example='true', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the IPsec server is created.
 
@@ -26522,11 +26810,11 @@ model UpdateIpsecServerResponse = {
 }
 
 /**
-  * @description *   If you modify only the **IpsecServerName** parameter, this operation is synchronous. If you modify parameters other than **IpsecServerName**, this operation is asynchronous.
-  * *   When the **UpdateIpsecServer** operation is asynchronous, the system returns a request ID after you send a request to call this operation and the IPsec server is being modified in the backend. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) to query the status of a VPN gateway.
-  *     *   If the VPN gateway is in the **updating** state, the configuration of the IPsec server is being modified.
-  *     *   If the VPN gateway is in the **active** state, the configuration of the IPsec server is modified.
-  * *   You cannot repeatedly call the **UpdateIpsecServer** operation for the same VPN gateway within the specified period of time.
+  * @description *   If you modify only **IpsecServerName** of the IPsec server, this operation is synchronous. If you modify other parameters besides **IpsecServerName**, this operation is asynchronous.
+  * *   If **UpdateIpsecServer** is an asynchronous operation, after a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) operation to query the status of the task.
+  *     *   If the VPN gateway is in the **updating** state, the IPsec server is being modified.
+  *     *   If the VPN gateway is in the **active** state, the IPsec server is modified.
+  * *   You cannot repeatedly call **UpdateIpsecServer** within the specified period of time.
   * @param request  the request parameters of UpdateIpsecServer  UpdateIpsecServerRequest
   * @return UpdateIpsecServerResponse
  */
