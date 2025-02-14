@@ -46,12 +46,16 @@ model AkSkIdentityConfig {
 }
 
 model ApiKeyIdentityConfig {
-  apikey?: string(name='apikey'),
   apikeySource?: {
     source?: string(name='source'),
     value?: string(name='value'),
   }(name='apikeySource'),
-  generateMode?: string(name='generateMode'),
+  credentials?: [ 
+    {
+      apikey?: string(name='apikey'),
+      generateMode?: string(name='generateMode'),
+    }
+  ](name='credentials'),
   type?: string(name='type'),
 }
 
@@ -104,6 +108,11 @@ model Attachment {
   policyAttachmentId?: string(name='policyAttachmentId'),
 }
 
+model AuthConfig {
+  authMode?: string(name='authMode'),
+  authType?: string(name='authType'),
+}
+
 model AuthorizationResourceInfo {
   environmentId?: string(name='environmentId'),
   parentResourceId?: string(name='parentResourceId'),
@@ -126,6 +135,12 @@ model Backend {
 
 model CheckServiceLinkedRoleResult {
   existed?: boolean(name='existed'),
+}
+
+model ConsumerInfo {
+  consumerId?: string(name='consumerId'),
+  enable?: boolean(name='enable'),
+  name?: string(name='name'),
 }
 
 model DashboardFilter {
@@ -178,11 +193,13 @@ model GatewayLogConfig {
 
 model HttpApiApiInfo {
   aiProtocols?: [ string ](name='aiProtocols'),
+  authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs'),
   description?: string(name='description'),
+  enabelAuth?: boolean(name='enabelAuth'),
   environments?: [ 
     {
       alias?: string(name='alias', example='test'),
@@ -300,7 +317,9 @@ model HttpApiMockContract {
 }
 
 model HttpApiOperation {
+  authConfig?: AuthConfig(name='authConfig'),
   description?: string(name='description', example='获取用户信息'),
+  enableAuth?: boolean(name='enableAuth'),
   method: string(name='method', description='This parameter is required.', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name: string(name='name', description='This parameter is required.', example='GetUserInfo'),
@@ -310,8 +329,10 @@ model HttpApiOperation {
 }
 
 model HttpApiOperationInfo {
+  authConfig?: AuthConfig(name='authConfig'),
   createTimestamp?: long(name='createTimestamp', example='1719386834548'),
   description?: string(name='description', example='获取用户信息'),
+  enableAuth?: boolean(name='enableAuth'),
   method?: string(name='method', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name?: string(name='name', example='GetUserInfo'),
@@ -710,13 +731,13 @@ model SubDomainInfo {
 }
 
 model TlsCipherSuitesConfig {
-  cipherSuites?: [ 
+  configType?: string(name='configType'),
+  tlsCipherSuite?: [ 
     {
       name?: string(name='name'),
       supportVersions?: [ string ](name='supportVersions'),
     }
-  ](name='cipherSuites'),
-  configType?: string(name='configType'),
+  ](name='tlsCipherSuite'),
 }
 
 model AddGatewaySecurityGroupRuleRequest {
@@ -747,6 +768,32 @@ async function addGatewaySecurityGroupRule(request: AddGatewaySecurityGroupRuleR
   return @handler.do('RESTFUL', 'AddGatewaySecurityGroupRule', 'POST', '/v1/gateways/{gatewayId}/security-group-rules', 'json', false, 'json', request);
 }
 
+model ChangeResourceGroupRequest {
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzdrfx2xdnaja', position='Query'),
+  resourceId?: string(name='ResourceId', example='gw-ct4i14um1hkn0tpqfae0', position='Query'),
+  resourceType?: string(name='ResourceType', example='gateway', position='Query'),
+  service?: string(name='Service', example='apig', position='Query'),
+}
+
+model ChangeResourceGroupResponseBody = {
+  requestId?: string(name='RequestId', example='59F86F37-787A-52DB-9475-DB5A255517F0'),
+}
+
+model ChangeResourceGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChangeResourceGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ChangeResourceGroup  ChangeResourceGroupRequest
+  * @return ChangeResourceGroupResponse
+ */
+async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ChangeResourceGroup', 'POST', '/move-resource-group', 'json', false, 'json', request);
+}
+
 model CreateDomainRequest {
   caCertIdentifier?: string(name='caCertIdentifier', description='CA Certificate Identifier.', example='1ef1da5f-38ed-69b3-****-037781890265', position='Body'),
   certIdentifier?: string(name='certIdentifier', description='Certificate Unique Identifier.', example='1ef1da5f-38ed-69b3-****-037781890265', position='Body'),
@@ -761,8 +808,8 @@ This parameter is required.', example='abc.com', position='Body'),
 - HTTPS: Supports only HTTPS protocol.
 
 This parameter is required.', example='HTTP', position='Body'),
-  resourceGroupId?: string(name='resourceGroupId', position='Body'),
-  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzoiafjtr7zyq', position='Body'),
+  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='The TLS cipher suites config.', position='Body'),
   tlsMax?: string(name='tlsMax', description='Maximum TLS protocol version, supports up to TLS 1.3.', example='TLS1.3', position='Body'),
   tlsMin?: string(name='tlsMin', description='Minimum TLS protocol version, supports down to TLS 1.0.', example='TLS1.0', position='Body'),
 }
@@ -803,7 +850,7 @@ This parameter is required.', example='gw-cq7l5s5lhtgi6qasrdc0', position='Body'
   name: string(name='name', description='Environment name.
 
 This parameter is required.', example='test', position='Body'),
-  resourceGroupId?: string(name='resourceGroupId', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-acfmycs5expl7oq', position='Body'),
 }
 
 model CreateEnvironmentResponseBody = {
@@ -822,10 +869,11 @@ model CreateEnvironmentResponse = {
 }
 
 /**
-  * @description Create environment.
+  * @deprecated OpenAPI CreateEnvironment is deprecated  * @description Create environment.
   * @param request  the request parameters of CreateEnvironment  CreateEnvironmentRequest
   * @return CreateEnvironmentResponse
  */
+// Deprecated
 async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvironmentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateEnvironment', 'POST', '/v1/environments', 'json', false, 'json', request);
@@ -833,12 +881,14 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 
 model CreateHttpApiRequest {
   regionId?: string(name='RegionId', position='Host'),
-  aiProtocols?: [ string ](name='aiProtocols', position='Body'),
+  aiProtocols?: [ string ](name='aiProtocols', description='The AI protocols list.', position='Body'),
+  authConfig?: AuthConfig(name='authConfig', position='Body'),
   basePath?: string(name='basePath', description='Base path of the API, which must start with a \\"/\\".', example='/v1', position='Body'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', position='Body'),
+  ](name='deployConfigs', description='The deploy configs.', position='Body'),
   description?: string(name='description', description='Description of the API.', example='测试专用API。', position='Body'),
+  enableAuth?: boolean(name='enableAuth', position='Body'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cq146allhtgk***'),
     ingressClass?: string(name='ingressClass', description='Ingress Class being listened to.', example='mse'),
@@ -850,7 +900,7 @@ model CreateHttpApiRequest {
 
 This parameter is required.', example='test-api', position='Body'),
   protocols?: [ string ](name='protocols', description='List of API access protocols.', position='Body'),
-  resourceGroupId?: string(name='resourceGroupId', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzgvmlotionbi', position='Body'),
   type?: string(name='type', description='Type of the HTTP API.
 - Http
 - Rest
@@ -921,6 +971,120 @@ async function createHttpApiOperation(request: CreateHttpApiOperationRequest): C
   return @handler.do('RESTFUL', 'CreateHttpApiOperation', 'POST', '/v1/http-apis/{httpApiId}/operations', 'json', false, 'json', request);
 }
 
+model CreateHttpApiRouteRequest {
+  httpApiId?: string(name='httpApiId', description='The ID of the HTTP API to which the route belongs.', example='api-cqoob7llhtgq***', position='Path'),
+  backendConfig?: {
+    scene?: string(name='scene', description='Backend service scenario.
+- SingleService: Single service.
+- MultiServiceByRatio: Multiple services with ratio-based canary release.
+- Mock: Mock service.
+- Redirect: Redirect service.', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', description='Service port, not provided for dynamic ports.', example='8080'),
+        protocol?: string(name='protocol', description='Service protocol:
+- HTTP.
+- HTTPS.', example='HTTP'),
+        serviceId?: string(name='serviceId', description='Service ID.', example='svc-crbgq0dlhtgr***'),
+        version?: string(name='version', description='Service version, valid only in label-based scenarios.', example='v1'),
+        weight?: int32(name='weight', description='Percentage value of traffic distribution.', example='49'),
+      }
+    ](name='services', description='List of backend services.'),
+  }(name='backendConfig', description='Backend service configuration for the route.', position='Body'),
+  description?: string(name='description', description='Route description.', example='用户登陆路由。', position='Body'),
+  domainIds?: [ string ](name='domainIds', description='Domain IDs.', position='Body'),
+  environmentId?: string(name='environmentId', description='Environment ID.', example='env-cpqnr6tlhtgubcv***', position='Body'),
+  match?: HttpRouteMatch(name='match', description='Route match rules.', position='Body'),
+  name?: string(name='name', description='Route name.', example='login', position='Body'),
+}
+
+model CreateHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    routeId?: string(name='routeId', description='Route ID。', example='hr-cr82undlhtgrlej***'),
+  }(name='data', description='Response data.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+}
+
+model CreateHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateHttpApiRoute  CreateHttpApiRouteRequest
+  * @return CreateHttpApiRouteResponse
+ */
+async function createHttpApiRoute(request: CreateHttpApiRouteRequest): CreateHttpApiRouteResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateHttpApiRoute', 'POST', '/v1/http-apis/{httpApiId}/routes', 'json', false, 'json', request);
+}
+
+model CreatePolicyRequest {
+  className: string(name='className', description='This parameter is required.', example='Timeout', position='Body'),
+  config: string(name='config', description='This parameter is required.', example='{"unitNum":1,"timeUnit":"s","enable":true}', position='Body'),
+  description?: string(name='description', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='test-policy', position='Body'),
+}
+
+model CreatePolicyResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    policyId?: string(name='policyId', example='p-cq7l5s5lhtgi6qasr***'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E7406754***'),
+}
+
+model CreatePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePolicy  CreatePolicyRequest
+  * @return CreatePolicyResponse
+ */
+async function createPolicy(request: CreatePolicyRequest): CreatePolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePolicy', 'POST', '/v2/policies', 'json', false, 'json', request);
+}
+
+model CreatePolicyAttachmentRequest {
+  attachResourceId: string(name='attachResourceId', description='This parameter is required.', example='api-cu07jj6m1hkokaus***', position='Body'),
+  attachResourceType: string(name='attachResourceType', description='This parameter is required.', example='HttpApi', position='Body'),
+  environmentId: string(name='environmentId', description='This parameter is required.', example='env-cquqsollhtgid***', position='Body'),
+  gatewayId: string(name='gatewayId', description='This parameter is required.', example='gw-cq7l5s5lhtgi6qas***', position='Body'),
+  policyId: string(name='policyId', description='This parameter is required.', example='p-cq787etlhtghrptjg***', position='Body'),
+}
+
+model CreatePolicyAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    policyAttachmentId?: string(name='policyAttachmentId', example='pr-cqooju5lhtgquuj6***'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='585657D2-1C20-5B8A-AF17-D727C64***'),
+}
+
+model CreatePolicyAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePolicyAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePolicyAttachment  CreatePolicyAttachmentRequest
+  * @return CreatePolicyAttachmentResponse
+ */
+async function createPolicyAttachment(request: CreatePolicyAttachmentRequest): CreatePolicyAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePolicyAttachment', 'POST', '/v1/policy-attachments', 'json', false, 'json', request);
+}
+
 model DeleteDomainRequest {
   domainId: string(name='domainId', description='The ID of the domain.
 
@@ -967,9 +1131,10 @@ model DeleteEnvironmentResponse = {
 }
 
 /**
-  * @param request  the request parameters of DeleteEnvironment  DeleteEnvironmentRequest
+  * @deprecated OpenAPI DeleteEnvironment is deprecated  * @param request  the request parameters of DeleteEnvironment  DeleteEnvironmentRequest
   * @return DeleteEnvironmentResponse
  */
+// Deprecated
 async function deleteEnvironment(request: DeleteEnvironmentRequest): DeleteEnvironmentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteEnvironment', 'DELETE', '/v1/environments/{environmentId}', 'json', false, 'json', request);
@@ -998,6 +1163,33 @@ model DeleteGatewayResponse = {
 async function deleteGateway(request: DeleteGatewayRequest): DeleteGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteGateway', 'DELETE', '/v1/gateways/{gatewayId}', 'json', false, 'json', request);
+}
+
+model DeleteGatewaySecurityGroupRuleRequest {
+  gatewayId?: string(name='gatewayId', description='Cloud-native API Gateway ID', example='gw-cpv4sqdl*****', position='Path'),
+  securityGroupRuleId?: string(name='securityGroupRuleId', description='Cloud-native API Gateway security rule ID.', example='gsgr-cpqnj1llht***', position='Path'),
+  cascadingDelete?: boolean(name='cascadingDelete', description='Whether to cascade delete the security group rules.', example='true', position='Query'),
+}
+
+model DeleteGatewaySecurityGroupRuleResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='8F94B3CC-F4BA-511E-8367-ECBBE486E595'),
+}
+
+model DeleteGatewaySecurityGroupRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteGatewaySecurityGroupRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteGatewaySecurityGroupRule  DeleteGatewaySecurityGroupRuleRequest
+  * @return DeleteGatewaySecurityGroupRuleResponse
+ */
+async function deleteGatewaySecurityGroupRule(request: DeleteGatewaySecurityGroupRuleRequest): DeleteGatewaySecurityGroupRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteGatewaySecurityGroupRule', 'DELETE', '/v1/gateways/{gatewayId}/security-group-rules/{securityGroupRuleId}', 'json', false, 'json', request);
 }
 
 model DeleteHttpApiRequest {
@@ -1057,6 +1249,198 @@ async function deleteHttpApiOperation(request: DeleteHttpApiOperationRequest): D
   return @handler.do('RESTFUL', 'DeleteHttpApiOperation', 'DELETE', '/v1/http-apis/{httpApiId}/operations/{operationId}', 'json', false, 'json', request);
 }
 
+model DeleteHttpApiRouteRequest {
+  httpApiId?: string(name='httpApiId', description='The ID of the HTTP API to which the route belongs.', example='api-cqoub6tlhtgv***', position='Path'),
+  routeId?: string(name='routeId', description='The ID of the route.', example='hr-cr82undlhtgr***', position='Path'),
+}
+
+model DeleteHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='0F138FFC-6E2B-56C1-9BAB-A67462E339D1'),
+}
+
+model DeleteHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteHttpApiRoute  DeleteHttpApiRouteRequest
+  * @return DeleteHttpApiRouteResponse
+ */
+async function deleteHttpApiRoute(request: DeleteHttpApiRouteRequest): DeleteHttpApiRouteResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteHttpApiRoute', 'DELETE', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
+}
+
+model DeletePolicyRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='p-cq7l5s5bblhtgi6qas***', position='Path'),
+}
+
+model DeletePolicyResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='393E2630-DBE7-5221-AB35-9E7406754***'),
+}
+
+model DeletePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeletePolicy  DeletePolicyRequest
+  * @return DeletePolicyResponse
+ */
+async function deletePolicy(request: DeletePolicyRequest): DeletePolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeletePolicy', 'DELETE', '/v2/policies/{policyId}', 'json', false, 'json', request);
+}
+
+model DeletePolicyAttachmentRequest {
+  policyAttachmentId: string(name='policyAttachmentId', description='This parameter is required.', example='pr-ctd4j9mmahko5fb4***', position='Path'),
+}
+
+model DeletePolicyAttachmentResponseBody = {
+  code?: string(name='code', example='200'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE857A85-251D-5018-8103-A38957D71***'),
+}
+
+model DeletePolicyAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePolicyAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeletePolicyAttachment  DeletePolicyAttachmentRequest
+  * @return DeletePolicyAttachmentResponse
+ */
+async function deletePolicyAttachment(request: DeletePolicyAttachmentRequest): DeletePolicyAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeletePolicyAttachment', 'DELETE', '/v1/policy-attachments/{policyAttachmentId}', 'json', false, 'json', request);
+}
+
+model DeployHttpApiRequest {
+  httpApiId?: string(name='httpApiId', description='HTTP API ID。', example='api-cr68g1dlhtgm31fb***', position='Path'),
+  restApiConfig?: {
+    description?: string(name='description'),
+    environment?: {
+      backendScene?: string(name='backendScene', example='SingleService'),
+      customDomainIds?: [ string ](name='customDomainIds'),
+      environmentId?: string(name='environmentId', example='env-cpqnr6tlhtgubc***'),
+      serviceConfigs?: [ 
+        {
+          match?: HttpApiBackendMatchConditions(name='match'),
+          port?: int32(name='port', example='8080'),
+          protocol?: string(name='protocol', example='HTTP'),
+          serviceId?: string(name='serviceId', example='svc-cr6pk4tlhtgm58e***'),
+          version?: string(name='version', example='v1'),
+          weight?: int32(name='weight', example='49'),
+        }
+      ](name='serviceConfigs'),
+    }(name='environment'),
+    revisionId?: string(name='revisionId', example='apr-xxx'),
+  }(name='restApiConfig', position='Body'),
+  routeId?: string(name='routeId', example='hr-cr82undlhtgrl***', position='Body'),
+}
+
+model DeployHttpApiResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='0C2D1C68-0D93-5561-8EE6-FDB7BF067A30'),
+}
+
+model DeployHttpApiResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeployHttpApiResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeployHttpApi  DeployHttpApiRequest
+  * @return DeployHttpApiResponse
+ */
+async function deployHttpApi(request: DeployHttpApiRequest): DeployHttpApiResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeployHttpApi', 'POST', '/v1/http-apis/{httpApiId}/deploy', 'json', false, 'json', request);
+}
+
+model ExportHttpApiRequest {
+  httpApiId: string(name='httpApiId', description='HTTP API ID.
+
+This parameter is required.', example='api-xxx', position='Path'),
+}
+
+model ExportHttpApiResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    specContentBase64?: string(name='specContentBase64', description='Base64编码的API定义。', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  }(name='data', description='API definition information.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='4BACB05C-3FE2-588F-9148-700C5C026B74'),
+}
+
+model ExportHttpApiResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExportHttpApiResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ExportHttpApi  ExportHttpApiRequest
+  * @return ExportHttpApiResponse
+ */
+async function exportHttpApi(request: ExportHttpApiRequest): ExportHttpApiResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ExportHttpApi', 'POST', '/v1/http-apis/{httpApiId}/export', 'json', false, 'json', request);
+}
+
+model GetDashboardRequest {
+  gatewayId?: string(name='gatewayId', example='gw-co370icmjeu****', position='Path'),
+  acceptLanguage?: string(name='acceptLanguage', example='zh', position='Query'),
+  apiId?: string(name='apiId', position='Query'),
+  filter?: {
+    routeName?: string(name='routeName', example='test-route'),
+  }(name='filter', shrink='json', position='Query'),
+  name?: string(name='name', example='PLUGIN', position='Query'),
+  pluginClassId?: string(name='pluginClassId', example='pls-dn82a9djd8z****', position='Query'),
+  source?: string(name='source', example='SLS', position='Query'),
+}
+
+model GetDashboardResponseBody = {
+  code?: int32(name='code', example='200'),
+  data?: {
+    gatewayId?: string(name='gatewayId', example='gw-co370icmjeu****'),
+    name?: string(name='name', example='PLUGIN'),
+    title?: string(name='title', example='APIG Plugin'),
+    url?: string(name='url', example='https://sls.console.aliyun.com/lognext/project/xxxxx'),
+  }(name='data'),
+  errorCode?: string(name='errorCode', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32AF2C'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetDashboardResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetDashboardResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetDashboard  GetDashboardRequest
+  * @return GetDashboardResponse
+ */
+async function getDashboard(request: GetDashboardRequest): GetDashboardResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDashboard', 'GET', '/v1/gateways/{gatewayId}/dashboards', 'json', false, 'json', request);
+}
+
 model GetDomainRequest {
   domainId: string(name='domainId', description='Domain ID.
 
@@ -1068,8 +1452,8 @@ model GetDomainResponseBody = {
   code?: string(name='code', description='Response code.', example='Ok'),
   data?: {
     algorithm?: string(name='algorithm', description='Encryption algorithm name', example='RSA'),
-    caCertIndentifier?: string(name='caCertIndentifier', description='Cloud Shield CA certificate identity.', example='223576-cn-hangzhou'),
-    certIndentifier?: string(name='certIndentifier', description='Cloud Shield certificate identity.', example='123576-cn-hangzhou'),
+    caCertIdentifier?: string(name='caCertIdentifier'),
+    certIdentifier?: string(name='certIdentifier'),
     certName?: string(name='certName', description='Certificate name', example='test-cert'),
     createFrom?: string(name='createFrom', description='Where it was created from.', example='Console'),
     createTimestamp?: long(name='createTimestamp', description='Creation timestamp.', example='1719386834548'),
@@ -1121,8 +1505,8 @@ model GetEnvironmentRequest {
   environmentId: string(name='environmentId', description='Environment ID.
 
 This parameter is required.', example='env-cq7l5s5lhtgi6qasrdc0', position='Path'),
-  withStatistics?: boolean(name='withStatistics', position='Query'),
-  withVpcInfo?: boolean(name='withVpcInfo', description='Option for vpc info.', position='Query'),
+  withStatistics?: boolean(name='withStatistics', description='Indicates whether to return online resource info.', example='true', position='Query'),
+  withVpcInfo?: boolean(name='withVpcInfo', description='Option for vpc info.', example='true', position='Query'),
 }
 
 model GetEnvironmentResponseBody = {
@@ -1135,13 +1519,13 @@ model GetEnvironmentResponseBody = {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cq7l5s5lhtgi6qasrdc0'),
     gatewayInfo?: GatewayInfo(name='gatewayInfo', description='Gateway information'),
     name?: string(name='name', description='Environment name.', example='test'),
-    resourceGroupId?: string(name='resourceGroupId'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzzzntl5njbpi'),
     statisticsInfo?: {
       resourceStatistics?: [
         ResourceStatistic
-      ](name='resourceStatistics'),
-      totalCount?: int32(name='totalCount'),
-    }(name='statisticsInfo'),
+      ](name='resourceStatistics', description='The array of related resource information.'),
+      totalCount?: int32(name='totalCount', description='The total number of entries returned.', example='4'),
+    }(name='statisticsInfo', description='Related resource information.'),
     subDomainInfos?: [
       SubDomainInfo
     ](name='subDomainInfos', description='List of subdomains.'),
@@ -1158,9 +1542,10 @@ model GetEnvironmentResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetEnvironment  GetEnvironmentRequest
+  * @deprecated OpenAPI GetEnvironment is deprecated  * @param request  the request parameters of GetEnvironment  GetEnvironmentRequest
   * @return GetEnvironmentResponse
  */
+// Deprecated
 async function getEnvironment(request: GetEnvironmentRequest): GetEnvironmentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetEnvironment', 'GET', '/v1/environments/{environmentId}', 'json', false, 'json', request);
@@ -1219,7 +1604,7 @@ model GetGatewayResponseBody = {
     ](name='loadBalancers', description='List of entry addresses for the gateway.'),
     name?: string(name='name', description='Gateway name.', example='itemcenter-gateway'),
     replicas?: string(name='replicas', description='Number of gateway instance nodes.', example='2'),
-    resourceGroupId?: string(name='resourceGroupId'),
+    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aek2s3cvc4jzfxi'),
     securityGroup?: {
       name?: string(name='name', description='Security group name.', example='APIG-sg-gw-cq7ke5ll***'),
       securityGroupId?: string(name='securityGroupId', description='Security group ID.', example='sg-bp16tafq9***'),
@@ -1238,10 +1623,10 @@ model GetGatewayResponseBody = {
 - DeleteFailed: Deletion failed.', example='Running'),
     tags?: [ 
       {
-        key?: string(name='key'),
-        value?: string(name='value'),
+        key?: string(name='key', description='The tag key of the resource.', example='owner'),
+        value?: string(name='value', description='The tag value of the resource.', example='zhangsan'),
       }
-    ](name='tags'),
+    ](name='tags', description='The resource tags.'),
     targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with the current version, an upgrade can be performed.', example='2.0.2'),
     updateTimestamp?: long(name='updateTimestamp', description='Update timestamp. Unit: milliseconds.', example='1719386834548'),
     vSwitch?: {
@@ -1343,15 +1728,15 @@ async function getHttpApiOperation(request: GetHttpApiOperationRequest): GetHttp
 }
 
 model GetHttpApiRouteRequest {
-  httpApiId?: string(name='httpApiId', description='HTTP API ID。', example='api-cqu95allhtgii6***', position='Path'),
-  routeId?: string(name='routeId', example='hr-cr82undlhtgrl***', position='Path'),
+  httpApiId?: string(name='httpApiId', description='HTTP API ID.', example='api-cqu95allhtgii6***', position='Path'),
+  routeId?: string(name='routeId', description='Route ID.', example='hr-cr82undlhtgrl***', position='Path'),
 }
 
 model GetHttpApiRouteResponseBody = {
-  code?: string(name='code', example='Ok'),
-  data?: HttpRoute(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: HttpRoute(name='data', description='Route detail data.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='3ACFC7A7-45A9-58CF-B2D5-765B60254695'),
 }
 
 model GetHttpApiRouteResponse = {
@@ -1369,12 +1754,222 @@ async function getHttpApiRoute(request: GetHttpApiRouteRequest): GetHttpApiRoute
   return @handler.do('RESTFUL', 'GetHttpApiRoute', 'GET', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
 }
 
+model GetPolicyRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='p-cu85bamm1hkrn5g6o***', position='Path'),
+}
+
+model GetPolicyResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: PolicyDetailInfo(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32A***'),
+}
+
+model GetPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPolicy  GetPolicyRequest
+  * @return GetPolicyResponse
+ */
+async function getPolicy(request: GetPolicyRequest): GetPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPolicy', 'GET', '/v2/policies/{policyId}', 'json', false, 'json', request);
+}
+
+model GetPolicyAttachmentRequest {
+  policyAttachmentId: string(name='policyAttachmentId', description='This parameter is required.', example='pr-ctd4j9mmahko5fb4***', position='Path'),
+}
+
+model GetPolicyAttachmentResponseBody = {
+  code?: string(name='code', example='200'),
+  data?: {
+    attachResourceId?: string(name='attachResourceId', example='op-csbkd9llhtgqhqua***'),
+    attachResourceType?: string(name='attachResourceType', example='Operation'),
+    config?: string(name='config', example='{"unitNum":1,"timeUnit":"s","enable":true}'),
+    environmentId?: string(name='environmentId', example='env-cq7l5s5lhtgi6qa***'),
+    gatewayId?: string(name='gatewayId', example='gw-cq2vundlhtg***'),
+    policyAttachmentId?: string(name='policyAttachmentId', example='pr-cqoojualhtgquuj***'),
+    policyId?: string(name='policyId', example='p-cq7l5s5bblhtgi6qas***'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='2C3B9A12-3868-5EB9-fBEA-F99E03DD1***'),
+}
+
+model GetPolicyAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPolicyAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPolicyAttachment  GetPolicyAttachmentRequest
+  * @return GetPolicyAttachmentResponse
+ */
+async function getPolicyAttachment(request: GetPolicyAttachmentRequest): GetPolicyAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPolicyAttachment', 'GET', '/v1/policy-attachments/{policyAttachmentId}', 'json', false, 'json', request);
+}
+
+model GetResourceOverviewRequest {
+}
+
+model GetResourceOverviewResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    api?: {
+      publishedCount?: long(name='publishedCount', example='1'),
+      totalCount?: long(name='totalCount', example='1'),
+    }(name='api'),
+    gateway?: {
+      runningCount?: long(name='runningCount', example='1'),
+      totalCount?: long(name='totalCount', example='1'),
+    }(name='gateway'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='DD19A442-93C5-5C97-AFA0-B9C57EBD781B'),
+}
+
+model GetResourceOverviewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetResourceOverviewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetResourceOverview  GetResourceOverviewRequest
+  * @return GetResourceOverviewResponse
+ */
+async function getResourceOverview(request: GetResourceOverviewRequest): GetResourceOverviewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetResourceOverview', 'GET', '/v1/overview/resources', 'json', false, 'json', request);
+}
+
+model GetTraceConfigRequest {
+  gatewayId?: string(name='gatewayId', example='gw-xxx', position='Path'),
+  acceptLanguage?: string(name='acceptLanguage', example='zh', position='Query'),
+}
+
+model GetTraceConfigResponseBody = {
+  code?: int32(name='code', example='200'),
+  data?: {
+    enable?: boolean(name='enable', example='true'),
+    sampleRatio?: int32(name='sampleRatio', example='50'),
+    serviceId?: string(name='serviceId', example='ss-co370icmjeu****'),
+    servicePort?: string(name='servicePort', example='8090'),
+    traceType?: string(name='traceType', example='SKYWALKING'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='2F46B9E7-67EF-5C8A-BA52-D38D5B32AF2C'),
+  success?: boolean(name='success', example='true'),
+}
+
+model GetTraceConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTraceConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetTraceConfig  GetTraceConfigRequest
+  * @return GetTraceConfigResponse
+ */
+async function getTraceConfig(request: GetTraceConfigRequest): GetTraceConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetTraceConfig', 'GET', '/v1/gateways/{gatewayId}/trace', 'json', false, 'json', request);
+}
+
+model ImportHttpApiRequest {
+  description?: string(name='description', description='The description of the imported API. If not provided, it will be extracted from the API definition. The length is limited to 255 bytes.', example='测试专用API', position='Body'),
+  dryRun?: boolean(name='dryRun', description='Pre-import check. If enabled, only the check will be performed without importing the API.', example='false', position='Body'),
+  name?: string(name='name', description='The name of the imported API. If not provided, it will be extracted from the API definition file. If the API name and version configuration already exist, this import will update the existing API definition based on the `strategy` field.', example='import-test', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-acfm3q4zjh7fkki', position='Body'),
+  specContentBase64?: string(name='specContentBase64', description='Base64 encoded API definition, supporting OAS2.0 and OAS3.0 specifications, in YAML or JSON format. It has a higher priority than the `specFileUrl` parameter. If the file size exceeds 10MB, please use the `specFileUrl` parameter to transfer.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo=', position='Body'),
+  specFileUrl?: string(name='specFileUrl', description='Download URL for the API definition file, which must be accessible from the public network or via an internal OSS download address within the same region. The file URL must have download permissions. For non-publicly readable OSS file links, refer to the documentation at https://help.aliyun.com/zh/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects, and provide a URL with download permissions. Currently, only API definition files stored on OSS are supported.', example='https://my-bucket.oss-cn-hangzhou.aliyuncs.com/my-api/api.yaml', position='Body'),
+  specOssConfig?: {
+    bucketName?: string(name='bucketName', description='The name of the Object Storage Service (OSS) bucket that stores the dictionary file.', example='api-1'),
+    objectKey?: string(name='objectKey', description='The file path.', example='/test/swagger.json'),
+    regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  }(name='specOssConfig', description='The oss config info.', position='Body'),
+  strategy?: string(name='strategy', description='When the imported API name and version management match an existing API, you need to specify an update strategy.
+- SpecOnly: Completely based on the imported file.
+- SpecFirst: Prioritize the imported file, add new interfaces and update existing ones, while keeping interfaces not mentioned in the file unchanged.
+- ExistFirst: Prioritize the existing API, only add new interfaces without updating existing ones.
+If not specified, the default strategy is ExistFirst.', example='ExistFirst', position='Body'),
+  targetHttpApiId?: string(name='targetHttpApiId', description='If this field is specified, this import will update the specified API instead of importing or searching for an existing API based on the API name and version management configuration. The target API must be of REST type.', example='api-xxxx', position='Body'),
+  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='API versioning configuration. If versioning is enabled, and the version number and API name match an existing API, this import will be treated as an update. If versioning is not enabled, and the API name matches an existing API, this import will also be treated as an update.', position='Body'),
+}
+
+model ImportHttpApiResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  data?: {
+    dryRunInfo?: {
+      errorMessages?: [ string ](name='errorMessages', description='Error messages. If there are any error messages, the API cannot be imported successfully.'),
+      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='已存在的API信息。若该字段非空，则导入动作将更新该API。'),
+      failureComponents?: [ 
+        {
+          errorMessage?: string(name='errorMessage', description='Error message.', example='数据结构定义有误。'),
+          name?: string(name='name', description='数据结构名称。', example='orderDTO'),
+        }
+      ](name='failureComponents', description='List of data structures that failed the precheck.'),
+      failureOperations?: [ 
+        {
+          errorMessage?: string(name='errorMessage', description='Error message', example='缺少响应定义。'),
+          method?: string(name='method', description='API method.', example='GET'),
+          path?: string(name='path', description='API path.', example='/v1/orders'),
+        }
+      ](name='failureOperations', description='List of APIs that failed the precheck.'),
+      successComponents?: [ 
+        {
+          action?: string(name='action', description='Action to be executed after the precheck.
+- Create: Create
+- Update: Update', example='Create'),
+          name?: string(name='name', description='Data structure name.', example='userDTO'),
+        }
+      ](name='successComponents', description='List of data structures that passed the precheck.'),
+      successOperations?: [ 
+        {
+          action?: string(name='action', description='Action to be executed after the precheck.
+- Create: Create
+- Update: Update', example='Create'),
+          method?: string(name='method', description='API method.', example='POST'),
+          name?: string(name='name', description='API name.', example='CreateUser'),
+          path?: string(name='path', description='API path.', example='/v1/users'),
+        }
+      ](name='successOperations', description='List of successfully pre-checked interfaces.'),
+      warningMessages?: [ string ](name='warningMessages', description='Warning messages. If there are any warning messages, some interfaces or data interfaces may not be imported successfully.'),
+    }(name='dryRunInfo', description='Pre-import check result.'),
+    httpApiId?: string(name='httpApiId', description='HTTP API ID.', example='api-xxx'),
+    name?: string(name='name', description='API name.', example='import-test'),
+  }(name='data', description='API information.'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='CE857A85-251D-5018-8103-A38957D71E20'),
+}
+
+model ImportHttpApiResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ImportHttpApiResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ImportHttpApi  ImportHttpApiRequest
+  * @return ImportHttpApiResponse
+ */
+async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ImportHttpApi', 'POST', '/v1/http-apis/import', 'json', false, 'json', request);
+}
+
 model ListDomainsRequest {
   gatewayId?: string(name='gatewayId', description='Gateway Id.', example='gw-xxx', position='Query'),
   nameLike?: string(name='nameLike', description='Domain name, fuzzy search.', example='test', position='Query'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='Number of items per page, default is 10.', example='10', position='Query'),
-  resourceGroupId?: string(name='resourceGroupId', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-ahr5uil8raz0rq3b', position='Query'),
 }
 
 model ListDomainsResponseBody = {
@@ -1413,7 +2008,7 @@ model ListEnvironmentsRequest {
   nameLike?: string(name='nameLike', description='Environment name, fuzzy search.', example='test', position='Query'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10', position='Query'),
-  resourceGroupId?: string(name='resourceGroupId', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-aek2sy66mftleiq', position='Query'),
 }
 
 model ListEnvironmentsResponseBody = {
@@ -1437,27 +2032,28 @@ model ListEnvironmentsResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListEnvironments  ListEnvironmentsRequest
+  * @deprecated OpenAPI ListEnvironments is deprecated  * @param request  the request parameters of ListEnvironments  ListEnvironmentsRequest
   * @return ListEnvironmentsResponse
  */
+// Deprecated
 async function listEnvironments(request: ListEnvironmentsRequest): ListEnvironmentsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListEnvironments', 'GET', '/v1/environments', 'json', false, 'json', request);
 }
 
 model ListGatewaysRequest {
-  gatewayId?: string(name='gatewayId', description='Query exactly by gateway ID.', example='gw-cpv4sqdl****', position='Query'),
+  gatewayId?: string(name='gatewayId', description='Query exactly by Gateway ID.', example='gw-cpv4sqdl****', position='Query'),
   keyword?: string(name='keyword', description='Keyword, search with full match, case-insensitive.', example='dev', position='Query'),
-  name?: string(name='name', description='Query exactly by gateway name.', example='itemcenter-gateway', position='Query'),
+  name?: string(name='name', description='Query exactly by Gateway name.', example='itemcenter-gateway', position='Query'),
   pageNumber?: int32(name='pageNumber', description='Page number.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='Page size.', example='10', position='Query'),
-  resourceGroupId?: string(name='resourceGroupId', position='Query'),
-  tags?: [ 
+  resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-aekz3wes3hnre5a', position='Query'),
+  tag?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', description='The key of the tag.', example='owner'),
+      value?: string(name='value', description='The value of the tag.', example='zhangsan'),
     }
-  ](name='tags', shrink='json', position='Query'),
+  ](name='tag', description='Filter list by tags', shrink='json', position='Query'),
 }
 
 model ListGatewaysResponseBody = {
@@ -1472,7 +2068,7 @@ model ListGatewaysResponseBody = {
         createFrom?: string(name='createFrom', description='Source of gateway creation:
 - Console: Console.', example='Console'),
         createTimestamp?: long(name='createTimestamp', description='Creation timestamp, in milliseconds.', example='1719386834548'),
-        expireTimestamp?: long(name='expireTimestamp', description='Expiration timestamp for the prepaid (annual or monthly) plan. Unit: milliseconds.', example='172086834548'),
+        expireTimestamp?: long(name='expireTimestamp', description='Expiration timestamp for prepaid (annual or monthly) subscriptions. Unit: milliseconds.', example='172086834548'),
         gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cpv54p5***'),
         loadBalancers?: [ 
           {
@@ -1485,7 +2081,7 @@ model ListGatewaysResponseBody = {
 - Intranet: Private network.', example='Internet'),
             gatewayDefault?: boolean(name='gatewayDefault', description='Indicates whether this is the default entry address for the gateway.', example='true'),
             loadBalancerId?: string(name='loadBalancerId', description='Load balancer ID.', example='nlb-xqwioje1c91r***'),
-            mode?: string(name='mode', description='Mode of load balancer provision for the gateway:
+            mode?: string(name='mode', description='Load balancer provision mode for the gateway:
 - Managed: Managed by the Cloud Native API Gateway.', example='Managed'),
             ports?: [ 
               {
@@ -1505,9 +2101,9 @@ model ListGatewaysResponseBody = {
         ](name='loadBalancers', description='List of gateway entry addresses.'),
         name?: string(name='name', description='Gateway name.', example='itemcenter-gateway'),
         replicas?: string(name='replicas', description='Number of gateway instance nodes.', example='2'),
-        resourceGroupId?: string(name='resourceGroupId'),
+        resourceGroupId?: string(name='resourceGroupId', description='Resource group ID.', example='rg-xxx'),
         securityGroup?: {
-          securityGroupId?: string(name='securityGroupId', description='The Security Group ID.'),
+          securityGroupId?: string(name='securityGroupId', description='The Security Group ID.', example='sg-xxxx'),
         }(name='securityGroup', description='The Security Group.'),
         spec?: string(name='spec', description='Gateway specification:
 - apigw.small.x1: Small specification.', example='apigw.small.x1'),
@@ -1521,35 +2117,38 @@ model ListGatewaysResponseBody = {
 - RestartFailed: Restart failed.
 - Deleting: Deleting.
 - DeleteFailed: Deletion failed.', example='Running'),
+        subDomainInfos?: [
+          SubDomainInfo
+        ](name='subDomainInfos'),
         tags?: [ 
           {
-            tagKey?: string(name='tagKey'),
-            tagValue?: string(name='tagValue'),
+            key?: string(name='key', description='The key of the tag.', example='owner'),
+            value?: string(name='value', description='The value of the tag.', example='zhangsan'),
           }
-        ](name='tags'),
-        targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with `version`, a version upgrade can be performed.', example='2.0.2'),
+        ](name='tags', description='Array of tags.'),
+        targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with the current `version`, an upgrade can be performed.', example='2.0.2'),
         updateTimestamp?: long(name='updateTimestamp', description='Update timestamp. Unit: milliseconds.', example='1719386834548'),
         vSwitch?: {
           vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
-        }(name='vSwitch'),
+        }(name='vSwitch', description='The vSwtich.'),
         version?: string(name='version', description='Gateway version.', example='2.0.2'),
         vpc?: {
           vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-xxxxx'),
-        }(name='vpc'),
+        }(name='vpc', description='The VPC.'),
         zones?: [ 
           {
             vSwitch?: {
               vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
             }(name='vSwitch', description='The vSwitch.'),
-            zoneId?: string(name='zoneId', description='The ID of the current zone.', example='cn-hangzhou'),
+            zoneId?: string(name='zoneId', description='The ID of the current zone.', example='cn-hangzhou-f'),
           }
-        ](name='zones'),
+        ](name='zones', description='The Zones.'),
       }
     ](name='items', description='Gateway list'),
     pageNumber?: int32(name='pageNumber', description='Page number.', example='1'),
     pageSize?: int32(name='pageSize', description='Page size.', example='10'),
     totalSize?: long(name='totalSize', description='Total count.', example='6'),
-  }(name='data', description='Result of the gateway list query.'),
+  }(name='data', description='Result of gateway list query.'),
   message?: string(name='message', description='Response message.', example='success'),
   requestId?: string(name='requestId', description='Request ID.', example='5B626361-070A-56A7-B127-ADAC8F3655DB'),
 }
@@ -1582,7 +2181,7 @@ This parameter is required.', example='api-xxx', position='Path'),
   pathLike?: string(name='pathLike', description='Search operations by path prefix.', example='/v1', position='Query'),
   withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='Each operation information in the response carries a list of authorization rules for the specified consumer under the specified environment ID. The withConsumerInEnvironmentId field needs to be additionally specified.', example='env-xxx', position='Query'),
   withConsumerInfoById?: string(name='withConsumerInfoById', description='Each operation information in the response carries a list of authorization rules for the specified consumer under the specified environment ID. The withConsumerInEnvironmentId field needs to be additionally specified.', example='cs-xxx', position='Query'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', position='Query'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Plugin ID, use this plugin ID to retrieve the plugin release information.', example='pl-xxx', position='Query'),
 }
 
 model ListHttpApiOperationsResponseBody = {
@@ -1631,6 +2230,7 @@ model ListHttpApisRequest {
   withConsumerInfoById?: string(name='withConsumerInfoById', description='Each API information in the response carries a list of authorization rules for the specified consumer ID.', example='cs-xxx', position='Query'),
   withEnvironmentInfo?: boolean(name='withEnvironmentInfo', position='Query'),
   withEnvironmentInfoById?: string(name='withEnvironmentInfoById', position='Query'),
+  withIngressInfo?: boolean(name='withIngressInfo', position='Query'),
   withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', position='Query'),
 }
 
@@ -1663,12 +2263,141 @@ async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse 
   return @handler.do('RESTFUL', 'ListHttpApis', 'GET', '/v1/http-apis', 'json', false, 'json', request);
 }
 
+model ListPolicyClassesRequest {
+  attachResourceType?: string(name='attachResourceType', example='Operation', position='Query'),
+  direction?: string(name='direction', example='InBound', position='Query'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='10', position='Query'),
+  type?: string(name='type', example='FlowControl', position='Query'),
+}
+
+model ListPolicyClassesResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [
+      PolicyClassInfo
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='10'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='23B45FA9-7208-5E55-B5CE-B6B2567DD822'),
+}
+
+model ListPolicyClassesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPolicyClassesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPolicyClasses  ListPolicyClassesRequest
+  * @return ListPolicyClassesResponse
+ */
+async function listPolicyClasses(request: ListPolicyClassesRequest): ListPolicyClassesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPolicyClasses', 'GET', '/v1/policy-classes', 'json', false, 'json', request);
+}
+
+model ListSslCertsRequest {
+  certNameLike?: string(name='certNameLike', example='ali', position='Query'),
+  domainName?: string(name='domainName', example='fun.iot.evideocloud.com.cn', position='Query'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='10', position='Query'),
+}
+
+model ListSslCertsResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [
+      SslCertMetaInfo
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='2'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='AADF7197-3384-52AF-A2DE-A66696734129'),
+}
+
+model ListSslCertsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSslCertsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListSslCerts  ListSslCertsRequest
+  * @return ListSslCertsResponse
+ */
+async function listSslCerts(request: ListSslCertsRequest): ListSslCertsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListSslCerts', 'GET', '/v1/ssl/certs', 'json', false, 'json', request);
+}
+
+model ListZonesRequest {
+}
+
+model ListZonesResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        zoneId?: string(name='zoneId', example='cn-shenzhen-c'),
+      }
+    ](name='items'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='E8079207-B651-592A-A565-23E9EE5673B0'),
+}
+
+model ListZonesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListZonesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListZones  ListZonesRequest
+  * @return ListZonesResponse
+ */
+async function listZones(request: ListZonesRequest): ListZonesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListZones', 'GET', '/v1/zones', 'json', false, 'json', request);
+}
+
+model RestartGatewayRequest {
+  gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cq2avtllh****', position='Path'),
+}
+
+model RestartGatewayResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model RestartGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RestartGatewayResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RestartGateway  RestartGatewayRequest
+  * @return RestartGatewayResponse
+ */
+async function restartGateway(request: RestartGatewayRequest): RestartGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RestartGateway', 'POST', '/v1/gateways/{gatewayId}/restart', 'json', false, 'json', request);
+}
+
 model UpdateDomainRequest {
   domainId: string(name='domainId', description='Domain ID.
 
 This parameter is required.', example='d-cpqnfn5lhtgqbga95sv1', position='Path'),
-  caCertIndentifier?: string(name='caCertIndentifier', description='Cloud Shield CA certificate identifier.', example='123455-cn-hangzhou', position='Body'),
-  certIndentifier?: string(name='certIndentifier', description='Cloud Shield certificate identifier.', example='123458-cn-hangzhou', position='Body'),
+  caCertIdentifier?: string(name='caCertIdentifier', position='Body'),
+  certIdentifier?: string(name='certIdentifier', position='Body'),
   forceHttps?: boolean(name='forceHttps', description='Set the HTTPS protocol type, whether to enable forced HTTPS redirection.', example='false', position='Body'),
   http2Option?: string(name='http2Option', description='HTTP/2 settings.', example='Open', position='Body'),
   protocol: string(name='protocol', description='The protocol type supported by the domain.
@@ -1677,7 +2406,7 @@ This parameter is required.', example='d-cpqnfn5lhtgqbga95sv1', position='Path')
 - HTTPS: Supports only HTTPS protocol.
 
 This parameter is required.', example='HTTP', position='Body'),
-  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', position='Body'),
+  tlsCipherSuitesConfig?: TlsCipherSuitesConfig(name='tlsCipherSuitesConfig', description='TLS Cipher Suite Configuration.', position='Body'),
   tlsMax?: string(name='tlsMax', description='Maximum TLS protocol version, supports up to TLS 1.3.', example='TLS 1.3', position='Body'),
   tlsMin?: string(name='tlsMin', description='Minimum TLS protocol version, supports down to TLS 1.0.', example='TLS 1.0', position='Body'),
 }
@@ -1729,26 +2458,82 @@ model UpdateEnvironmentResponse = {
 }
 
 /**
-  * @param request  the request parameters of UpdateEnvironment  UpdateEnvironmentRequest
+  * @deprecated OpenAPI UpdateEnvironment is deprecated  * @param request  the request parameters of UpdateEnvironment  UpdateEnvironmentRequest
   * @return UpdateEnvironmentResponse
  */
+// Deprecated
 async function updateEnvironment(request: UpdateEnvironmentRequest): UpdateEnvironmentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateEnvironment', 'PUT', '/v1/environments/{environmentId}', 'json', false, 'json', request);
+}
+
+model UpdateGatewayFeatureRequest {
+  gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cq2avtllh****', position='Path'),
+  name?: string(name='name', description='Feature parameter name.', example='enable-gzip', position='Path'),
+  value?: string(name='value', description='Parameter value.', example='"true"', position='Body'),
+}
+
+model UpdateGatewayFeatureResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='043360DA-ED3B-5386-9B7A-D94DECF99A30'),
+}
+
+model UpdateGatewayFeatureResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayFeatureResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateGatewayFeature  UpdateGatewayFeatureRequest
+  * @return UpdateGatewayFeatureResponse
+ */
+async function updateGatewayFeature(request: UpdateGatewayFeatureRequest): UpdateGatewayFeatureResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateGatewayFeature', 'PUT', '/v1/gateways/{gatewayId}/gateway-features/{name}', 'json', false, 'json', request);
+}
+
+model UpdateGatewayNameRequest {
+  gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cpv4sqdl****', position='Path'),
+  name?: string(name='name', description='Gateway name.', example='dev-itemcenter-router', position='Query'),
+}
+
+model UpdateGatewayNameResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+}
+
+model UpdateGatewayNameResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGatewayNameResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateGatewayName  UpdateGatewayNameRequest
+  * @return UpdateGatewayNameResponse
+ */
+async function updateGatewayName(request: UpdateGatewayNameRequest): UpdateGatewayNameResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateGatewayName', 'PUT', '/v1/gateways/{gatewayId}/name', 'json', false, 'json', request);
 }
 
 model UpdateHttpApiRequest {
   httpApiId: string(name='httpApiId', description='The ID of the HTTP API to be updated.
 
 This parameter is required.', example='api-xxx', position='Path'),
-  aiProtocols?: [ string ](name='aiProtocols', position='Body'),
+  aiProtocols?: [ string ](name='aiProtocols', description='List of AI protocols.', position='Body'),
+  authConfig?: AuthConfig(name='authConfig', position='Body'),
   basePath: string(name='basePath', description='Base path of the API, which must start with a \\"/\\".
 
 This parameter is required.', example='/v1', position='Body'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', position='Body'),
+  ](name='deployConfigs', description='List of API deployment configurations.', position='Body'),
   description?: string(name='description', description='API description.', example='更新API描述', position='Body'),
+  enableAuth?: boolean(name='enableAuth', position='Body'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='Environment ID.', example='env-cr6ql0tlhtgmc****'),
     ingressClass?: string(name='ingressClass', description='Ingress Class being listened to.', example='mse'),
@@ -1810,5 +2595,103 @@ model UpdateHttpApiOperationResponse = {
 async function updateHttpApiOperation(request: UpdateHttpApiOperationRequest): UpdateHttpApiOperationResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateHttpApiOperation', 'POST', '/v1/http-apis/{httpApiId}/operations/{operationId}', 'json', false, 'json', request);
+}
+
+model UpdateHttpApiRouteRequest {
+  httpApiId?: string(name='httpApiId', description='The HTTP API ID to which the route belongs.', example='api-cqoub6tlhtgvof7***', position='Path'),
+  routeId?: string(name='routeId', description='Route ID.', example='hr-cr82undlhtgrl***', position='Path'),
+  backendConfig?: {
+    scene?: string(name='scene', description='Backend service scenario.', example='SingleService'),
+    services?: [ 
+      {
+        port?: int32(name='port', description='Service port, do not pass in for dynamic ports.', example='8080'),
+        protocol?: string(name='protocol', description='Service protocol:
+- HTTP.
+- HTTPS.', example='HTTP'),
+        serviceId?: string(name='serviceId', description='Service ID.', example='svc-cr6pk4tlhtgm58e***'),
+        version?: string(name='version', description='Service version.', example='v1'),
+        weight?: int32(name='weight', description='Percentage value of traffic ratio.', example='49'),
+      }
+    ](name='services', description='List of backend services.'),
+  }(name='backendConfig', description='Backend service configuration for the route.', position='Body'),
+  description?: string(name='description', description='Route description.', example='test route', position='Body'),
+  domainIds?: [ string ](name='domainIds', description='List of domain IDs.', position='Body'),
+  environmentId?: string(name='environmentId', description='Environment ID.', example='env-cquqsollhtgid***', position='Body'),
+  match?: HttpRouteMatch(name='match', description='Route match rule.', position='Body'),
+}
+
+model UpdateHttpApiRouteResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='CBEEB8C1-108E-50F0-9BEA-DED79553C309'),
+}
+
+model UpdateHttpApiRouteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateHttpApiRouteResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateHttpApiRoute  UpdateHttpApiRouteRequest
+  * @return UpdateHttpApiRouteResponse
+ */
+async function updateHttpApiRoute(request: UpdateHttpApiRouteRequest): UpdateHttpApiRouteResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateHttpApiRoute', 'PUT', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
+}
+
+model UpdatePolicyRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='p-cq7l5s5bblhtgi6qas***', position='Path'),
+  config: string(name='config', description='This parameter is required.', example='{"unitNum":1,"timeUnit":"s","enable":true}', position='Body'),
+  description?: string(name='description', position='Body'),
+  name: string(name='name', description='This parameter is required.', example='celue-timeout-test', position='Body'),
+}
+
+model UpdatePolicyResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='C67DED2B-F19B-5BEC-88C1-D6EB854C***'),
+}
+
+model UpdatePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdatePolicy  UpdatePolicyRequest
+  * @return UpdatePolicyResponse
+ */
+async function updatePolicy(request: UpdatePolicyRequest): UpdatePolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePolicy', 'PUT', '/v2/policies/{policyId}', 'json', false, 'json', request);
+}
+
+model UpgradeGatewayRequest {
+  gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cq2avtllh****', position='Path'),
+  version?: string(name='version', description='Gateway version.', example='2.0.2', position='Query'),
+}
+
+model UpgradeGatewayResponseBody = {
+  code?: string(name='code', description='Response status code.', example='Ok'),
+  message?: string(name='message', description='Response message.', example='success'),
+  requestId?: string(name='requestId', description='Request ID.', example='043360DA-ED3B-5386-9B7A-D94DECF99A30'),
+}
+
+model UpgradeGatewayResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpgradeGatewayResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpgradeGateway  UpgradeGatewayRequest
+  * @return UpgradeGatewayResponse
+ */
+async function upgradeGateway(request: UpgradeGatewayRequest): UpgradeGatewayResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpgradeGateway', 'POST', '/v1/gateways/{gatewayId}/upgrade', 'json', false, 'json', request);
 }
 
