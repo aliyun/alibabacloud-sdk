@@ -357,7 +357,12 @@ You can use the client to generate the token, but you must make sure that the to
 >  You cannot specify this parameter for subscription instances, non-Alibaba Cloud instances, and instances in Economical Mode.
 
 Default value: false.', example='false', position='Query'),
-  ignoreInvalidInstance?: boolean(name='IgnoreInvalidInstance', position='Query'),
+  ignoreInvalidInstance?: boolean(name='IgnoreInvalidInstance', description='Specifies whether to ignore invalid instances when a batch of instances is added to the scaling group. Valid values:
+
+*   true: ignores invalid instances. If invalid instances exist and valid instances are added, the corresponding scaling activity enters the Warning state. You can check the scaling activity details to view the invalid instances that are ignored.
+*   false: does not ignore invalid instances. If invalid instances exist in the batch of instances that you want to add to the scaling group, an error is reported.
+
+Default value: false.', example='false', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', description='The IDs of the ECS instances, elastic container instances, non-Alibaba Cloud instances, or instances in Economical Mode.', position='Query'),
   lifecycleHook?: boolean(name='LifecycleHook', description='Specifies whether to trigger the lifecycle hook for scale-outs when you call this operation. Valid values:
 
@@ -1577,15 +1582,22 @@ Default value: PL1.', example='PL0'),
 > IOPS measures the number of read and write operations that an EBS device can process per second.', example='100'),
     size?: int32(name='Size', description='The size of the system disk. Unit: GiB.
 
-*   If you set SystemDisk.Category cloud: 20 to 500.
-*   If you set SystemDisk.Category to cloud_efficiency: 20 to 500.
-*   If you set SystemDisk.Category to cloud_ssd: 20 to 500.
-*   If you set SystemDisk.Category to cloud_essd: 20 to 500.
-*   If you set SystemDisk.Category to cloud_essd: 20 to 500.
+*   Basic disk: 20 to 500.
 
-The value of SystemDisk.Size must be greater than or equal to the value of max{20, ImageSize}.
+*   ESSD (cloud_essd): The valid values vary based on the performance level of the ESSD.
 
-Default value: 40 or the size of the image, whichever is greater.', example='100'),
+    *   PL0 ESSD: 1 to 2048.
+    *   PL1 ESSD: 20 to 2048.
+    *   PL2 ESSD: 461 to 2048.
+    *   PL3 ESSD: 1261 to 2048.
+
+*   ESSD AutoPL disk (cloud_auto): 1 to 2048.
+
+*   Other disk categories: 20 to 2048.
+
+The value of this parameter must be at least 1 and greater than or equal to the image size.
+
+Default value: 40 or the size of the image, whichever is larger.', example='100'),
   }(name='SystemDisk', position='Query'),
   affinity?: string(name='Affinity', description='Specifies whether to associate an ECS instance on a dedicated host with the dedicated host. Valid values:
 
@@ -2025,6 +2037,7 @@ If you set `MultiAZPolicy` to `COMPOSABLE`, the default value is 0.', example='3
     onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances in the excess instances when the minimum number of pay-as-you-go instances is reached. `OnDemandBaseCapacity` specifies the minimum number of pay-as-you-go instances that must be contained in the scaling group. Valid values: 0 to 100.
 
 If you set `MultiAZPolicy` to `COMPOSABLE`, the default value is 100.', example='20'),
+    priceComparisonMode?: string(name='PriceComparisonMode'),
     spotAutoReplaceOnDemand?: boolean(name='SpotAutoReplaceOnDemand', description='Specifies whether to replace pay-as-you-go instances with preemptible instances. If you specify `CompensateWithOnDemand`, it may result in a higher percentage of pay-as-you-go instances compared to the value of `OnDemandPercentageAboveBaseCapacity`. In this scenario, Auto Scaling will try to deploy preemptible instances to replace the surplus pay-as-you-go instances. When `CompensateWithOnDemand` is specified, Auto Scaling creates pay-as-you-go instances if there are not enough preemptible instance types. To avoid keeping these pay-as-you-go ECS instances for long periods, Auto Scaling tries to replace them with preemptible instances as soon as enough of preemptible instance types become available. Valid values:
 
 *   true
@@ -2403,17 +2416,25 @@ Default value: 300.', example='300', position='Query'),
     {
       dimensions?: [ 
         {
-          dimensionKey?: string(name='DimensionKey'),
-          dimensionValue?: string(name='DimensionValue'),
+          dimensionKey?: string(name='DimensionKey', description='The key of the metric dimension.', example='queue'),
+          dimensionValue?: string(name='DimensionValue', description='The value of the metric dimension.', example='testQueue'),
         }
-      ](name='Dimensions'),
-      expression?: string(name='Expression'),
-      id?: string(name='Id'),
-      metricName?: string(name='MetricName'),
-      statistic?: string(name='Statistic'),
+      ](name='Dimensions', description='The metric dimensions. You can use this parameter to specify the monitored resources.'),
+      expression?: string(name='Expression', description='The metric expression that consists of multiple Hybrid Cloud Monitoring metrics. It calculates a result used to trigger scaling events.
+
+The expression must be written in Reverse Polish Notation (RPN) format and supports only the following operators: `+, -, *, /`.', example='(a+b)/2'),
+      id?: string(name='Id', description='The reference ID of the metric in the metric expression.', example='a'),
+      metricName?: string(name='MetricName', description='The name of the Hybrid Cloud Monitoring metric.', example='AliyunSmq_NumberOfMessagesVisible'),
+      statistic?: string(name='Statistic', description='The statistical method of the metric value. Valid values:
+
+*   Average: calculates the average value of all metric values within a specified interval.
+*   Minimum: calculates the minimum value of all metric values within a specified interval.
+*   Maximum: calculates the maximum value of all metric values within a specified interval.', example='Average'),
     }
-  ](name='HybridMetrics', position='Query'),
-  hybridMonitorNamespace?: string(name='HybridMonitorNamespace', position='Query'),
+  ](name='HybridMetrics', description='The Hybrid Cloud Monitoring metrics.', position='Query'),
+  hybridMonitorNamespace?: string(name='HybridMonitorNamespace', description='The ID of the Hybrid Cloud Monitoring namespace.
+
+For information about how to manage Hybrid Cloud Monitoring namespaces, see [Manage namespaces](https://help.aliyun.com/document_detail/217606.html).', example='aliyun-test', position='Query'),
   initialMaxSize?: int32(name='InitialMaxSize', description='The maximum number of ECS instances that can be contained in the scaling group. If you specify InitialMaxSize, you must specify `PredictiveValueBehavior`.
 
 The default value of this parameter is the value of MaxSize.', example='100', position='Query'),
@@ -2437,7 +2458,11 @@ Valid values if you set ScalingRuleType to PredictiveScalingRule:
 *   IntranetTx: the average outbound traffic over an internal network.
 
 For more information, see [Event-triggered tasks of the system monitoring type](https://help.aliyun.com/document_detail/74854.html).', example='CpuUtilization', position='Query'),
-  metricType?: string(name='MetricType', position='Query'),
+  metricType?: string(name='MetricType', description='The metric type. Valid values:
+
+*   system: system metrics of CloudMonitor.
+*   custom: custom metrics that are reported to CloudMonitor.
+*   hybrid: metrics of Hybrid Cloud Monitoring.', example='system', position='Query'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances that must be scaled when the AdjustmentType parameter is set to PercentChangeInCapacity. This parameter takes effect only if you set the ScalingRuleType parameter to SimpleScalingRule or StepScalingRule.', example='1', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -2925,10 +2950,11 @@ model DescribeAlarmsRequest {
 *   true: enables the event-triggered task.
 *   false: disables the event-triggered task.', example='true', position='Query'),
   metricName?: string(name='MetricName', description='The metric name.', example='CpuUtilization', position='Query'),
-  metricType?: string(name='MetricType', description='The metric type. Valid values:
+  metricType?: string(name='MetricType', description='The type of the metric. Valid values:
 
 *   system: system metrics of CloudMonitor
-*   custom: custom metrics that are reported to CloudMonitor.', example='true', position='Query'),
+*   custom: custom metrics that are reported to CloudMonitor.
+*   hybrid: metrics of Hybrid Cloud Monitoring.', example='true', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
 
@@ -3053,17 +3079,25 @@ For more information, see [Event-triggered tasks of the system monitoring type](
         {
           dimensions?: [ 
             {
-              dimensionKey?: string(name='DimensionKey'),
-              dimensionValue?: string(name='DimensionValue'),
+              dimensionKey?: string(name='DimensionKey', description='The key of the metric dimension.', example='queue'),
+              dimensionValue?: string(name='DimensionValue', description='The key of the metric dimension.', example='testQueue'),
             }
-          ](name='Dimensions'),
-          expression?: string(name='Expression'),
-          id?: string(name='Id'),
-          metricName?: string(name='MetricName'),
-          statistic?: string(name='Statistic'),
+          ](name='Dimensions', description='The metric dimensions. This parameter is used to specify the monitored resources.'),
+          expression?: string(name='Expression', description='The metric expression that consists of multiple Hybrid Cloud Monitoring metrics. It calculates a result used to trigger scaling events.
+
+The expression is written in Reverse Polish Notation (RPN) format and supports only the following operators: `+, -, *, /`.', example='(a+b)/2'),
+          id?: string(name='Id', description='The reference ID of the metric in the metric expression.', example='a'),
+          metricName?: string(name='MetricName', description='The name of the Hybrid Cloud Monitoring metric.', example='AliyunSmq_NumberOfMessagesVisible'),
+          statistic?: string(name='Statistic', description='The statistical method of the metric value. Valid values:
+
+*   Average: The average value of all metric values within a specified interval is calculated.
+*   Minimum: The minimum value of all metric values within a specified interval is calculated.
+*   Maximum: The maximum value of all metric values within a specified interval is calculated.', example='Average'),
         }
-      ](name='HybridMetrics'),
-      hybridMonitorNamespace?: string(name='HybridMonitorNamespace'),
+      ](name='HybridMetrics', description='The Hybrid Cloud Monitoring metrics.'),
+      hybridMonitorNamespace?: string(name='HybridMonitorNamespace', description='The ID of the Hybrid Cloud Monitoring namespace.
+
+For information about how to manage Hybrid Cloud Monitoring namespaces, see [Manage namespaces](https://help.aliyun.com/document_detail/217606.html).', example='aliyun-test'),
       metricName?: string(name='MetricName', description='The metric name. Valid values:
 
 *   CpuUtilization: the CPU utilization of an Elastic Compute Service (ECS) instance. Unit: %.
@@ -3093,10 +3127,11 @@ For more information, see [Event-triggered tasks of the system monitoring type](
 *   LoadBalancerRealServerAverageQps: the queries per second (QPS) of an instance.
 
 For more information, see [Event-triggered tasks of the system monitoring type](https://help.aliyun.com/document_detail/74854.html).', example='CpuUtilization'),
-      metricType?: string(name='MetricType', description='The metric type. Valid values:
+      metricType?: string(name='MetricType', description='The type of the metric. Valid values:
 
 *   system: system metrics of CloudMonitor
-*   custom: custom metrics that are reported to CloudMonitor.', example='system'),
+*   custom: custom metrics that are reported to CloudMonitor.
+*   hybrid: metrics of Hybrid Cloud Monitoring.', example='system'),
       name?: string(name='Name', description='The name of the event-triggered task.', example='TestAlarmTask'),
       period?: int32(name='Period', description='The statistical period of the metric data. Unit: seconds. Valid values:
 
@@ -3107,7 +3142,7 @@ For more information, see [Event-triggered tasks of the system monitoring type](
 *   900
 
 >  You can set the value of this parameter to 15 Seconds only for scaling groups of the ECS type.', example='300'),
-      promQL?: string(name='PromQL'),
+      promQL?: string(name='PromQL', description='The PromQL statement of Hybrid Cloud Monitoring.', example='(avg(last_over_time(AliyunMnsnew_ActiveMessages{region=\\"cn-hangzhou\\",userId=\\"123456****\\",queue=\\"testQueue\\"}[900s])) by (userId))/(avg(last_over_time(AliyunEss_RunningInstanceCount{instanceId=\\"asg-bp1****\\"}[900s])) by (userId) != 0)'),
       scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group to which the event-triggered task is associated.', example='asg-bp18p2yfxow2dloq****'),
       state?: string(name='State', description='The status of the event-triggered task. Valid values:
 
@@ -4176,7 +4211,14 @@ model DescribeInstanceRefreshesResponseBody = {
       minHealthyPercentage?: int32(name='MinHealthyPercentage', description='The ratio of the number of instances that provide services to the total number of instances in the scaling group during instance refresh.', example='80'),
       regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-hangzhou'),
       scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp16pbfcr8j9*****'),
-      skipMatching?: boolean(name='SkipMatching'),
+      skipMatching?: boolean(name='SkipMatching', description='Indicates whether instances that match the desired scaling configuration are skipped.
+
+>  The system determines the match based on the ID of the desired scaling configuration rather than individual configuration items.
+
+Valid values:
+
+*   true: Instances that match the desired scaling configuration are skipped. When you initiate an instance refresh task, the system checks the configurations of all instances. The refresh operation is skipped for instances created based on the desired scaling configuration.
+*   false: Instances that match the desired scaling configuration are not skipped. When an instance refresh task is initiated, all instances in the scaling group at the time of initiation are refreshed.', example='true'),
       startTime?: string(name='StartTime', description='The start time of the instance refresh task.', example='2024-08-22T01:09:00Z'),
       status?: string(name='Status', description='The status of the instance refresh task. Valid values:
 
@@ -4691,6 +4733,14 @@ model DescribeScalingActivitiesResponseBody = {
       endTime?: string(name='EndTime', description='The time when the scaling activity was complete.', example='2020-09-10T09:54Z'),
       errorCode?: string(name='ErrorCode', description='The error code that is returned when the scaling activity failed.', example='OperationDenied.NoStock'),
       errorMessage?: string(name='ErrorMessage', description='The error message that is returned when the scaling activity failed.', example='The specified ECS resource is out of stock in this region. Please try again later.'),
+      errorMessages?: [ 
+        {
+          code?: string(name='Code', description='The error code that is returned when the scaling activity failed.', example='OperationDenied.NoStock'),
+          description?: string(name='Description', description='The description of the scaling activity exception.', example='Fail to create instances into scaling group.'),
+          failedInstanceIds?: [ string ](name='FailedInstanceIds', description='The IDs of the instances included in the failed scaling activities.'),
+          message?: string(name='Message', description='The error message that is returned when the scaling activity failed or is partially successful.', example='The resource is out of stock in the specified zone. Please try other types, or choose other regions and zones.'),
+        }
+      ](name='ErrorMessages', description='The error messages that are returned when the scaling activities failed or are partially successful.'),
       instanceRefreshTaskId?: string(name='InstanceRefreshTaskId', description='The ID of the instance refresh task.', example='ir-asdf12adsxg*****'),
       lifecycleHookContext?: {
         disableLifecycleHook?: boolean(name='DisableLifecycleHook', description='Indicates whether all lifecycle hooks are disabled when the scaling activity is triggered. Valid values:
@@ -5479,6 +5529,7 @@ model DescribeScalingGroupsResponseBody = {
 *   false', example='true'),
         onDemandBaseCapacity?: int32(name='OnDemandBaseCapacity', description='The minimum number of pay-as-you-go instances required in the scaling group. When the actual number of pay-as-you-go instances drops below the minimum threshold, Auto Scaling preferentially creates pay-as-you-go instances. Valid values: 0 to 1000.', example='0'),
         onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances in the excess instances when the minimum number of pay-as-you-go instances is reached. `OnDemandBaseCapacity` specifies the minimum number of pay-as-you-go instances required in the scaling group. Valid values: 0 to 100.', example='0'),
+        priceComparisonMode?: string(name='PriceComparisonMode'),
         spotAutoReplaceOnDemand?: boolean(name='SpotAutoReplaceOnDemand', description='Specifies whether to replace pay-as-you-go ECS instances with preemptible ECS instances. If you specify `CompensateWithOnDemand`, it may result in a higher percentage of pay-as-you-go instances compared to the value of `OnDemandPercentageAboveBaseCapacity`. In this scenario, Auto Scaling will try to deploy preemptible ECS instances to replace the surplus pay-as-you-go ECS instances. When `CompensateWithOnDemand` is specified, Auto Scaling creates pay-as-you-go ECS instances if there are not enough preemptible instance types available. To avoid keeping these pay-as-you-go ECS instances for long periods, Auto Scaling tries to replace them with preemptible instances as soon as enough of preemptible instance types become available. Valid values:
 
 *   true
@@ -5900,21 +5951,33 @@ model DescribeScalingRulesResponseBody = {
         {
           dimensions?: [ 
             {
-              dimensionKey?: string(name='DimensionKey'),
-              dimensionValue?: string(name='DimensionValue'),
+              dimensionKey?: string(name='DimensionKey', description='The key of the metric dimension.', example='queue'),
+              dimensionValue?: string(name='DimensionValue', description='The key of the metric dimension.', example='testQueue'),
             }
-          ](name='Dimensions'),
-          expression?: string(name='Expression'),
-          id?: string(name='Id'),
-          metricName?: string(name='MetricName'),
-          statistic?: string(name='Statistic'),
+          ](name='Dimensions', description='The metric dimensions. This parameter is used to specify the monitored resources.'),
+          expression?: string(name='Expression', description='The metric expression that consists of multiple Hybrid Cloud Monitoring metrics. It calculates a result used to trigger scaling events.
+
+The expression is written in Reverse Polish Notation (RPN) format and supports only the following operators: `+, -, *, /`.', example='(a+b)/2'),
+          id?: string(name='Id', description='The reference ID of the metric in the metric expression.', example='a'),
+          metricName?: string(name='MetricName', description='The name of the Hybrid Cloud Monitoring metric.', example='AliyunSmq_NumberOfMessagesVisible'),
+          statistic?: string(name='Statistic', description='The statistical method of the metric value. Valid values:
+
+*   Average: The average value of all metric values within a specified interval is calculated.
+*   Minimum: The minimum value of all metric values within a specified interval is calculated.
+*   Maximum: The maximum value of all metric values within a specified interval is calculated.', example='Average'),
         }
-      ](name='HybridMetrics'),
-      hybridMonitorNamespace?: string(name='HybridMonitorNamespace'),
+      ](name='HybridMetrics', description='The Hybrid Cloud Monitoring metrics.'),
+      hybridMonitorNamespace?: string(name='HybridMonitorNamespace', description='The ID of the Hybrid Cloud Monitoring namespace.
+
+For information about how to manage Hybrid Cloud Monitoring namespaces, see [Manage namespaces](https://help.aliyun.com/document_detail/217606.html).', example='aliyun-test'),
       initialMaxSize?: int32(name='InitialMaxSize', description='The maximum number of ECS instances that can be contained in the scaling group. If you specify this parameter, you must also specify PredictiveValueBehavior.', example='100'),
       maxSize?: int32(name='MaxSize', description='The maximum number of ECS instances that can be contained in the scaling group.', example='2'),
       metricName?: string(name='MetricName', description='The name of the metric of the event-triggered task that is associated with the scaling rule.', example='CpuUtilization'),
-      metricType?: string(name='MetricType'),
+      metricType?: string(name='MetricType', description='The metric type. Valid values:
+
+*   system: system metrics of CloudMonitor.
+*   custom: custom metrics that are reported to CloudMonitor.
+*   hybrid: metrics of Hybrid Cloud Monitoring.', example='system'),
       minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances that must be scaled. This parameter takes effect only if you set ScalingRuleType to SimpleScalingRule or StepScalingRule and set AdjustmentType to PercentChangeInCapacity.', example='1'),
       minSize?: int32(name='MinSize', description='The minimum number of ECS instances that must be contained in the scaling group.', example='1'),
       predictiveScalingMode?: string(name='PredictiveScalingMode', description='The mode of the predictive scaling rule. Valid values:
@@ -7681,13 +7744,20 @@ Default value: false.', example='false'),
 > IOPS measures the number of read and write operations that an EBS device can process per second.', example='100'),
     size?: int32(name='Size', description='The size of the system disk. Unit: GiB. Valid values:
 
-*   If you set SystemDisk.Category to cloud: 20 to 500.
-*   If you set SystemDisk.Category to cloud_efficiency: 20 to 500.
-*   If you set SystemDisk.Category to cloud_ssd: 20 to 500.
-*   If you set SystemDisk.Category to cloud_essd: 20 to 500.
-*   If you set SystemDisk.Category to ephemeral_ssd: 20 to 500.
+*   Basic disk: 20 to 500.
 
-The value of SystemDisk.Size must be greater than or equal to max{20, ImageSize}.', example='50'),
+*   ESSD: Valid values vary based on the performance level of the ESSD.
+
+    *   PL0 ESSD: 1 to 2048.
+    *   PL1 ESSD: 20 to 2048.
+    *   PL2 ESSD: 461 to 2048.
+    *   PL3 ESSD: 1261 to 2048.
+
+*   ESSD AutoPL disk: 1 to 2048.
+
+*   Other disk categories: 20 to 2048.
+
+The value of this parameter must be at least 1 and greater than or equal to the image size.', example='50'),
   }(name='SystemDisk', position='Query'),
   affinity?: string(name='Affinity', description='Specifies whether to associate the instance on a dedicated host with the dedicated host. Valid values:
 
@@ -7711,13 +7781,13 @@ You can specify the number of vCPUs and the memory size to determine the range o
 
 >  The vSwitch must be included in the vSwitch list of the scaling group.', example='vsw-bp14zolna43z266bq****'),
     }
-  ](name='CustomPriorities', description='The priority of the custom ECS instance type + vSwitch combination.
+  ](name='CustomPriorities', description='The priority of the custom "ECS instance type + vSwitch" combination.
 
 >  This setting is valid only if the scaling policy of the scaling group is a priority policy.
 
-If Auto Scaling cannot create ECS instances by using the custom ECS instance type + vSwitch combination of the highest priority, Auto Scaling creates ECS instances by using the custom ECS instance type + vSwitch combination of the next highest priority.
+If Auto Scaling cannot create ECS instances by using the custom "ECS instance type + vSwitch" combination of the highest priority, Auto Scaling creates ECS instances by using the custom "ECS instance type + vSwitch" combination of the next highest priority.
 
->  If you specify the priorities of only a part of custom ECS instance type + vSwitch combinations, Auto Scaling preferentially creates ECS instances by using the custom combinations that have the specified priorities. If the custom combinations that have the specified priorities do not provide sufficient resources, Auto Scaling creates ECS instances by using the custom combinations that do not have the specified priorities based on the specified orders of vSwitches and instance types.
+>  If you specify the priorities of only a part of custom "ECS instance type + vSwitch" combinations, Auto Scaling preferentially creates ECS instances by using the custom combinations that have the specified priorities. If the custom combinations that have the specified priorities do not provide sufficient resources, Auto Scaling creates ECS instances by using the custom combinations that do not have the specified priorities based on the specified orders of vSwitches and instance types.
 
 *   Example: The specified order of vSwitches for your scaling group is vsw1 and vsw2, and the specified order of instance types in your scaling configuration is type1 and type 2. In addition, you use CustomPriorities to specify ["vsw2+type2", "vsw1+type2"]. In this example, the vsw2+type2 combination has the highest priority and the vsw2+type1 combination has the lowest priority. The vsw1+type2 combination has a higher priority than the vsw1+type1 combination.', position='Query'),
   dataDisks?: [ 
@@ -8110,6 +8180,7 @@ If you set `MultiAZPolicy` to `COMPOSABLE`, the default value is 0.', example='3
     onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances in the excess instances when the minimum number of pay-as-you-go instances is reached. `OnDemandBaseCapacity` specifies the minimum number of pay-as-you-go instances that must be contained in the scaling group. Valid values: 0 to 100
 
 If you set `MultiAZPolicy` to `COMPOSABLE`, the default value is 100.', example='20'),
+    priceComparisonMode?: string(name='PriceComparisonMode'),
     spotAutoReplaceOnDemand?: boolean(name='SpotAutoReplaceOnDemand', description='Specifies whether to replace pay-as-you-go ECS instances with preemptible ECS instances. If you specify `CompensateWithOnDemand`, it may result in a higher percentage of pay-as-you-go instances compared to the value of `OnDemandPercentageAboveBaseCapacity`. In this scenario, Auto Scaling will try to deploy preemptible ECS instances to replace the surplus pay-as-you-go ECS instances. When `CompensateWithOnDemand` is specified, Auto Scaling creates pay-as-you-go ECS instances if there are not enough preemptible instance types. To avoid keeping these pay-as-you-go ECS instances for long periods, Auto Scaling tries to replace them with preemptible instances as soon as enough of preemptible instance types become available. Valid values:
 
 *   true
@@ -8328,17 +8399,25 @@ Valid values: 0 to 86400. Unit: seconds.', example='60', position='Query'),
     {
       dimensions?: [ 
         {
-          dimensionKey?: string(name='DimensionKey'),
-          dimensionValue?: string(name='DimensionValue'),
+          dimensionKey?: string(name='DimensionKey', description='The key of the metric dimension.', example='queue'),
+          dimensionValue?: string(name='DimensionValue', description='The value of the metric dimension.', example='testQueue'),
         }
-      ](name='Dimensions'),
-      expression?: string(name='Expression'),
-      id?: string(name='Id'),
-      metricName?: string(name='MetricName'),
-      statistic?: string(name='Statistic'),
+      ](name='Dimensions', description='The metric dimensions. You can use this parameter to specify the monitored resources.'),
+      expression?: string(name='Expression', description='The metric expression that consists of multiple Hybrid Cloud Monitoring metrics. It calculates a result used to trigger scaling events.
+
+The expression must be written in Reverse Polish Notation (RPN) format and supports only the following operators: `+, -, *, /`.', example='(a+b)/2'),
+      id?: string(name='Id', description='The reference ID of the metric in the metric expression.', example='a'),
+      metricName?: string(name='MetricName', description='The name of the Hybrid Cloud Monitoring metric.', example='AliyunSmq_NumberOfMessagesVisible'),
+      statistic?: string(name='Statistic', description='The statistical method of the metric value. Valid values:
+
+*   Average: calculates the average value of all metric values within a specified interval.
+*   Minimum: calculates the minimum value of all metric values within a specified interval.
+*   Maximum: calculates the maximum value of all metric values within a specified interval.', example='Average'),
     }
-  ](name='HybridMetrics', position='Query'),
-  hybridMonitorNamespace?: string(name='HybridMonitorNamespace', position='Query'),
+  ](name='HybridMetrics', description='The Hybrid Cloud Monitoring metrics.', position='Query'),
+  hybridMonitorNamespace?: string(name='HybridMonitorNamespace', description='The ID of the Hybrid Cloud Monitoring namespace.
+
+For information about how to manage Hybrid Cloud Monitoring namespaces, see [Manage namespaces](https://help.aliyun.com/document_detail/217606.html).', example='aliyun-test', position='Query'),
   initialMaxSize?: int32(name='InitialMaxSize', description='The maximum number of ECS instances that can be contained in the scaling group. If you specify InitialMaxSize, you must specify `PredictiveValueBehavior`.', example='100', position='Query'),
   metricName?: string(name='MetricName', description='The predefined metric. This parameter is required only if you create a target tracking scaling rule or predictive scaling rule.
 
@@ -8360,7 +8439,11 @@ Valid values if you create a predictive scaling rule:
 *   IntranetTx: the average outbound traffic over an internal network.
 
 For more information, see [Event-triggered tasks of the system monitoring type](https://help.aliyun.com/document_detail/74854.html).', example='CpuUtilization', position='Query'),
-  metricType?: string(name='MetricType', position='Query'),
+  metricType?: string(name='MetricType', description='The metric type. Valid values:
+
+*   system: system metrics of CloudMonitor.
+*   custom: custom metrics that are reported to CloudMonitor.
+*   hybrid: metrics of Hybrid Cloud Monitoring.', example='system', position='Query'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances to scale. This parameter takes effect only if you create a simple scaling rule or step scaling rule and set `AdjustmentType` to `PercentChangeInCapacity`.', example='1', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
@@ -8989,7 +9072,16 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
   scalingGroupId: string(name='ScalingGroupId', description='The ID of the scaling group.
 
 This parameter is required.', example='asg-bp18p2yfxow2dloq****', position='Query'),
-  skipMatching?: boolean(name='SkipMatching', position='Query'),
+  skipMatching?: boolean(name='SkipMatching', description='Specifies whether to skip instances that match the desired scaling configuration.
+
+>  The system determines the match based on the ID of the desired scaling configuration rather than individual configuration items.
+
+Valid values:
+
+*   true: skips instances that match the desired scaling configuration. When you initiate an instance refresh task, the system checks the configurations of all instances. The refresh operation is skipped for instances created based on the desired scaling configuration.
+*   false: does not skip instances that match the desired scaling configuration. When an instance refresh task is initiated, all instances in the scaling group at the time of initiation are refreshed.
+
+Default value: true.', example='true', position='Query'),
 }
 
 model StartInstanceRefreshResponseBody = {
