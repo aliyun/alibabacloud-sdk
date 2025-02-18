@@ -256,6 +256,7 @@ model CreateMmsJobRequest {
   dstDbName?: string(name='dstDbName', position='Body'),
   dstSchemaName?: string(name='dstSchemaName', position='Body'),
   enableVerification?: boolean(name='enableVerification', position='Body'),
+  eta?: string(name='eta', position='Body'),
   increment?: boolean(name='increment', position='Body'),
   name?: string(name='name', position='Body'),
   others?: map[string]any(name='others', position='Body'),
@@ -570,7 +571,7 @@ model GetComputeEffectivePlanResponseBody = {
   data?: {
     createTime?: string(name='createTime', description='The time when the quota plan was created.', example='1714356241163'),
     isEffective?: boolean(name='isEffective', description='Whether it is currently effective.
-> A Quota plan that has taken effect cannot be deleted, i.e., isEffective=true', example='ture/false'),
+> A Quota plan that has taken effect cannot be deleted, i.e., isEffective=true', example='true/false'),
     name?: string(name='name', description='The name of the quota plan.', example='planA'),
     quota?: {
       cluster?: string(name='cluster', description='The ID of the cluster.', example='AT-120N'),
@@ -660,7 +661,7 @@ model GetComputeQuotaPlanResponseBody = {
     createTime?: string(name='createTime', description='The time when the quota plan was created.', example='1730946421757'),
     isEffective?: boolean(name='isEffective', description='Whether it is currently effective.
 > 
-> - A Quota plan that has taken effect cannot be deleted, i.e., isEffective=true', example='ture/false'),
+> - A Quota plan that has taken effect cannot be deleted, i.e., isEffective=true', example='true/false'),
     name?: string(name='name', description='The name of the quota plan.', example='planA'),
     quota?: {
       cluster?: string(name='cluster', description='Cluster ID.', example='AT-120N'),
@@ -693,7 +694,7 @@ model GetComputeQuotaPlanResponseBody = {
             schedulerType?: string(name='schedulerType', description='Scheduling policy.', example='Fifo/Fair'),
             singleJobCULimit?: long(name='singleJobCULimit', description='The upper limit for CUs that can be concurrently used by a job scheduled to the quota.', example='50'),
           }(name='parameter', description='The parameters of the level-2 quota.'),
-          regionId?: string(name='regionId', description='Region ID。', example='cn-beijing'),
+          regionId?: string(name='regionId', description='Region ID.', example='cn-beijing'),
           status?: string(name='status', description='Resource status.', example='ON'),
           tenantId?: string(name='tenantId', description='Tenant ID.', example='478403690625249'),
           type?: string(name='type', description='The type of quota.', example='FUXI_ONLINE'),
@@ -1013,10 +1014,26 @@ model GetMmsJobRequest {
 
 model GetMmsJobResponseBody = {
   data?: {
+    config?: {
+      columnMapping?: map[string]string(name='columnMapping'),
+      enableVerification?: boolean(name='enableVerification'),
+      increment?: boolean(name='increment'),
+      others?: map[string]any(name='others'),
+      partitionFilters?: map[string]string(name='partitionFilters'),
+      partitions?: [ long ](name='partitions'),
+      schemaOnly?: boolean(name='schemaOnly'),
+      tableBlackList?: [ string ](name='tableBlackList'),
+      tableMapping?: map[string]string(name='tableMapping'),
+      tableWhiteList?: [ string ](name='tableWhiteList'),
+      tables?: [ string ](name='tables'),
+      taskType?: string(name='taskType'),
+      tunnelQuota?: string(name='tunnelQuota'),
+    }(name='config'),
     createTime?: string(name='createTime', example='2024-12-17 15:44:17'),
     dbId?: long(name='dbId', example='23'),
     dstDbName?: string(name='dstDbName', example='mms_target'),
     dstSchemaName?: string(name='dstSchemaName', example='default'),
+    eta?: string(name='eta'),
     id?: long(name='id', example='10'),
     name?: string(name='name', example='migrate_db_1'),
     sourceId?: long(name='sourceId', example='2'),
@@ -1782,33 +1799,54 @@ async function getQuotaSchedule(request: GetQuotaScheduleRequest): GetQuotaSched
 }
 
 model GetQuotaUsageRequest {
-  nickname: string(name='nickname', description='This parameter is required.', example='os_quota_p', position='Path'),
-  aggMethod?: string(name='aggMethod', example='max', position='Query'),
-  from: long(name='from', description='This parameter is required.', example='1669081045', position='Query'),
-  plotTypes?: [ string ](name='plotTypes', shrink='simple', position='Query'),
-  productId?: string(name='productId', example='ODPS', position='Query'),
-  region?: string(name='region', example='cn-chengdu', position='Query'),
-  subQuotaNickname?: string(name='subQuotaNickname', example='ot_tunnel_quota', position='Query'),
-  tenantId?: string(name='tenantId', example='478403690625249', position='Query'),
-  to: long(name='to', description='This parameter is required.', example='1669360870', position='Query'),
-  yAxisTypes?: [ string ](name='yAxisTypes', shrink='simple', position='Query'),
+  nickname: string(name='nickname', description='The alias of the level-1 quota.
+
+This parameter is required.', example='os_quota_p', position='Path'),
+  aggMethod?: string(name='aggMethod', description='The aggregation algorithm. For a better page experience, up to 60 points can be displayed for each metric. If you select a time range longer than 1 hour, the chart uses the average value within the range (minutes of the selected time range/60) to aggregate data by default. You can change the aggregation algorithm based on your business requirements.', example='max', position='Query'),
+  from: long(name='from', description='The time when the query starts. The value is the log time that is specified when log data is written.
+
+*   The time range that is specified in this operation is a left-closed, right-open interval. The interval includes the start time specified by the **from** parameter, but does not include the end time specified by the **to** parameter. If you set the **from** and **to** parameters to the same value, the time range is invalid and an error message is returned.
+*   This value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.
+
+This parameter is required.', example='1669081045', position='Query'),
+  plotTypes?: [ string ](name='plotTypes', description='The types of the charts.', shrink='simple', position='Query'),
+  productId?: string(name='productId', description='The quota type. Default value: ODPS.
+
+*   ODPS: computing quota
+*   TUNNEL: Tunnel quota', example='ODPS', position='Query'),
+  region?: string(name='region', description='The region ID.', example='cn-chengdu', position='Query'),
+  subQuotaNickname?: string(name='subQuotaNickname', description='The alias of the level-2 quota.', example='ot_tunnel_quota', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant. You can log on to the MaxCompute console, and choose Tenants > Tenant Property from the left-side navigation pane to view the tenant ID.', example='478403690625249', position='Query'),
+  to: long(name='to', description='The time when the query ends. The value is the log time that is specified when log data is written.
+
+*   The time range that is specified in this operation is a left-closed, right-open interval. The interval includes the start time specified by the **from** parameter, but does not include the end time specified by the **to** parameter. If you set the **from** and **to** parameters to the same value, the time range is invalid and an error message is returned.
+*   This value is a UNIX timestamp representing the number of seconds that have elapsed since January 1, 1970, 00:00:00 UTC.
+
+This parameter is required.', example='1669360870', position='Query'),
+  yAxisTypes?: [ string ](name='yAxisTypes', description='The data metric fields.', shrink='simple', position='Query'),
 }
 
 model GetQuotaUsageResponseBody = {
   data?: {
-    metrics?: map[string]any(name='metrics'),
+    metrics?: map[string]any(name='metrics', description='The metric results.'),
     plot?: [ 
       {
-        title?: string(name='title'),
-        type?: string(name='type', example='request'),
-        yAxis?: [ string ](name='yAxis'),
+        title?: string(name='title', description='The title of the chart.', example='request'),
+        type?: string(name='type', description='The type of the chart.', example='request'),
+        yAxis?: [ string ](name='yAxis', description='The data metric field.'),
       }
-    ](name='plot'),
-  }(name='data'),
-  errorCode?: string(name='errorCode', example='OBJECT_NOT_EXIST'),
-  errorMsg?: string(name='errorMsg', example='This object does not exist.'),
-  httpCode?: int32(name='httpCode', example='200'),
-  requestId?: string(name='requestId', example='0b87b7a416652014358483492eea0b'),
+    ](name='plot', description='The information about the chart.'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+*   1xx: informational response. The request is received and is being processed.
+*   2xx: success. The request is successfully received, understood, and accepted by the server.
+*   3xx: redirection. The request is redirected, and further actions are required to complete the request.
+*   4xx: client error. The request contains invalid request parameters and syntaxes, or specific request conditions cannot be met.
+*   5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0b87b7a416652014358483492eea0b'),
 }
 
 model GetQuotaUsageResponse = {
@@ -2203,6 +2241,85 @@ async function killJobs(request: KillJobsRequest): KillJobsResponse {
   return @handler.do('RESTFUL', 'KillJobs', 'POST', '/api/v1/jobs/kill', 'json', false, 'json', request);
 }
 
+model ListComputeMetricsByInstanceRequest {
+  endDate?: long(name='endDate', description='The end time for the period.', example='1718590596556', position='Body'),
+  instanceId?: string(name='instanceId', description='The job(instance) ID.', example='20240730****ddlr', position='Body'),
+  jobOwner?: string(name='jobOwner', description='The Alibaba Cloud account that is used to run the MaxCompute job.', example='ALIYUN$7632***@aliyun.com', position='Body'),
+  pageNumber?: long(name='pageNumber', description='The page number.', example='1', position='Body'),
+  pageSize?: long(name='pageSize', description='The number of entries per page.', example='10', position='Body'),
+  projectNames?: [ string ](name='projectNames', description='The name of MaxCompute project.', position='Body'),
+  region?: string(name='region', description='The region ID.', example='cn-hangzhou', position='Body'),
+  signature?: string(name='signature', description='The signature of the SQL job.', example='ghijkl789012', position='Body'),
+  specCodes?: [ string ](name='specCodes', description='Specification types.', position='Body'),
+  startDate?: long(name='startDate', description='The start time for the period.', example='1715393576201', position='Body'),
+  types?: [ string ](name='types', description='Metering types.', position='Body'),
+}
+
+model ListComputeMetricsByInstanceResponseBody = {
+  data?: {
+    instanceComputeMetrics?: [ 
+      {
+        endTime?: long(name='endTime', description='The end time of the job execution.', example='1710432000000'),
+        instanceId?: string(name='instanceId', description='The job(instance) ID.', example='20240730****ddlr'),
+        jobOwner?: string(name='jobOwner', description='The owner of the job.', example='ALIYUN$7632***@aliyun.com'),
+        projectName?: string(name='projectName', description='The name of the project.', example='odps_porject'),
+        signature?: string(name='signature', description='The signature of the SQL job.', example='pqrs12345tuv'),
+        specCode?: string(name='specCode', description='Specifications Type, specifies the resource package that you select when you purchase the MaxCompute service.
+- OdpsStandard: the pay-as-you-go resource package.
+
+- OdpsSpot: the pay-as-you-go spot resource package.', example='OdpsStandard'),
+        submitTime?: long(name='submitTime', description='The submission time of the job.', example='1610432000000'),
+        type?: string(name='type', description='Metering types.
+- ComputationSql: the metering data of SQL jobs that involve internal tables.
+
+- ComputationSqlOTS: the metering data of SQL jobs that involve Tablestore external tables.
+
+- ComputationSqlOSS: the metering data of SQL jobs that involve OSS external tables.
+
+- MapReduce: the metering data of MapReduce jobs.
+
+- spark: the metering data of Spark jobs.
+
+- mars: the metering data of Mars jobs.', example='ComputationSql'),
+        unit?: string(name='unit', description='The unit of computing resource usage', example='GB'),
+        usage?: double(name='usage', description='The computing resource usage is calculated based on the following items:
+
+- Amount of scanned data in the unit of GB. For the jobs whose metering types are ComputationSql, ComputationSqlOTS, or ComputationSqlOSS, they are billed based on the amount of scanned data. The computing resource usage of such a job is calculated by using the following formula: Amount of scanned data × Complexity. The complexity is fixed at 1 for the jobs whose metering types are ComputationSqlOTS or ComputationSqlOSS.
+
+- CU-hours. For the jobs whose metering types are MapReduce, spark, or mars, they are billed based on CU-hours.', example='1024'),
+      }
+    ](name='instanceComputeMetrics', description='List of pay-as-you-go job compute usage.'),
+    pageNumber?: long(name='pageNumber', description='The current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
+    totalCount?: long(name='totalCount', description='The total number of results returned.', example='64'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+- 1xx: informational response. The request is received and is being processed.
+- 2xx: success. The request is successfully received, understood, and accepted by the server.
+- 3xx: redirection. The request is redirected, and further actions are required to complete the request.
+- 4xx: client error. The request contains invalid request parameters or syntaxes, or specific request conditions cannot be met.
+- 5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='0bc059b717363029839908920ea631'),
+}
+
+model ListComputeMetricsByInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListComputeMetricsByInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListComputeMetricsByInstance  ListComputeMetricsByInstanceRequest
+  * @return ListComputeMetricsByInstanceResponse
+ */
+async function listComputeMetricsByInstance(request: ListComputeMetricsByInstanceRequest): ListComputeMetricsByInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListComputeMetricsByInstance', 'POST', '/api/v1/computeMetrics/listByInstance', 'json', false, 'json', request);
+}
+
 model ListComputeQuotaPlanRequest {
   nickname: string(name='nickname', description='The nickname of level-1 compute quota.
 
@@ -2222,7 +2339,11 @@ model ListComputeQuotaPlanResponseBody = {
           id?: string(name='id', description='The ID of the level-1 quota.', example='186'),
           name?: string(name='name', description='The name of the level-1 quota.', example='dp_cn_hangzhou_1717465943_p'),
           nickName?: string(name='nickName', description='The nickname of the level-1 quota.', example='os_MyQuota_p'),
-          parameter?: map[string]any(name='parameter', description='The description of the level-1 quota.', example='{
+          parameter?: {
+            elasticReservedCU?: long(name='elasticReservedCU'),
+            maxCU?: long(name='maxCU'),
+            minCU?: long(name='minCU'),
+          }(name='parameter', description='The description of the level-1 quota.', example='{
   "enablePriority": false,
   "minCU": 25,
   "adhocCU": 0,
@@ -2241,7 +2362,11 @@ model ListComputeQuotaPlanResponseBody = {
               id?: string(name='id', description='The ID of the level-2 quota.', example='6790'),
               name?: string(name='name', description='The name of the level-2 quota.', example='dp_cn_shanghai_1702627945_p'),
               nickName?: string(name='nickName', description='The nickname of the level-2 quota.', example='os_MyQuota'),
-              parameter?: map[string]any(name='parameter', description='The description of the level-2 quota.', example='{
+              parameter?: {
+                elasticReservedCU?: long(name='elasticReservedCU'),
+                maxCU?: long(name='maxCU'),
+                minCU?: long(name='minCU'),
+              }(name='parameter', description='The description of the level-2 quota.', example='{
   "enablePriority": false,
   "minCU": 25,
   "adhocCU": 0,
@@ -2424,6 +2549,160 @@ async function listJobInfos(request: ListJobInfosRequest): ListJobInfosResponse 
   return @handler.do('RESTFUL', 'ListJobInfos', 'POST', '/api/v1/jobs', 'json', false, 'json', request);
 }
 
+model ListJobMetricRequest {
+  group?: string(name='group', description='Grouping basis.
+
+> Available values: project, quota, type, status. Meanings:
+>- project: Group and aggregate by project;
+>- quota: Group and aggregate by quota;
+>- type: Group and aggregate by job type;
+>- status: Group and aggregate by job status.', example='project', position='Body'),
+  metric?: string(name='metric', description='The name of observation metric.', example='num', position='Body'),
+  period?: long(name='period', description='The monitoring statistical period.Unit:Second(s).', example='3600', position='Body'),
+  project?: [ string ](name='project', description='The name of MaxCompute projects (for filtering).', position='Body'),
+  quota?: [ string ](name='quota', description='The nickname of computing Quota nickname used by the job (for filtering).', position='Body'),
+  type?: string(name='type', description='The type of observation metric.', example='total', position='Body'),
+  endTime: long(name='endTime', description='The end time for the observation interval.
+
+This parameter is required.', example='1735536322', position='Query'),
+  startTime: long(name='startTime', description='The start time for the observation interval.
+
+This parameter is required.', example='1735534322', position='Query'),
+}
+
+model ListJobMetricResponseBody = {
+  data?: {
+    category?: string(name='category', description='The category of the metrics.', example='job'),
+    metrics?: [ 
+      {
+        metric?: map[string]string(name='metric', description='Metric related information.'),
+        values?: [[ double ]        ](name='values', description='Metric values information.'),
+      }
+    ](name='metrics', description='Metric details.'),
+    name?: string(name='name', description='The name of observation metric.', example='num'),
+    period?: long(name='period', description='The monitoring statistical period.Unit:Second(s).', example='3600'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='HTTP status code.
+- 1xx: Informational response - Request received, processing continues.
+- 2xx: Success - The request has been successfully received, understood, and accepted by the server.
+- 3xx: Redirection - Further action must be taken to complete the request.
+- 4xx: Client error - The request contains bad syntax or cannot be fulfilled.
+- 5xx: Server error - The server failed to fulfill an apparently valid request.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0be3e0aa16667684362147582e038f'),
+}
+
+model ListJobMetricResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobMetricResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListJobMetric  ListJobMetricRequest
+  * @return ListJobMetricResponse
+ */
+async function listJobMetric(request: ListJobMetricRequest): ListJobMetricResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListJobMetric', 'POST', '/api/v1/jobs/metric', 'json', false, 'json', request);
+}
+
+model ListJobSnapshotInfosRequest {
+  ascOrder?: boolean(name='ascOrder', description='Specifies whether to sort query results in ascending or descending order.', example='true', position='Query'),
+  extNodeIdList?: [ string ](name='extNodeIdList', description='The ID of the upstream node.', position='Body'),
+  from?: long(name='from', description='Start timestamp.
+> This parameter is invalid. The end timestamp should be the time point for the snapshot you want to view.', example='1706840714', position='Body'),
+  instanceIdList?: [ string ](name='instanceIdList', description='The instance ID.', position='Body'),
+  jobOwnerList?: [ string ](name='jobOwnerList', description='The account that commits the job.', position='Body'),
+  priorityList?: [ long ](name='priorityList', description='The priority of the job.', position='Body'),
+  projectList?: [ string ](name='projectList', description='The name of project.', position='Body'),
+  quotaNickname?: string(name='quotaNickname', description='The nickname of the compute Quota used by the job.', example='quota_A', position='Body'),
+  signatureList?: [ string ](name='signatureList', description='The signature of the SQL job.', position='Body'),
+  sortByList?: [ string ](name='sortByList', description='The sorting columns.', position='Body'),
+  sortOrderList?: [ string ](name='sortOrderList', description='The orders for the sorting columns.', position='Body'),
+  statusList?: [ string ](name='statusList', description='The status of jobs.', position='Body'),
+  to: long(name='to', description='End timestamp.
+
+This parameter is required.', example='1706840714', position='Body'),
+  typeList?: [ string ](name='typeList', description='The type of the job.', position='Body'),
+  orderColumn?: string(name='orderColumn', description='The column based on which you want to sort query results.', example='cpuUsage', position='Query'),
+  pageNumber?: long(name='pageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: long(name='pageSize', description='The number of entries per page.', example='10', position='Query'),
+  region?: string(name='region', description='The region ID.', example='cn-chengdu', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant. You can log on to the MaxCompute console, and choose Tenants > Tenant Property from the left-side navigation pane to view the tenant ID.', example='478403690625249', position='Query'),
+}
+
+model ListJobSnapshotInfosResponseBody = {
+  data?: {
+    jobInfoList?: [ 
+      {
+        cpuRequest?: long(name='cpuRequest'),
+        cpuUsage?: long(name='cpuUsage', description='CPU usage of the job at the snapshot time. Unit: Core.', example='100'),
+        cpuUsageToRequestRatio?: double(name='cpuUsageToRequestRatio'),
+        extNodeId?: string(name='extNodeId', description='The ID of the upstream node.', example='76358164'),
+        extNodeOnDuty?: string(name='extNodeOnDuty', description='The account ID of the task owner.', example='duty_2'),
+        extPlantFrom?: string(name='extPlantFrom', description='The upstream platform.', example='Dataworks'),
+        instanceId?: string(name='instanceId', description='The instance ID.', example='20241028****jkl'),
+        jobOwner?: string(name='jobOwner', description='The account that commits the job.', example='ALIYUN$7632***@aliyun.com'),
+        jobType?: string(name='jobType', description='The type of the job.', example='SQL'),
+        maxCpuPct?: double(name='maxCpuPct', description='Not applicable.', example='-1'),
+        maxMemoryPct?: double(name='maxMemoryPct', description='Not applicable.', example='-1'),
+        memoryRequest?: long(name='memoryRequest'),
+        memoryUsage?: long(name='memoryUsage', description='Memory usage of the job at the snapshot time. Unit: MB.', example='409600'),
+        memoryUsageToRequestRatio?: double(name='memoryUsageToRequestRatio'),
+        minCpuPct?: double(name='minCpuPct', description='The CPU usage ratio of the annual or monthly subscription job at the snapshot time (CPU usage / (reserved CPU guarantee + elastic reserved CPU)). This parameter is not available for pay-as-you-go jobs.', example='0.6'),
+        minMemoryPct?: double(name='minMemoryPct', description='The memory usage ratio of the annual or monthly subscription job at the observation time (memory usage / (reserved memory guarantee + elastic reserved memory)). This parameter is not available for pay-as-you-go jobs.', example='0.6'),
+        priority?: long(name='priority', description='The priority of the job.', example='9'),
+        project?: string(name='project', description='The name of the MaxCompute project.', example='projectA'),
+        quotaNickname?: string(name='quotaNickname', description='The nickname of the computing Quota used by the job.', example='quota_A'),
+        quotaType?: string(name='quotaType', description='The type of the quota.', example='subscription'),
+        region?: string(name='region', description='The region ID.', example='cn-chengdu'),
+        runningAtTime?: long(name='runningAtTime', description='The start time of the job.
+> The time when the job received the first batch of computing resources.', example='1736821805'),
+        runningTime?: long(name='runningTime', description='The running duration, which is the duration from the runningAtTime to the snapshotTime of the job.  Unit: seconds (s).', example='43'),
+        signature?: string(name='signature', description='The signature of the SQL job.', example='signatureabc'),
+        snapshotTime?: long(name='snapshotTime', description='The snapshot time.', example='1736821848'),
+        status?: string(name='status', description='The snapshot status of the job.
+
+> The snapshot status is only running.', example='running'),
+        submittedAtTime?: long(name='submittedAtTime', description='The time when the job was committed.', example='1736821785'),
+        tenantId?: string(name='tenantId', description='The tenant ID.', example='213065738244354'),
+        totalTime?: long(name='totalTime', description='The interval from the time when the job was submitted to the snapshotTime .Unit: seconds (s).', example='63'),
+        waitingTime?: long(name='waitingTime', description='The duration from the time the job is submitted to the time the job starts to run. Unit: seconds (s).', example='20'),
+      }
+    ](name='jobInfoList', description='The list of jobs snapshot information'),
+    pageNumber?: long(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
+    totalCount?: long(name='totalCount', description='The total number of returned results.', example='123'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='this quota is not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+- 1xx: informational response. The request is received and is being processed.
+- 2xx: success. The request is successfully received, understood, and accepted by the server.
+- 3xx: redirection. The request is redirected, and further actions are required to complete the request.
+- 4xx: client error. The request contains invalid request parameters or syntaxes, or specific request conditions cannot be met.
+- 5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0b87b7e716665825896565060e87a4'),
+}
+
+model ListJobSnapshotInfosResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobSnapshotInfosResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListJobSnapshotInfos  ListJobSnapshotInfosRequest
+  * @return ListJobSnapshotInfosResponse
+ */
+async function listJobSnapshotInfos(request: ListJobSnapshotInfosRequest): ListJobSnapshotInfosResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListJobSnapshotInfos', 'POST', '/api/v1/jobs/snapshot', 'json', false, 'json', request);
+}
+
 model ListMmsDataSourcesRequest {
   name?: string(name='name', example='demo', position='Query'),
   pageNum?: int32(name='pageNum', example='1', position='Query'),
@@ -2581,10 +2860,26 @@ model ListMmsJobsResponseBody = {
   data?: {
     objectList?: [ 
       {
+        config?: {
+          columnMapping?: map[string]string(name='columnMapping'),
+          enableVerification?: boolean(name='enableVerification'),
+          increment?: boolean(name='increment'),
+          others?: map[string]any(name='others'),
+          partitionFilters?: map[string]string(name='partitionFilters'),
+          partitions?: [ long ](name='partitions'),
+          schemaOnly?: boolean(name='schemaOnly'),
+          tableBlackList?: [ string ](name='tableBlackList'),
+          tableMapping?: map[string]string(name='tableMapping'),
+          tableWhiteList?: [ string ](name='tableWhiteList'),
+          tables?: [ string ](name='tables'),
+          taskType?: string(name='taskType'),
+          tunnelQuota?: string(name='tunnelQuota'),
+        }(name='config'),
         createTime?: string(name='createTime', example='2024-12-17 15:44:17'),
         dbId?: long(name='dbId', example='196'),
         dstDbName?: string(name='dstDbName', example='mms_test'),
         dstSchemaName?: string(name='dstSchemaName', example='test_table_1'),
+        eta?: string(name='eta'),
         id?: long(name='id', example='18'),
         name?: string(name='name', example='migrate_db_1'),
         sourceId?: long(name='sourceId', example='2000015'),
@@ -3607,50 +3902,80 @@ async function listRoles(request: ListRolesRequest): ListRolesResponse {
 }
 
 model ListStoragePartitionsInfoRequest {
-  project: string(name='project', description='This parameter is required.', example='odps_project', position='Path'),
-  table: string(name='table', description='This parameter is required.', example='bank_data', position='Path'),
-  ascOrder?: boolean(name='ascOrder', example='false', position='Query'),
-  date: string(name='date', description='This parameter is required.', example='20241205', position='Query'),
-  orderColumn?: string(name='orderColumn', example='totalFrequency', position='Query'),
-  pageNumber?: long(name='pageNumber', example='1', position='Query'),
-  pageSize?: long(name='pageSize', example='10', position='Query'),
-  partitionPrefix?: string(name='partitionPrefix', example='20241201', position='Query'),
-  region?: string(name='region', example='cn-beijing', position='Query'),
-  schema?: string(name='schema', example='schema', position='Query'),
-  tenantId?: string(name='tenantId', example='40713753659****', position='Query'),
-  types?: [ string ](name='types', shrink='json', position='Query'),
+  project: string(name='project', description='The name of the MaxCompute project.
+
+This parameter is required.', example='odps_project', position='Path'),
+  table: string(name='table', description='The name of the table.
+
+This parameter is required.', example='bank_data', position='Path'),
+  ascOrder?: boolean(name='ascOrder', description='Specifies whether to sort data in ascending order.', example='false', position='Query'),
+  date: string(name='date', description='The date on which the statistics are collected, in days. Set this parameter to a value in the YYYYMMdd format.
+
+This parameter is required.', example='20241205', position='Query'),
+  orderColumn?: string(name='orderColumn', description='The sorting column.', example='totalFrequency', position='Query'),
+  pageNumber?: long(name='pageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: long(name='pageSize', description='The number of entries per page. Default value: 10.', example='10', position='Query'),
+  partitionPrefix?: string(name='partitionPrefix', description='The name of the partition that you want to use for fuzzy match.', example='20241201', position='Query'),
+  region?: string(name='region', description='The region ID.', example='cn-beijing', position='Query'),
+  schema?: string(name='schema', description='The name of the schema.', example='schema', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant. You can log on to the MaxCompute console, and choose **Tenants** > **Tenant Property** from the left-side navigation pane to view the tenant ID.', example='40713753659****', position='Query'),
+  types?: [ string ](name='types', description='The storage types.', shrink='json', position='Query'),
 }
 
 model ListStoragePartitionsInfoResponseBody = {
   data?: {
-    date?: string(name='date', example='20241205'),
-    pageNumber?: long(name='pageNumber', example='1'),
-    pageSize?: long(name='pageSize', example='10'),
+    date?: string(name='date', description='The date on which the statistics are collected.', example='20241205'),
+    pageNumber?: long(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
     storagePartitionInfoList?: [ 
       {
-        fileCount?: long(name='fileCount', example='2'),
-        fileSize?: double(name='fileSize', example='1'),
-        fileSizeUnit?: string(name='fileSizeUnit', example='GB'),
-        isPartitioned?: boolean(name='isPartitioned', example='false'),
-        lastAccessTime?: long(name='lastAccessTime', example='1694589365'),
-        partition?: string(name='partition', example='ds=20241201'),
-        projectName?: string(name='projectName', example='odps_project'),
-        rate?: double(name='rate', example='1%'),
-        schemaName?: string(name='schemaName', example='schema'),
-        storageType?: string(name='storageType', example='standard'),
-        tableName?: string(name='tableName', example='bank_data'),
-        totalFrequency?: long(name='totalFrequency', example='10'),
-        totalInputAmount?: double(name='totalInputAmount', example='1'),
-        totalInputAmountUnit?: string(name='totalInputAmountUnit', example='GB'),
-        type?: string(name='type', example='PARTITION'),
+        fileCount?: long(name='fileCount', description='The number of files.', example='2'),
+        fileSize?: double(name='fileSize', description='The storage size.', example='1'),
+        fileSizeUnit?: string(name='fileSizeUnit', description='The unit of the storage size.', example='GB'),
+        isPartitioned?: boolean(name='isPartitioned', description='Indicates whether the table is a partitioned table. This operation returns the partition information. You do not need to take note of this parameter.', example='false'),
+        lastAccessTime?: long(name='lastAccessTime', description='The time when the partition data was last accessed.
+
+>  The data collection method is upgraded from July 2023. If the data is not accessed after the upgrade or is accessed by using ALGO jobs or the direct read method of Hologres, the last access time cannot be collected.', example='1694589365'),
+        partition?: string(name='partition', description='The partition name.', example='ds=20241201'),
+        projectName?: string(name='projectName', description='The project name.', example='odps_project'),
+        rate?: double(name='rate', description='The change rate of the total storage usage compared with that of the recent {$recentDays} days. No value is returned.', example='1%'),
+        schemaName?: string(name='schemaName', description='The schema name.', example='schema'),
+        storageType?: string(name='storageType', description='The storage type.
+
+*   standard
+*   lowfrequency
+*   longterm', example='standard'),
+        tableName?: string(name='tableName', description='The table name.', example='bank_data'),
+        totalFrequency?: long(name='totalFrequency', description='The access frequency.
+
+> 
+
+*   Access behaviors include:
+
+*   The table is used as the input table of an SQL task.
+*   The table is downloaded by Tunnel.
+*   The table is read by calling the Storage API. The partition granularity of the partitioned table is not available. Each time an access operation is performed, the access frequency is incremented by 1.
+
+*   The data collection method is upgraded from July 2023. If the data is not accessed after the upgrade or is accessed by using ALGO jobs or the direct read method of Hologres, the access frequency cannot be collected.', example='10'),
+        totalInputAmount?: double(name='totalInputAmount', description='The total amount of accessed data.
+
+>  The amount of data that is read by all access behaviors.', example='1'),
+        totalInputAmountUnit?: string(name='totalInputAmountUnit', description='The unit of the total amount of accessed data.', example='GB'),
+        type?: string(name='type', description='The type.', example='PARTITION'),
       }
-    ](name='storagePartitionInfoList'),
-    totalCount?: long(name='totalCount', example='57'),
-  }(name='data'),
-  errorCode?: string(name='errorCode', example='OBJECT_NOT_EXIST'),
-  errorMsg?: string(name='errorMsg', example='This object does not exist.'),
-  httpCode?: int32(name='httpCode', example='200'),
-  requestId?: string(name='requestId', example='0be3e0bd16661643917136451ebf55'),
+    ](name='storagePartitionInfoList', description='The partition storage information.'),
+    totalCount?: long(name='totalCount', description='The total number of returned entries.', example='57'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+*   1xx: informational response. The request is received and is being processed.
+*   2xx: success. The request is successfully received, understood, and accepted by the server.
+*   3xx: redirection. The request is redirected, and further actions are required to complete the request.
+*   4xx: client error. The request contains invalid request parameters and syntaxes, or specific request conditions cannot be met.
+*   5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0be3e0bd16661643917136451ebf55'),
 }
 
 model ListStoragePartitionsInfoResponse = {
@@ -3669,58 +3994,87 @@ async function listStoragePartitionsInfo(request: ListStoragePartitionsInfoReque
 }
 
 model ListStorageTablesInfoRequest {
-  project: string(name='project', description='This parameter is required.', example='odps_project', position='Path'),
-  ascOrder?: boolean(name='ascOrder', example='false', position='Query'),
-  date: string(name='date', description='This parameter is required.', example='20241205', position='Query'),
-  orderColumn?: string(name='orderColumn', example='totalFrequency', position='Query'),
-  pageNumber?: long(name='pageNumber', example='1', position='Query'),
-  pageSize?: long(name='pageSize', example='10', position='Query'),
-  recentDays?: int32(name='recentDays', example='1', position='Query'),
-  region?: string(name='region', example='cn-beijing', position='Query'),
-  schema?: string(name='schema', example='schema', position='Query'),
-  tablePrefix?: string(name='tablePrefix', example='bank', position='Query'),
-  tenantId?: string(name='tenantId', example='28074710977****', position='Query'),
-  types?: [ string ](name='types', shrink='simple', position='Query'),
+  project: string(name='project', description='The name of the MaxCompute project.
+
+This parameter is required.', example='odps_project', position='Path'),
+  ascOrder?: boolean(name='ascOrder', description='Specifies whether to sort data in ascending order.', example='false', position='Query'),
+  date: string(name='date', description='The date on which the statistics are collected, in days. Set this parameter to a value in the `YYYYMMdd` format.
+
+This parameter is required.', example='20241205', position='Query'),
+  orderColumn?: string(name='orderColumn', description='The sorting column.', example='totalFrequency', position='Query'),
+  pageNumber?: long(name='pageNumber', description='The page number.', example='1', position='Query'),
+  pageSize?: long(name='pageSize', description='The number of entries per page. Default value: 10.', example='10', position='Query'),
+  recentDays?: int32(name='recentDays', description='The number of recent days for comparison.', example='1', position='Query'),
+  region?: string(name='region', description='The region ID.', example='cn-beijing', position='Query'),
+  schema?: string(name='schema', description='The name of the schema.', example='schema', position='Query'),
+  tablePrefix?: string(name='tablePrefix', description='The name of the table that you want to use for fuzzy match.', example='bank', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant. You can log on to the MaxCompute console, and choose **Tenants** > **Tenant Property** from the left-side navigation pane to view the tenant ID.', example='28074710977****', position='Query'),
+  types?: [ string ](name='types', description='The storage types.', shrink='simple', position='Query'),
 }
 
 model ListStorageTablesInfoResponseBody = {
   data?: {
-    date?: string(name='date', example='20241205'),
-    pageNumber?: long(name='pageNumber', example='1'),
-    pageSize?: long(name='pageSize', example='10'),
+    date?: string(name='date', description='The date on which the statistics are collected.', example='20241205'),
+    pageNumber?: long(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
     storageTableInfoList?: [ 
       {
-        date?: string(name='date', example='20241205'),
-        isPartitioned?: boolean(name='isPartitioned', example='false'),
-        lastAccessTime?: long(name='lastAccessTime', example='1694589365'),
-        longTermStorage?: double(name='longTermStorage', example='0'),
-        longTermStorageFileCount?: long(name='longTermStorageFileCount', example='0'),
-        longTermStorageUnit?: string(name='longTermStorageUnit', example='B'),
-        lowFreqStorage?: double(name='lowFreqStorage', example='0'),
-        lowFreqStorageFileCount?: long(name='lowFreqStorageFileCount', example='0'),
-        lowFreqStorageUnit?: string(name='lowFreqStorageUnit', example='B'),
-        projectName?: string(name='projectName', example='odps_project'),
-        rate?: double(name='rate', example='0'),
-        schemaName?: string(name='schemaName', example='schema'),
-        standardStorage?: double(name='standardStorage', example='600'),
-        standardStorageFileCount?: long(name='standardStorageFileCount', example='2'),
-        standardStorageUnit?: string(name='standardStorageUnit', example='KB'),
-        storageType?: string(name='storageType', example='standard'),
-        tableName?: string(name='tableName', example='bank_data'),
-        totalFrequency?: long(name='totalFrequency', example='10'),
-        totalInputAmount?: double(name='totalInputAmount', example='1'),
-        totalInputAmountUnit?: string(name='totalInputAmountUnit', example='GB'),
-        totalStorage?: double(name='totalStorage', example='600'),
-        totalStorageFileCount?: long(name='totalStorageFileCount', example='2'),
-        totalStorageUnit?: string(name='totalStorageUnit', example='KB'),
+        date?: string(name='date', description='The date on which the statistics are collected. This value is not returned.', example='20241205'),
+        isPartitioned?: boolean(name='isPartitioned', description='Indicates whether the table is a partitioned table.', example='false'),
+        lastAccessTime?: long(name='lastAccessTime', description='The time when the table was last accessed. This value is returned when the table is a non-partitioned table.
+
+>  The data collection method is upgraded from July 2023. If the data is not accessed after the upgrade or is accessed by using ALGO jobs or the direct read method of Hologres, the last access time cannot be collected.', example='1694589365'),
+        longTermStorage?: double(name='longTermStorage', description='The storage usage at the long-term storage tier.', example='0'),
+        longTermStorageFileCount?: long(name='longTermStorageFileCount', description='The number of long-term storage files.', example='0'),
+        longTermStorageUnit?: string(name='longTermStorageUnit', description='The unit of the storage usage at the long-term storage tier.', example='B'),
+        lowFreqStorage?: double(name='lowFreqStorage', description='The storage usage at the low-frequency tier.', example='0'),
+        lowFreqStorageFileCount?: long(name='lowFreqStorageFileCount', description='The number of low-frequency storage files.', example='0'),
+        lowFreqStorageUnit?: string(name='lowFreqStorageUnit', description='The unit of the storage usage at the low-frequency storage tier.', example='B'),
+        projectName?: string(name='projectName', description='The project name.', example='odps_project'),
+        rate?: double(name='rate', description='The change rate of the total storage usage compared with that of the recent {$recentDays} days.', example='0'),
+        schemaName?: string(name='schemaName', description='The schema name.', example='schema'),
+        standardStorage?: double(name='standardStorage', description='The storage usage at the standard storage tier.', example='600'),
+        standardStorageFileCount?: long(name='standardStorageFileCount', description='The number of standard storage files.', example='2'),
+        standardStorageUnit?: string(name='standardStorageUnit', description='The unit of the storage usage at the standard storage tier.', example='KB'),
+        storageType?: string(name='storageType', description='The table storage type.
+
+*   standard
+*   lowfrequency
+*   longterm
+*   unknown: This value is returned when the table is a partitioned table. You can call the ListStoragePartitionsInfo operation to query the storage type of each partition.', example='standard'),
+        tableName?: string(name='tableName', description='The table name.', example='bank_data'),
+        totalFrequency?: long(name='totalFrequency', description='The access frequency.
+
+> 
+
+*   Access behaviors include:
+
+*   The table is used as the input table of an SQL task.
+*   The table is downloaded by Tunnel.
+*   The table is read by calling the Storage API. The partition granularity of the partitioned table is not available. Each time an access operation is performed, the access frequency is incremented by 1.
+
+*   The data collection method is upgraded from July 2023. If the data is not accessed after the upgrade or is accessed by using ALGO jobs or the direct read method of Hologres, the access frequency cannot be collected.', example='10'),
+        totalInputAmount?: double(name='totalInputAmount', description='The total amount of accessed data.
+
+>  The amount of data that is read by all access behaviors.', example='1'),
+        totalInputAmountUnit?: string(name='totalInputAmountUnit', description='The unit of the total amount of accessed data.', example='GB'),
+        totalStorage?: double(name='totalStorage', description='The total storage usage. For a partitioned table, this parameter indicates the sum of the storage usage of all partitions. If the storage types of partitions are different, the value is the sum of the storage usage of each storage type.', example='600'),
+        totalStorageFileCount?: long(name='totalStorageFileCount', description='The total number of files.', example='2'),
+        totalStorageUnit?: string(name='totalStorageUnit', description='The unit of storage usage.', example='KB'),
       }
-    ](name='storageTableInfoList'),
-    totalCount?: long(name='totalCount', example='1'),
-  }(name='data'),
-  errorCode?: string(name='errorCode', example='OBJECT_NOT_EXIST'),
-  errorMsg?: string(name='errorMsg', example='This object does not exist.'),
-  httpCode?: int32(name='httpCode', example='200'),
-  requestId?: string(name='requestId', example='0bc12e6a16679892465424670db3eb'),
+    ](name='storageTableInfoList', description='The table storage information.'),
+    totalCount?: long(name='totalCount', description='The total number of entries returned.', example='1'),
+  }(name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+*   1xx: informational response. The request is received and is being processed.
+*   2xx: success. The request is successfully received, understood, and accepted by the server.
+*   3xx: redirection. The request is redirected, and further actions are required to complete the request.
+*   4xx: client error. The request contains invalid request parameters and syntaxes, or specific request conditions cannot be met.
+*   5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0bc12e6a16679892465424670db3eb'),
 }
 
 model ListStorageTablesInfoResponse = {
@@ -3783,25 +4137,33 @@ async function listTables(request: ListTablesRequest): ListTablesResponse {
 }
 
 model ListTunnelQuotaTimerRequest {
-  nickname: string(name='nickname', description='This parameter is required.', example='ot_tunnel_quota_p', position='Path'),
+  nickname: string(name='nickname', description='The alias of the level-1 Tunnel quota.
+
+This parameter is required.', example='ot_tunnel_quota_p', position='Path'),
 }
 
 model ListTunnelQuotaTimerResponseBody = {
   data?: [ 
     {
-      beginTime?: string(name='beginTime', example='00:00'),
-      endTime?: string(name='endTime', example='08:00'),
-      timezone?: string(name='timezone', example='Asia/Shanghai'),
+      beginTime?: string(name='beginTime', description='The start time of the time-specific configuration.', example='00:00'),
+      endTime?: string(name='endTime', description='The end time of the time-specific configuration.', example='08:00'),
+      timezone?: string(name='timezone', description='The time zone property for the time-specific configuration.', example='Asia/Shanghai'),
       tunnelQuotaParameter?: {
-        elasticReservedSlotNum?: long(name='elasticReservedSlotNum', example='100'),
-        slotNum?: long(name='slotNum', example='100'),
-      }(name='tunnelQuotaParameter'),
+        elasticReservedSlotNum?: long(name='elasticReservedSlotNum', description='The number of elastically reserved slots.', example='100'),
+        slotNum?: long(name='slotNum', description='The number of reserved slots.', example='100'),
+      }(name='tunnelQuotaParameter', description='The parameters for the time-specific configuration.'),
     }
-  ](name='data'),
-  errorCode?: string(name='errorCode', example='OBJECT_NOT_EXIST'),
-  errorMsg?: string(name='errorMsg', example='This object does not exist.'),
-  httpCode?: int32(name='httpCode', example='200'),
-  requestId?: string(name='requestId', example='0be3e0b716671885050924814e3623'),
+  ](name='data', description='The data returned.'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+*   1xx: informational response. The request is received and is being processed.
+*   2xx: success. The request is successfully received, understood, and accepted by the server.
+*   3xx: redirection. The request is redirected, and further actions are required to complete the request.
+*   4xx: client error. The request contains invalid request parameters or syntaxes, or specific request conditions cannot be met.
+*   5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0be3e0b716671885050924814e3623'),
 }
 
 model ListTunnelQuotaTimerResponse = {
@@ -4162,9 +4524,6 @@ This parameter is required.', example='10:00'),
       plan: string(name='plan', description='The name of the quota plan.
 
 This parameter is required.', example='planA'),
-      timezone?: string(name='timezone', description='Time zone.
-
-> Default Key: UTC+8', example='UTC+8'),
       type: string(name='type', description='The type of the quota plan.
 
 >Notice: Currently, only daily is supported.</notice>
@@ -4172,6 +4531,7 @@ This parameter is required.', example='planA'),
 This parameter is required.', example='daily'),
     }
   ](name='body', description='The request body parameters.', position='Body'),
+  scheduleTimezone?: string(name='scheduleTimezone', position='Query'),
 }
 
 model UpdateComputeQuotaScheduleResponseBody = {
@@ -4597,26 +4957,34 @@ async function updateQuotaSchedule(request: UpdateQuotaScheduleRequest): UpdateQ
 }
 
 model UpdateTunnelQuotaTimerRequest {
-  nickname: string(name='nickname', description='This parameter is required.', example='ot_tunnel_quota_p', position='Path'),
+  nickname: string(name='nickname', description='The alias of the level-1 Tunnel quota.
+
+This parameter is required.', example='ot_tunnel_quota_p', position='Path'),
   body?: [ 
     {
-      beginTime?: string(name='beginTime', example='00:00'),
-      endTime?: string(name='endTime', example='08:00'),
-      timezone?: string(name='timezone', example='Asia/Shanghai'),
+      beginTime?: string(name='beginTime', description='The start time of the time-specific configuration.', example='00:00'),
+      endTime?: string(name='endTime', description='The end time of the time-specific configuration.', example='08:00'),
       tunnelQuotaParameter?: {
-        elasticReservedSlotNum?: long(name='elasticReservedSlotNum', example='100'),
-        slotNum?: long(name='slotNum', example='100'),
-      }(name='tunnelQuotaParameter'),
+        elasticReservedSlotNum?: long(name='elasticReservedSlotNum', description='The number of elastically reserved slots.', example='100'),
+        slotNum?: long(name='slotNum', description='The number of reserved slots.', example='100'),
+      }(name='tunnelQuotaParameter', description='The parameters for the time-specific configuration.'),
     }
-  ](name='body', position='Body'),
+  ](name='body', description='The request body.', position='Body'),
+  timezone?: string(name='timezone', position='Query'),
 }
 
 model UpdateTunnelQuotaTimerResponseBody = {
-  data?: string(name='data', example='success'),
-  errorCode?: string(name='errorCode', example='OBJECT_NOT_EXIST'),
-  errorMsg?: string(name='errorMsg', example='This object does not exist.'),
-  httpCode?: int32(name='httpCode', example='200'),
-  requestId?: string(name='requestId', example='0bc12e4316675560945192024e1044'),
+  data?: string(name='data', description='The data returned.', example='success'),
+  errorCode?: string(name='errorCode', description='The error code.', example='OBJECT_NOT_EXIST'),
+  errorMsg?: string(name='errorMsg', description='The error message.', example='This object does not exist.'),
+  httpCode?: int32(name='httpCode', description='The HTTP status code.
+
+*   1xx: informational response. The request is received and is being processed.
+*   2xx: success. The request is successfully received, understood, and accepted by the server.
+*   3xx: redirection. The request is redirected, and further actions are required to complete the request.
+*   4xx: client error. The request contains invalid request parameters or syntaxes, or specific request conditions cannot be met.
+*   5xx: server error. The server cannot meet requirements due to other reasons.', example='200'),
+  requestId?: string(name='requestId', description='The request ID.', example='0bc12e4316675560945192024e1044'),
 }
 
 model UpdateTunnelQuotaTimerResponse = {
@@ -4626,6 +4994,7 @@ model UpdateTunnelQuotaTimerResponse = {
 }
 
 /**
+  * @description Before you call this operation, make sure that you are familiar with the [billing and prices](https://www.alibabacloud.com/help/maxcompute/product-overview/data-transfer-fees-hourly-billing) of Tunnel quotas and elastically reserved computing resources.
   * @param request  the request parameters of UpdateTunnelQuotaTimer  UpdateTunnelQuotaTimerRequest
   * @return UpdateTunnelQuotaTimerResponse
  */
