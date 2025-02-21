@@ -1509,7 +1509,12 @@ This parameter is required.', example='emrtest', position='Query'),
 If you create an EMR cluster for the first time after 17:00 (UTC +8) on December 19, 2022, you cannot select the HADOOP, DATA_SCIENCE, PRESTO, or ZOOKEEPER cluster type.
 
 This parameter is required.', example='DATALAKE', position='Query'),
-  deletionProtection?: boolean(name='DeletionProtection', position='Query'),
+  deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable release protection for the cluster. Valid values:
+
+*   true: enables release protection for the cluster.
+*   false: disables release protection for the cluster.
+
+Default value: false.', example='false', position='Query'),
   deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
 *   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
@@ -1615,10 +1620,10 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 This parameter is required.', example='BOOTSTRAP', position='Query'),
   scripts: [
     Script
-  ](name='Scripts', description='The scripts.
+  ](name='Scripts', description='The common scripts or bootstrap actions.
 
 This parameter is required.', position='Query'),
-  timeoutSecs?: string(name='TimeoutSecs', position='Query'),
+  timeoutSecs?: string(name='TimeoutSecs', description='The timeout period for manually running a common script. You cannot specify the timeout period for a bootstrap action.', position='Query'),
 }
 
 model CreateScriptResponseBody = {
@@ -1639,6 +1644,47 @@ model CreateScriptResponse = {
 async function createScript(request: CreateScriptRequest): CreateScriptResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateScript', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateUsersRequest {
+  clusterId: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  users: [ 
+    {
+      password: string(name='Password', description='用户密码。
+
+This parameter is required.', example='*Ab123'),
+      userName: string(name='UserName', description='用户名。
+
+This parameter is required.', example='xi'),
+    }
+  ](name='Users', description='用户列表。
+
+This parameter is required.', position='Query'),
+}
+
+model CreateUsersResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model CreateUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateUsersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateUsers  CreateUsersRequest
+  * @return CreateUsersResponse
+ */
+async function createUsers(request: CreateUsersRequest): CreateUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateUsers', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DecreaseNodesRequest {
@@ -1775,6 +1821,34 @@ model DeleteScriptResponse = {
 async function deleteScript(request: DeleteScriptRequest): DeleteScriptResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteScript', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DeleteUsersRequest {
+  clusterId: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-b933c5aac8fe****', position='Body'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  userNames?: [ string ](name='UserNames', shrink='json', position='Body'),
+}
+
+model DeleteUsersResponseBody = {
+  data?: boolean(name='Data', example='true'),
+  requestId?: string(name='RequestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model DeleteUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteUsersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteUsers  DeleteUsersRequest
+  * @return DeleteUsersResponse
+ */
+async function deleteUsers(request: DeleteUsersRequest): DeleteUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteUsers', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetApiTemplateRequest {
@@ -2027,7 +2101,7 @@ model GetClusterCloneMetaResponseBody = {
     ](name='ApplicationConfigs', description='The modified configuration items.'),
     applications?: [
       Application
-    ](name='Applications', description='The services deployed in the cluster.'),
+    ](name='Applications', description='The services.'),
     bootstrapScripts?: [
       Script
     ](name='BootstrapScripts', description='The bootstrap actions. Number of elements in the array: 1 to 10.'),
@@ -2051,7 +2125,12 @@ model GetClusterCloneMetaResponseBody = {
 *   DATASERVING
 *   CUSTOM
 *   HADOOP', example='DATALAKE'),
-    deletionProtection?: boolean(name='DeletionProtection'),
+    deletionProtection?: boolean(name='DeletionProtection', description='Indicates whether release protection is enabled for the cluster. Valid values:
+
+*   true: Release protection is enabled for the cluster.
+*   false: Release protection is disabled for the cluster.
+
+Default value: false.', example='false'),
     deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
 *   NORMAL: regular mode.
@@ -2077,11 +2156,11 @@ model GetClusterCloneMetaResponseBody = {
         clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac8fe****'),
         constraints?: {
           maxCapacity?: int32(name='MaxCapacity', description='The maximum number of nodes in the node group. Default value: 2000.', example='200'),
-          maxOnDemandCapacity?: int32(name='MaxOnDemandCapacity', description='The maximum number of nodes that you can configure based on your business requirements.'),
+          maxOnDemandCapacity?: int32(name='MaxOnDemandCapacity', description='The maximum number of pay-as-you-go nodes in the node group.', example='200'),
           minCapacity?: int32(name='MinCapacity', description='The minimum number of nodes in the node group. Default value: 0.', example='50'),
         }(name='Constraints', description='The maximum and minimum number of nodes in the node group.'),
         nodeGroupId?: string(name='NodeGroupId', description='The node group ID.', example='ng-869471354ecd****'),
-        nodeGroupName?: string(name='NodeGroupName'),
+        nodeGroupName?: string(name='NodeGroupName', description='The name of the node group.', example='emr-etltask'),
         scalingPolicyId?: string(name='ScalingPolicyId', description='The ID of the auto scaling policy.', example='asp-asduwe23znl***'),
         scalingPolicyType?: string(name='ScalingPolicyType', description='The type of the auto scaling policy.'),
         scalingRules?: [ 
@@ -2099,7 +2178,7 @@ model GetClusterCloneMetaResponseBody = {
 *   TIME_TRIGGER: time-based scaling.
 *   METRICS_TRIGGER: load-based scaling.', example='TIME_TRIGGER'),
           }
-        ](name='ScalingRules', description='The list of auto scaling rules.'),
+        ](name='ScalingRules', description='The auto scaling rules.'),
       }
     ](name='ScalingPolicies', description='The auto scaling policies of each node group in the cluster.'),
     securityMode?: string(name='SecurityMode', description='The security mode of the cluster. Valid values:
@@ -7051,15 +7130,15 @@ This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
   regionId: string(name='RegionId', description='Region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  scriptId?: string(name='ScriptId', position='Query'),
-  scriptName?: string(name='ScriptName', position='Query'),
+  scriptId?: string(name='ScriptId', description='The script ID. Only common scripts are supported.', position='Query'),
+  scriptName?: string(name='ScriptName', description='The name of the script. Only common scripts are supported. Fuzzy search is supported.', position='Query'),
   scriptType: string(name='ScriptType', description='Type of cluster script. Possible values:
 
 - BOOTSTRAP: Bootstrap script.
 - NORMAL: Regular cluster script.
 
 This parameter is required.', example='BOOTSTRAP', position='Query'),
-  statuses?: [ string ](name='Statuses', position='Query'),
+  statuses?: [ string ](name='Statuses', description='The status of the script. Only common scripts are supported.', position='Query'),
 }
 
 model ListScriptsResponseBody = {
@@ -7084,7 +7163,7 @@ model ListScriptsResponseBody = {
 - SCRIPT_SUBMISSION_FAILED: Script execution failed.
 - SCRIPT_RUNNING: Script is running.', example='SCRIPT_COMPLETED'),
       lastUpdateTime?: long(name='LastUpdateTime', description='Time of the last update.', example='1639714634819'),
-      nodeSelector?: NodeSelector(name='NodeSelector', description='Node selector.'),
+      nodeSelector?: NodeSelector(name='NodeSelector', description='The node selector.'),
       regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou'),
       scriptArgs?: string(name='ScriptArgs', description='Script execution parameters.', example='--mode=client -h -p'),
       scriptId?: string(name='ScriptId', description='Script ID.', example='cs-bf25219d103043a0820613e32781****'),
@@ -7092,7 +7171,7 @@ model ListScriptsResponseBody = {
       scriptPath?: string(name='ScriptPath', description='Script path.', example='oss://bucket1/check_evn.sh'),
       startTime?: long(name='StartTime', description='Start execution time. This value is returned only when `ScriptType` is `NORMAL`.', example='1639714634000'),
     }
-  ](name='Scripts', description='List of scripts.'),
+  ](name='Scripts', description='The scripts.'),
   totalCount?: int32(name='TotalCount', description='The total amount of data under the conditions of this request.', example='200'),
 }
 
@@ -7156,6 +7235,54 @@ model ListTagResourcesResponse = {
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ListUsersRequest {
+  clusterId: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
+  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  userName?: string(name='UserName', description='用户名，支持模糊搜索。', example='test', position='Query'),
+  userNames?: [ string ](name='UserNames', position='Query'),
+}
+
+model ListUsersResponseBody = {
+  isAdmin?: boolean(name='IsAdmin', example='False', deprecated='true'),
+  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
+  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  users?: [ 
+    {
+      createTime?: long(name='CreateTime', description='创建时间。', example='1509338726362'),
+      description?: string(name='Description', description='备注。', example='添加test用户'),
+      keytabHex?: string(name='KeytabHex', description='Keytab内容Base64编码。', example='DBEDASDF=='),
+      ldapUrl?: string(name='LdapUrl', description='LDAP链接。
+ldap://emr-header-1.cluster-50018****:10389', example='ldap://master-1-1.c-c6ce2d16d118****.cn-hangzhou.emr.aliyuncs.com:10389'),
+      userId?: string(name='UserId', description='用户ID。', example='125046002175****'),
+      userName?: string(name='UserName', description='用户名称。
+test', example='yun****'),
+    }
+  ](name='Users', description='用户列表。'),
+}
+
+model ListUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListUsersResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListUsers  ListUsersRequest
+  * @return ListUsersResponse
+ */
+async function listUsers(request: ListUsersRequest): ListUsersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListUsers', 'POST', '/', 'json', false, 'json', request);
 }
 
 model PutAutoScalingPolicyRequest {
@@ -7342,7 +7469,12 @@ This parameter is required.', example='emrtest', position='Body'),
 If the first time you create an EMR cluster is after 17:00 (UTC+8) on December 19, 2022, you cannot create a Hadoop, Data Science, Presto, or ZooKeeper cluster.
 
 This parameter is required.', example='DATALAKE', position='Body'),
-  deletionProtection?: boolean(name='DeletionProtection', position='Body'),
+  deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable release protection for the cluster. Valid values:
+
+*   true: enables release protection for the cluster.
+*   false: disables release protection for the cluster.
+
+Default value: false.', example='false', position='Body'),
   deployMode?: string(name='DeployMode', description='The deployment mode of master nodes in the cluster. Valid values:
 
 *   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
@@ -7566,19 +7698,19 @@ async function updateApplicationConfigs(request: UpdateApplicationConfigsRequest
 }
 
 model UpdateClusterAttributeRequest {
-  clusterId: string(name='ClusterId', description='集群ID。
+  clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  clusterName?: string(name='ClusterName', description='集群名称。', example='emrtest', position='Query'),
-  deletionProtection?: boolean(name='DeletionProtection', example='false', position='Query'),
-  description?: string(name='Description', example='Emr cluster for ETL', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。
+  clusterName?: string(name='ClusterName', description='The cluster name.', example='emrtest', position='Query'),
+  deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether release protection is enabled.', example='false', position='Query'),
+  description?: string(name='Description', description='The cluster description.', example='Emr cluster for ETL', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model UpdateClusterAttributeResponseBody = {
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model UpdateClusterAttributeResponse = {
@@ -7634,5 +7766,38 @@ model UpdateScriptResponse = {
 async function updateScript(request: UpdateScriptRequest): UpdateScriptResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateScript', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UpdateUserAttributeRequest {
+  clusterId: string(name='ClusterId', description='集群ID。
+
+This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
+  description?: string(name='Description', description='用户备注。', example='test', position='Query'),
+  password?: string(name='Password', description='用户密码。', example='1234', position='Query'),
+  regionId: string(name='RegionId', description='区域ID。
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  userId?: string(name='UserId', description='用户ID。', example='125046002175****', deprecated='true', position='Query'),
+  userName?: string(name='UserName', example='yun****', position='Query'),
+}
+
+model UpdateUserAttributeResponseBody = {
+  data?: boolean(name='Data', example='true', deprecated='true'),
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model UpdateUserAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateUserAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateUserAttribute  UpdateUserAttributeRequest
+  * @return UpdateUserAttributeResponse
+ */
+async function updateUserAttribute(request: UpdateUserAttributeRequest): UpdateUserAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateUserAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
