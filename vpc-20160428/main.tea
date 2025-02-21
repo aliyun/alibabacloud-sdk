@@ -1799,7 +1799,10 @@ This parameter is required.', example='2'),
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000'),
-  dryRun?: boolean(name='DryRun'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform only a dry run, without performing the actual request. Valid values:
+
+*   **true**: performs only a dry run. The system checks the request for potential issues, including invalid AccessKey pairs, unauthorized RAM users, and missing parameter values. If the request fails the dry run, an error message is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false**: sends the API request. After the request passes the check, a 2XX HTTP status code is returned and the route table is associated. This is the default value.', example='false'),
   internetChargeType?: string(name='InternetChargeType', description='The metering method of the Internet bandwidth for the IPv6 address. Valid values:
 
 *   **PayByTraffic**: pay-by-data-transfer
@@ -6465,18 +6468,14 @@ The name must be 1 to 128 characters in length and cannot start with `http://` o
 
 *   The name can contain only lowercase letters, digits, hyphens (-), and underscores (_).
 *   The name must start and end with a lowercase letter or a digit.
-*   The name must be 3 to 63 characters in length.
-
-This parameter is required.', example='FlowLogStore'),
+*   The name must be 3 to 63 characters in length.', example='FlowLogStore'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   projectName?: string(name='ProjectName', description='The name of the project that stores the captured traffic data.
 
 *   The name can contain only lowercase letters, digits, and hyphens (-).
 *   The name must start and end with a lowercase letter or a digit.
-*   The name must be 3 to 63 characters in length.
-
-This parameter is required.', example='FlowLogProject'),
+*   The name must be 3 to 63 characters in length.', example='FlowLogProject'),
   regionId?: string(name='RegionId', description='The ID of the region where you want to create the flow log. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-qingdao'),
@@ -6503,6 +6502,7 @@ The tag key can be at most 128 characters in length. It cannot start with `aliyu
 The tag value can be up to 128 characters in length and cannot contain `http://` or `https://`. The tag value cannot start with `aliyun` or `acs:`.', example='FinanceJoshua'),
     }
   ](name='Tag', description='The tag of the resource.'),
+  trafficAnalyzerId?: string(name='TrafficAnalyzerId'),
   trafficPath?: [ string ](name='TrafficPath', description='The scope of the traffic that you want to capture. Valid values:
 
 *   **all**: all traffic.
@@ -6590,6 +6590,9 @@ async function createFlowLogWithOptions(request: CreateFlowLogRequest, runtime: 
   }
   if (!Util.isUnset(request.tag)) {
     query['Tag'] = request.tag;
+  }
+  if (!Util.isUnset(request.trafficAnalyzerId)) {
+    query['TrafficAnalyzerId'] = request.trafficAnalyzerId;
   }
   if (!Util.isUnset(request.trafficPath)) {
     query['TrafficPath'] = request.trafficPath;
@@ -10868,7 +10871,9 @@ model CreateSslVpnClientCertResponse = {
 }
 
 /**
- * @summary 创建SSL-VPN客户端证书
+ * @summary Creates an SSL client certificate.
+ *
+ * @description Before you create an SSL client certificate, make sure that an SSL server is created on the VPN gateway. For more information, see [CreateSslVpnServer](https://help.aliyun.com/document_detail/2794075.html).
  *
  * @param request CreateSslVpnClientCertRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10923,7 +10928,9 @@ async function createSslVpnClientCertWithOptions(request: CreateSslVpnClientCert
 }
 
 /**
- * @summary 创建SSL-VPN客户端证书
+ * @summary Creates an SSL client certificate.
+ *
+ * @description Before you create an SSL client certificate, make sure that an SSL server is created on the VPN gateway. For more information, see [CreateSslVpnServer](https://help.aliyun.com/document_detail/2794075.html).
  *
  * @param request CreateSslVpnClientCertRequest
  * @return CreateSslVpnClientCertResponse
@@ -18519,10 +18526,14 @@ model DeleteSslVpnClientCertResponse = {
 /**
  * @summary Deletes an SSL client certificate.
  *
- * @description *   **DeleteSslVpnClientCert** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/73720.html) to query the status of the task.
+ * @description *   If you delete an SSL client certificate, all SSL-VPN client connections to the SSL server are disconnected. You need to reinitiate connections from SSL clients.
+ *     For example, SSL client certificate 1 and SSL client certificate 2 are created on an SSL server. After you delete certificate 1, all client connections associated with certificate 1 and certificate 2 are disconnected from the SSL server.
+ *     *   If clients associated with certificate 1 require SSL-VPN connections, you need to install other certificates on the clients and reinitiate connections from the clients.
+ *     *   If clients associated with certificate 2 require SSL-VPN connections, you can directly reinitiate connections from the clients.
+ * *   **DeleteSslVpnClientCert** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) operation to query the status of the task.
  *     *   If the VPN gateway is in the **updating** state, the SSL client certificate is being deleted.
  *     *   If the VPN gateway is in the **active** state, the SSL client certificate is deleted.
- * *   You cannot repeatedly call **DeleteSslVpnClientCert** to delete an SSL client certificate from the same VPN gateway within the specified period of time.
+ * *   You cannot call **DeleteSslVpnClientCert** within the specified period of time.
  *
  * @param request DeleteSslVpnClientCertRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18576,10 +18587,14 @@ async function deleteSslVpnClientCertWithOptions(request: DeleteSslVpnClientCert
 /**
  * @summary Deletes an SSL client certificate.
  *
- * @description *   **DeleteSslVpnClientCert** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/73720.html) to query the status of the task.
+ * @description *   If you delete an SSL client certificate, all SSL-VPN client connections to the SSL server are disconnected. You need to reinitiate connections from SSL clients.
+ *     For example, SSL client certificate 1 and SSL client certificate 2 are created on an SSL server. After you delete certificate 1, all client connections associated with certificate 1 and certificate 2 are disconnected from the SSL server.
+ *     *   If clients associated with certificate 1 require SSL-VPN connections, you need to install other certificates on the clients and reinitiate connections from the clients.
+ *     *   If clients associated with certificate 2 require SSL-VPN connections, you can directly reinitiate connections from the clients.
+ * *   **DeleteSslVpnClientCert** is an asynchronous operation. After a request is sent, the system returns a request ID and runs the task in the background. You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) operation to query the status of the task.
  *     *   If the VPN gateway is in the **updating** state, the SSL client certificate is being deleted.
  *     *   If the VPN gateway is in the **active** state, the SSL client certificate is deleted.
- * *   You cannot repeatedly call **DeleteSslVpnClientCert** to delete an SSL client certificate from the same VPN gateway within the specified period of time.
+ * *   You cannot call **DeleteSslVpnClientCert** within the specified period of time.
  *
  * @param request DeleteSslVpnClientCertRequest
  * @return DeleteSslVpnClientCertResponse
@@ -23443,6 +23458,7 @@ model DescribeFlowLogsResponseBody = {
         }
       ](name='Tag')
       }(name='Tags', description='The list of tags.'),
+      trafficAnalyzerId?: string(name='TrafficAnalyzerId'),
       trafficPath?: {
         trafficPathList?: [ string ](name='TrafficPathList')
       }(name='TrafficPath', description='The sampling scope of the traffic that is collected. Valid values:
@@ -27322,89 +27338,98 @@ async function describeRouteEntryList(request: DescribeRouteEntryListRequest): D
 model DescribeRouteTableListRequest {
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber', description='The value of tag N to add to the resource. You can specify up to 20 tag values. The tag value can be an empty string.
+  pageNumber?: int32(name='PageNumber', description='The number of the returned page. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **50**. Default value: **10**.', example='10'),
+  regionId?: string(name='RegionId', description='The region ID of the VPC to which the route table belongs.
 
-The tag value can be up to 128 characters in length. It cannot start with `aliyun` or `acs:` and cannot contain `http://` or `https://`.', example='1'),
-  pageSize?: int32(name='PageSize', description='The type of the route table.
-
-*   **System**
-*   **Custom**', example='10'),
-  regionId?: string(name='RegionId', description='The number of entries per page.
+You can call [DescribeRegions](https://www.alibabacloud.com/help/vpc/developer-reference/api-vpc-2016-04-28-describeregions) to query the most recent region list.
 
 This parameter is required.', example='ap-southeast-6'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The details of the route table.', example='rg-acfmxazb4ph****'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the route table belongs.', example='rg-acfmxazb4ph****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  routeTableId?: string(name='RouteTableId', description='The tags.', example='vtb-bp145q7glnuzdvzu2****'),
-  routeTableName?: string(name='RouteTableName', description='The key of tag N to add to the resource. You can specify up to 20 tag keys. The tag key cannot be an empty string.
+  routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='vtb-bp145q7glnuzdvzu2****'),
+  routeTableName?: string(name='RouteTableName', description='The name of the route table.', example='doctest'),
+  routeTableType?: string(name='RouteTableType', description='The type of the route table.
 
-The tag key can be up to 128 characters in length. It cannot start with `aliyun` or `acs:`, and cannot contain `http://` or `https://`.', example='doctest'),
-  routeTableType?: string(name='RouteTableType', description='The time when the route table was created.', example='System'),
-  routerId?: string(name='RouterId', description='The region ID of the VPC to which the route table belongs.
+*   **System**
+*   **Custom**', example='System'),
+  routerId?: string(name='RouterId', description='The ID of vRouter to which the route table belongs.', example='vrt-bp1lhl0taikrteen8****'),
+  routerType?: string(name='RouterType', description='The type of the router to which the route table belongs. Valid value:
 
-You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.', example='vrt-bp1lhl0taikrteen8****'),
-  routerType?: string(name='RouterType', description='The ID of the resource group to which the route table to be queried belongs.', example='VRouter'),
+*   **VRouter** (default): a vRouter
+*   **VBR**: a VBR', example='VRouter'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The detailed information about the route tables.', example='FinanceDept'),
-      value?: string(name='Value', description='The ID of the VPC to which the route table belongs.', example='FinanceJoshua'),
+      key?: string(name='Key', description='The value of tag N to add to the resource. You can specify up to 20 tag values. The tag value can be an empty string.
+
+The tag value can be up to 128 characters in length. It cannot start with `aliyun` or `acs:` and cannot contain `http://` or `https://`.', example='FinanceDept'),
+      value?: string(name='Value', description='The value of tag N to add to the resource. You can specify up to 20 tag values. The tag value can be an empty string.
+
+The tag value can be up to 128 characters in length. It cannot start with `aliyun` or `acs:` and cannot contain `http://` or `https://`.', example='FinanceJoshua'),
     }
-  ](name='Tag', description='The page number.'),
-  vpcId?: string(name='VpcId', description='The tags of the resource.', example='vpc-bp15zckdt37pq72****'),
+  ](name='Tag', description='The tags of the resource.'),
+  vpcId?: string(name='VpcId', description='The ID of the VPC to which the route table belongs. 
+
+When this parameter is set, the value of **RouterType** is automatically assigned to **VRouter**.', example='vpc-bp15zckdt37pq72****'),
 }
 
 model DescribeRouteTableListResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The ID of the route table.', example='1'),
-  pageSize?: int32(name='PageSize', description='The type of the cloud resource with which the route table is associated. Valid values:
-
-*   **VSwitch**: vSwitch
-*   **Gateway**: IPv4 gateway', example='10'),
-  requestId?: string(name='RequestId', description='The ID of the vRouter to which the route table belongs.', example='DC668356-BCB4-42FD-9BC3-FA2B2E04B634'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DC668356-BCB4-42FD-9BC3-FA2B2E04B634'),
   routerTableList?: {
     routerTableListType?: [ 
     {
-      associateType?: string(name='AssociateType', description='The tags.', example='VSwitch'),
-      creationTime?: string(name='CreationTime', description='The type of the router to which the route table belongs. Valid values:
+      associateType?: string(name='AssociateType', description='The type of the cloud resource with which the route table is associated. Valid values:
 
-*   **VRouter**
-*   **VBR**', example='2021-08-22T10:40:25Z'),
-      description?: string(name='Description', description='The information about the vSwitches.', example='This is Route Table.'),
+*   **VSwitch**: vSwitch
+*   **Gateway**: IPv4 gateway', example='VSwitch'),
+      creationTime?: string(name='CreationTime', description='The time when the route table was created.', example='2021-08-22T10:40:25Z'),
+      description?: string(name='Description', description='The information about the route table.', example='This is Route Table.'),
       gatewayIds?: {
         gatewayIds?: [ string ](name='GatewayIds')
       }(name='GatewayIds', description='The detailed information about the IPv4 gateway.'),
-      ownerId?: long(name='OwnerId', description='The value of tag N added to the resource.', example='253460731706911258'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The detailed information about the IPv4 gateway.', example='rg-acfmxazb4ph****'),
+      ownerId?: long(name='OwnerId', description='The ID of the Alibaba Cloud account to which the route table belongs.', example='253460731706911258'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the route table belongs.', example='rg-acfmxazb4ph****'),
       routePropagationEnable?: boolean(name='RoutePropagationEnable', description='Whether to receive the propagation routes. Valid Values:
 
-*   **True**: The propagation route is received.
+*   **true**: received.
 
-*   **False**: The propagation route is not received.', example='true'),
-      routeTableId?: string(name='RouteTableId', description='The key of tag N added to the resource.', example='vtb-bp145q7glnuzdvzu2****'),
+*   **false**: not received.', example='true'),
+      routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='vtb-bp145q7glnuzdvzu2****'),
       routeTableName?: string(name='RouteTableName', description='The name of the route table.', example='doctest'),
-      routeTableType?: string(name='RouteTableType', description='The ID of the vSwitch.', example='System'),
-      routerId?: string(name='RouterId', description='The tag added to the route table.', example='vrt-bp1lhl0taikrteen8****'),
-      routerType?: string(name='RouterType', description='The detailed information about the IPv4 gateway.', example='VRouter'),
-      status?: string(name='Status', description='The name of the route table.', example='Available'),
+      routeTableType?: string(name='RouteTableType', description='The type of the route table. Valid values:
+
+*   **Custom**
+*   **System**', example='System'),
+      routerId?: string(name='RouterId', description='The ID of the vRouter to which the route table belongs.', example='vrt-bp1lhl0taikrteen8****'),
+      routerType?: string(name='RouterType', description='The type of the vRouter to which the route table belongs. Valid values:
+
+- **VRouter**: a vRouter.
+
+- **VBR**: a VBR.', example='VRouter'),
+      status?: string(name='Status', description='The status of the route table. Valid values:
+
+*   **Pending**
+*   **Available**
+*   **Deleting**', example='Available'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The key of tag N to add to the resource. You can specify up to 20 tag keys. The tag key cannot be an empty string.
-
-The tag key can be up to 128 characters in length. It cannot start with aliyun or acs:, and cannot contain http:// or https://.', example='type'),
-          value?: string(name='Value', description='The value of tag N to add to the resource. You can specify up to 20 tag values. The tag value can be an empty string.
-
-The tag value can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http:// or https://.', example='ingress'),
+          key?: string(name='Key', description='The key of the tag that is added to the route table.', example='type'),
+          value?: string(name='Value', description='The value of the tag that is added to the route table.', example='ingress'),
         }
       ](name='Tag')
       }(name='Tags', description='The tags.'),
       vSwitchIds?: {
         vSwitchId?: [ string ](name='VSwitchId')
       }(name='VSwitchIds', description='The vSwitch IDs.'),
-      vpcId?: string(name='VpcId', description='The ID of the resource group to which the route table belongs.', example='vpc-bp15zckdt37pq72****'),
+      vpcId?: string(name='VpcId', description='The ID of the VPC to which the route table belongs.', example='vpc-bp15zckdt37pq72****'),
     }
   ](name='RouterTableListType')
-  }(name='RouterTableList', description='The description of the route table.'),
-  totalCount?: int32(name='TotalCount', description='The ID of the Alibaba Cloud account to which the route table belongs.', example='1'),
+  }(name='RouterTableList', description='The detailed information about the route tables.'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='1'),
 }
 
 model DescribeRouteTableListResponse = {
@@ -32160,24 +32185,45 @@ async function describeVpnGateway(request: DescribeVpnGatewayRequest): DescribeV
 }
 
 model DescribeVpnGatewayAvailableZonesRequest {
-  acceptLanguage?: string(name='AcceptLanguage', example='zh-CN'),
+  acceptLanguage?: string(name='AcceptLanguage', description='The language in which the returned results are displayed. Valid values:
+
+*   **zh-CN**: Chinese
+*   **en-US** (default): English', example='zh-CN'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  spec?: string(name='Spec', description='This parameter is required.', example='5M'),
+  spec?: string(name='Spec', description='The bandwidth specification.
+
+*   If an IPsec-VPN connection can be associated with the VPN gateway, this parameter specifies the bandwidth specification of the VPN gateway.
+*   In scenarios where an IPsec-VPN connection can be associated with a transit router. This parameter specifies the bandwidth specification supported by an IPsec-VPN connection.
+
+Different bandwidth specifications may affect returned zone information. Valid values:
+
+*   **5M**
+*   **10M**
+*   **20M**
+*   **50M**
+*   **100M**
+*   **200M**
+*   **500M**
+*   **1000M**
+
+This parameter is required.', example='5M'),
 }
 
 model DescribeVpnGatewayAvailableZonesResponseBody = {
   availableZoneIdList?: [ 
     {
-      zoneId?: string(name='ZoneId', example='cn-hangzhou-h'),
-      zoneName?: string(name='ZoneName', example='cn-hangzhou-h'),
+      zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-h'),
+      zoneName?: string(name='ZoneName', description='The zone name.', example='cn-hangzhou-h'),
     }
-  ](name='AvailableZoneIdList'),
-  regionId?: string(name='RegionId', example='cn-hangzhou'),
-  requestId?: string(name='RequestId', example='29784052-931F-543D-A612-36B3838163FA'),
+  ](name='AvailableZoneIdList', description='The zones.'),
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
+  requestId?: string(name='RequestId', description='The request ID.', example='29784052-931F-543D-A612-36B3838163FA'),
 }
 
 model DescribeVpnGatewayAvailableZonesResponse = {
@@ -32187,7 +32233,7 @@ model DescribeVpnGatewayAvailableZonesResponse = {
 }
 
 /**
- * @summary 基于地域查询可以创建双隧道VPN与IPSec连接（CEN）的可用区
+ * @summary Queries zones that support IPsec-VPN connections in a region.
  *
  * @param request DescribeVpnGatewayAvailableZonesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -32218,7 +32264,7 @@ async function describeVpnGatewayAvailableZonesWithOptions(request: DescribeVpnG
 }
 
 /**
- * @summary 基于地域查询可以创建双隧道VPN与IPSec连接（CEN）的可用区
+ * @summary Queries zones that support IPsec-VPN connections in a region.
  *
  * @param request DescribeVpnGatewayAvailableZonesRequest
  * @return DescribeVpnGatewayAvailableZonesResponse
@@ -32665,12 +32711,20 @@ model DescribeVpnRouteEntriesResponseBody = {
   vpnRouteCounts?: {
     vpnRouteCount?: [ 
     {
-      routeCount?: int32(name='RouteCount'),
-      routeEntryType?: string(name='RouteEntryType'),
-      source?: string(name='Source'),
+      routeCount?: int32(name='RouteCount', description='The number of route entries.', example='3'),
+      routeEntryType?: string(name='RouteEntryType', description='The route type. Valid values:
+
+*   **custom** (default): destination-based route.
+*   **bgp** : BGP route entry.', example='bgp'),
+      source?: string(name='Source', description='The source of the BGP route. Valid values:
+
+*   **CLOUD**: advertised from a cloud service associated with the VPN gateway.
+*   **VPN_BGP**: indicates that the current route is learned by using BGP of the VPN gateway. For example, the BGP is used to learn the route of the on-premises data center.', example='VPN_BGP'),
     }
   ](name='VpnRouteCount')
-  }(name='VpnRouteCounts'),
+  }(name='VpnRouteCounts', description='The information about route entries of the VPN gateway in dual-tunnel mode.
+
+> This parameter is returned only if the VPN gateway supports IPsec-VPN connections in dual-tunnel mode.'),
   vpnRouteEntries?: {
     vpnRouteEntry?: [ 
     {
@@ -32687,7 +32741,10 @@ model DescribeVpnRouteEntriesResponseBody = {
 
 *   **Custom**: custom
 *   **System**: system', example='System'),
-      source?: string(name='Source', description='The source CIDR block of the route entry.', example='192.168.10.0/24'),
+      source?: string(name='Source', description='The source of the BGP route. Valid values:
+
+*   **CLOUD**: advertised from a cloud service associated with the VPN gateway.
+*   **VPN_BGP**: indicates that the current route is learned by using BGP of the VPN gateway. For example, the BGP is used to learn the route of the on-premises data center.', example='192.168.10.0/24'),
       state?: string(name='State', description='The status of the route entry. Valid values:
 
 *   **published**: advertised
@@ -32699,7 +32756,7 @@ model DescribeVpnRouteEntriesResponseBody = {
 *   **100**: a high priority', example='100'),
     }
   ](name='VpnRouteEntry')
-  }(name='VpnRouteEntries', description='The list of route entries.'),
+  }(name='VpnRouteEntries', description='The route entry list.'),
 }
 
 model DescribeVpnRouteEntriesResponse = {
@@ -33732,9 +33789,9 @@ async function dissociateRouteTablesFromVpcGatewayEndpoint(request: DissociateRo
 }
 
 model DissociateVpnGatewayWithCertificateRequest {
-  certificateId?: string(name='CertificateId', description='The certificate ID.
+  certificateId?: string(name='CertificateId', description='The ID of the certificate.
 
-> The certificate ID refers to the ID generated after the SSL certificate is associated with the VPN gateway. It is not the ID of the SSL certificate. You can call the [ListVpnCertificateAssociations](https://help.aliyun.com/document_detail/2521961.html) operation to query certificate IDs.
+>  The certificate ID refers to the ID generated after the SSL certificate is associated with the VPN gateway. It is not the ID of the SSL certificate.
 
 This parameter is required.', example='6bfe4218-ea1d****'),
   certificateType?: string(name='CertificateType', description='The certificate type. Valid values:
@@ -37045,7 +37102,7 @@ model ListIpsecServersRequest {
   ipsecServerId?: [ string ](name='IpsecServerId', description='The ID of the IPsec server.', example='iss-bp1bo3xuvcxo7ixll****'),
   ipsecServerName?: string(name='IpsecServerName', description='The name of the IPsec server.
 
-The name must be 1 to 100 characters in length and cannot start with `http://` or `https://`.', example='test'),
+The name must be 1 to 100 characters in length.', example='test'),
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: **1** to **20**. Default value: **10**.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. Valid values:
 
@@ -37058,9 +37115,7 @@ You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063
 This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IPsec server belongs.
 
-The IPsec server has the same resource group as its associated VPN gateway instance.
-
-You can call the [DescribeVpnGateway](https://help.aliyun.com/document_detail/2526915.html) operation to query the ID of the resource group to which the VPN gateway instance belongs.', example='rg-acfmzs372yg****'),
+The IPsec server and its associated VPN gateway belong to the same resource group. You can call [DescribeVpnGateway](https://help.aliyun.com/document_detail/2794055.html) to query the ID of the resource group to which the VPN gateway belongs.', example='rg-acfmzs372yg****'),
   vpnGatewayId?: string(name='VpnGatewayId', description='The ID of the VPN gateway.', example='vpn-bp1q8bgx4xnkm2ogj****'),
 }
 
@@ -40584,6 +40639,92 @@ async function modifyEipAddressAttribute(request: ModifyEipAddressAttributeReque
   return modifyEipAddressAttributeWithOptions(request, runtime);
 }
 
+model ModifyEipForwardModeRequest {
+  clientToken?: string(name='ClientToken', example='02fb3da4-130e-11e9-8e44-0016e04115b'),
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='eip-j5ebhbw3br92fy****'),
+  mode?: string(name='Mode', description='This parameter is required.', example='BINDED'),
+  ownerId?: long(name='OwnerId'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+}
+
+model ModifyEipForwardModeResponseBody = {
+  requestId?: string(name='RequestId', example='62C6A6A5-1534-53D9-AB1E-C9307A147ED5'),
+}
+
+model ModifyEipForwardModeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyEipForwardModeResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改eip转发类型
+ *
+ * @param request ModifyEipForwardModeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyEipForwardModeResponse
+ */
+async function modifyEipForwardModeWithOptions(request: ModifyEipForwardModeRequest, runtime: Util.RuntimeOptions): ModifyEipForwardModeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!Util.isUnset(request.mode)) {
+    query['Mode'] = request.mode;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceOwnerAccount)) {
+    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
+  }
+  if (!Util.isUnset(request.resourceOwnerId)) {
+    query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyEipForwardMode',
+    version = '2016-04-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 修改eip转发类型
+ *
+ * @param request ModifyEipForwardModeRequest
+ * @return ModifyEipForwardModeResponse
+ */
+async function modifyEipForwardMode(request: ModifyEipForwardModeRequest): ModifyEipForwardModeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyEipForwardModeWithOptions(request, runtime);
+}
+
 model ModifyExpressCloudConnectionAttributeRequest {
   bgpAs?: string(name='BgpAs', description='The BGP autonomous system number (ASN) to be configured for the Smart Access Gateway (SAG) device.', example='sag-ejfge***'),
   ceIp?: string(name='CeIp', description='The peer IP address when the SAG device is connected to the cloud.', example='``172.16.**.**``'),
@@ -41210,6 +41351,8 @@ model ModifyFlowLogAttributeRequest {
   description?: string(name='Description', description='The new description of the flow log.
 
 The description must be 1 to 256 characters in length and cannot start with `http://` or `https://`.', example='This is my Flowlog.'),
+  disableLogDelivery?: string(name='DisableLogDelivery'),
+  enableTrafficAnalyze?: string(name='EnableTrafficAnalyze'),
   flowLogId?: string(name='FlowLogId', description='The ID of the flow log.
 
 This parameter is required.', example='fl-m5e8vhz2t21sel1nq****'),
@@ -41226,6 +41369,7 @@ You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063
 This parameter is required.', example='cn-qingdao'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
+  trafficAnalyzerId?: string(name='TrafficAnalyzerId'),
 }
 
 model ModifyFlowLogAttributeResponseBody = {
@@ -41263,6 +41407,12 @@ async function modifyFlowLogAttributeWithOptions(request: ModifyFlowLogAttribute
   if (!Util.isUnset(request.description)) {
     query['Description'] = request.description;
   }
+  if (!Util.isUnset(request.disableLogDelivery)) {
+    query['DisableLogDelivery'] = request.disableLogDelivery;
+  }
+  if (!Util.isUnset(request.enableTrafficAnalyze)) {
+    query['EnableTrafficAnalyze'] = request.enableTrafficAnalyze;
+  }
   if (!Util.isUnset(request.flowLogId)) {
     query['FlowLogId'] = request.flowLogId;
   }
@@ -41286,6 +41436,9 @@ async function modifyFlowLogAttributeWithOptions(request: ModifyFlowLogAttribute
   }
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
+  }
+  if (!Util.isUnset(request.trafficAnalyzerId)) {
+    query['TrafficAnalyzerId'] = request.trafficAnalyzerId;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -42718,7 +42871,10 @@ This parameter is required.', example='4'),
 You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000'),
-  dryRun?: boolean(name='DryRun'),
+  dryRun?: boolean(name='DryRun', description='Specifies whether to perform a dry run, without sending the actual request. Valid values:
+
+*   **true**: pre-checks the request but does not create the IPv4 gateway. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error code is returned. If the request passes the dry run, the `DryRunOperation` error code is returned.
+*   **false** (default): sends the API request. After the request passes the check, an HTTP 2xx status code is returned and the IPv4 gateway is created.', example='false'),
   ipv6AddressId?: string(name='Ipv6AddressId', description='The ID of the IPv6 address.
 
 >  You must specify one of **Ipv6AddressId** and **Ipv6InternetBandwidthId**.', example='ipv6-2zen5j4axcp5l5qyy****'),
@@ -42743,7 +42899,7 @@ model ModifyIpv6InternetBandwidthResponse = {
 }
 
 /**
- * @summary Modifies the Internet bandwidth value of an IPv6 address.
+ * @summary Modifies the Internet bandwidth of an IPv6 address.
  *
  * @description You cannot repeatedly call the **ModifyIpv6InternetBandwidth** operation to modify the Internet bandwidth value of an IPv6 CIDR block within the specified period of time.
  *
@@ -42812,7 +42968,7 @@ async function modifyIpv6InternetBandwidthWithOptions(request: ModifyIpv6Interne
 }
 
 /**
- * @summary Modifies the Internet bandwidth value of an IPv6 address.
+ * @summary Modifies the Internet bandwidth of an IPv6 address.
  *
  * @description You cannot repeatedly call the **ModifyIpv6InternetBandwidth** operation to modify the Internet bandwidth value of an IPv6 CIDR block within the specified period of time.
  *
@@ -50738,18 +50894,30 @@ async function terminateVirtualBorderRouter(request: TerminateVirtualBorderRoute
 }
 
 model TransformEipSegmentToPublicIpAddressPoolRequest {
-  clientToken?: string(name='ClientToken', example='02fb3da4-130e-11****'),
-  description?: string(name='Description', example='AddressPoolDescription'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='eipsg-2zett8ba055tbsxme****'),
-  name?: string(name='Name', example='AddressPoolName'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxazb4pcdvf****'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+
+You can use the client to generate the token, but you must make sure that the token is unique among all requests. The token can contain only ASCII characters.
+
+>  If you do not specify this parameter, the system automatically uses the **request ID** as the **client token**. The **request ID** is different for each request.', example='02fb3da4-130e-11****'),
+  description?: string(name='Description', description='The description of the IP address pool.
+
+The description must be 0 to 256 characters in length and cannot start with `http://` or `https://`.', example='AddressPoolDescription'),
+  instanceId?: string(name='InstanceId', description='The ID of the contiguous EIP group to be migrated.
+
+This parameter is required.', example='eipsg-2zett8ba055tbsxme****'),
+  name?: string(name='Name', description='The name of the IP address pool.
+
+The name must be 0 to 128 characters in length and cannot start with `http://` or `https://`.', example='AddressPoolName'),
+  regionId?: string(name='RegionId', description='The ID of the region to which the contiguous EIP group belongs. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
+
+This parameter is required.', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the address pool belongs.', example='rg-acfmxazb4pcdvf****'),
 }
 
 model TransformEipSegmentToPublicIpAddressPoolResponseBody = {
-  publicIpAddressPoolId?: string(name='PublicIpAddressPoolId', example='pippool-6wetvn6fumkgycssx****'),
-  requestId?: string(name='RequestId', example='4EC47282-1B74-4534-BD0E-403F3EE64CAF'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmxazb4pcdvf****'),
+  publicIpAddressPoolId?: string(name='PublicIpAddressPoolId', description='The ID of the IP address pool.', example='pippool-6wetvn6fumkgycssx****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4EC47282-1B74-4534-BD0E-403F3EE64CAF'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the IP address pool belongs.', example='rg-acfmxazb4pcdvf****'),
 }
 
 model TransformEipSegmentToPublicIpAddressPoolResponse = {
@@ -50759,7 +50927,7 @@ model TransformEipSegmentToPublicIpAddressPoolResponse = {
 }
 
 /**
- * @summary 连续EIP组转换为公网IP地址池
+ * @summary Migrate contiguous EIP groups to IP address pool by calling TransformEipSegmentToPublicIpAddressPool.
  *
  * @param request TransformEipSegmentToPublicIpAddressPoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -50808,7 +50976,7 @@ async function transformEipSegmentToPublicIpAddressPoolWithOptions(request: Tran
 }
 
 /**
- * @summary 连续EIP组转换为公网IP地址池
+ * @summary Migrate contiguous EIP groups to IP address pool by calling TransformEipSegmentToPublicIpAddressPool.
  *
  * @param request TransformEipSegmentToPublicIpAddressPoolRequest
  * @return TransformEipSegmentToPublicIpAddressPoolResponse
