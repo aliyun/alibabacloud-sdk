@@ -267,13 +267,13 @@ model FieldContentValue = {
 }
 
 model QuotaListItemsValue = {
-  enable?: boolean(name='Enable', description='Indicates whether the item type is configured in the custom list.'),
-  value?: WafQuotaString(name='Value', description='The format restrictions for the item type in the custom list.'),
+  enable?: boolean(name='Enable', description='The switch for the type of item in the custom list.'),
+  value?: WafQuotaString(name='Value', description='Format restrictions for the type of item in the custom list.'),
 }
 
 model QuotaPageContentTypesValue = {
-  enable?: boolean(name='Enable', description='Indicates whether the custom error pages of the Content-Type are configured.'),
-  contentLength?: WafQuotaInteger(name='ContentLength', description='The maximum length of the custom error pages of the Content-Type.'),
+  enable?: boolean(name='Enable', description='The switch for the Content-Type type in custom response pages.'),
+  contentLength?: WafQuotaInteger(name='ContentLength', description='The content length quota for the Content-Type in custom response pages.'),
 }
 
 model ActivateClientCertificateRequest {
@@ -3133,25 +3133,48 @@ async function createHttpsApplicationConfiguration(request: CreateHttpsApplicati
 }
 
 model CreateHttpsBasicConfigurationRequest {
-  ciphersuite?: string(name='Ciphersuite', example='TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256'),
-  ciphersuiteGroup?: string(name='CiphersuiteGroup', example='all'),
-  http2?: string(name='Http2', example='on'),
-  http3?: string(name='Http3', example='on'),
-  https?: string(name='Https', example='on'),
-  ocspStapling?: string(name='OcspStapling', example='on'),
-  rule?: string(name='Rule', example='(http.host eq \\\\"video.example.com\\\\")'),
-  ruleEnable?: string(name='RuleEnable', example='on'),
-  ruleName?: string(name='RuleName', example='rule_example'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='5407498413****'),
-  tls10?: string(name='Tls10', example='on'),
-  tls11?: string(name='Tls11', example='on'),
-  tls12?: string(name='Tls12', example='on'),
-  tls13?: string(name='Tls13', example='on'),
+  ciphersuite?: string(name='Ciphersuite', description='Custom cipher suite, indicating the specific encryption algorithm selected when CiphersuiteGroup is set to custom.', example='TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256'),
+  ciphersuiteGroup?: string(name='CiphersuiteGroup', description='Cipher suite group. Default is all cipher suites. Possible values:
+- all: All cipher suites.
+- strict: Strong cipher suites.
+- custom: Custom cipher suites.', example='all'),
+  http2?: string(name='Http2', description='Whether to enable HTTP2. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  http3?: string(name='Http3', description='Whether to enable HTTP3. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  https?: string(name='Https', description='Whether to enable HTTPS. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  ocspStapling?: string(name='OcspStapling', description='Whether to enable OCSP. Default is disabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  rule?: string(name='Rule', description='Rule content.', example='(http.host eq \\\\"video.example.com\\\\")'),
+  ruleEnable?: string(name='RuleEnable', description='Rule switch. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  ruleName?: string(name='RuleName', description='Rule name.', example='rule_example'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) API.
+
+This parameter is required.', example='5407498413****'),
+  tls10?: string(name='Tls10', description='Whether to enable TLS1.0. Default is disabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  tls11?: string(name='Tls11', description='Whether to enable TLS1.1. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  tls12?: string(name='Tls12', description='Whether to enable TLS1.2. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
+  tls13?: string(name='Tls13', description='Whether to enable TLS1.3. Default is enabled. Possible values:
+- on: Enable.
+- off: Disable.', example='on'),
 }
 
 model CreateHttpsBasicConfigurationResponseBody = {
-  configId?: long(name='ConfigId', example='352816096987136'),
-  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  configId?: long(name='ConfigId', description='Configuration ID.', example='352816096987136'),
+  requestId?: string(name='RequestId', description='Request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
 }
 
 model CreateHttpsBasicConfigurationResponse = {
@@ -3161,7 +3184,7 @@ model CreateHttpsBasicConfigurationResponse = {
 }
 
 /**
- * @summary 新增站点HTTPS基础配置
+ * @summary Create a new site HTTPS basic configuration
  *
  * @param request CreateHttpsBasicConfigurationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3234,7 +3257,7 @@ async function createHttpsBasicConfigurationWithOptions(request: CreateHttpsBasi
 }
 
 /**
- * @summary 新增站点HTTPS基础配置
+ * @summary Create a new site HTTPS basic configuration
  *
  * @param request CreateHttpsBasicConfigurationRequest
  * @return CreateHttpsBasicConfigurationResponse
@@ -3495,47 +3518,132 @@ async function createList(request: CreateListRequest): CreateListResponse {
 
 model CreateLoadBalancerRequest {
   adaptiveRouting?: {
-    failoverAcrossPools?: boolean(name='FailoverAcrossPools'),
-  }(name='AdaptiveRouting', example='true'),
-  defaultPools?: [ long ](name='DefaultPools', description='This parameter is required.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-  description?: string(name='Description'),
-  enabled?: boolean(name='Enabled'),
-  fallbackPool?: long(name='FallbackPool', description='This parameter is required.', example='123'),
+    failoverAcrossPools?: boolean(name='FailoverAcrossPools', description='Whether to failover across pools.
+
+- true: Yes.
+- false: No.', example='true'),
+  }(name='AdaptiveRouting', description='Configuration for failover across pools.', example='true'),
+  defaultPools?: [ long ](name='DefaultPools', description='List of default pools.
+
+This parameter is required.', example='123'),
+  description?: string(name='Description', description='Detailed description of the load balancer, for easier management and identification.', example='测试负载均衡器描述'),
+  enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='true'),
+  fallbackPool?: long(name='FallbackPool', description='Fallback pool ID, where traffic will be directed when all other pools are unavailable.
+
+This parameter is required.', example='123'),
   monitor?: {
-    consecutiveDown?: int32(name='ConsecutiveDown'),
-    consecutiveUp?: int32(name='ConsecutiveUp'),
-    expectedCodes?: string(name='ExpectedCodes'),
-    followRedirects?: boolean(name='FollowRedirects'),
-    header?: any(name='Header'),
-    interval?: int32(name='Interval'),
-    method?: string(name='Method'),
-    path?: string(name='Path'),
-    port?: int32(name='Port'),
-    timeout?: int32(name='Timeout'),
-    type?: string(name='Type'),
-  }(name='Monitor', description='This parameter is required.', example='order'),
-  name?: string(name='Name', description='This parameter is required.', example='lb.example.com'),
+    consecutiveDown?: int32(name='ConsecutiveDown', description='Number of consecutive failed probes required to consider the target as down, such as `5`.', example='5'),
+    consecutiveUp?: int32(name='ConsecutiveUp', description='Number of consecutive successful probes required to consider the target as up, such as `3`.', example='3'),
+    expectedCodes?: string(name='ExpectedCodes', description='Expected status codes, such as `200,202`, indicating successful HTTP responses.', example='200'),
+    followRedirects?: boolean(name='FollowRedirects', description='Whether to follow redirects.
+
+- true: Yes.
+- false: No.', example='true'),
+    header?: any(name='Header', description='Header information included during the probe, which is an HTTP header.', example='{
+        "host": [
+            "example1.com",
+            "example2.com"
+        ]
+    }'),
+    interval?: int32(name='Interval', description='Monitoring interval, such as `60` seconds, indicating the frequency of checks.', example='60'),
+    method?: string(name='Method', description='Monitor request method, such as `GET`, which is a method in the HTTP protocol.', example='GET'),
+    path?: string(name='Path', description='Monitor check path, such as `/healthcheck`, which is an HTTP request path.', example='/health'),
+    port?: int32(name='Port', description='Origin server port.', example='1921'),
+    timeout?: int32(name='Timeout', description='Application health check timeout, in seconds, with a value range of 1-10.', example='5'),
+    type?: string(name='Type', description='Monitor protocol type, such as HTTP, used for health checks. When the value is `off`, it indicates that no check will be performed.
+
+- TCP
+- UDP
+- SMTP
+- HTTPS
+- HTTP
+- ICMP Ping
+- off', example='HTTP'),
+  }(name='Monitor', description='Monitor configuration for health checks.
+
+This parameter is required.', example='order'),
+  name?: string(name='Name', description='The name of the load balancer, which must meet domain name format validation and be a subdomain under the site.
+
+This parameter is required.', example='lb.example.com'),
   randomSteering?: {
-    defaultWeight?: int32(name='DefaultWeight'),
-    poolWeights?: map[string]int32(name='PoolWeights'),
-  }(name='RandomSteering', example='123'),
-  regionPools?: any(name='RegionPools'),
+    defaultWeight?: int32(name='DefaultWeight', description='Default weight for all pools that do not have individual weights specified. The value range is an integer between 0 and 100.', example='50'),
+    poolWeights?: map[string]int32(name='PoolWeights', description='Weight configuration for each backend server pool, with the key being the pool ID and the value being the weight coefficient. The weight coefficient represents the proportion of relative traffic distribution.'),
+  }(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different pools.', example='123'),
+  regionPools?: any(name='RegionPools', description='Address pools corresponding to primary regions.', example='{
+  "ENAM": [
+    12345678****
+  ],
+  "WNAM": [
+    23456789****,
+    23456789****
+  ]
+}'),
   rules?: [ 
     {
       fixedResponse?: {
-        contentType?: string(name='ContentType'),
-        location?: string(name='Location'),
-        messageBody?: string(name='MessageBody'),
-        statusCode?: int32(name='StatusCode'),
-      }(name='FixedResponse'),
-      overrides?: any(name='Overrides'),
-      rule?: string(name='Rule'),
-      ruleEnable?: string(name='RuleEnable'),
-      ruleName?: string(name='RuleName'),
-      sequence?: int32(name='Sequence'),
-      terminates?: boolean(name='Terminates'),
+        contentType?: string(name='ContentType', description='Content-Type field in the HTTP Header.', example='application/octet-stream'),
+        location?: string(name='Location', description='Location field in the HTTP response.', example='http://www.example.com/index.html'),
+        messageBody?: string(name='MessageBody', description='Response body value.', example='Hello World!'),
+        statusCode?: int32(name='StatusCode', description='Response status code.', example='200'),
+      }(name='FixedResponse', description='Execute a specified response after matching the rule.', example='{"content_type": "application/json", "location": "www.example.com", "message_body": "Testing Hello", "status_code": 0}'),
+      overrides?: any(name='Overrides', description='Modify the corresponding load balancing configuration after matching the rule. The configured fields will override the corresponding fields in the load balancer configuration.', example='{
+            "adaptive_routing": {
+                "failover_across_pools": true
+            },
+            "sub_region_pools": {
+                "AL,AT": [
+                    92298024898****,
+                    92304347804****
+                ],
+                "BG,BY": [
+                    92298024898****
+                ]
+            },
+            "default_pools": [
+                92298024898****,
+                92304347804****
+            ],
+            "fallback_pool": 92298024898****,
+            "location_strategy": {
+                "mode": "resolver_ip",
+                "prefer_ecs": "always"
+            },
+            "random_steering": {
+                "default_weight": 0.3,
+                "pool_weights": {
+                    "92298024898****": 0.7,
+                    "92304347804****": 0.8
+                }
+            },
+            "region_pools": {
+                "CN,SEAS": [
+                    92298024898****,
+                    92304347804****
+                ],
+                "SAF,SAS": [
+                    92304347804****
+                ]
+            },
+            "session_affinity": "ip",
+            "steering_policy": "geo",
+            "ttl": 30
+        }'),
+      rule?: string(name='Rule', description='Matching rule information.', example='(http.request.method eq "GET" and http.request.version eq "HTTP/1.0") or (ip.geoip.country eq "CN") or (http.host eq "www.example.com")'),
+      ruleEnable?: string(name='RuleEnable', description='Rule switch.
+
+- on: Enable the rule.
+- off: Disable the rule.', example='on'),
+      ruleName?: string(name='RuleName', description='Rule name.', example='rule_1'),
+      sequence?: int32(name='Sequence', description='Rule execution order. It can be left blank, in which case the rules will be executed in the list order. If filled, it should be a positive integer greater than 0.', example='1'),
+      terminates?: boolean(name='Terminates', description='Whether to terminate the execution of subsequent rules.
+
+- true: Yes.
+- false: No.', example='true'),
     }
-  ](name='Rules', example='{
+  ](name='Rules', description='Rule information.', example='{
   "ENAM": [
     12345678****
   ],
@@ -3544,24 +3652,45 @@ model CreateLoadBalancerRequest {
     23456789****
   ]
 }'),
-  sessionAffinity?: string(name='SessionAffinity'),
-  siteId?: long(name='SiteId', description='This parameter is required.'),
-  steeringPolicy?: string(name='SteeringPolicy', description='This parameter is required.', example='ip'),
-  subRegionPools?: any(name='SubRegionPools'),
-  ttl?: int32(name='Ttl'),
+  sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456789****'),
+  steeringPolicy?: string(name='SteeringPolicy', description='Load balancing strategy.
+
+- geo: Geographical strategy.
+- random: Weighted round-robin.
+- order: Primary and backup method.
+
+This parameter is required.', example='order'),
+  subRegionPools?: any(name='SubRegionPools', description='Address pools corresponding to secondary regions. When multiple secondary regions share a set of address pools, you can use a comma-separated list of secondary regions as the key.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+  ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records, with a default of 30 seconds. The value range is 10-600.', example='300'),
 }
 
 model CreateLoadBalancerShrinkRequest {
-  adaptiveRoutingShrink?: string(name='AdaptiveRouting', example='true'),
-  defaultPoolsShrink?: string(name='DefaultPools', description='This parameter is required.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-  description?: string(name='Description'),
-  enabled?: boolean(name='Enabled'),
-  fallbackPool?: long(name='FallbackPool', description='This parameter is required.', example='123'),
-  monitorShrink?: string(name='Monitor', description='This parameter is required.', example='order'),
-  name?: string(name='Name', description='This parameter is required.', example='lb.example.com'),
-  randomSteeringShrink?: string(name='RandomSteering', example='123'),
-  regionPools?: any(name='RegionPools'),
-  rulesShrink?: string(name='Rules', example='{
+  adaptiveRoutingShrink?: string(name='AdaptiveRouting', description='Configuration for failover across pools.', example='true'),
+  defaultPoolsShrink?: string(name='DefaultPools', description='List of default pools.
+
+This parameter is required.', example='123'),
+  description?: string(name='Description', description='Detailed description of the load balancer, for easier management and identification.', example='测试负载均衡器描述'),
+  enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='true'),
+  fallbackPool?: long(name='FallbackPool', description='Fallback pool ID, where traffic will be directed when all other pools are unavailable.
+
+This parameter is required.', example='123'),
+  monitorShrink?: string(name='Monitor', description='Monitor configuration for health checks.
+
+This parameter is required.', example='order'),
+  name?: string(name='Name', description='The name of the load balancer, which must meet domain name format validation and be a subdomain under the site.
+
+This parameter is required.', example='lb.example.com'),
+  randomSteeringShrink?: string(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different pools.', example='123'),
+  regionPools?: any(name='RegionPools', description='Address pools corresponding to primary regions.', example='{
   "ENAM": [
     12345678****
   ],
@@ -3570,16 +3699,36 @@ model CreateLoadBalancerShrinkRequest {
     23456789****
   ]
 }'),
-  sessionAffinity?: string(name='SessionAffinity'),
-  siteId?: long(name='SiteId', description='This parameter is required.'),
-  steeringPolicy?: string(name='SteeringPolicy', description='This parameter is required.', example='ip'),
-  subRegionPools?: any(name='SubRegionPools'),
-  ttl?: int32(name='Ttl'),
+  rulesShrink?: string(name='Rules', description='Rule information.', example='{
+  "ENAM": [
+    12345678****
+  ],
+  "WNAM": [
+    23456789****,
+    23456789****
+  ]
+}'),
+  sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456789****'),
+  steeringPolicy?: string(name='SteeringPolicy', description='Load balancing strategy.
+
+- geo: Geographical strategy.
+- random: Weighted round-robin.
+- order: Primary and backup method.
+
+This parameter is required.', example='order'),
+  subRegionPools?: any(name='SubRegionPools', description='Address pools corresponding to secondary regions. When multiple secondary regions share a set of address pools, you can use a comma-separated list of secondary regions as the key.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+  ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records, with a default of 30 seconds. The value range is 10-600.', example='300'),
 }
 
 model CreateLoadBalancerResponseBody = {
-  id?: long(name='Id', example='99867648760****'),
-  requestId?: string(name='RequestId', description='Id of the request', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
+  id?: long(name='Id', description='Load Balancer ID.', example='99867648760****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
 }
 
 model CreateLoadBalancerResponse = {
@@ -3589,7 +3738,9 @@ model CreateLoadBalancerResponse = {
 }
 
 /**
- * @summary 新增负载均衡器
+ * @summary Add a new load balancer
+ *
+ * @description Through this API, users can configure load balancing services according to their business needs, including but not limited to adaptive routing, weighted round-robin, rule matching, health checks, and other settings, to achieve effective traffic management and optimization.
  *
  * @param tmpReq CreateLoadBalancerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3682,7 +3833,9 @@ async function createLoadBalancerWithOptions(tmpReq: CreateLoadBalancerRequest, 
 }
 
 /**
- * @summary 新增负载均衡器
+ * @summary Add a new load balancer
+ *
+ * @description Through this API, users can configure load balancing services according to their business needs, including but not limited to adaptive routing, weighted round-robin, rule matching, health checks, and other settings, to achieve effective traffic management and optimization.
  *
  * @param request CreateLoadBalancerRequest
  * @return CreateLoadBalancerResponse
@@ -7543,12 +7696,16 @@ async function deleteList(request: DeleteListRequest): DeleteListResponse {
 }
 
 model DeleteLoadBalancerRequest {
-  id?: long(name='Id', description='This parameter is required.', example='DeleteLoadBalancer'),
-  siteId?: long(name='SiteId', description='This parameter is required.'),
+  id?: long(name='Id', description='The ID of the load balancer, used to uniquely identify the load balancer to be queried. This ID is returned directly upon creation of the load balancer and can also be obtained through the [ListLoadBalancers](~~ListLoadBalancers~~) interface for querying all load balancers under a site.
+
+This parameter is required.', example='99867648760****'),
+  siteId?: long(name='SiteId', description='The ID of the site, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='1159101787****'),
 }
 
 model DeleteLoadBalancerResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId', description='Request ID.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model DeleteLoadBalancerResponse = {
@@ -7558,7 +7715,9 @@ model DeleteLoadBalancerResponse = {
 }
 
 /**
- * @summary 删除负载均衡器
+ * @summary Delete Load Balancer
+ *
+ * @description Delete a load balancer by its ID, only one can be deleted at a time.
  *
  * @param request DeleteLoadBalancerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7595,7 +7754,9 @@ async function deleteLoadBalancerWithOptions(request: DeleteLoadBalancerRequest,
 }
 
 /**
- * @summary 删除负载均衡器
+ * @summary Delete Load Balancer
+ *
+ * @description Delete a load balancer by its ID, only one can be deleted at a time.
  *
  * @param request DeleteLoadBalancerRequest
  * @return DeleteLoadBalancerResponse
@@ -9166,28 +9327,44 @@ async function describeDDoSAllEventList(request: DescribeDDoSAllEventListRequest
 }
 
 model DescribeDDoSBpsListRequest {
-  coverage?: string(name='Coverage'),
-  endTime?: string(name='EndTime', example='2023-05-18T06:19:42Z'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='70966210986912'),
-  startTime?: string(name='StartTime', description='This parameter is required.', example='2023-05-14T17:00:00Z'),
+  coverage?: string(name='Coverage', description='Protection area, defaulting to global if not filled. When specified, the values are as follows:
+
+- domestic: Mainland China.
+
+- overseas: Global (excluding Mainland China).
+
+- global: Global.', example='global'),
+  endTime?: string(name='EndTime', description='The end time for fetching data. In ISO8601 format, using UTC+0, formatted as: yyyy-MM-ddTHH:mm:ssZ.
+
+The end time must be later than the start time, and the span between start and end times should not exceed 31 days.', example='2023-05-18T06:19:42Z'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) API.
+
+This parameter is required.', example='70966210986912'),
+  startTime?: string(name='StartTime', description='The start time for fetching data, in ISO8601 format, using UTC+0, formatted as: yyyy-MM-ddTHH:mm:ssZ.
+
+This parameter is required.', example='2023-05-14T17:00:00Z'),
 }
 
 model DescribeDDoSBpsListResponseBody = {
-  dataInterval?: int32(name='DataInterval', example='300'),
+  dataInterval?: int32(name='DataInterval', description='The interval between each piece of data, in seconds.
+
+Generated based on the interval between StartTime and EndTime: less than 1 hour, 60s; 1 hour or more but less than 1 day, 300s; 1 day or more but less than a week, 1800s; 1 week or more, 3600s.', example='300'),
   dataModule?: [ 
     {
-      attackBps?: long(name='AttackBps', example='9000000000'),
-      attackPps?: long(name='AttackPps', example='9000000'),
-      normalBps?: long(name='NormalBps', example='1000000000'),
-      normalPps?: long(name='NormalPps', example='1000000'),
-      timeStamp?: string(name='TimeStamp', example='2023-05-14T17:00:00Z'),
-      totalBps?: long(name='TotalBps', example='10000000000'),
-      totalPps?: long(name='TotalPps', example='100000000'),
+      attackBps?: long(name='AttackBps', description='Attack bandwidth, in bps.', example='9000000000'),
+      attackPps?: long(name='AttackPps', description='Attack PPS.', example='9000000'),
+      normalBps?: long(name='NormalBps', description='Normal business bandwidth, in bps.', example='1000000000'),
+      normalPps?: long(name='NormalPps', description='Normal business PPS.', example='1000000'),
+      timeStamp?: string(name='TimeStamp', description='The timestamp of this data, in ISO8601 format, using UTC+0, formatted as: yyyy-MM-ddTHH:mm:ssZ.', example='2023-05-14T17:00:00Z'),
+      totalBps?: long(name='TotalBps', description='Total bandwidth, in bps.', example='10000000000'),
+      totalPps?: long(name='TotalPps', description='Total PPS.', example='100000000'),
     }
-  ](name='DataModule'),
-  endTime?: string(name='EndTime', example='2023-05-18T06:19:42Z'),
-  requestId?: string(name='RequestId', description='Id of the request', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
-  startTime?: string(name='StartTime', example='2023-05-14T17:00:00Z'),
+  ](name='DataModule', description='A list of network bandwidth data for each time interval.'),
+  endTime?: string(name='EndTime', description='The end time for fetching data. In ISO8601 format, using UTC+0, formatted as: yyyy-MM-ddTHH:mm:ssZ.
+
+The end time must be later than the start time, and the span between start and end times should not exceed 31 days.', example='2023-05-18T06:19:42Z'),
+  requestId?: string(name='RequestId', description='Request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+  startTime?: string(name='StartTime', description='The start time for fetching data. In ISO8601 format, using UTC, formatted as: YYYY-MM-DDThh:mm:ssZ.', example='2023-05-14T17:00:00Z'),
 }
 
 model DescribeDDoSBpsListResponse = {
@@ -9197,7 +9374,7 @@ model DescribeDDoSBpsListResponse = {
 }
 
 /**
- * @summary 查询DCDN DDoS用户bps、pps数据
+ * @summary Query DCDN DDoS user bps and pps data
  *
  * @param request DescribeDDoSBpsListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9228,7 +9405,7 @@ async function describeDDoSBpsListWithOptions(request: DescribeDDoSBpsListReques
 }
 
 /**
- * @summary 查询DCDN DDoS用户bps、pps数据
+ * @summary Query DCDN DDoS user bps and pps data
  *
  * @param request DescribeDDoSBpsListRequest
  * @return DescribeDDoSBpsListResponse
@@ -9239,30 +9416,46 @@ async function describeDDoSBpsList(request: DescribeDDoSBpsListRequest): Describ
 }
 
 model DescribeDDoSL7QpsListRequest {
-  endTime?: string(name='EndTime', example='2023-04-19T19:00:00Z'),
-  interval?: int32(name='Interval', description='This parameter is required.', example='300'),
-  recordId?: long(name='RecordId', example='86510927836942****'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='123456****'),
-  startTime?: string(name='StartTime', description='A short description of struct
+  endTime?: string(name='EndTime', description='The end time of the query.
+
+The date format follows ISO8601 notation and uses UTC+0, formatted as yyyy-MM-ddTHH:mm:ssZ. The maximum span between the start and end times is 31 days.
+
+If this parameter is not set, the current time will be used as the end time of the query.', example='2023-04-19T19:00:00Z'),
+  interval?: int32(name='Interval', description='The time granularity of the queried data, in seconds.
+
+Depending on the maximum time span of a single query, this parameter supports values of 60 (1 minute), 300 (5 minutes), 1800 (half an hour), and 3600 (1 hour).
+
+This parameter is required.', example='300'),
+  recordId?: long(name='RecordId', description='Record ID, which can be obtained by calling the [ListRecords](~~ListRecords~~) interface.', example='86510927836942****'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456****'),
+  startTime?: string(name='StartTime', description='The start time of the query.
+
+The date format follows ISO8601 notation and uses UTC+0, formatted as yyyy-MM-ddTHH:mm:ssZ.
 
 This parameter is required.', example='2023-04-19T16:00:00Z'),
 }
 
 model DescribeDDoSL7QpsListResponseBody = {
-  dataInterval?: int32(name='DataInterval', example='300'),
+  dataInterval?: int32(name='DataInterval', description='The time granularity of the queried data, in seconds.', example='300'),
   dataModule?: [ 
     {
-      attack?: long(name='Attack', example='5'),
-      normal?: long(name='Normal', example='4'),
-      timeStamp?: string(name='TimeStamp', example='2023-04-19T16:00:00Z'),
-      total?: long(name='Total', example='9'),
+      attack?: long(name='Attack', description='Attack QPS.', example='5'),
+      normal?: long(name='Normal', description='Normal QPS.', example='4'),
+      timeStamp?: string(name='TimeStamp', description='Data time, following ISO8601 notation and using UTC+0, formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2023-04-19T16:00:00Z'),
+      total?: long(name='Total', description='Total QPS.', example='9'),
     }
-  ](name='DataModule'),
-  endTime?: string(name='EndTime', example='2023-04-19T19:00:00Z'),
-  recordId?: long(name='RecordId', example='86510927836942****'),
-  requestId?: string(name='RequestId', description='Id of the request', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
-  siteId?: long(name='SiteId', example='123456****'),
-  startTime?: string(name='StartTime', example='2023-04-19T16:00:00Z'),
+  ](name='DataModule', description='Application layer time trend data list.'),
+  endTime?: string(name='EndTime', description='The end time of the query.
+
+The date format follows ISO8601 notation and uses UTC+0, formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2023-04-19T19:00:00Z'),
+  recordId?: long(name='RecordId', description='Record ID.', example='86510927836942****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+  siteId?: long(name='SiteId', description='Site ID.', example='123456****'),
+  startTime?: string(name='StartTime', description='The start time of the query.
+
+The date format follows ISO8601 notation and uses UTC+0, formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2023-04-19T16:00:00Z'),
 }
 
 model DescribeDDoSL7QpsListResponse = {
@@ -9272,7 +9465,7 @@ model DescribeDDoSL7QpsListResponse = {
 }
 
 /**
- * @summary ddos分析七层qps走势图接口
+ * @summary DDoS Analysis Layer 7 QPS Trend Chart API
  *
  * @param request DescribeDDoSL7QpsListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -9318,7 +9511,7 @@ async function describeDDoSL7QpsListWithOptions(request: DescribeDDoSL7QpsListRe
 }
 
 /**
- * @summary ddos分析七层qps走势图接口
+ * @summary DDoS Analysis Layer 7 QPS Trend Chart API
  *
  * @param request DescribeDDoSL7QpsListRequest
  * @return DescribeDDoSL7QpsListResponse
@@ -10113,9 +10306,9 @@ async function exportRecords(request: ExportRecordsRequest): ExportRecordsRespon
 }
 
 model GetCacheReserveSpecificationResponseBody = {
-  cacheReserveCapacity?: [ string ](name='CacheReserveCapacity', description='The capacities of cache reserve instances that can be created.'),
-  cacheReserveRegion?: [ string ](name='CacheReserveRegion', description='The regions in which cache reserve instances can be created.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
+  cacheReserveCapacity?: [ string ](name='CacheReserveCapacity', description='List of cache retention capacity specifications.'),
+  cacheReserveRegion?: [ string ](name='CacheReserveRegion', description='List of cache retention region specifications.'),
+  requestId?: string(name='RequestId', description='Request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
 }
 
 model GetCacheReserveSpecificationResponse = {
@@ -10125,7 +10318,7 @@ model GetCacheReserveSpecificationResponse = {
 }
 
 /**
- * @summary Queries the available specifications of cache reserve instances.
+ * @summary Query Cache Retention Instance Specifications
  *
  * @param request GetCacheReserveSpecificationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10152,7 +10345,7 @@ async function getCacheReserveSpecificationWithOptions(runtime: $RuntimeOptions)
 }
 
 /**
- * @summary Queries the available specifications of cache reserve instances.
+ * @summary Query Cache Retention Instance Specifications
  *
  * @return GetCacheReserveSpecificationResponse
  */
@@ -10289,20 +10482,19 @@ async function getCacheRule(request: GetCacheRuleRequest): GetCacheRuleResponse 
 }
 
 model GetCacheTagRequest {
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='123456****'),
-  siteVersion?: int32(name='SiteVersion', description='The version number of the website.', example='1'),
+  siteVersion?: int32(name='SiteVersion', description='Version number of the site.', example='1'),
 }
 
 model GetCacheTagResponseBody = {
-  caseInsensitive?: string(name='CaseInsensitive', description='Indicates whether the matching is not case-sensitive. Valid values:
-
-*   on: The matching is not case-sensitive.
-*   off: The matching is case-sensitive.', example='on'),
-  requestId?: string(name='RequestId', description='The request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
-  siteVersion?: int32(name='SiteVersion', description='The version number of the website.', example='1'),
-  tagName?: string(name='TagName', description='The name of the custom cache tag.', example='example'),
+  caseInsensitive?: string(name='CaseInsensitive', description='Whether to ignore case. Possible values:
+- on: Enabled, ignores case.
+- off: Disabled, does not ignore case.', example='on'),
+  requestId?: string(name='RequestId', description='Request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+  siteVersion?: int32(name='SiteVersion', description='Version number of the site.', example='1'),
+  tagName?: string(name='TagName', description='Custom CacheTag name.', example='example'),
 }
 
 model GetCacheTagResponse = {
@@ -10312,7 +10504,7 @@ model GetCacheTagResponse = {
 }
 
 /**
- * @summary Queries the cache tag configuration of your website. You can call this operation when you need to specify tags in the Cache-Tag response header to use the purge by cache tag feature.
+ * @summary Query Site Cache Tag Configuration
  *
  * @param request GetCacheTagRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10343,7 +10535,7 @@ async function getCacheTagWithOptions(request: GetCacheTagRequest, runtime: $Run
 }
 
 /**
- * @summary Queries the cache tag configuration of your website. You can call this operation when you need to specify tags in the Cache-Tag response header to use the purge by cache tag feature.
+ * @summary Query Site Cache Tag Configuration
  *
  * @param request GetCacheTagRequest
  * @return GetCacheTagResponse
@@ -10890,17 +11082,17 @@ async function getCompressionRule(request: GetCompressionRuleRequest): GetCompre
 }
 
 model GetDevelopmentModeRequest {
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='5407498413****'),
 }
 
 model GetDevelopmentModeResponseBody = {
-  enable?: string(name='Enable', description='Indicates whether the development mode is enabled. Valid values:
+  enable?: string(name='Enable', description='Switch. Values:
 
-*   **on**
-*   **off**', example='on'),
-  requestId?: string(name='RequestId', description='The request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
+- **on**: Enabled.
+- **off**: Disabled.', example='on'),
+  requestId?: string(name='RequestId', description='Request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
 }
 
 model GetDevelopmentModeResponse = {
@@ -10910,7 +11102,7 @@ model GetDevelopmentModeResponse = {
 }
 
 /**
- * @summary Queries the development mode configuration of your website.
+ * @summary Query Site Developer Mode Configuration
  *
  * @param request GetDevelopmentModeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10941,7 +11133,7 @@ async function getDevelopmentModeWithOptions(request: GetDevelopmentModeRequest,
 }
 
 /**
- * @summary Queries the development mode configuration of your website.
+ * @summary Query Site Developer Mode Configuration
  *
  * @param request GetDevelopmentModeRequest
  * @return GetDevelopmentModeResponse
@@ -11982,9 +12174,8 @@ This parameter is required.', example='123456789****'),
 
 model GetIPv6ResponseBody = {
   enable?: string(name='Enable', description='IPv6 switch. Values:
-
-- **on**: Enabled.
-- **off**: Disabled.', example='on'),
+- **on**: Enable. 
+- **off**: Disable.', example='on'),
   requestId?: string(name='RequestId', description='Request ID.', example='156A6B-677B1A-4297B7-9187B7-2B44792'),
 }
 
@@ -12390,43 +12581,56 @@ async function getList(request: GetListRequest): GetListResponse {
 }
 
 model GetLoadBalancerRequest {
-  id?: long(name='Id', description='This parameter is required.', example='GetLoadBalancer'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1159101787****'),
+  id?: long(name='Id', description='The ID of the load balancer, used to uniquely identify the load balancer to be queried. This ID is returned directly when the load balancer is created, or it can be obtained through the [ListLoadBalancers](~~ListLoadBalancers~~) interface for querying all load balancers under a site.
+
+This parameter is required.', example='99867648760****'),
+  siteId?: long(name='SiteId', description='The site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='1159101787****'),
 }
 
 model GetLoadBalancerResponseBody = {
   adaptiveRouting?: {
-    failoverAcrossPools?: boolean(name='FailoverAcrossPools', example='true'),
-  }(name='AdaptiveRouting'),
-  defaultPools?: [ long ](name='DefaultPools'),
-  description?: string(name='Description', example='test'),
-  enabled?: boolean(name='Enabled', example='true'),
-  fallbackPool?: long(name='FallbackPool', example='96228666776****'),
-  id?: long(name='Id', example='99867648760****'),
+    failoverAcrossPools?: boolean(name='FailoverAcrossPools', description='Whether to fail over across pools.
+
+- true: Yes.
+- false: No.', example='true'),
+  }(name='AdaptiveRouting', description='Cross-pool origin configuration.'),
+  defaultPools?: [ long ](name='DefaultPools', description='List of default pool IDs.'),
+  description?: string(name='Description', description='Description of the load balancer.', example='test'),
+  enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='true'),
+  fallbackPool?: long(name='FallbackPool', description='The fallback pool ID, to which traffic will be redirected if all other pools are unavailable.', example='96228666776****'),
+  id?: long(name='Id', description='The unique identifier ID of the load balancer.', example='99867648760****'),
   monitor?: {
-    consecutiveDown?: int32(name='ConsecutiveDown', example='5'),
-    consecutiveUp?: int32(name='ConsecutiveUp', example='3'),
-    expectedCodes?: string(name='ExpectedCodes', example='200,202'),
-    followRedirects?: boolean(name='FollowRedirects', example='true'),
-    header?: any(name='Header', example='{
+    consecutiveDown?: int32(name='ConsecutiveDown', description='The number of consecutive failed health checks before the backend is considered down, for example, `5`.', example='5'),
+    consecutiveUp?: int32(name='ConsecutiveUp', description='The number of consecutive successful probes required to consider the target as up, e.g., `3`.', example='3'),
+    expectedCodes?: string(name='ExpectedCodes', description='Expected status codes, such as 200, 202, indicating successful HTTP responses.', example='200,202'),
+    followRedirects?: boolean(name='FollowRedirects', description='Whether to follow redirects.
+
+- true: Yes.
+- false: No.', example='true'),
+    header?: any(name='Header', description='The HTTP headers to be included in the health check request.', example='{
         "host": [
             "example1.com",
             "example2.com"
         ]
     }'),
-    interval?: int32(name='Interval', example='60'),
-    method?: string(name='Method', example='GET'),
-    path?: string(name='Path', example='/'),
-    port?: int32(name='Port', example='80'),
-    timeout?: int32(name='Timeout', example='5'),
-    type?: string(name='Type', example='HTTP'),
-  }(name='Monitor'),
-  name?: string(name='Name', example='lb.example.com'),
+    interval?: int32(name='Interval', description='The interval for health checks, in seconds.', example='60'),
+    method?: string(name='Method', description='The method for the health check.', example='GET'),
+    path?: string(name='Path', description='The path.', example='/'),
+    port?: int32(name='Port', description='The target port.', example='80'),
+    timeout?: int32(name='Timeout', description='The timeout for the health check, in seconds.', example='5'),
+    type?: string(name='Type', description='The type of monitor protocol, such as HTTP, used for health checks. When the value is `off`, it indicates that no check is performed.', example='HTTP'),
+  }(name='Monitor', description='Monitor configuration.'),
+  name?: string(name='Name', description='The name of the load balancer.', example='lb.example.com'),
   randomSteering?: {
-    defaultWeight?: int32(name='DefaultWeight', example='50'),
-    poolWeights?: map[string]int32(name='PoolWeights'),
-  }(name='RandomSteering'),
-  regionPools?: any(name='RegionPools', example='{
+    defaultWeight?: int32(name='DefaultWeight', description='The default round-robin weight, used for all pools that do not have individually specified weights. The value range is 0-100.', example='50'),
+    poolWeights?: map[string]int32(name='PoolWeights', description='Weight configuration for each backend server pool, where the key is the pool ID and the value is the weight coefficient. The weight coefficient represents the proportion of relative traffic distribution.'),
+  }(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different pools.'),
+  regionPools?: any(name='RegionPools', description='Address pools corresponding to primary regions.', example='{
   "ENAM": [
     12345678****
   ],
@@ -12435,16 +12639,16 @@ model GetLoadBalancerResponseBody = {
     23456789****
   ]
 }'),
-  requestId?: string(name='RequestId', description='Id of the request', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
+  requestId?: string(name='RequestId', description='Request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
   rules?: [ 
     {
       fixedResponse?: {
-        contentType?: string(name='ContentType', example='application/json'),
-        location?: string(name='Location', example='http://www.example.com/index.html'),
-        messageBody?: string(name='MessageBody', example='Hello World.'),
-        statusCode?: int32(name='StatusCode', example='200'),
-      }(name='FixedResponse'),
-      overrides?: any(name='Overrides', example='{
+        contentType?: string(name='ContentType', description='The Content-Type field in the HTTP Header.', example='application/json'),
+        location?: string(name='Location', description='The location field in the HTTP response.', example='http://www.example.com/index.html'),
+        messageBody?: string(name='MessageBody', description='The body value of the response.', example='Hello World.'),
+        statusCode?: int32(name='StatusCode', description='Status code.', example='200'),
+      }(name='FixedResponse', description='Executes a specified response after matching the rule.'),
+      overrides?: any(name='Overrides', description='Modifies the load balancer configuration for the corresponding request after matching the rule. The fields in this configuration will override the corresponding fields in the load balancer configuration.', example='{
             "adaptive_routing": {
                 "failover_across_pools": true
             },
@@ -12494,23 +12698,28 @@ model GetLoadBalancerResponseBody = {
             "steering_policy": "dynamic_latency",
             "ttl": 30
         }'),
-      rule?: string(name='Rule', example='http.request.uri.path contains "/testing"'),
-      ruleEnable?: string(name='RuleEnable', example='off'),
-      ruleName?: string(name='RuleName', example='r2'),
-      sequence?: int32(name='Sequence', example='1'),
-      terminates?: boolean(name='Terminates', example='true'),
-    }
-  ](name='Rules'),
-  sessionAffinity?: string(name='SessionAffinity', description='Session persistence. Valid values:
+      rule?: string(name='Rule', description='Information about the matching rule.', example='http.request.uri.path contains "/testing"'),
+      ruleEnable?: string(name='RuleEnable', description='Rule switch.
 
-*   off: disables session persistence.
-*   ip: enables session persistence by IP address.
-*   cookie: disables session persistence.', example='ip'),
-  siteId?: long(name='SiteId', example='11591017874****'),
-  status?: string(name='Status', example='healthy'),
-  steeringPolicy?: string(name='SteeringPolicy', example='order'),
-  subRegionPools?: any(name='SubRegionPools', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-  ttl?: int32(name='Ttl', example='60'),
+- on: Enable the rule.
+- off: Disable the rule.', example='off'),
+      ruleName?: string(name='RuleName', description='The name of the rule.', example='r2'),
+      sequence?: int32(name='Sequence', description='The execution order of the rule.', example='1'),
+      terminates?: boolean(name='Terminates', description='Whether to terminate the execution of subsequent rules.
+
+- true: Yes.
+- false: No.', example='true'),
+    }
+  ](name='Rules', description='Rule configuration list, used to define behavior under specific conditions.'),
+  sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+  siteId?: long(name='SiteId', description='The site ID to which the load balancer belongs.', example='11591017874****'),
+  status?: string(name='Status', description='The status of the load balancer.', example='healthy'),
+  steeringPolicy?: string(name='SteeringPolicy', description='Load balancing policy.', example='order'),
+  subRegionPools?: any(name='SubRegionPools', description='Address pools corresponding to secondary regions. When multiple secondary regions share a set of address pools, the keys can be concatenated with commas.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+  ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records, with a default of 30 seconds.', example='60'),
 }
 
 model GetLoadBalancerResponse = {
@@ -12520,7 +12729,9 @@ model GetLoadBalancerResponse = {
 }
 
 /**
- * @summary 查询特定负载均衡器
+ * @summary Query a Specific Load Balancer
+ *
+ * @description This API allows users to query the configuration details of a specific load balancer by providing necessary authentication information and resource identifiers, including but not limited to name, session persistence policy, routing policy, etc.
  *
  * @param request GetLoadBalancerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -12551,7 +12762,9 @@ async function getLoadBalancerWithOptions(request: GetLoadBalancerRequest, runti
 }
 
 /**
- * @summary 查询特定负载均衡器
+ * @summary Query a Specific Load Balancer
+ *
+ * @description This API allows users to query the configuration details of a specific load balancer by providing necessary authentication information and resource identifiers, including but not limited to name, session persistence policy, routing policy, etc.
  *
  * @param request GetLoadBalancerRequest
  * @return GetLoadBalancerResponse
@@ -14413,8 +14626,8 @@ This parameter is required.', example='123456****'),
 }
 
 model GetSitePauseResponseBody = {
-  paused?: boolean(name='Paused', description='Whether the acceleration has been paused. Value range: 
-- true: The site acceleration has been paused. 
+  paused?: boolean(name='Paused', description='Indicates whether acceleration has been paused. Possible values:
+- true: The site\\\\"s acceleration is paused.
 - false: The site is accelerating normally.', example='true'),
   requestId?: string(name='RequestId', description='Request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
 }
@@ -14536,19 +14749,18 @@ async function getSiteWafSettings(request: GetSiteWafSettingsRequest): GetSiteWa
 }
 
 model GetTieredCacheRequest {
-  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](~~ListSites~~) operation.
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
 
 This parameter is required.', example='123456****'),
 }
 
 model GetTieredCacheResponseBody = {
-  cacheArchitectureMode?: string(name='CacheArchitectureMode', description='The tiered cache architecture mode. Valid values:
-
-*   edge: edge tiered cache.
-*   edge_smart: edge tiered cache + smart tiered cache.
-*   edge_regional: edge tiered cache + regional tiered cache.
-*   edge_regional_smart: edge tiered cache + regional tiered cache + smart tiered cache.', example='edge'),
-  requestId?: string(name='RequestId', description='The request ID.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  cacheArchitectureMode?: string(name='CacheArchitectureMode', description='Multi-level cache architecture mode. Possible values:
+- edge: Edge cache layer.
+- edge_smart: Edge cache layer + intelligent cache layer.
+- edge_regional: Edge cache layer + regional cache layer.
+- edge_regional_smart: Edge cache layer + regional cache layer + intelligent cache layer.', example='edge'),
+  requestId?: string(name='RequestId', description='Request ID.', example='15C66C7B-671A-4297-9187-2C4477247A74'),
 }
 
 model GetTieredCacheResponse = {
@@ -14558,7 +14770,7 @@ model GetTieredCacheResponse = {
 }
 
 /**
- * @summary Queries the tiered cache configuration of your website.
+ * @summary Query Multi-level Cache Configuration for Site
  *
  * @param request GetTieredCacheRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14589,7 +14801,7 @@ async function getTieredCacheWithOptions(request: GetTieredCacheRequest, runtime
 }
 
 /**
- * @summary Queries the tiered cache configuration of your website.
+ * @summary Query Multi-level Cache Configuration for Site
  *
  * @param request GetTieredCacheRequest
  * @return GetTieredCacheResponse
@@ -14831,8 +15043,8 @@ async function getUserLogDeliveryQuota(request: GetUserLogDeliveryQuotaRequest):
 }
 
 model GetWafBotAppKeyResponseBody = {
-  appKey?: string(name='AppKey', description='The application key.', example='example_appkey'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
+  appKey?: string(name='AppKey', description='Application key.', example='example_appkey'),
+  requestId?: string(name='RequestId', description='Request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
 }
 
 model GetWafBotAppKeyResponse = {
@@ -14842,7 +15054,7 @@ model GetWafBotAppKeyResponse = {
 }
 
 /**
- * @summary Queries the application key (AppKey) that is used for authentication and data exchange in bot behavior detection in Web Application Firewall (WAF).
+ * @summary This interface is used to obtain the application key (AppKey) for the BOT behavior detection feature in the site\\"s Web Application Firewall (WAF). The key is typically used for authentication and data exchange with the WAF service.
  *
  * @param request GetWafBotAppKeyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14869,7 +15081,7 @@ async function getWafBotAppKeyWithOptions(runtime: $RuntimeOptions): GetWafBotAp
 }
 
 /**
- * @summary Queries the application key (AppKey) that is used for authentication and data exchange in bot behavior detection in Web Application Firewall (WAF).
+ * @summary This interface is used to obtain the application key (AppKey) for the BOT behavior detection feature in the site\\"s Web Application Firewall (WAF). The key is typically used for authentication and data exchange with the WAF service.
  *
  * @return GetWafBotAppKeyResponse
  */
@@ -14999,38 +15211,37 @@ async function getWafFilter(request: GetWafFilterRequest): GetWafFilterResponse 
 }
 
 model GetWafQuotaRequest {
-  paths?: string(name='Paths', description='The type of WAF resources. Valid values:
-
-*   managed_rules_group: the managed rule group.
-*   list: the custom list.
-*   page: the custom error page.
-*   scene_policy: the scenario-specific policy.', example='page'),
+  paths?: string(name='Paths', description='The path of the WAF quota, for example:
+* managed_rules_group: represents the quota for the WAF managed rules group
+* list: represents the quota for custom lists
+* page: represents the quota for custom response pages
+* scene_policy: represents the quota for scenario protection', example='page'),
 }
 
 model GetWafQuotaResponseBody = {
   quota?: {
     list?: {
-      enable?: boolean(name='Enable', description='Indicates whether custom lists are enabled.'),
-      items?: map[string]QuotaListItemsValue(name='Items', description='The quota information about all item types in the custom lists.'),
-      numberItemsPerList?: WafQuotaInteger(name='NumberItemsPerList', description='The maximum number of items in each custom list.'),
-      numberItemsTotal?: WafQuotaInteger(name='NumberItemsTotal', description='The maximum number of items in all custom lists.'),
-      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The maximum number of custom lists.'),
-    }(name='List', description='The quota information about custom lists.'),
+      enable?: boolean(name='Enable', description='Indicates whether the custom list is enabled.'),
+      items?: map[string]QuotaListItemsValue(name='Items', description='An object containing quota information for each type of item in the custom list.'),
+      numberItemsPerList?: WafQuotaInteger(name='NumberItemsPerList', description='The number quota allowed per custom list.'),
+      numberItemsTotal?: WafQuotaInteger(name='NumberItemsTotal', description='The total number quota allowed for items in all custom lists.'),
+      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The total number quota allowed for custom lists.'),
+    }(name='List', description='Quota information related to custom lists.'),
     managedRulesGroup?: {
-      enable?: boolean(name='Enable', description='Indicates whether the WAF managed rule group is enabled.'),
-      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The maximum number of WAF managed rule groups.'),
-    }(name='ManagedRulesGroup', description='The quota information about WAF managed rule groups.'),
+      enable?: boolean(name='Enable', description='Indicates whether the WAF managed rules group is enabled.'),
+      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The total number quota allowed for the WAF managed rules group.'),
+    }(name='ManagedRulesGroup', description='Quota information related to the WAF managed rules group.'),
     page?: {
-      contentTypes?: map[string]QuotaPageContentTypesValue(name='ContentTypes', description='The quota information about custom error pages of all Content-Types.'),
-      enable?: boolean(name='Enable', description='Indicates whether custom error pages are enabled.'),
-      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The maximum number of custom error pages.'),
-    }(name='Page', description='The quota information about custom error pages.'),
+      contentTypes?: map[string]QuotaPageContentTypesValue(name='ContentTypes', description='An object containing quota information for each Content-Type in custom response pages.'),
+      enable?: boolean(name='Enable', description='Indicates whether the custom response page is enabled.'),
+      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The total number quota allowed for custom response pages.'),
+    }(name='Page', description='Quota information related to custom response pages.'),
     scenePolicy?: {
-      enable?: boolean(name='Enable', description='Indicates whether scenario-specific policies are enabled.'),
-      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The maximum number of scenario-specific policies.'),
-    }(name='ScenePolicy', description='The quota information about scenario-specific policies.'),
-  }(name='Quota', description='The quota information returned.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
+      enable?: boolean(name='Enable', description='Indicates whether the scene protection feature is enabled.'),
+      numberTotal?: WafQuotaInteger(name='NumberTotal', description='The total number quota for scene protection rules.'),
+    }(name='ScenePolicy', description='Quota information related to scene protection.'),
+  }(name='Quota', description='Returned quota information.'),
+  requestId?: string(name='RequestId', description='Request ID.', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
 }
 
 model GetWafQuotaResponse = {
@@ -15040,7 +15251,7 @@ model GetWafQuotaResponse = {
 }
 
 /**
- * @summary Queries the quotas of Web Application Firewall (WAF) resources, such as managed rule groups, custom lists, custom error pages, and scenario-specific policies.
+ * @summary Get WAF Quota Details
  *
  * @param request GetWafQuotaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15074,7 +15285,7 @@ async function getWafQuotaWithOptions(request: GetWafQuotaRequest, runtime: $Run
 }
 
 /**
- * @summary Queries the quotas of Web Application Firewall (WAF) resources, such as managed rule groups, custom lists, custom error pages, and scenario-specific policies.
+ * @summary Get WAF Quota Details
  *
  * @param request GetWafQuotaRequest
  * @return GetWafQuotaResponse
@@ -15085,48 +15296,45 @@ async function getWafQuota(request: GetWafQuotaRequest): GetWafQuotaResponse {
 }
 
 model ListCacheReserveInstancesRequest {
-  instanceId?: string(name='InstanceId', description='The ID of the cache reserve instance.', example='sp-xcdn-96wblslz****'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: **1 to 500**. Default value: **500**.', example='20'),
-  sortBy?: string(name='SortBy', description='The criterion by which you want to sort the queried instances. Valid values:
+  instanceId?: string(name='InstanceId', description='Instance ID.', example='sp-xcdn-96wblslz****'),
+  pageNumber?: int32(name='PageNumber', description='Page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size. Range: **1~500**, default is **500**.', example='20'),
+  sortBy?: string(name='SortBy', description='Sorting method. Values:
+- **ExpireTime**: Expiration time.
+- **CreateTime**: Purchase time.', example='ExpireTime'),
+  sortOrder?: string(name='SortOrder', description='Sorting order. Supported values:
+- **asc**: Ascending.
+- **desc**: Descending.', example='desc'),
+  status?: string(name='Status', description='Cache reserve instance status. Supported values:
 
-*   ExpireTime: sorts the instances by the time when the instances expire.
-*   CreateTime: sorts the instances by the time when the instances were purchased.', example='ExpireTime'),
-  sortOrder?: string(name='SortOrder', description='The order by which you want to sort the queried instances. Valid values:
-
-*   asc: in ascending order.
-*   desc: in descending order.', example='desc'),
-  status?: string(name='Status', description='The status of the cache reserve instance. Valid values:
-
-*   online: The instance is in service.
-*   offline: The instance has expired within an allowable period. In this state, the plan is unavailable.
-*   disable: The instance is released.
-*   overdue: The instance is stopped due to overdue payments.', example='ListCacheReserveInstances', nullable=false),
+- **online**: Normal service status.
+- **offline**: Expired but not overdue, in an unavailable state.
+- **disable**: Released status.
+- **overdue**: Overdue and suspended status.', example='online', nullable=false),
 }
 
 model ListCacheReserveInstancesResponseBody = {
   instanceInfo?: [ 
     {
-      cacheReserveCapacity?: long(name='CacheReserveCapacity', description='The capacity of the cache reserve instance. Unit: GB.', example='512000'),
-      cacheReserveRegion?: string(name='CacheReserveRegion', description='The region in which the cache reserve instance resides.', example='HK'),
+      cacheReserveCapacity?: long(name='CacheReserveCapacity', description='Cache reserve capacity. Unit: GB.', example='512000'),
+      cacheReserveRegion?: string(name='CacheReserveRegion', description='Cache reserve usage region.', example='HK'),
       chargeType?: string(name='ChargeType'),
-      createTime?: string(name='CreateTime', description='The time when the cache reserve instance was purchased.', example='2024-04-12T05:41:51Z'),
-      duration?: int32(name='Duration', description='The subscription period of the cache reserve instance. Unit: months.', example='3'),
-      expireTime?: string(name='ExpireTime', description='The time when the cache reserve instance expires.', example='2024-10-05T16:00:00Z'),
-      instanceId?: string(name='InstanceId', description='The ID of the cache reserve instance.', example='sp-xcdn-96wblslz****'),
-      status?: string(name='Status', description='The status of the cache reserve instance. Valid values:
-
-*   online: The instance is in service.
-*   offline: The instance has expired within an allowable period. In this state, the plan is unavailable.
-*   disable: The instance is released.
-*   overdue: The service was stopped due to overdue payments.', example='online'),
+      createTime?: string(name='CreateTime', description='Instance purchase time.', example='2024-04-12T05:41:51Z'),
+      duration?: int32(name='Duration', description='Duration of the instance purchase, unit: months.', example='3'),
+      expireTime?: string(name='ExpireTime', description='Instance expiration time.', example='2024-10-05T16:00:00Z'),
+      instanceId?: string(name='InstanceId', description='Instance ID.', example='sp-xcdn-96wblslz****'),
+      status?: string(name='Status', description='Instance status. Values:
+- **online**: Normal service status.
+- **offline**: Expired but not overdue, in an unavailable state.
+- **disable**: Released status.
+- **overdue**: Overdue and suspended status.', example='online'),
     }
-  ](name='InstanceInfo', description='The cache reserve instances.'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: **500**. Valid values: **1 to 500**.', example='500'),
-  requestId?: string(name='RequestId', description='The request ID.', example='65C66B7B-671A-8297-9187-2R5477247B76'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='16'),
-  totalPage?: int32(name='TotalPage', description='The total number of pages returned.', example='1'),
+  ](name='InstanceInfo', description='List of cache reserve instances.'),
+  pageNumber?: int32(name='PageNumber', description='Page number. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size, default **500**, range: **1~500**.', example='500'),
+  requestId?: string(name='RequestId', description='Request ID.', example='65C66B7B-671A-8297-9187-2R5477247B76'),
+  totalCount?: int32(name='TotalCount', description='Total count.', example='16'),
+  totalPage?: int32(name='TotalPage', description='Total pages.', example='1'),
 }
 
 model ListCacheReserveInstancesResponse = {
@@ -15136,7 +15344,7 @@ model ListCacheReserveInstancesResponse = {
 }
 
 /**
- * @summary Queries the cache reserve instances in your Alibaba Cloud account.
+ * @summary Query Cache Reserve Instance List
  *
  * @param request ListCacheReserveInstancesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -15167,7 +15375,7 @@ async function listCacheReserveInstancesWithOptions(request: ListCacheReserveIns
 }
 
 /**
- * @summary Queries the cache reserve instances in your Alibaba Cloud account.
+ * @summary Query Cache Reserve Instance List
  *
  * @param request ListCacheReserveInstancesRequest
  * @return ListCacheReserveInstancesResponse
@@ -17256,23 +17464,31 @@ async function listLists(request: ListListsRequest): ListListsResponse {
 }
 
 model ListLoadBalancerOriginStatusRequest {
-  loadBalancerIds?: string(name='LoadBalancerIds', description='This parameter is required.'),
-  poolType?: string(name='PoolType'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='ListLoadBalancerOriginStatus'),
+  loadBalancerIds?: string(name='LoadBalancerIds', description='Load balancer ID. When querying multiple load balancers, separate the IDs with commas. A maximum of 100 load balancer IDs can be passed at once. Load balancer IDs can be obtained by calling the [ListLoadBalancers](~~ListLoadBalancers~~) interface.
+
+This parameter is required.', example='99874066052****,100892832360****'),
+  poolType?: string(name='PoolType', description='Source address pool type. Various source address pools are configured under the load balancer, including default pools, fallback pools, and primary region pools. Only the status of origins in the default pool affects the status of the load balancer itself. Passing `default_pool` means only querying the status of origins in the default source address pool under the load balancer.', example='default_pool'),
+  siteId?: long(name='SiteId', description='Site ID.
+
+This parameter is required.', example='1159101787****'),
 }
 
 model ListLoadBalancerOriginStatusResponseBody = {
   originStatus?: [ 
     {
-      loadBalancerId?: long(name='LoadBalancerId'),
-      originId?: long(name='OriginId'),
-      poolId?: long(name='PoolId'),
-      poolType?: string(name='PoolType'),
-      reason?: string(name='Reason'),
-      status?: string(name='Status'),
+      loadBalancerId?: long(name='LoadBalancerId', description='ID of the load balancer.', example='99874066052****'),
+      originId?: long(name='OriginId', description='ID of the origin.', example='99750209487****'),
+      poolId?: long(name='PoolId', description='ID of the source address pool.', example='99750209487****'),
+      poolType?: string(name='PoolType', description='The origin pool to which the source belongs, under this load balancer. Only \\\\"default_pool\\\\" (default address pool) will be displayed; other types will return an empty string.', example='default_pool'),
+      reason?: string(name='Reason', description='Reason for the probe failure.', example='TCP connection error'),
+      status?: string(name='Status', description='Status of the origin:
+- Healthy(healthy): The probe result is available.
+- Unhealthy(unhealthy): The probe result is unavailable.
+- Unknown(unknown): Unknown, the monitor has not yet probed.
+- Undetected(undetected): The load balancer to which the origin belongs is not bound to a monitor.', example='healthy'),
     }
-  ](name='OriginStatus'),
-  requestId?: string(name='RequestId', description='Id of the request'),
+  ](name='OriginStatus', description='List of origin statuses under the load balancer.'),
+  requestId?: string(name='RequestId', description='Request ID, used for tracking the request.', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
 }
 
 model ListLoadBalancerOriginStatusResponse = {
@@ -17282,7 +17498,13 @@ model ListLoadBalancerOriginStatusResponse = {
 }
 
 /**
- * @summary 查询负载均衡器里各源站状态
+ * @summary Query the status of origins in load balancers
+ *
+ * @description Query the status of origins under load balancers. You can pass multiple load balancer IDs at once, separated by commas. This is for load balancers that have monitors configured. It will probe the origins in the source address pools used by the load balancers and record the current status of each origin.
+ * - Healthy(healthy): The probe result is available.
+ * - Unhealthy(unhealthy): The probe result is unavailable.
+ * - Unknown(unknown): Unknown, the monitor has not yet probed.
+ * - Undetected(undetected): The load balancer to which the origin belongs is not bound to a monitor.
  *
  * @param request ListLoadBalancerOriginStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17313,7 +17535,13 @@ async function listLoadBalancerOriginStatusWithOptions(request: ListLoadBalancer
 }
 
 /**
- * @summary 查询负载均衡器里各源站状态
+ * @summary Query the status of origins in load balancers
+ *
+ * @description Query the status of origins under load balancers. You can pass multiple load balancer IDs at once, separated by commas. This is for load balancers that have monitors configured. It will probe the origins in the source address pools used by the load balancers and record the current status of each origin.
+ * - Healthy(healthy): The probe result is available.
+ * - Unhealthy(unhealthy): The probe result is unavailable.
+ * - Unknown(unknown): Unknown, the monitor has not yet probed.
+ * - Undetected(undetected): The load balancer to which the origin belongs is not bound to a monitor.
  *
  * @param request ListLoadBalancerOriginStatusRequest
  * @return ListLoadBalancerOriginStatusResponse
@@ -17324,30 +17552,30 @@ async function listLoadBalancerOriginStatus(request: ListLoadBalancerOriginStatu
 }
 
 model ListLoadBalancerRegionsRequest {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1024'),
+  pageNumber?: int32(name='PageNumber', description='Page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size.', example='1024'),
 }
 
 model ListLoadBalancerRegionsResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1024'),
+  pageNumber?: int32(name='PageNumber', description='Page number', example='1'),
+  pageSize?: int32(name='PageSize', description='Number of records per page', example='1024'),
   regions?: [ 
     {
-      regionCnName?: string(name='RegionCnName', description='The Chinese name of the region.'),
-      regionCode?: string(name='RegionCode', description='The code of the region.', example='SEAS'),
-      regionEnName?: string(name='RegionEnName', description='The English name of the region.', example='South East Asia'),
+      regionCnName?: string(name='RegionCnName', description='Primary region Chinese full name', example='东南亚'),
+      regionCode?: string(name='RegionCode', description='Primary region code', example='SEAS'),
+      regionEnName?: string(name='RegionEnName', description='Primary region English full name', example='South East Asia'),
       subRegions?: [ 
         {
-          subRegionCnName?: string(name='SubRegionCnName', description='The Chinese name of the region.'),
-          subRegionCode?: string(name='SubRegionCode', description='The code of the subregion.', example='ID'),
-          subRegionEnName?: string(name='SubRegionEnName', description='The English name of the subregion.', example='Indonesia'),
+          subRegionCnName?: string(name='SubRegionCnName', description='Secondary region Chinese full name', example='印度尼西亚'),
+          subRegionCode?: string(name='SubRegionCode', description='Secondary region code', example='ID'),
+          subRegionEnName?: string(name='SubRegionEnName', description='Secondary region English full name', example='Indonesia'),
         }
-      ](name='SubRegions', description='The subregions of the region.'),
+      ](name='SubRegions', description='List of secondary region information'),
     }
-  ](name='Regions', description='The regions.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='81A5E222-24BF-17EF-9E80-A68D9B8F363D'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='12'),
-  totalPage?: int32(name='TotalPage', description='The total number of pages returned.', example='1'),
+  ](name='Regions', description='List of region information'),
+  requestId?: string(name='RequestId', description='Request ID', example='81A5E222-24BF-17EF-9E80-A68D9B8F363D'),
+  totalCount?: int32(name='TotalCount', description='Total number of records', example='12'),
+  totalPage?: int32(name='TotalPage', description='Total number of pages', example='1'),
 }
 
 model ListLoadBalancerRegionsResponse = {
@@ -17357,9 +17585,9 @@ model ListLoadBalancerRegionsResponse = {
 }
 
 /**
- * @summary Queries the information that can be used to configure a traffic steering policy based on the originating country or region for a load balancer, such as the code and code descriptions of the regions and subregions of the load balancer.
+ * @summary Query Load Balancer Region List
  *
- * @description When you call an operation to create a traffic steering policy based on the originating country or region for a load balancer, you can use the code of a region or subregion to specify traffic that is sent from the region or subregion.
+ * @description When creating a load balancer \\"based on country/region scheduling\\" strategy through OpenAPI, use the code of primary or secondary regions to represent traffic from this geographical area.
  *
  * @param request ListLoadBalancerRegionsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17390,9 +17618,9 @@ async function listLoadBalancerRegionsWithOptions(request: ListLoadBalancerRegio
 }
 
 /**
- * @summary Queries the information that can be used to configure a traffic steering policy based on the originating country or region for a load balancer, such as the code and code descriptions of the regions and subregions of the load balancer.
+ * @summary Query Load Balancer Region List
  *
- * @description When you call an operation to create a traffic steering policy based on the originating country or region for a load balancer, you can use the code of a region or subregion to specify traffic that is sent from the region or subregion.
+ * @description When creating a load balancer \\"based on country/region scheduling\\" strategy through OpenAPI, use the code of primary or secondary regions to represent traffic from this geographical area.
  *
  * @param request ListLoadBalancerRegionsRequest
  * @return ListLoadBalancerRegionsResponse
@@ -17403,49 +17631,63 @@ async function listLoadBalancerRegions(request: ListLoadBalancerRegionsRequest):
 }
 
 model ListLoadBalancersRequest {
-  matchType?: string(name='MatchType', example='fuzzy'),
-  name?: string(name='Name', example='lb.example.com'),
-  orderBy?: string(name='OrderBy', example='id'),
-  pageNumber?: int32(name='PageNumber', example='ListLoadBalancers'),
-  pageSize?: int32(name='PageSize', example='20'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='21655860979****'),
+  matchType?: string(name='MatchType', description='Name matching strategy when querying by name:
+
+- fuzzy: Fuzzy match;
+- exact: Exact match, equivalent to an equality query.', example='fuzzy'),
+  name?: string(name='Name', description='Name of the load balancer, which can be used for querying by name.', example='lb.example.com'),
+  orderBy?: string(name='OrderBy', description='Sorting field, currently only supports sorting by id. \\\\"id\\\\" indicates ascending order by id, \\\\"-id\\\\" indicates descending order by id. The id is positively correlated with the creation time. If not provided, it defaults to descending order by id.', example='id'),
+  pageNumber?: int32(name='PageNumber', description='Page number for paginated queries.', example='2'),
+  pageSize?: int32(name='PageSize', description='Page size for paginated queries, with a value range of 1-500.', example='20'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) API.
+
+This parameter is required.', example='21655860979****'),
 }
 
 model ListLoadBalancersResponseBody = {
   loadBalancers?: [ 
     {
       adaptiveRouting?: {
-        failoverAcrossPools?: boolean(name='FailoverAcrossPools', example='true'),
-      }(name='AdaptiveRouting'),
-      defaultPools?: [ long ](name='DefaultPools'),
-      description?: string(name='Description', example='test'),
-      enabled?: boolean(name='Enabled', example='false'),
-      fallbackPool?: long(name='FallbackPool', example='96228666776****'),
-      id?: long(name='Id', example='998676487607104'),
+        failoverAcrossPools?: boolean(name='FailoverAcrossPools', description='Whether to fail over across pools.
+
+- true: Yes.
+- false: No.', example='true'),
+      }(name='AdaptiveRouting', description='Cross-pool fallback configuration.'),
+      defaultPools?: [ long ](name='DefaultPools', description='List of default pool IDs.'),
+      description?: string(name='Description', description='Description of the load balancer.', example='test'),
+      enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='false'),
+      fallbackPool?: long(name='FallbackPool', description='Fallback pool ID, to which traffic will be redirected if all other pools are unavailable.', example='96228666776****'),
+      id?: long(name='Id', description='Unique identifier ID of the load balancer.', example='998676487607104'),
       monitor?: {
-        consecutiveDown?: int32(name='ConsecutiveDown', example='5'),
-        consecutiveUp?: int32(name='ConsecutiveUp', example='3'),
-        expectedCodes?: string(name='ExpectedCodes', example='200,202'),
-        followRedirects?: boolean(name='FollowRedirects', example='true'),
-        header?: any(name='Header', example='{
+        consecutiveDown?: int32(name='ConsecutiveDown', description='The number of consecutive failed probes required to consider the target as unhealthy, e.g., 5.', example='5'),
+        consecutiveUp?: int32(name='ConsecutiveUp', description='The number of consecutive successful probes required to consider the target as healthy, e.g., 3.', example='3'),
+        expectedCodes?: string(name='ExpectedCodes', description='The expected status codes, such as 200, 202, indicating a successful HTTP response.', example='200,202'),
+        followRedirects?: boolean(name='FollowRedirects', description='Whether to follow redirects.
+
+- true: Yes.
+- false: No.', example='true'),
+        header?: any(name='Header', description='The header information included during the probe, i.e., HTTP headers.', example='{
         "host": [
             "example1.com",
             "example2.com"
         ]
     }'),
-        interval?: int32(name='Interval', example='60'),
-        method?: string(name='Method', example='GET'),
-        path?: string(name='Path', example='/'),
-        port?: int32(name='Port', example='80'),
-        timeout?: int32(name='Timeout', example='5'),
-        type?: string(name='Type', example='HTTP'),
-      }(name='Monitor'),
-      name?: string(name='Name', example='lb.example.com'),
+        interval?: int32(name='Interval', description='The interval time for the health check, in seconds.', example='60'),
+        method?: string(name='Method', description='The method used for the health check.', example='GET'),
+        path?: string(name='Path', description='The path.', example='/'),
+        port?: int32(name='Port', description='The target port.', example='80'),
+        timeout?: int32(name='Timeout', description='The timeout for the health check, in seconds.', example='5'),
+        type?: string(name='Type', description='The type of monitor protocol, such as HTTP, used for health checks. When the value is `off`, it indicates that no check will be performed.', example='HTTP'),
+      }(name='Monitor', description='Monitor configuration.'),
+      name?: string(name='Name', description='Name of the load balancer.', example='lb.example.com'),
       randomSteering?: {
-        defaultWeight?: int32(name='DefaultWeight', example='50'),
-        poolWeights?: map[string]int32(name='PoolWeights'),
-      }(name='RandomSteering'),
-      regionPools?: any(name='RegionPools', example='{
+        defaultWeight?: int32(name='DefaultWeight', description='Weight configuration for each backend server pool, where the key is the pool ID and the value is the weight coefficient. The weight coefficient represents the proportion of relative traffic distribution.', example='50'),
+        poolWeights?: map[string]int32(name='PoolWeights', description='Weight configuration for each backend server pool, where the key is the pool ID and the value is the weight coefficient.'),
+      }(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different address pools.'),
+      regionPools?: any(name='RegionPools', description='Address pool corresponding to the primary region.', example='{
   "ENAM": [
     12345678****
   ],
@@ -17457,12 +17699,12 @@ model ListLoadBalancersResponseBody = {
       rules?: [ 
         {
           fixedResponse?: {
-            contentType?: string(name='ContentType', example='application/json'),
-            location?: string(name='Location', example='http://www.example.com/index.html'),
-            messageBody?: string(name='MessageBody', example='Hello World.'),
-            statusCode?: int32(name='StatusCode', example='200'),
-          }(name='FixedResponse'),
-          overrides?: any(name='Overrides', example='{
+            contentType?: string(name='ContentType', description='The Content-Type field in the HTTP Header.', example='application/json'),
+            location?: string(name='Location', description='The location field in the HTTP response.', example='http://www.example.com/index.html'),
+            messageBody?: string(name='MessageBody', description='The response body value.', example='Hello World.'),
+            statusCode?: int32(name='StatusCode', description='Status code.', example='200'),
+          }(name='FixedResponse', description='Executes a specified response after matching the rule.'),
+          overrides?: any(name='Overrides', description='Modifies the corresponding load balancer configuration after matching the rule. The fields in this configuration will override the corresponding fields in the load balancer configuration.', example='{
             "adaptive_routing": {
                 "failover_across_pools": true
             },
@@ -17512,30 +17754,34 @@ model ListLoadBalancersResponseBody = {
             "steering_policy": "dynamic_latency",
             "ttl": 30
         }'),
-          rule?: string(name='Rule', example='http.request.uri.path contains "/testing"'),
-          ruleEnable?: string(name='RuleEnable', example='on'),
-          ruleName?: string(name='RuleName', example='r2'),
-          sequence?: int32(name='Sequence', example='1'),
-          terminates?: boolean(name='Terminates', example='true'),
-        }
-      ](name='Rules'),
-      sessionAffinity?: string(name='SessionAffinity', description='The session persistence mode. Valid values:
+          rule?: string(name='Rule', description='Matching rule information.', example='http.request.uri.path contains "/testing"'),
+          ruleEnable?: string(name='RuleEnable', description='Rule switch.
+- on: Enable the rule. 
+- off: Disable the rule.', example='on'),
+          ruleName?: string(name='RuleName', description='Rule name.', example='r2'),
+          sequence?: int32(name='Sequence', description='The execution order of the rule.', example='1'),
+          terminates?: boolean(name='Terminates', description='Whether to terminate the execution of subsequent rules.
 
-*   off: disables session persistence.
-*   ip: enables session persistence by IP address.
-*   cookie: enables session persistence by cookie.', example='ip'),
-      siteId?: long(name='SiteId', example='1159101787****'),
-      status?: string(name='Status', example='healthy'),
-      steeringPolicy?: string(name='SteeringPolicy', example='order'),
-      subRegionPools?: any(name='SubRegionPools', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-      ttl?: int32(name='Ttl', example='30'),
+- true: Yes.
+- false: No.', example='true'),
+        }
+      ](name='Rules', description='List of rule configurations, used to define behaviors under specific conditions.'),
+      sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+      siteId?: long(name='SiteId', description='Site ID to which the load balancer belongs.', example='1159101787****'),
+      status?: string(name='Status', description='The status of the load balancer.', example='healthy'),
+      steeringPolicy?: string(name='SteeringPolicy', description='Load balancing policy.', example='order'),
+      subRegionPools?: any(name='SubRegionPools', description='The address pools corresponding to secondary regions. When multiple secondary regions share a set of address pools, the keys can be concatenated with commas.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+      ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records, default is 30.', example='30'),
     }
-  ](name='LoadBalancers', description='The load balancers returned.'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
-  totalCount?: int32(name='TotalCount', example='100'),
-  totalPage?: int32(name='TotalPage', example='10'),
+  ](name='LoadBalancers', description='Array format, returns a list of load balancers.'),
+  pageNumber?: int32(name='PageNumber', description='Page number, same as the PageNumber in the request parameters.', example='1'),
+  pageSize?: int32(name='PageSize', description='The size of each page.', example='10'),
+  requestId?: string(name='RequestId', description='Request ID.', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
+  totalCount?: int32(name='TotalCount', description='Total number of items.', example='100'),
+  totalPage?: int32(name='TotalPage', description='Total number of pages.', example='10'),
 }
 
 model ListLoadBalancersResponse = {
@@ -17545,7 +17791,7 @@ model ListLoadBalancersResponse = {
 }
 
 /**
- * @summary 查询负载均衡器列表
+ * @summary List of Load Balancers
  *
  * @param request ListLoadBalancersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17576,7 +17822,7 @@ async function listLoadBalancersWithOptions(request: ListLoadBalancersRequest, r
 }
 
 /**
- * @summary 查询负载均衡器列表
+ * @summary List of Load Balancers
  *
  * @param request ListLoadBalancersRequest
  * @return ListLoadBalancersResponse
@@ -18832,118 +19078,111 @@ async function listSiteDeliveryTasks(request: ListSiteDeliveryTasksRequest): Lis
 }
 
 model ListSitesRequest {
-  accessType?: string(name='AccessType', description='The DNS setup. Valid values:
+  accessType?: string(name='AccessType', description='Access type. Values:
 
-*   **NS**
-*   **CNAME**', example='NS'),
-  coverage?: string(name='Coverage', description='The service location. Valid values:
+- **NS**: Access through NS hosting.
+- **CNAME**: Access through CNAME.', example='NS'),
+  coverage?: string(name='Coverage', description='Acceleration region. Values:
+- **domestic**: China mainland only.
+- **global**: Global.
+- **overseas**: Global (excluding China mainland).', example='global'),
+  onlyEnterprise?: boolean(name='OnlyEnterprise', description='Enterprise edition only. When set to **true**, it indicates that only enterprise edition sites are queried.', example='false'),
+  orderBy?: string(name='OrderBy', description='Sorting field, default sorted by creation time, supports:
+- gmtCreate: Site creation time
+- visitTime: Site access time', example='visitTime'),
+  pageNumber?: int32(name='PageNumber', description='Page number. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size. Default value: **500**.', example='20'),
+  planSubscribeType?: string(name='PlanSubscribeType', description='Plan subscription type. Values:
+- **basicplan**: Basic plan.
+- **standardplan**: Standard plan.
+- **advancedplan**: Advanced plan.
+- **enterpriseplan**: Enterprise plan.', example='basicplan'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID. Used as a filter condition for the query.', example='rg-aekzd3styujvyei'),
+  siteName?: string(name='SiteName', description='Site name. Used as a filter condition for the query.', example='example.com'),
+  siteSearchType?: string(name='SiteSearchType', description='Search match pattern for the site name. The default is exact match, with values:
 
-*   **domestic**: the Chinese Mainland
-*   **global**: global (including the Chinese Mainland)
-*   **overseas**: outside the Chinese Mainland', example='global'),
-  onlyEnterprise?: boolean(name='OnlyEnterprise', description='Specifies whether to query only websites on Enterprise plans. Valid values: **true and false**.', example='false'),
-  orderBy?: string(name='OrderBy', description='null
-
-*   null
-*   null', example='visitTime'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 500.', example='20'),
-  planSubscribeType?: string(name='PlanSubscribeType', description='The plan type. Valid values:
-
-*   **basicplan**: Entrance
-*   **standardplan**: Pro
-*   **advancedplan**: Premium
-*   **enterpriseplan**: Enterprise', example='basicplan'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. This parameter specifies a filter condition for the query.', example='rg-aekzd3styujvyei'),
-  siteName?: string(name='SiteName', description='The website name. This parameter specifies a filter condition for the query.', example='example.com'),
-  siteSearchType?: string(name='SiteSearchType', description='The match mode to search for the website name. Default value: exact. Valid values:
-
-*   **prefix**: match by prefix.
-*   **suffix**: match by suffix.
-*   **null**
-*   **fuzzy**: fuzzy match.', example='fuzzy'),
-  status?: string(name='Status', description='The website status. This parameter specifies a filter condition for the query.', example='pending'),
+- **prefix**: Prefix match.
+- **suffix**: Suffix match.
+- **exact**: Exact match.
+- **fuzzy**: Fuzzy match.', example='fuzzy'),
+  status?: string(name='Status', description='Site status. Used as a filter condition for the query.', example='pending'),
   tagFilter?: [ 
     {
-      key?: string(name='Key', description='The tag key. This parameter specifies a filter condition for the query.', example='tag1'),
-      value?: string(name='Value', description='The tag value. This parameter specifies a filter condition for the query.', example='aaa'),
+      key?: string(name='Key', description='Tag key, used as a filter condition for the query.', example='tag1'),
+      value?: string(name='Value', description='Tag value, used as a filter condition for the query.', example='aaa'),
     }
-  ](name='TagFilter', description='The tag filtering rule.'),
+  ](name='TagFilter', description='Tag filtering rules.'),
 }
 
 model ListSitesShrinkRequest {
-  accessType?: string(name='AccessType', description='The DNS setup. Valid values:
+  accessType?: string(name='AccessType', description='Access type. Values:
 
-*   **NS**
-*   **CNAME**', example='NS'),
-  coverage?: string(name='Coverage', description='The service location. Valid values:
+- **NS**: Access through NS hosting.
+- **CNAME**: Access through CNAME.', example='NS'),
+  coverage?: string(name='Coverage', description='Acceleration region. Values:
+- **domestic**: China mainland only.
+- **global**: Global.
+- **overseas**: Global (excluding China mainland).', example='global'),
+  onlyEnterprise?: boolean(name='OnlyEnterprise', description='Enterprise edition only. When set to **true**, it indicates that only enterprise edition sites are queried.', example='false'),
+  orderBy?: string(name='OrderBy', description='Sorting field, default sorted by creation time, supports:
+- gmtCreate: Site creation time
+- visitTime: Site access time', example='visitTime'),
+  pageNumber?: int32(name='PageNumber', description='Page number. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size. Default value: **500**.', example='20'),
+  planSubscribeType?: string(name='PlanSubscribeType', description='Plan subscription type. Values:
+- **basicplan**: Basic plan.
+- **standardplan**: Standard plan.
+- **advancedplan**: Advanced plan.
+- **enterpriseplan**: Enterprise plan.', example='basicplan'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID. Used as a filter condition for the query.', example='rg-aekzd3styujvyei'),
+  siteName?: string(name='SiteName', description='Site name. Used as a filter condition for the query.', example='example.com'),
+  siteSearchType?: string(name='SiteSearchType', description='Search match pattern for the site name. The default is exact match, with values:
 
-*   **domestic**: the Chinese Mainland
-*   **global**: global (including the Chinese Mainland)
-*   **overseas**: outside the Chinese Mainland', example='global'),
-  onlyEnterprise?: boolean(name='OnlyEnterprise', description='Specifies whether to query only websites on Enterprise plans. Valid values: **true and false**.', example='false'),
-  orderBy?: string(name='OrderBy', description='null
-
-*   null
-*   null', example='visitTime'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 500.', example='20'),
-  planSubscribeType?: string(name='PlanSubscribeType', description='The plan type. Valid values:
-
-*   **basicplan**: Entrance
-*   **standardplan**: Pro
-*   **advancedplan**: Premium
-*   **enterpriseplan**: Enterprise', example='basicplan'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group. This parameter specifies a filter condition for the query.', example='rg-aekzd3styujvyei'),
-  siteName?: string(name='SiteName', description='The website name. This parameter specifies a filter condition for the query.', example='example.com'),
-  siteSearchType?: string(name='SiteSearchType', description='The match mode to search for the website name. Default value: exact. Valid values:
-
-*   **prefix**: match by prefix.
-*   **suffix**: match by suffix.
-*   **null**
-*   **fuzzy**: fuzzy match.', example='fuzzy'),
-  status?: string(name='Status', description='The website status. This parameter specifies a filter condition for the query.', example='pending'),
-  tagFilterShrink?: string(name='TagFilter', description='The tag filtering rule.'),
+- **prefix**: Prefix match.
+- **suffix**: Suffix match.
+- **exact**: Exact match.
+- **fuzzy**: Fuzzy match.', example='fuzzy'),
+  status?: string(name='Status', description='Site status. Used as a filter condition for the query.', example='pending'),
+  tagFilterShrink?: string(name='TagFilter', description='Tag filtering rules.'),
 }
 
 model ListSitesResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of websites per page.', example='20'),
-  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  pageNumber?: int32(name='PageNumber', description='Page number of the returned data.', example='1'),
+  pageSize?: int32(name='PageSize', description='Number of sites per page.', example='20'),
+  requestId?: string(name='RequestId', description='Request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
   sites?: [ 
     {
-      accessType?: string(name='AccessType', description='The DNS setup for the website. Valid values:
+      accessType?: string(name='AccessType', description='Site access type. Values:
 
-*   **NS**
-*   **CNAME**', example='NS'),
-      cnameZone?: string(name='CnameZone', description='The CNAME of the website domain. If you use CNAME setup when you add your website to ESA, the value is the CNAME that you configured then.', example='example.cname.com'),
-      coverage?: string(name='Coverage', description='The service location for the website. Valid values:
+- **NS**: Access through NS.
+- **CNAME**: Access through CNAME.', example='NS'),
+      cnameZone?: string(name='CnameZone', description='CNAME suffix of the site. For sites accessed via CNAME, this is the CNAME suffix that needs to be configured.', example='example.cname.com'),
+      coverage?: string(name='Coverage', description='Site acceleration region. Values:
 
-*   **domestic**: the Chinese mainland
-*   **global**: global
-*   **overseas**: outside the Chinese mainland', example='domestic'),
-      createTime?: string(name='CreateTime', description='The time when the website was added. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-12-24T02:01:11Z'),
-      instanceId?: string(name='InstanceId', description='The ID of the plan associated with the website.', example='onBvtlmIyeXLbiDw81F9'),
-      nameServerList?: string(name='NameServerList', description='The nameservers assigned to the website domain, which are separated by commas (,).', example='male1-1.ialicdn.com,female1-1.ialicdn.com'),
+- **domestic**: China mainland only.
+- **global**: Global.
+- **overseas**: Global (excluding China mainland).', example='domestic'),
+      createTime?: string(name='CreateTime', description='Site creation time, in ISO8601 format and using UTC time, formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2023-12-24T02:01:11Z'),
+      instanceId?: string(name='InstanceId', description='The ID of the plan instance bound to the site.', example='onBvtlmIyeXLbiDw81F9'),
+      nameServerList?: string(name='NameServerList', description='The list of NS (Name Servers) assigned to the site. Separated by commas (,).', example='male1-1.ialicdn.com,female1-1.ialicdn.com'),
       offlineReason?: string(name='OfflineReason'),
-      planName?: string(name='PlanName', description='The plan name.', example='plan-168656498****'),
-      planSpecName?: string(name='PlanSpecName', description='The plan associated with the website.', example='normal'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-aek26g6i6se6pna'),
-      siteId?: long(name='SiteId', description='The website ID.', example='123456789****'),
-      siteName?: string(name='SiteName', description='The website name.', example='example.com'),
-      status?: string(name='Status', description='The website status. Valid values:
-
-*   **pending**: The website is to be configured.
-*   **active**: The website is active.
-*   **offline**: The website is suspended.
-*   **moved**: The website has been added and verified by another Alibaba Cloud account.', example='pending'),
-      tags?: map[string]any(name='Tags', description='The tags of the website.', example='{"tag1":"value1"}'),
-      updateTime?: string(name='UpdateTime', description='The time when the website was updated. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2023-12-24T02:01:11Z'),
-      verifyCode?: string(name='VerifyCode', description='The code that is used to verify the website domain ownership. As part of the verification TXT record, this parameter is returned for websites that use CNAME setup.', example='verify_d516cb3740f81f0cef77d162edd1****'),
-      visitTime?: string(name='VisitTime', description='null', example='2023-12-24T02:01:11Z'),
+      planName?: string(name='PlanName', description='The name of the plan.', example='plan-168656498****'),
+      planSpecName?: string(name='PlanSpecName', description='The specification name of the site\\\\"s plan.', example='normal'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-aek26g6i6se6pna'),
+      siteId?: long(name='SiteId', description='The site ID.', example='123456789****'),
+      siteName?: string(name='SiteName', description='The name of the site.', example='example.com'),
+      status?: string(name='Status', description='The status of the site. Possible values:
+- **pending**: The site is pending configuration.
+- **active**: The site is active.
+- **offline**: The site is offline.
+- **moved**: The site has been replaced.', example='pending'),
+      tags?: map[string]any(name='Tags', description='The tags of the site.', example='{"tag1":"value1"}'),
+      updateTime?: string(name='UpdateTime', description='The update time of the site, represented in ISO8601 format and using UTC, formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2023-12-24T02:01:11Z'),
+      verifyCode?: string(name='VerifyCode', description='The verification code for site ownership. When the site is accessed via CNAME, this TXT verification code needs to be configured.', example='verify_d516cb3740f81f0cef77d162edd1****'),
+      visitTime?: string(name='VisitTime', description='The visit time of the site, formatted according to ISO8601 and using UTC, in the format yyyy-MM-ddTHH:mm:ssZ.', example='2023-12-24T02:01:11Z'),
     }
-  ](name='Sites', description='The queried websites.'),
-  totalCount?: int32(name='TotalCount', description='The total number of websites.', example='40'),
+  ](name='Sites', description='List of queried site information.'),
+  totalCount?: int32(name='TotalCount', description='Total number of sites.', example='40'),
 }
 
 model ListSitesResponse = {
@@ -18953,7 +19192,7 @@ model ListSitesResponse = {
 }
 
 /**
- * @summary Queries the information about websites in your account, such as the name, status, and configuration of each website.
+ * @summary Query Site List
  *
  * @param tmpReq ListSitesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18989,7 +19228,7 @@ async function listSitesWithOptions(tmpReq: ListSitesRequest, runtime: $RuntimeO
 }
 
 /**
- * @summary Queries the information about websites in your account, such as the name, status, and configuration of each website.
+ * @summary Query Site List
  *
  * @param request ListSitesRequest
  * @return ListSitesResponse
@@ -20563,66 +20802,77 @@ model PurgeCachesRequest {
   content?: {
     cacheKeys?: [ 
       {
-        headers?: map[string]string(name='Headers'),
-        url?: string(name='Url'),
+        headers?: map[string]string(name='Headers', description='When refreshing, specify the header information corresponding to the cache key. When the custom cache key feature switch is enabled, the cache key will be generated based on the specified header for refreshing.
+
+**UserGeo: Country/Region**
+- Country/region codes follow the ISO 3166-2 standard.
+
+**UserDeviceType: Device Type, currently there are three enum values**
+- desktop
+ - tablet
+ - mobile
+
+**UserLanguage: Language**
+- Language codes follow the ISO 639-1 or BCP47 standards. For example, input \\\\"zh\\\\" to refresh content in Chinese.'),
+        url?: string(name='Url', description='URL address to be refreshed.', example='http://a.com/1.jpg?b=1'),
       }
-    ](name='CacheKeys'),
-    cacheTags?: [ string ](name='CacheTags', description='The cache tags that are used to purge the cache. This parameter is required if Type is set to cachetag.'),
-    directories?: [ string ](name='Directories', description='The directories that are used to purge the cache. This parameter is required if Type is set to directory.'),
-    files?: [ any ](name='Files', description='The files to purge. This parameter is required if Type is set to file.'),
-    hostnames?: [ string ](name='Hostnames', description='The hostnames that are used to purge the cache. This parameter is required if Type is set to hostname.'),
-    ignoreParams?: [ string ](name='IgnoreParams', description='The file URLs with parameters ignored that are used to purge the cache. This parameter is required if Type is set to ignoreParams.'),
-    purgeAll?: boolean(name='PurgeAll', description='Specifies whether to purge all cache of the website. Default value: false. The value is true when Type is set to purgeall.', example='true'),
-  }(name='Content', description='The content to purge.'),
-  edgeComputePurge?: boolean(name='EdgeComputePurge', description='Specifies whether to purge cached resources for edge computing. For example, purge the resources cached by the CacheAPI operation of Edge Routine.', example='true'),
-  force?: boolean(name='Force', description='Specifies whether to purge resources in a directory if the resources requested are different from the resources on the origin server. Default value: false.
+    ](name='CacheKeys', description='List of cachekeys to be refreshed, required when the type is cachekey.'),
+    cacheTags?: [ string ](name='CacheTags', description='List of cachetags to be refreshed, required when the type is cachetag.'),
+    directories?: [ string ](name='Directories', description='List of directories to be refreshed, required when the type is directory.'),
+    files?: [ any ](name='Files', description='List of files to be refreshed, required when the type is file.'),
+    hostnames?: [ string ](name='Hostnames', description='List of hostnames to be refreshed, required when the type is hostname.'),
+    ignoreParams?: [ string ](name='IgnoreParams', description='List of files with ignored parameters, required when the type is ignoreParams.'),
+    purgeAll?: boolean(name='PurgeAll', description='Flag for purging all content. Default is false, set to true when the type is purgeall.', example='true'),
+  }(name='Content', description='Content to be refreshed.'),
+  edgeComputePurge?: boolean(name='EdgeComputePurge', description='Used for refreshing cached resources in edge computing, such as allowing the refresh of content cached using the CacheAPI interface of an edge function.', example='true'),
+  force?: boolean(name='Force', description='Indicates whether to refresh all resources under the directory when the content from the origin and the source resource are inconsistent. The default is false.
+- **true**: Refreshes all resources under the specified directory.
+- **false**: Refreshes only the changed resources under the specified directory.
 
-*   **true**: purges all resources in the directory.
-*   **false**: purges only changed resources in the directory.
-
->  This configuration takes effect for the following purge task types: directory, cachetag, ignoreParams, hostname, and purgeall.', example='true'),
-  siteId?: long(name='SiteId', description='The website ID. You can call the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation to obtain the ID.
+> 
+>  Applies to: Directory refresh, cachetag refresh, ignoreParams refresh, hostname refresh, and purge all cache of the site.', example='true'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='123456789****'),
-  type?: string(name='Type', description='The type of the purge task. Valid values:
-
-*   **file** (default): purges the cache by file.
-*   **cachetag**: purges the cache by cache tag.
-*   **directory**: purges the cache by directory.
-*   **ignoreParams**: purges the cache by URL with specific parameters ignored. This option ignores the question mark (?) and parameters after the question mark (?) in a request URL and purges the cache. After you call this operation with the request URL submitted, the system compares the submitted URL with the URL of the cached resource without specified parameters. If the URLs match, the POPs purge the cached resources.
-*   **hostname**: purges the cache by hostname.
-*   **purgeall**: purges all cache.
+  type?: string(name='Type', description='The type of refresh task. Possible values:
+- **file** (default): File refresh.
+- **cachekey**: Cachekey refresh.
+- **cachetag**: Cachetag refresh.
+- **directory**: Directory refresh.
+- **ignoreParams**: Ignore parameters refresh. Ignoring parameters means removing the ? and everything after it in the request URL. When performing an ignore parameters refresh, the user first submits the URL without parameters through the interface. The submitted URLs to be refreshed will then be matched against the cached resource URLs with the parameters removed. If the cached resource URL, after removing the parameters, matches the URL to be refreshed, the CDN node will refresh the cached resources.
+- **hostname**: Hostname refresh.
+- **purgeall**: Purge all cache under the site.
 
 This parameter is required.', example='file'),
 }
 
 model PurgeCachesShrinkRequest {
-  contentShrink?: string(name='Content', description='The content to purge.'),
-  edgeComputePurge?: boolean(name='EdgeComputePurge', description='Specifies whether to purge cached resources for edge computing. For example, purge the resources cached by the CacheAPI operation of Edge Routine.', example='true'),
-  force?: boolean(name='Force', description='Specifies whether to purge resources in a directory if the resources requested are different from the resources on the origin server. Default value: false.
+  contentShrink?: string(name='Content', description='Content to be refreshed.'),
+  edgeComputePurge?: boolean(name='EdgeComputePurge', description='Used for refreshing cached resources in edge computing, such as allowing the refresh of content cached using the CacheAPI interface of an edge function.', example='true'),
+  force?: boolean(name='Force', description='Indicates whether to refresh all resources under the directory when the content from the origin and the source resource are inconsistent. The default is false.
+- **true**: Refreshes all resources under the specified directory.
+- **false**: Refreshes only the changed resources under the specified directory.
 
-*   **true**: purges all resources in the directory.
-*   **false**: purges only changed resources in the directory.
-
->  This configuration takes effect for the following purge task types: directory, cachetag, ignoreParams, hostname, and purgeall.', example='true'),
-  siteId?: long(name='SiteId', description='The website ID. You can call the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation to obtain the ID.
+> 
+>  Applies to: Directory refresh, cachetag refresh, ignoreParams refresh, hostname refresh, and purge all cache of the site.', example='true'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='123456789****'),
-  type?: string(name='Type', description='The type of the purge task. Valid values:
-
-*   **file** (default): purges the cache by file.
-*   **cachetag**: purges the cache by cache tag.
-*   **directory**: purges the cache by directory.
-*   **ignoreParams**: purges the cache by URL with specific parameters ignored. This option ignores the question mark (?) and parameters after the question mark (?) in a request URL and purges the cache. After you call this operation with the request URL submitted, the system compares the submitted URL with the URL of the cached resource without specified parameters. If the URLs match, the POPs purge the cached resources.
-*   **hostname**: purges the cache by hostname.
-*   **purgeall**: purges all cache.
+  type?: string(name='Type', description='The type of refresh task. Possible values:
+- **file** (default): File refresh.
+- **cachekey**: Cachekey refresh.
+- **cachetag**: Cachetag refresh.
+- **directory**: Directory refresh.
+- **ignoreParams**: Ignore parameters refresh. Ignoring parameters means removing the ? and everything after it in the request URL. When performing an ignore parameters refresh, the user first submits the URL without parameters through the interface. The submitted URLs to be refreshed will then be matched against the cached resource URLs with the parameters removed. If the cached resource URL, after removing the parameters, matches the URL to be refreshed, the CDN node will refresh the cached resources.
+- **hostname**: Hostname refresh.
+- **purgeall**: Purge all cache under the site.
 
 This parameter is required.', example='file'),
 }
 
 model PurgeCachesResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='ET5BF670-09D5-4D0B-BEBY-D96A2A528000'),
-  taskId?: string(name='TaskId', description='The task ID, which is generated after you create a task.', example='15940956620'),
+  requestId?: string(name='RequestId', description='Request ID.', example='ET5BF670-09D5-4D0B-BEBY-D96A2A528000'),
+  taskId?: string(name='TaskId', description='Task ID, which is returned when you create a refresh or preheat task.', example='15940956620'),
 }
 
 model PurgeCachesResponse = {
@@ -20632,7 +20882,7 @@ model PurgeCachesResponse = {
 }
 
 /**
- * @summary Purges resources cached on points of presence (POPs). You can purge the cache by file URL, directory, cache tag, hostname, or URL with specified parameters ignored, or purge all the cache.
+ * @summary Cache Refresh
  *
  * @param tmpReq PurgeCachesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20683,7 +20933,7 @@ async function purgeCachesWithOptions(tmpReq: PurgeCachesRequest, runtime: $Runt
 }
 
 /**
- * @summary Purges resources cached on points of presence (POPs). You can purge the cache by file URL, directory, cache tag, hostname, or URL with specified parameters ignored, or purge all the cache.
+ * @summary Cache Refresh
  *
  * @param request PurgeCachesRequest
  * @return PurgeCachesResponse
@@ -22088,8 +22338,8 @@ model UpdateCacheTagRequest {
   siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='5407498413****'),
-  siteVersion?: int32(name='SiteVersion', description='The version number of the site configuration. For sites with version management enabled, this parameter can specify the effective version of the site configuration, defaulting to version 0.', example='1'),
-  tagName?: string(name='TagName', description='Custom Cache Tag name.', example='example'),
+  siteVersion?: int32(name='SiteVersion', description='The version number of the site configuration. For sites with version management enabled, you can use this parameter to specify the effective version of the site configuration, defaulting to version 0.', example='1'),
+  tagName?: string(name='TagName', description='Custom CacheTag name.', example='example'),
 }
 
 model UpdateCacheTagResponseBody = {
@@ -22431,12 +22681,19 @@ async function updateCustomScenePolicy(request: UpdateCustomScenePolicyRequest):
 }
 
 model UpdateDevelopmentModeRequest {
-  enable?: string(name='Enable', description='This parameter is required.', example='on'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='123456****'),
+  enable?: string(name='Enable', description='Feature switch. Possible values:
+
+- on: Enable.
+- off: Disable.
+
+This parameter is required.', example='on'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
+
+This parameter is required.', example='123456****'),
 }
 
 model UpdateDevelopmentModeResponseBody = {
-  requestId?: string(name='RequestId', example='65C66B7B-671A-8297-9187-2R5477247B76'),
+  requestId?: string(name='RequestId', description='Request ID.', example='65C66B7B-671A-8297-9187-2R5477247B76'),
 }
 
 model UpdateDevelopmentModeResponse = {
@@ -22446,7 +22703,7 @@ model UpdateDevelopmentModeResponse = {
 }
 
 /**
- * @summary 修改站点开发者模式配置
+ * @summary Modify Site Developer Mode Configuration
  *
  * @param request UpdateDevelopmentModeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22483,7 +22740,7 @@ async function updateDevelopmentModeWithOptions(request: UpdateDevelopmentModeRe
 }
 
 /**
- * @summary 修改站点开发者模式配置
+ * @summary Modify Site Developer Mode Configuration
  *
  * @param request UpdateDevelopmentModeRequest
  * @return UpdateDevelopmentModeResponse
@@ -23343,36 +23600,47 @@ async function updateList(request: UpdateListRequest): UpdateListResponse {
 
 model UpdateLoadBalancerRequest {
   adaptiveRouting?: {
-    failoverAcrossPools?: boolean(name='FailoverAcrossPools', example='false'),
-  }(name='AdaptiveRouting'),
-  defaultPools?: [ long ](name='DefaultPools'),
-  description?: string(name='Description'),
-  enabled?: boolean(name='Enabled'),
-  fallbackPool?: long(name='FallbackPool', example='96228666776****'),
-  id?: long(name='Id', description='This parameter is required.', example='95913670174****'),
+    failoverAcrossPools?: boolean(name='FailoverAcrossPools', description='Whether to perform cross-pool origin fallback.
+
+- true: Yes.
+- false: No.', example='false'),
+  }(name='AdaptiveRouting', description='Configuration for cross-pool origin fallback.'),
+  defaultPools?: [ long ](name='DefaultPools', description='List of default pool IDs.'),
+  description?: string(name='Description', description='Detailed description of the load balancer, which is useful for management and identification.', example='负载均衡器描述'),
+  enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='true'),
+  fallbackPool?: long(name='FallbackPool', description='Fallback pool ID, where traffic will be directed when all other pools are unavailable.', example='96228666776****'),
+  id?: long(name='Id', description='Load balancer ID, which can be obtained by calling the [ListLoadBalancers](~~ListLoadBalancers~~) interface.
+
+This parameter is required.', example='95913670174****'),
   monitor?: {
-    consecutiveDown?: int32(name='ConsecutiveDown', example='5'),
-    consecutiveUp?: int32(name='ConsecutiveUp', example='3'),
-    expectedCodes?: string(name='ExpectedCodes', example='200,202'),
-    followRedirects?: boolean(name='FollowRedirects', example='true'),
-    header?: any(name='Header', example='{
+    consecutiveDown?: int32(name='ConsecutiveDown', description='Number of consecutive failed probes required to consider the target unhealthy, such as 5.', example='5'),
+    consecutiveUp?: int32(name='ConsecutiveUp', description='Number of consecutive successful probes required to consider the target healthy, such as 3.', example='3'),
+    expectedCodes?: string(name='ExpectedCodes', description='Expected status codes, such as 200,202, which are successful HTTP responses.', example='200,202'),
+    followRedirects?: boolean(name='FollowRedirects', description='Whether to follow redirects.
+
+- true: Yes.
+- false: No.', example='true'),
+    header?: any(name='Header', description='Monitor request header configuration.', example='{
         "host": [
             "example1.com",
             "example2.com"
         ]
     }'),
-    interval?: int32(name='Interval', example='100'),
-    method?: string(name='Method', example='GET'),
-    path?: string(name='Path', example='/health'),
-    port?: int32(name='Port', example='80'),
-    timeout?: int32(name='Timeout', example='5'),
-    type?: string(name='Type', example='HTTP'),
-  }(name='Monitor'),
+    interval?: int32(name='Interval', description='Monitor interval, such as 60 seconds, which is the check frequency.', example='100'),
+    method?: string(name='Method', description='Monitor request method, such as GET, which is a method in the HTTP protocol.', example='GET'),
+    path?: string(name='Path', description='Monitor check path, such as /healthcheck, which is the HTTP request path.', example='/health'),
+    port?: int32(name='Port', description='Origin server port.', example='80'),
+    timeout?: int32(name='Timeout', description='Application health check timeout, in seconds. The range is 1-10.', example='5'),
+    type?: string(name='Type', description='Monitor protocol type, such as HTTP, used for health checks. When the value is \\\\"off\\\\", it indicates that no check will be performed.', example='HTTP'),
+  }(name='Monitor', description='Monitor configuration for health checks.'),
   randomSteering?: {
-    defaultWeight?: int32(name='DefaultWeight', example='50'),
-    poolWeights?: map[string]int32(name='PoolWeights'),
-  }(name='RandomSteering'),
-  regionPools?: any(name='RegionPools', example='{
+    defaultWeight?: int32(name='DefaultWeight', description='The default round-robin weight, used for all pools that do not have a specific weight set. The value range is an integer between 0 and 100.', example='50'),
+    poolWeights?: map[string]int32(name='PoolWeights', description='Weight configuration for each backend server pool, where the key is the pool ID and the value is the weight coefficient. The weight coefficient represents the proportion of relative traffic distribution.'),
+  }(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different pools.'),
+  regionPools?: any(name='RegionPools', description='Address pools corresponding to the primary region.', example='{
   "ENAM": [
     12345678****
   ],
@@ -23384,12 +23652,12 @@ model UpdateLoadBalancerRequest {
   rules?: [ 
     {
       fixedResponse?: {
-        contentType?: string(name='ContentType', example='application/json'),
-        location?: string(name='Location', example='http://www.example.com/index.html'),
-        messageBody?: string(name='MessageBody', example='Hello World!'),
-        statusCode?: int32(name='StatusCode', example='200'),
-      }(name='FixedResponse'),
-      overrides?: any(name='Overrides', example='{
+        contentType?: string(name='ContentType', description='Content-Type field in the HTTP Header.', example='application/json'),
+        location?: string(name='Location', description='Location field in the HTTP response.', example='http://www.example.com/index.html'),
+        messageBody?: string(name='MessageBody', description='Response body value.', example='Hello World!'),
+        statusCode?: int32(name='StatusCode', description='Response status code.', example='200'),
+      }(name='FixedResponse', description='Execute a specified response after matching the rule.'),
+      overrides?: any(name='Overrides', description='Modify the corresponding load balancing configuration after matching the rule. The fields in the configuration will override the corresponding fields in the load balancer configuration.', example='{
             "adaptive_routing": {
                 "failover_across_pools": true
             },
@@ -23431,34 +23699,46 @@ model UpdateLoadBalancerRequest {
             "steering_policy": "geo",
             "ttl": 30
         }'),
-      rule?: string(name='Rule', example='http.request.method eq "GET"'),
-      ruleEnable?: string(name='RuleEnable', example='on'),
-      ruleName?: string(name='RuleName', example='rule_1'),
-      sequence?: int32(name='Sequence', example='1'),
-      terminates?: boolean(name='Terminates', example='true'),
-    }
-  ](name='Rules', nullable=false),
-  sessionAffinity?: string(name='SessionAffinity', description='Session persistence. Valid values:
+      rule?: string(name='Rule', description='Matching condition, such as a rule based on the request URI.', example='http.request.method eq "GET"'),
+      ruleEnable?: string(name='RuleEnable', description='Rule switch.
 
-*   off:disables session persistence.
-*   ip: enables session persistence by IP address.
-*   cookie: disables session persistence.', example='ip'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='UpdateLoadBalancer'),
-  steeringPolicy?: string(name='SteeringPolicy', example='order'),
-  subRegionPools?: any(name='SubRegionPools', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-  ttl?: int32(name='Ttl', example='300'),
+- on: Enable the rule.
+- off: Disable the rule.', example='on'),
+      ruleName?: string(name='RuleName', description='Rule name.', example='rule_1'),
+      sequence?: int32(name='Sequence', description='The execution order of the rule. It can be left blank, in which case the rules will be executed in the list order. If specified, it must be a positive integer.', example='1'),
+      terminates?: boolean(name='Terminates', description='Whether to terminate the execution of subsequent rules.
+
+- true: Yes.
+- false: No.', example='true'),
+    }
+  ](name='Rules', description='Rule configuration list, used to define behavior overrides under specific conditions.', nullable=false),
+  sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='1159101787****'),
+  steeringPolicy?: string(name='SteeringPolicy', description='Load balancing policy.', example='order'),
+  subRegionPools?: any(name='SubRegionPools', description='Address pools corresponding to the secondary region. When multiple secondary regions share a set of address pools, you can use a comma-separated list of secondary regions as the key.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+  ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records. The default is 30, and the range is 10-600.', example='300'),
 }
 
 model UpdateLoadBalancerShrinkRequest {
-  adaptiveRoutingShrink?: string(name='AdaptiveRouting'),
-  defaultPoolsShrink?: string(name='DefaultPools'),
-  description?: string(name='Description'),
-  enabled?: boolean(name='Enabled'),
-  fallbackPool?: long(name='FallbackPool', example='96228666776****'),
-  id?: long(name='Id', description='This parameter is required.', example='95913670174****'),
-  monitorShrink?: string(name='Monitor'),
-  randomSteeringShrink?: string(name='RandomSteering'),
-  regionPools?: any(name='RegionPools', example='{
+  adaptiveRoutingShrink?: string(name='AdaptiveRouting', description='Configuration for cross-pool origin fallback.'),
+  defaultPoolsShrink?: string(name='DefaultPools', description='List of default pool IDs.'),
+  description?: string(name='Description', description='Detailed description of the load balancer, which is useful for management and identification.', example='负载均衡器描述'),
+  enabled?: boolean(name='Enabled', description='Whether the load balancer is enabled.
+
+- true: Enabled.
+- false: Not enabled.', example='true'),
+  fallbackPool?: long(name='FallbackPool', description='Fallback pool ID, where traffic will be directed when all other pools are unavailable.', example='96228666776****'),
+  id?: long(name='Id', description='Load balancer ID, which can be obtained by calling the [ListLoadBalancers](~~ListLoadBalancers~~) interface.
+
+This parameter is required.', example='95913670174****'),
+  monitorShrink?: string(name='Monitor', description='Monitor configuration for health checks.'),
+  randomSteeringShrink?: string(name='RandomSteering', description='Weighted round-robin configuration, used to control the traffic distribution weights among different pools.'),
+  regionPools?: any(name='RegionPools', description='Address pools corresponding to the primary region.', example='{
   "ENAM": [
     12345678****
   ],
@@ -23467,20 +23747,21 @@ model UpdateLoadBalancerShrinkRequest {
     23456789****
   ]
 }'),
-  rulesShrink?: string(name='Rules', nullable=false),
-  sessionAffinity?: string(name='SessionAffinity', description='Session persistence. Valid values:
+  rulesShrink?: string(name='Rules', description='Rule configuration list, used to define behavior overrides under specific conditions.', nullable=false),
+  sessionAffinity?: string(name='SessionAffinity', description='Session persistence, with values:
+- off: Not enabled.
+- ip: Session persistence by IP.
+- cookie: Not enabled for session persistence.', example='ip'),
+  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
 
-*   off:disables session persistence.
-*   ip: enables session persistence by IP address.
-*   cookie: disables session persistence.', example='ip'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='UpdateLoadBalancer'),
-  steeringPolicy?: string(name='SteeringPolicy', example='order'),
-  subRegionPools?: any(name='SubRegionPools', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
-  ttl?: int32(name='Ttl', example='300'),
+This parameter is required.', example='1159101787****'),
+  steeringPolicy?: string(name='SteeringPolicy', description='Load balancing policy.', example='order'),
+  subRegionPools?: any(name='SubRegionPools', description='Address pools corresponding to the secondary region. When multiple secondary regions share a set of address pools, you can use a comma-separated list of secondary regions as the key.', example='{"AL,MO": [92298024898****],"CN-SH,CN-SX,CN-SC":[92304347804****,92843536908****]}'),
+  ttl?: int32(name='Ttl', description='TTL value, the time-to-live for DNS records. The default is 30, and the range is 10-600.', example='300'),
 }
 
 model UpdateLoadBalancerResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
+  requestId?: string(name='RequestId', description='Request ID.', example='EEEBE525-F576-1196-8DAF-2D70CA3F4D2F'),
 }
 
 model UpdateLoadBalancerResponse = {
@@ -23490,7 +23771,9 @@ model UpdateLoadBalancerResponse = {
 }
 
 /**
- * @summary 修改负载均衡器
+ * @summary Modify Load Balancer
+ *
+ * @description Through this interface, you can modify multiple configurations of the load balancer, including but not limited to the name of the load balancer, whether to enable acceleration, session persistence policies, and various advanced settings related to traffic routing. >Notice: Changes to certain parameters may affect the stability of existing services, please operate with caution.
  *
  * @param tmpReq UpdateLoadBalancerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23583,7 +23866,9 @@ async function updateLoadBalancerWithOptions(tmpReq: UpdateLoadBalancerRequest, 
 }
 
 /**
- * @summary 修改负载均衡器
+ * @summary Modify Load Balancer
+ *
+ * @description Through this interface, you can modify multiple configurations of the load balancer, including but not limited to the name of the load balancer, whether to enable acceleration, session persistence policies, and various advanced settings related to traffic routing. >Notice: Changes to certain parameters may affect the stability of existing services, please operate with caution.
  *
  * @param request UpdateLoadBalancerRequest
  * @return UpdateLoadBalancerResponse
@@ -23603,7 +23888,7 @@ model UpdateManagedTransformRequest {
   siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='123456****'),
-  siteVersion?: int32(name='SiteVersion', description='The version number of the site. For sites with version management enabled, you can use this parameter to specify the site version for which the configuration takes effect. The default is version 0.', example='0'),
+  siteVersion?: int32(name='SiteVersion', description='The version number of the site. For sites with version management enabled, you can use this parameter to specify the site version for which the configuration will take effect, defaulting to version 0.', example='0'),
 }
 
 model UpdateManagedTransformResponseBody = {
@@ -25294,7 +25579,7 @@ async function updateSiteDeliveryTaskStatus(request: UpdateSiteDeliveryTaskStatu
 }
 
 model UpdateSiteNameExclusiveRequest {
-  enable?: string(name='Enable', description='Function switch. Possible values:
+  enable?: string(name='Enable', description='Feature switch. Possible values:
 
 - on: Enable.
 - off: Disable.
@@ -25369,7 +25654,7 @@ model UpdateSitePauseRequest {
 - false: Normal site acceleration.
 
 This parameter is required.', example='true'),
-  siteId?: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
+  siteId?: long(name='SiteId', description='The site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
 
 This parameter is required.', example='123456****'),
 }
