@@ -38,6 +38,7 @@ model Artifact {
   gmtModified?: string(name='gmtModified', description='This parameter is required.'),
   location?: string(name='location', description='This parameter is required.'),
   modifier?: long(name='modifier', description='This parameter is required.'),
+  modifierName?: string(name='modifierName'),
   name?: string(name='name', description='This parameter is required.'),
 }
 
@@ -177,10 +178,12 @@ model Task {
   hasCommited?: boolean(name='hasCommited', description='This parameter is required.'),
   isStreaming?: boolean(name='isStreaming'),
   jars?: [ string ](name='jars'),
+  kernelId?: string(name='kernelId'),
   lastRunResourceQueueId?: string(name='lastRunResourceQueueId'),
   modifier?: long(name='modifier', description='This parameter is required.'),
   name?: string(name='name', description='This parameter is required.'),
   pyFiles?: [ string ](name='pyFiles'),
+  sessionClusterId?: string(name='sessionClusterId'),
   sparkArgs?: string(name='sparkArgs', example='100'),
   sparkConf?: [
     SparkConf
@@ -302,7 +305,11 @@ async function addMembersWithOptions(request: AddMembersRequest, headers: map[st
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -362,7 +369,11 @@ async function cancelJobRunWithOptions(workspaceId: string, jobRunId: string, re
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -378,102 +389,150 @@ async function cancelJobRun(workspaceId: string, jobRunId: string, request: Canc
 }
 
 model CreateProcessDefinitionWithScheduleRequest {
-  alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-  description?: string(name='description', description='This parameter is required.', example='ods batch workflow'),
-  executionType?: string(name='executionType', description='This parameter is required.', example='PARALLEL'),
-  name?: string(name='name', description='This parameter is required.', example='ods_batch_workflow'),
-  productNamespace?: string(name='productNamespace', description='This parameter is required.', example='SS'),
-  publish?: boolean(name='publish', example='true'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  resourceQueue?: string(name='resourceQueue', example='root_queue'),
-  retryTimes?: int32(name='retryTimes', example='1'),
-  runAs?: string(name='runAs', example='113***************'),
+  alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+  description?: string(name='description', description='The description of the workflow.
+
+This parameter is required.', example='ods batch workflow'),
+  executionType?: string(name='executionType', description='The execution policy
+
+This parameter is required.', example='PARALLEL'),
+  name?: string(name='name', description='The name of the workflow.
+
+This parameter is required.', example='ods_batch_workflow'),
+  productNamespace?: string(name='productNamespace', description='The code of the service.
+
+This parameter is required.', example='SS'),
+  publish?: boolean(name='publish', description='Specifies whether to publish the workflow.', example='true'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  resourceQueue?: string(name='resourceQueue', description='The resource queue.', example='root_queue'),
+  retryTimes?: int32(name='retryTimes', description='The number of retries.', example='1'),
+  runAs?: string(name='runAs', description='The ID of the Alibaba Cloud account used by the user who creates the workflow.', example='113***************'),
   schedule?: {
-    crontab?: string(name='crontab', example='0 0 0 * * ?'),
-    endTime?: string(name='endTime', example='2025-12-23 16:13:27'),
-    startTime?: string(name='startTime', example='2024-12-23 16:13:27'),
-    timezoneId?: string(name='timezoneId', example='Asia/Shanghai'),
-  }(name='schedule'),
-  tags?: map[string]string(name='tags'),
+    crontab?: string(name='crontab', description='The CRON expression that is used for scheduling.', example='0 0 0 * * ?'),
+    endTime?: string(name='endTime', description='The end time of the scheduling.', example='2025-12-23 16:13:27'),
+    startTime?: string(name='startTime', description='The start time of the scheduling.', example='2024-12-23 16:13:27'),
+    timezoneId?: string(name='timezoneId', description='The ID of the time zone.', example='Asia/Shanghai'),
+  }(name='schedule', description='The scheduling settings.'),
+  tags?: map[string]string(name='tags', description='The tags.'),
   taskDefinitionJson?: [ 
     {
-      alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-      code?: long(name='code', description='This parameter is required.', example='36************'),
-      description?: string(name='description', example='ods transform task'),
-      failAlertEnable?: boolean(name='failAlertEnable', example='false'),
-      failRetryTimes?: int32(name='failRetryTimes', example='1'),
-      name?: string(name='name', description='This parameter is required.', example='ods_transform_task'),
-      startAlertEnable?: boolean(name='startAlertEnable', example='false'),
-      tags?: map[string]string(name='tags'),
+      alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+      code?: long(name='code', description='The node ID.
+
+This parameter is required.', example='36************'),
+      description?: string(name='description', description='The node description.', example='ods transform task'),
+      failAlertEnable?: boolean(name='failAlertEnable', description='Specifies whether to send alerts when the node fails.', example='false'),
+      failRetryTimes?: int32(name='failRetryTimes', description='The number of retries when the node fails.', example='1'),
+      name?: string(name='name', description='The name of the node.
+
+This parameter is required.', example='ods_transform_task'),
+      startAlertEnable?: boolean(name='startAlertEnable', description='Specifies whether to send alerts when the node is started.', example='false'),
+      tags?: map[string]string(name='tags', description='The tags.'),
       taskParams?: {
-        displaySparkVersion?: string(name='displaySparkVersion', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
-        environmentId?: string(name='environmentId', example='env-crhq2h5lhtgju93buhkg'),
-        fusion?: boolean(name='fusion', example='false'),
-        resourceQueueId?: string(name='resourceQueueId', description='This parameter is required.', example='root_queue'),
+        displaySparkVersion?: string(name='displaySparkVersion', description='The displayed version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
+        environmentId?: string(name='environmentId', description='The environment ID.', example='env-crhq2h5lhtgju93buhkg'),
+        fusion?: boolean(name='fusion', description='Specifies whether to enable Fusion engine for acceleration.', example='false'),
+        resourceQueueId?: string(name='resourceQueueId', description='The name of the resource queue on which the job runs.
+
+This parameter is required.', example='root_queue'),
         sparkConf?: [ 
           {
-            key?: string(name='key', example='spark.dynamicAllocation.enabled'),
-            value?: string(name='value', example='true'),
+            key?: string(name='key', description='The key of the SparkConf object.', example='spark.dynamicAllocation.enabled'),
+            value?: string(name='value', description='The value of the SparkConf object.', example='true'),
           }
-        ](name='sparkConf'),
-        sparkDriverCores?: int32(name='sparkDriverCores', example='1'),
-        sparkDriverMemory?: long(name='sparkDriverMemory', example='4g'),
-        sparkExecutorCores?: int32(name='sparkExecutorCores', example='1'),
-        sparkExecutorMemory?: long(name='sparkExecutorMemory', example='4g'),
-        sparkLogLevel?: string(name='sparkLogLevel', example='INFO'),
-        sparkLogPath?: string(name='sparkLogPath'),
-        sparkVersion?: string(name='sparkVersion', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
-        taskBizId?: string(name='taskBizId', description='This parameter is required.', example='TSK-d87******************'),
-        type?: string(name='type', example='VPC'),
-        workspaceBizId?: string(name='workspaceBizId', description='This parameter is required.', example='w-d8********'),
-      }(name='taskParams', description='This parameter is required.'),
-      taskType?: string(name='taskType', description='This parameter is required.', example='MigrateData'),
-      timeout?: int32(name='timeout', example='1200'),
+        ](name='sparkConf', description='The configurations of the Spark job.'),
+        sparkDriverCores?: int32(name='sparkDriverCores', description='The number of driver cores of the Spark job.', example='1'),
+        sparkDriverMemory?: long(name='sparkDriverMemory', description='The size of driver memory of the Spark job.', example='4g'),
+        sparkExecutorCores?: int32(name='sparkExecutorCores', description='The number of executor cores of the Spark job.', example='1'),
+        sparkExecutorMemory?: long(name='sparkExecutorMemory', description='The size of executor memory of the Spark job.', example='4g'),
+        sparkLogLevel?: string(name='sparkLogLevel', description='The level of the Spark log.', example='INFO'),
+        sparkLogPath?: string(name='sparkLogPath', description='The path where the operational logs of the Spark job are stored.'),
+        sparkVersion?: string(name='sparkVersion', description='The version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
+        taskBizId?: string(name='taskBizId', description='The ID of the data development job.
+
+This parameter is required.', example='TSK-d87******************'),
+        type?: string(name='type', description='The type of the Spark job.', example='VPC'),
+        workspaceBizId?: string(name='workspaceBizId', description='The workspace ID.
+
+This parameter is required.', example='w-d8********'),
+      }(name='taskParams', description='The job parameters.
+
+This parameter is required.'),
+      taskType?: string(name='taskType', description='The type of the node.
+
+This parameter is required.', example='MigrateData'),
+      timeout?: int32(name='timeout', description='The timeout period of the callback. Unit: seconds.', example='1200'),
     }
-  ](name='taskDefinitionJson', description='This parameter is required.'),
-  taskParallelism?: int32(name='taskParallelism', example='1'),
+  ](name='taskDefinitionJson', description='The descriptions of all nodes in the workflow.
+
+This parameter is required.'),
+  taskParallelism?: int32(name='taskParallelism', description='The node parallelism.', example='1'),
   taskRelationJson?: [ 
     {
-      name?: string(name='name', description='This parameter is required.', example='ods batch workflow'),
-      postTaskCode?: long(name='postTaskCode', description='This parameter is required.', example='28************'),
-      postTaskVersion?: int32(name='postTaskVersion', description='This parameter is required.', example='1'),
-      preTaskCode?: long(name='preTaskCode', description='This parameter is required.', example='16************'),
-      preTaskVersion?: int32(name='preTaskVersion', description='This parameter is required.', example='1'),
+      name?: string(name='name', description='The name of the node topology. You can enter a workflow name.
+
+This parameter is required.', example='ods batch workflow'),
+      postTaskCode?: long(name='postTaskCode', description='The ID of the downstream node.
+
+This parameter is required.', example='28************'),
+      postTaskVersion?: int32(name='postTaskVersion', description='The version of the downstream node.
+
+This parameter is required.', example='1'),
+      preTaskCode?: long(name='preTaskCode', description='The ID of the upstream node.
+
+This parameter is required.', example='16************'),
+      preTaskVersion?: int32(name='preTaskVersion', description='The version of the upstream node.
+
+This parameter is required.', example='1'),
     }
-  ](name='taskRelationJson', description='This parameter is required.'),
-  timeout?: int32(name='timeout', example='60'),
+  ](name='taskRelationJson', description='The dependencies of all nodes in the workflow. preTaskCode specifies the ID of an upstream node, and postTaskCode specifies the ID of a downstream node. The ID of each node is unique. If a node does not have an upstream node, set preTaskCode to 0.
+
+This parameter is required.'),
+  timeout?: int32(name='timeout', description='The default timeout period of the workflow.', example='60'),
 }
 
 model CreateProcessDefinitionWithScheduleShrinkRequest {
-  alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-  description?: string(name='description', description='This parameter is required.', example='ods batch workflow'),
-  executionType?: string(name='executionType', description='This parameter is required.', example='PARALLEL'),
-  name?: string(name='name', description='This parameter is required.', example='ods_batch_workflow'),
-  productNamespace?: string(name='productNamespace', description='This parameter is required.', example='SS'),
-  publish?: boolean(name='publish', example='true'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  resourceQueue?: string(name='resourceQueue', example='root_queue'),
-  retryTimes?: int32(name='retryTimes', example='1'),
-  runAs?: string(name='runAs', example='113***************'),
-  scheduleShrink?: string(name='schedule'),
-  tagsShrink?: string(name='tags'),
-  taskDefinitionJsonShrink?: string(name='taskDefinitionJson', description='This parameter is required.'),
-  taskParallelism?: int32(name='taskParallelism', example='1'),
-  taskRelationJsonShrink?: string(name='taskRelationJson', description='This parameter is required.'),
-  timeout?: int32(name='timeout', example='60'),
+  alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+  description?: string(name='description', description='The description of the workflow.
+
+This parameter is required.', example='ods batch workflow'),
+  executionType?: string(name='executionType', description='The execution policy
+
+This parameter is required.', example='PARALLEL'),
+  name?: string(name='name', description='The name of the workflow.
+
+This parameter is required.', example='ods_batch_workflow'),
+  productNamespace?: string(name='productNamespace', description='The code of the service.
+
+This parameter is required.', example='SS'),
+  publish?: boolean(name='publish', description='Specifies whether to publish the workflow.', example='true'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  resourceQueue?: string(name='resourceQueue', description='The resource queue.', example='root_queue'),
+  retryTimes?: int32(name='retryTimes', description='The number of retries.', example='1'),
+  runAs?: string(name='runAs', description='The ID of the Alibaba Cloud account used by the user who creates the workflow.', example='113***************'),
+  scheduleShrink?: string(name='schedule', description='The scheduling settings.'),
+  tagsShrink?: string(name='tags', description='The tags.'),
+  taskDefinitionJsonShrink?: string(name='taskDefinitionJson', description='The descriptions of all nodes in the workflow.
+
+This parameter is required.'),
+  taskParallelism?: int32(name='taskParallelism', description='The node parallelism.', example='1'),
+  taskRelationJsonShrink?: string(name='taskRelationJson', description='The dependencies of all nodes in the workflow. preTaskCode specifies the ID of an upstream node, and postTaskCode specifies the ID of a downstream node. The ID of each node is unique. If a node does not have an upstream node, set preTaskCode to 0.
+
+This parameter is required.'),
+  timeout?: int32(name='timeout', description='The default timeout period of the workflow.', example='60'),
 }
 
 model CreateProcessDefinitionWithScheduleResponseBody = {
-  code?: int32(name='code', example='1400009'),
+  code?: int32(name='code', description='The code that is returned by the backend server.', example='1400009'),
   data?: {
-    code?: long(name='code', example='160************'),
-    id?: int32(name='id', example='12342'),
-  }(name='data'),
-  failed?: string(name='failed', example='false'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  msg?: string(name='msg', example='No permission for resource action'),
-  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  success?: string(name='success', example='true'),
+    code?: long(name='code', description='The workflow ID.', example='160************'),
+    id?: int32(name='id', description='The serial number of the workflow.', example='12342'),
+  }(name='data', description='The returned data.'),
+  failed?: string(name='failed', description='Indicates whether the request failed.', example='false'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  msg?: string(name='msg', description='The description of the returned code.', example='No permission for resource action'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  success?: string(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model CreateProcessDefinitionWithScheduleResponse = {
@@ -483,7 +542,7 @@ model CreateProcessDefinitionWithScheduleResponse = {
 }
 
 /**
- * @summary 创建工作流定义
+ * @summary Creates a workflow.
  *
  * @param tmpReq CreateProcessDefinitionWithScheduleRequest
  * @param headers map
@@ -571,11 +630,15 @@ async function createProcessDefinitionWithScheduleWithOptions(bizId: string, tmp
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
- * @summary 创建工作流定义
+ * @summary Creates a workflow.
  *
  * @param request CreateProcessDefinitionWithScheduleRequest
  * @return CreateProcessDefinitionWithScheduleResponse
@@ -584,6 +647,124 @@ async function createProcessDefinitionWithSchedule(bizId: string, request: Creat
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createProcessDefinitionWithScheduleWithOptions(bizId, request, headers, runtime);
+}
+
+model CreateSessionClusterRequest {
+  applicationConfigs?: [ 
+    {
+      configFileName?: string(name='configFileName', example='spark-defaults.conf'),
+      configItemKey?: string(name='configItemKey', example='spark.app.name'),
+      configItemValue?: string(name='configItemValue', example='test'),
+    }
+  ](name='applicationConfigs'),
+  autoStartConfiguration?: {
+    enable?: boolean(name='enable', example='false'),
+  }(name='autoStartConfiguration'),
+  autoStopConfiguration?: {
+    enable?: boolean(name='enable', example='false'),
+    idleTimeoutMinutes?: integer(name='idleTimeoutMinutes', example='60'),
+  }(name='autoStopConfiguration'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', example='esr-3.3.1'),
+  envId?: string(name='envId', example='env-cpv569tlhtgndjl86t40'),
+  fusion?: boolean(name='fusion', example='false'),
+  kind?: string(name='kind', example='SQL'),
+  name?: string(name='name', example='spark_job_name'),
+  queueName?: string(name='queueName', example='root_queue'),
+  releaseVersion?: string(name='releaseVersion', example='esr-3.3.1'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model CreateSessionClusterResponseBody = {
+  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  sessionClusterId?: string(name='sessionClusterId', description='Workspace Id。', example='w-******'),
+}
+
+model CreateSessionClusterResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSessionClusterResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建session集群
+ *
+ * @param request CreateSessionClusterRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSessionClusterResponse
+ */
+async function createSessionClusterWithOptions(workspaceId: string, request: CreateSessionClusterRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSessionClusterResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.applicationConfigs)) {
+    body['applicationConfigs'] = request.applicationConfigs;
+  }
+  if (!Util.isUnset(request.autoStartConfiguration)) {
+    body['autoStartConfiguration'] = request.autoStartConfiguration;
+  }
+  if (!Util.isUnset(request.autoStopConfiguration)) {
+    body['autoStopConfiguration'] = request.autoStopConfiguration;
+  }
+  if (!Util.isUnset(request.displayReleaseVersion)) {
+    body['displayReleaseVersion'] = request.displayReleaseVersion;
+  }
+  if (!Util.isUnset(request.envId)) {
+    body['envId'] = request.envId;
+  }
+  if (!Util.isUnset(request.fusion)) {
+    body['fusion'] = request.fusion;
+  }
+  if (!Util.isUnset(request.kind)) {
+    body['kind'] = request.kind;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!Util.isUnset(request.queueName)) {
+    body['queueName'] = request.queueName;
+  }
+  if (!Util.isUnset(request.releaseVersion)) {
+    body['releaseVersion'] = request.releaseVersion;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSessionCluster',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/sessionClusters`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 创建session集群
+ *
+ * @param request CreateSessionClusterRequest
+ * @return CreateSessionClusterResponse
+ */
+async function createSessionCluster(workspaceId: string, request: CreateSessionClusterRequest): CreateSessionClusterResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSessionClusterWithOptions(workspaceId, request, headers, runtime);
 }
 
 model CreateSqlStatementRequest {
@@ -656,7 +837,11 @@ async function createSqlStatementWithOptions(workspaceId: string, request: Creat
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -669,6 +854,212 @@ async function createSqlStatement(workspaceId: string, request: CreateSqlStateme
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createSqlStatementWithOptions(workspaceId, request, headers, runtime);
+}
+
+model CreateWorkspaceRequest {
+  autoRenew?: string(name='autoRenew', example='false'),
+  autoRenewPeriod?: string(name='autoRenewPeriod', example='100'),
+  autoRenewPeriodUnit?: string(name='autoRenewPeriodUnit', example='month'),
+  autoStartSessionCluster?: boolean(name='autoStartSessionCluster', example='false'),
+  clientToken?: string(name='clientToken', example='8e6aae2810c8f67229ca70bb31cd****'),
+  dlfCatalogId?: string(name='dlfCatalogId', example='123xxxxx'),
+  dlfType?: string(name='dlfType', example='dlf1.0'),
+  duration?: string(name='duration', example='12452'),
+  ossBucket?: string(name='ossBucket', description='OSS Bucket。', example='oss://test-bucket/'),
+  paymentDurationUnit?: string(name='paymentDurationUnit', example='1000'),
+  paymentType?: string(name='paymentType', example='PayAsYouGo'),
+  ramRoleName?: string(name='ramRoleName', example='AliyunEMRSparkJobRunDefaultRole'),
+  releaseType?: string(name='releaseType', example='pro'),
+  resourceSpec?: {
+    cu?: string(name='cu', example='1000'),
+  }(name='resourceSpec'),
+  workspaceName?: string(name='workspaceName', example='default'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model CreateWorkspaceResponseBody = {
+  operationId?: string(name='operationId', description='Operation Id。', example='op-******'),
+  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  workspaceId?: string(name='workspaceId', description='Workspace Id。', example='w-******'),
+}
+
+model CreateWorkspaceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateWorkspaceResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建工作空间
+ *
+ * @param request CreateWorkspaceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateWorkspaceResponse
+ */
+async function createWorkspaceWithOptions(request: CreateWorkspaceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateWorkspaceResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.autoRenew)) {
+    body['autoRenew'] = request.autoRenew;
+  }
+  if (!Util.isUnset(request.autoRenewPeriod)) {
+    body['autoRenewPeriod'] = request.autoRenewPeriod;
+  }
+  if (!Util.isUnset(request.autoRenewPeriodUnit)) {
+    body['autoRenewPeriodUnit'] = request.autoRenewPeriodUnit;
+  }
+  if (!Util.isUnset(request.autoStartSessionCluster)) {
+    body['autoStartSessionCluster'] = request.autoStartSessionCluster;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    body['clientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.dlfCatalogId)) {
+    body['dlfCatalogId'] = request.dlfCatalogId;
+  }
+  if (!Util.isUnset(request.dlfType)) {
+    body['dlfType'] = request.dlfType;
+  }
+  if (!Util.isUnset(request.duration)) {
+    body['duration'] = request.duration;
+  }
+  if (!Util.isUnset(request.ossBucket)) {
+    body['ossBucket'] = request.ossBucket;
+  }
+  if (!Util.isUnset(request.paymentDurationUnit)) {
+    body['paymentDurationUnit'] = request.paymentDurationUnit;
+  }
+  if (!Util.isUnset(request.paymentType)) {
+    body['paymentType'] = request.paymentType;
+  }
+  if (!Util.isUnset(request.ramRoleName)) {
+    body['ramRoleName'] = request.ramRoleName;
+  }
+  if (!Util.isUnset(request.releaseType)) {
+    body['releaseType'] = request.releaseType;
+  }
+  if (!Util.isUnset(request.resourceSpec)) {
+    body['resourceSpec'] = request.resourceSpec;
+  }
+  if (!Util.isUnset(request.workspaceName)) {
+    body['workspaceName'] = request.workspaceName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateWorkspace',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 创建工作空间
+ *
+ * @param request CreateWorkspaceRequest
+ * @return CreateWorkspaceResponse
+ */
+async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspaceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createWorkspaceWithOptions(request, headers, runtime);
+}
+
+model GetCuHoursRequest {
+  endTime?: string(name='endTime', description='The end time of the query time range.
+
+This parameter is required.', example='2024-01-08 00:00:00'),
+  startTime?: string(name='startTime', description='The start time of the query time range.
+
+This parameter is required.', example='2024-01-01 00:00:00'),
+}
+
+model GetCuHoursResponseBody = {
+  data?: {
+    cuHours?: string(name='cuHours', description='The number of CU-hours consumed by a queue during a specified cycle. The value is an estimated value. Refer to your Alibaba Cloud bill for the actual number of consumed CU-hours.', example='{2025-01-09 00:00:00=2.033333, 2025-01-09 01:00:00=2.033333, 2025-01-09 02:00:00=2.033333, 2025-01-09 03:00:00=2.033333, 2025-01-09 04:00:00=2.033333, 2025-01-09 05:00:00=2.033333, 2025-01-09 06:00:00=2.033333, 2025-01-09 07:00:00=2.033333, 2025-01-09 08:00:00=2.033333, 2025-01-09 09:00:00=1.933333, 2025-01-09 10:00:00=2.133333, 2025-01-09 11:00:00=3.100000, 2025-01-09 12:00:00=2.900000}'),
+  }(name='data', description='The returned data.', example='{
+    "cuHours": "{2025-01-09 00:00:00=2.033333, 2025-01-09 01:00:00=2.033333, 2025-01-09 02:00:00=2.033333, 2025-01-09 03:00:00=2.033333, 2025-01-09 04:00:00=2.033333, 2025-01-09 05:00:00=2.033333, 2025-01-09 06:00:00=2.033333, 2025-01-09 07:00:00=2.033333, 2025-01-09 08:00:00=2.033333, 2025-01-09 09:00:00=1.933333, 2025-01-09 10:00:00=2.133333, 2025-01-09 11:00:00=3.100000, 2025-01-09 12:00:00=2.900000}"
+}'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model GetCuHoursResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCuHoursResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the number of CU-hours consumed by a queue during a specified cycle.
+ *
+ * @param request GetCuHoursRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCuHoursResponse
+ */
+async function getCuHoursWithOptions(workspaceId: string, queue: string, request: GetCuHoursRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetCuHoursResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetCuHours',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/metric/cuHours/${OpenApiUtil.getEncodeParam(queue)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary Queries the number of CU-hours consumed by a queue during a specified cycle.
+ *
+ * @param request GetCuHoursRequest
+ * @return GetCuHoursResponse
+ */
+async function getCuHours(workspaceId: string, queue: string, request: GetCuHoursRequest): GetCuHoursResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCuHoursWithOptions(workspaceId, queue, request, headers, runtime);
 }
 
 model GetJobRunRequest {
@@ -750,7 +1141,11 @@ async function getJobRunWithOptions(workspaceId: string, jobRunId: string, reque
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -780,17 +1175,24 @@ model GetSessionClusterResponseBody = {
       }
     ](name='applicationConfigs', description='The Spark configurations.'),
     autoStartConfiguration?: {
-      enable?: boolean(name='enable', description='Indicates whether automatic startup is enabled.', example='false'),
-    }(name='autoStartConfiguration', description='The automatic startup configurations.'),
+      enable?: boolean(name='enable', description='Indicates whether automatic startup is enabled.
+
+*   true
+*   false', example='false'),
+    }(name='autoStartConfiguration', description='The automatic startup configuration.'),
     autoStopConfiguration?: {
-      enable?: boolean(name='enable', description='Indicates whether automatic termination is enabled.', example='false'),
+      enable?: boolean(name='enable', description='Indicates whether automatic termination is enabled.
+
+*   true
+*   false', example='false'),
       idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='60'),
-    }(name='autoStopConfiguration', description='The automatic termination configurations.'),
+    }(name='autoStopConfiguration', description='The automatic termination configuration.'),
     displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-2.2(Java Runtime)'),
     domain?: string(name='domain', description='The domain name to which the Spark UI of the session belongs.', example='your.domain.com'),
     domainInner?: string(name='domainInner', description='The internal endpoint.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
     draftId?: string(name='draftId', description='The ID of the job that is associated with the session.', example='TSK-xxxxxxxx'),
     envId?: string(name='envId', description='The environment ID.', example='env-cpv569tlhtgndjl86t40'),
+    extra?: string(name='extra'),
     fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='false'),
     gmtCreate?: long(name='gmtCreate', description='The creation time.', example='2024-09-01 06:23:01'),
     kind?: string(name='kind', description='The type of the job. This parameter is required and cannot be modified after the deployment is created. Valid values:
@@ -800,10 +1202,16 @@ model GetSessionClusterResponseBody = {
 *   PYTHON', example='SQL'),
     name?: string(name='name', description='The name of the session.', example='test'),
     queueName?: string(name='queueName', description='The queue name.', example='jobName'),
-    releaseVersion?: string(name='releaseVersion', description='The version of E-MapReduce (EMR) Serverless Spark.', example='esr-2.2(Java Runtime)'),
+    releaseVersion?: string(name='releaseVersion', description='The version of Serverless Spark.', example='esr-2.2(Java Runtime)'),
     sessionClusterId?: string(name='sessionClusterId', description='The session ID.', example='1234abcd-12ab-34cd-56ef-1234567890ab'),
     startTime?: long(name='startTime', description='The start time.', example='2024-09-01 06:23:01'),
-    state?: string(name='state', description='The job status.', example='Running'),
+    state?: string(name='state', description='The job status.
+
+*   Starting
+*   Running
+*   Stopping
+*   Stopped
+*   Error', example='Running'),
     stateChangeReason?: {
       code?: string(name='code', description='The status change code.', example='1000000'),
       message?: string(name='message', description='The status change message.', example='ok'),
@@ -822,7 +1230,7 @@ model GetSessionClusterResponse = {
 }
 
 /**
- * @summary Queries a list of sessions.
+ * @summary Queries the information about a session.
  *
  * @param request GetSessionClusterRequest
  * @param headers map
@@ -851,11 +1259,15 @@ async function getSessionClusterWithOptions(workspaceId: string, sessionClusterI
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
- * @summary Queries a list of sessions.
+ * @summary Queries the information about a session.
  *
  * @param request GetSessionClusterRequest
  * @return GetSessionClusterResponse
@@ -931,7 +1343,11 @@ async function getSqlStatementWithOptions(workspaceId: string, statementId: stri
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1004,7 +1420,11 @@ async function getTemplateWithOptions(workspaceBizId: string, request: GetTempla
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1074,7 +1494,11 @@ async function grantRoleToUsersWithOptions(request: GrantRoleToUsersRequest, hea
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1098,6 +1522,7 @@ model ListJobRunsRequest {
   jobRunDeploymentId?: string(name='jobRunDeploymentId'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
+  minDuration?: long(name='minDuration'),
   name?: string(name='name', description='The job name.', example='emr-spark-demo-job'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
@@ -1121,6 +1546,7 @@ model ListJobRunsShrinkRequest {
   jobRunDeploymentId?: string(name='jobRunDeploymentId'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
+  minDuration?: long(name='minDuration'),
   name?: string(name='name', description='The job name.', example='emr-spark-demo-job'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
@@ -1146,15 +1572,15 @@ PYTHON', example='SQL'),
         ](name='configurations', description='The SparkConf objects.'),
       }(name='configurationOverrides', description='The advanced configurations of Spark.'),
       creator?: string(name='creator', description='The ID of the user who created the job.', example='1509789347011222'),
-      cuHours?: long(name='cuHours', example='2.059'),
-      displayReleaseVersion?: string(name='displayReleaseVersion', example='esr-3.0.0 (Spark 3.4.3, Scala 2.12)'),
+      cuHours?: double(name='cuHours', description='The number of CUs consumed during a specified cycle of a task. The value is an estimated value. Refer to your Alibaba Cloud bill for the actual number of consumed CUs.', example='2.059'),
+      displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of Spark on which the jobs run.', example='esr-3.0.0 (Spark 3.4.3, Scala 2.12)'),
       endTime?: long(name='endTime', description='The end time of the job.', example='1684119314000'),
       executionTimeoutSeconds?: int32(name='executionTimeoutSeconds', description='The timeout period of the job.', example='3600'),
-      fusion?: boolean(name='fusion', example='true'),
+      fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='true'),
       jobDriver?: JobDriver(name='jobDriver', description='The information about Spark Driver.'),
       jobRunId?: string(name='jobRunId', description='The job ID.', example='jr-231231'),
       log?: RunLog(name='log', description='The path where the operational logs are stored.'),
-      mbSeconds?: long(name='mbSeconds', example='33030784'),
+      mbSeconds?: long(name='mbSeconds', description='The total amount of memory allocated to the job multiplied by the running duration (seconds).', example='33030784'),
       name?: string(name='name', description='The job name.', example='jobName'),
       releaseVersion?: string(name='releaseVersion', description='The version of Spark on which the jobs run.', example='esr-native-3.4.0'),
       state?: string(name='state', description='The job state.', example='Running'),
@@ -1166,13 +1592,13 @@ PYTHON', example='SQL'),
       tags?: [
         Tag
       ](name='tags', description='The tags.'),
-      vcoreSeconds?: long(name='vcoreSeconds', example='8236'),
+      vcoreSeconds?: long(name='vcoreSeconds', description='The total number of CPU cores allocated to the job multiplied by the running duration (seconds).', example='8236'),
       webUI?: string(name='webUI', description='The web UI of the job.', example='http://spark-ui'),
       workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-1234abcd'),
     }
   ](name='jobRuns', description='The Spark jobs.'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
-  nextToken?: string(name='nextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  nextToken?: string(name='nextToken', description='A pagination token.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
   totalCount?: int32(name='totalCount', description='The total number of entries returned.', example='200'),
 }
@@ -1223,6 +1649,9 @@ async function listJobRunsWithOptions(workspaceId: string, tmpReq: ListJobRunsRe
   if (!Util.isUnset(request.maxResults)) {
     query['maxResults'] = request.maxResults;
   }
+  if (!Util.isUnset(request.minDuration)) {
+    query['minDuration'] = request.minDuration;
+  }
   if (!Util.isUnset(request.name)) {
     query['name'] = request.name;
   }
@@ -1260,7 +1689,11 @@ async function listJobRunsWithOptions(workspaceId: string, tmpReq: ListJobRunsRe
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1275,23 +1708,135 @@ async function listJobRuns(workspaceId: string, request: ListJobRunsRequest): Li
   return listJobRunsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListKyuubiSparkApplicationsRequest {
+  applicationId?: string(name='applicationId', example='spark-339f844005b6404c95f9f7c7a13b****'),
+  applicationName?: string(name='applicationName', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='1'),
+  startTime?: {
+    endTime?: long(name='endTime', example='1710432000000'),
+    startTime?: long(name='startTime', example='1709740800000'),
+  }(name='startTime'),
+}
+
+model ListKyuubiSparkApplicationsShrinkRequest {
+  applicationId?: string(name='applicationId', example='spark-339f844005b6404c95f9f7c7a13b****'),
+  applicationName?: string(name='applicationName', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='1'),
+  startTimeShrink?: string(name='startTime'),
+}
+
+model ListKyuubiSparkApplicationsResponseBody = {
+  applications?: [ 
+    {
+      applicationId?: string(name='applicationId', example='spark-339f844005b6404c95f9f7c7a13b****'),
+      applicationName?: string(name='applicationName', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
+      cuHours?: double(name='cuHours', example='0.238302'),
+      endTime?: string(name='endTime', example='2025-02-12 20:02:02'),
+      mbSeconds?: long(name='mbSeconds', example='3513900'),
+      resourceQueueId?: string(name='resourceQueueId', example='dev_queue'),
+      startTime?: string(name='startTime', example='2025-02-12 19:59:16'),
+      state?: string(name='state', example='STARTING'),
+      vcoreSeconds?: long(name='vcoreSeconds', example='780'),
+      webUI?: string(name='webUI'),
+    }
+  ](name='applications'),
+  maxResults?: int32(name='maxResults', example='20'),
+  nextToken?: string(name='nextToken', example='1'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='totalCount', example='200'),
+}
+
+model ListKyuubiSparkApplicationsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKyuubiSparkApplicationsResponseBody(name='body'),
+}
+
+/**
+ * @summary ListKyuubiSparkApplications
+ *
+ * @param tmpReq ListKyuubiSparkApplicationsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKyuubiSparkApplicationsResponse
+ */
+async function listKyuubiSparkApplicationsWithOptions(workspaceId: string, kyuubiServiceId: string, tmpReq: ListKyuubiSparkApplicationsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListKyuubiSparkApplicationsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListKyuubiSparkApplicationsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.startTime)) {
+    request.startTimeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.startTime, 'startTime', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.applicationId)) {
+    query['applicationId'] = request.applicationId;
+  }
+  if (!Util.isUnset(request.applicationName)) {
+    query['applicationName'] = request.applicationName;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.startTimeShrink)) {
+    query['startTime'] = request.startTimeShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListKyuubiSparkApplications',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/kyuubi/${OpenApiUtil.getEncodeParam(workspaceId)}/${OpenApiUtil.getEncodeParam(kyuubiServiceId)}/applications`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary ListKyuubiSparkApplications
+ *
+ * @param request ListKyuubiSparkApplicationsRequest
+ * @return ListKyuubiSparkApplicationsResponse
+ */
+async function listKyuubiSparkApplications(workspaceId: string, kyuubiServiceId: string, request: ListKyuubiSparkApplicationsRequest): ListKyuubiSparkApplicationsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listKyuubiSparkApplicationsWithOptions(workspaceId, kyuubiServiceId, request, headers, runtime);
+}
+
 model ListLogContentsRequest {
-  fileName?: string(name='fileName'),
-  length?: int32(name='length', example='9999'),
-  offset?: int32(name='offset', example='0'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
+  fileName?: string(name='fileName', description='Full path of the file.'),
+  length?: int32(name='length', description='Length of the log.', example='9999'),
+  offset?: int32(name='offset', description='Start line for query.', example='0'),
+  regionId?: string(name='regionId', description='Region ID.', example='cn-hangzhou'),
 }
 
 model ListLogContentsResponseBody = {
   listLogContent?: {
     contents?: [ 
       {
-        lineContent?: string(name='LineContent', example='spark pi is 3.14\\\\n'),
+        lineContent?: string(name='LineContent', description='Log line content.', example='spark pi is 3.14\\\\n'),
       }
-    ](name='contents'),
-    totalLength?: long(name='totalLength', example='10'),
-  }(name='listLogContent'),
-  requestId?: string(name='requestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+    ](name='contents', description='List of log line contents.'),
+    totalLength?: long(name='totalLength', description='Total number of log lines.', example='10'),
+  }(name='listLogContent', description='Log content.'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model ListLogContentsResponse = {
@@ -1301,7 +1846,7 @@ model ListLogContentsResponse = {
 }
 
 /**
- * @summary Obtains the log content.
+ * @summary Get Log Content
  *
  * @param request ListLogContentsRequest
  * @param headers map
@@ -1339,11 +1884,15 @@ async function listLogContentsWithOptions(workspaceId: string, request: ListLogC
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
- * @summary Obtains the log content.
+ * @summary Get Log Content
  *
  * @param request ListLogContentsRequest
  * @return ListLogContentsResponse
@@ -1369,6 +1918,7 @@ Valid values:
 
 *   ONLINE
 *   OFFLINE', example='ONLINE'),
+  serviceFilter?: string(name='serviceFilter'),
   workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-d2d82aa09155****'),
 }
 
@@ -1422,6 +1972,9 @@ async function listReleaseVersionsWithOptions(request: ListReleaseVersionsReques
   if (!Util.isUnset(request.releaseVersionStatus)) {
     query['releaseVersionStatus'] = request.releaseVersionStatus;
   }
+  if (!Util.isUnset(request.serviceFilter)) {
+    query['serviceFilter'] = request.serviceFilter;
+  }
   if (!Util.isUnset(request.workspaceId)) {
     query['workspaceId'] = request.workspaceId;
   }
@@ -1441,7 +1994,11 @@ async function listReleaseVersionsWithOptions(request: ListReleaseVersionsReques
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1495,6 +2052,7 @@ model ListSessionClustersResponseBody = {
       domain?: string(name='domain', description='The public endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou.data.aliyun.com'),
       domainInner?: string(name='domainInner', description='The internal endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
       draftId?: string(name='draftId', description='The ID of the job that is associated with the session.', example='TSK-xxxxxxxxx'),
+      extra?: string(name='extra'),
       fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='false'),
       gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1732267598000'),
       kind?: string(name='kind', description='The session type.
@@ -1580,7 +2138,11 @@ async function listSessionClustersWithOptions(workspaceId: string, request: List
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1619,10 +2181,12 @@ model ListWorkspaceQueuesResponseBody = {
           displayName?: string(name='displayName', description='The display name of the permission.', example='文件目录遍历、文件浏览'),
         }
       ](name='allowActions', description='The operations allowed for the queue.'),
+      createTime?: long(name='createTime'),
       creator?: string(name='creator', description='The ID of the user who created the queue.', example='237109'),
       environments?: [ string ](name='environments', description='The environment types of the queue.'),
       maxResource?: string(name='maxResource', description='The maximum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
       minResource?: string(name='minResource', description='The minimum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
+      paymentType?: string(name='paymentType'),
       properties?: string(name='properties', description='The queue label.', example='dev_queue'),
       queueName?: string(name='queueName', description='The name of the queue.', example='dev_queue'),
       queueScope?: string(name='queueScope', description='The queue architecture.', example='{"arch": "x86"}'),
@@ -1676,7 +2240,11 @@ async function listWorkspaceQueuesWithOptions(workspaceId: string, request: List
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1718,6 +2286,16 @@ model ListWorkspacesResponseBody = {
       paymentDurationUnit?: string(name='paymentDurationUnit', description='The unit of the subscription duration. This parameter is required only if the paymentType parameter is set to Subscription.', example='YEAR, MONTH, WEEK, DAY, HOUR, MINUTE'),
       paymentStatus?: string(name='paymentStatus', description='The status of the payment.', example='PAID/UNPAID'),
       paymentType?: string(name='paymentType', description='The payment type.', example='PayAsYouGo or Subscription'),
+      prePaidQuota?: {
+        allocatedResource?: string(name='allocatedResource'),
+        autoRenewal?: boolean(name='autoRenewal'),
+        createTime?: long(name='createTime'),
+        expireTime?: long(name='expireTime'),
+        instanceId?: string(name='instanceId'),
+        maxResource?: string(name='maxResource'),
+        paymentStatus?: string(name='paymentStatus'),
+        usedResource?: string(name='usedResource'),
+      }(name='prePaidQuota'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
       releaseType?: string(name='releaseType', description='The reason why the workspace is released.', example='SERVICE_RELEASE'),
       resourceSpec?: string(name='resourceSpec', description='The resource specifications.', example='100cu'),
@@ -1781,7 +2359,11 @@ async function listWorkspacesWithOptions(request: ListWorkspacesRequest, headers
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1906,7 +2488,11 @@ async function startJobRunWithOptions(workspaceId: string, request: StartJobRunR
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -1922,23 +2508,27 @@ async function startJobRun(workspaceId: string, request: StartJobRunRequest): St
 }
 
 model StartProcessInstanceRequest {
-  isProd?: boolean(name='isProd', example='false'),
-  processDefinitionCode?: long(name='processDefinitionCode', description='This parameter is required.', example='12***********'),
-  productNamespace?: string(name='productNamespace', description='This parameter is required.', example='SS'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  runtimeQueue?: string(name='runtimeQueue', example='root_queue'),
-  versionHashCode?: string(name='versionHashCode', example='dh*********'),
-  versionNumber?: int32(name='versionNumber', example='1'),
+  isProd?: boolean(name='isProd', description='Specifies whether to run the workflow in the production environment.', example='false'),
+  processDefinitionCode?: long(name='processDefinitionCode', description='The workflow ID.
+
+This parameter is required.', example='12***********'),
+  productNamespace?: string(name='productNamespace', description='The code of the service.
+
+This parameter is required.', example='SS'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  runtimeQueue?: string(name='runtimeQueue', description='The queue on which the workflow runs.', example='root_queue'),
+  versionHashCode?: string(name='versionHashCode', description='The hash code of the version.', example='dh*********'),
+  versionNumber?: int32(name='versionNumber', description='The version number of the workflow.', example='1'),
 }
 
 model StartProcessInstanceResponseBody = {
-  code?: int32(name='code', example='1400009'),
-  data?: any(name='data', example='{\\\\"sessionBizId\\\\": \\\\"sc-dc85644dba1c8c63\\\\", \\\\"bizId\\\\": \\\\"st-aeed3b0d4f87418a9a9dcbd757477658\\\\", \\\\"gmtCreated\\\\": \\\\"Thu Sep 12 02:28:45 UTC 2024\\\\"}'),
-  failed?: boolean(name='failed', example='false'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  msg?: string(name='msg', example='No permission for resource action'),
-  requestId?: string(name='requestId', description='Id of the request', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  success?: boolean(name='success', example='true'),
+  code?: int32(name='code', description='The code that is returned by the backend server.', example='1400009'),
+  data?: any(name='data', description='The data returned.', example='{\\\\"sessionBizId\\\\": \\\\"sc-dc85644dba1c8c63\\\\", \\\\"bizId\\\\": \\\\"st-aeed3b0d4f87418a9a9dcbd757477658\\\\", \\\\"gmtCreated\\\\": \\\\"Thu Sep 12 02:28:45 UTC 2024\\\\"}'),
+  failed?: boolean(name='failed', description='Indicates whether the workflow fails to be run manually.', example='false'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  msg?: string(name='msg', description='The description of the returned code.', example='No permission for resource action'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model StartProcessInstanceResponse = {
@@ -1948,7 +2538,7 @@ model StartProcessInstanceResponse = {
 }
 
 /**
- * @summary 启动工作流实例
+ * @summary Manually runs a workflow.
  *
  * @param request StartProcessInstanceRequest
  * @param headers map
@@ -1995,11 +2585,15 @@ async function startProcessInstanceWithOptions(bizId: string, request: StartProc
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
- * @summary 启动工作流实例
+ * @summary Manually runs a workflow.
  *
  * @param request StartProcessInstanceRequest
  * @return StartProcessInstanceResponse
@@ -2066,7 +2660,11 @@ async function startSessionClusterWithOptions(workspaceId: string, request: Star
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -2137,7 +2735,11 @@ async function stopSessionClusterWithOptions(workspaceId: string, request: StopS
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -2196,7 +2798,11 @@ async function terminateSqlStatementWithOptions(workspaceId: string, statementId
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
@@ -2212,121 +2818,165 @@ async function terminateSqlStatement(workspaceId: string, statementId: string, r
 }
 
 model UpdateProcessDefinitionWithScheduleRequest {
-  alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-  description?: string(name='description', example='ods batch workflow'),
-  executionType?: string(name='executionType', description='This parameter is required.', example='PARALLEL'),
-  name?: string(name='name', description='This parameter is required.', example='ods_batch_workflow'),
-  productNamespace?: string(name='productNamespace', description='This parameter is required.', example='SS'),
-  publish?: boolean(name='publish', example='true'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  releaseState?: string(name='releaseState', example='ONLINE'),
-  resourceQueue?: string(name='resourceQueue', example='root_queue'),
-  retryTimes?: int32(name='retryTimes', example='1'),
-  runAs?: string(name='runAs', example='113***************'),
+  alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+  description?: string(name='description', description='The description of the workflow.', example='ods batch workflow'),
+  executionType?: string(name='executionType', description='The execution policy.
+
+This parameter is required.', example='PARALLEL'),
+  name?: string(name='name', description='The name of the workflow.
+
+This parameter is required.', example='ods_batch_workflow'),
+  productNamespace?: string(name='productNamespace', description='The code of the service.
+
+This parameter is required.', example='SS'),
+  publish?: boolean(name='publish', description='Specifies whether to publish the workflow.', example='true'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  releaseState?: string(name='releaseState', description='The status of the workflow.', example='ONLINE'),
+  resourceQueue?: string(name='resourceQueue', description='The resource queue.', example='root_queue'),
+  retryTimes?: int32(name='retryTimes', description='The number of retries.', example='1'),
+  runAs?: string(name='runAs', description='The execution user.', example='113***************'),
   schedule?: {
-    crontab?: string(name='crontab', example='0 0 0 * * ?'),
-    endTime?: string(name='endTime', example='2025-12-23 16:13:27'),
-    startTime?: string(name='startTime', example='2024-12-23 16:13:27'),
-    timezoneId?: string(name='timezoneId', example='Asia/Shanghai'),
-  }(name='schedule'),
-  tags?: map[string]string(name='tags'),
+    crontab?: string(name='crontab', description='The CRON expression that is used for scheduling.', example='0 0 0 * * ?'),
+    endTime?: string(name='endTime', description='The end time of the scheduling.', example='2025-12-23 16:13:27'),
+    startTime?: string(name='startTime', description='The start time of the scheduling.', example='2024-12-23 16:13:27'),
+    timezoneId?: string(name='timezoneId', description='The ID of the time zone.', example='Asia/Shanghai'),
+  }(name='schedule', description='The scheduling settings.'),
+  tags?: map[string]string(name='tags', description='The tags.'),
   taskDefinitionJson?: [ 
     {
-      alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-      code?: long(name='code', description='This parameter is required.', example='23************'),
-      description?: string(name='description', example='ods transform task'),
-      failAlertEnable?: boolean(name='failAlertEnable', example='true'),
-      failRetryTimes?: int32(name='failRetryTimes', example='1'),
-      name?: string(name='name', description='This parameter is required.', example='ods_transform_task'),
-      startAlertEnable?: boolean(name='startAlertEnable', example='true'),
-      tags?: map[string]string(name='tags'),
+      alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+      code?: long(name='code', description='The node ID.
+
+This parameter is required.', example='23************'),
+      description?: string(name='description', description='The node description.', example='ods transform task'),
+      failAlertEnable?: boolean(name='failAlertEnable', description='Specifies whether to send alerts when the node fails.', example='true'),
+      failRetryTimes?: int32(name='failRetryTimes', description='The number of retries when the node fails.', example='1'),
+      name?: string(name='name', description='The name of the node.
+
+This parameter is required.', example='ods_transform_task'),
+      startAlertEnable?: boolean(name='startAlertEnable', description='Specifies whether to send alerts when the node is started.', example='true'),
+      tags?: map[string]string(name='tags', description='The tags.'),
       taskParams?: {
-        displaySparkVersion?: string(name='displaySparkVersion', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
-        environmentId?: string(name='environmentId', example='ev-h*************'),
-        fusion?: boolean(name='fusion', example='false'),
-        resourceQueueId?: string(name='resourceQueueId', description='This parameter is required.', example='root_queue'),
+        displaySparkVersion?: string(name='displaySparkVersion', description='The displayed version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
+        environmentId?: string(name='environmentId', description='The environment ID.', example='ev-h*************'),
+        fusion?: boolean(name='fusion', description='Specifies whether to enable Fusion engine for acceleration.', example='false'),
+        resourceQueueId?: string(name='resourceQueueId', description='The name of the queue on which the job runs.
+
+This parameter is required.', example='root_queue'),
         sparkConf?: [ 
           {
-            key?: string(name='key', example='spark.dynamicAllocation.enabled'),
-            value?: string(name='value', example='true'),
+            key?: string(name='key', description='The key of the SparkConf object.', example='spark.dynamicAllocation.enabled'),
+            value?: string(name='value', description='The value of the SparkConf object.', example='true'),
           }
-        ](name='sparkConf'),
-        sparkDriverCores?: int32(name='sparkDriverCores', example='1'),
-        sparkDriverMemory?: long(name='sparkDriverMemory', example='4g'),
-        sparkExecutorCores?: int32(name='sparkExecutorCores', example='1'),
-        sparkExecutorMemory?: long(name='sparkExecutorMemory', example='4g'),
-        sparkLogLevel?: string(name='sparkLogLevel', example='INFO'),
-        sparkLogPath?: string(name='sparkLogPath'),
-        sparkVersion?: string(name='sparkVersion', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
-        taskBizId?: string(name='taskBizId', description='This parameter is required.', example='TSK-d87******************'),
-        type?: string(name='type', example='SQL'),
-        workspaceBizId?: string(name='workspaceBizId', description='This parameter is required.', example='w-d8********'),
-      }(name='taskParams', description='This parameter is required.'),
-      taskType?: string(name='taskType', description='This parameter is required.', example='EMR-SERVERLESS-SPARK'),
-      timeout?: int32(name='timeout', example='30'),
+        ](name='sparkConf', description='The configurations of the Spark jobs.'),
+        sparkDriverCores?: int32(name='sparkDriverCores', description='The number of driver cores of the Spark job.', example='1'),
+        sparkDriverMemory?: long(name='sparkDriverMemory', description='The size of driver memory of the Spark job.', example='4g'),
+        sparkExecutorCores?: int32(name='sparkExecutorCores', description='The number of executor cores of the Spark job.', example='1'),
+        sparkExecutorMemory?: long(name='sparkExecutorMemory', description='The size of executor memory of the Spark job.', example='4g'),
+        sparkLogLevel?: string(name='sparkLogLevel', description='The level of the Spark log.', example='INFO'),
+        sparkLogPath?: string(name='sparkLogPath', description='The path where the operational logs of the Spark job are stored.'),
+        sparkVersion?: string(name='sparkVersion', description='The version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
+        taskBizId?: string(name='taskBizId', description='The ID of the data development job.
+
+This parameter is required.', example='TSK-d87******************'),
+        type?: string(name='type', description='The type of the Spark job.', example='SQL'),
+        workspaceBizId?: string(name='workspaceBizId', description='The workspace ID.
+
+This parameter is required.', example='w-d8********'),
+      }(name='taskParams', description='The job parameters.
+
+This parameter is required.'),
+      taskType?: string(name='taskType', description='The type of the node.
+
+This parameter is required.', example='EMR-SERVERLESS-SPARK'),
+      timeout?: int32(name='timeout', description='The default timeout period of the node.', example='30'),
     }
-  ](name='taskDefinitionJson', description='This parameter is required.'),
-  taskParallelism?: int32(name='taskParallelism', example='1'),
+  ](name='taskDefinitionJson', description='The descriptions of all nodes in the workflow.
+
+This parameter is required.'),
+  taskParallelism?: int32(name='taskParallelism', description='The node parallelism.', example='1'),
   taskRelationJson?: [ 
     {
-      name?: string(name='name', description='This parameter is required.', example='ods batch workflow'),
-      postTaskCode?: long(name='postTaskCode', description='This parameter is required.', example='19************'),
-      postTaskVersion?: int32(name='postTaskVersion', description='This parameter is required.', example='1'),
-      preTaskCode?: long(name='preTaskCode', description='This parameter is required.', example='16************'),
-      preTaskVersion?: int32(name='preTaskVersion', description='This parameter is required.', example='1'),
+      name?: string(name='name', description='The name of the node topology. You can enter a workflow name.
+
+This parameter is required.', example='ods batch workflow'),
+      postTaskCode?: long(name='postTaskCode', description='The ID of the downstream node.
+
+This parameter is required.', example='19************'),
+      postTaskVersion?: int32(name='postTaskVersion', description='The version of the downstream node.
+
+This parameter is required.', example='1'),
+      preTaskCode?: long(name='preTaskCode', description='The ID of the upstream node.
+
+This parameter is required.', example='16************'),
+      preTaskVersion?: int32(name='preTaskVersion', description='The version of the upstream node.
+
+This parameter is required.', example='1'),
     }
-  ](name='taskRelationJson', description='This parameter is required.'),
-  timeout?: int32(name='timeout', example='300'),
+  ](name='taskRelationJson', description='The dependencies of all nodes in the workflow. preTaskCode specifies the ID of an upstream node, and postTaskCode specifies the ID of a downstream node. The ID of each node is unique. If a node does not have an upstream node, set preTaskCode to 0.
+
+This parameter is required.'),
+  timeout?: int32(name='timeout', description='The default timeout period of the workflow.', example='300'),
 }
 
 model UpdateProcessDefinitionWithScheduleShrinkRequest {
-  alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-  description?: string(name='description', example='ods batch workflow'),
-  executionType?: string(name='executionType', description='This parameter is required.', example='PARALLEL'),
-  name?: string(name='name', description='This parameter is required.', example='ods_batch_workflow'),
-  productNamespace?: string(name='productNamespace', description='This parameter is required.', example='SS'),
-  publish?: boolean(name='publish', example='true'),
-  regionId?: string(name='regionId', example='cn-hangzhou'),
-  releaseState?: string(name='releaseState', example='ONLINE'),
-  resourceQueue?: string(name='resourceQueue', example='root_queue'),
-  retryTimes?: int32(name='retryTimes', example='1'),
-  runAs?: string(name='runAs', example='113***************'),
-  scheduleShrink?: string(name='schedule'),
-  tagsShrink?: string(name='tags'),
-  taskDefinitionJsonShrink?: string(name='taskDefinitionJson', description='This parameter is required.'),
-  taskParallelism?: int32(name='taskParallelism', example='1'),
-  taskRelationJsonShrink?: string(name='taskRelationJson', description='This parameter is required.'),
-  timeout?: int32(name='timeout', example='300'),
+  alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+  description?: string(name='description', description='The description of the workflow.', example='ods batch workflow'),
+  executionType?: string(name='executionType', description='The execution policy.
+
+This parameter is required.', example='PARALLEL'),
+  name?: string(name='name', description='The name of the workflow.
+
+This parameter is required.', example='ods_batch_workflow'),
+  productNamespace?: string(name='productNamespace', description='The code of the service.
+
+This parameter is required.', example='SS'),
+  publish?: boolean(name='publish', description='Specifies whether to publish the workflow.', example='true'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  releaseState?: string(name='releaseState', description='The status of the workflow.', example='ONLINE'),
+  resourceQueue?: string(name='resourceQueue', description='The resource queue.', example='root_queue'),
+  retryTimes?: int32(name='retryTimes', description='The number of retries.', example='1'),
+  runAs?: string(name='runAs', description='The execution user.', example='113***************'),
+  scheduleShrink?: string(name='schedule', description='The scheduling settings.'),
+  tagsShrink?: string(name='tags', description='The tags.'),
+  taskDefinitionJsonShrink?: string(name='taskDefinitionJson', description='The descriptions of all nodes in the workflow.
+
+This parameter is required.'),
+  taskParallelism?: int32(name='taskParallelism', description='The node parallelism.', example='1'),
+  taskRelationJsonShrink?: string(name='taskRelationJson', description='The dependencies of all nodes in the workflow. preTaskCode specifies the ID of an upstream node, and postTaskCode specifies the ID of a downstream node. The ID of each node is unique. If a node does not have an upstream node, set preTaskCode to 0.
+
+This parameter is required.'),
+  timeout?: int32(name='timeout', description='The default timeout period of the workflow.', example='300'),
 }
 
 model UpdateProcessDefinitionWithScheduleResponseBody = {
-  code?: int32(name='code', example='1400009'),
+  code?: int32(name='code', description='The code that is returned by the backend server.', example='1400009'),
   data?: {
-    alertEmailAddress?: string(name='alertEmailAddress', example='foo_bar@spark.alert.invalid.com'),
-    bizId?: string(name='bizId', example='alicloud_ack_one_cluster'),
-    code?: string(name='code', example='12***********'),
-    createTime?: string(name='createTime', example='2024-09-05T02:03:19Z'),
-    crontab?: string(name='crontab', example='0 0 0 * * ?'),
-    description?: string(name='description', example='1'),
-    endTime?: string(name='endTime', example='1710432000000'),
-    executionType?: string(name='executionType', example='SERIAL'),
-    id?: string(name='id', example='123223'),
-    name?: string(name='name', example='ods_batch_workflow'),
-    projectName?: string(name='projectName', example='w-********'),
-    releaseState?: string(name='releaseState', example='ONLINE'),
-    startTime?: string(name='startTime', example='0'),
-    timezoneId?: string(name='timezoneId', example='Asia/Shanghai'),
-    updateTime?: string(name='updateTime', example='2024-03-05T06:24:27Z'),
-    userId?: string(name='userId', example='113*********'),
-    userName?: string(name='userName', example='w-********'),
-    version?: int32(name='version', example='1'),
-    versionHashCode?: string(name='versionHashCode', example='dwerf*********'),
-  }(name='data'),
-  failed?: string(name='failed', example='false'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  msg?: string(name='msg', example='No permission for resource action'),
-  requestId?: string(name='requestId', description='Id of the request', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  success?: string(name='success', example='true'),
+    alertEmailAddress?: string(name='alertEmailAddress', description='The email address to receive alerts.', example='foo_bar@spark.alert.invalid.com'),
+    bizId?: string(name='bizId', description='The workspace ID.', example='alicloud_ack_one_cluster'),
+    code?: string(name='code', description='The workflow ID.', example='12***********'),
+    createTime?: string(name='createTime', description='The time when the workflow was created.', example='2024-09-05T02:03:19Z'),
+    crontab?: string(name='crontab', description='The CRON expression that is used for scheduling.', example='0 0 0 * * ?'),
+    description?: string(name='description', description='The node description.', example='1'),
+    endTime?: string(name='endTime', description='The end of the end time range.', example='1710432000000'),
+    executionType?: string(name='executionType', description='The execution policy.', example='SERIAL'),
+    id?: string(name='id', description='The serial number of the workflow.', example='123223'),
+    name?: string(name='name', description='The name of the workflow.', example='ods_batch_workflow'),
+    projectName?: string(name='projectName', description='The name of the project to which the workflow belongs.', example='w-********'),
+    releaseState?: string(name='releaseState', description='The status of the workflow.', example='ONLINE'),
+    startTime?: string(name='startTime', description='The start time of the scheduling.', example='0'),
+    timezoneId?: string(name='timezoneId', description='The ID of the time zone.', example='Asia/Shanghai'),
+    updateTime?: string(name='updateTime', description='The time when the workflow was updated.', example='2024-03-05T06:24:27Z'),
+    userId?: string(name='userId', description='The ID of the user that is used to initiate a scheduling.', example='113*********'),
+    userName?: string(name='userName', description='The name of the user that is used to initiate a scheduling.', example='w-********'),
+    version?: int32(name='version', description='The version number.', example='1'),
+    versionHashCode?: string(name='versionHashCode', description='The hash code of the version.', example='dwerf*********'),
+  }(name='data', description='The data returned.'),
+  failed?: string(name='failed', description='Indicates whether the request failed.', example='false'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  msg?: string(name='msg', description='The description of the returned code.', example='No permission for resource action'),
+  requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  success?: string(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateProcessDefinitionWithScheduleResponse = {
@@ -2336,7 +2986,7 @@ model UpdateProcessDefinitionWithScheduleResponse = {
 }
 
 /**
- * @summary 更新工作流定义和定时调度
+ * @summary Updates the workflow and time-based scheduling configurations.
  *
  * @param tmpReq UpdateProcessDefinitionWithScheduleRequest
  * @param headers map
@@ -2427,11 +3077,15 @@ async function updateProcessDefinitionWithScheduleWithOptions(bizId: string, cod
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  return callApi(params, req, runtime);
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
 }
 
 /**
- * @summary 更新工作流定义和定时调度
+ * @summary Updates the workflow and time-based scheduling configurations.
  *
  * @param request UpdateProcessDefinitionWithScheduleRequest
  * @return UpdateProcessDefinitionWithScheduleResponse
