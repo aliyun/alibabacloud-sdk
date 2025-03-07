@@ -1,0 +1,72 @@
+/**
+  *
+  */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'BailianChatBot';
+  @version = '2024-11-05';
+  @endpointRule = '';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model SseChatRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  appId: string(name='AppId', description='This parameter is required.', example='chatbot-cn-dDmF3jcdVf', position='Query'),
+  command?: string(name='Command', example='TIMEOUT', position='Query'),
+  senderId?: string(name='SenderId', example='uid129312098593', position='Query'),
+  senderNick?: string(name='SenderNick', position='Query'),
+  sessionId?: string(name='SessionId', example='15e04f27-acd7-489d-872f-1d68f7535e33', position='Query'),
+  utterance: string(name='Utterance', description='This parameter is required.', position='Query'),
+  vendorParam?: string(name='VendorParam', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-g7jspxljq8k909h3', position='Query'),
+}
+
+model SseChatResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: any(name='Data'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='30D68C4C-4512-58A7-A328-568015B39A02'),
+  success?: boolean(name='Success', example='True'),
+}
+
+model SseChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SseChatResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SseChat  SseChatRequest
+  * @return SseChatResponse
+ */
+async function sseChat(request: SseChatRequest): SseChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SseChat', 'POST', '/sse/bailian/chat', 'json', false, 'json', request);
+}
+
+function sseChatWithResponseIterable(request: SseChatRequest): iterator[SseChatResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'SseChat', 'POST', '/sse/bailian/chat', 'json', false, 'json', request);
+}
+
