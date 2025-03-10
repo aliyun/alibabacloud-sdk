@@ -104,7 +104,7 @@ model CreateCrossZoneMigrationJobRequest {
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
   disk?: [ 
     {
-      category?: string(name='Category', description='The disk category. A value of cloud_essd that indicates enhanced SSD (ESSD).', example='cloud_essd'),
+      category?: string(name='Category', description='The disk category. A value of cloud_essd indicates enhanced SSD (ESSD).', example='cloud_essd'),
       diskId?: string(name='DiskId', description='The disk ID.', example='d-bp1eeplkn4j29wf7irpb'),
       performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD. Valid values:
 
@@ -113,7 +113,7 @@ model CreateCrossZoneMigrationJobRequest {
 *   PL2: A single ESSD can deliver up to 100,000 random read/write IOPS.
 *   PL3: A single ESSD can deliver up to 1,000,000 random read/write IOPS.', example='PL0'),
     }
-  ](name='Disk', description='The disk information.', position='Query'),
+  ](name='Disk', description='The disk list.', position='Query'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='i-bp1ff25rzvnul6kr****', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The ID of the destination Alibaba Cloud region.
@@ -140,6 +140,7 @@ model CreateCrossZoneMigrationJobResponse = {
 }
 
 /**
+  * @description For more information about the limits and impacts of cross-zone migration, see [Cross-zone ECS instance migration](https://help.aliyun.com/document_detail/476797.html).
   * @param request  the request parameters of CreateCrossZoneMigrationJob  CreateCrossZoneMigrationJobRequest
   * @return CreateCrossZoneMigrationJobResponse
  */
@@ -189,30 +190,51 @@ The description must be 2 to 128 characters in length, and can contain digits, c
   disks?: {
     data?: [ 
       {
-        diskId?: string(name='DiskId', example='d-2ze8hyowhdgd6ou2m5z6'),
-        LVM?: boolean(name='LVM'),
+        diskId?: string(name='DiskId', description='The ID of the data disk.', example='d-2ze8hyowhdgd6ou2m5z6'),
+        LVM?: boolean(name='LVM', description='Specifies whether the data disk uses LVM. Valid values:
+
+*   true: Use LVM.
+*   false: Not use LVM.'),
         part?: [ 
           {
-            block?: boolean(name='Block', example='true'),
-            path?: string(name='Path', example='/home/date'),
-            sizeBytes?: long(name='SizeBytes', example='21474836480'),
+            block?: boolean(name='Block', description='Whether block replication is enabled for the data disk partition. Valid values:
+
+*   true: Block replication is enabled for the data disk partition.
+*   false: Block replication is disabled for the data disk partition.', example='true'),
+            path?: string(name='Path', description='The path of the data disk partition.', example='/home/date'),
+            sizeBytes?: long(name='SizeBytes', description='The size of the data disk partition. Unit: bytes.', example='21474836480'),
           }
-        ](name='Part'),
-        size?: int32(name='Size', example='80'),
+        ](name='Part', description='The information about the data disk partition.'),
+        size?: int32(name='Size', description='The size of the data disk of the migration source. Unit: GiB.', example='80'),
       }
-    ](name='Data'),
+    ](name='Data', description='The information about the data disk partition.'),
     system?: {
-      LVM?: boolean(name='LVM', example='true'),
+      LVM?: boolean(name='LVM', description='Specifies whether to use LVM. Valid values:
+
+*   true: Use LVM.
+*   false: Not use LVM.
+
+LVM is not supported:
+
+*   If your source server runs Windows, LVM is not supported.
+*   The system disk does not have a boot partition, and LVM is not supported.
+
+After LVM is enabled, this feature does not take effect in the following scenarios:
+
+*   LVM2 is not supported on your source server and the software package is not installed.
+*   Your source server runs Debian with a kernel version of 3.x or earlier and XFS file systems are mounted.', example='true'),
       part?: [ 
         {
-          block?: boolean(name='Block', example='true'),
-          path?: string(name='Path', example='/boot'),
-          sizeBytes?: long(name='SizeBytes', example='254803968'),
+          block?: boolean(name='Block', description='Specifies whether block replication is enabled for the system disk partition.', example='true'),
+          path?: string(name='Path', description='The path of the system disk partition.', example='/boot'),
+          sizeBytes?: long(name='SizeBytes', description='The size of the system disk partition. Unit: bytes.', example='254803968'),
         }
-      ](name='Part'),
-      size?: int32(name='Size', example='100'),
-    }(name='System'),
-  }(name='Disks', position='Query'),
+      ](name='Part', description='The information about the system disk partition.'),
+      size?: int32(name='Size', description='The size of the source system disk. Unit: GiB. Valid values: 20 to 32768.
+
+>  The parameter value must be greater than the actual used space of the data disk on the source server. For example, if the size of the source disk is 500 GiB but the actual used space is 100 GiB, you must set this parameter to a value greater than 100 GiB.', example='100'),
+    }(name='System', description='The information about the system disk.'),
+  }(name='Disks', description='The information about the disk.', position='Query'),
   frequency?: int32(name='Frequency', description='The interval at which SMC synchronizes incremental data to Alibaba Cloud. Unit: hour. Valid values: 1 to 168.
 
 This parameter is required if you set the `RunOnce` parameter to false.
@@ -384,10 +406,14 @@ The description must be 2 to 128 characters in length. It must start with a lett
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key of a specified workgroup.
+
+You can specify an empty string as a tag key. The tag key can be up to 64 characters in length and cannot contain http:// or https://.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of a specified workgroup.
+
+You can specify an empty string as a tag value. The tag value can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The tag information of the workgroup.', position='Query'),
 }
 
 model CreateWorkgroupResponseBody = {
@@ -586,10 +612,10 @@ model DescribeReplicationJobsRequest {
 *   3: agentless migration for a VMware VM.', example='0', position='Query'),
   name?: string(name='Name', description='The name of the migration job.', example='testMigrationTaskName', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1.
+  pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1.
 
 Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Valid values: 1 to 50.
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50.
 
 Default value: 10.', example='10', maximum=50, position='Query'),
   regionId?: string(name='RegionId', description='The ID of the Alibaba Cloud region to which you want to migrate the source server.
@@ -658,36 +684,52 @@ model DescribeReplicationJobsResponseBody = {
         data?: {
           data?: [ 
           {
-            diskId?: string(name='DiskId', example='d-2zeh4twm100qskw7z41z'),
-            LVM?: boolean(name='LVM', example='false'),
+            diskId?: string(name='DiskId', description='The ID of the data disk.', example='d-2zeh4twm100qskw7z41z'),
+            LVM?: boolean(name='LVM', description='Specifies whether to use LVM. Valid values:
+
+*   true: Use LVM.
+*   false: Not use LVM.', example='false'),
             parts?: {
               part?: [ 
               {
-                block?: boolean(name='Block', example='false'),
-                path?: string(name='Path', example='/home/data'),
-                sizeBytes?: long(name='SizeBytes', example='21474836480'),
+                block?: boolean(name='Block', description='Whether block replication is enabled for the data disk partition. Valid values:
+
+*   true: Block replication is enabled for the data disk partition.
+*   false: Block replication is disabled for the data disk partition.', example='false'),
+                path?: string(name='Path', description='The path of the data disk partition.', example='/home/data'),
+                sizeBytes?: long(name='SizeBytes', description='The size of the data disk partition. Unit: bytes.', example='21474836480'),
               }
             ](name='Part')
-            }(name='Parts'),
-            size?: int32(name='Size', example='22548578304'),
+            }(name='Parts', description='The information about the data disk partition.'),
+            size?: int32(name='Size', description='The size of a data disk on the destination ECS instance. Unit: GiB. Valid values: 20 to 32768.
+
+>  The size of a destination data disk must be larger than the size of data in the corresponding source data disk. For example, if the size of the source disk is 500 GiB but the actual used space is 100 GiB, you must set this parameter to a value greater than 100 GiB.', example='22548578304'),
           }
         ](name='Data')
-        }(name='Data'),
+        }(name='Data', description='The information about the data disk.'),
         system?: {
-          diskId?: string(name='DiskId', example='d-2zeh4twm100qskw7z41z'),
-          LVM?: boolean(name='LVM', example='false'),
+          diskId?: string(name='DiskId', description='The ID of the system disk.', example='d-2zeh4twm100qskw7z41z'),
+          LVM?: boolean(name='LVM', description='Specifies whether to use LVM. Valid values:
+
+*   true: Use LVM.
+*   false: Not use LVM.', example='false'),
           parts?: {
             part?: [ 
             {
-              block?: boolean(name='Block', example='true'),
-              path?: string(name='Path', example='/boot'),
-              sizeBytes?: long(name='SizeBytes', example='21474836480'),
+              block?: boolean(name='Block', description='Specifies whether block replication is enabled for the system disk partition. Valid values:
+
+*   true: Block replication is enabled for the system disk partition.
+*   false: Block replication is disabled for the system disk partition.', example='true'),
+              path?: string(name='Path', description='The path of the system disk partition.', example='/boot'),
+              sizeBytes?: long(name='SizeBytes', description='The size of the system disk partition. Unit: bytes.', example='21474836480'),
             }
           ](name='Part')
-          }(name='Parts'),
-          size?: int32(name='Size', example='100'),
-        }(name='System'),
-      }(name='Disks'),
+          }(name='Parts', description='The information about the system disk partition.'),
+          size?: int32(name='Size', description='The size of the source system disk. Unit: GiB. Valid values: 20 to 32768.
+
+>  The parameter value must be greater than the actual used space of the data disk on the source server. For example, if the size of the source disk is 500 GiB but the actual used space is 100 GiB, you must set this parameter to a value greater than 100 GiB.', example='100'),
+        }(name='System', description='The information about the system disk.'),
+      }(name='Disks', description='The information about the disk.'),
       endTime?: string(name='EndTime', description='The time when the migration job was complete. The time follows the [ISO 8601](https://help.aliyun.com/document_detail/25696.html) standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.
 
 >  The time displayed in the SMC console is in the format of UTC+8.', example='2019-06-04T16:00:52Z'),
@@ -817,22 +859,22 @@ async function describeReplicationJobs(request: DescribeReplicationJobsRequest):
 }
 
 model DescribeSourceServersRequest {
-  jobId?: string(name='JobId', description='The migration job ID.', example='j-bp19vlwm0tyigbmj****', position='Query'),
-  name?: string(name='Name', description='The name of the migration source. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with http:// or https://. It can contain digits, colons (:), underscores (_), and hyphens (-).
+  jobId?: string(name='JobId', description='The ID of the migration job.', example='j-bp19vlwm0tyigbmj****', position='Query'),
+  name?: string(name='Name', description='The name of the migration source. The name must be 2 to 128 characters in length. It must start with a letter but cannot start with http:// or https://. It can contain digits, colons (:), underscores (_), and hyphens (-).
 
-Default value: null.', example='testSourceServerName', position='Query'),
+This parameter is empty by default.', example='testSourceServerName', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
+  pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1.
 
 Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50.
 
-Default value: 10', example='10', maximum=50, position='Query'),
-  relatedJobType?: [ string ](name='RelatedJobType', description='The types of migration jobs that are associated with migration sources.', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmw3ty5y7****', position='Query'),
+Default value: 10.', example='10', maximum=50, position='Query'),
+  relatedJobType?: [ string ](name='RelatedJobType', description='The type of migration job that is associated with the migration source.', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmw3ty5y7****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
-  sourceId?: [ string ](name='SourceId', description='The migration source IDs. You can specify multiple IDs.', example='s-bp1e2fsl57knvuug****', position='Query'),
-  state?: string(name='State', description='The state of the migration source. Valid Values:
+  sourceId?: [ string ](name='SourceId', description='The migration source ID. You can specify multiple IDs.', example='s-bp1e2fsl57knvuug****', position='Query'),
+  state?: string(name='State', description='The state of the migration source. Valid values:
 
 *   Unavailable: The migration source is inactive, or an error occurs in the migration source.
 *   Available: The migration source is active.
@@ -840,20 +882,20 @@ Default value: 10', example='10', maximum=50, position='Query'),
 *   Deleting: The migration source is being deleted from Server Migration Center (SMC).', example='Available', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N that is added to the SMC resource. Valid values of N: 1 to 20.
+      key?: string(name='Key', description='The key of tag N that is attached to the SMC resource. Valid values of N: 1 to 20.
 
-The tag key cannot be an empty string. It can be up to 64 characters in length and cannot start with acs: or aliyun. It cannot contain http:// or https://.', example='TestKey'),
-      value?: string(name='Value', description='The value of tag N that is added to the SMC resource. Valid values of N: 1 to 20.
+You cannot specify an empty string as a tag key. The tag key can be up to 64 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.', example='TestKey'),
+      value?: string(name='Value', description='The value of tag N that is attached to the SMC resource. Valid values of N: 1 to 20.
 
-The tag value can be an empty string. It can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
+You can specify an empty string as a tag key. The tag value can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
     }
   ](name='Tag', description='The tag.', position='Query'),
-  workgroupId?: string(name='WorkgroupId', description='工作组ID。', example='w-bp1ja22kdqphehlj****', position='Query'),
+  workgroupId?: string(name='WorkgroupId', description='The workgroup ID.', example='w-bp1ja22kdqphehlj****', position='Query'),
 }
 
 model DescribeSourceServersResponseBody = {
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='10'),
   requestId?: string(name='RequestId', description='The request ID.', example='410E6073-66D0-45D3-AB3E-4DC3F5E4****'),
   sourceServers?: {
     sourceServer?: [ 
@@ -872,64 +914,66 @@ model DescribeSourceServersResponseBody = {
               device?: string(name='Device', description='The device ID of the data disk partition.', example='1_0'),
               need?: boolean(name='Need', description='Indicates whether the data disk partition must be selected.', example='false'),
               path?: string(name='Path', description='The path of the data disk partition.', example='/home/data'),
-              sizeBytes?: long(name='SizeBytes', description='The size of the data disk partition. Unit: byte.', example='21474836480'),
+              sizeBytes?: long(name='SizeBytes', description='The size of the data disk partition. Unit: bytes.', example='21474836480'),
             }
           ](name='Part')
           }(name='Parts', description='The information about the data disk partition.'),
-          path?: string(name='Path', description='The path of the data disk.', example='/home/data'),
-          size?: int32(name='Size', description='The size of the data disk. Unit: GiB.', example='20'),
+          path?: string(name='Path', description='The path of data disk N.', example='/home/data'),
+          size?: int32(name='Size', description='The size of data disk N. Unit: GiB.', example='20'),
         }
       ](name='DataDisk')
-      }(name='DataDisks', description='The data disk on the migration source.'),
+      }(name='DataDisks', description='The data disks on the migration source.'),
       description?: string(name='Description', description='The description of the migration source.', example='Server Source Imported By GotoAliyun.'),
       disks?: {
         data?: {
           data?: [ 
           {
-            offset?: long(name='Offset', description='数据盘首个分区的起始偏移。单位：Byte。', example='1024'),
+            offset?: long(name='Offset', description='The start offset of the first partition of the data disk. Unit: bytes.', example='1024'),
             parts?: {
               part?: [ 
               {
-                canBlock?: boolean(name='CanBlock', description='数据盘分区是否开启块复制。可能值：
+                canBlock?: boolean(name='CanBlock', description='Whether block replication is enabled for the data disk partition. Valid values:
 
-- true：数据盘分区开启块复制。
-- false：数据盘分区不开启块复制。', example='false'),
-                path?: string(name='Path', description='数据盘分区路径。', example='/home/data'),
-                sizeBytes?: long(name='SizeBytes', description='数据盘分区大小。单位：Byte。', example='21474836480'),
-                type?: string(name='Type', description='数据盘分区类型。可能值：
-- Normal：普通分区。
-- System：系统分区。
-- Boot：启动分区。', example='Normal'),
+*   true: Block replication is enabled for the data disk partition.
+*   false: Block replication is disabled for the data disk partition.', example='false'),
+                path?: string(name='Path', description='The path of the data disk partition.', example='/home/data'),
+                sizeBytes?: long(name='SizeBytes', description='The size of the data disk partition. Unit: bytes.', example='21474836480'),
+                type?: string(name='Type', description='The type of the data disk partition. Valid values:
+
+*   Normal: normal partition.
+*   System: system partition.
+*   Boot: boot partition.', example='Normal'),
               }
             ](name='Part')
-            }(name='Parts', description='数据盘分区信息。'),
-            size?: int32(name='Size', description='迁移源的数据磁盘大小。单位：GiB。', example='80'),
+            }(name='Parts', description='The information about the data disk partition.'),
+            size?: int32(name='Size', description='The data disk size of the migration source. Unit: GiB.', example='80'),
           }
         ](name='Data')
-        }(name='Data', description='数据盘信息列表。'),
+        }(name='Data', description='The list of data disk information.'),
         system?: {
-          offset?: long(name='Offset', description='系统盘首个分区的起始偏移。单位：Byte。', example='1024'),
+          offset?: long(name='Offset', description='The start offset of the first partition of the system disk. Unit: bytes.', example='1024'),
           parts?: {
             part?: [ 
             {
-              canBlock?: boolean(name='CanBlock', description='系统盘分区是否支持块复制。可能值：
+              canBlock?: boolean(name='CanBlock', description='Indicates whether block replication is enabled for the system disk partition. Valid values:
 
-- true：系统盘分区支持块复制。
-- false：系统盘分区不支持块复制。', example='false'),
-              path?: string(name='Path', description='系统盘分区路径。', example='/home/data'),
-              sizeBytes?: long(name='SizeBytes', description='系统盘分区大小。单位：Byte。', example='21474836480'),
-              type?: string(name='Type', description='系统盘分区类型。可能值：
-- Normal：普通分区。
-- System：系统分区。
-- Boot：启动分区。', example='Normal'),
+*   true: Block replication is enabled for the system disk partition.
+*   false: Block replication is disabled for the system disk partition.', example='false'),
+              path?: string(name='Path', description='The path of the system disk partition.', example='/home/data'),
+              sizeBytes?: long(name='SizeBytes', description='The size of the system disk partition. Unit: bytes.', example='21474836480'),
+              type?: string(name='Type', description='The type of the system disk partition. Valid values:
+
+*   Normal: normal partition.
+*   System: system partition.
+*   Boot: boot partition.', example='Normal'),
             }
           ](name='Part')
-          }(name='Parts', description='系统盘分区信息。'),
-          size?: int32(name='Size', description='迁移源系统盘的大小，单位：GiB。取值范围为20~32768。
+          }(name='Parts', description='The information about the system disk partition.'),
+          size?: int32(name='Size', description='The size of the source system disk. Unit: GiB. Valid values: 20 to 32768.
 
->参数取值需要大于源服务器数据盘实际占用大小。例如，源数据盘大小为500 GiB，实际占用100 GiB，则该参数取值需大于100 GiB。', example='100'),
-        }(name='System', description='系统盘信息。'),
-      }(name='Disks', description='磁盘信息。'),
+>  The parameter value must be greater than the actual used space of the data disk on the source server. For example, if the size of the source disk is 500 GiB but the actual used space is 100 GiB, you must set this parameter to a value greater than 100 GiB.', example='100'),
+        }(name='System', description='The information about the system disk.'),
+      }(name='Disks', description='The information about the disk.'),
       errorCode?: string(name='ErrorCode', description='The error code of the migration source.', example='SourceServer.Offline'),
       heartbeatRate?: int32(name='HeartbeatRate', description='The interval at which heartbeats are sent from the SMC client. Unit: seconds.', example='30'),
       jobId?: string(name='JobId', description='The ID of the last migration job.', example='j-bp19vlwm0tyigbmj****'),
@@ -942,7 +986,8 @@ model DescribeSourceServersResponseBody = {
       state?: string(name='State', description='The state of the migration source.', example='InUse'),
       statusInfo?: string(name='StatusInfo', description='The status information of the migration source. This parameter is returned if the migration source is in the Unavailable state. The value of this parameter consists of key-value pairs in the JSON format. Sample keys:
 
-    error_code: the error code.error_msg: the error message.', example='{"error_code": "S1", "error_msg": "Rsync not found. Please install rsync."}'),
+    error_code: The error code.
+    error_msg: the error message.', example='{"error_code": "S1", "error_msg": "Rsync not found. Please install rsync."}'),
       systemDiskParts?: {
         systemDiskPart?: [ 
         {
@@ -950,39 +995,39 @@ model DescribeSourceServersResponseBody = {
           device?: string(name='Device', description='The device ID of the system disk partition.', example='0_0'),
           need?: boolean(name='Need', description='Indicates whether the system disk partition must be selected.', example='true'),
           path?: string(name='Path', description='The path of the system disk partition.', example='/boot'),
-          sizeBytes?: long(name='SizeBytes', description='The size of the system disk partition. Unit: byte.', example='254803968'),
+          sizeBytes?: long(name='SizeBytes', description='The size of the system disk partition. Unit: bytes.', example='254803968'),
         }
       ](name='SystemDiskPart')
       }(name='SystemDiskParts', description='The information about the system disk partition.'),
-      systemDiskSize?: int32(name='SystemDiskSize', description='The system disk size of the migration source. Unit: GiB.', example='40'),
-      systemInfo?: string(name='SystemInfo', description='The system information of the migration source. The value of this parameter consists of key-value pairs in the JSON format. The key-value pairs are extensible and have fixed keys. The JSON string does not exceed 1 KB in size. Sample keys:
+      systemDiskSize?: int32(name='SystemDiskSize', description='The system disk size of the migration source. Unit: GiB', example='40'),
+      systemInfo?: string(name='SystemInfo', description='The system information of the migration source. The parameter must be specified as key-value pairs in the JSON format. The key-value pairs are extensible and have fixed keys. Maximum value: 1 KB. Example:
 
-    agent_mode: The migration mode.
-    agent_type: The migration type.
-    client_type: The client type.
-    hostname: The host name.
-    ipv4: The IPv4 address.
-    ipv6: The IPv6 address.
-    .cores: The number of CPU cores.
-    cpu_usage: The CPU utilization.
-    memory: The memory size.
-    memory_usage: The memory usage.', example='{\\"agent_mode\\":\\"daemon\\",\\"agent_type\\":\\"aliyun\\",\\"client_type\\":\\"\\",\\"cores\\":\\"2\\",\\"cpu_usage\\":\\"0.00\\",\\"hostname\\":\\"ixxxxxxxxxx\\",\\"ipv4\\":\\"10.0.0.1\\",\\"memory\\":\\"8.00\\",\\"memory_usage\\":\\"3.61\\"}'),
+    agent_mode: the running mode.
+    agent_type: the type of the run.
+    client_type: the type of the client.
+    hostname : the hostname.
+    ipv4:IPv4 address
+    ipv6: IPv6 address
+    cores: the number of CPU cores.
+    cpu_usage: the CPU utilization.
+    memory: the memory size.
+    memory_usage: the memory usage.', example='{\\"agent_mode\\":\\"daemon\\",\\"agent_type\\":\\"aliyun\\",\\"client_type\\":\\"\\",\\"cores\\":\\"2\\",\\"cpu_usage\\":\\"0.00\\",\\"hostname\\":\\"ixxxxxxxxxx\\",\\"ipv4\\":\\"10.0.0.1\\",\\"memory\\":\\"8.00\\",\\"memory_usage\\":\\"3.61\\"}'),
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key', description='The key of tag N that is added to the SMC resource. Valid values of N: 1 to 20
+          key?: string(name='Key', description='The key of tag N that is attached to the SMC resource. Valid values of N: 1 to 20.
 
-You cannot specify empty strings as tag keys. It can be up to 64 characters in length and cannot start with acs: or aliyun. It cannot contain http:// or https://.', example='TestKey'),
-          value?: string(name='Value', description='The value of tag N that is added to the SMC resource. Valid values of N: 1 to 20
+You cannot specify an empty string as a tag key. The tag key can be up to 64 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.', example='TestKey'),
+          value?: string(name='Value', description='The value of tag N that is attached to the SMC resource. Valid values of N: 1 to 20.
 
-The tag key can be an empty string. It can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
+The tag key can be an empty string. The tag value can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
         }
       ](name='Tag')
-      }(name='Tags', description='The information about the tags.'),
-      workgroupId?: string(name='WorkgroupId', description='工作组ID。', example='w-bp1ja22kdqphehlj****'),
+      }(name='Tags', description='The tag details.'),
+      workgroupId?: string(name='WorkgroupId', description='The workgroup ID.', example='w-bp1ja22kdqphehlj****'),
     }
   ](name='SourceServer')
-  }(name='SourceServers', description='The information about migration sources.'),
+  }(name='SourceServers', description='The information about the migration source.'),
   totalCount?: int32(name='TotalCount', description='The total number of migration sources returned.', example='1'),
 }
 
@@ -993,8 +1038,8 @@ model DescribeSourceServersResponse = {
 }
 
 /**
-  * @description ## Usage notes
-  * You can specify multiple request parameters to be queried. Specified parameters are evaluated by using the AND operator. Only the specified parameters are used as filter conditions.
+  * @description ## [](#)Usage notes
+  * You can specify multiple request parameters to filter instances. Specified parameters have logical AND relations. Only the specified parameters are used as filter conditions.
   * @param request  the request parameters of DescribeSourceServers  DescribeSourceServersRequest
   * @return DescribeSourceServersResponse
  */
@@ -1006,7 +1051,7 @@ async function describeSourceServers(request: DescribeSourceServersRequest): Des
 model DescribeWorkgroupsRequest {
   name?: string(name='Name', description='The name of the workgroup.', example='test', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1. Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50. Default value: 10.', example='10', maximum=50, position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   status?: string(name='Status', description='The state of the workgroup. Valid values:
@@ -1017,10 +1062,14 @@ model DescribeWorkgroupsRequest {
 *   Completed', example='InProgress', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key of the workgroup. Valid values of N: 1 to 20.
+
+You cannot specify an empty string as a tag key. The tag key can be up to 64 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.', example='TestKey'),
+      value?: string(name='Value', description='The tag value of the workgroup. Valid values of N: 1 to 20.
+
+You can specify an empty string as a tag value. The tag value can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
     }
-  ](name='Tag', position='Query'),
+  ](name='Tag', description='The list of tag information of workgroups.', position='Query'),
   workgroupId?: [ string ](name='WorkgroupId', description='The workgroup IDs. You can specify up to 50 workgroup IDs.', position='Query'),
 }
 
@@ -1043,11 +1092,15 @@ model DescribeWorkgroupsResponseBody = {
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key'),
-          value?: string(name='Value'),
+          key?: string(name='Key', description='The tag key of the workgroup.
+
+You can specify an empty string as a tag key. The tag key can be up to 64 characters in length and cannot contain http:// or https://.', example='TestKey'),
+          value?: string(name='Value', description='The tag value of the workgroup. Valid values of N: 1 to 20.
+
+You can specify an empty string as a tag value. The tag value can be up to 64 characters in length and cannot contain http:// or https://.', example='TestValue'),
         }
       ](name='Tag')
-      }(name='Tags'),
+      }(name='Tags', description='The tag information of the workgroup.'),
       warnings?: {
         warning?: [ 
         {
