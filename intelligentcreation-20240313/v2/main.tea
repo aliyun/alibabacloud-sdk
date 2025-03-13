@@ -26,6 +26,19 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model AddDocumentInfo {
+  documentType?: string(name='documentType', description='This parameter is required.', example='pdf'),
+  name?: string(name='name', description='This parameter is required.'),
+  url?: string(name='url', description='This parameter is required.'),
+}
+
+model AddDocumentResult {
+  docName?: string(name='docName', example='example.pdf'),
+  documentInfo?: DocumentInfo(name='documentInfo'),
+  errorMessage?: string(name='errorMessage', example='true'),
+  success?: boolean(name='success', example='true'),
+}
+
 model AnchorResponse {
   anchorCategory?: string(name='anchorCategory'),
   anchorId?: string(name='anchorId'),
@@ -42,6 +55,25 @@ model AnchorResponse {
   status?: string(name='status'),
   supportBgChange?: int32(name='supportBgChange'),
   useScene?: string(name='useScene'),
+}
+
+model BatchAddDocumentResult {
+  addDocumentResults?: [
+    AddDocumentResult
+  ](name='addDocumentResults', description='This parameter is required.'),
+  requestId?: string(name='requestId', example='3239281273464326823'),
+}
+
+model DocumentInfo {
+  documentType?: string(name='documentType'),
+  id?: string(name='id'),
+  name?: string(name='name'),
+  processStatus?: string(name='processStatus'),
+}
+
+model DocumentResult {
+  documentInfo?: DocumentInfo(name='documentInfo'),
+  requestId?: string(name='requestId', example='3239281273464326823'),
 }
 
 model GetOssUploadTokenResult {
@@ -82,6 +114,22 @@ model IllustrationTaskCreateCmd {
 model IllustrationTaskResult {
   illustrationTask?: IllustrationTask(name='illustrationTask'),
   requestId?: string(name='requestId', example='3239281273464326823'),
+}
+
+model KnowledgeBaseInfo {
+  description?: string(name='description'),
+  id?: string(name='id'),
+  industry?: string(name='industry'),
+  knowledgeBaseType?: string(name='knowledgeBaseType'),
+  name?: string(name='name'),
+}
+
+model KnowledgeBaseListResult {
+  knowledgeBases?: [
+    KnowledgeBaseInfo
+  ](name='knowledgeBases'),
+  requestId?: string(name='requestId', example='3239281273464326823'),
+  total?: int32(name='total', description='This parameter is required.', example='10'),
 }
 
 model ReferenceTag {
@@ -277,6 +325,67 @@ async function addTextFeedback(request: AddTextFeedbackRequest): AddTextFeedback
   return addTextFeedbackWithOptions(request, headers, runtime);
 }
 
+model BatchAddDocumentRequest {
+  addDocumentInfos?: [
+    AddDocumentInfo
+  ](name='addDocumentInfos'),
+}
+
+model BatchAddDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchAddDocumentResult  
+}
+
+/**
+ * @summary 批量添加知识文档
+ *
+ * @param request BatchAddDocumentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchAddDocumentResponse
+ */
+async function batchAddDocumentWithOptions(knowledgeBaseId: string, request: BatchAddDocumentRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchAddDocumentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.addDocumentInfos)) {
+    body['addDocumentInfos'] = request.addDocumentInfos;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchAddDocument',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/knowledge-base/${$URL.percentEncode(knowledgeBaseId)}/documents`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 批量添加知识文档
+ *
+ * @param request BatchAddDocumentRequest
+ * @return BatchAddDocumentResponse
+ */
+async function batchAddDocument(knowledgeBaseId: string, request: BatchAddDocumentRequest): BatchAddDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchAddDocumentWithOptions(knowledgeBaseId, request, headers, runtime);
+}
+
 model BatchCreateAICoachTaskRequest {
   requestId?: string(name='requestId', example='7915125A-0D96-5A25-A54B-D3B739A86AFC'),
   scriptRecordId?: string(name='scriptRecordId', example='1'),
@@ -429,6 +538,196 @@ async function batchGetProjectTask(request: BatchGetProjectTaskRequest): BatchGe
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return batchGetProjectTaskWithOptions(request, headers, runtime);
+}
+
+model BatchGetTrainTaskRequest {
+  aliyunMainId?: string(name='aliyunMainId', example='1524004782431111'),
+  taskIdList?: [ string ](name='taskIdList'),
+}
+
+model BatchGetTrainTaskShrinkRequest {
+  aliyunMainId?: string(name='aliyunMainId', example='1524004782431111'),
+  taskIdListShrink?: string(name='taskIdList'),
+}
+
+model BatchGetTrainTaskResponseBody = {
+  requestId?: string(name='requestId', example='2226A26A-26E5-5AB9-A14A-54D612FCF96A'),
+  voiceList?: [ 
+    {
+      aliyunSubId?: string(name='aliyunSubId', example='1524004782438111'),
+      auditFailMessage?: string(name='auditFailMessage'),
+      auditStatus?: string(name='auditStatus', example='auditFail'),
+      createTime?: string(name='createTime', example='yyyy-MM-dd HH:mm:ss'),
+      gender?: string(name='gender', example='M'),
+      name?: string(name='name'),
+      resSpecType?: string(name='resSpecType', example='BASIC_MODEL'),
+      taskId?: string(name='taskId', example='837091359375048704'),
+      taskType?: string(name='taskType', example='CopyVoice'),
+      trainFailMessage?: string(name='trainFailMessage'),
+      trainStatus?: string(name='trainStatus', example='trainFail'),
+      useScene?: string(name='useScene', example='realTimeInteractivity'),
+      voiceMaterial?: {
+        voiceId?: long(name='voiceId', example='1'),
+        voiceLanguage?: string(name='voiceLanguage', example='zh'),
+        voiceUrl?: string(name='voiceUrl', example='http://www.voice.com'),
+      }(name='voiceMaterial'),
+    }
+  ](name='voiceList'),
+}
+
+model BatchGetTrainTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchGetTrainTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量查询声音复刻任务
+ *
+ * @param tmpReq BatchGetTrainTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchGetTrainTaskResponse
+ */
+async function batchGetTrainTaskWithOptions(tmpReq: BatchGetTrainTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchGetTrainTaskResponse {
+  tmpReq.validate();
+  var request = new BatchGetTrainTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.taskIdList)) {
+    request.taskIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskIdList, 'taskIdList', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.aliyunMainId)) {
+    query['aliyunMainId'] = request.aliyunMainId;
+  }
+  if (!$isNull(request.taskIdListShrink)) {
+    query['taskIdList'] = request.taskIdListShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchGetTrainTask',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/train/task/batchGetTrainTaskInfo`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 批量查询声音复刻任务
+ *
+ * @param request BatchGetTrainTaskRequest
+ * @return BatchGetTrainTaskResponse
+ */
+async function batchGetTrainTask(request: BatchGetTrainTaskRequest): BatchGetTrainTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchGetTrainTaskWithOptions(request, headers, runtime);
+}
+
+model BatchGetVideoClipTaskRequest {
+  taskIdList?: [ string ](name='taskIdList'),
+}
+
+model BatchGetVideoClipTaskShrinkRequest {
+  taskIdListShrink?: string(name='taskIdList'),
+}
+
+model BatchGetVideoClipTaskResponseBody = {
+  requestId?: string(name='requestId', example='86A90C40-D1AB-50DA-A4B1-0D545F80F2FE'),
+  taskList?: [ 
+    {
+      status?: string(name='status', example='FINISHED'),
+      taskId?: string(name='taskId', example='864413342857035776'),
+      totalDuration?: double(name='totalDuration', example='43335'),
+      totalToken?: long(name='totalToken', example='11'),
+      videoList?: [ 
+        {
+          beginTime?: int32(name='beginTime', example='0'),
+          description?: string(name='description'),
+          endTime?: int32(name='endTime', example='11110'),
+          errorMsg?: string(name='errorMsg'),
+          title?: string(name='title'),
+          videoDownloadUrl?: string(name='videoDownloadUrl', example='https://e-ai.oss-cn-guangzhou.aliyuncs.com/video/jlkasdl.mp4'),
+          videoName?: string(name='videoName'),
+          videoUrl?: string(name='videoUrl', example='https://e-ai.oss-cn-guangzhou.aliyuncs.com/video/jlkasdl.mp4'),
+        }
+      ](name='videoList'),
+    }
+  ](name='taskList'),
+}
+
+model BatchGetVideoClipTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchGetVideoClipTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量查询视频切片任务信息
+ *
+ * @param tmpReq BatchGetVideoClipTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchGetVideoClipTaskResponse
+ */
+async function batchGetVideoClipTaskWithOptions(tmpReq: BatchGetVideoClipTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchGetVideoClipTaskResponse {
+  tmpReq.validate();
+  var request = new BatchGetVideoClipTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.taskIdList)) {
+    request.taskIdListShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.taskIdList, 'taskIdList', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.taskIdListShrink)) {
+    query['taskIdList'] = request.taskIdListShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchGetVideoClipTask',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/video/clip/batchGetVideoClipTask`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 批量查询视频切片任务信息
+ *
+ * @param request BatchGetVideoClipTaskRequest
+ * @return BatchGetVideoClipTaskResponse
+ */
+async function batchGetVideoClipTask(request: BatchGetVideoClipTaskRequest): BatchGetVideoClipTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchGetVideoClipTaskWithOptions(request, headers, runtime);
 }
 
 model BatchQueryIndividuationTextRequest {
@@ -1353,6 +1652,174 @@ async function createTextTask(request: CreateTextTaskRequest): CreateTextTaskRes
   return createTextTaskWithOptions(request, headers, runtime);
 }
 
+model CreateTrainTaskRequest {
+  aliyunMainId?: string(name='aliyunMainId', example='13168123111'),
+  resSpecType?: string(name='resSpecType', example='BASIC_MODEL'),
+  taskType?: string(name='taskType', example='CopyAnchorAndVoice'),
+  useScene?: string(name='useScene', example='realTimeInteractivity'),
+  voiceGender?: string(name='voiceGender', example='M'),
+  voiceLanguage?: string(name='voiceLanguage', example='zh'),
+  voiceName?: string(name='voiceName'),
+  voicePath?: string(name='voicePath', example='https://yic-pre/video/test-0513.mp3'),
+}
+
+model CreateTrainTaskResponseBody = {
+  requestId?: string(name='requestId', example='84657DE0-B68C-508B-AFE7-8ED921854E3C'),
+  taskId?: string(name='taskId', example='837091359375048704'),
+}
+
+model CreateTrainTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTrainTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 提交声音复刻任务
+ *
+ * @param request CreateTrainTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTrainTaskResponse
+ */
+async function createTrainTaskWithOptions(request: CreateTrainTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTrainTaskResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.aliyunMainId)) {
+    body['aliyunMainId'] = request.aliyunMainId;
+  }
+  if (!$isNull(request.resSpecType)) {
+    body['resSpecType'] = request.resSpecType;
+  }
+  if (!$isNull(request.taskType)) {
+    body['taskType'] = request.taskType;
+  }
+  if (!$isNull(request.useScene)) {
+    body['useScene'] = request.useScene;
+  }
+  if (!$isNull(request.voiceGender)) {
+    body['voiceGender'] = request.voiceGender;
+  }
+  if (!$isNull(request.voiceLanguage)) {
+    body['voiceLanguage'] = request.voiceLanguage;
+  }
+  if (!$isNull(request.voiceName)) {
+    body['voiceName'] = request.voiceName;
+  }
+  if (!$isNull(request.voicePath)) {
+    body['voicePath'] = request.voicePath;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTrainTask',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/train/task/createTrainTask`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 提交声音复刻任务
+ *
+ * @param request CreateTrainTaskRequest
+ * @return CreateTrainTaskResponse
+ */
+async function createTrainTask(request: CreateTrainTaskRequest): CreateTrainTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createTrainTaskWithOptions(request, headers, runtime);
+}
+
+model CreateVideoClipTaskRequest {
+  aliyunMainId?: string(name='aliyunMainId', example='1314445556'),
+  description?: string(name='description'),
+  ossKeys?: [ string ](name='ossKeys'),
+  requirement?: string(name='requirement'),
+}
+
+model CreateVideoClipTaskResponseBody = {
+  requestId?: string(name='requestId', example='86A90C40-D1AB-50DA-A4B1-0D545F80F2FE'),
+  taskId?: string(name='taskId', example='837091359375048704'),
+}
+
+model CreateVideoClipTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateVideoClipTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 提交视频切片任务
+ *
+ * @param request CreateVideoClipTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateVideoClipTaskResponse
+ */
+async function createVideoClipTaskWithOptions(request: CreateVideoClipTaskRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateVideoClipTaskResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.aliyunMainId)) {
+    body['aliyunMainId'] = request.aliyunMainId;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.ossKeys)) {
+    body['ossKeys'] = request.ossKeys;
+  }
+  if (!$isNull(request.requirement)) {
+    body['requirement'] = request.requirement;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateVideoClipTask',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/video/clip/createVideoClipTask`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 提交视频切片任务
+ *
+ * @param request CreateVideoClipTaskRequest
+ * @return CreateVideoClipTaskResponse
+ */
+async function createVideoClipTask(request: CreateVideoClipTaskRequest): CreateVideoClipTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createVideoClipTaskWithOptions(request, headers, runtime);
+}
+
 model DeleteIndividuationProjectRequest {
   projectId?: string(name='projectId', example='840015278620459008'),
 }
@@ -1483,6 +1950,52 @@ async function deleteIndividuationText(request: DeleteIndividuationTextRequest):
   return deleteIndividuationTextWithOptions(request, headers, runtime);
 }
 
+model DescribeDocumentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DocumentResult  
+}
+
+/**
+ * @summary 查询文档信息与状态
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocumentResponse
+ */
+async function describeDocumentWithOptions(knowledgeBaseId: string, documentId: string, headers: map[string]string, runtime: $RuntimeOptions): DescribeDocumentResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeDocument',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/knowledge-base/${$URL.percentEncode(knowledgeBaseId)}/documents/${$URL.percentEncode(documentId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询文档信息与状态
+ *
+ * @return DescribeDocumentResponse
+ */
+async function describeDocument(knowledgeBaseId: string, documentId: string): DescribeDocumentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeDocumentWithOptions(knowledgeBaseId, documentId, headers, runtime);
+}
+
 model FinishAICoachTaskSessionRequest {
   sessionId?: string(name='sessionId', example='111'),
   uid?: string(name='uid', example='222'),
@@ -1593,6 +2106,8 @@ model GetAICoachScriptResponseBody = {
       answerList?: [ 
         {
           name?: string(name='name'),
+          nameList?: [ string ](name='nameList'),
+          operators?: string(name='operators'),
           parameters?: [ 
             {
               name?: string(name='name', example='name'),
@@ -1704,6 +2219,7 @@ model GetAICoachTaskSessionHistoryResponseBody = {
   conversationList?: [ 
     {
       audioUrl?: string(name='audioUrl'),
+      evaluationFeedback?: string(name='evaluationFeedback'),
       evaluationResult?: string(name='evaluationResult', example='{}'),
       message?: string(name='message'),
       recordId?: string(name='recordId'),
@@ -1956,6 +2472,7 @@ async function getIllustrationTask(textId: string, illustrationTaskId: string): 
 model GetOssUploadTokenRequest {
   fileName?: string(name='fileName', description='This parameter is required.', example='8021678.png'),
   fileType?: string(name='fileType', description='This parameter is required.', example='ProductImage'),
+  uploadType?: int32(name='uploadType'),
 }
 
 model GetOssUploadTokenResponse = {
@@ -1980,6 +2497,9 @@ async function getOssUploadTokenWithOptions(request: GetOssUploadTokenRequest, h
   }
   if (!$isNull(request.fileType)) {
     query['fileType'] = request.fileType;
+  }
+  if (!$isNull(request.uploadType)) {
+    query['uploadType'] = request.uploadType;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -2554,6 +3074,108 @@ async function listAICoachTaskPage(request: ListAICoachTaskPageRequest): ListAIC
   return listAICoachTaskPageWithOptions(request, headers, runtime);
 }
 
+model ListAgentsRequest {
+  agentId?: string(name='agentId', example='840016700254633984'),
+  agentScene?: string(name='agentScene', example='text'),
+  owner?: string(name='owner', example='SYSTEM'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  status?: int32(name='status', example='0'),
+}
+
+model ListAgentsResponseBody = {
+  list?: [ 
+    {
+      agentId?: string(name='agentId', example='840016700254633984'),
+      agentName?: string(name='agentName'),
+      agentScene?: string(name='agentScene', example='text'),
+      charactersDescription?: string(name='charactersDescription'),
+      enableInteraction?: int32(name='enableInteraction', example='1'),
+      industry?: string(name='industry', example='Car'),
+      onlineSearch?: boolean(name='onlineSearch', example='true'),
+      owner?: string(name='owner', example='SYSTEM'),
+      referenceUrl?: string(name='referenceUrl', example='http
+;//www.abc.com/111.mp4'),
+      status?: int32(name='status', example='0'),
+      textStyle?: string(name='textStyle', example='RED_BOOK'),
+      viewer?: string(name='viewer', example='Seller'),
+    }
+  ](name='list'),
+  requestId?: string(name='requestId', example='86A90C40-D1AB-50DA-A4B1-0D545F80F2FE'),
+  success?: boolean(name='success', example='true'),
+  total?: int32(name='total', example='10'),
+}
+
+model ListAgentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAgentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 分页查询智能体
+ *
+ * @param request ListAgentsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAgentsResponse
+ */
+async function listAgentsWithOptions(request: ListAgentsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListAgentsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.agentId)) {
+    query['agentId'] = request.agentId;
+  }
+  if (!$isNull(request.agentScene)) {
+    query['agentScene'] = request.agentScene;
+  }
+  if (!$isNull(request.owner)) {
+    query['owner'] = request.owner;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.status)) {
+    query['status'] = request.status;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAgents',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/agent/listAgents`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 分页查询智能体
+ *
+ * @param request ListAgentsRequest
+ * @return ListAgentsResponse
+ */
+async function listAgents(request: ListAgentsRequest): ListAgentsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAgentsWithOptions(request, headers, runtime);
+}
+
 model ListAnchorRequest {
   anchorCategory?: string(name='anchorCategory'),
   anchorType?: string(name='anchorType', example='PUBLIC_MODEL'),
@@ -2734,6 +3356,73 @@ async function listAvatarProject(request: ListAvatarProjectRequest): ListAvatarP
   return listAvatarProjectWithOptions(request, headers, runtime);
 }
 
+model ListKnowledgeBaseRequest {
+  knowledgeBaseId?: string(name='knowledgeBaseId', example='"186432649"'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+}
+
+model ListKnowledgeBaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: KnowledgeBaseListResult  
+}
+
+/**
+ * @summary 查询知识库
+ *
+ * @param request ListKnowledgeBaseRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKnowledgeBaseResponse
+ */
+async function listKnowledgeBaseWithOptions(request: ListKnowledgeBaseRequest, headers: map[string]string, runtime: $RuntimeOptions): ListKnowledgeBaseResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.knowledgeBaseId)) {
+    query['knowledgeBaseId'] = request.knowledgeBaseId;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListKnowledgeBase',
+    version = '2024-03-13',
+    protocol = 'HTTPS',
+    pathname = `/yic/yic-console/openService/v1/knowledge-base`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询知识库
+ *
+ * @param request ListKnowledgeBaseRequest
+ * @return ListKnowledgeBaseResponse
+ */
+async function listKnowledgeBase(request: ListKnowledgeBaseRequest): ListKnowledgeBaseResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listKnowledgeBaseWithOptions(request, headers, runtime);
+}
+
 model ListTextThemesRequest {
   industry?: string(name='industry'),
 }
@@ -2885,6 +3574,7 @@ model ListVoiceModelsRequest {
   pageSize?: int32(name='pageSize', example='10'),
   resSpecType?: string(name='resSpecType'),
   useScene?: string(name='useScene', example='offlineSynthesis'),
+  voiceLanguage?: string(name='voiceLanguage'),
   voiceType?: string(name='voiceType', example='PRIVATE_VOICE'),
 }
 
@@ -2928,6 +3618,9 @@ async function listVoiceModelsWithOptions(request: ListVoiceModelsRequest, heade
   }
   if (!$isNull(request.useScene)) {
     query['useScene'] = request.useScene;
+  }
+  if (!$isNull(request.voiceLanguage)) {
+    query['voiceLanguage'] = request.voiceLanguage;
   }
   if (!$isNull(request.voiceType)) {
     query['voiceType'] = request.voiceType;
@@ -3426,6 +4119,8 @@ async function queryTextStream(textId: string): QueryTextStreamResponse {
 
 model SaveAvatarProjectRequest {
   agentId?: string(name='agentId', example='1000196'),
+  bitRate?: string(name='bitRate'),
+  frameRate?: string(name='frameRate'),
   frames?: [ 
     {
       layers?: [ 
@@ -3444,6 +4139,7 @@ model SaveAvatarProjectRequest {
       ](name='layers'),
       videoScript?: {
         speedRate?: string(name='speedRate', example='1.0'),
+        voiceLanguage?: string(name='voiceLanguage'),
         voiceTemplateId?: string(name='voiceTemplateId', example='1'),
         volume?: string(name='volume', example='50'),
       }(name='videoScript'),
@@ -3455,6 +4151,7 @@ model SaveAvatarProjectRequest {
   resSpecType?: string(name='resSpecType', example='STANDARD'),
   resolution?: string(name='resolution'),
   scaleType?: string(name='scaleType', example='9:16'),
+  synchronizedDisplay?: string(name='synchronizedDisplay'),
 }
 
 model SaveAvatarProjectResponseBody = {
@@ -3488,6 +4185,12 @@ async function saveAvatarProjectWithOptions(request: SaveAvatarProjectRequest, h
   if (!$isNull(request.agentId)) {
     body['agentId'] = request.agentId;
   }
+  if (!$isNull(request.bitRate)) {
+    body['bitRate'] = request.bitRate;
+  }
+  if (!$isNull(request.frameRate)) {
+    body['frameRate'] = request.frameRate;
+  }
   if (!$isNull(request.frames)) {
     body['frames'] = request.frames;
   }
@@ -3508,6 +4211,9 @@ async function saveAvatarProjectWithOptions(request: SaveAvatarProjectRequest, h
   }
   if (!$isNull(request.scaleType)) {
     body['scaleType'] = request.scaleType;
+  }
+  if (!$isNull(request.synchronizedDisplay)) {
+    body['synchronizedDisplay'] = request.synchronizedDisplay;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -4097,10 +4803,13 @@ model SubmitProjectTaskRequest {
       }(name='subtitle'),
       videoScript?: {
         audioUrl?: string(name='audioUrl', example='https://meeting.dingtalk.com/j/1COFppy0POR'),
+        emotion?: string(name='emotion'),
+        pitchRate?: string(name='pitchRate'),
         speechOpen?: boolean(name='speechOpen'),
         speedRate?: string(name='speedRate', example='2.0'),
         textContent?: string(name='textContent'),
         type?: string(name='type', example='TEXT'),
+        voiceLanguage?: string(name='voiceLanguage'),
         voiceTemplateId?: long(name='voiceTemplateId', example='11'),
         volume?: int32(name='volume', example='20'),
       }(name='videoScript'),
