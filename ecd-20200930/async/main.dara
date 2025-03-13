@@ -4028,7 +4028,7 @@ async function deleteConfigGroup(request: DeleteConfigGroupRequest): DeleteConfi
 }
 
 model DeleteDesktopGroupRequest {
-  desktopGroupId: string(name='DesktopGroupId', description='The ID of the desktop group.
+  desktopGroupId: string(name='DesktopGroupId', description='The ID of the cloud computer share.
 
 This parameter is required.', example='dg-2i8qxpv6t1a03****', position='Query'),
   regionId: string(name='RegionId', description='The region ID.
@@ -4047,9 +4047,9 @@ model DeleteDesktopGroupResponse = {
 }
 
 /**
-  * @description *   Before you delete a desktop group, make sure that cloud desktops in the desktop group are not connected and no users are authorized to use the cloud desktops.
-  * *   You cannot delete a subscription desktop group when cloud desktops in the group are in valid period.
-  * *   If you delete a pay-as-you-go desktop group, cloud desktops in the group are deleted.
+  * @description *   Before releasing a cloud computer share, ensure that no cloud computers within it are in the Connected state and that no end users have access permissions to it.
+  * *   You cannot delete a cloud computer share with an active subscription if it contains cloud computers that have not yet expired.
+  * *   Deleting a pay-as-you-go cloud computer share will release all pay-as-you-go cloud computers within it.
   * @param request  the request parameters of DeleteDesktopGroup  DeleteDesktopGroupRequest
   * @return DeleteDesktopGroupResponse
  */
@@ -5506,13 +5506,18 @@ async function describeDesktopGroupSessions(request: DescribeDesktopGroupSession
 model DescribeDesktopGroupsRequest {
   bundleId?: [ string ](name='BundleId', description='The IDs of the cloud computer templates.', position='Query'),
   desktopGroupId?: string(name='DesktopGroupId', description='The ID of the cloud computer pool.', example='dg-2i8qxpv6t1a03****', position='Query'),
-  desktopGroupIds?: [ string ](name='DesktopGroupIds', position='Query'),
+  desktopGroupIds?: [ string ](name='DesktopGroupIds', description='The IDs of the cloud computer pool.', position='Query'),
   desktopGroupName?: string(name='DesktopGroupName', description='The name of the cloud computer pool to query. Fuzzy search is supported.', example='testName', position='Query'),
   endUserIds?: [ string ](name='EndUserIds', description='The authorized user IDs of cloud computer pools.', position='Query'),
   excludedEndUserIds?: [ string ](name='ExcludedEndUserIds', description='The authorized users that you want to exclude.', position='Query'),
   imageId?: [ string ](name='ImageId', description='The IDs of the images.', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: 1 to 100. Default value: 10.', example='10', position='Query'),
-  multiResource?: boolean(name='MultiResource', position='Query'),
+  multiResource?: boolean(name='MultiResource', description='Specifies whether the shared group is a multi-cloud computer type.
+
+Valid values:
+
+- true: a multi-cloud computer type.
+- false: a single-cloud computer type.', example='true', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. If the NextToken parameter is empty, no next page exists.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
   officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network to which the cloud computer pool belongs.', example='cn-hangzhou+dir-467671****', position='Query'),
   ownType?: long(name='OwnType', description='The type of the cloud computer pool.
@@ -6529,6 +6534,22 @@ Valid values:
       creationTime?: string(name='CreationTime', description='The time when the cloud computer was created.', example='2020-11-06T08:28Z'),
       dataDiskCategory?: string(name='DataDiskCategory', description='>  This parameter is in invitational preview and is not publicly available.', example='null'),
       dataDiskSize?: string(name='DataDiskSize', description='>  This parameter is in invitational preview and is not publicly available.', example='null'),
+      desktopDurationList?: [ 
+        {
+          orderInstanceId?: string(name='OrderInstanceId'),
+          packageCreationTime?: string(name='PackageCreationTime'),
+          packageExpiredTime?: string(name='PackageExpiredTime'),
+          packageId?: string(name='PackageId'),
+          packageStatus?: string(name='PackageStatus'),
+          packageType?: string(name='PackageType'),
+          packageUsedUpStrategy?: string(name='PackageUsedUpStrategy'),
+          periodEndTime?: string(name='PeriodEndTime'),
+          periodStartTime?: string(name='PeriodStartTime'),
+          postPaidLimitFee?: float(name='PostPaidLimitFee'),
+          totalDuration?: long(name='TotalDuration'),
+          usedDuration?: long(name='UsedDuration'),
+        }
+      ](name='DesktopDurationList'),
       desktopGroupId?: string(name='DesktopGroupId', description='The ID of the cloud computer pool to which cloud computers belong. Default value: null.``', example='null'),
       desktopId?: string(name='DesktopId', description='The cloud computer ID.', example='ecd-gx2x1dhsmucyy****'),
       desktopName?: string(name='DesktopName', description='The cloud computer name.', example='testDesktopName'),
@@ -6719,7 +6740,7 @@ async function describeDesktops(request: DescribeDesktopsRequest): DescribeDeskt
 model DescribeDesktopsInGroupRequest {
   customEndTimePeriod?: long(name='CustomEndTimePeriod', position='Query'),
   customStartTimePeriod?: long(name='CustomStartTimePeriod', position='Query'),
-  desktopGroupId: string(name='DesktopGroupId', description='The ID of the cloud computer pool.
+  desktopGroupId: string(name='DesktopGroupId', description='The ID of the cloud computer share.
 
 This parameter is required.', example='dg-2i8qxpv6t1a03****', position='Query'),
   ignoreDeleted?: boolean(name='IgnoreDeleted', description='Specifies whether to ignore deletion flags.
@@ -6728,16 +6749,20 @@ Default value: true. Valid values:
 
 *   true: ignores deletion flags. The cloud computers that were deleted are returned.
 *   false: does not ignore deletion flags. The cloud computers that were deleted are not returned.', example='true', position='Query'),
-  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: 1 to 100. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
-  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. If the NextToken parameter is empty, no next page exists.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
-  payType?: string(name='PayType', description='The billing method of the desktop group.', example='PrePaid', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.
+
+*   Default value: 10.
+*   Maximum value: 100.', example='10', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
+  payType?: string(name='PayType', description='The billing method of the cloud computer share.', example='PrePaid', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model DescribeDesktopsInGroupResponseBody = {
-  nextToken?: string(name='NextToken', description='The returned value of NextToken is a pagination token, which can be used in the next request to retrieve a new page of results.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.
+If NextToken is empty, no next page exists.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   onlinePrePaidDesktopsCount?: int32(name='OnlinePrePaidDesktopsCount', description='The number of subscription cloud computers that are in the Connected state.', example='100'),
   paidDesktops?: [ 
     {
@@ -6856,10 +6881,10 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='SYSTEM'),
-      endUserId?: string(name='EndUserId', description='The ID of the authorized user of the cloud computer.', example='alice'),
-      endUserIds?: [ string ](name='EndUserIds', description='The IDs of the end users who are connected to the cloud computers in the cloud computer pool. If no end users are connected, no values are returned for this parameter.'),
+      endUserId?: string(name='EndUserId', description='The ID of the authorized user.', example='alice'),
+      endUserIds?: [ string ](name='EndUserIds', description='The IDs of the end users who are connected to the cloud computers in the cloud computer share. If no end users are connected, no values are returned for this parameter.'),
       endUserName?: string(name='EndUserName', description='The username of the authorized user.', example='alice'),
-      endUserNames?: [ string ](name='EndUserNames', description='The usernames of the end users who are connected to the cloud computers in the cloud computer pool. If no end users are connected, no values are returned for this parameter.'),
+      endUserNames?: [ string ](name='EndUserNames', description='The usernames of the end users who are connected to the cloud computers in the cloud computer share. If no end users are connected, no values are returned for this parameter.'),
       fotaVersion?: string(name='FotaVersion', description='The image version.', example='0.1.0-R-20220914.17****'),
       gpuDriverVersion?: string(name='GpuDriverVersion', description='The version of the GPU driver.', example='1.0'),
       imageId?: string(name='ImageId', description='The image ID.', example='m-hn5v2mmk0****'),
@@ -6927,8 +6952,8 @@ Valid values:
       resetTime?: string(name='ResetTime', description='The time when the cloud computer was reset.', example='2021-03-03 08:48:08'),
       systemDiskSize?: int32(name='SystemDiskSize', description='The system disk size. Unit: GiB.', example='80'),
     }
-  ](name='PaidDesktops', description='The details about subscription cloud computers.'),
-  paidDesktopsCount?: int32(name='PaidDesktopsCount', description='The total number of queried subscription cloud computers.', example='10'),
+  ](name='PaidDesktops', description='The subscription cloud computers.'),
+  paidDesktopsCount?: int32(name='PaidDesktopsCount', description='The total number of subscription cloud computers.', example='10'),
   postPaidDesktops?: [ 
     {
       connectionStatus?: string(name='ConnectionStatus', description='The connection status of the cloud computer.
@@ -6958,7 +6983,7 @@ Valid values:
     <!-- -->
 
     <!-- -->', example='Connected'),
-      createDuration?: string(name='CreateDuration', description='The retention period of the cloud computer.', example='4153958447'),
+      createDuration?: string(name='CreateDuration', description='The retention period. Unit: milliseconds.', example='4153958447'),
       createTime?: string(name='CreateTime', description='The time when the cloud computer was created.', example='2022-01-21T06:34:57Z'),
       desktopId?: string(name='DesktopId', description='The ID of the cloud computer.', example='ud-2i8qxpv6t1a07****'),
       desktopName?: string(name='DesktopName', description='The name of the cloud computer.', example='testName'),
@@ -7120,8 +7145,8 @@ Valid values:
       resetTime?: string(name='ResetTime', description='The time when the cloud computer was reset.', example='2021-03-03 08:48:08'),
       systemDiskSize?: int32(name='SystemDiskSize', description='The system disk size. Unit: GiB.', example='80'),
     }
-  ](name='PostPaidDesktops', description='The details about pay-as-you-go cloud computers.'),
-  postPaidDesktopsCount?: int32(name='PostPaidDesktopsCount', description='The total number of queried pay-as-you-go cloud computers.', example='10'),
+  ](name='PostPaidDesktops', description='The pay-as-you-go cloud computers.'),
+  postPaidDesktopsCount?: int32(name='PostPaidDesktopsCount', description='The total number of pay-as-you-go cloud computers.', example='10'),
   postPaidDesktopsTotalAmount?: int32(name='PostPaidDesktopsTotalAmount', description='The total amount of bills for pay-as-you-go cloud computers.', example='10000'),
   requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   runningPrePaidDesktopsCount?: int32(name='RunningPrePaidDesktopsCount', description='The number of subscription cloud computers that are in the Running state.', example='100'),
@@ -9421,34 +9446,13 @@ Valid values:
 
 *   120: the 120-hour computing plan.
 *   250: the 250-hour computing plan.', example='120', position='Query'),
-  groupDesktopCount?: int32(name='GroupDesktopCount', description='The number of cloud computers in the cloud computer pool. Default value: 1.
+  groupDesktopCount?: int32(name='GroupDesktopCount', description='The number of cloud computer shares. Default value: 1.
 
 >  This parameter takes effect only if you set `ResourceType` to `DesktopGroup`.', example='1', position='Query'),
-  instanceType?: string(name='InstanceType', description='The resource specifications.
+  instanceType?: string(name='InstanceType', description='The specifications of the resource.
 
-*   If you set `ResourceType` to `Desktop`, you must specify this parameter.
-
-    *   ecd.basic.small
-    *   ecd.basic.large
-    *   ecd.advanced.large
-    *   ecd.advanced.xlarge
-    *   ecd.performance.2xlarge
-    *   ecd.graphics.xlarge
-    *   ecd.graphics.2xlarge
-    *   ecd.advanced.xlarge_s8d2
-    *   ecd.advanced.xlarge_s8d7
-    *   ecd.graphics.1g72c
-    *   eds.general.2c2g
-    *   eds.general.2c4g
-    *   eds.general.2c8g
-    *   eds.general.4c8g
-    *   eds.general.4c16g
-    *   eds.general.8c16g
-    *   eds.general.8c32g
-    *   eds.general.16c32g
-
+*   This parameter is required if you set `ResourceType` to `Desktop`. You can call the [DescribeDesktopTypes](~~DescribeDesktopTypes~~) to query the available cloud computer types that correspond to the value of `DesktopTypeId`.
 *   If you set `ResourceType` to `DesktopGroup`, set the value of this parameter to `large`.
-
 *   If you set `ResourceType` to `Bandwidth`, you can leave this parameter empty.', example='eds.general.2c2g', position='Query'),
   internetChargeType?: string(name='InternetChargeType', description='The metering method for network traffic.
 
@@ -9480,17 +9484,29 @@ Valid values:
   regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~DescribeRegions~~) operation to query the regions supported by EDS.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  resourceType?: string(name='ResourceType', description='The resource type.
+  resourceType?: string(name='ResourceType', description='The type of the resource.
 
 Valid values:
 
-*   DesktopMonthPackage: the monthly subscription plan (also known as the 120-hour or 250-hour computing plan).
-*   Desktop (default): the pay-as-you-go cloud computer or the monthly subscription cloud computer (also known as the Unlimited computing plan).
-*   Bandwidth: the premium bandwidth plan.
-*   DesktopGroup: the cloud computer pool.', example='Desktop', position='Query'),
-  rootDiskCategory?: string(name='RootDiskCategory', example='40', position='Query'),
+*   DesktopMonthPackage: monthly subscription cloud computers that use hourly limit plans.
+*   Desktop (default): pay-as-you-go cloud computers/monthly subscription cloud computers that use unlimited plans.
+*   Bandwidth: premium bandwidth plans.
+*   DesktopGroup: cloud computer shares.', example='Desktop', position='Query'),
+  rootDiskCategory?: string(name='RootDiskCategory', description='The category of the system disk.
+
+Valid values:
+
+*   cloud_efficiency: the ultra disk
+*   cloud_auto: the standard SSD.
+*   cloud_essd: the Enterprise SSD (ESSD). Take note that only specific cloud computer types support ESSDs.', example='40', position='Query'),
   rootDiskSizeGib?: int32(name='RootDiskSizeGib', description='The size of the system disk. Unit: GiB. If you set `ResourceType` to `Desktop`, you must specify this parameter.', example='80', minimum=0, maximum=32768, position='Query'),
-  userDiskCategory?: string(name='UserDiskCategory', example='80', position='Query'),
+  userDiskCategory?: string(name='UserDiskCategory', description='The category of the data disk.
+
+Valid values:
+
+*   cloud_efficiency: the ultra disk
+*   cloud_auto: the standard SSD.
+*   cloud_essd: the ESSD. Take note that only specific cloud computer types support ESSDs.', example='80', position='Query'),
   userDiskSizeGib?: int32(name='UserDiskSizeGib', description='The size of the data disk. Unit: GiB.', example='100', minimum=0, maximum=65536, position='Query'),
 }
 
@@ -9521,7 +9537,7 @@ model DescribePriceResponseBody = {
         ruleId?: long(name='RuleId', description='The rule ID.', example='587'),
       }
     ](name='Rules', description='The details of the promotion rules.'),
-  }(name='PriceInfo', description='The price information.'),
+  }(name='PriceInfo', description='The price details.'),
   requestId?: string(name='RequestId', description='The request ID.', example='B1175630-3C44-4389-A3C1-15639FFC8EBC'),
 }
 
@@ -10684,19 +10700,19 @@ async function detachEndUser(request: DetachEndUserRequest): DetachEndUserRespon
 }
 
 model DisableDesktopsInGroupRequest {
-  desktopGroupId: string(name='DesktopGroupId', description='The ID of the desktop group.
+  desktopGroupId: string(name='DesktopGroupId', description='The ID of the cloud computer share.
 
 This parameter is required.', example='dg-2i8qxpv6t1a03****', position='Query'),
-  desktopIds: [ string ](name='DesktopIds', description='The IDs of cloud desktops.
+  desktopIds: [ string ](name='DesktopIds', description='The IDs of the cloud computers.
 
 This parameter is required.', position='Query'),
-  regionId: string(name='RegionId', description='The region ID.
+  regionId: string(name='RegionId', description='The ID of the region. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the list of regions where Elastic Desktop Service (EDS) Enterprise is available.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model DisableDesktopsInGroupResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='34FB4D97-C0D9-5534-ABC6-90C7EBD5****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='34FB4D97-C0D9-5534-ABC6-90C7EBD5****'),
 }
 
 model DisableDesktopsInGroupResponse = {
