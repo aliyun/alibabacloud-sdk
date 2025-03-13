@@ -422,6 +422,10 @@ model GetVideoAnalysisTaskResponseBody = {
         }(name='videoCaptionResult'),
         videoGenerateResult?: {
           generateFinished?: boolean(name='generateFinished', example='true'),
+          index?: int32(name='index'),
+          modelId?: string(name='modelId'),
+          modelReduce?: boolean(name='modelReduce'),
+          reasonText?: string(name='reasonText'),
           text?: string(name='text', example='xxx'),
           usage?: {
             inputTokens?: long(name='inputTokens', example='1'),
@@ -429,6 +433,20 @@ model GetVideoAnalysisTaskResponseBody = {
             totalTokens?: long(name='totalTokens', example='2'),
           }(name='usage'),
         }(name='videoGenerateResult'),
+        videoGenerateResults?: [ 
+          {
+            generateFinished?: boolean(name='generateFinished'),
+            index?: int32(name='index'),
+            modelId?: string(name='modelId'),
+            reasonText?: string(name='reasonText'),
+            text?: string(name='text'),
+            usage?: {
+              inputTokens?: long(name='inputTokens'),
+              outputTokens?: long(name='outputTokens'),
+              totalTokens?: long(name='totalTokens'),
+            }(name='usage'),
+          }
+        ](name='videoGenerateResults'),
         videoMindMappingGenerateResult?: {
           generateFinished?: boolean(name='generateFinished', example='true'),
           text?: string(name='text'),
@@ -1935,6 +1953,7 @@ async function runTagMiningAnalysis(workspaceId: string, request: RunTagMiningAn
 }
 
 model RunVideoAnalysisRequest {
+  faceIdentitySimilarityMinScore?: float(name='faceIdentitySimilarityMinScore'),
   frameSampleMethod?: {
     interval?: double(name='interval'),
     methodName?: string(name='methodName'),
@@ -1948,6 +1967,13 @@ model RunVideoAnalysisRequest {
   originalSessionId?: string(name='originalSessionId', example='a3d1c2ac-f086-4a21-9069-f5631542f5ax'),
   snapshotInterval?: double(name='snapshotInterval'),
   taskId?: string(name='taskId', example='a3d1c2ac-f086-4a21-9069-f5631542f5a2'),
+  textProcessTasks?: [ 
+    {
+      modelCustomPromptTemplate?: string(name='modelCustomPromptTemplate'),
+      modelCustomPromptTemplateId?: string(name='modelCustomPromptTemplateId'),
+      modelId?: string(name='modelId'),
+    }
+  ](name='textProcessTasks'),
   videoExtraInfo?: string(name='videoExtraInfo'),
   videoModelCustomPromptTemplate?: string(name='videoModelCustomPromptTemplate'),
   videoModelId?: string(name='videoModelId', example='qwen-vl-max'),
@@ -1958,10 +1984,12 @@ model RunVideoAnalysisRequest {
       urls?: [ string ](name='urls'),
     }
   ](name='videoRoles'),
+  videoShotFaceIdentityCount?: int32(name='videoShotFaceIdentityCount'),
   videoUrl?: string(name='videoUrl', example='http://xxxx.mp4'),
 }
 
 model RunVideoAnalysisShrinkRequest {
+  faceIdentitySimilarityMinScore?: float(name='faceIdentitySimilarityMinScore'),
   frameSampleMethodShrink?: string(name='frameSampleMethod'),
   generateOptionsShrink?: string(name='generateOptions'),
   language?: string(name='language', example='english'),
@@ -1971,10 +1999,12 @@ model RunVideoAnalysisShrinkRequest {
   originalSessionId?: string(name='originalSessionId', example='a3d1c2ac-f086-4a21-9069-f5631542f5ax'),
   snapshotInterval?: double(name='snapshotInterval'),
   taskId?: string(name='taskId', example='a3d1c2ac-f086-4a21-9069-f5631542f5a2'),
+  textProcessTasksShrink?: string(name='textProcessTasks'),
   videoExtraInfo?: string(name='videoExtraInfo'),
   videoModelCustomPromptTemplate?: string(name='videoModelCustomPromptTemplate'),
   videoModelId?: string(name='videoModelId', example='qwen-vl-max'),
   videoRolesShrink?: string(name='videoRoles'),
+  videoShotFaceIdentityCount?: int32(name='videoShotFaceIdentityCount'),
   videoUrl?: string(name='videoUrl', example='http://xxxx.mp4'),
 }
 
@@ -2022,8 +2052,10 @@ model RunVideoAnalysisResponseBody = {
       }(name='videoCaptionResult'),
       videoGenerateResult?: {
         generateFinished?: boolean(name='generateFinished', example='true'),
+        index?: int32(name='index'),
         modelId?: string(name='modelId', example='qwen-max'),
         modelReduce?: boolean(name='modelReduce'),
+        reasonText?: string(name='reasonText'),
         text?: string(name='text'),
         usage?: {
           inputTokens?: long(name='inputTokens', example='1'),
@@ -2031,6 +2063,20 @@ model RunVideoAnalysisResponseBody = {
           totalTokens?: long(name='totalTokens', example='1'),
         }(name='usage'),
       }(name='videoGenerateResult'),
+      videoGenerateResults?: [ 
+        {
+          generateFinished?: boolean(name='generateFinished'),
+          index?: int32(name='index'),
+          modelId?: string(name='modelId'),
+          reasonText?: string(name='reasonText'),
+          text?: string(name='text'),
+          usage?: {
+            inputTokens?: long(name='inputTokens'),
+            outputTokens?: long(name='outputTokens'),
+            totalTokens?: long(name='totalTokens'),
+          }(name='usage'),
+        }
+      ](name='videoGenerateResults'),
       videoMindMappingGenerateResult?: {
         generateFinished?: boolean(name='generateFinished', example='true'),
         modelId?: string(name='modelId', example='true'),
@@ -2117,10 +2163,16 @@ async function runVideoAnalysisWithOptions(workspaceId: string, tmpReq: RunVideo
   if (!$isNull(tmpReq.generateOptions)) {
     request.generateOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.generateOptions, 'generateOptions', 'json');
   }
+  if (!$isNull(tmpReq.textProcessTasks)) {
+    request.textProcessTasksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.textProcessTasks, 'textProcessTasks', 'json');
+  }
   if (!$isNull(tmpReq.videoRoles)) {
     request.videoRolesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.videoRoles, 'videoRoles', 'json');
   }
   var body : map[string]any = {};
+  if (!$isNull(request.faceIdentitySimilarityMinScore)) {
+    body['faceIdentitySimilarityMinScore'] = request.faceIdentitySimilarityMinScore;
+  }
   if (!$isNull(request.frameSampleMethodShrink)) {
     body['frameSampleMethod'] = request.frameSampleMethodShrink;
   }
@@ -2148,6 +2200,9 @@ async function runVideoAnalysisWithOptions(workspaceId: string, tmpReq: RunVideo
   if (!$isNull(request.taskId)) {
     body['taskId'] = request.taskId;
   }
+  if (!$isNull(request.textProcessTasksShrink)) {
+    body['textProcessTasks'] = request.textProcessTasksShrink;
+  }
   if (!$isNull(request.videoExtraInfo)) {
     body['videoExtraInfo'] = request.videoExtraInfo;
   }
@@ -2159,6 +2214,9 @@ async function runVideoAnalysisWithOptions(workspaceId: string, tmpReq: RunVideo
   }
   if (!$isNull(request.videoRolesShrink)) {
     body['videoRoles'] = request.videoRolesShrink;
+  }
+  if (!$isNull(request.videoShotFaceIdentityCount)) {
+    body['videoShotFaceIdentityCount'] = request.videoShotFaceIdentityCount;
   }
   if (!$isNull(request.videoUrl)) {
     body['videoUrl'] = request.videoUrl;
@@ -2321,6 +2379,7 @@ async function submitTagMiningAnalysisTask(workspaceId: string, request: SubmitT
 }
 
 model SubmitVideoAnalysisTaskRequest {
+  faceIdentitySimilarityMinScore?: float(name='faceIdentitySimilarityMinScore'),
   frameSampleMethod?: {
     interval?: double(name='interval', example='2'),
     methodName?: string(name='methodName', example='standard'),
@@ -2332,6 +2391,13 @@ model SubmitVideoAnalysisTaskRequest {
   modelCustomPromptTemplateId?: string(name='modelCustomPromptTemplateId', example='PlotDetail'),
   modelId?: string(name='modelId', example='qwen-max'),
   snapshotInterval?: double(name='snapshotInterval', example='2'),
+  textProcessTasks?: [ 
+    {
+      modelCustomPromptTemplate?: string(name='modelCustomPromptTemplate'),
+      modelCustomPromptTemplateId?: string(name='modelCustomPromptTemplateId'),
+      modelId?: string(name='modelId'),
+    }
+  ](name='textProcessTasks'),
   videoExtraInfo?: string(name='videoExtraInfo'),
   videoModelCustomPromptTemplate?: string(name='videoModelCustomPromptTemplate'),
   videoModelId?: string(name='videoModelId', example='qwen-vl-max-latest'),
@@ -2342,10 +2408,12 @@ model SubmitVideoAnalysisTaskRequest {
       urls?: [ string ](name='urls'),
     }
   ](name='videoRoles'),
+  videoShotFaceIdentityCount?: int32(name='videoShotFaceIdentityCount'),
   videoUrl?: string(name='videoUrl', description='This parameter is required.', example='http://xxxx.mp4'),
 }
 
 model SubmitVideoAnalysisTaskShrinkRequest {
+  faceIdentitySimilarityMinScore?: float(name='faceIdentitySimilarityMinScore'),
   frameSampleMethodShrink?: string(name='frameSampleMethod'),
   generateOptionsShrink?: string(name='generateOptions'),
   language?: string(name='language', example='chinese'),
@@ -2353,10 +2421,12 @@ model SubmitVideoAnalysisTaskShrinkRequest {
   modelCustomPromptTemplateId?: string(name='modelCustomPromptTemplateId', example='PlotDetail'),
   modelId?: string(name='modelId', example='qwen-max'),
   snapshotInterval?: double(name='snapshotInterval', example='2'),
+  textProcessTasksShrink?: string(name='textProcessTasks'),
   videoExtraInfo?: string(name='videoExtraInfo'),
   videoModelCustomPromptTemplate?: string(name='videoModelCustomPromptTemplate'),
   videoModelId?: string(name='videoModelId', example='qwen-vl-max-latest'),
   videoRolesShrink?: string(name='videoRoles'),
+  videoShotFaceIdentityCount?: int32(name='videoShotFaceIdentityCount'),
   videoUrl?: string(name='videoUrl', description='This parameter is required.', example='http://xxxx.mp4'),
 }
 
@@ -2395,10 +2465,16 @@ async function submitVideoAnalysisTaskWithOptions(workspaceId: string, tmpReq: S
   if (!$isNull(tmpReq.generateOptions)) {
     request.generateOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.generateOptions, 'generateOptions', 'json');
   }
+  if (!$isNull(tmpReq.textProcessTasks)) {
+    request.textProcessTasksShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.textProcessTasks, 'textProcessTasks', 'json');
+  }
   if (!$isNull(tmpReq.videoRoles)) {
     request.videoRolesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.videoRoles, 'videoRoles', 'json');
   }
   var body : map[string]any = {};
+  if (!$isNull(request.faceIdentitySimilarityMinScore)) {
+    body['faceIdentitySimilarityMinScore'] = request.faceIdentitySimilarityMinScore;
+  }
   if (!$isNull(request.frameSampleMethodShrink)) {
     body['frameSampleMethod'] = request.frameSampleMethodShrink;
   }
@@ -2420,6 +2496,9 @@ async function submitVideoAnalysisTaskWithOptions(workspaceId: string, tmpReq: S
   if (!$isNull(request.snapshotInterval)) {
     body['snapshotInterval'] = request.snapshotInterval;
   }
+  if (!$isNull(request.textProcessTasksShrink)) {
+    body['textProcessTasks'] = request.textProcessTasksShrink;
+  }
   if (!$isNull(request.videoExtraInfo)) {
     body['videoExtraInfo'] = request.videoExtraInfo;
   }
@@ -2431,6 +2510,9 @@ async function submitVideoAnalysisTaskWithOptions(workspaceId: string, tmpReq: S
   }
   if (!$isNull(request.videoRolesShrink)) {
     body['videoRoles'] = request.videoRolesShrink;
+  }
+  if (!$isNull(request.videoShotFaceIdentityCount)) {
+    body['videoShotFaceIdentityCount'] = request.videoShotFaceIdentityCount;
   }
   if (!$isNull(request.videoUrl)) {
     body['videoUrl'] = request.videoUrl;
