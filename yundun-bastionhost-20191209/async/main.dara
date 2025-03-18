@@ -68,13 +68,14 @@ async function acceptApproveCommand(request: AcceptApproveCommandRequest): Accep
 }
 
 model AcceptOperationTicketRequest {
-  comment?: string(name='Comment', position='Query'),
+  comment?: string(name='Comment', description='The review description.', example='O\\&M allowed', position='Query'),
   effectCount?: string(name='EffectCount', description='The maximum number of logons allowed. Valid values:
 
-*   0: The number of logons is unlimited. The O\\&M engineer can log on to the specified asset for an unlimited number of times during the validity period.
-*   1: The O\\&M engineer can log on to the specified asset only once during the validity period.
+*   **0**: The number of logons is unlimited. The O\\&M engineer can log on to the specified asset for unlimited times during the validity period.
+*   **1**: The O\\&M engineer can log on to the specified asset only once during the validity period.
 
->  You can set this parameter only to 0 if you review an O\\&M application on a database.', example='1', position='Query'),
+> *   You can set this parameter only to 0 if you review an O\\&M application on a database.
+> *   If you do not specify this parameter, the default value 0 is used.', example='1', position='Query'),
   effectEndTime?: string(name='EffectEndTime', description='The end time of the validity period. The value is a UNIX timestamp. Unit: seconds.', example='1679393152', position='Query'),
   effectStartTime?: string(name='EffectStartTime', description='The start time of the validity period. The value is a UNIX timestamp. Unit: seconds.', example='1685600242', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the bastion host.
@@ -2756,18 +2757,36 @@ This parameter is required.', example='11', position='Query'),
 *   **Database**
 
 This parameter is required.', example='Host', position='Query'),
-  databaseSchema?: string(name='DatabaseSchema', position='Query'),
+  databaseSchema?: string(name='DatabaseSchema', description='The name of the database. If you set OperationMode to Sso and AssetAccountProtocolName to PostgreSQL or Oracle and you select Custom Account for the Database Account parameter, you must specify this parameter.
+
+>This parameter is available only for bastion hosts that run V3.2.44 or later.', example='orcl', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the bastion host for which you want to apply an O\\&M token.
 
 >  You can call the [DescribeInstances](https://help.aliyun.com/document_detail/153281.html) operation to query the ID of the bastion host.
 
 This parameter is required.', example='bastionhost-cn-st220aw****', position='Query'),
-  loginAttribute?: string(name='LoginAttribute', position='Query'),
-  operationMode?: string(name='OperationMode', position='Query'),
+  loginAttribute?: string(name='LoginAttribute', description='The logon attribute. If you set OperationMode to Sso and AssetAccountProtocolName to Oracle, you must specify this parameter. Valid values:
+
+*   **SERVICENAME**
+*   **SID**
+
+>  This parameter is available only for bastion hosts that run V3.2.44 or later.', example='SID', position='Query'),
+  operationMode?: string(name='OperationMode', description='The O\\&M logon method. Valid values:
+
+*   **WebToken**: O\\&M token-based logon.
+*   **Sso**: Local client-based logon.
+
+>  This parameter is available only for bastion hosts that run V3.2.44 or later. If you do not specify this parameter, the default value WebToken is used.', example='Sso', position='Query'),
+  operationNote?: string(name='OperationNote', position='Query'),
   regionId?: string(name='RegionId', description='The region ID of the bastion host.
 
 >  For more information about the mapping between region IDs and region names, see [Regions and zones](https://help.aliyun.com/document_detail/40654.html).', example='cn-hangzhou', position='Query'),
-  ssoClient?: string(name='SsoClient', position='Query'),
+  ssoClient?: string(name='SsoClient', description='The type of the local client that you want to perform O\\&M operations on Linux assets. If you set OperationMode to Sso and AssetAccountProtocolName to SSH, you must specify this parameter. Valid values:
+
+*   **ssh**: Perform O\\&M operations on Linux assets by connecting to a bastion host from an SSH client.
+*   **sftp**: Perform O\\&M operations on Linux assets by connecting to a bastion host from a Secure File Transfer Protocol (SFTP) client.
+
+>  This parameter is available only for bastion hosts that run V3.2.44 or later.', example='ssh', position='Query'),
 }
 
 model GenerateAssetOperationTokenResponseBody = {
@@ -2777,7 +2796,7 @@ model GenerateAssetOperationTokenResponseBody = {
     hasCountLimit?: boolean(name='HasCountLimit', description='Indicates whether the number of times that you can use the O\\&M token is limited.', example='true'),
     maxRenewCount?: long(name='MaxRenewCount', description='The maximum number of renewals. A value of 0 indicates that renewal is not supported.', example='10'),
     renewCount?: long(name='RenewCount', description='The number of times the O\\&M token is renewed.', example='1'),
-    ssoUrl?: string(name='SsoUrl'),
+    ssoUrl?: string(name='SsoUrl', description='The single sign-on (SSO) URL.', example='sso://eyJOT0RFX0NPTU1PTiI6eyJNb2R******'),
     token?: string(name='Token', description='The O\\&M token that you apply for.', example='NmYyMmEzNmMwYzljNGY******'),
     tokenId?: string(name='TokenId', description='The ID of the O\\&M token.', example='1'),
   }(name='AssetOperationToken', description='The data returned.'),
@@ -2974,6 +2993,7 @@ model GetHostResponseBody = {
 
 *   **Linux**
 *   **Windows**', example='Linux'),
+    prefKex?: string(name='PrefKex'),
     protocols?: [ 
       {
         hostFingerPrint?: string(name='HostFingerPrint', description='The fingerprint of the host. This parameter uniquely identifies a host. A value is returned for this parameter only if you have performed O\\&M operations on the host by using the bastion host. Otherwise, no value is returned.', example='ssh-ed25519|3e:46:5a:e1:1f:0d:39:7e:61:35:d5:fa:7b:2b:**:**'),
@@ -5435,7 +5455,7 @@ model ListOperationTicketsResponseBody = {
     {
       applyUserId?: string(name='ApplyUserId', description='The ID of the O\\&M applicant.', example='1'),
       applyUsername?: string(name='ApplyUsername', description='The username of the O\\&M applicant.', example='test'),
-      approveComment?: string(name='ApproveComment'),
+      approveComment?: string(name='ApproveComment', description='The remarks entered when the O\\&M personnel applies for O\\&M permissions.', example='Apply for O\\&M'),
       assetAccountId?: string(name='AssetAccountId', description='The ID of the asset account.', example='1'),
       assetAccountName?: string(name='AssetAccountName', description='The username of the asset account.', example='root'),
       assetAddress?: string(name='AssetAddress', description='The IP address of the asset.', example='10.167.XX.XX'),
@@ -5451,9 +5471,12 @@ model ListOperationTicketsResponseBody = {
 *   A third-party asset source.', example='Local'),
       assetSourceInstanceId?: string(name='AssetSourceInstanceId', description='The ID of the asset source to which the asset belongs.', example='1'),
       createdTime?: long(name='CreatedTime', description='The time when the O\\&M application was submitted. The value is a UNIX timestamp. Unit: seconds.', example='1669965908'),
-      effectCount?: int32(name='EffectCount'),
-      effectEndTime?: int32(name='EffectEndTime'),
-      effectStartTime?: int32(name='EffectStartTime'),
+      effectCount?: int32(name='EffectCount', description='The maximum number of logons applied by the O\\&M engineer. Valid values:
+
+*   **0**: The number of logons is unlimited. The O\\&M engineer can log on to the specified asset for unlimited times during the validity period.
+*   **1**: The O\\&M engineer can log on to the specified asset only once during the validity period.', example='0'),
+      effectEndTime?: int32(name='EffectEndTime', description='The end time of the validity period. The value is a UNIX timestamp. Unit: seconds.', example='1679393152'),
+      effectStartTime?: int32(name='EffectStartTime', description='The start time of the validity period. The value is a UNIX timestamp. Unit: seconds.', example='1685600242'),
       operationTicketId?: string(name='OperationTicketId', description='The ID of the O\\&M application to be reviewed.', example='1'),
       protocolName?: string(name='ProtocolName', description='The O\\&M protocol.', example='SSH'),
       state?: string(name='State', description='The status of the review. Valid value:
@@ -6051,6 +6074,7 @@ This parameter is required.', example='bastionhost-cn-st220aw****', position='Qu
 
 *   **Linux**
 *   **Windows**', example='Linux', position='Query'),
+  prefKex?: string(name='PrefKex', position='Query'),
   regionId?: string(name='RegionId', description='The region ID of the bastion host on which you want to modify the information about the host.
 
 > For more information about the mapping between region IDs and region names, see [Regions and zones](https://help.aliyun.com/document_detail/40654.html).', example='cn-hangzhou', position='Query'),
@@ -7024,7 +7048,7 @@ async function rejectApproveCommand(request: RejectApproveCommandRequest): Rejec
 }
 
 model RejectOperationTicketRequest {
-  comment?: string(name='Comment', position='Query'),
+  comment?: string(name='Comment', description='The review remarks.', example='comment', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the bastion host.
 
 >  You can call the [DescribeInstances](https://help.aliyun.com/document_detail/153281.html) operation to query the ID of the bastion host.
