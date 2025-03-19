@@ -132,6 +132,7 @@ model CreateFunctionInput {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function', maxLength=256),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   functionName: string(name='functionName', description='This parameter is required.', example='my-function-1', minLength=1, maxLength=128),
@@ -302,6 +303,7 @@ model Function {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function'),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   functionArn?: string(name='functionArn', example='acs:fc:cn-shanghai:123:functions/functionName'),
@@ -887,6 +889,7 @@ model UpdateFunctionInput {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function', maxLength=256),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   gpuConfig?: GPUConfig(name='gpuConfig'),
@@ -1191,12 +1194,10 @@ async function deleteFunction(request: DeleteFunctionRequest): DeleteFunctionRes
 }
 
 model DeleteFunctionVersionRequest {
-  functionName: string(name='functionName', description='The function name.
+  functionName: string(name='functionName', description='函数版本。
 
 This parameter is required.', example='my-func', position='Path'),
-  versionId: int32(name='versionId', description='The function version.
-
-This parameter is required.', example='1', position='Path'),
+  versionId: int32(name='versionId', description='This parameter is required.', example='1', position='Path'),
 }
 
 model DeleteFunctionVersionResponse = {
@@ -1240,7 +1241,7 @@ model DeleteProvisionConfigRequest {
   functionName: string(name='functionName', description='The function name.
 
 This parameter is required.', example='my-func', position='Path'),
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST', position='Query'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST', position='Query'),
 }
 
 model DeleteProvisionConfigResponse = {
@@ -1509,7 +1510,7 @@ model GetProvisionConfigRequest {
   functionName: string(name='functionName', description='The function name.
 
 This parameter is required.', example='my-func', position='Path'),
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST', position='Query'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST', position='Query'),
 }
 
 model GetProvisionConfigResponse = {
@@ -1656,14 +1657,15 @@ This parameter is required.', example='my-func', position='Path'),
   startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period during which the asynchronous tasks are initiated.', example='1640966400000', position='Query'),
   status?: string(name='status', description='The state of asynchronous tasks. The following items list the states of an asynchronous task:
 
-*   Enqueued: The asynchronous invocation is enqueued and is waiting to be executed.
+*   Enqueued: The asynchronous invocation is enqueued and waiting to be executed.
+*   Dequeued: The asynchronous invocation is dequeued and waiting to be triggered.
+*   Running: The invocation is being executed.
 *   Succeeded: The invocation is successful.
 *   Failed: The invocation fails.
-*   Running: The invocation is being executed.
 *   Stopped: The invocation is terminated.
 *   Stopping: The invocation is being terminated.
+*   Expired: The maximum validity period of messages is specified for asynchronous invocation. The invocation is discarded and not executed because the specified maximum validity period of messages expires.
 *   Invalid: The invocation is invalid and not executed due to specific reasons. For example, the function is deleted.
-*   Expired: The maximum validity period of messages is specified for asynchronous invocation. The invocation is discarded and not executed because the specified maximum validity period has elapsed.
 *   Retrying: The asynchronous invocation is being retried due to an execution error.', example='Running', position='Query'),
 }
 
@@ -1749,10 +1751,13 @@ async function listFunctionVersions(request: ListFunctionVersionsRequest): ListF
 }
 
 model ListFunctionsRequest {
-  fcVersion?: string(name='fcVersion', description='The version of Function Compute to which the functions belong. Valid values: v3 and v2. v3: only lists functions of Function Compute 3.0. v2: only lists functions of Function Compute 2.0. By default, this parameter is left empty and functions in both Function Compute 2.0 and Function Compute 3.0 are listed.', example='v3', position='Query'),
+  fcVersion?: string(name='fcVersion', description='The version of Function Compute to which the functions belong. Valid values: v3 and v2. v3: only lists functions of Function Compute 3.0. v2: only lists functions of Function Compute 2.0. By default, this parameter is left empty and functions in both Function Compute 3.0 and Function Compute 2.0 are listed.', example='v3', position='Query'),
   limit?: int32(name='limit', description='The number of functions to return. The minimum value is 1 and the maximum value is 100.', example='10', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM=', position='Query'),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func', position='Query'),
+  tags?: [
+    Tag
+  ](name='tags', shrink='json', position='Query'),
 }
 
 model ListFunctionsResponse = {
@@ -1870,7 +1875,7 @@ model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM=', position='Query'),
   resourceId?: [ string ](name='ResourceId', description='The resource IDs.', shrink='json', position='Query'),
-  resourceType: string(name='ResourceType', description='The resource type.
+  resourceType: string(name='ResourceType', description='The type of the resource.
 
 This parameter is required.', example='ALIYUN::FC:FUNCTION', position='Query'),
   tag?: [ 
@@ -1975,7 +1980,7 @@ model PutAsyncInvokeConfigRequest {
   functionName: string(name='functionName', description='The function name.
 
 This parameter is required.', example='my-func', position='Path'),
-  body: PutAsyncInvokeConfigInput(name='body', description='The asynchronous invocation configurations.
+  body: PutAsyncInvokeConfigInput(name='body', description='The configurations of asynchronous function invocations.
 
 This parameter is required.', position='Body'),
   qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST', position='Query'),
@@ -2046,10 +2051,10 @@ model PutProvisionConfigRequest {
   functionName: string(name='functionName', description='The function name.
 
 This parameter is required.', example='my-func', position='Path'),
-  body: PutProvisionConfigInput(name='body', description='The provisioned instance configurations.
+  body: PutProvisionConfigInput(name='body', description='The provisioned configuration information.
 
 This parameter is required.', position='Body'),
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST', position='Query'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST', position='Query'),
 }
 
 model PutProvisionConfigResponse = {

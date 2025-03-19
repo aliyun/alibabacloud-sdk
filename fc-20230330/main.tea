@@ -130,6 +130,7 @@ model CreateFunctionInput {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function'),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   functionName?: string(name='functionName', description='This parameter is required.', example='my-function-1'),
@@ -300,6 +301,7 @@ model Function {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function'),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   functionArn?: string(name='functionArn', example='acs:fc:cn-shanghai:123:functions/functionName'),
@@ -885,6 +887,7 @@ model UpdateFunctionInput {
   customDNS?: CustomDNS(name='customDNS'),
   customRuntimeConfig?: CustomRuntimeConfig(name='customRuntimeConfig'),
   description?: string(name='description', example='my function'),
+  disableOndemand?: boolean(name='disableOndemand'),
   diskSize?: int32(name='diskSize', example='512'),
   environmentVariables?: map[string]string(name='environmentVariables'),
   gpuConfig?: GPUConfig(name='gpuConfig'),
@@ -1532,7 +1535,7 @@ model DeleteFunctionVersionResponse = {
 }
 
 /**
- * @summary Deletes a function version.
+ * @summary http://pre.hhht/#vpc
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1561,7 +1564,7 @@ async function deleteFunctionVersionWithOptions(functionName: string, versionId:
 }
 
 /**
- * @summary Deletes a function version.
+ * @summary http://pre.hhht/#vpc
  *
  * @return DeleteFunctionVersionResponse
  */
@@ -1617,7 +1620,7 @@ async function deleteLayerVersion(layerName: string, version: string): DeleteLay
 }
 
 model DeleteProvisionConfigRequest {
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST'),
 }
 
 model DeleteProvisionConfigResponse = {
@@ -2231,7 +2234,7 @@ async function getLayerVersionByArn(arn: string): GetLayerVersionByArnResponse {
 }
 
 model GetProvisionConfigRequest {
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST'),
 }
 
 model GetProvisionConfigResponse = {
@@ -2582,14 +2585,15 @@ model ListAsyncTasksRequest {
   startedTimeEnd?: long(name='startedTimeEnd', description='The end time of the period during which the asynchronous tasks are initiated.', example='1640966400000'),
   status?: string(name='status', description='The state of asynchronous tasks. The following items list the states of an asynchronous task:
 
-*   Enqueued: The asynchronous invocation is enqueued and is waiting to be executed.
+*   Enqueued: The asynchronous invocation is enqueued and waiting to be executed.
+*   Dequeued: The asynchronous invocation is dequeued and waiting to be triggered.
+*   Running: The invocation is being executed.
 *   Succeeded: The invocation is successful.
 *   Failed: The invocation fails.
-*   Running: The invocation is being executed.
 *   Stopped: The invocation is terminated.
 *   Stopping: The invocation is being terminated.
+*   Expired: The maximum validity period of messages is specified for asynchronous invocation. The invocation is discarded and not executed because the specified maximum validity period of messages expires.
 *   Invalid: The invocation is invalid and not executed due to specific reasons. For example, the function is deleted.
-*   Expired: The maximum validity period of messages is specified for asynchronous invocation. The invocation is discarded and not executed because the specified maximum validity period has elapsed.
 *   Retrying: The asynchronous invocation is being retried due to an execution error.', example='Running'),
 }
 
@@ -2874,10 +2878,21 @@ async function listFunctionVersions(functionName: string, request: ListFunctionV
 }
 
 model ListFunctionsRequest {
-  fcVersion?: string(name='fcVersion', description='The version of Function Compute to which the functions belong. Valid values: v3 and v2. v3: only lists functions of Function Compute 3.0. v2: only lists functions of Function Compute 2.0. By default, this parameter is left empty and functions in both Function Compute 2.0 and Function Compute 3.0 are listed.', example='v3'),
+  fcVersion?: string(name='fcVersion', description='The version of Function Compute to which the functions belong. Valid values: v3 and v2. v3: only lists functions of Function Compute 3.0. v2: only lists functions of Function Compute 2.0. By default, this parameter is left empty and functions in both Function Compute 3.0 and Function Compute 2.0 are listed.', example='v3'),
   limit?: int32(name='limit', description='The number of functions to return. The minimum value is 1 and the maximum value is 100.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func'),
+  tags?: [
+    Tag
+  ](name='tags'),
+}
+
+model ListFunctionsShrinkRequest {
+  fcVersion?: string(name='fcVersion', description='The version of Function Compute to which the functions belong. Valid values: v3 and v2. v3: only lists functions of Function Compute 3.0. v2: only lists functions of Function Compute 2.0. By default, this parameter is left empty and functions in both Function Compute 3.0 and Function Compute 2.0 are listed.', example='v3'),
+  limit?: int32(name='limit', description='The number of functions to return. The minimum value is 1 and the maximum value is 100.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
+  prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func'),
+  tagsShrink?: string(name='tags'),
 }
 
 model ListFunctionsResponse = {
@@ -2889,13 +2904,18 @@ model ListFunctionsResponse = {
 /**
  * @summary 列出函数。
  *
- * @param request ListFunctionsRequest
+ * @param tmpReq ListFunctionsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListFunctionsResponse
  */
-async function listFunctionsWithOptions(request: ListFunctionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFunctionsResponse {
-  Util.validateModel(request);
+async function listFunctionsWithOptions(tmpReq: ListFunctionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListFunctionsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListFunctionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.fcVersion)) {
     query['fcVersion'] = request.fcVersion;
@@ -2908,6 +2928,9 @@ async function listFunctionsWithOptions(request: ListFunctionsRequest, headers: 
   }
   if (!Util.isUnset(request.prefix)) {
     query['prefix'] = request.prefix;
+  }
+  if (!Util.isUnset(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3259,7 +3282,7 @@ model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
   resourceId?: [ string ](name='ResourceId', description='The resource IDs.'),
-  resourceType?: string(name='ResourceType', description='The resource type.
+  resourceType?: string(name='ResourceType', description='The type of the resource.
 
 This parameter is required.', example='ALIYUN::FC:FUNCTION'),
   tag?: [ 
@@ -3280,7 +3303,7 @@ model ListTagResourcesShrinkRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
   resourceIdShrink?: string(name='ResourceId', description='The resource IDs.'),
-  resourceType?: string(name='ResourceType', description='The resource type.
+  resourceType?: string(name='ResourceType', description='The type of the resource.
 
 This parameter is required.', example='ALIYUN::FC:FUNCTION'),
   tagShrink?: string(name='Tag', description='The tags.
@@ -3533,7 +3556,7 @@ async function publishFunctionVersion(functionName: string, request: PublishFunc
 }
 
 model PutAsyncInvokeConfigRequest {
-  body?: PutAsyncInvokeConfigInput(name='body', description='The asynchronous invocation configurations.
+  body?: PutAsyncInvokeConfigInput(name='body', description='The configurations of asynchronous function invocations.
 
 This parameter is required.'),
   qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
@@ -3714,10 +3737,10 @@ async function putLayerACL(layerName: string, request: PutLayerACLRequest): PutL
 }
 
 model PutProvisionConfigRequest {
-  body?: PutProvisionConfigInput(name='body', description='The provisioned instance configurations.
+  body?: PutProvisionConfigInput(name='body', description='The provisioned configuration information.
 
 This parameter is required.'),
-  qualifier?: string(name='qualifier', description='The function alias or LATEST.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The function alias.', example='LATEST'),
 }
 
 model PutProvisionConfigResponse = {
