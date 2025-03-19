@@ -2976,6 +2976,7 @@ model CreateLifecyclePolicyRequest {
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****'),
+  fsetIds?: [ string ](name='FsetIds'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
 
 This parameter is required.', example='lifecyclepolicy_01'),
@@ -2986,9 +2987,8 @@ Valid values:
 *   DEFAULT_ATIME_14: Files that are not accessed in the last 14 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_30: Files that are not accessed in the last 30 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_60: Files that are not accessed in the last 60 days are dumped to the IA storage medium.
-*   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.
-
-This parameter is required.', example='DEFAULT_ATIME_14'),
+*   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.', example='DEFAULT_ATIME_14'),
+  lifecycleRuleType?: string(name='LifecycleRuleType'),
   path?: string(name='Path', description='The absolute path of the directory that is associated with the lifecycle policy.
 
 If you specify this parameter, you can associate the lifecycle policy with only one directory. The path must start with a forward slash (/) and must be a path that exists in the mount target.
@@ -3036,11 +3036,17 @@ async function createLifecyclePolicyWithOptions(request: CreateLifecyclePolicyRe
   if (!$isNull(request.fileSystemId)) {
     query['FileSystemId'] = request.fileSystemId;
   }
+  if (!$isNull(request.fsetIds)) {
+    query['FsetIds'] = request.fsetIds;
+  }
   if (!$isNull(request.lifecyclePolicyName)) {
     query['LifecyclePolicyName'] = request.lifecyclePolicyName;
   }
   if (!$isNull(request.lifecycleRuleName)) {
     query['LifecycleRuleName'] = request.lifecycleRuleName;
+  }
+  if (!$isNull(request.lifecycleRuleType)) {
+    query['LifecycleRuleType'] = request.lifecycleRuleType;
   }
   if (!$isNull(request.path)) {
     query['Path'] = request.path;
@@ -6933,6 +6939,8 @@ Valid values:
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
 
 You can log on to the [Resource Management console](https://resourcemanager.console.aliyun.com/resource-groups?) to view resource group IDs.', example='rg-acfmwavnfdf****'),
+      secondaryBandwidth?: int32(name='SecondaryBandwidth'),
+      secondaryCapacity?: long(name='SecondaryCapacity'),
       status?: string(name='Status', description='The status of the file system. Valid values:
 - Pending: The file system is being created or modified.
 - Running: The file system is available. Before you create a mount target for the file system, make sure that the file system is in the Running state.
@@ -7068,15 +7076,25 @@ This parameter is required.', example='bmcpfs-290w65p03ok64ya****'),
 *   If Key is set to FsetIds, set Value to a fileset ID or a part of the fileset ID. You can specify a fileset ID or a group of fileset IDs. You can specify a maximum of 10 fileset IDs. Example: `fset-1902718ea0ae****` or `fset-1902718ea0ae****,fset-3212718ea0ae****`.
 *   If Key is set to FileSystemPath, set Value to the path or a part of the path of a fileset in a CPFS file system. The value must be 2 to 1024 characters in length. The value must be encoded in UTF-8.
 *   If Key is set to Description, set Value to a fileset description or a part of the fileset description.
-*   If Key is set to QuotaExists, set Value to true or false. If you do not specify the parameter, all filesets are returned.', example='fset-12345678,fset-12345679'),
+*   If Key is set to QuotaExists, set Value to true or false. If you do not specify the parameter, all filesets are returned.', example='fset-1902718ea0ae****,fset-3212718ea0ae****'),
     }
   ](name='Filters', description='The filter that is used to query filesets.'),
   maxResults?: long(name='MaxResults', description='The number of results for each query.
 
 Valid values: 10 to 100. Default value: 20.', example='20'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='TGlzdFJlc291cmNlU****mVzJjE1MTI2NjY4NzY5MTAzOTEmMiZORnI4NDhVeEtrUT0='),
-  orderByField?: string(name='OrderByField'),
-  sortOrder?: string(name='SortOrder'),
+  orderByField?: string(name='OrderByField', description='The condition by which the results are sorted. Valid values:
+
+*   FileCountLimit: the file quantity quota
+*   SizeLimit: the capacity quota
+*   FileCountUsage: the usage of the file quantity quota
+*   SpaceUsage: the capacity usage', example='FileCountLimit'),
+  sortOrder?: string(name='SortOrder', description='The order in which you want to sort the results. Valid values:
+
+*   asc (default): ascending order
+*   desc: descending order
+
+>  This parameter takes effect only if you specify the OrderByField parameter.', example='asc'),
 }
 
 model DescribeFilesetsResponseBody = {
@@ -7105,21 +7123,17 @@ The time follows the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format.', e
       fileSystemPath?: string(name='FileSystemPath', description='The fileset path.', example='pathtoroot/fset'),
       fsetId?: string(name='FsetId', description='The fileset ID.', example='fset-1902718ea0ae****'),
       quota?: {
-        fileCountLimit?: long(name='FileCountLimit', description='The limit of the file quantity of the quota. Valid values:
+        fileCountLimit?: long(name='FileCountLimit', description='The file quantity quota. Valid values:
 
-Minimum value: 10000.
+*   Minimum value: 10000.
+*   Maximum value: 10000000000.', example='10000'),
+        sizeLimit?: long(name='SizeLimit', description='The capacity quota. Unit: bytes.
 
-Maximum value: 10000000000.', example='10000'),
-        sizeLimit?: long(name='SizeLimit', description='The limit of the quota capacity. Unit: bytes.
-
-Minimum value: 10737418240 (10 GiB).
-
-Maximum value: 1073741824000 (1024000 GiB).
-
-Step size: 1073741824 (1 GiB).', example='10737418240'),
+*   Minimum value: 10737418240 (10 GiB).
+*   Step size: 1073741824 (1 GiB).', example='10737418240'),
       }(name='Quota', description='The quota information.
 
->  Only CPFS for LINGJUN V2.7.0 and later support this parameter.'),
+>  Only CPFS for Lingjun V2.7.0 and later support this parameter.'),
       spaceUsage?: long(name='SpaceUsage', description='The capacity usage. Unit: bytes.
 
 >  Only CPFS for LINGJUN V2.7.0 and later support this parameter.', example='1024'),
@@ -7221,6 +7235,8 @@ async function describeFilesets(request: DescribeFilesetsRequest): DescribeFiles
 
 model DescribeLifecyclePoliciesRequest {
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****'),
+  fileSystemType?: string(name='FileSystemType'),
+  fsetId?: string(name='FsetId'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy. The name must meet the following conventions:
 
 The name must be 3 to 64 characters in length and must start with a letter. It can contain letters, digits, underscores (_), and hyphens (-).', example='lifecyclepolicy_01'),
@@ -7246,7 +7262,9 @@ model DescribeLifecyclePoliciesResponseBody = {
       createTime?: string(name='CreateTime', description='The time when the lifecycle policy was created.
 
 The time follows the ISO 8601 standard in the `yyyy-MM-ddTHH:mm:ssZ` format.', example='2019-10-30T10:08:08Z'),
+      enableLifecycle?: boolean(name='EnableLifecycle'),
       fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='31a8e4****'),
+      fsetIds?: [ string ](name='FsetIds'),
       lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.', example='lifecyclepolicy_01'),
       lifecycleRuleName?: string(name='LifecycleRuleName', description='The management rule that is associated with the lifecycle policy.
 
@@ -7256,8 +7274,10 @@ Valid values:
 *   DEFAULT_ATIME_30: Files that are not accessed in the last 30 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_60: Files that are not accessed in the last 60 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.', example='DEFAULT_ATIME_14'),
+      lifecycleRuleType?: string(name='LifecycleRuleType'),
       path?: string(name='Path', description='The absolute path of a directory with which the lifecycle policy is associated.', example='/pathway/to/folder'),
       paths?: [ string ](name='Paths', description='The absolute paths to multiple directories associated with the lifecycle policy.'),
+      status?: string(name='Status'),
       storageType?: string(name='StorageType', description='The storage type of the data that is dumped to the IA storage medium.
 
 Default value: InfrequentAccess (IA).', example='InfrequentAccess'),
@@ -10818,9 +10838,11 @@ async function modifyLDAPConfig(request: ModifyLDAPConfigRequest): ModifyLDAPCon
 }
 
 model ModifyLifecyclePolicyRequest {
+  enableLifecycle?: boolean(name='EnableLifecycle'),
   fileSystemId?: string(name='FileSystemId', description='The ID of the file system.
 
 This parameter is required.', example='31a8e4****'),
+  fsetIds?: [ string ](name='FsetIds'),
   lifecyclePolicyName?: string(name='LifecyclePolicyName', description='The name of the lifecycle policy.
 
 The name must be 3 to 64 characters in length and can contain letters, digits, underscores (_), and hyphens (-). The name must start with a letter.
@@ -10833,9 +10855,7 @@ Valid values:
 *   DEFAULT_ATIME_14: Files that are not accessed in the last 14 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_30: Files that are not accessed in the last 30 days are dumped to the IA storage medium.
 *   DEFAULT_ATIME_60: Files that are not accessed in the last 60 days are dumped to the IA storage medium.
-*   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.
-
-This parameter is required.', example='DEFAULT_ATIME_14'),
+*   DEFAULT_ATIME_90: Files that are not accessed in the last 90 days are dumped to the IA storage medium.', example='DEFAULT_ATIME_14'),
   path?: string(name='Path', description='The absolute path of a directory with which the lifecycle policy is associated.
 
 The path must start with a forward slash (/) and must be a path that exists in the mount target.', example='/pathway/to/folder'),
@@ -10872,8 +10892,14 @@ model ModifyLifecyclePolicyResponse = {
 async function modifyLifecyclePolicyWithOptions(request: ModifyLifecyclePolicyRequest, runtime: $RuntimeOptions): ModifyLifecyclePolicyResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.enableLifecycle)) {
+    query['EnableLifecycle'] = request.enableLifecycle;
+  }
   if (!$isNull(request.fileSystemId)) {
     query['FileSystemId'] = request.fileSystemId;
+  }
+  if (!$isNull(request.fsetIds)) {
+    query['FsetIds'] = request.fsetIds;
   }
   if (!$isNull(request.lifecyclePolicyName)) {
     query['LifecyclePolicyName'] = request.lifecyclePolicyName;
