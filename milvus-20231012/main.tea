@@ -282,6 +282,12 @@ model GetInstanceDetailResponseBody = {
     resourceGroupId?: string(name='ResourceGroupId', example='rg-123xxx'),
     runningTime?: long(name='RunningTime', example='1743679'),
     sgId?: string(name='SgId', example='sg-123xxx'),
+    tags?: [ 
+      {
+        key?: string(name='Key'),
+        value?: string(name='Value'),
+      }
+    ](name='Tags'),
     templateVersion?: string(name='TemplateVersion', example='2.4.1-1.0-0.0.1'),
     userConfig?: string(name='UserConfig', example='dataCoord:\\\\n  segment:\\\\n    maxSize: 1024'),
     version?: string(name='Version', example='2.4'),
@@ -358,6 +364,22 @@ model ListInstancesRequest {
   pageSize?: int32(name='PageSize', example='10'),
   regionId?: string(name='RegionId', example='cn-beijing'),
   resourceGroupId?: string(name='ResourceGroupId', example='rg-123xxx'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
+}
+
+model ListInstancesShrinkRequest {
+  clusterId?: string(name='ClusterId', example='c-123xxx'),
+  clusterName?: string(name='ClusterName', example='milvus-test'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  regionId?: string(name='RegionId', example='cn-beijing'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-123xxx'),
+  tagShrink?: string(name='Tag'),
 }
 
 model ListInstancesResponseBody = {
@@ -396,6 +418,12 @@ model ListInstancesResponseBody = {
       resourceGroupId?: string(name='ResourceGroupId', example='rg-123xxx'),
       runningTime?: int32(name='RunningTime', example='536611'),
       sgId?: string(name='SgId', example='sg-123xxx'),
+      tags?: [ 
+        {
+          key?: string(name='Key'),
+          value?: string(name='Value'),
+        }
+      ](name='Tags'),
       vpcId?: string(name='VpcId', example='vpc-123xxx'),
       vswId?: string(name='VswId', example='vsw-123xxx'),
       zoneId?: string(name='ZoneId', example='cn-beijing-g'),
@@ -418,13 +446,18 @@ model ListInstancesResponse = {
 /**
  * @summary 根据集群ID或者名称搜索集群
  *
- * @param request ListInstancesRequest
+ * @param tmpReq ListInstancesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstancesResponse
  */
-async function listInstancesWithOptions(request: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
-  Util.validateModel(request);
+async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'Tag', 'json');
+  }
   var query : map[string]any = {};
   if (!Util.isUnset(request.clusterId)) {
     query['ClusterId'] = request.clusterId;
@@ -443,6 +476,9 @@ async function listInstancesWithOptions(request: ListInstancesRequest, headers: 
   }
   if (!Util.isUnset(request.resourceGroupId)) {
     query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tagShrink)) {
+    query['Tag'] = request.tagShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
