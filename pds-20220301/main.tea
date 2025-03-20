@@ -1721,6 +1721,77 @@ async function assignRole(request: AssignRoleRequest): AssignRoleResponse {
   return assignRoleWithOptions(request, headers, runtime);
 }
 
+model AuditLogExportRequest {
+  fileName?: string(name='file_name', example='2024-01-log.csv'),
+  language?: string(name='language', example='zh_CN'),
+  orderBy?: string(name='order_by', example='acted_at DESC'),
+  query?: string(name='query', example='acted_at > \\\\"2025-03-10T16:00:00\\\\" and acted_at < \\\\"2025-03-17T15:59:59\\\\"'),
+}
+
+model AuditLogExportResponseBody = {
+  asyncTaskId?: string(name='async_task_id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d31****'),
+}
+
+model AuditLogExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AuditLogExportResponseBody(name='body'),
+}
+
+/**
+ * @summary 导出审计日志
+ *
+ * @param request AuditLogExportRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AuditLogExportResponse
+ */
+async function auditLogExportWithOptions(request: AuditLogExportRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AuditLogExportResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    body['file_name'] = request.fileName;
+  }
+  if (!Util.isUnset(request.language)) {
+    body['language'] = request.language;
+  }
+  if (!Util.isUnset(request.orderBy)) {
+    body['order_by'] = request.orderBy;
+  }
+  if (!Util.isUnset(request.query)) {
+    body['query'] = request.query;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'AuditLogExport',
+    version = '2022-03-01',
+    protocol = 'HTTPS',
+    pathname = `/v2/audit_log/export`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 导出审计日志
+ *
+ * @param request AuditLogExportRequest
+ * @return AuditLogExportResponse
+ */
+async function auditLogExport(request: AuditLogExportRequest): AuditLogExportResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return auditLogExportWithOptions(request, headers, runtime);
+}
+
 model AuthorizeRequest {
   clientId?: string(name='client_id', description='The application ID returned when the application was created.
 
@@ -7630,18 +7701,18 @@ model ListRecyclebinRequest {
   driveId?: string(name='drive_id', description='The drive ID.
 
 This parameter is required.', example='1'),
-  fields?: string(name='fields', description='Specifies the returned fields.
+  fields?: string(name='fields', description='The fields of an entry (file or folder) to return.
 
-1\\\\. If you set this parameter to \\\\*, all fields of the file are returned.
+1\\\\. If you set this parameter to \\\\*, all fields are returned.
 
 2\\\\. If you set this parameter to a null value or leave this parameter empty, the fields, such as file creator, file modifier, and custom tags, are not returned.
 
 The default value is a null value, which indicates that only some fields are returned.', example='*'),
-  limit?: int32(name='limit', description='The maximum number of results to return. Valid values: 1 to 200. Default value: 50.
+  limit?: int32(name='limit', description='The maximum number of entries to return. Valid values: 1 to 200. Default value: 50.
 
-The number of returned results must be less than or equal to the specified number.', example='50'),
-  marker?: string(name='marker', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of marker. By default, this parameter is left empty.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
-  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes'),
+The number of returned entries must be less than or equal to the value of this parameter.', example='50'),
+  marker?: string(name='marker', description='The name of the entry after which the list begins. Entries whose names are alphabetically after the value of this parameter are returned. If you do not specify this parameter, all entries are returned. This parameter is left empty by default.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
+  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='The thumbnail configurations. Up to five thumbnails can be returned at a time. The value contains key-value pairs. You can customize the keys. The URL of a thumbnail is returned based on the key.'),
 }
 
 model ListRecyclebinResponseBody = {
@@ -10710,14 +10781,21 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
 }
 
 model VideoDRMLicenseRequest {
-  drmType?: string(name='drmType', description='This parameter is required.', example='widevine'),
-  licenseRequest?: string(name='licenseRequest', example='CAES6B8SQgpACioSENGxDhqCLIVwwCBOyPayyWoSENGxDhqCLIVwwCBOyPayyWpI88aJmwYQARoQdRV32'),
+  drmType?: string(name='drmType', description='The type of DRM encryption.
+
+Valid values:
+
+*   fairplay
+*   widevine
+
+This parameter is required.', example='widevine'),
+  licenseRequest?: string(name='licenseRequest', description='The request that is initiated to obtain the license.', example='CAES6B8SQgpACioSENGxDhqCLIVwwCBOyPayyWoSENGxDhqCLIVwwCBOyPayyWpI88aJmwYQARoQdRV32'),
 }
 
 model VideoDRMLicenseResponseBody = {
-  data?: string(name='data', example='cb9swCy8P50H9KePsxET3jZ1tm41bDs9HTsxbWnsjf3bsf6QGdiS4kZPhDaskimbNyAfNjmhQRmWFt3AhwNF3'),
-  deviceInfo?: string(name='device_info', example='""'),
-  states?: string(name='states', example='0'),
+  data?: string(name='data', description='The returned DRM license.', example='cb9swCy8P50H9KePsxET3jZ1tm41bDs9HTsxbWnsjf3bsf6QGdiS4kZPhDaskimbNyAfNjmhQRmWFt3AhwNF3'),
+  deviceInfo?: string(name='device_info', description='The information about the device from which the DRM request was initiated.', example='""'),
+  states?: string(name='states', description='The request state returned by the DRM server.', example='0'),
 }
 
 model VideoDRMLicenseResponse = {
@@ -10727,7 +10805,7 @@ model VideoDRMLicenseResponse = {
 }
 
 /**
- * @summary 获取视频的DRM License
+ * @summary Obtain the digital rights management (DRM) license of a video.
  *
  * @param request VideoDRMLicenseRequest
  * @param headers map
@@ -10763,7 +10841,7 @@ async function videoDRMLicenseWithOptions(request: VideoDRMLicenseRequest, heade
 }
 
 /**
- * @summary 获取视频的DRM License
+ * @summary Obtain the digital rights management (DRM) license of a video.
  *
  * @param request VideoDRMLicenseRequest
  * @return VideoDRMLicenseResponse

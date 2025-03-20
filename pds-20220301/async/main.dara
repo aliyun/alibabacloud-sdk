@@ -1607,6 +1607,33 @@ async function assignRole(request: AssignRoleRequest): AssignRoleResponse {
   return @handler.do('RESTFUL', 'AssignRole', 'POST', '/v2/role/assign', 'none', false, 'json', request);
 }
 
+model AuditLogExportRequest {
+  domainId?: string(name='domain_id', description='A short description of struct', position='Host'),
+  fileName?: string(name='file_name', example='2024-01-log.csv', position='Body'),
+  language?: string(name='language', example='zh_CN', position='Body'),
+  orderBy?: string(name='order_by', example='acted_at DESC', position='Body'),
+  query?: string(name='query', example='acted_at > \\"2025-03-10T16:00:00\\" and acted_at < \\"2025-03-17T15:59:59\\"', position='Body'),
+}
+
+model AuditLogExportResponseBody = {
+  asyncTaskId?: string(name='async_task_id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d31****'),
+}
+
+model AuditLogExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AuditLogExportResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AuditLogExport  AuditLogExportRequest
+  * @return AuditLogExportResponse
+ */
+async function auditLogExport(request: AuditLogExportRequest): AuditLogExportResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AuditLogExport', 'POST', '/v2/audit_log/export', 'json', false, 'json', request);
+}
+
 model AuthorizeRequest {
   domainId?: string(name='domain_id', description='This parameter is required.', position='Host'),
   clientId: string(name='client_id', description='The application ID returned when the application was created.
@@ -4279,18 +4306,18 @@ model ListRecyclebinRequest {
   driveId: string(name='drive_id', description='The drive ID.
 
 This parameter is required.', example='1', position='Body'),
-  fields?: string(name='fields', description='Specifies the returned fields.
+  fields?: string(name='fields', description='The fields of an entry (file or folder) to return.
 
-1\\. If you set this parameter to \\*, all fields of the file are returned.
+1\\. If you set this parameter to \\*, all fields are returned.
 
 2\\. If you set this parameter to a null value or leave this parameter empty, the fields, such as file creator, file modifier, and custom tags, are not returned.
 
 The default value is a null value, which indicates that only some fields are returned.', example='*', position='Body'),
-  limit?: int32(name='limit', description='The maximum number of results to return. Valid values: 1 to 200. Default value: 50.
+  limit?: int32(name='limit', description='The maximum number of entries to return. Valid values: 1 to 200. Default value: 50.
 
-The number of returned results must be less than or equal to the specified number.', example='50', position='Body'),
-  marker?: string(name='marker', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of marker. By default, this parameter is left empty.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg', position='Body'),
-  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', position='Body'),
+The number of returned entries must be less than or equal to the value of this parameter.', example='50', position='Body'),
+  marker?: string(name='marker', description='The name of the entry after which the list begins. Entries whose names are alphabetically after the value of this parameter are returned. If you do not specify this parameter, all entries are returned. This parameter is left empty by default.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg', position='Body'),
+  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='The thumbnail configurations. Up to five thumbnails can be returned at a time. The value contains key-value pairs. You can customize the keys. The URL of a thumbnail is returned based on the key.', position='Body'),
 }
 
 model ListRecyclebinResponseBody = {
@@ -5618,14 +5645,21 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
 
 model VideoDRMLicenseRequest {
   domainId?: string(name='domain_id', description='This parameter is required.', position='Host'),
-  drmType: string(name='drmType', description='This parameter is required.', example='widevine', position='Body'),
-  licenseRequest?: string(name='licenseRequest', example='CAES6B8SQgpACioSENGxDhqCLIVwwCBOyPayyWoSENGxDhqCLIVwwCBOyPayyWpI88aJmwYQARoQdRV32', position='Body'),
+  drmType: string(name='drmType', description='The type of DRM encryption.
+
+Valid values:
+
+*   fairplay
+*   widevine
+
+This parameter is required.', example='widevine', position='Body'),
+  licenseRequest?: string(name='licenseRequest', description='The request that is initiated to obtain the license.', example='CAES6B8SQgpACioSENGxDhqCLIVwwCBOyPayyWoSENGxDhqCLIVwwCBOyPayyWpI88aJmwYQARoQdRV32', position='Body'),
 }
 
 model VideoDRMLicenseResponseBody = {
-  data?: string(name='data', example='cb9swCy8P50H9KePsxET3jZ1tm41bDs9HTsxbWnsjf3bsf6QGdiS4kZPhDaskimbNyAfNjmhQRmWFt3AhwNF3'),
-  deviceInfo?: string(name='device_info', example='""'),
-  states?: string(name='states', example='0'),
+  data?: string(name='data', description='The returned DRM license.', example='cb9swCy8P50H9KePsxET3jZ1tm41bDs9HTsxbWnsjf3bsf6QGdiS4kZPhDaskimbNyAfNjmhQRmWFt3AhwNF3'),
+  deviceInfo?: string(name='device_info', description='The information about the device from which the DRM request was initiated.', example='""'),
+  states?: string(name='states', description='The request state returned by the DRM server.', example='0'),
 }
 
 model VideoDRMLicenseResponse = {
