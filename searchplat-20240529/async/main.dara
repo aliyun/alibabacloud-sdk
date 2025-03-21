@@ -424,13 +424,14 @@ model GetTextGenerationRequest {
   workspaceName: string(name='workspace_name', description='This parameter is required.', position='Path'),
   serviceId: string(name='service_id', description='This parameter is required.', position='Path'),
   csiLevel?: string(name='csi_level', position='Body'),
+  enableSearch?: boolean(name='enable_search', position='Body'),
   messages: [ 
     {
       content?: string(name='content'),
       role?: string(name='role'),
     }
   ](name='messages', description='This parameter is required.', position='Body'),
-  parameters?: map[string]string(name='parameters', position='Body'),
+  parameters?: map[string]any(name='parameters', position='Body'),
   stream?: boolean(name='stream', position='Body'),
 }
 
@@ -438,6 +439,12 @@ model GetTextGenerationResponseBody = {
   latency?: int32(name='latency'),
   requestId?: string(name='request_id'),
   result?: {
+    searchResults?: [ 
+      {
+        title?: string(name='title'),
+        url?: string(name='url'),
+      }
+    ](name='search_results'),
     text?: string(name='text'),
   }(name='result'),
   usage?: {
@@ -505,5 +512,53 @@ model GetTextSparseEmbeddingResponse = {
 async function getTextSparseEmbedding(request: GetTextSparseEmbeddingRequest): GetTextSparseEmbeddingResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetTextSparseEmbedding', 'POST', '/v3/openapi/workspaces/{workspace_name}/text-sparse-embedding/{service_id}', 'json', false, 'json', request);
+}
+
+model GetWebSearchRequest {
+  workspaceName: string(name='workspace_name', description='This parameter is required.', position='Path'),
+  serviceId: string(name='service_id', description='This parameter is required.', position='Path'),
+  query: string(name='query', description='This parameter is required.', position='Body'),
+  topK?: long(name='top_k', position='Body'),
+  way?: string(name='way', position='Body'),
+}
+
+model GetWebSearchResponseBody = {
+  latency?: int32(name='latency'),
+  requestId?: string(name='request_id'),
+  result?: {
+    searchResult?: [ 
+      {
+        content?: string(name='content'),
+        link?: string(name='link'),
+        position?: long(name='position'),
+        snippet?: string(name='snippet'),
+        tilte?: string(name='tilte'),
+      }
+    ](name='search_result'),
+  }(name='result'),
+  usage?: {
+    filter_model_input_tokens?: long(name='filter_model.input_tokens'),
+    filter_model_output_tokens?: long(name='filter_model.output_tokens'),
+    filter_model_total_tokens?: long(name='filter_model.total_tokens'),
+    rewrite_model_input_tokens?: long(name='rewrite_model.input_tokens'),
+    rewrite_model_output_tokens?: long(name='rewrite_model.output_tokens'),
+    rewrite_model_total_tokens?: long(name='rewrite_model.total_tokens'),
+    searchCount?: long(name='search_count'),
+  }(name='usage'),
+}
+
+model GetWebSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWebSearchResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetWebSearch  GetWebSearchRequest
+  * @return GetWebSearchResponse
+ */
+async function getWebSearch(request: GetWebSearchRequest): GetWebSearchResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWebSearch', 'POST', '/v3/openapi/workspaces/{workspace_name}/web-search/{service_id}', 'json', false, 'json', request);
 }
 
