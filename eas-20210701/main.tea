@@ -176,6 +176,7 @@ model Service {
   createTime?: string(name='CreateTime'),
   currentVersion?: int32(name='CurrentVersion'),
   extraData?: string(name='ExtraData'),
+  gateway?: string(name='Gateway'),
   gpu?: int32(name='Gpu'),
   image?: string(name='Image'),
   internetEndpoint?: string(name='InternetEndpoint'),
@@ -192,6 +193,7 @@ model Service {
   namespace?: string(name='Namespace'),
   parentUid?: string(name='ParentUid'),
   pendingInstance?: int32(name='PendingInstance'),
+  quotaId?: string(name='QuotaId'),
   reason?: string(name='Reason'),
   region?: string(name='Region'),
   requestId?: string(name='RequestId'),
@@ -855,6 +857,7 @@ async function createGateway(request: CreateGatewayRequest): CreateGatewayRespon
 }
 
 model CreateGatewayIntranetLinkedVpcRequest {
+  enableAuthoritativeDns?: boolean(name='EnableAuthoritativeDns'),
   vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-8vbqn2at0kljjxxxx****'),
   vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-uf66uio7md****'),
 }
@@ -882,6 +885,9 @@ model CreateGatewayIntranetLinkedVpcResponse = {
 async function createGatewayIntranetLinkedVpcWithOptions(ClusterId: string, GatewayId: string, request: CreateGatewayIntranetLinkedVpcRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateGatewayIntranetLinkedVpcResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
+  if (!Util.isUnset(request.enableAuthoritativeDns)) {
+    query['EnableAuthoritativeDns'] = request.enableAuthoritativeDns;
+  }
   if (!Util.isUnset(request.vSwitchId)) {
     query['VSwitchId'] = request.vSwitchId;
   }
@@ -3459,36 +3465,48 @@ async function describeGroupEndpoints(ClusterId: string, GroupName: string): Des
 }
 
 model DescribeMachineSpecRequest {
-  instanceTypes?: [ string ](name='InstanceTypes', deprecated=true),
+  instanceTypes?: [ string ](name='InstanceTypes', description='This parameter is deprecated.', deprecated=true),
 }
 
 model DescribeMachineSpecShrinkRequest {
-  instanceTypesShrink?: string(name='InstanceTypes', deprecated=true),
+  instanceTypesShrink?: string(name='InstanceTypes', description='This parameter is deprecated.', deprecated=true),
 }
 
 model DescribeMachineSpecResponseBody = {
   instanceMetas?: [ 
     {
-      CPU?: int32(name='CPU', example='32'),
-      GPU?: string(name='GPU', example='GU30'),
-      GPUAmount?: int32(name='GPUAmount', example='1'),
-      GPUMemory?: float(name='GPUMemory', example='24'),
-      instanceType?: string(name='InstanceType', example='ml.gu7i.c32m188.1-gu30'),
-      isAvailable?: boolean(name='IsAvailable', example='true'),
-      memory?: float(name='Memory', example='188'),
-      nonProtectSpotDiscount?: float(name='NonProtectSpotDiscount', example='0.1'),
-      spotDiscount?: float(name='SpotDiscount', example='0.12'),
-      stockStatus?: string(name='StockStatus', example='WithStock'),
-      vendor?: string(name='Vendor', example='ECS'),
+      CPU?: int32(name='CPU', description='The number of CPU cores in the instance type.', example='32'),
+      GPU?: string(name='GPU', description='The GPU type in the instance type. If the instance type is not a GPU-based instance type, this parameter does not exist.', example='GU30'),
+      GPUAmount?: int32(name='GPUAmount', description='The number of GPUs in the instance type.', example='1'),
+      GPUMemory?: float(name='GPUMemory', description='The GPU memory in the instance type. Unit: GB.', example='24'),
+      instanceType?: string(name='InstanceType', description='The name of the instance type.', example='ml.gu7i.c32m188.1-gu30'),
+      isAvailable?: boolean(name='IsAvailable', description='Indicates whether the instance type is available.', example='true'),
+      memory?: float(name='Memory', description='The memory size in the instance type. Unit: GB.', example='188'),
+      nonProtectSpotDiscount?: float(name='NonProtectSpotDiscount', description='The minimum discount that can be accepted when the preemptible instance type does not include a usage duration. 0.1 indicates one fold. If this parameter is not returned, the bidding feature is not supported.', example='0.1'),
+      spotDiscount?: float(name='SpotDiscount', description='The minimum discount that can be accepted when the preemptible instance type has the 1-hour protection duration. 0.1 indicates one fold. If this parameter is not returned, the bidding feature is not supported.', example='0.12'),
+      stockStatus?: string(name='StockStatus', description='The inventory status of the instance type.
+
+Valid values:
+
+*   WithStock
+*   ClosedWithStock
+*   NoStock', example='WithStock'),
+      vendor?: string(name='Vendor', description='The source of the instance type.
+
+Valid values:
+
+*   ECS
+*   BareMetal
+*   Lingjun', example='ECS'),
     }
-  ](name='InstanceMetas'),
-  requestId?: string(name='RequestId', example='40325405-579C-4D82***'),
+  ](name='InstanceMetas', description='The instance types when the resources are specified.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82***'),
   types?: [ 
     {
-      CPU?: int32(name='CPU', example='1'),
-      memory?: [ int32 ](name='Memory'),
+      CPU?: int32(name='CPU', description='Valid values:', example='1'),
+      memory?: [ int32 ](name='Memory', description='The optional values for memory when CPU is set to a specific value as above.'),
     }
-  ](name='Types'),
+  ](name='Types', description='The values that can be supported when the number of CPUs and memory size are specified for deployment.'),
 }
 
 model DescribeMachineSpecResponse = {
@@ -3498,7 +3516,7 @@ model DescribeMachineSpecResponse = {
 }
 
 /**
- * @summary 查询可用机器规格
+ * @summary Queries a list of instance types for an available instance in a shared resource group.
  *
  * @param tmpReq DescribeMachineSpecRequest
  * @param headers map
@@ -3540,7 +3558,7 @@ async function describeMachineSpecWithOptions(tmpReq: DescribeMachineSpecRequest
 }
 
 /**
- * @summary 查询可用机器规格
+ * @summary Queries a list of instance types for an available instance in a shared resource group.
  *
  * @param request DescribeMachineSpecRequest
  * @return DescribeMachineSpecResponse
@@ -3549,6 +3567,62 @@ async function describeMachineSpec(request: DescribeMachineSpecRequest): Describ
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeMachineSpecWithOptions(request, headers, runtime);
+}
+
+model DescribeRegionsResponseBody = {
+  regions?: [ 
+    {
+      regionId?: string(name='RegionId', example='cn-shanghai'),
+      regionName?: string(name='RegionName'),
+    }
+  ](name='Regions'),
+  requestId?: string(name='RequestId', example='40325405-579C-4D82****'),
+}
+
+model DescribeRegionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRegionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询可用的地域信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeRegionsResponse
+ */
+async function describeRegionsWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): DescribeRegionsResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeRegions',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/regions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询可用的地域信息
+ *
+ * @return DescribeRegionsResponse
+ */
+async function describeRegions(): DescribeRegionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeRegionsWithOptions(headers, runtime);
 }
 
 model DescribeResourceResponseBody = {
@@ -5185,6 +5259,7 @@ model ListGatewayIntranetLinkedVpcResponseBody = {
   gatewayId?: string(name='GatewayId', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
   intranetLinkedVpcList?: [ 
     {
+      authoritativeDnsEnabled?: boolean(name='AuthoritativeDnsEnabled'),
       ip?: string(name='Ip', description='The IP address.', example='192.168.10.11'),
       securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-2ze4pgstgszvgq******'),
       status?: string(name='Status', description='The state of the private gateway.
@@ -6625,6 +6700,7 @@ model ListServicesRequest {
   parentServiceUid?: string(name='ParentServiceUid', description='The ID of the primary service that corresponds to the Band member service.', example='eas-m-ijafy3c8cxxxx'),
   quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345'),
   resourceName?: string(name='ResourceName', description='The name or ID of the resource group to which the service belongs.', example='eas-r-hd0qwy8cxxxx'),
+  resourceType?: string(name='ResourceType'),
   role?: string(name='Role', description='The server role.
 
 Valid values:
@@ -6845,6 +6921,7 @@ model ListServicesShrinkRequest {
   parentServiceUid?: string(name='ParentServiceUid', description='The ID of the primary service that corresponds to the Band member service.', example='eas-m-ijafy3c8cxxxx'),
   quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345'),
   resourceName?: string(name='ResourceName', description='The name or ID of the resource group to which the service belongs.', example='eas-r-hd0qwy8cxxxx'),
+  resourceType?: string(name='ResourceType'),
   role?: string(name='Role', description='The server role.
 
 Valid values:
@@ -7112,6 +7189,9 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
   }
   if (!Util.isUnset(request.resourceName)) {
     query['ResourceName'] = request.resourceName;
+  }
+  if (!Util.isUnset(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
   }
   if (!Util.isUnset(request.role)) {
     query['Role'] = request.role;
@@ -7721,7 +7801,7 @@ Valid values:
 }
 
 model UpdateAppServiceResponseBody = {
-  message?: string(name='Message', description='The returned message.', example='Succee'),
+  message?: string(name='Message', description='The returned message.', example='Success'),
   requestId?: string(name='RequestId', description='The request ID.', example='40325405-579C-4D82****'),
 }
 
