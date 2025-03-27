@@ -303,6 +303,7 @@ async function askSessionPackagePrice(request: AskSessionPackagePriceRequest): A
 
 model AuthorizeInstanceGroupRequest {
   appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-9ciijz60n4xsv****'),
+  appInstancePersistentId?: string(name='AppInstancePersistentId'),
   authorizeUserIds?: [ string ](name='AuthorizeUserIds'),
   productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
   unAuthorizeUserIds?: [ string ](name='UnAuthorizeUserIds'),
@@ -314,6 +315,7 @@ model AuthorizeInstanceGroupRequest {
 
 model AuthorizeInstanceGroupShrinkRequest {
   appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-9ciijz60n4xsv****'),
+  appInstancePersistentId?: string(name='AppInstancePersistentId'),
   authorizeUserIds?: [ string ](name='AuthorizeUserIds'),
   productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
   unAuthorizeUserIds?: [ string ](name='UnAuthorizeUserIds'),
@@ -347,6 +349,9 @@ async function authorizeInstanceGroupWithOptions(tmpReq: AuthorizeInstanceGroupR
   var body : map[string]any = {};
   if (!Util.isUnset(request.appInstanceGroupId)) {
     body['AppInstanceGroupId'] = request.appInstanceGroupId;
+  }
+  if (!Util.isUnset(request.appInstancePersistentId)) {
+    body['AppInstancePersistentId'] = request.appInstancePersistentId;
   }
   var bodyFlat : map[string]any = {};
   if (!Util.isUnset(request.authorizeUserIds)) {
@@ -589,6 +594,7 @@ model CreateAppInstanceGroupRequest {
   appInstanceGroupName?: string(name='AppInstanceGroupName'),
   appPackageType?: string(name='AppPackageType'),
   appPolicyId?: string(name='AppPolicyId'),
+  authMode?: string(name='AuthMode', example='App', nullable=true),
   autoPay?: boolean(name='AutoPay', example='false'),
   autoRenew?: boolean(name='AutoRenew', example='false'),
   bizRegionId?: string(name='BizRegionId', description='This parameter is required.', example='cn-hangzhou'),
@@ -648,6 +654,7 @@ model CreateAppInstanceGroupRequest {
   runtimePolicy?: {
     debugMode?: string(name='DebugMode'),
     perSessionPerApp?: boolean(name='PerSessionPerApp'),
+    persistentAppInstanceScheduleMode?: string(name='PersistentAppInstanceScheduleMode', example='DYNAMIC', nullable=true),
     sessionPreOpen?: string(name='SessionPreOpen'),
     sessionType?: string(name='SessionType', description='会话类型。', example='NORMAL'),
     sessionUserGenerationMode?: string(name='SessionUserGenerationMode'),
@@ -688,6 +695,7 @@ model CreateAppInstanceGroupShrinkRequest {
   appInstanceGroupName?: string(name='AppInstanceGroupName'),
   appPackageType?: string(name='AppPackageType'),
   appPolicyId?: string(name='AppPolicyId'),
+  authMode?: string(name='AuthMode', example='App', nullable=true),
   autoPay?: boolean(name='AutoPay', example='false'),
   autoRenew?: boolean(name='AutoRenew', example='false'),
   bizRegionId?: string(name='BizRegionId', description='This parameter is required.', example='cn-hangzhou'),
@@ -778,6 +786,9 @@ async function createAppInstanceGroupWithOptions(tmpReq: CreateAppInstanceGroupR
   }
   if (!Util.isUnset(request.appPolicyId)) {
     body['AppPolicyId'] = request.appPolicyId;
+  }
+  if (!Util.isUnset(request.authMode)) {
+    body['AuthMode'] = request.authMode;
   }
   if (!Util.isUnset(request.autoPay)) {
     body['AutoPay'] = request.autoPay;
@@ -2123,9 +2134,9 @@ async function listAccessPages(request: ListAccessPagesRequest): ListAccessPages
 }
 
 model ListAppInstanceGroupRequest {
-  appCenterImageId?: string(name='AppCenterImageId', example='img-8z4nztpaqvay4****'),
-  appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
-  appInstanceGroupName?: string(name='AppInstanceGroupName'),
+  appCenterImageId?: string(name='AppCenterImageId', description='The image ID of the app. You can obtain the ID from the Images page in the App Streaming console.', example='img-8z4nztpaqvay4****'),
+  appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.', example='aig-9ciijz60n4xsv****'),
+  appInstanceGroupName?: string(name='AppInstanceGroupName', description='The name of the delivery groups to query. Fuzzy match is used for queries. For example, if you set this parameter to `Office App`, all delivery groups whose names contain `Office App` are queried, such as `My Office Apps` and `Office App A`.'),
   bizRegionId?: string(name='BizRegionId', description='The ID of the region where the delivery group resides. For information about the supported regions, see [Limits](https://help.aliyun.com/document_detail/426036.html).
 
 Valid values:
@@ -2133,112 +2144,175 @@ Valid values:
 *   cn-shanghai: China (Shanghai)
 *   cn-hangzhou: China (Hangzhou)', example='cn-hangzhou'),
   nodeInstanceType?: string(name='NodeInstanceType', description='The ID of the resource specification that you purchase. You can call the [ListNodeInstanceType](~~ListNodeInstanceType~~) operation to obtain the ID.', example='appstreaming.vgpu.4c8g.2g'),
-  officeSiteId?: string(name='OfficeSiteId'),
-  pageNumber?: int32(name='PageNumber', example='1'),
+  officeSiteId?: string(name='OfficeSiteId', example='cn-hongkong+dir-643067****'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. The value cannot be greater than `100`.', example='10'),
-  productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
-  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', deprecated=true),
-  status?: [ string ](name='Status'),
+  productType?: string(name='ProductType', description='The product type.
+
+Valid value:
+
+*   CloudApp: App Streaming
+
+This parameter is required.', example='CloudApp'),
+  regionId?: string(name='RegionId', description='The region ID', example='cn-hangzhou', deprecated=true),
+  status?: [ string ](name='Status', description='The status of the delivery groups.'),
 }
 
 model ListAppInstanceGroupResponseBody = {
   appInstanceGroupModels?: [ 
     {
-      amount?: int32(name='Amount', example='1'),
-      appCenterImageId?: string(name='AppCenterImageId', example='img-8z4nztpaqvay4****'),
-      appInstanceGroupId?: string(name='AppInstanceGroupId', example='aig-9ciijz60n4xsv****'),
-      appInstanceGroupName?: string(name='AppInstanceGroupName'),
-      appInstanceType?: string(name='AppInstanceType', example='__dynamic__'),
-      appPolicyId?: string(name='AppPolicyId', example='pg-g3k5wa2ms2****'),
-      appPolicyImageCheck?: boolean(name='AppPolicyImageCheck'),
-      appPolicyVersion?: string(name='AppPolicyVersion'),
+      amount?: int32(name='Amount', description='The number of subscription resources. Minimum value: 1.', example='1'),
+      appCenterImageId?: string(name='AppCenterImageId', description='The image ID of the app.', example='img-8z4nztpaqvay4****'),
+      appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.', example='aig-9ciijz60n4xsv****'),
+      appInstanceGroupName?: string(name='AppInstanceGroupName', description='The name of the delivery group.'),
+      appInstanceType?: string(name='AppInstanceType', description='The resource type of the delivery group.', example='__dynamic__'),
+      appPolicyId?: string(name='AppPolicyId', description='The policy ID.', example='pg-g3k5wa2ms2****'),
+      appPolicyImageCheck?: boolean(name='AppPolicyImageCheck', example='false'),
+      appPolicyVersion?: string(name='AppPolicyVersion', example='CENTER'),
       apps?: [ 
         {
-          appIcon?: string(name='AppIcon', example='https://app-center-icon-****.png'),
-          appId?: string(name='AppId', example='ca-i87mycyn419nu****'),
-          appName?: string(name='AppName'),
-          appVersion?: string(name='AppVersion', example='1.0.0'),
-          appVersionName?: string(name='AppVersionName'),
+          appIcon?: string(name='AppIcon', description='The app icon.', example='https://app-center-icon-****.png'),
+          appId?: string(name='AppId', description='The app ID.', example='ca-i87mycyn419nu****'),
+          appName?: string(name='AppName', description='The app name.'),
+          appVersion?: string(name='AppVersion', description='The app version.', example='1.0.0'),
+          appVersionName?: string(name='AppVersionName', description='The name of the app version.'),
         }
-      ](name='Apps'),
-      chargeResourceMode?: string(name='ChargeResourceMode', example='Node'),
-      chargeType?: string(name='ChargeType', example='PrePaid'),
-      expiredTime?: string(name='ExpiredTime', example='2022-04-27T16:00:00.000+00:00'),
-      gmtCreate?: string(name='GmtCreate', example='2022-04-26T15:06:16.000+00:00'),
-      maxAmount?: int32(name='MaxAmount', example='10'),
-      minAmount?: int32(name='MinAmount', example='1'),
+      ](name='Apps', description='The apps.'),
+      chargeResourceMode?: string(name='ChargeResourceMode', description='The sales mode.
+
+Valid values:
+
+*   AppInstance: by session
+*   Node: by resource', example='Node'),
+      chargeType?: string(name='ChargeType', description='The billing method.
+
+Valid values:
+
+*   PostPaid: pay-as-you-go
+*   PrePaid: subscription', example='PrePaid'),
+      expiredTime?: string(name='ExpiredTime', description='The time when the delivery group expires.', example='2022-04-27T16:00:00.000+00:00'),
+      gmtCreate?: string(name='GmtCreate', description='The time when the delivery group was created.', example='2022-04-26T15:06:16.000+00:00'),
+      maxAmount?: int32(name='MaxAmount', description='The maximum number of instances. Minimum value: 1.', example='10'),
+      minAmount?: int32(name='MinAmount', description='The minimum number of instances. Minimum value: 1.', example='1'),
       nodePool?: [ 
         {
-          amount?: int32(name='Amount', example='2'),
-          maxIdleAppInstanceAmount?: int32(name='MaxIdleAppInstanceAmount', description='The maximum number of idle sessions. After you specify a value for this parameter, auto scaling is triggered only if the number of idle sessions in the delivery group is smaller than the specified value and the session usage exceeds the value specified for `ScalingUsageThreshold`. Otherwise, the system determines that the idle sessions in the delivery group are sufficient and does not perform auto scaling.`` You can use this parameter to flexibly manage auto scaling and reduce costs.', example='3'),
-          maxScalingAmount?: int32(name='MaxScalingAmount', example='8'),
-          nodeAmount?: int32(name='NodeAmount', example='1'),
-          nodeCapacity?: int32(name='NodeCapacity', example='2'),
-          nodeInstanceType?: string(name='NodeInstanceType', example='appstreaming.vgpu.4c8g.2g'),
-          nodePoolId?: string(name='NodePoolId', example='rg-g6922kced36hx****'),
-          nodeTypeName?: string(name='NodeTypeName'),
-          nodeUsed?: int32(name='NodeUsed', example='1'),
+          amount?: int32(name='Amount', description='The number of resources purchased when the delivery group was created.', example='2'),
+          maxIdleAppInstanceAmount?: int32(name='MaxIdleAppInstanceAmount', description='The maximum number of idle sessions. After you specify a value for this parameter, auto scale-out is triggered only if the number of idle sessions in the delivery group is smaller than the specified value and the session usage exceeds the value specified for `ScalingUsageThreshold`. Otherwise, the system determines that idle sessions in the delivery group are sufficient and does not perform auto scale-out.`` You can use this parameter to flexibly manage auto scaling and reduce costs.', example='3'),
+          maxScalingAmount?: int32(name='MaxScalingAmount', description='The maximum number of resources that can be created for scale-out.', example='8'),
+          nodeAmount?: int32(name='NodeAmount', description='The total number of subscription resources.', example='1'),
+          nodeCapacity?: int32(name='NodeCapacity', description='The maximum number of sessions that can be connected to a resource at the same time. If a resource connects to a large number of sessions at the same time, user experience can be compromised. The value range varies based on the resource specification. The following items describe the value ranges of different resource types:
+
+*   appstreaming.general.4c8g: 1 to 2
+*   appstreaming.general.8c16g: 1 to 4
+*   appstreaming.vgpu.8c16g.4g: 1 to 4
+*   appstreaming.vgpu.8c31g.16g: 1 to 4
+*   appstreaming.vgpu.14c93g.12g: 1 to 6', example='2'),
+          nodeInstanceType?: string(name='NodeInstanceType', description='The ID of the resource specification that you purchase.', example='appstreaming.vgpu.4c8g.2g'),
+          nodePoolId?: string(name='NodePoolId', description='The ID of the resource group.', example='rg-g6922kced36hx****'),
+          nodeTypeName?: string(name='NodeTypeName', description='The name of the resource specification.'),
+          nodeUsed?: int32(name='NodeUsed', description='The number of subscription resources that are in use.', example='1'),
           recurrenceSchedules?: [ 
             {
-              recurrenceType?: string(name='RecurrenceType', example='Weekly'),
-              recurrenceValues?: [ int32 ](name='RecurrenceValues'),
+              recurrenceType?: string(name='RecurrenceType', description='The schedule type of the scaling policy. This parameter must be configured together with `RecurrenceValues`.``
+
+Valid value:
+
+*   weekly: The scaling policy is executed on specific days each week.', example='Weekly'),
+              recurrenceValues?: [ int32 ](name='RecurrenceValues', description='The days of each week on which the scaling policy is executed.'),
               timerPeriods?: [ 
                 {
-                  amount?: int32(name='Amount', example='5'),
-                  endTime?: string(name='EndTime', example='11:00'),
-                  startTime?: string(name='StartTime', example='09:30'),
+                  amount?: int32(name='Amount', description='The number of destination resources.', example='5'),
+                  endTime?: string(name='EndTime', description='The time when the scaling policy ends. Format: HH:mm.', example='11:00'),
+                  startTime?: string(name='StartTime', description='The time when the scaling policy starts. Format: HH:mm.', example='09:30'),
                 }
-              ](name='TimerPeriods'),
+              ](name='TimerPeriods', description='The time periods during which the scaling policy can be executed.'),
             }
-          ](name='RecurrenceSchedules'),
-          scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', example='5'),
-          scalingNodeAmount?: int32(name='ScalingNodeAmount', example='8'),
-          scalingNodeUsed?: int32(name='ScalingNodeUsed', example='4'),
-          scalingStep?: int32(name='ScalingStep', example='2'),
-          scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
-          strategyDisableDate?: string(name='StrategyDisableDate', example='2022-09-08'),
-          strategyEnableDate?: string(name='StrategyEnableDate', example='2022-08-01'),
-          strategyType?: string(name='StrategyType', example='NODE_FIXED'),
-          warmUp?: boolean(name='WarmUp', example='false'),
+          ](name='RecurrenceSchedules', description='The intervals at which the scaling policy is executed.'),
+          scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', description='The duration for which no session is connected. Unit: minutes. If no session is connected in the resources after the specified duration elapses, auto scale-in is triggered. Default value: 5.', example='5'),
+          scalingNodeAmount?: int32(name='ScalingNodeAmount', description='The total number of scalable resources.', example='8'),
+          scalingNodeUsed?: int32(name='ScalingNodeUsed', description='The number of scalable resources that are in use.', example='4'),
+          scalingStep?: int32(name='ScalingStep', description='The number of resources that are created each time resources are scaled out. Valid values: 1 to 10.', example='2'),
+          scalingUsageThreshold?: string(name='ScalingUsageThreshold', description='The upper limit of session usage. If the session usage exceeds the specified upper limit, auto scale-out is triggered. The session usage is calculated by using the following formula: `Session usage = Number of current sessions/(Total number of resources × Number of concurrent sessions) × 100%`.', example='85'),
+          strategyDisableDate?: string(name='StrategyDisableDate', description='The expiration date of the scaling policy. Format: yyyy-MM-dd.', example='2022-09-08'),
+          strategyEnableDate?: string(name='StrategyEnableDate', description='The effective date of the scaling policy. Format: yyyy-MM-dd.', example='2022-08-01'),
+          strategyType?: string(name='StrategyType', description='The type of the scaling policy.
+
+>  `NODE_SCALING_BY_USAGE` is returned for this parameter only if ChargeType is set to `PrePaid`. `NODE_SCALING_BY_SCHEDULE` is returned for this parameter only if ChargeType is set to `PostPaid`.
+
+Valid values:
+
+*   NODE_FIXED: No scalable resources are used.
+*   NODE_SCALING_BY_SCHEDULE: Scheduled scaling is used.
+*   NODE_SCALING_BY_USAGE: Resources are scaled based on usage.', example='NODE_FIXED'),
+          warmUp?: boolean(name='WarmUp', description='Indicates whether resource prefetch is enabled.', example='false'),
         }
       ](name='NodePool', description='The resource groups.'),
-      officeSiteId?: string(name='OfficeSiteId'),
+      officeSiteId?: string(name='OfficeSiteId', example='cn-beijing+dir-172301****'),
       osType?: string(name='OsType', description='The type of the operating system.
 
 Valid value:
 
 *   Windows', example='Windows'),
       otaInfo?: {
-        newOtaVersion?: string(name='NewOtaVersion', example='0.0.1-D-20220630.11****'),
-        otaVersion?: string(name='OtaVersion', example='0.0.1-D-20220615.11****'),
-        taskId?: string(name='TaskId', example='ota-e49929gv8acz5****'),
-      }(name='OtaInfo'),
-      productType?: string(name='ProductType', example='CloudApp'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      reserveAmountRatio?: string(name='ReserveAmountRatio', example='20'),
-      reserveMaxAmount?: int32(name='ReserveMaxAmount', example='5'),
-      reserveMinAmount?: int32(name='ReserveMinAmount', example='1'),
-      resourceStatus?: string(name='ResourceStatus', example='AVAILABLE'),
+        newOtaVersion?: string(name='NewOtaVersion', description='The new OTA version. A null value indicates that no new version is available.', example='0.0.1-D-20220630.11****'),
+        otaVersion?: string(name='OtaVersion', description='The current OTA version.', example='0.0.1-D-20220615.11****'),
+        taskId?: string(name='TaskId', description='The ID of the OTA update task.', example='ota-e49929gv8acz5****'),
+      }(name='OtaInfo', description='The information about the over-the-air (OTA) update task.'),
+      productType?: string(name='ProductType', description='The product type.
+
+Valid value:
+
+*   CloudApp: App Streaming', example='CloudApp'),
+      regionId?: string(name='RegionId', description='The ID of the region where the delivery group resides. For information about the supported regions, see [Limits](https://help.aliyun.com/document_detail/426036.html).', example='cn-hangzhou'),
+      reserveAmountRatio?: string(name='ReserveAmountRatio', description='The percentage of reserved instances. The value indicates the percentage of unused sessions in the delivery group. Valid values: 0 to 99.', example='20'),
+      reserveMaxAmount?: int32(name='ReserveMaxAmount', description='The maximum number of reserved instances. The value indicates the maximum number of unused sessions in the delivery group. Minimum value: 1.', example='5'),
+      reserveMinAmount?: int32(name='ReserveMinAmount', description='The minimum number of reserved instances. The value indicates the minimum number of unused sessions in the delivery group. Minimum value: 1.', example='1'),
+      resourceStatus?: string(name='ResourceStatus', description='The resource status.
+
+Valid values:
+
+*   AVAILABLE
+*   RELEASED
+*   EXPIRED_IN_7_DAYS
+*   UNAVAILABLE
+*   UPGRADING
+*   CREATING', example='AVAILABLE'),
       resourceTags?: [ 
         {
-          key?: string(name='Key', description='The tag key.'),
-          scope?: string(name='Scope', description='The tag type. Valid values: Custom and System.'),
-          value?: string(name='Value', description='The tag value.'),
+          key?: string(name='Key', description='The tag key.', example='department'),
+          scope?: string(name='Scope', description='The tag type. Valid values: Custom System', example='Custom'),
+          value?: string(name='Value', description='The tag value.', example='design'),
         }
-      ](name='ResourceTags', description='The tags added to the resources.'),
-      scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', example='5'),
-      scalingStep?: int32(name='ScalingStep', example='10'),
-      scalingUsageThreshold?: string(name='ScalingUsageThreshold', example='85'),
-      sessionTimeout?: string(name='SessionTimeout', example='15'),
-      skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', example='false'),
-      specId?: string(name='SpecId', example='spec-8o18t8uc31qib0****'),
-      status?: string(name='Status', example='PUBLISHED'),
+      ](name='ResourceTags', description='The resource tags.'),
+      scalingDownAfterIdleMinutes?: int32(name='ScalingDownAfterIdleMinutes', description='The duration for which no session is connected. Unit: minutes. If no session is connected in the resources after the specified duration elapses, auto scale-in is triggered. Minimum value: 0.', example='5'),
+      scalingStep?: int32(name='ScalingStep', description='The number of sessions that are created each time the delivery group is scaled out. Minimum value: 1.', example='10'),
+      scalingUsageThreshold?: string(name='ScalingUsageThreshold', description='The upper limit of session usage. If the session usage exceeds the specified upper limit, auto scale-out is triggered. The session usage rate is calculated by using the following formula: Session usage rate = Number of sessions in use/Total number of sessions × 100%. Valid values: 0 to 99.', example='85'),
+      sessionTimeout?: string(name='SessionTimeout', description='The duration for which sessions are retained after disconnection. Unit: minutes. After an end user disconnects from a session, the session is closed only after the specified duration elapses. If you want to permanently retain sessions, set this parameter to `-1`. Valid values:-1 and 3 to 300. Default value: `15`.', example='15'),
+      skipUserAuthCheck?: boolean(name='SkipUserAuthCheck', description='Indicates whether user permission verification is skipped.
+
+Valid values:
+
+*   true
+*   false: This is the default value.', example='false'),
+      specId?: string(name='SpecId', description='The specification ID that uniquely corresponds to the ID of the delivery group.', example='spec-8o18t8uc31qib0****'),
+      status?: string(name='Status', description='The status of the delivery group.
+
+Valid values:
+
+*   PUBLISHED: The delivery group is published.
+*   FAILED: The delivery group failed to be published.
+*   MAINTAIN_FAILED: The delivery group failed to be updated.
+*   EXPIRED: The delivery group is expired.
+*   MAINTAINING: The delivery group is being updated.
+*   CEASED: The delivery group has overdue payments.
+*   EXPIRED_RECYCLING: The delivery group is expired and being recycled.
+*   DEPLOYING: The delivery group is being published.', example='PUBLISHED'),
     }
   ](name='AppInstanceGroupModels', description='The delivery groups.'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
-  totalCount?: int32(name='TotalCount', example='15'),
+  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='15'),
 }
 
 model ListAppInstanceGroupResponse = {
@@ -2714,23 +2788,44 @@ async function listNodeInstanceType(request: ListNodeInstanceTypeRequest): ListN
 }
 
 model ListNodesRequest {
-  appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-53fvrq1oanz6c****'),
-  pageNumber?: int32(name='PageNumber', description='This parameter is required.', example='1'),
-  pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
-  productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
+  appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.
+
+This parameter is required.', example='aig-53fvrq1oanz6c****'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
+
+This parameter is required.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 200.
+
+This parameter is required.', example='10'),
+  productType?: string(name='ProductType', description='The product type.
+
+Valid value:
+
+*   CloudApp: App Streaming
+
+This parameter is required.', example='CloudApp'),
 }
 
 model ListNodesResponseBody = {
-  count?: int32(name='Count', example='100'),
+  count?: int32(name='Count', description='The total number of entries returned.', example='100'),
   nodeModels?: [ 
     {
-      chargeType?: string(name='ChargeType', example='PostPaid'),
-      nodeId?: string(name='NodeId', example='i-bp13********'),
+      chargeType?: string(name='ChargeType', description='The billing method of the resource node.
+
+>  This parameter is returned only if the ChargeResourceMode parameter of the delivery group to which the resource node belongs is set to Node.
+
+Valid values:
+
+*   PostPaid: pay-as-you-go
+*   Prepaid: subscription', example='PostPaid'),
+      nodeId?: string(name='NodeId', description='The ID of the resource node.
+
+>  This parameter is returned only if the ChargeResourceMode parameter of the delivery group to which the resource node belongs is set to Node.', example='i-bp13********'),
     }
-  ](name='NodeModels'),
-  perPageSize?: int32(name='PerPageSize', example='10'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
-  toPage?: int32(name='ToPage', example='1'),
+  ](name='NodeModels', description='The resource nodes.'),
+  perPageSize?: int32(name='PerPageSize', description='The number of entries per page.', example='10'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  toPage?: int32(name='ToPage', description='The page number.', example='1'),
 }
 
 model ListNodesResponse = {
@@ -2740,7 +2835,7 @@ model ListNodesResponse = {
 }
 
 /**
- * @summary 查询节点列表
+ * @summary Queries resource nodes.
  *
  * @param request ListNodesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2783,7 +2878,7 @@ async function listNodesWithOptions(request: ListNodesRequest, runtime: Util.Run
 }
 
 /**
- * @summary 查询节点列表
+ * @summary Queries resource nodes.
  *
  * @param request ListNodesRequest
  * @return ListNodesResponse
@@ -3651,26 +3746,52 @@ async function modifyAppPolicy(request: ModifyAppPolicyRequest): ModifyAppPolicy
 }
 
 model ModifyNodePoolAmountRequest {
-  appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-9ciijz60n4xsv****'),
+  appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.
+
+This parameter is required.', example='aig-9ciijz60n4xsv****'),
   nodePool?: {
-    nodeAmount?: int32(name='NodeAmount', description='This parameter is required.', example='1'),
-    prePaidNodeAmountModifyMode?: string(name='PrePaidNodeAmountModifyMode', example='EXPAND_FROM_POST_PAID_EXPLICIT'),
-    prePaidNodeAmountModifyNodeIds?: [ string ](name='PrePaidNodeAmountModifyNodeIds'),
-  }(name='NodePool', description='This parameter is required.'),
-  productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
+    nodeAmount?: int32(name='NodeAmount', description='The total number of subscription nodes after the change.
+
+This parameter is required.', example='1'),
+    prePaidNodeAmountModifyMode?: string(name='PrePaidNodeAmountModifyMode', description='The change mode of subscription nodes.
+
+Valid value:
+
+*   EXPAND_FROM_POST_PAID_EXPLICIT: changes from specified pay-as-you-go nodes', example='EXPAND_FROM_POST_PAID_EXPLICIT'),
+    prePaidNodeAmountModifyNodeIds?: [ string ](name='PrePaidNodeAmountModifyNodeIds', description='The nodes for which you want to change the billing method.'),
+  }(name='NodePool', description='The parameters related to the configuration change of the node pool.
+
+This parameter is required.'),
+  productType?: string(name='ProductType', description='The product type.
+
+Valid value:
+
+*   CloudApp: App Streaming
+
+This parameter is required.', example='CloudApp'),
 }
 
 model ModifyNodePoolAmountShrinkRequest {
-  appInstanceGroupId?: string(name='AppInstanceGroupId', description='This parameter is required.', example='aig-9ciijz60n4xsv****'),
-  nodePoolShrink?: string(name='NodePool', description='This parameter is required.'),
-  productType?: string(name='ProductType', description='This parameter is required.', example='CloudApp'),
+  appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.
+
+This parameter is required.', example='aig-9ciijz60n4xsv****'),
+  nodePoolShrink?: string(name='NodePool', description='The parameters related to the configuration change of the node pool.
+
+This parameter is required.'),
+  productType?: string(name='ProductType', description='The product type.
+
+Valid value:
+
+*   CloudApp: App Streaming
+
+This parameter is required.', example='CloudApp'),
 }
 
 model ModifyNodePoolAmountResponseBody = {
   data?: {
-    orderId?: string(name='OrderId', example='23429322113****'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+    orderId?: string(name='OrderId', description='The order ID.', example='23429322113****'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model ModifyNodePoolAmountResponse = {
@@ -3680,7 +3801,7 @@ model ModifyNodePoolAmountResponse = {
 }
 
 /**
- * @summary 包年包月交付组节点数量升级
+ * @summary Changes the number of nodes in a subscription delivery group.
  *
  * @param tmpReq ModifyNodePoolAmountRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3725,7 +3846,7 @@ async function modifyNodePoolAmountWithOptions(tmpReq: ModifyNodePoolAmountReque
 }
 
 /**
- * @summary 包年包月交付组节点数量升级
+ * @summary Changes the number of nodes in a subscription delivery group.
  *
  * @param request ModifyNodePoolAmountRequest
  * @return ModifyNodePoolAmountResponse
