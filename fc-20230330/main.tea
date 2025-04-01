@@ -312,6 +312,7 @@ model Function {
   instanceConcurrency?: int32(name='instanceConcurrency', example='1'),
   instanceLifecycleConfig?: InstanceLifecycleConfig(name='instanceLifecycleConfig'),
   internetAccess?: boolean(name='internetAccess', example='true'),
+  invocationRestriction?: OpenStructFunctionRestriction(name='invocationRestriction'),
   lastModifiedTime?: string(name='lastModifiedTime', example='2023-05-01T08:15:27Z'),
   lastUpdateStatus?: string(name='lastUpdateStatus', example='InProgress'),
   lastUpdateStatusReason?: string(name='lastUpdateStatusReason', example='The system is currently processing the acceleration optimization for the image.'),
@@ -946,6 +947,12 @@ model OpenStructDescribeRegionsOutput {
       }
     ](name='Region'),
   }(name='Regions'),
+}
+
+model OpenStructFunctionRestriction {
+  disable?: boolean(name='disable'),
+  lastModifiedTime?: string(name='lastModifiedTime'),
+  reason?: string(name='reason'),
 }
 
 model CreateAliasRequest {
@@ -1765,6 +1772,123 @@ async function deleteVpcBinding(functionName: string, vpcId: string): DeleteVpcB
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteVpcBindingWithOptions(functionName, vpcId, headers, runtime);
+}
+
+model DisableFunctionInvocationRequest {
+  abortOngoingRequest?: boolean(name='abortOngoingRequest', example='false'),
+  reason?: string(name='reason'),
+}
+
+model DisableFunctionInvocationResponseBody = {
+  success?: boolean(name='success', example='true'),
+}
+
+model DisableFunctionInvocationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableFunctionInvocationResponseBody(name='body'),
+}
+
+/**
+ * @summary 禁止函数调用
+ *
+ * @param request DisableFunctionInvocationRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisableFunctionInvocationResponse
+ */
+async function disableFunctionInvocationWithOptions(functionName: string, request: DisableFunctionInvocationRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DisableFunctionInvocationResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.abortOngoingRequest)) {
+    body['abortOngoingRequest'] = request.abortOngoingRequest;
+  }
+  if (!Util.isUnset(request.reason)) {
+    body['reason'] = request.reason;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisableFunctionInvocation',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/invoke/disable`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 禁止函数调用
+ *
+ * @param request DisableFunctionInvocationRequest
+ * @return DisableFunctionInvocationResponse
+ */
+async function disableFunctionInvocation(functionName: string, request: DisableFunctionInvocationRequest): DisableFunctionInvocationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return disableFunctionInvocationWithOptions(functionName, request, headers, runtime);
+}
+
+model EnableFunctionInvocationResponseBody = {
+  success?: boolean(name='success', example='true'),
+}
+
+model EnableFunctionInvocationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableFunctionInvocationResponseBody(name='body'),
+}
+
+/**
+ * @summary 允许函数调用
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EnableFunctionInvocationResponse
+ */
+async function enableFunctionInvocationWithOptions(functionName: string, headers: map[string]string, runtime: Util.RuntimeOptions): EnableFunctionInvocationResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'EnableFunctionInvocation',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/invoke/enable`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 允许函数调用
+ *
+ * @return EnableFunctionInvocationResponse
+ */
+async function enableFunctionInvocation(functionName: string): EnableFunctionInvocationResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return enableFunctionInvocationWithOptions(functionName, headers, runtime);
 }
 
 model GetAliasResponse = {
