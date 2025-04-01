@@ -746,12 +746,12 @@ async function createDB(request: CreateDBRequest): CreateDBResponse {
 
 model CreateDBInstanceRequest {
   autoRenew?: boolean(name='AutoRenew', example='true'),
-  CNNodeCount?: string(name='CNNodeCount'),
+  CNNodeCount?: int32(name='CNNodeCount'),
   clientToken?: string(name='ClientToken', example='xxxxxx-xxx'),
   cnClass?: string(name='CnClass'),
   DBNodeClass?: string(name='DBNodeClass', example='polarx.x4.2xlarge.2d'),
   DBNodeCount?: int32(name='DBNodeCount', example='2'),
-  DNNodeCount?: string(name='DNNodeCount'),
+  DNNodeCount?: int32(name='DNNodeCount'),
   dnClass?: string(name='DnClass'),
   dnStorageSpace?: string(name='DnStorageSpace'),
   engineVersion?: string(name='EngineVersion', description='This parameter is required.', example='2.0'),
@@ -777,12 +777,12 @@ model CreateDBInstanceRequest {
 
 model CreateDBInstanceShrinkRequest {
   autoRenew?: boolean(name='AutoRenew', example='true'),
-  CNNodeCount?: string(name='CNNodeCount'),
+  CNNodeCount?: int32(name='CNNodeCount'),
   clientToken?: string(name='ClientToken', example='xxxxxx-xxx'),
   cnClass?: string(name='CnClass'),
   DBNodeClass?: string(name='DBNodeClass', example='polarx.x4.2xlarge.2d'),
   DBNodeCount?: int32(name='DBNodeCount', example='2'),
-  DNNodeCount?: string(name='DNNodeCount'),
+  DNNodeCount?: int32(name='DNNodeCount'),
   dnClass?: string(name='DnClass'),
   dnStorageSpace?: string(name='DnStorageSpace'),
   engineVersion?: string(name='EngineVersion', description='This parameter is required.', example='2.0'),
@@ -819,6 +819,8 @@ model CreateDBInstanceResponse = {
 }
 
 /**
+ * @summary 创建实例
+ *
  * @param tmpReq CreateDBInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDBInstanceResponse
@@ -937,6 +939,8 @@ async function createDBInstanceWithOptions(tmpReq: CreateDBInstanceRequest, runt
 }
 
 /**
+ * @summary 创建实例
+ *
  * @param request CreateDBInstanceRequest
  * @return CreateDBInstanceResponse
  */
@@ -1970,6 +1974,103 @@ async function describeBinaryLogList(request: DescribeBinaryLogListRequest): Des
   return describeBinaryLogListWithOptions(request, runtime);
 }
 
+model DescribeCdcInfoRequest {
+  DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-********'),
+  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-beijing'),
+}
+
+model DescribeCdcInfoResponseBody = {
+  data?: {
+    binlogPersistTime?: int32(name='BinlogPersistTime', example='15'),
+    binlogSize?: int32(name='BinlogSize', description='This parameter is required.', example='524288000'),
+    cdcNewVersion?: string(name='CdcNewVersion', description='This parameter is required.', example='polarx-cdc-kernel-***'),
+    checkSumSwitch?: string(name='CheckSumSwitch', example='ON'),
+    enableCyclicReplication?: boolean(name='EnableCyclicReplication', example='true'),
+    instanceTopologyList?: [ 
+      {
+        clusterType?: string(name='ClusterType', example='BINLOG_X'),
+        comment?: string(name='Comment', example='***'),
+        groupName?: string(name='GroupName', example='test'),
+        hashLevel?: string(name='HashLevel', example='RECORD'),
+        instanceName?: string(name='InstanceName', example='pxc-***'),
+        physicalNodes?: [ 
+          {
+            AZone?: string(name='AZone', example='cn-hangzhou-h'),
+            disk?: int32(name='Disk', example='204800'),
+            nodeClass?: string(name='NodeClass', example='polarx.x4.large.2e.cdc'),
+            nodeId?: string(name='NodeId', example='***'),
+            nodeName?: string(name='NodeName', example='pxc-c-***'),
+            status?: string(name='Status', example='ACTIVATION'),
+            version?: string(name='Version', example='polarx-cdc-kernel-***'),
+          }
+        ](name='PhysicalNodes'),
+        streamNum?: int32(name='StreamNum', example='2'),
+      }
+    ](name='InstanceTopologyList'),
+    serverId?: int32(name='ServerId', description='server id
+
+This parameter is required.', example='3014767486'),
+    versionSupportMultiCdc?: boolean(name='VersionSupportMultiCdc', example='true'),
+  }(name='Data'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='This parameter is required.', example='200'),
+  requestId?: string(name='RequestId', description='Id of the request', example='9B2F3840-5C98-475C-B269-2D5C3A31797C'),
+  success?: boolean(name='Success', description='This parameter is required.', example='true'),
+}
+
+model DescribeCdcInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeCdcInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询CDC信息
+ *
+ * @param request DescribeCdcInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeCdcInfoResponse
+ */
+async function describeCdcInfoWithOptions(request: DescribeCdcInfoRequest, runtime: Util.RuntimeOptions): DescribeCdcInfoResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.DBInstanceName)) {
+    query['DBInstanceName'] = request.DBInstanceName;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeCdcInfo',
+    version = '2020-02-02',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询CDC信息
+ *
+ * @param request DescribeCdcInfoRequest
+ * @return DescribeCdcInfoResponse
+ */
+async function describeCdcInfo(request: DescribeCdcInfoRequest): DescribeCdcInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeCdcInfoWithOptions(request, runtime);
+}
+
 model DescribeCharacterSetRequest {
   DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-*********'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
@@ -2996,6 +3097,8 @@ model DescribeDBNodePerformanceResponse = {
 }
 
 /**
+ * @summary 性能监控数据接口
+ *
  * @param request DescribeDBNodePerformanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDBNodePerformanceResponse
@@ -3049,6 +3152,8 @@ async function describeDBNodePerformanceWithOptions(request: DescribeDBNodePerfo
 }
 
 /**
+ * @summary 性能监控数据接口
+ *
  * @param request DescribeDBNodePerformanceRequest
  * @return DescribeDBNodePerformanceResponse
  */
@@ -3889,6 +3994,7 @@ model DescribeSlowLogRecordsResponseBody = {
       SQLHash?: string(name='SQLHash', example='c8df07e5d45cd68da8b4771c2016e20b'),
       SQLText?: string(name='SQLText', example='select * from test'),
       sqlType?: string(name='SqlType', example='select'),
+      templateId?: string(name='TemplateId'),
       tooLong?: string(name='TooLong', example='0'),
       traceId?: string(name='TraceId', example='17a5c5c840006000'),
       transactionPolicy?: string(name='TransactionPolicy', example='XA'),
@@ -6150,11 +6256,11 @@ async function updateDBInstanceTDE(request: UpdateDBInstanceTDERequest): UpdateD
 
 model UpdatePolarDBXInstanceNodeRequest {
   addDNSpec?: string(name='AddDNSpec'),
-  CNNodeCount?: string(name='CNNodeCount', example='2'),
+  CNNodeCount?: int32(name='CNNodeCount', example='2'),
   clientToken?: string(name='ClientToken', example='FEA5DC20-6D8A-5979-97AA-FC57546ADC20'),
   DBInstanceName?: string(name='DBInstanceName', description='This parameter is required.', example='pxc-hzjasdyuoo'),
-  DNNodeCount?: string(name='DNNodeCount', example='2'),
-  dbInstanceNodeCount?: string(name='DbInstanceNodeCount', example='3'),
+  DNNodeCount?: int32(name='DNNodeCount', example='2'),
+  dbInstanceNodeCount?: int32(name='DbInstanceNodeCount', example='3'),
   deleteDNIds?: string(name='DeleteDNIds'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
   storagePoolName?: string(name='StoragePoolName'),
@@ -6172,6 +6278,8 @@ model UpdatePolarDBXInstanceNodeResponse = {
 }
 
 /**
+ * @summary 扩缩容实例节点数
+ *
  * @param request UpdatePolarDBXInstanceNodeRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdatePolarDBXInstanceNodeResponse
@@ -6228,6 +6336,8 @@ async function updatePolarDBXInstanceNodeWithOptions(request: UpdatePolarDBXInst
 }
 
 /**
+ * @summary 扩缩容实例节点数
+ *
  * @param request UpdatePolarDBXInstanceNodeRequest
  * @return UpdatePolarDBXInstanceNodeResponse
  */
