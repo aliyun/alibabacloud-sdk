@@ -1274,6 +1274,7 @@ model ServicePluginStep {
 }
 
 model SourceConfig {
+  oss?: OpenStructOssSourceConfig(name='oss'),
   repository?: RepositorySourceConfig(name='repository'),
   template?: TemplateSourceConfig(name='template'),
 }
@@ -1511,6 +1512,74 @@ model WebhookCodeContext {
   tag?: string(name='tag', example='release-0.0.1'),
   targetBranch?: string(name='targetBranch', example='master'),
   title?: string(name='title', example='# FIX'),
+}
+
+model OpenStructOssSourceConfig {
+  bucket?: string(name='bucket', example='demo-bucket'),
+  object?: string(name='object', example='demo-object'),
+}
+
+model ActivateConnectionRequest {
+  account?: GitAccount(name='account'),
+  credential?: OAuthCredential(name='credential'),
+}
+
+model ActivateConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Connection  
+}
+
+/**
+ * @summary 激活身份绑定,完成OAuth授权
+ *
+ * @param request ActivateConnectionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ActivateConnectionResponse
+ */
+async function activateConnectionWithOptions(name: string, request: ActivateConnectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ActivateConnectionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.account)) {
+    body['account'] = request.account;
+  }
+  if (!Util.isUnset(request.credential)) {
+    body['credential'] = request.credential;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ActivateConnection',
+    version = '2023-07-14',
+    protocol = 'HTTPS',
+    pathname = `/2023-07-14/connections/${OpenApiUtil.getEncodeParam(name)}/activate`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 激活身份绑定,完成OAuth授权
+ *
+ * @param request ActivateConnectionRequest
+ * @return ActivateConnectionResponse
+ */
+async function activateConnection(name: string, request: ActivateConnectionRequest): ActivateConnectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return activateConnectionWithOptions(name, request, headers, runtime);
 }
 
 model CancelPipelineResponse = {
@@ -1920,6 +1989,69 @@ async function deleteArtifact(name: string): DeleteArtifactResponse {
   return deleteArtifactWithOptions(name, headers, runtime);
 }
 
+model DeleteConnectionRequest {
+  force?: boolean(name='force', example='true'),
+}
+
+model DeleteConnectionResponseBody = {
+  requestId?: string(name='requestId', example='A5152937-1C8A-5260-90FA-520CEF028D2D'),
+}
+
+model DeleteConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteConnectionResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除身份绑定
+ *
+ * @param request DeleteConnectionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteConnectionResponse
+ */
+async function deleteConnectionWithOptions(name: string, request: DeleteConnectionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteConnectionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.force)) {
+    query['force'] = request.force;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteConnection',
+    version = '2023-07-14',
+    protocol = 'HTTPS',
+    pathname = `/2023-07-14/connections/${OpenApiUtil.getEncodeParam(name)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 删除身份绑定
+ *
+ * @param request DeleteConnectionRequest
+ * @return DeleteConnectionResponse
+ */
+async function deleteConnection(name: string, request: DeleteConnectionRequest): DeleteConnectionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteConnectionWithOptions(name, request, headers, runtime);
+}
+
 model DeleteEnvironmentResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -2167,6 +2299,52 @@ async function fetchArtifactTempBucketToken(): FetchArtifactTempBucketTokenRespo
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return fetchArtifactTempBucketTokenWithOptions(headers, runtime);
+}
+
+model FetchConnectionCredentialResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OAuthCredential  
+}
+
+/**
+ * @summary 查询身份绑定中的凭证信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return FetchConnectionCredentialResponse
+ */
+async function fetchConnectionCredentialWithOptions(name: string, headers: map[string]string, runtime: Util.RuntimeOptions): FetchConnectionCredentialResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'FetchConnectionCredential',
+    version = '2023-07-14',
+    protocol = 'HTTPS',
+    pathname = `/2023-07-14/connections/${OpenApiUtil.getEncodeParam(name)}/fetchCredential`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询身份绑定中的凭证信息
+ *
+ * @return FetchConnectionCredentialResponse
+ */
+async function fetchConnectionCredential(name: string): FetchConnectionCredentialResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return fetchConnectionCredentialWithOptions(name, headers, runtime);
 }
 
 model GetArtifactResponse = {
@@ -2535,6 +2713,98 @@ async function getTask(name: string): GetTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getTaskWithOptions(name, headers, runtime);
+}
+
+model ListConnectionsRequest {
+  keyword?: string(name='keyword', example='auto-'),
+  labelSelector?: [ string ](name='labelSelector'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='100'),
+}
+
+model ListConnectionsShrinkRequest {
+  keyword?: string(name='keyword', example='auto-'),
+  labelSelectorShrink?: string(name='labelSelector'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='100'),
+}
+
+model ListConnectionsResponseBody = {
+  data?: [
+    Connection
+  ](name='data'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='100'),
+  totalCount?: long(name='totalCount', example='1'),
+}
+
+model ListConnectionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConnectionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量查询身份绑定
+ *
+ * @param tmpReq ListConnectionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListConnectionsResponse
+ */
+async function listConnectionsWithOptions(tmpReq: ListConnectionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListConnectionsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListConnectionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.labelSelector)) {
+    request.labelSelectorShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.labelSelector, 'labelSelector', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.keyword)) {
+    query['keyword'] = request.keyword;
+  }
+  if (!Util.isUnset(request.labelSelectorShrink)) {
+    query['labelSelector'] = request.labelSelectorShrink;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListConnections',
+    version = '2023-07-14',
+    protocol = 'HTTPS',
+    pathname = `/2023-07-14/connections`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 批量查询身份绑定
+ *
+ * @param request ListConnectionsRequest
+ * @return ListConnectionsResponse
+ */
+async function listConnections(request: ListConnectionsRequest): ListConnectionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listConnectionsWithOptions(request, headers, runtime);
 }
 
 model ListEnvironmentsRequest {
