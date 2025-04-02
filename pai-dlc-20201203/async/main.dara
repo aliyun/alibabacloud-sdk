@@ -23,12 +23,9 @@ init(configuration: ClientConfiguration){
   @version = '2020-12-03';
   @endpointRule = 'regional';
   @endpointMap = {
-    'ap-northeast-1' = 'pai-dlc.aliyuncs.com',
     'ap-northeast-2-pop' = 'pai-dlc.aliyuncs.com',
     'ap-south-1' = 'pai-dlc.aliyuncs.com',
     'ap-southeast-2' = 'pai-dlc.aliyuncs.com',
-    'ap-southeast-3' = 'pai-dlc.aliyuncs.com',
-    'ap-southeast-5' = 'pai-dlc.aliyuncs.com',
     'cn-beijing-finance-1' = 'pai-dlc.aliyuncs.com',
     'cn-beijing-finance-pop' = 'pai-dlc.aliyuncs.com',
     'cn-beijing-gov-1' = 'pai-dlc.aliyuncs.com',
@@ -59,7 +56,6 @@ init(configuration: ClientConfiguration){
     'cn-shenzhen-st4-d01' = 'pai-dlc.aliyuncs.com',
     'cn-shenzhen-su18-b01' = 'pai-dlc.aliyuncs.com',
     'cn-wuhan' = 'pai-dlc.aliyuncs.com',
-    'cn-wulanchabu' = 'pai-dlc.aliyuncs.com',
     'cn-yushanfang' = 'pai-dlc.aliyuncs.com',
     'cn-zhangbei' = 'pai-dlc.aliyuncs.com',
     'cn-zhangbei-na61-b01' = 'pai-dlc.aliyuncs.com',
@@ -70,8 +66,6 @@ init(configuration: ClientConfiguration){
     'eu-west-1-oxs' = 'pai-dlc.aliyuncs.com',
     'me-east-1' = 'pai-dlc.aliyuncs.com',
     'rus-west-1-pop' = 'pai-dlc.aliyuncs.com',
-    'us-east-1' = 'pai-dlc.aliyuncs.com',
-    'us-west-1' = 'pai-dlc.aliyuncs.com',
   };
 }
 
@@ -254,8 +248,8 @@ model ExtraPodSpec {
     ContainerSpec
   ](name='InitContainers'),
   lifecycle?: Lifecycle(name='Lifecycle'),
-  podAnnotations?: map[string]string(name='PodAnnotations'),
-  podLabels?: map[string]string(name='PodLabels'),
+  podAnnotations?: map[string]string(name='PodAnnotations', deprecated='true'),
+  podLabels?: map[string]string(name='PodLabels', deprecated='true'),
   sharedVolumeMountPaths?: [ string ](name='SharedVolumeMountPaths'),
   sideCarContainers?: [
     ContainerSpec
@@ -468,6 +462,7 @@ model Lifecycle {
 model LogInfo {
   content?: string(name='Content'),
   id?: string(name='Id'),
+  isTruncated?: boolean(name='IsTruncated'),
   podId?: string(name='PodId'),
   podUid?: string(name='PodUid'),
   source?: string(name='Source', example='stderr, stdout'),
@@ -499,9 +494,11 @@ model PodItem {
     PodItem
   ](name='HistoryPods'),
   ip?: string(name='Ip', example='10.0.1.2'),
+  nodeName?: string(name='NodeName'),
   podId?: string(name='PodId', example='dlc-20210126170216-mtl37ge7gkvdz-worker-0'),
   podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
   status?: string(name='Status', example='Stopped'),
+  subStatus?: string(name='SubStatus'),
   type?: string(name='Type', example='Worker'),
 }
 
@@ -570,6 +567,17 @@ model SanityCheckResultItem {
   phase?: string(name='Phase', example='CheckInit'),
   startedAt?: string(name='StartedAt', example='”2023-11-30T16:47:30.343005+08:00“'),
   status?: string(name='Status', example='Succeeded'),
+}
+
+model SeccompProfile {
+  localhostProfile?: string(name='LocalhostProfile', example='my-profiles/profile-allow.json'),
+  type?: string(name='Type', example='Unconfined'),
+}
+
+model SecurityContext {
+  runAsGroup?: long(name='RunAsGroup', example='1000'),
+  runAsUser?: long(name='RunAsUser', example='1000'),
+  seccompProfile?: SeccompProfile(name='SeccompProfile'),
 }
 
 model SmartCache {
@@ -677,53 +685,112 @@ model Workspace {
 }
 
 model CreateJobRequest {
-  accessibility?: string(name='Accessibility', position='Body'),
+  accessibility?: string(name='Accessibility', description='The job visibility. Valid values:
+
+*   PUBLIC: The job is visible to all members in the workspace.
+*   PRIVATE: The job is visible only to you and the administrator of the workspace.', example='PRIVATE', position='Body'),
   codeSource?: {
-    branch?: string(name='Branch', example='master'),
-    codeSourceId?: string(name='CodeSourceId', example='code-20210111103721-xxxxxxx'),
-    commit?: string(name='Commit', example='44da109b5******'),
-    mountPath?: string(name='MountPath', example='/root/data'),
-  }(name='CodeSource', position='Body'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig', position='Body'),
+    branch?: string(name='Branch', description='The branch of the referenced code repository. By default, the branch configured in the code source is used. This parameter is optional.', example='master'),
+    codeSourceId?: string(name='CodeSourceId', description='The ID of the code source.', example='code-20210111103721-xxxxxxx'),
+    commit?: string(name='Commit', description='The commit ID of the code to be downloaded. By default, the commit ID configured in the code source is used. This parameter is optional.', example='44da109b5******'),
+    mountPath?: string(name='MountPath', description='The path to which the job is mounted. By default, the mount path configured in the data source is used. This parameter is optional.', example='/root/data'),
+  }(name='CodeSource', description='The code source of the job. Before the node of the job runs, DLC automatically downloads the configured code from the code source and mounts the code to the local path of the container.', position='Body'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='The access credential configuration.', position='Body'),
   dataSources?: [ 
     {
-      dataSourceId?: string(name='DataSourceId', example='d-cn9dl*******'),
+      dataSourceId?: string(name='DataSourceId', description='The data source ID.', example='d-cn9dl*******'),
       dataSourceVersion?: string(name='DataSourceVersion'),
-      mountPath?: string(name='MountPath', example='/root/data'),
-      options?: string(name='Options'),
-      uri?: string(name='Uri', example='oss://bucket.oss-cn-hangzhou-internal.aliyuncs.com/path/'),
+      mountAccess?: string(name='MountAccess'),
+      mountPath?: string(name='MountPath', description='The path to which the job is mounted. By default, the mount path in the data source configuration is used. This parameter is optional.', example='/root/data'),
+      options?: string(name='Options', description='The mount attribute of the custom dataset. Set the value to OSS.', example='{
+  "fs.oss.download.thread.concurrency": "10",
+  "fs.oss.upload.thread.concurrency": "10",
+  "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
+}'),
+      uri?: string(name='Uri', description='The data source path.', example='oss://bucket.oss-cn-hangzhou-internal.aliyuncs.com/path/'),
     }
-  ](name='DataSources', position='Body'),
-  debuggerConfigContent?: string(name='DebuggerConfigContent', example='“”', position='Body'),
-  displayName: string(name='DisplayName', description='This parameter is required.', example='tf-mnist-test', minLength=1, maxLength=1024, position='Body'),
-  elasticSpec?: JobElasticSpec(name='ElasticSpec', position='Body'),
-  envs?: map[string]string(name='Envs', position='Body'),
-  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', example='1024', minimum=1, position='Body'),
+  ](name='DataSources', description='The data sources for job running.', position='Body'),
+  debuggerConfigContent?: string(name='DebuggerConfigContent', description='This parameter is not supported.', example='“”', position='Body'),
+  displayName: string(name='DisplayName', description='The job name. The name must be in the following format:
+
+*   The name must be 1 to 256 characters in length.
+*   The name can contain digits, letters, underscores (_), periods (.), and hyphens (-).
+
+This parameter is required.', example='tf-mnist-test', minLength=1, maxLength=1024, position='Body'),
+  elasticSpec?: JobElasticSpec(name='ElasticSpec', description='This parameter is not supported.', position='Body'),
+  envs?: map[string]string(name='Envs', description='The environment variables.', position='Body'),
+  jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum running duration of the job. Unit: minutes.', example='1024', minimum=1, position='Body'),
   jobSpecs: [
     JobSpec
-  ](name='JobSpecs', description='This parameter is required.', position='Body'),
-  jobType: string(name='JobType', description='This parameter is required.', example='TFJob', minLength=1, maxLength=32, position='Body'),
-  options?: string(name='Options', example='key1=value1,key2=value2', position='Body'),
-  priority?: int32(name='Priority', example='8', position='Body'),
-  resourceId?: string(name='ResourceId', example='rs-xxx', position='Body'),
-  settings?: JobSettings(name='Settings', position='Body'),
-  successPolicy?: string(name='SuccessPolicy', example='AllWorkers', position='Body'),
-  thirdpartyLibDir?: string(name='ThirdpartyLibDir', example='/root/code/', position='Body'),
-  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', position='Body'),
-  userCommand: string(name='UserCommand', description='This parameter is required.', example='python /root/code/mnist.py', position='Body'),
+  ](name='JobSpecs', description='The configurations for job running, such as the image address, startup command, node resource declaration, and number of replicas.****
+
+A DLC job consists of different types of nodes. If nodes of the same type have exactly the same configuration, the configuration is called JobSpec. **JobSpecs** specifies the configurations of all types of nodes. The value is of the array type.
+
+This parameter is required.', position='Body'),
+  jobType: string(name='JobType', description='The job type. The value is case-sensitive. Valid values:
+
+*   TFJob
+*   PyTorchJob
+*   MPIJob
+*   XGBoostJob
+*   OneFlowJob
+*   ElasticBatchJob
+*   SlurmJob
+*   RayJob
+
+Valid values for each job type:
+
+*   OneFlowJob: OneFlow.
+*   PyTorchJob: PyTorch.
+*   SlurmJob: Slurm.
+*   XGBoostJob: XGBoost.
+*   ElasticBatchJob: ElasticBatch.
+*   MPIJob: MPIJob.
+*   TFJob: Tensorflow.
+*   RayJob: Ray.
+
+This parameter is required.', example='TFJob', minLength=1, maxLength=32, position='Body'),
+  options?: string(name='Options', description='The additional configuration of the job. You can use this parameter to adjust the behavior of the attached data source. For example, if the attached data source of the job is of the OSS type, you can use this parameter to add the following configurations to override the default parameters of JindoFS: `fs.oss.download.thread.concurrency=4,fs.oss.download.queue.size=16`.', example='key1=value1,key2=value2', position='Body'),
+  priority?: int32(name='Priority', description='The priority of the job. Default value: 1. Valid values: 1 to 9.
+
+*   1: the lowest priority.
+*   9: the highest priority.', example='8', position='Body'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource group. This parameter is optional.
+
+*   If you leave this parameter empty, the job is submitted to a public resource group.
+*   If a resource quota is associated with the current workspace, you can specify the resource quota ID. For more information about how to query the resource quota ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='rs-xxx', position='Body'),
+  settings?: JobSettings(name='Settings', description='The additional parameter configurations of the job.', position='Body'),
+  successPolicy?: string(name='SuccessPolicy', description='The policy that is used to check whether a distributed multi-node job is successful. Only TensorFlow distributed multi-node jobs are supported.
+
+*   ChiefWorker: If you use this policy, the job is considered successful when the pod on the chief node completes operations.
+*   AllWorkers (default): If you use this policy, the job is considered successful when all worker nodes complete operations.', example='AllWorkers', position='Body'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The folder in which the third-party Python library file requirements.txt is stored. Before the startup command specified by the UserCommand parameter is run on each node, DLC fetches the requirements.txt file from the folder and runs `pip install -r` to install the required package and library.', example='/root/code/', position='Body'),
+  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The third-party Python libraries to be installed.', position='Body'),
+  userCommand: string(name='UserCommand', description='The startup command for all nodes of the job.
+
+This parameter is required.', example='python /root/code/mnist.py', position='Body'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute'),
-    extendedCIDRs?: [ string ](name='ExtendedCIDRs'),
-    securityGroupId?: string(name='SecurityGroupId', example='sg-abcdef****'),
-    switchId?: string(name='SwitchId', example='vs-abcdef****'),
-    vpcId?: string(name='VpcId', example='vpc-abcdef****'),
-  }(name='UserVpc', position='Body'),
-  workspaceId?: string(name='WorkspaceId', example='ws-20210126170216-xxxxxxx', position='Body'),
+    defaultRoute?: string(name='DefaultRoute', description='The default route. Default value: false. Valid values:
+
+*   eth0: The default network interface is used to access the Internet through the public gateway.
+*   eth1: The user\\"s Elastic Network Interface is used to access the Internet through the private gateway. For more information about the configuration method, see [Enable Internet access for a DSW instance by using a private Internet NAT gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR block.
+
+*   If you leave the SwitchId and ExtendedCIDRs parameters empty, the system automatically obtains all CIDR blocks in a VPC.
+*   If you configure the SwitchId and ExtendedCIDRs parameters, we recommend that you specify all CIDR blocks in a VPC.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='sg-abcdef****'),
+    switchId?: string(name='SwitchId', description='The vSwitch ID. This parameter is optional.
+
+*   If you leave this parameter empty, the system automatically selects a vSwitch based on the inventory status.
+*   You can also specify a vSwitch ID.', example='vs-abcdef****'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-abcdef****'),
+  }(name='UserVpc', description='The VPC settings.', position='Body'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='ws-20210126170216-xxxxxxx', position='Body'),
 }
 
 model CreateJobResponseBody = {
-  jobId?: string(name='JobId', example='dlc7*******'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc7*******'),
+  requestId?: string(name='RequestId', description='The request ID used to troubleshoot issues.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxx'),
 }
 
 model CreateJobResponse = {
@@ -733,6 +800,7 @@ model CreateJobResponse = {
 }
 
 /**
+  * @description Before you call this operation, make sure that you understand the billing methods and [pricing](https://help.aliyun.com/document_detail/171758.html) of Deep Learning Containers (DLC) of Platform for AI (PAI).
   * @param request  the request parameters of CreateJob  CreateJobRequest
   * @return CreateJobResponse
  */
@@ -742,37 +810,52 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreateTensorboardRequest {
-  accessibility?: string(name='Accessibility', position='Body'),
-  cpu?: long(name='Cpu', example='1', position='Body'),
-  dataSourceId?: string(name='DataSourceId', example='d-xxxxxxxx', position='Body'),
-  dataSourceType?: string(name='DataSourceType', position='Body'),
+  accessibility?: string(name='Accessibility', description='The visibility of the job. Valid values:
+
+*   PUBLIC: The configuration is public in the workspace.
+*   PRIVATE: The configuration is visible only to you and the administrator of the workspace.', example='PRIVATE', position='Body'),
+  cpu?: long(name='Cpu', description='The number of vCPU cores.', example='1', position='Body'),
+  dataSourceId?: string(name='DataSourceId', description='The dataset ID. 
+<props="china">Call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to get the dataset ID.', example='d-xxxxxxxx', position='Body'),
+  dataSourceType?: string(name='DataSourceType', description='The dataset type. Valid values:
+
+*   OSS
+*   NAS', example='OSS', position='Body'),
   dataSources?: [
     DataSourceItem
-  ](name='DataSources', position='Body'),
-  displayName?: string(name='DisplayName', example='tensorboard', position='Body'),
-  jobId?: string(name='JobId', example='dlc-20210126170216-mtl37ge7gkvdz', position='Body'),
-  maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', example='240', position='Body'),
-  memory?: long(name='Memory', example='1000', position='Body'),
-  options?: string(name='Options', example='{"mountpath":"/root/data/"}', position='Body'),
-  priority?: string(name='Priority', position='Body'),
-  quotaId?: string(name='QuotaId', position='Body'),
-  sourceId?: string(name='SourceId', example='dlc-xxxxxx', position='Body'),
-  sourceType?: string(name='SourceType', example='job', position='Body'),
-  summaryPath?: string(name='SummaryPath', example='/root/data/', position='Body'),
-  summaryRelativePath?: string(name='SummaryRelativePath', example='/summary/', position='Body'),
+  ](name='DataSources', description='The configurations of the data source.', position='Body'),
+  displayName?: string(name='DisplayName', description='The TensorBoard name', example='tensorboard', position='Body'),
+  jobId?: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.', example='dlc-20210126170216-mtl37ge7gkvdz', position='Body'),
+  maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='The maximum running duration. Unit: minutes.', example='240', position='Body'),
+  memory?: long(name='Memory', description='The memory size. Unit: GB.', example='1000', position='Body'),
+  options?: string(name='Options', description='The extended fields of the dataset are in the JSON format. MountPath: the path to mount the dataset.', example='{"mountpath":"/root/data/"}', position='Body'),
+  priority?: string(name='Priority', description='The priority of the job. Default value: 1. Valid values: 1 to 9.
+
+*   1 is the lowest priority.
+*   9 is the highest priority.', example='1', position='Body'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID. This parameter is required when you create a TensorBoard job by using a resource quota. <props="china">Call [ListQuotas](https://help.aliyun.com/document_detail/2628071.html) to get the quota ID. 
+This feature is currently limited to whitelisted users. If you need to use this feature, contact us.', example='quota12345', position='Body'),
+  sourceId?: string(name='SourceId', description='The source ID.', example='dlc-xxxxxx', position='Body'),
+  sourceType?: string(name='SourceType', description='The source type.', example='job', position='Body'),
+  summaryPath?: string(name='SummaryPath', description='The directory of summary.', example='/root/data/', position='Body'),
+  summaryRelativePath?: string(name='SummaryRelativePath', description='The relative path of summary.', example='/summary/', position='Body'),
   tensorboardDataSources?: [
     TensorboardDataSourceSpec
-  ](name='TensorboardDataSources', position='Body'),
-  tensorboardSpec?: TensorboardSpec(name='TensorboardSpec', position='Body'),
-  uri?: string(name='Uri', example='oss://.oss-cn-shanghai-finance-1.aliyuncs.com/', position='Body'),
-  workspaceId?: string(name='WorkspaceId', example='123***', position='Body'),
+  ](name='TensorboardDataSources', description='The configurations of datasets mounted with the TensorBoard job.', position='Body'),
+  tensorboardSpec?: TensorboardSpec(name='TensorboardSpec', description='The pay-as-you-go configuration of TensorBoard, which is used to create TensorBoard jobs that use pay-as-you-go resources.', position='Body'),
+  uri?: string(name='Uri', description='The dataset URI.
+
+*   Value format when DataSourceType is set to OSS: `oss://[oss-bucket].[endpoint]/[path]`.
+*   Value format when DataSourceType is set to NAS:`nas://[nas-filesystem-id].[region]/[path]`.', example='oss://.oss-cn-shanghai-finance-1.aliyuncs.com/', position='Body'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">Call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='123***', position='Body'),
 }
 
 model CreateTensorboardResponseBody = {
-  dataSourceId?: string(name='DataSourceId', example='ds-20210126170216-xxxxxxxx'),
-  jobId?: string(name='JobId', example='dlc-20210126170216-xxxxxxxx'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', example='tbxxxxxxxx'),
+  dataSourceId?: string(name='DataSourceId', description='The dataset ID.', example='ds-20210126170216-xxxxxxxx'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardId?: string(name='TensorboardId', description='TensorBoard ID', example='tbxxxxxxxx'),
 }
 
 model CreateTensorboardResponse = {
@@ -791,12 +874,14 @@ async function createTensorboard(request: CreateTensorboardRequest): CreateTenso
 }
 
 model DeleteJobRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc*************', position='Path'),
+  jobId: string(name='JobId', description='The job ID. For more information about how to query the job ID, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).
+
+This parameter is required.', example='dlc*************', position='Path'),
 }
 
 model DeleteJobResponseBody = {
-  jobId?: string(name='JobId', example='dlc*************'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc*************'),
+  requestId?: string(name='RequestId', description='The request ID. You can troubleshoot issues based on the request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model DeleteJobResponse = {
@@ -815,13 +900,16 @@ async function deleteJob(request: DeleteJobRequest): DeleteJobResponse {
 }
 
 model DeleteTensorboardRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tensorboard-20210114104214-xxxxxxxx', minLength=1, maxLength=256, position='Path'),
-  workspaceId?: string(name='WorkspaceId', example='46099', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The TensorBoard ID. For more information about how to obtain the TensorBoard ID, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
+
+This parameter is required.', example='tensorboard-20210114104214-xxxxxxxx', minLength=1, maxLength=256, position='Path'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">For more information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='46099', position='Query'),
 }
 
 model DeleteTensorboardResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-vf9lowjt3pso'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardId?: string(name='TensorboardId', description='The TensorBoard ID.', example='tensorboard-20210114104214-vf9lowjt3pso'),
 }
 
 model DeleteTensorboardResponse = {
@@ -840,100 +928,133 @@ async function deleteTensorboard(request: DeleteTensorboardRequest): DeleteTenso
 }
 
 model GetJobRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc*******', minLength=1, maxLength=256, position='Path'),
-  needDetail?: boolean(name='NeedDetail', example='true', position='Query'),
+  jobId: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.
+
+This parameter is required.', example='dlc*******', minLength=1, maxLength=256, position='Path'),
+  needDetail?: boolean(name='NeedDetail', description='Specifies whether to return the job details. Default value: true.', example='true', position='Query'),
 }
 
 model GetJobResponseBody = {
-  accessibility?: string(name='Accessibility'),
-  clusterId?: string(name='ClusterId', example='a*****'),
+  accessibility?: string(name='Accessibility', description='The visibility of the job. Valid values:
+
+*   PUBLIC: The code is public in the workspace.
+*   PRIVATE: The workspace is visible only to you and the administrator of the workspace. This is the default value.', example='PRIVATE'),
+  clusterId?: string(name='ClusterId', description='The cluster ID.', example='a*****'),
   codeSource?: {
-    branch?: string(name='Branch', example='master'),
-    codeSourceId?: string(name='CodeSourceId', example='code******'),
-    commit?: string(name='Commit', example='44da109b59f8596152987eaa8f3b2487xxxxxx'),
-    mountPath?: string(name='MountPath', example='/mnt/data'),
-  }(name='CodeSource'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig'),
+    branch?: string(name='Branch', description='The code branch.', example='master'),
+    codeSourceId?: string(name='CodeSourceId', description='The code source ID.', example='code******'),
+    commit?: string(name='Commit', description='The code commit ID', example='44da109b59f8596152987eaa8f3b2487xxxxxx'),
+    mountPath?: string(name='MountPath', description='The local mount path.', example='/mnt/data'),
+  }(name='CodeSource', description='The code source.'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='The access credential configurations.'),
   dataSources?: [ 
     {
-      dataSourceId?: string(name='DataSourceId', example='d*******'),
-      mountPath?: string(name='MountPath', example='/mnt/data/'),
-      uri?: string(name='Uri', example='oss://bucket.oss-cn-hangzhou-internal.aliyuncs.com/path/'),
+      dataSourceId?: string(name='DataSourceId', description='The data source ID.', example='d*******'),
+      mountPath?: string(name='MountPath', description='The local mount path. This parameter is optional. The default value is empty, which specifies that the mount path in the data source is used.', example='/mnt/data/'),
+      uri?: string(name='Uri', description='The data source URL.', example='oss://bucket.oss-cn-hangzhou-internal.aliyuncs.com/path/'),
     }
-  ](name='DataSources'),
-  displayName?: string(name='DisplayName', example='tf-mnist-test'),
-  duration?: long(name='Duration', example='3602'),
-  elasticSpec?: JobElasticSpec(name='ElasticSpec'),
-  enabledDebugger?: boolean(name='EnabledDebugger', example='false'),
-  envs?: map[string]string(name='Envs'),
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:35:01Z'),
-  gmtFailedTime?: string(name='GmtFailedTime', example='2021-01-12T15:36:08Z'),
-  gmtFinishTime?: string(name='GmtFinishTime', example='2021-01-12T15:36:08Z'),
-  gmtRunningTime?: string(name='GmtRunningTime', example='2021-01-12T14:36:21Z'),
-  gmtStoppedTime?: string(name='GmtStoppedTime', example='2021-01-12T15:36:08Z'),
-  gmtSubmittedTime?: string(name='GmtSubmittedTime', example='2021-01-12T14:36:01Z'),
-  gmtSuccessedTime?: string(name='GmtSuccessedTime', example='2021-01-12T15:36:08Z'),
-  jobId?: string(name='JobId', example='dlc*******'),
+  ](name='DataSources', description='The data sources.'),
+  displayName?: string(name='DisplayName', description='The job name.', example='tf-mnist-test'),
+  duration?: long(name='Duration', description='The duration of the job (seconds).', example='3602'),
+  elasticSpec?: JobElasticSpec(name='ElasticSpec', description='The elastic job parameters.'),
+  enabledDebugger?: boolean(name='EnabledDebugger', description='Specifies whether to enable the debugger job.', example='false'),
+  envs?: map[string]string(name='Envs', description='The configurations of environment variables.'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the job was created (UTC).', example='2021-01-12T14:35:01Z'),
+  gmtFailedTime?: string(name='GmtFailedTime', description='The time of the job failed (UTC).', example='2021-01-12T15:36:08Z'),
+  gmtFinishTime?: string(name='GmtFinishTime', description='The time when the job ended (UTC).', example='2021-01-12T15:36:08Z'),
+  gmtRunningTime?: string(name='GmtRunningTime', description='The start time of the job (UTC).', example='2021-01-12T14:36:21Z'),
+  gmtStoppedTime?: string(name='GmtStoppedTime', description='The time when the job stopped (UTC).', example='2021-01-12T15:36:08Z'),
+  gmtSubmittedTime?: string(name='GmtSubmittedTime', description='The time when the job was submitted to the cluster (UTC).', example='2021-01-12T14:36:01Z'),
+  gmtSuccessedTime?: string(name='GmtSuccessedTime', description='The time when the job succeeded (UTC).', example='2021-01-12T15:36:08Z'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc*******'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs'),
-  jobType?: string(name='JobType', example='TFJob'),
+  ](name='JobSpecs', description='The node configurations of the job, which is **JobSpecs** in the CreateJob operation.'),
+  jobType?: string(name='JobType', description='The job type. Specified by the JobType parameter of the [CreateJob](https://help.aliyun.com/document_detail/459672.html) operation.', example='TFJob'),
   pods?: [ 
     {
-      gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-      gmtFinishTime?: string(name='GmtFinishTime', example='2021-01-12T15:36:05Z'),
-      gmtStartTime?: string(name='GmtStartTime', example='2021-01-12T14:36:01Z'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='The time when the node was created (UTC).', example='2021-01-12T14:36:01Z'),
+      gmtFinishTime?: string(name='GmtFinishTime', description='The end time of the node (UTC).', example='2021-01-12T15:36:05Z'),
+      gmtStartTime?: string(name='GmtStartTime', description='The start time of the node (UTC).', example='2021-01-12T14:36:01Z'),
       historyPods?: [ 
         {
-          gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-          gmtFinishTime?: string(name='GmtFinishTime', example='2021-01-12T14:36:01Z'),
-          gmtStartTime?: string(name='GmtStartTime', example='2021-01-12T14:36:01Z'),
-          ip?: string(name='Ip', example='10.0.1.3'),
-          podId?: string(name='PodId', example='Worker'),
-          podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-          resourceType?: string(name='ResourceType', example='Normal'),
-          status?: string(name='Status', example='Failed'),
-          subStatus?: string(name='SubStatus', example='Normal'),
-          type?: string(name='Type', example='Worker'),
+          gmtCreateTime?: string(name='GmtCreateTime', description='The time when the node was created (UTC).', example='2021-01-12T14:36:01Z'),
+          gmtFinishTime?: string(name='GmtFinishTime', description='The end time of the node (UTC).', example='2021-01-12T14:36:01Z'),
+          gmtStartTime?: string(name='GmtStartTime', description='The start time of the node (UTC).', example='2021-01-12T14:36:01Z'),
+          ip?: string(name='Ip', description='The IP address of the node.', example='10.0.1.3'),
+          podId?: string(name='PodId', description='The ID of the node.', example='Worker'),
+          podUid?: string(name='PodUid', description='The UID of the node.', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+          resourceType?: string(name='ResourceType', description='The resource type of the node.', example='Normal'),
+          status?: string(name='Status', description='The status of the node.', example='Failed'),
+          subStatus?: string(name='SubStatus', description='The sub-status of the node, such as its preemption status. Valid values:
+
+*   Normal
+*   Evicted', example='Normal'),
+          type?: string(name='Type', description='The type of the node.', example='Worker'),
         }
-      ](name='HistoryPods'),
-      ip?: string(name='Ip', example='10.0.1.2'),
-      podId?: string(name='PodId', example='Worker'),
-      podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57591d'),
-      resourceType?: string(name='ResourceType', example='Normal'),
-      status?: string(name='Status', example='Running'),
-      subStatus?: string(name='SubStatus', example='Normal'),
-      type?: string(name='Type', example='Worker'),
+      ](name='HistoryPods', description='The historical nodes.'),
+      ip?: string(name='Ip', description='The IP address of the node.', example='10.0.1.2'),
+      podId?: string(name='PodId', description='The node ID. It can be used in the GetPodLogs and GetPodEvents operations to obtain the detailed logs and events of the node.', example='Worker'),
+      podUid?: string(name='PodUid', description='The UID of the node.', example='fe846462-af2c-4521-bd6f-96787a57591d'),
+      resourceType?: string(name='ResourceType', description='The resource type of the node.', example='Normal'),
+      status?: string(name='Status', description='The status of the node. Valid values:
+
+*   Pending
+*   Running
+*   Succeeded
+*   Failed
+*   Unknown', example='Running'),
+      subStatus?: string(name='SubStatus', description='The sub-status of the node, such as its preemption status. Valid values:
+
+*   Normal
+*   Evicted', example='Normal'),
+      type?: string(name='Type', description='The node type, which corresponds to a specific JobSpec in JobSpecs of the CreateJob operation.', example='Worker'),
     }
-  ](name='Pods'),
-  priority?: int32(name='Priority', example='1'),
-  reasonCode?: string(name='ReasonCode', example='JobStoppedByUser'),
-  reasonMessage?: string(name='ReasonMessage', example='Job is stopped by user.'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
-  resourceId?: string(name='ResourceId', example='r******'),
-  resourceLevel?: string(name='ResourceLevel', example='L0'),
-  resourceType?: string(name='ResourceType', example='ECS'),
-  restartTimes?: string(name='RestartTimes', example='0/10'),
-  settings?: JobSettings(name='Settings'),
-  status?: string(name='Status', example='Stopped'),
+  ](name='Pods', description='All running nodes of the job.'),
+  priority?: int32(name='Priority', description='The priority of the job. Valid values: 1 to 9.', example='1'),
+  reasonCode?: string(name='ReasonCode', description='The status detail code, which is a sub-status under the current status.', example='JobStoppedByUser'),
+  reasonMessage?: string(name='ReasonMessage', description='The description of the status detail code.', example='Job is stopped by user.'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used for troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource group to which the job belongs.', example='r******'),
+  resourceLevel?: string(name='ResourceLevel', description='The resource level that the job uses.', example='L0'),
+  resourceType?: string(name='ResourceType', description='The resource type. Valid values: ECS, Lingjun, and ACS.', example='ECS'),
+  restartTimes?: string(name='RestartTimes', description='The number of retries and the maximum number of retries used by the job.', example='0/10'),
+  settings?: JobSettings(name='Settings', description='The settings of the additional parameters of the job.'),
+  status?: string(name='Status', description='The status of the job. Valid values:
+
+*   Creating
+*   Queuing
+*   Bidding (Only for Lingjun preemptible jobs)
+*   EnvPreparing
+*   SanityChecking
+*   Running
+*   Restarting
+*   Stopping
+*   SucceededReserving
+*   FailedReserving
+*   Succeeded
+*   Failed
+*   Stopped', example='Stopped'),
   statusHistory?: [
     StatusTransitionItem
-  ](name='StatusHistory'),
-  subStatus?: string(name='SubStatus', example='Restarting'),
-  tenantId?: string(name='TenantId'),
-  thirdpartyLibDir?: string(name='ThirdpartyLibDir', example='/root/code/'),
-  thirdpartyLibs?: [ string ](name='ThirdpartyLibs'),
-  userCommand?: string(name='UserCommand', example='python /root/code/mnist.py'),
-  userId?: string(name='UserId', example='12*********'),
+  ](name='StatusHistory', description='The status history.'),
+  subStatus?: string(name='SubStatus', description='The sub-status of the job, such as its preemption status.', example='Restarting'),
+  tenantId?: string(name='TenantId', description='The tenant ID.', example='GAR***W134'),
+  thirdpartyLibDir?: string(name='ThirdpartyLibDir', description='The directory that contains requirements.txt.', example='/root/code/'),
+  thirdpartyLibs?: [ string ](name='ThirdpartyLibs', description='The third-party Python libraries to be installed.'),
+  userCommand?: string(name='UserCommand', description='The command that is run to start each node.', example='python /root/code/mnist.py'),
+  userId?: string(name='UserId', description='The UID of the Alibaba Cloud account who submitted the job.', example='12*********'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute'),
-    extendedCidrs?: [ string ](name='ExtendedCidrs'),
-    securityGroupId?: string(name='SecurityGroupId', example='sg-abcdef****'),
-    switchId?: string(name='SwitchId', example='vs-abcdef****'),
-    vpcId?: string(name='VpcId', example='vpc-abcdef****'),
-  }(name='UserVpc'),
-  workspaceId?: string(name='WorkspaceId', example='268'),
-  workspaceName?: string(name='WorkspaceName', example='dlc-workspace'),
+    defaultRoute?: string(name='DefaultRoute', description='The default router. This parameter is valid only for general-purpose computing resources. Valid values:
+
+eth0: The default network interface is used to access the Internet through the public gateway. eth1: The user\\"s Elastic Network Interface is used to access the Internet through the private gateway.'),
+    extendedCidrs?: [ string ](name='ExtendedCidrs', description='The extended CIDR block. Example: 192.168.0.1/24.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-abcdef****'),
+    switchId?: string(name='SwitchId', description='The vSwitch ID.', example='vs-abcdef****'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-abcdef****'),
+  }(name='UserVpc', description='The VPC of the user.'),
+  workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the job belongs.', example='268'),
+  workspaceName?: string(name='WorkspaceName', description='The name of the workspace to which the job belongs.', example='dlc-workspace'),
 }
 
 model GetJobResponse = {
@@ -952,16 +1073,18 @@ async function getJob(request: GetJobRequest): GetJobResponse {
 }
 
 model GetJobEventsRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc-20210126170216-*******', position='Path'),
-  endTime?: string(name='EndTime', example='2020-11-08T18:00:00Z', position='Query'),
-  maxEventsNum?: int32(name='MaxEventsNum', example='100', minimum=1, maximum=10000, position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
+  jobId: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.
+
+This parameter is required.', example='dlc-20210126170216-*******', position='Path'),
+  endTime?: string(name='EndTime', description='The end time (UTC) of the time range for querying events. The default value is the current time.', example='2020-11-08T18:00:00Z', position='Query'),
+  maxEventsNum?: int32(name='MaxEventsNum', description='The maximum number of events that can be returned. Default value: 2000.', example='100', minimum=1, maximum=10000, position='Query'),
+  startTime?: string(name='StartTime', description='The start time (UTC) of the time range for querying events. The default value is 7 days ago.', example='2020-11-08T16:00:00Z', position='Query'),
 }
 
 model GetJobEventsResponseBody = {
-  events?: [ string ](name='Events'),
-  jobId?: string(name='JobId', example='dlc-20210126170216-******'),
-  requestId?: string(name='RequestId', example='78F6FCE2-278F-4C4A-A6B7-DD8ECEA9C456'),
+  events?: [ string ](name='Events', description='The events.'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-******'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used for troubleshooting.', example='78F6FCE2-278F-4C4A-A6B7-DD8ECEA9C456'),
 }
 
 model GetJobEventsResponse = {
@@ -980,20 +1103,33 @@ async function getJobEvents(request: GetJobEventsRequest): GetJobEventsResponse 
 }
 
 model GetJobMetricsRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc-20210126170216-*******', position='Path'),
-  endTime?: string(name='EndTime', example='2020-11-09T16:00:00Z', position='Query'),
-  metricType: string(name='MetricType', description='This parameter is required.', example='GpuMemoryUsage', position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
-  timeStep?: string(name='TimeStep', example='5m', position='Query'),
-  token?: string(name='Token', example='eyXXXX-XXXX.XXXXX', position='Query'),
+  jobId: string(name='JobId', description='The job ID. You can call the [ListJobs](https://help.aliyun.com/document_detail/459676.html) operation to query all job IDs.
+
+This parameter is required.', example='dlc-20210126170216-*******', position='Path'),
+  endTime?: string(name='EndTime', description='The end time of the time range to query monitoring data. The time is displayed in UTC. The default value is the current time.', example='2020-11-09T16:00:00Z', position='Query'),
+  metricType: string(name='MetricType', description='The type of the monitoring metrics. Valid values:
+
+*   GpuCoreUsage: GPU utilization
+*   GpuMemoryUsage: GPU memory utilization
+*   CpuCoreUsage: CPU utilization
+*   MemoryUsage: memory utilization
+*   NetworkInputRate: the network write in rate.
+*   NetworkOutputRate: the network write out rate
+*   DiskReadRate: the disk read rate
+*   DiskWriteRate: the disk write rate
+
+This parameter is required.', example='GpuMemoryUsage', position='Query'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query monitoring data. The time is displayed in UTC. The default value is the time 1 hour before the current time.', example='2020-11-08T16:00:00Z', position='Query'),
+  timeStep?: string(name='TimeStep', description='The interval at which monitoring data is returned. Default value: 5. Unit: minutes.', example='5m', position='Query'),
+  token?: string(name='Token', description='The temporary token used for authentication.', example='eyXXXX-XXXX.XXXXX', position='Query'),
 }
 
 model GetJobMetricsResponseBody = {
-  jobId?: string(name='JobId', example='dlc-20210126170216-*******'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-*******'),
   podMetrics?: [
     PodMetric
-  ](name='PodMetrics'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  ](name='PodMetrics', description='The monitoring metrics of the job.'),
+  requestId?: string(name='RequestId', description='The request ID. You can troubleshoot issues based on the request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model GetJobMetricsResponse = {
@@ -1012,18 +1148,28 @@ async function getJobMetrics(request: GetJobMetricsRequest): GetJobMetricsRespon
 }
 
 model GetJobSanityCheckResultRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlcl5qxoxxxxx5iq', position='Path'),
-  sanityCheckNumber: int32(name='SanityCheckNumber', description='This parameter is required.', example='1', minimum=1, position='Query'),
-  sanityCheckPhase?: string(name='SanityCheckPhase', example='DeviceCheck', position='Query'),
-  token?: string(name='Token', position='Query'),
+  jobId: string(name='JobId', description='The job ID. For more information about how to obtain a job ID, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).
+
+This parameter is required.', example='dlcl5qxoxxxxx5iq', position='Path'),
+  sanityCheckNumber: int32(name='SanityCheckNumber', description='The nth time for which the job sanity check is performed.
+
+This parameter is required.', example='1', minimum=1, position='Query'),
+  sanityCheckPhase?: string(name='SanityCheckPhase', description='The phase in which the job sanity check is performed.
+
+*   CheckInit
+*   DeviceCheck
+*   SingleNodeCommCheck
+*   TwoNodeCommCheck
+*   AllNodeCommCheck', example='DeviceCheck', position='Query'),
+  token?: string(name='Token', description='The token information for job sharing. For more information about how to obtain the token information, see [GetToken](https://help.aliyun.com/document_detail/2557812.html).', example='eyJhbG******zI1NiIsInR5cCI6IkpXVCJ9.eyJle****jE3MDk1Mzk0NDIsImlhdCI6MTcwODkzNDY0MiwidXNlcl9pZCI6IjE3NTgwNTQxNjI0Mzg2NTUiLCJ0YXJnZXRfaWQiOiJkbGM1OGh1a2xyYzZwdGMyIiwidGFyZ2V0X3R5cGUiOiJqb2IifQ.GNL7jo6****mgKKv0QeGIYgvBufSU-PH_EQttX****', position='Query'),
 }
 
 model GetJobSanityCheckResultResponseBody = {
-  jobId?: string(name='JobId', example='dlc-20210126170216-xxxxxx'),
-  requestID?: string(name='RequestID', example='B3789344-F1xxxBE-5xx2-A04D-xxxxx'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-xxxxxx'),
+  requestID?: string(name='RequestID', description='The request ID.', example='B3789344-F1xxxBE-5xx2-A04D-xxxxx'),
   sanityCheckResult?: [
     SanityCheckResultItem
-  ](name='SanityCheckResult'),
+  ](name='SanityCheckResult', description='The job sanity check result.'),
 }
 
 model GetJobSanityCheckResultResponse = {
@@ -1042,20 +1188,26 @@ async function getJobSanityCheckResult(request: GetJobSanityCheckResultRequest):
 }
 
 model GetPodEventsRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc-20210126170216-*****', position='Path'),
-  podId: string(name='PodId', description='This parameter is required.', example='dlc-20210126170216-mtl37ge7gkvdz-chief-0', position='Path'),
-  endTime?: string(name='EndTime', example='2020-11-09T16:00:00Z', position='Query'),
-  maxEventsNum?: int32(name='MaxEventsNum', example='100', position='Query'),
-  podUid?: string(name='PodUid', example='dlc-20210126170216-*****-chief-0', position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
+  jobId: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.
+
+This parameter is required.', example='dlc-20210126170216-*****', position='Path'),
+  podId: string(name='PodId', description='The node ID. Call [GetJob](https://help.aliyun.com/document_detail/459677.html) to get the node ID.
+
+This parameter is required.', example='dlc-20210126170216-mtl37ge7gkvdz-chief-0', position='Path'),
+  endTime?: string(name='EndTime', description='The end time (UTC).', example='2020-11-09T16:00:00Z', position='Query'),
+  maxEventsNum?: int32(name='MaxEventsNum', description='The maximum number of events that can be returned.', example='100', position='Query'),
+  podUid?: string(name='PodUid', description='The node UID. Call [GetJob](https://help.aliyun.com/document_detail/459677.html) to get the node UID.', example='dlc-20210126170216-*****-chief-0', position='Query'),
+  startTime?: string(name='StartTime', description='The start time (UTC).', example='2020-11-08T16:00:00Z', position='Query'),
 }
 
 model GetPodEventsResponseBody = {
-  events?: [ string ](name='Events'),
-  jobId?: string(name='JobId', example='dlc-20210126170216-*****'),
-  podId: string(name='PodId', description='This parameter is required.', example='dlc-20210126170216-*****-chief-0'),
-  podUid?: string(name='PodUid', example='94a7cc7c-0033-48b5-85bd-71c63592c268'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  events?: [ string ](name='Events', description='The events returned.'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-*****'),
+  podId: string(name='PodId', description='The node ID.
+
+This parameter is required.', example='dlc-20210126170216-*****-chief-0'),
+  podUid?: string(name='PodUid', description='The node UID.', example='94a7cc7c-0033-48b5-85bd-71c63592c268'),
+  requestId?: string(name='RequestId', description='The request ID, which can be used for troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model GetPodEventsResponse = {
@@ -1074,21 +1226,28 @@ async function getPodEvents(request: GetPodEventsRequest): GetPodEventsResponse 
 }
 
 model GetPodLogsRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc-20210126170216-*****', position='Path'),
-  podId: string(name='PodId', description='This parameter is required.', example='dlc-20210126170216-*****-chief-0', position='Path'),
-  downloadToFile?: boolean(name='DownloadToFile', example='true', position='Query'),
-  endTime?: string(name='EndTime', example='2020-11-08T17:00:00Z', position='Query'),
-  maxLines?: int32(name='MaxLines', example='100', position='Query'),
-  podUid?: string(name='PodUid', example='fe846462-af2c-4521-bd6f-96787a57****', position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
+  jobId: string(name='JobId', description='The job ID. For more information about how to obtain a job ID, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).
+
+This parameter is required.', example='dlc-20210126170216-*****', position='Path'),
+  podId: string(name='PodId', description='The node ID. For more information about how to obtain a node ID, see [GetJob](https://help.aliyun.com/document_detail/459677.html).
+
+This parameter is required.', example='dlc-20210126170216-*****-chief-0', position='Path'),
+  downloadToFile?: boolean(name='DownloadToFile', description='Specifies whether to download the log file. Default value: false. Valid values:
+
+*   false
+*   true', example='true', position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query. Default value: current time.', example='2020-11-08T17:00:00Z', position='Query'),
+  maxLines?: int32(name='MaxLines', description='The maximum number of log entries. Default value: 2000.', example='100', position='Query'),
+  podUid?: string(name='PodUid', description='The node UID. For more information about how to obtain a node UID, see [GetJob](https://help.aliyun.com/document_detail/459677.html).', example='fe846462-af2c-4521-bd6f-96787a57****', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query. Default value: 7 days ago.', example='2020-11-08T16:00:00Z', position='Query'),
 }
 
 model GetPodLogsResponseBody = {
-  jobId?: string(name='JobId', example='dlc-20210126170216-******'),
-  logs?: [ string ](name='Logs'),
-  podId?: string(name='PodId', example='dlc-20210126170216-****-chief-0'),
-  podUid?: string(name='PodUid', example='94a7cc7c-0033-48b5-85bd-71c63592c268'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-******'),
+  logs?: [ string ](name='Logs', description='The logs.'),
+  podId?: string(name='PodId', description='The node ID.', example='dlc-20210126170216-****-chief-0'),
+  podUid?: string(name='PodUid', description='The instance UID.', example='94a7cc7c-0033-48b5-85bd-71c63592c268'),
+  requestId?: string(name='RequestId', description='The request ID which is used for diagnostics and Q\\&A.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model GetPodLogsResponse = {
@@ -1107,10 +1266,16 @@ async function getPodLogs(request: GetPodLogsRequest): GetPodLogsResponse {
 }
 
 model GetTensorboardRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tb-20210114104214-xxxxx', minLength=1, maxLength=256, position='Path'),
-  jodId?: string(name='JodId', example='dlc-xxxxxxxx', position='Query'),
-  token?: string(name='Token', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='46099', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The ID of the TensorBoard instance. For more information about how to obtain the ID of the TensorBoard instance, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
+
+This parameter is required.', example='tb-20210114104214-xxxxx', minLength=1, maxLength=256, position='Path'),
+  jodId?: string(name='JodId', description='The job ID. For more information about how to query the job ID, see [ListJob](https://help.aliyun.com/document_detail/459676.html).', example='dlc-xxxxxxxx', position='Query'),
+  token?: string(name='Token', description='The information about the shared token. You can specify this parameter to obtain the permission to view a TensorBoard job based on the shared token information. You can execute [GetTensorboardSharedUrl](https://help.aliyun.com/document_detail/2557813.html) and extract the shared token from the obtained information.', example='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e
+yJleHAiOjE2OTUyODA0NTMsImlhdCI6MTY5NTE5NDA1MywidXNlcl9pZCI6IjExN
+Tc3MDMyNzA5OTQ5MDEiLCJ0YXJnZXRfaWQiOiJ0YjRrOGxjNXhmdTM2b3B0Iiw
+idGFyZ2V0X3R5cGUiOiJ0ZW5zb3Jib2FyZCJ9.6eT68J-KMBwwfN2d7fj7u6vyPcf0erfqYeizd2N****', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='46099', position='Query'),
 }
 
 model GetTensorboardResponse = {
@@ -1129,13 +1294,15 @@ async function getTensorboard(request: GetTensorboardRequest): GetTensorboardRes
 }
 
 model GetTensorboardSharedUrlRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tbxxxxxx', position='Path'),
-  expireTimeSeconds?: string(name='ExpireTimeSeconds', example='86400', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The ID of the TensorBoard task.
+
+This parameter is required.', example='tbxxxxxx', position='Path'),
+  expireTimeSeconds?: string(name='ExpireTimeSeconds', description='The validity period of the shareable link. Unit: seconds. Maximum value: 604800.', example='86400', position='Query'),
 }
 
 model GetTensorboardSharedUrlResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardSharedUrl?: string(name='TensorboardSharedUrl', example='http://pai-dlc-proxy-xxx.alicyuncs.com/xxx/xxx/token/'),
+  requestId?: string(name='RequestId', description='The request ID which is used for troubleshooting.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardSharedUrl?: string(name='TensorboardSharedUrl', description='The shareable link of the TensorBoard task.', example='http://pai-dlc-proxy-xxx.alicyuncs.com/xxx/xxx/token/'),
 }
 
 model GetTensorboardSharedUrlResponse = {
@@ -1154,14 +1321,14 @@ async function getTensorboardSharedUrl(request: GetTensorboardSharedUrlRequest):
 }
 
 model GetTokenRequest {
-  expireTime?: long(name='ExpireTime', example='60', position='Query'),
-  targetId?: string(name='TargetId', example='dlc*******', position='Query'),
-  targetType?: string(name='TargetType', example='job', position='Query'),
+  expireTime?: long(name='ExpireTime', description='The time when the share link expires. Default value: 604800 seconds. Minimum value: 0.', example='60', position='Query'),
+  targetId?: string(name='TargetId', description='The ID of the job that is waiting to be shared.', example='dlc*******', position='Query'),
+  targetType?: string(name='TargetType', description='The type of the job that you want to share. Valid values: job and tensorboard.', example='job', position='Query'),
 }
 
 model GetTokenResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
-  token?: string(name='Token', example='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9*****'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to troubleshoot issues.', example='473469C7-AA6F-4DC5-B3DB-xxxxxxxx'),
+  token?: string(name='Token', description='The token of the shared job, which can be used as the value of the Token parameter in the GetJob API operation to view information about the shared job.', example='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9*****'),
 }
 
 model GetTokenResponse = {
@@ -1180,15 +1347,56 @@ async function getToken(request: GetTokenRequest): GetTokenResponse {
 }
 
 model GetWebTerminalRequest {
-  jobId?: string(name='JobId', example='dlc-20210126170216-******', position='Path'),
-  podId?: string(name='PodId', example='dlc-20210126170216-****-chief-0', position='Path'),
-  isShared?: boolean(name='IsShared', position='Query'),
-  podUid?: string(name='PodUid', description='Pod UID。', example='94a7cc7c-0033-48b5-85bd-71c63592c268', position='Query'),
+  jobId?: string(name='JobId', description='The task ID.', example='dlc-20210126170216-******', position='Path'),
+  podId?: string(name='PodId', description='The ID of the pod in the task.', example='dlc-20210126170216-****-chief-0', position='Path'),
+  isShared?: boolean(name='IsShared', description='Specifies whether to create a shareable link to access the container. Valid values:
+
+*   true: returns a shareable link to access the container. The link will expire after 30 seconds and can only be used once. After you access the container by using the link, other requests that use this link to access the container become invalid.
+*   false: returns a common shareable link to access the container. If you use a common shareable link to access a container, Alibaba Cloud identity authentication is required. The link will expire after 30 seconds.', example='true', position='Query'),
+  podUid?: string(name='PodUid', description='The pod UID.', example='94a7cc7c-0033-48b5-85bd-71c63592c268', position='Query'),
 }
 
 model GetWebTerminalResponseBody = {
-  requestId?: string(name='RequestId'),
-  webTerminalUrl?: string(name='WebTerminalUrl'),
+  requestId?: string(name='RequestId', description='The request ID which is used for diagnostics and Q\\&A.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  webTerminalUrl?: string(name='WebTerminalUrl', description='The WebSocket URI for accessing the container. You must build a WebSocket client. For more information about the communication format, see the following code:
+
+    ws = new WebSocket(
+      `wss://xxxxx`,
+    );
+    ws.onopen = function open() {
+      console.warn(\\"connected\\");
+      term.write(\\"\\r\\");
+    };
+
+    ws.onclose = function close() {
+      console.warn(\\"disconnected\\");
+      term.write(\\"Connection closed\\");
+    };
+
+    // Return the following information in the backend.
+    ws.onmessage = function incoming(event) {
+      const msg = JSON.parse(event.data);
+      console.warn(msg);
+      if (msg.operation === \\"stdout\\") {
+        term.write(msg.data);
+      } else {
+        console.warn(\\"invalid msg operation: \\" + msg);
+      }
+    };
+
+    // Enter the following code in the console.
+    term.onData(data => {
+      const msg = { operation: \\"stdin\\", data: data };
+      ws.send(JSON.stringify(msg));
+    });
+
+    term.onResize(size => {
+      const msg = { operation: \\"resize\\", cols: size.cols, rows: size.rows };
+      ws.send(JSON.stringify(msg));
+    });
+
+    fitAddon.fit();
+    };', example='wss://*****'),
 }
 
 model GetWebTerminalResponse = {
@@ -1207,21 +1415,35 @@ async function getWebTerminal(request: GetWebTerminalRequest): GetWebTerminalRes
 }
 
 model ListEcsSpecsRequest {
-  acceleratorType?: string(name='AcceleratorType', example='GPU', position='Query'),
-  instanceTypes?: string(name='InstanceTypes', example='ecs.g6.large,ecs.g6.xlarge', position='Query'),
-  order?: string(name='Order', example='desc', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
-  resourceType?: string(name='ResourceType', example='ECS', position='Query'),
-  sortBy?: string(name='SortBy', example='Gpu', position='Query'),
+  acceleratorType?: string(name='AcceleratorType', description='Filter by accelerator type. Valid values:
+
+*   CPU
+*   GPU', example='GPU', position='Query'),
+  instanceTypes?: string(name='InstanceTypes', description='The instance types to query. Separate the types with commas (,).', example='ecs.g6.large,ecs.g6.xlarge', position='Query'),
+  order?: string(name='Order', description='The sorting order. Valid values:
+
+*   desc: descending order.
+*   asc: ascending order.', example='desc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to query. The start value is 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='10', position='Query'),
+  resourceType?: string(name='ResourceType', description='The type of the resource. Valid values:
+
+*   ECS
+*   Lingjun', example='ECS', position='Query'),
+  sortBy?: string(name='SortBy', description='The field based on which the results are sorted. Valid values:
+
+*   CPU
+*   GPU
+*   Memory
+*   GmtCreateTime', example='Gpu', position='Query'),
 }
 
 model ListEcsSpecsResponseBody = {
   ecsSpecs?: [
     EcsSpec
-  ](name='EcsSpecs'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: long(name='TotalCount', example='10'),
+  ](name='EcsSpecs', description='The list of ECS specifications.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  totalCount?: long(name='TotalCount', description='The number of types that meet the filter conditions.', example='10'),
 }
 
 model ListEcsSpecsResponse = {
@@ -1240,16 +1462,21 @@ async function listEcsSpecs(request: ListEcsSpecsRequest): ListEcsSpecsResponse 
 }
 
 model ListJobSanityCheckResultsRequest {
-  jobId: string(name='JobId', description='This parameter is required.', example='dlc-20210114104214-xxxx', position='Path'),
-  order?: string(name='Order', example='desc', position='Query'),
+  jobId: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.
+
+This parameter is required.', example='dlc-20210114104214-xxxx', position='Path'),
+  order?: string(name='Order', description='The sorting order:
+
+*   desc: descending order
+*   asc: ascending order', example='desc', position='Query'),
 }
 
 model ListJobSanityCheckResultsResponseBody = {
-  requestID?: string(name='RequestID', example='1AC9xxx-3xxx-5xxx2-xxxx-FA5'),
+  requestID?: string(name='RequestID', description='The request ID.', example='1AC9xxx-3xxx-5xxx2-xxxx-FA5'),
   sanityCheckResults?: [[
     SanityCheckResultItem
-  ]  ](name='SanityCheckResults'),
-  totalCount?: int32(name='TotalCount', example='10'),
+  ]  ](name='SanityCheckResults', description='The sanity check results.'),
+  totalCount?: int32(name='TotalCount', description='The total number of results that meet the filter conditions.', example='10'),
 }
 
 model ListJobSanityCheckResultsResponse = {
@@ -1268,38 +1495,75 @@ async function listJobSanityCheckResults(request: ListJobSanityCheckResultsReque
 }
 
 model ListJobsRequest {
-  accessibility?: string(name='Accessibility', position='Query'),
-  businessUserId?: string(name='BusinessUserId', example='16****', position='Query'),
-  caller?: string(name='Caller', example='local', position='Query'),
-  displayName?: string(name='DisplayName', example='tf-mnist-test', maxLength=1024, position='Query'),
-  endTime?: string(name='EndTime', example='2020-11-09T14:45:00Z', position='Query'),
-  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', example='false', position='Query'),
-  jobId?: string(name='JobId', example='dlc********', position='Query'),
-  jobType?: string(name='JobType', example='TFJob', maxLength=32, position='Query'),
-  order?: string(name='Order', example='desc', position='Query'),
-  oversoldInfo?: string(name='OversoldInfo', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=1000, position='Query'),
-  pageSize?: int32(name='PageSize', example='50', minimum=1, maximum=100, position='Query'),
+  accessibility?: string(name='Accessibility', description='The job visibility. Valid values:
+
+*   PUBLIC: The job is visible to all members in the workspace.
+*   PRIVATE: The job is visible only to you and the administrator of the workspace.', example='PRIVATE', position='Query'),
+  businessUserId?: string(name='BusinessUserId', description='The ID of the user associated with the job.', example='16****', position='Query'),
+  caller?: string(name='Caller', description='The caller.', example='local', position='Query'),
+  displayName?: string(name='DisplayName', description='The job name. Fuzzy query is supported. The name is case-insensitive. Wildcards are not supported. For example, if you enter test, test-job1, job-test, job-test2, or job-test can be matched, and job-t1 cannot be matched. The default value null indicates any job name.', example='tf-mnist-test', maxLength=1024, position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query. Use the job creation time to filter data. The default value is the current time.', example='2020-11-09T14:45:00Z', position='Query'),
+  fromAllWorkspaces?: boolean(name='FromAllWorkspaces', description='Specifies whether to query a list of jobs across workspaces. This parameter must be used together with `ShowOwn=true`. You can use this parameter to query a list of jobs recently submitted by the current user.', example='false', position='Query'),
+  jobId?: string(name='JobId', description='The job ID. Fuzzy query is supported. The name is case-insensitive. Wildcards are not supported. The default value null indicates any job ID.', example='dlc********', position='Query'),
+  jobType?: string(name='JobType', description='The job type. You can query any job type. The default value null indicates any job type. Valid values:
+
+*   TFJob
+*   PyTorchJob
+*   XGBoostJob
+*   OneFlowJob
+*   ElasticBatchJob', example='TFJob', maxLength=32, position='Query'),
+  order?: string(name='Order', description='The sorting order. Valid values:
+
+*   desc (default)
+*   asc', example='desc', position='Query'),
+  oversoldInfo?: string(name='OversoldInfo', description='The Idle resource information. Valid values:
+
+*   ForbiddenQuotaOverSold
+*   ForceQuotaOverSold
+*   AcceptQuotaOverSold-true (true indicates that the job uses idle resources.)
+*   AcceptQuotaOverSold-false (false indicates that the job uses guaranteed resources.)', example='ForbiddenQuotaOverSold', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return for the current query. Minimum value: 1. Default value: 1.', example='1', minimum=1, maximum=1000, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50', minimum=1, maximum=100, position='Query'),
   paymentType?: string(name='PaymentType', position='Query'),
-  pipelineId?: string(name='PipelineId', example='flow-*******', position='Query'),
-  resourceId?: string(name='ResourceId', example='r*****', position='Query'),
-  resourceQuotaName?: string(name='ResourceQuotaName', position='Query'),
-  showOwn?: boolean(name='ShowOwn', example='true', position='Query'),
-  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
-  status?: string(name='Status', example='Running', maxLength=32, position='Query'),
-  tags?: map[string]string(name='Tags', shrink='json', position='Query'),
-  userIdForFilter?: string(name='UserIdForFilter', position='Query'),
-  username?: string(name='Username', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='1****', position='Query'),
+  pipelineId?: string(name='PipelineId', description='The specific pipeline ID used to filter jobs.', example='flow-*******', position='Query'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to obtain the ID of a dedicated resource group, see [Manage resource quota](https://help.aliyun.com/document_detail/2651299.html).', example='r*****', position='Query'),
+  resourceQuotaName?: string(name='ResourceQuotaName', description='The resource quota name used to filter jobs. Fuzzy search is supported. Wildcards are not supported. The default value null indicates that jobs are not filtered by resource quota name.', example='quota***', position='Query'),
+  showOwn?: boolean(name='ShowOwn', description='Specifies whether to query only the jobs submitted by the current user.', example='true', position='Query'),
+  sortBy?: string(name='SortBy', description='The sorting field in the returned job list. Valid values:
+
+*   DisplayName
+*   JobType
+*   Status
+*   GmtCreateTime
+*   GmtFinishTime', example='GmtCreateTime', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query. Use the job creation time to filter data. The default value is the current time minus seven days. In other words, if you do not configure the StartTime and EndTime parameters, the system queries the job list in the last seven days.', example='2020-11-08T16:00:00Z', position='Query'),
+  status?: string(name='Status', description='The job status. Valid values:
+
+*   Creating
+*   Queuing
+*   Bidding (only available for spot jobs that use Lingjun resources)
+*   EnvPreparing
+*   SanityChecking
+*   Running
+*   Restarting
+*   Stopping
+*   SucceededReserving
+*   FailedReserving
+*   Succeeded
+*   Failed
+*   Stopped', example='Running', maxLength=32, position='Query'),
+  tags?: map[string]string(name='Tags', description='The tags.', shrink='json', position='Query'),
+  userIdForFilter?: string(name='UserIdForFilter', description='The user ID used to filter jobs.', example='20**************', position='Query'),
+  username?: string(name='Username', description='The username used to filter jobs. Fuzzy search is supported. Wildcards are not supported. The default value null indicates that jobs are not filtered by username.', example='test***', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='1****', position='Query'),
 }
 
 model ListJobsResponseBody = {
   jobs?: [
     JobItem
-  ](name='Jobs'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: long(name='TotalCount', example='2'),
+  ](name='Jobs', description='The jobs.'),
+  requestId?: string(name='RequestId', description='The request ID used to troubleshoot issues.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  totalCount?: long(name='TotalCount', description='The total number of jobs that meet the filter conditions.', example='2'),
 }
 
 model ListJobsResponse = {
@@ -1318,34 +1582,62 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 }
 
 model ListTensorboardsRequest {
-  accessibility?: string(name='Accessibility', position='Query'),
-  displayName?: string(name='DisplayName', example='TestTensorboard', position='Query'),
-  endTime?: string(name='EndTime', example='2020-11-09T14:45:00Z', position='Query'),
-  jobId?: string(name='JobId', example='dlc-xxx', position='Query'),
-  order?: string(name='Order', example='desc', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, maximum=1000, position='Query'),
-  pageSize?: int32(name='PageSize', example='50', minimum=1, maximum=100, position='Query'),
-  paymentType?: string(name='PaymentType', position='Query'),
-  quotaId?: string(name='QuotaId', position='Query'),
-  showOwn?: boolean(name='ShowOwn', position='Query'),
-  sortBy?: string(name='SortBy', example='GmtCreateTime', position='Query'),
-  sourceId?: string(name='SourceId', example='dlc-xxxxxx', position='Query'),
-  sourceType?: string(name='SourceType', example='job', position='Query'),
-  startTime?: string(name='StartTime', example='2020-11-08T16:00:00Z', position='Query'),
-  status?: string(name='Status', example='Running', position='Query'),
-  tensorboardId?: string(name='TensorboardId', example='tensorboard-xxx', position='Query'),
-  userId?: string(name='UserId', position='Query'),
-  username?: string(name='Username', position='Query'),
-  verbose?: boolean(name='Verbose', example='true', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='380', position='Query'),
+  accessibility?: string(name='Accessibility', description='The instance visibility.
+
+*   PUBLIC: TensorBoard instances are visible to all members in the workspace.
+*   PRIVATE: TensorBoard instances are visible only to you and the administrator of the workspace.', example='PRIVATE', position='Query'),
+  displayName?: string(name='DisplayName', description='The TensorBoard instance name.', example='TestTensorboard', position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query. Use the UTC time when the TensorBoard instance is created to filter data. If you leave this parameter empty, the default value is the current time.', example='2020-11-09T14:45:00Z', position='Query'),
+  jobId?: string(name='JobId', description='The job ID used to filter TensorBoard instances. For more information about how to obtain the ID of a job, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).', example='dlc-xxx', position='Query'),
+  order?: string(name='Order', description='The sorting order.
+
+*   desc
+*   asc', example='desc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Minimum value: 1.', example='1', minimum=1, maximum=1000, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of TensorBoard instances per page.', example='50', minimum=1, maximum=100, position='Query'),
+  paymentType?: string(name='PaymentType', description='The billing method of TensorBoard instances.
+
+*   Free: the TensorBoard instance that uses free resources.
+*   Postpaid: the TensorBoard instance that uses pay-as-you-go resources.', example='Postpaid', position='Query'),
+  quotaId?: string(name='QuotaId', description='The resource quota ID.
+
+> 
+
+*   Only whitelisted users can use resource quotas to create TensorBoard instances. If you want to use this feature, contact us.
+
+*   This parameter takes effect only when TensorBoard instances use resource quotas.', example='quota12***', position='Query'),
+  showOwn?: boolean(name='ShowOwn', description='Specifies whether to return only the TensorBoard instances created by the current logon account.', example='false', position='Query'),
+  sortBy?: string(name='SortBy', description='The returned field used to sort TensorBoard instances.
+
+*   DisplayName: the name of the TensorBoard instance.
+*   GmtCreateTime: the time when the TensorBoard instance is created.', example='GmtCreateTime', position='Query'),
+  sourceId?: string(name='SourceId', description='The data source ID. For more information about how to obtain the ID of a job, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).', example='dlc-xxxxxx', position='Query'),
+  sourceType?: string(name='SourceType', description='The data source associated with the TensorBoard instance. This parameter is no longer used. Only Deep Learning Containers (DLC) training jobs are supported.', example='job', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query. Use the UTC time when the TensorBoard instance is created to filter data. If you leave this parameter empty, the default value is seven days before the current time.', example='2020-11-08T16:00:00Z', position='Query'),
+  status?: string(name='Status', description='The TensorBoard instance status. Valid values:
+
+*   Creating
+*   Running
+*   Stopped
+*   Succeeded
+*   Failed', example='Running', position='Query'),
+  tensorboardId?: string(name='TensorboardId', description='The TensorBoard instance ID used to filter TensorBoard instances.', example='tensorboard-xxx', position='Query'),
+  userId?: string(name='UserId', description='The user ID.', example='161****3000', position='Query'),
+  username?: string(name='Username', description='The username.', example='she****mo', position='Query'),
+  verbose?: boolean(name='Verbose', description='Specifies whether to return the information about the TensorBoard instance.
+
+*   true
+*   false', example='true', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. Obtain a list of TensorBoard instances based on the workspace ID. 
+<props="china">For more information, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380', position='Query'),
 }
 
 model ListTensorboardsResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   tensorboards?: [
     Tensorboard
-  ](name='Tensorboards'),
-  totalCount?: long(name='TotalCount', example='100'),
+  ](name='Tensorboards', description='The TensorBoard instances.'),
+  totalCount?: long(name='TotalCount', description='The total number of data sources that meet the conditions.', example='100'),
 }
 
 model ListTensorboardsResponse = {
@@ -1364,13 +1656,16 @@ async function listTensorboards(request: ListTensorboardsRequest): ListTensorboa
 }
 
 model StartTensorboardRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
-  workspaceId?: string(name='WorkspaceId', example='380', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The TensorBoard instance ID. For more information about how to obtain the TensorBoard instance ID, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
+
+This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">For more information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380', position='Query'),
 }
 
 model StartTensorboardResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-vf9lowjt3pso'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardId?: string(name='TensorboardId', description='The TensorBoard instance ID.', example='tensorboard-20210114104214-vf9lowjt3pso'),
 }
 
 model StartTensorboardResponse = {
@@ -1389,12 +1684,12 @@ async function startTensorboard(request: StartTensorboardRequest): StartTensorbo
 }
 
 model StopJobRequest {
-  jobId?: string(name='JobId', example='dlc-20210126170216-xxxxxx', position='Path'),
+  jobId?: string(name='JobId', description='The job ID. For more information about how to query the job ID, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).', example='dlc-20210126170216-xxxxxx', position='Path'),
 }
 
 model StopJobResponseBody = {
-  jobId?: string(name='JobId', example='dlc-20210126170216-xxxxxxx'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-xxxxxx'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-xxxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID. You can troubleshoot issues based on the request ID.', example='473469C7-AA6F-4DC5-B3DB-xxxxxx'),
 }
 
 model StopJobResponse = {
@@ -1413,13 +1708,16 @@ async function stopJob(request: StopJobRequest): StopJobResponse {
 }
 
 model StopTensorboardRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
-  workspaceId?: string(name='WorkspaceId', example='380', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The ID of the TensorBoard instance. For more information about how to query the Tensorboard instance ID, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
+
+This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380', position='Query'),
 }
 
 model StopTensorboardResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardId?: string(name='TensorboardId', description='The ID of the TensorBoard instance.', example='tensorboard-20210114104214-xxxxxxxx'),
 }
 
 model StopTensorboardResponse = {
@@ -1438,14 +1736,20 @@ async function stopTensorboard(request: StopTensorboardRequest): StopTensorboard
 }
 
 model UpdateJobRequest {
-  jobId?: string(name='JobId', example='dlc*************', position='Path'),
-  accessibility?: string(name='Accessibility', position='Body'),
-  priority?: int32(name='Priority', example='5', position='Body'),
+  jobId?: string(name='JobId', description='The job ID. For more information about how to obtain the ID of a job, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).', example='dlc*************', position='Path'),
+  accessibility?: string(name='Accessibility', description='The job visibility. Valid values:
+
+*   PUBLIC: The job is visible to all members in the workspace.
+*   PRIVATE: The job is visible only to you and the administrator of the workspace.', example='PRIVATE', position='Body'),
+  priority?: int32(name='Priority', description='The job priority. Valid values: 1 to 9.
+
+*   1: the lowest priority.
+*   9: the highest priority.', example='5', position='Body'),
 }
 
 model UpdateJobResponseBody = {
-  jobId?: string(name='JobId', example='dlc*************'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc*************'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for diagnostics and Q\\&A.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model UpdateJobResponse = {
@@ -1464,16 +1768,22 @@ async function updateJob(request: UpdateJobRequest): UpdateJobResponse {
 }
 
 model UpdateTensorboardRequest {
-  tensorboardId: string(name='TensorboardId', description='This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
-  accessibility?: string(name='Accessibility', position='Query'),
-  maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', example='MaxRunningTimeMinutes', position='Query'),
+  tensorboardId: string(name='TensorboardId', description='The ID of the TensorBoard instance. For more information about how to query the ID of the TensorBoard instance, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
+
+This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
+  accessibility?: string(name='Accessibility', description='The visibility of the jobs. Valid values:
+
+*   PUBLIC: The jobs are public in the workspace.
+*   PRIVATE: The jobs are visible only to you and the administrator of the workspace.', example='PRIVATE', position='Query'),
+  maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='The maximum running time. Unit: minutes.', example='300', position='Query'),
   priority?: string(name='Priority', position='Query'),
-  workspaceId?: string(name='WorkspaceId', example='380', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
+<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380', position='Query'),
 }
 
 model UpdateTensorboardResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  tensorboardId?: string(name='TensorboardId', example='tensorboard-20210114104214-xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  tensorboardId?: string(name='TensorboardId', description='The ID of the TensorBoard instance.', example='tensorboard-20210114104214-xxxxxxxx'),
 }
 
 model UpdateTensorboardResponse = {
