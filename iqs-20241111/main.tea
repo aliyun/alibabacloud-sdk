@@ -54,6 +54,42 @@ model GenericSearchResult {
   ](name='weiboItems'),
 }
 
+model GlobalPageItem {
+  link?: string(name='link', description='This parameter is required.', example='https://baijiahao.baidu.com/s?id=1787881554557805096'),
+  snippet?: string(name='snippet', example='100km/h-0制动能力上，仅有33.3m，不黑不吹，单看这个，小米SU7确实表现不错。而续航方面，101kWh电池容量，实现CLTC续航800km，还有现5分钟补能220km，15分钟补能510km的800V高压平台。而在...'),
+  title?: string(name='title', description='This parameter is required.', example='小米SU7售价22.99万元起 高管亲自辟谣：发布前不会有价格'),
+}
+
+model GlobalQueryContext {
+  originalQuery?: {
+    page?: string(name='page'),
+    query?: string(name='query'),
+    timeRange?: string(name='timeRange'),
+  }(name='originalQuery'),
+}
+
+model GlobalSceneItem {
+  detail?: string(name='detail'),
+  type?: string(name='type'),
+}
+
+model GlobalSearchInformation {
+  searchTime?: long(name='searchTime'),
+  total?: long(name='total'),
+}
+
+model GlobalSearchResult {
+  pageItems?: [
+    GlobalPageItem
+  ](name='pageItems'),
+  queryContext?: GlobalQueryContext(name='queryContext'),
+  requestId?: string(name='requestId', example='123456'),
+  sceneItems?: [
+    GlobalSceneItem
+  ](name='sceneItems'),
+  searchInformation?: GlobalSearchInformation(name='searchInformation'),
+}
+
 model IncludeImage {
   height?: int32(name='height', example='324'),
   imageLink?: string(name='imageLink', example='http://k.sinaimg.cn/n/sinakd20121/594/w2048h946/20240328/74cf-32c0d62e843df76567d760b4459d57c1.jpg/w700d1q75cms.jpg'),
@@ -377,5 +413,76 @@ async function genericSearch(request: GenericSearchRequest): GenericSearchRespon
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return genericSearchWithOptions(request, headers, runtime);
+}
+
+model GlobalSearchRequest {
+  page?: int32(name='page', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  query?: string(name='query', description='This parameter is required.'),
+  timeRange?: string(name='timeRange', example='OneWeek'),
+}
+
+model GlobalSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GlobalSearchResult  
+}
+
+/**
+ * @summary 通晓搜索-出海版(全球信息搜索)
+ *
+ * @param request GlobalSearchRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GlobalSearchResponse
+ */
+async function globalSearchWithOptions(request: GlobalSearchRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GlobalSearchResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.page)) {
+    query['page'] = request.page;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.query)) {
+    query['query'] = request.query;
+  }
+  if (!Util.isUnset(request.timeRange)) {
+    query['timeRange'] = request.timeRange;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GlobalSearch',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/search/global`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 通晓搜索-出海版(全球信息搜索)
+ *
+ * @param request GlobalSearchRequest
+ * @return GlobalSearchResponse
+ */
+async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return globalSearchWithOptions(request, headers, runtime);
 }
 
