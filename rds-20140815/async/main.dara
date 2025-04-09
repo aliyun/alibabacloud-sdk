@@ -1883,11 +1883,12 @@ This parameter is supported only when the following requirements are met:
   VPCId?: string(name='VPCId', description='The ID of the VPC to which the instance belongs.
 
 > This parameter is available when you set the **InstanceNetworkType** parameter to **VPC**.', example='vpc-*****', position='Query'),
-  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID. The vSwitch must belong to the zone that is specified by **ZoneId**.
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.
 
-*   If you set **InstanceNetworkType** to **VPC**, you must also specify this parameter.
-*   If you set the **ZoneSlaveId1** parameter to a value that is not **Auto**, you must specify the IDs of two vSwitches for this parameter and separate the IDs with a comma (,). The ZoneSlaveId1 parameter specifies the zone ID of the secondary node.
-*   The value cannot contain `spaces`, exclamation points `(!)`, or special characters such as number signs `(#)`, dollar signs `($)`, ampersands `(&)`, and percent signs `(%)`.', example='vsw-*****', position='Query'),
+*   **Relations with zones**: Specify the vSwitch ID based on the zones in which the vSwitch belongs to. If you specify two vSwitch IDs, make sure that the vSwitch IDs match the zone IDs specified by the ZoneId and ZoneIdSlave1 parameters.
+*   **Limits on the network type**: Set **InstanceNetworkType** to **VPC**.
+*   **Limits on multiple vSwitch IDs**: If you set **ZoneSlaveId1** to a value that is not **Auto**, you must specify the IDs of two vSwitches for this parameter and separate the IDs with a comma (,).
+*   **Limits on characters**: The value cannot contain `spaces` or the following characters: `!` `#` `￥` `&` `%`', example='vsw-*****', position='Query'),
   whitelistTemplateList?: string(name='WhitelistTemplateList', description='The entries in the whitelist. If you enter multiple IP addresses or CIDR blocks, you must separate the IP addresses or CIDR blocks with commas (,). Do not add spaces preceding or following the commas. Example: `192.168.0.1,172.16.213.9`.', example='192.XXX.XX.1,172.XXX.XX.9', position='Query'),
   zoneId?: string(name='ZoneId', description='The zone ID of the primary instance.
 
@@ -3296,7 +3297,7 @@ model CreateRCDiskRequest {
 *   **cloud** (default): basic disk
 *   **cloud_efficiency**: ultra disk.
 *   **cloud_ssd**: standard SSD.
-*   **cloud_essd**: Enterprise SSD (ESSD).
+*   **cloud_essd**: ESSD.
 *   **cloud_auto**: ESSD AutoPL disk
 *   **cloud_essd_entry**: ESSD Entry disk
 *   **elastic_ephemeral_disk_standard**: standard elastic ephemeral disk
@@ -3305,7 +3306,7 @@ model CreateRCDiskRequest {
 
 By default, this parameter is left empty.', example='ZStack-Hybrid-Test-ECS-Instance', position='Query'),
   instanceChargeType?: string(name='InstanceChargeType', description='The billing method. Set the value to **Postpaid**, which specifies the pay-as-you-go billing method.', example='Postpaid', position='Query'),
-  instanceId?: string(name='InstanceId', position='Query'),
+  instanceId?: string(name='InstanceId', example='rc-v28c6k3jupp61m2t****', position='Query'),
   performanceLevel?: string(name='PerformanceLevel', description='The performance level (PL) of the disk if the disk is an ESSD. Valid values:
 
 *   **PL0**: A single ESSD delivers up to 10,000 random read/write IOPS.
@@ -3319,7 +3320,7 @@ For information about ESSD PLs, see [ESSDs](https://help.aliyun.com/document_det
   regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  size: int32(name='Size', description='The disk size. Unit: GiB. This parameter is required. Valid values:
+  size?: int32(name='Size', description='The disk size. Unit: GiB. This parameter is required. Valid values:
 
 *   Valid values if you set DiskCategory to **cloud**: 5 to 2000.
 
@@ -3345,9 +3346,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 If `SnapshotId` is specified, the following limits apply to `SnapshotId` and `Size`:
 
 *   If the size of the snapshot specified by `SnapshotId` is larger than the value of `Size`, the size of the created disk is equal to the size of the snapshot.
-*   If the size of the snapshot specified by `SnapshotId` is smaller than the value of `Size`, the size of the created disk is equal to the value of `Size`.
-
-This parameter is required.', example='2000', position='Query'),
+*   If the size of the snapshot specified by `SnapshotId` is smaller than the value of `Size`, the size of the created disk is equal to the value of `Size`.', example='2000', position='Query'),
   snapshotId?: string(name='SnapshotId', description='The snapshot that you want to use to create the disk. Snapshots that were created on or before July 15, 2013 cannot be used to create disks. The following limits apply to `SnapshotId` and `Size`:
 
 *   If the size of the snapshot specified by `SnapshotId` is larger than the value of `Size`, the size of the created disk is equal to the specified snapshot size.
@@ -3709,39 +3708,35 @@ async function createReadOnlyDBInstance(request: CreateReadOnlyDBInstanceRequest
 }
 
 model CreateReplicationLinkRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.
+  DBInstanceId: string(name='DBInstanceId', description='The ID of the DR instance.
 
 This parameter is required.', example='pgm-bp1trqb4p1xd****', position='Query'),
-  dryRun: boolean(name='DryRun', description='Specifies whether to perform a dry run. Valid values:
+  dryRun: boolean(name='DryRun', description='Specifies whether to perform a dry run before the system creates the DR instance. Valid values:
 
-*   **true**: performs a dry run but does not create the instance. The system checks items such as the request parameters, request format, service limits, and available resources.
-*   **false** (default): performs a dry run and sends the request. If the request passes the dry run, the instance is created.
+*   **true**: performs a dry run but does not create the instance. The system checks the request parameters, request syntax, limits, and available resources.
+*   **false** (default): performs a dry run and the actual request. If the request passes the dry run, the instance is directly created.
 
 This parameter is required.', example='false', position='Query'),
   replicatorAccount?: string(name='ReplicatorAccount', description='The account of the database that is used for data synchronization.', example='testdbuser', position='Query'),
   replicatorPassword?: string(name='ReplicatorPassword', description='The password of the account.', example='testpassword', position='Query'),
-  sourceAddress?: string(name='SourceAddress', description='The endpoint of the source instance.', example='pgm-****.pg.rds.aliyuncs.com', position='Query'),
+  sourceAddress?: string(name='SourceAddress', description='The endpoint of the source ApsaraDB RDS for PostgreSQL instance or the IP address of the source ApsaraDB RDS for SQL Server instance.', example='pgm-****.pg.rds.aliyuncs.com', position='Query'),
   sourceCategory?: string(name='SourceCategory', description='The type of the source instance. Valid values:
 
-*   **other**: other instances
-*   **aliyunRDS**: an ApsaraDB RDS instance', example='aliyunRDS', position='Query'),
-  sourceInstanceName?: string(name='SourceInstanceName', description='The name of the source instance.
-
->  This parameter is required when you set the **SourceCategory** parameter to **aliyunRDS**.', example='testInstance', position='Query'),
-  sourceInstanceRegionId?: string(name='SourceInstanceRegionId', description='The region ID of the source instance.
-
->  This parameter is required when you set the **SourceCategory** parameter to **aliyunRDS**.', example='cn-hangzhou', position='Query'),
+*   **other**: other instances. **SQL Server instances are not supported.**
+*   **aliyunRDS**: an ApsaraDB RDS instance.', example='aliyunRDS', position='Query'),
+  sourceInstanceName?: string(name='SourceInstanceName', description='The name of the source instance. If you set **SourceCategory** to **aliyunRDS**, this parameter is required.', example='testInstance', position='Query'),
+  sourceInstanceRegionId?: string(name='SourceInstanceRegionId', description='The region ID of the source instance. If you set **SourceCategory** to **aliyunRDS**, this parameter is required.', example='cn-hangzhou', position='Query'),
   sourcePort?: long(name='SourcePort', description='The port of the source instance.', example='5432', position='Query'),
-  targetAddress?: string(name='TargetAddress', position='Query'),
+  targetAddress?: string(name='TargetAddress', description='The IP address of the DR instance of the ApsaraDB RDS for SQL Server instance.', example='192.XXX.XX.XXX', position='Query'),
   taskId?: long(name='TaskId', description='The task ID of the successful dry run.', example='439946016', position='Query'),
-  taskName?: string(name='TaskName', description='The name of the task. You can specify a custom task name. If you do not specify this parameter, ApsaraDB RDS automatically generates a task name.', example='test01', position='Query'),
+  taskName?: string(name='TaskName', description='The task name of the dry run. You can specify a custom task name. If you do not specify this parameter, ApsaraDB RDS automatically generates a task name.', example='test01', position='Query'),
 }
 
 model CreateReplicationLinkResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.', example='pgm-****.pg.rds.aliyuncs.com'),
+  DBInstanceId?: string(name='DBInstanceId', description='The ID of the DR instance.', example='pgm-****.pg.rds.aliyuncs.com'),
   requestId?: string(name='RequestId', description='The request ID.', example='9F8C06AD-3F37-57A0-ABBF-ABD7824F55CE'),
-  taskId?: long(name='TaskId', description='The ID of the task.', example='564532302'),
-  taskName?: string(name='TaskName', description='The name of the task.', example='test01'),
+  taskId?: long(name='TaskId', description='The task ID.', example='564532302'),
+  taskName?: string(name='TaskName', description='The task name.', example='test01'),
 }
 
 model CreateReplicationLinkResponse = {
@@ -3751,8 +3746,10 @@ model CreateReplicationLinkResponse = {
 }
 
 /**
-  * @description ### [](#)Supported database engine
+  * @description ### [](#)Supported database engines
   * *   PostgreSQL
+  * *   SQL Server
+  * >  The parameters vary based on database engines.
   * @param request  the request parameters of CreateReplicationLink  CreateReplicationLinkRequest
   * @return CreateReplicationLinkResponse
  */
@@ -4767,10 +4764,10 @@ async function deleteRCSnapshot(request: DeleteRCSnapshotRequest): DeleteRCSnaps
 }
 
 model DeleteReplicationLinkRequest {
-  DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.
+  DBInstanceId: string(name='DBInstanceId', description='The ID of the DR instance.
 
 This parameter is required.', example='pgm-bp1trqb4p1xd****', position='Query'),
-  promoteToMaster: boolean(name='PromoteToMaster', description='Specifies whether to promote the disaster recovery instance to the primary instance. Valid values:
+  promoteToMaster: boolean(name='PromoteToMaster', description='Specifies whether to delete the data synchronization link between the DR instance and the primary instance and promote the DR instance to the primary instance. Valid values:
 
 *   **true**
 *   **false**
@@ -4780,10 +4777,10 @@ This parameter is required.', example='true', position='Query'),
 }
 
 model DeleteReplicationLinkResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', description='The ID of the instance.', example='pgm-bp1trqb4p1xd****'),
+  DBInstanceId?: string(name='DBInstanceId', description='The ID of the DR instance.', example='pgm-bp1trqb4p1xd****'),
   requestId?: string(name='RequestId', description='The request ID.', example='847BA085-B377-4BFA-8267-F82345ECE1D2'),
-  taskId?: long(name='TaskId', description='The ID of the task.', example='3472****'),
-  taskName?: string(name='TaskName', description='The name of the task.', example='test01'),
+  taskId?: long(name='TaskId', description='The task ID.', example='3472****'),
+  taskName?: string(name='TaskName', description='The task name.', example='test01'),
 }
 
 model DeleteReplicationLinkResponse = {
@@ -4793,8 +4790,9 @@ model DeleteReplicationLinkResponse = {
 }
 
 /**
-  * @description ### [](#)Supported database engine
+  * @description ### [](#)Supported database engines
   * *   PostgreSQL
+  * *   SQL Server
   * @param request  the request parameters of DeleteReplicationLink  DeleteReplicationLinkRequest
   * @return DeleteReplicationLinkResponse
  */
@@ -7341,6 +7339,7 @@ model DescribeDBInstanceAttributeResponseBody = {
         }
       ](name='ReadOnlyDBInstanceId')
       }(name='ReadOnlyDBInstanceIds', description='The IDs of the read-only instances that are attached to the primary instance.'),
+      readOnlyStatus?: string(name='ReadOnlyStatus'),
       readonlyInstanceSQLDelayedTime?: string(name='ReadonlyInstanceSQLDelayedTime', description='The latency at which the system replicates data to read-only instances. The system replicates data from the primary instance to the read-only instances at the latency that is specified by the **ReadonlyInstanceSQLDelayedTime** parameter. Unit: seconds.', example='30'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
       resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy*****'),
@@ -12674,7 +12673,7 @@ model DescribeRCDisksRequest {
   diskIds?: string(name='DiskIds', description='The IDs of cloud disks, local disks, or elastic ephemeral disks. The value is a JSON array that consists of up to 100 disk IDs. Separate the disk IDs with commas (,).', example='["rcd-bp67acfmxazb4p****", "rcd-bp67acfmxazb4g****", … "rcd-bp67acfmxazb4d****"]', position='Query'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='rc-dh2jf9n6j4s14926****', position='Query'),
   pageNumber?: long(name='PageNumber', description='The page number.', example='1', position='Query'),
-  pageSize?: long(name='PageSize', description='The number of entries per page. Valid values: **30** to **100**. Default value: **30**.', example='50', minimum=1, maximum=50, position='Query'),
+  pageSize?: long(name='PageSize', description='The number of entries per page. Valid values: **30** to **100**. Default value: **30**.', example='50', minimum=1, maximum=100, position='Query'),
   regionId: string(name='RegionId', description='The region ID of the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
@@ -12863,6 +12862,7 @@ model DescribeRCInstanceAttributeRequest {
 }
 
 model DescribeRCInstanceAttributeResponseBody = {
+  autoRenew?: boolean(name='AutoRenew'),
   clusterId?: string(name='ClusterId', description='The ID of the cluster to which the instance belongs.
 
 >  This parameter will be deprecated. We recommend that you use other parameters to ensure compatibility.', example='None'),
@@ -13025,6 +13025,74 @@ async function describeRCInstanceAttribute(request: DescribeRCInstanceAttributeR
   return @handler.do('RPC', 'DescribeRCInstanceAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeRCInstanceTypeFamiliesRequest {
+  regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
+}
+
+model DescribeRCInstanceTypeFamiliesResponseBody = {
+  instanceTypeFamilies?: {
+    instanceTypeFamily?: [ 
+      {
+        instanceTypeFamilyDesc?: string(name='InstanceTypeFamilyDesc', description='The description of the instance family.'),
+        instanceTypeFamilyId?: string(name='InstanceTypeFamilyId', description='The ID of the instance family.', example='x.6cm'),
+      }
+    ](name='InstanceTypeFamily', description='The instance family.'),
+  }(name='InstanceTypeFamilies', description='The instance families.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F2911788-25E8-42E5-A3A3-1B38D263F01E'),
+}
+
+model DescribeRCInstanceTypeFamiliesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRCInstanceTypeFamiliesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRCInstanceTypeFamilies  DescribeRCInstanceTypeFamiliesRequest
+  * @return DescribeRCInstanceTypeFamiliesResponse
+ */
+async function describeRCInstanceTypeFamilies(request: DescribeRCInstanceTypeFamiliesRequest): DescribeRCInstanceTypeFamiliesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRCInstanceTypeFamilies', 'GET', '/', 'json', false, 'json', request);
+}
+
+model DescribeRCInstanceTypesRequest {
+  commodityCode?: string(name='CommodityCode', example='rds_customprepaid_public_cn', position='Query'),
+  engine?: string(name='Engine', example='MySQL', position='Query'),
+  instanceType?: [ string ](name='InstanceType', shrink='simple', position='Query'),
+  instanceTypeFamily?: string(name='InstanceTypeFamily', example='gn8.cm', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+}
+
+model DescribeRCInstanceTypesResponseBody = {
+  instanceTypes?: {
+    instanceType?: [ 
+      {
+        cpuCoreCount?: int32(name='CpuCoreCount', example='32'),
+        instanceTypeFamily?: string(name='InstanceTypeFamily', example='gn8.cm'),
+        instanceTypeId?: string(name='InstanceTypeId', example='rds.gna8.2xlarge.8cm'),
+        memorySize?: int32(name='MemorySize', example='256'),
+      }
+    ](name='InstanceType'),
+  }(name='InstanceTypes'),
+  requestId?: string(name='RequestId', example='F2911788-25E8-42E5-A3A3-1B38D263F01E'),
+}
+
+model DescribeRCInstanceTypesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRCInstanceTypesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRCInstanceTypes  DescribeRCInstanceTypesRequest
+  * @return DescribeRCInstanceTypesResponse
+ */
+async function describeRCInstanceTypes(request: DescribeRCInstanceTypesRequest): DescribeRCInstanceTypesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRCInstanceTypes', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeRCInstanceVncUrlRequest {
   dbType?: string(name='DbType', description='The database engine. Valid values:
 
@@ -13083,16 +13151,21 @@ model DescribeRCInstancesResponseBody = {
   RCInstances?: [ 
     {
       clusterName?: string(name='ClusterName', description='The cluster name.', example='testrdscustom'),
+      cpu?: int32(name='Cpu'),
       createMode?: string(name='CreateMode'),
       dbType?: string(name='DbType', description='The database type.', example='rds_custom'),
+      deploymentSetId?: string(name='DeploymentSetId'),
       description?: string(name='Description', description='The instance description.', example='test'),
+      expiredTime?: string(name='ExpiredTime'),
       gmtCreated?: string(name='GmtCreated', description='The time when the task was created. The time is displayed in GMT.', example='2023-03-22 07:56:53.0'),
       hostIp?: string(name='HostIp', description='The host IP address.', example='172.30.XXX.XXX'),
       hostName?: string(name='HostName', description='The host name.', example='i-2zeaiz4g9u23f40m****'),
+      imageId?: string(name='ImageId'),
       instanceChargeType?: string(name='InstanceChargeType'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='rm-2ze704f*****'),
       instanceType?: string(name='InstanceType'),
       instanceTypeFamily?: string(name='InstanceTypeFamily'),
+      memory?: int32(name='Memory'),
       publicIp?: string(name='PublicIp'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
       securityGroupId?: string(name='SecurityGroupId'),
@@ -13122,6 +13195,12 @@ model DescribeRCInstancesResponseBody = {
           tagValue?: string(name='TagValue'),
         }
       ](name='Tags'),
+      vpcAttributes?: {
+        natIpAddress?: string(name='NatIpAddress'),
+        privateIpAddress?: [ string ](name='PrivateIpAddress'),
+        vSwitchId?: string(name='VSwitchId'),
+        vpcId?: string(name='VpcId'),
+      }(name='VpcAttributes'),
       vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-uf6f7l4fg90****'),
       zoneId?: string(name='ZoneId'),
     }
@@ -17776,61 +17855,61 @@ async function modifyDBInstanceSecurityGroupRule(request: ModifyDBInstanceSecuri
 }
 
 model ModifyDBInstanceSpecRequest {
-  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade', description='Specifies whether to upgrade the major engine version of the instance. Valid values:
+  allowMajorVersionUpgrade?: boolean(name='AllowMajorVersionUpgrade', description='Specifies whether to upgrade the major engine version of an ApsaraDB RDS for SQL Server instance. For more information, see [Upgrade the major engine version](https://help.aliyun.com/document_detail/127458.html). Valid values:
 
 *   **true**
 *   **false** (default)
 
->When you upgrade the major engine version of an ApsaraDB RDS for SQL Server instance, set this parameter to true. When you upgrade the major engine version, you must also specify required parameters such as DBInstanceId, EngineVersion, DBInstanceClass, and Category, and optional parameters such as ZoneId, ZoneIdSlave1, and VSwitchId.', example='false', position='Query'),
+> *   When you upgrade the major engine version, you must also specify the required parameters such as DBInstanceId, EngineVersion, DBInstanceClass, Category, ZoneId, and VSwitchId.
+> *   If you want to upgrade the instance edition to RDS High-availability Edition or RDS Cluster Edition, you must specify ZoneIdSlave1.', example='false', position='Query'),
   autoUseCoupon?: boolean(name='AutoUseCoupon', description='Specifies whether to use vouchers to offset fees. Valid values:
 
 *   **true**
 *   **false** (default)', example='false', position='Query'),
-  burstingEnabled?: boolean(name='BurstingEnabled', description='An invalid parameter. You can ignore this parameter.', example='false', position='Query'),
+  burstingEnabled?: boolean(name='BurstingEnabled', description='An invalid parameter. You do not need to specify this parameter.', example='false', position='Query'),
   category?: string(name='Category', description='The RDS edition of the instance. Valid values:
 
-*   Regular instance
+>  If you set **EngineVersion** to an SQL Server version number, you must also specify this parameter.
 
-    *   **Basic**: RDS Basic Edition.
-    *   **HighAvailability**: RDS High-availability Edition.
-    *   **AlwaysOn**: RDS Cluster Edition for ApsaraDB RDS for SQL Server.
-    *   **Cluster**: RDS Cluster Edition for ApsaraDB RDS for MySQL.
+**Regular RDS instances**
 
-*   Serverless instance
+*   **Basic**: RDS Basic Edition.
+*   **HighAvailability**: RDS High-availability Edition.
+*   **AlwaysOn**: RDS Cluster Edition for ApsaraDB RDS for SQL Server.
+*   **Cluster**: RDS Cluster Edition for ApsaraDB RDS for MySQL.
 
-    *   **serverless_basic**: RDS Basic Edition. This edition is available only for serverless instances that run MySQL and PostgreSQL.
-    *   **serverless_standard**: RDS High-availability Edition. This edition is available only for serverless instances that run MySQL and PostgreSQL.
-    *   **serverless_ha**: RDS High-availability Edition for ApsaraDB RDS for SQL Server.
+**Serverless instances. ApsaraDB RDS for MariaDB does not support serverless instances.**
 
-
-
-> If you set the **EngineVersion** parameter to an SQL Server version number, you must also specify this parameter.', example='HighAvailability', position='Query'),
+*   **serverless_basic**: RDS Basic Edition. This edition is available only for serverless instances that run MySQL and PostgreSQL.
+*   **serverless_standard**: RDS High-availability Edition. This edition is available only for serverless instances that run MySQL and PostgreSQL.
+*   **serverless_ha**: RDS High-availability Edition for serverless instances. This edition is available only for instances that run SQL Server.', example='HighAvailability', position='Query'),
   coldDataEnabled?: boolean(name='ColdDataEnabled', description='A reserved parameter.', example='true', position='Query'),
-  compressionMode?: string(name='CompressionMode', description='Whether to enable storage compression.
-- on: Enable
-- off: Disable', example='on', position='Query'),
-  DBInstanceClass?: string(name='DBInstanceClass', description='The new instance type of the instance. For more information, see [Primary ApsaraDB RDS instance types](https://help.aliyun.com/document_detail/26312.html). You can also call the DescribeAvailableClasses operation to query the instance types that are supported by an instance.
+  compressionMode?: string(name='CompressionMode', description='Specifies whether to enable the storage compression feature for the ApsaraDB RDS for MySQL instance. For more information, see [Use the storage compression feature](https://help.aliyun.com/document_detail/2861985.html). Valid values:
+
+*   **on**
+*   **off**', example='on', position='Query'),
+  DBInstanceClass?: string(name='DBInstanceClass', description='The instance type of the new instance. For more information, see [Specifications](https://help.aliyun.com/document_detail/26312.html). You can call the [DescribeAvailableClasses](https://help.aliyun.com/document_detail/610393.html) operation to query the instance types.
 
 > *   You must specify at least one of DBInstanceClass and **DBInstanceStorage**.
-> *   You can call the DescribeDBInstanceAttribute operation to query the current instance type of the instance.', example='rds.mys2.small', position='Query'),
-  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.
+> *   You can call the [DescribeDBInstanceAttribute](https://help.aliyun.com/document_detail/610394.html) operation to query the current instance type of the instance.', example='rds.mys2.small', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The instance ID. You can call the [DescribeDBInstances](https://help.aliyun.com/document_detail/610396.html) operation to query the instance IDs.
 
 This parameter is required.', example='rm-uf6wjk5*******', position='Query'),
-  DBInstanceStorage?: int32(name='DBInstanceStorage', description='The new storage capacity of the instance. Unit: GB. You can increase the storage capacity in increments of 5 GB. For more information, see [Primary ApsaraDB RDS instance types](https://help.aliyun.com/document_detail/26312.html). You can also call the DescribeAvailableClasses operation to query the storage capacity range that is supported by the new instance type.
+  DBInstanceStorage?: int32(name='DBInstanceStorage', description='The storage capacity of the new instance. Unit: GB. For more information, see [Storage types](https://help.aliyun.com/document_detail/26312.html). You can call the [DescribeAvailableClasses](https://help.aliyun.com/document_detail/610393.html) operation to query the storage capacity range that is supported by the new instance type.
 
-> *   You must specify at least one of the DBInstanceStorage and **DBInstanceClass** parameters.
-> *   You can call the DescribeDBInstanceAttribute to query the current storage capacity of the instance.', example='20', minimum=5, maximum=64000, position='Query'),
-  DBInstanceStorageType?: string(name='DBInstanceStorageType', description='The storage type of the instance. Valid values:
+> *   You must specify at least one of DBInstanceStorage and **DBInstanceClass**.
+> *   You can call the [DescribeDBInstanceAttribute](https://help.aliyun.com/document_detail/610394.html) operation to query the current storage capacity of the instance.', example='20', minimum=5, maximum=64000, position='Query'),
+  DBInstanceStorageType?: string(name='DBInstanceStorageType', description='The storage type of the new instance. Valid values:
 
 *   **local_ssd**: local SSD.
-*   **cloud_ssd**: standard SSD. This storage type is not recommended and is unavailable in some Alibaba Cloud regions.
-*   **cloud_essd**: enhanced SSD (ESSD) of performance level 1 (PL1).
-*   **cloud_essd2**: ESSDs of PL2.
-*   **cloud_essd3**: ESSD of PL3.
+*   **cloud_ssd**: SSD cloud disks. This storage medium is not recommended and is unavailable in specific Alibaba Cloud regions.
+*   **cloud_essd**: performance level 1 (PL1) Enterprise SSD (ESSD).
+*   **cloud_essd2**: PL2 ESSD.
+*   **cloud_essd3**: PL3 ESSD.
 
 To change the storage type, take note of the following items:
 
-If the instance runs PostgreSQL, you can upgrade the storage type of the instance from standard SSD to ESSD. However, you cannot downgrade the storage type of the instance from ESSD to standard SSD. ESSDs provide the following PLs: PL1, PL2, and PL3. You can upgrade or downgrade the storage type between ESSD of PL1, ESSD of PL2, and ESSD of PL3. For more information, see [Configuration items](https://help.aliyun.com/document_detail/96750.html).', example='local_ssd', position='Query'),
+If the instance runs PostgreSQL, you can upgrade the storage type of the instance from standard SSDs to ESSDs. However, you cannot downgrade the storage type of the instance from ESSDs to standard SSDs. ESSDs provide the following PLs: ESSDs of PL1, ESSDs of PL2, and ESSDs of PL3. You can upgrade or downgrade the storage type between ESSD of PL1, ESSD of PL2, and ESSD of PL3. For more information, see [Configuration items](https://help.aliyun.com/document_detail/96750.html).', example='local_ssd', position='Query'),
   dedicatedHostGroupId?: string(name='DedicatedHostGroupId', description='The ID of the dedicated cluster.', example='dhg-7a9********', position='Query'),
   direction?: string(name='Direction', description='The type of change that you want to perform on the instance. Valid values:
 
@@ -17840,95 +17919,95 @@ If the instance runs PostgreSQL, you can upgrade the storage type of the instanc
 *   **Serverless**: modifies the auto scaling settings of a serverless instance.
 
 >  If you specify only **DBInstanceStorageType**, you can leave Direction empty. For example, if you want to change only the storage type of the instance from standard SSD to Enterprise SSD (ESSD), you do not need to specify Direction.', example='Up', position='Query'),
-  effectiveTime?: string(name='EffectiveTime', description='The effective time. Valid values:
+  effectiveTime?: string(name='EffectiveTime', description='The time when the new specifications take effect. Valid values:
 
-*   **Immediate** (default): The effective time immediately takes effect.
-*   **MaintainTime**: The effective time is within the maintenance window. For more information, see ModifyDBInstanceMaintainTime.
-*   **ScheduleTime**: The effective time takes effect at the point in time that you specify. The value of ScheduleTime must be a specific point in time that is 12 hours later than the current time. In this case, The value of EffectiveTime is calculated by using the following formula: EffectiveTime = ScheduleTime + SwitchTime.', example='MaintainTime', position='Query'),
-  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance.
+>  **Specific changes may affect the instance**. Read the [Impact](https://help.aliyun.com/document_detail/96061.html) section before you specify this parameter. We recommend that you specify this parameter during off-peak hours.
 
-*   Regular instance
+*   **Immediate** (default): The changes immediately take effect.
+*   **MaintainTime**: The changes take effect during the [maintenance window](https://help.aliyun.com/document_detail/610402.html) of the instance.
+*   **ScheduleTime**: The changes take effect at the point in time that you specify. This time must be at least 12 hours later than the current time. The actual effective time is calculated based on the following formula: EffectiveTime = ScheduleTime + SwitchTime.', example='MaintainTime', position='Query'),
+  engineVersion?: string(name='EngineVersion', description='The database engine version of the instance. Valid values:
 
-    *   Valid values if you set the Engine parameter to MySQL: **5.5**, **5.6**, **5.7**, and **8.0**
-    *   Valid values if you set the Engine parameter to SQLServer: **2008r2**, **08r2_ent_ha**, **2012**, **2012_ent_ha**, **2012_std_ha**, **2012_web**, **2014_std_ha**, **2016_ent_ha**, **2016_std_ha**, **2016_web**, **2017_std_ha**, **2017_ent**, **2019_std_ha**, and **2019_ent**
-    *   Valid values if you set the Engine parameter to PostgreSQL: **10.0**, **11.0**, **12.0**, **13.0**, **14.0**, and **15.0**
-    *   Valid value if you set the Engine parameter to MariaDB: **10.3**
+**Regular RDS instances**
 
-*   Serverless instance
+*   Valid values when Engine is set to MySQL: 5.5, 5.6, 5.7, and 8.0.
+*   Valid values when Engine is set to SQLServer: 2008r2, 08r2_ent_ha, 2012, 2012_ent_ha, 2012_std_ha, 2012_web, 2014_std_ha, 2016_ent_ha, 2016_std_ha, 2016_web, 2017_std_ha, 2017_ent, 2019_std_ha, and 2019_ent.
+*   Valid values when Engine is set to PostgreSQL: 10.0, 11.0, 12.0, 13.0, 14.0, and 15.0.
+*   Valid value when Engine is set to MariaDB: 10.3.
 
-    *   Valid values if you set the Engine parameter to MySQL: **5.7** and **8.0**
-    *   Valid values if you set the Engine parameter to SQLServer: **2016_std_sl**, **2017_std_sl**, and **2019_std_sl**
-    *   Valid values if you set the Engine parameter to PostgreSQL: **14.0**, **15.0**, **16.0**
+**Serverless instances. ApsaraDB RDS for MariaDB does not support serverless instances.**
 
-> ApsaraDB RDS for MariaDB does not support serverless instances.', example='5.6', position='Query'),
+*   Valid values when Engine is set to MySQL: 5.7 and 8.0.
+*   Valid values when Engine is set to SQL Server: 2016_std_sl, 2017_std_sl, and 2019_std_sl.
+*   Valid values when Engine is set to PostgreSQL: 14.0, 15.0, and 16.0.', example='5.6', position='Query'),
   ioAccelerationEnabled?: string(name='IoAccelerationEnabled', description='A reserved parameter.', example='None', position='Query'),
-  optimizedWrites?: string(name='OptimizedWrites', description='Specifies whether to enable the write optimization feature.
+  optimizedWrites?: string(name='OptimizedWrites', description='Specifies whether to enable the write optimization feature for the ApsaraDB RDS for MySQL instance. For more information, see [Use the write optimization feature](https://help.aliyun.com/document_detail/2858761.html). Valid values:
 
 *   **optimized**: enables the feature.
-*   **none**: disables the feature.
-
->  For more information about the write optimization feature, see [Write optimization](https://help.aliyun.com/document_detail/2858761.html).', example='optimized', position='Query'),
+*   **none**: disables the feature.', example='optimized', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   payType?: string(name='PayType', description='The billing method of the instance. Valid values:
 
 *   **Postpaid**: pay-as-you-go.
 *   **Prepaid**: subscription.
-*   **Serverless**: serverless. This value is not supported for instances that run MariaDB. If you set the value to Serverless, you must specify the scaling range of computing resources, configure the automatic start and stop feature, and configure auto scaling policies for your serverless instance. For more information, see [Overview of serverless ApsaraDB RDS for MySQL instances](https://help.aliyun.com/document_detail/411291.html), [Overview of serverless ApsaraDB RDS for SQL Server instances](https://help.aliyun.com/document_detail/604344.html), and [Overview of serverless ApsaraDB RDS for PostgreSQL instances](https://help.aliyun.com/document_detail/607742.html).', example='Postpaid', position='Query'),
+*   **Serverless**: serverless. This value is not supported for ApsaraDB RDS for MariaDB instances.
+
+>  If you want to set this parameter to Serverless, **you must specify **AutoPause, MaxCapacity, MinCapacity, and SwitchForce. For more information, see [Overview of serverless ApsaraDB RDS for MySQL instances](https://help.aliyun.com/document_detail/411291.html), [Overview of serverless ApsaraDB RDS for SQL Server instances](https://help.aliyun.com/document_detail/604344.html), and [Overview of serverless ApsaraDB RDS for PostgreSQL instances](https://help.aliyun.com/document_detail/607742.html).', example='Postpaid', position='Query'),
   promotionCode?: string(name='PromotionCode', description='The coupon code.', example='723298850895', position='Query'),
-  readOnlyDBInstanceClass?: string(name='ReadOnlyDBInstanceClass', description='Target specifications for read-only instances when changing a MySQL high-availability local disk instance to a cloud disk.', example='mysqlro.n2.large.c', position='Query'),
+  readOnlyDBInstanceClass?: string(name='ReadOnlyDBInstanceClass', description='The specification of the read-only instance when you change the storage type of the ApsaraDB RDS for MySQL instance that runs RDS High-availability Edition from cloud disk to local disk.', example='mysqlro.n2.large.c', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmy**********', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   serverlessConfiguration?: {
-    autoPause?: boolean(name='AutoPause', description='Specifies whether to enable the automatic start and stop feature for the serverless instance. Valid values:
+    autoPause?: boolean(name='AutoPause', description='Specifies whether to enable the automatic start and stop feature for the serverless instance that runs MySQL or PostgreSQL. Valid values:
 
 *   **true**
 *   **false** (default)
 
-> This parameter is required only for serverless instances that run MySQL and PostgreSQL. After the automatic start and stop feature is enabled, if no connections to the instance are established within 10 minutes, the instance is suspended. After a connection to the instance is established, the instance is automatically resumed.', example='true'),
-    maxCapacity?: double(name='MaxCapacity', description='The maximum number of RDS Capacity Units (RCUs). Valid values:
+>  After the automatic start and stop feature is enabled, if no connections to the instance are established within 10 minutes, the instance is suspended. After a connection to the instance is established, the instance is automatically resumed.', example='true'),
+    maxCapacity?: double(name='MaxCapacity', description='The **maximum** number of RDS Capacity Units (RCUs). Valid values:
 
 *   Serverless ApsaraDB RDS for MySQL instances: **1 to 32**
-*   Serverless ApsaraDB RDS for SQL Server instances: **2 to 8**
+*   Serverless ApsaraDB RDS for SQL Server instances: **2 to 16**. Only integers are supported.
 *   Serverless ApsaraDB RDS for PostgreSQL instances: **1 to 14**
 
-> 
-
-*   The value of this parameter must be greater than or equal to the value of **MinCapacity** and can be specified only to an **integer**.', example='8'),
-    minCapacity?: double(name='MinCapacity', description='The minimum number of RCUs. Valid values:
+>  The value of this parameter must be greater than or equal to the value of **MinCapacity**.', example='8'),
+    minCapacity?: double(name='MinCapacity', description='The minimum number of RCUs. Valid values:****
 
 *   Serverless ApsaraDB RDS for MySQL instances: **0.5 to 32**.
 *   Serverless ApsaraDB RDS for SQL Server instances: **2 to 8**. Only integers are supported.
 *   Serverless ApsaraDB RDS for PostgreSQL instances: **0.5 to 14**.
 
-> 
-
-*   The value of this parameter must be less than or equal to the value of MaxCapacity.', example='0.5'),
-    switchForce?: boolean(name='SwitchForce', description='Specifies whether to enable the forced scaling feature for the serverless instance. Valid values:
+>  The value of this parameter must be less than or equal to the value of MaxCapacity.', example='0.5'),
+    switchForce?: boolean(name='SwitchForce', description='Specifies whether to enable the forceful scaling feature for the serverless instance that runs MySQL or PostgreSQL. Valid values:
 
 *   **true**
 *   **false** (default)
 
-> *   This parameter is required only for serverless instances that run MySQL and PostgreSQL. If you set this parameter to true, a service interruption that lasts 30 to 120 seconds occurs during forced scaling. Process with caution.
-> *   The RCU scaling for a serverless instance immediately takes effect. In some cases, such as the execution of large transactions, the scaling does not immediately take effect. In this case, you can enable this feature to forcefully scale the RCUs of the instance.', example='false'),
+> 
+
+*   If you set this parameter to true, **a service interruption that lasts 30 to 120 seconds occurs during forced scaling**. Process with caution.
+
+*   The RCU scaling for a serverless instance immediately takes effect. In some cases, such as the execution of large transactions, the scaling does not immediately take effect. In this case, you can enable this feature to forcefully scale the RCUs of the instance.', example='false'),
   }(name='ServerlessConfiguration', description='The specifications that you want to change for a serverless instance.', shrink='json', position='Query'),
   sourceBiz?: string(name='SourceBiz', description='A deprecated parameter. You do not need to specify this parameter.', example='Specifies whether to enable the automatic suspension feature.', position='Query'),
-  switchTime?: string(name='SwitchTime', description='The response parameters.', example='2019-07-10T13:15:12Z', position='Query'),
-  targetMinorVersion?: string(name='TargetMinorVersion', description='The number of the minor version.
+  switchTime?: string(name='SwitchTime', description='The time at which you want to change the specifications. **We recommend that you perform the specification changes during off-peak hours.**
 
-This parameter is required only for instances that run PostgreSQL. If the minor engine version does not support changing the instance type, you must specify the minor engine version to update the minor engine version when you change the instance type.
+Specify the time in the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.
 
-Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example: `rds_postgres_1200_20200830`.
+> *   The time at which you want to change the specifications **must be later than the current time**. Otherwise, the specification change task fails. If the specification change task fails, you must wait for the order to be automatically canceled, and then call this operation again.
+> *   If you want to increase the storage capacity or change the ESSD storage type between different PLs, the specification change immediately takes effect and does not affect your workloads. You do not need to specify this parameter.', example='2019-07-10T13:15:12Z', position='Query'),
+  targetMinorVersion?: string(name='TargetMinorVersion', description='The minor engine version number of the ApsaraDB RDS for PostgreSQL instance. For more information, see [Update the minor engine version](https://help.aliyun.com/document_detail/126002.html). If the minor engine version does not support changing the instance type, you must specify the minor engine version to **update the minor engine version when you change the instance type**.
 
->  For more information about minor engine versions, see [Release notes for AliPG](https://help.aliyun.com/document_detail/126002.html).', example='rds_postgres_1200_20200830', position='Query'),
-  usedTime?: long(name='UsedTime', description='The ID of the order.', example='3', position='Query'),
+Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. For example, if the instance runs PostgreSQL 12, set this parameter to `rds_postgres_1200_20200830`.', example='rds_postgres_1200_20200830', position='Query'),
+  usedTime?: long(name='UsedTime', description='The validity period of the specification changes on an ApsaraDB RDS for SQL Server instance. At the end of the validity period, the specifications of the instance are restored to the specifications that are used before an [elastic upgrade](https://help.aliyun.com/document_detail/95665.html) is performed. Unit: days.', example='3', position='Query'),
   vSwitchId?: string(name='VSwitchId', description='The vSwitch ID. The vSwitch must belong to the zone that is specified by **ZoneId**.
 
 *   If you set **InstanceNetworkType** to **VPC**, you must also specify this parameter.
 *   If you specify ZoneSlaveId1, you must specify the IDs of two vSwitches for this parameter and separate the IDs with a comma (,).
 
-> When you upgrade the major engine version, if you want to specify a vSwitch or change the vSwitch for the RDS instance, you must also specify this parameter.', example='vsw-bp1oxflciovg9l7163lr7', position='Query'),
+>  If you want to upgrade the major engine version of an ApsaraDB RDS for SQL Server instance by specifying AllowMajorVersionUpgrade or change the vSwitch, you must specify this parameter.', example='vsw-bp1oxflciovg9l7163lr7', position='Query'),
   zoneId?: string(name='ZoneId', description='The RDS edition of the instance. Valid values:
 
 *   **Basic**: RDS Basic Edition.
@@ -17937,9 +18016,9 @@ Format: `rds_postgres_<Major engine version>00_<Minor engine version>`. Example:
 *   **Finance**: RDS Enterprise Edition. This edition is available only on the China site (aliyun.com).
 
 > If you set **EngineVersion** to an SQL Server version number, you must also specify this parameter.', example='cn-hangzhou-b', position='Query'),
-  zoneIdSlave1?: string(name='ZoneIdSlave1', description='The zone ID of the secondary instance. If you set this parameter to the same value as the **ZoneId** parameter, the single-zone deployment method is used. If you set this parameter to a different value from the **ZoneId** parameter, the multi-zone deployment method is used.
+  zoneIdSlave1?: string(name='ZoneIdSlave1', description='The zone ID of the secondary instance. If you set this parameter to the same value as **ZoneId**, the single-zone deployment method is used. If you set this parameter to a different value from **ZoneId**, the multi-zone deployment method is used.
 
-> If you must specify a secondary zone or change the secondary zone to upgrade the major engine version of an ApsaraDB RDS for SQL Server instance, you must also specify this parameter.', example='cn-hangzhou-c', position='Query'),
+>  If you want to upgrade the major engine version of an ApsaraDB RDS for SQL Server instance by specifying AllowMajorVersionUpgrade or change the secondary zone, you must specify this parameter.', example='cn-hangzhou-c', position='Query'),
 }
 
 model ModifyDBInstanceSpecResponseBody = {
@@ -17955,13 +18034,14 @@ model ModifyDBInstanceSpecResponse = {
 }
 
 /**
-  * @description ### Supported database engines
+  * @description ### [](#)Supported database engines
   * *   MySQL
   * *   PostgreSQL
   * *   SQL Server
   * *   MariaDB
-  * ### References
-  * > Fees are generated if the call is successful. Before you call this operation, carefully read the following documentation:
+  * ### [](#)Billing details
+  * [Fees for specification changes](https://help.aliyun.com/document_detail/57178.html) are generated if the call is successful. Before you call this operation, carefully read the following topics.
+  * ### [](#)References
   * *   [Change the specifications of an ApsaraDB RDS for MySQL instance](https://help.aliyun.com/document_detail/96061.html)
   * *   [Change the specifications of an ApsaraDB RDS for PostgreSQL instance](https://help.aliyun.com/document_detail/96750.html)
   * *   [Change the specifications of an ApsaraDB RDS for SQL Server instance](https://help.aliyun.com/document_detail/95665.html)
@@ -18159,9 +18239,9 @@ This parameter is required.', example='rm-uf6wjk5xxxxxxx', position='Query'),
 >  This parameter is required when you configure the **DBProxyNodes** parameter.', example='cn-hagnzhou-c'),
     }
   ](name='DBProxyNodes', description='The proxy nodes.', shrink='json', position='Query'),
-  instanceNetworkType?: string(name='InstanceNetworkType', description='The network type of the instance. Set the value to **VPC**.
+  instanceNetworkType?: string(name='InstanceNetworkType', description='The network type of the instance. Only the VPC network type is supported. Set the value to **VPC**.
 
-> This parameter is required if you enable the database proxy feature for an ApsaraDB RDS for MySQL instance that uses cloud disks or an ApsaraDB RDS for PostgreSQL instance.', example='VPC', position='Query'),
+>  If you enable the database proxy feature for the instance, you must specify this parameter.', example='VPC', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   persistentConnectionStatus?: string(name='PersistentConnectionStatus', description='Specifies whether to enable persistent connections. Valid values:
 
@@ -18177,12 +18257,12 @@ This parameter is required.', example='rm-uf6wjk5xxxxxxx', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmy*****', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
-  VPCId?: string(name='VPCId', description='The ID of the virtual private cloud (VPC) to which the instance belongs. You can call the DescribeDBInstanceAttribute operation to query the VPC ID.
+  VPCId?: string(name='VPCId', description='The ID of the virtual private cloud (VPC) to which the instance belongs. You can call the DescribeDBInstanceAttribute operation to query the ID.
 
->  This parameter is required if you enable the database proxy feature for an ApsaraDB RDS for MySQL instance that uses cloud disks or an ApsaraDB RDS for PostgreSQL instance.', example='vpc-xxxxxxxxxxxx', position='Query'),
-  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the instance. You can call the DescribeDBInstanceAttribute operation to query the vSwitch ID.
+>  If you enable the database proxy feature for the instance, you must specify this parameter.', example='vpc-xxxxxxxxxxxx', position='Query'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which the instance belongs. You can call the DescribeDBInstanceAttribute operation to query the ID.
 
->  This parameter is required if you enable the database proxy feature for an ApsaraDB RDS for MySQL instance that uses cloud disks or an ApsaraDB RDS for PostgreSQL instance.', example='vsw-xxxxxxxxxxxx', position='Query'),
+>  If you enable the database proxy feature for the instance, you must specify this parameter.', example='vsw-xxxxxxxxxxxx', position='Query'),
 }
 
 model ModifyDBProxyResponseBody = {
@@ -18330,13 +18410,10 @@ model ModifyDBProxyEndpointAddressRequest {
 This parameter is required.', example='rm-t4n3a****', position='Query'),
   DBProxyConnectStringNetType?: string(name='DBProxyConnectStringNetType', description='The network type of the database proxy endpoint. Valid values:
 
-*   **Public**: Internet
-*   **VPC**: virtual private cloud (VPC)
-*   **Classic**: classic network
+*   **Public**
+*   **VPC** (default)
 
-If the instance runs MySQL, the default value is **Classic**.
-
->  If the instance runs PostgreSQL, you must set this parameter to **Public** or **VPC**.', example='Public', position='Query'),
+>  If the RDS instance runs MySQL, this parameter is required.', example='Public', position='Query'),
   DBProxyEndpointId: string(name='DBProxyEndpointId', description='The ID of the database proxy endpoint. You can call the DescribeDBProxyEndpoint operation to query the ID of the database proxy endpoint.
 
 This parameter is required.', example='ta9um4****', position='Query'),
@@ -19188,6 +19265,35 @@ async function modifyParameterGroup(request: ModifyParameterGroupRequest): Modif
   return @handler.do('RPC', 'ModifyParameterGroup', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyRCDiskSpecRequest {
+  autoPay?: boolean(name='AutoPay', example='true', position='Query'),
+  diskCategory?: string(name='DiskCategory', example='cloud_essd', position='Query'),
+  diskId?: string(name='DiskId', example='rcd-wz9f3peueu5npsl****', position='Query'),
+  dryRun?: boolean(name='DryRun', example='false', position='Query'),
+  performanceLevel?: string(name='PerformanceLevel', example='PL2', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
+}
+
+model ModifyRCDiskSpecResponseBody = {
+  orderId?: long(name='OrderId', example='245053924720608'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model ModifyRCDiskSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyRCDiskSpecResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyRCDiskSpec  ModifyRCDiskSpecRequest
+  * @return ModifyRCDiskSpecResponse
+ */
+async function modifyRCDiskSpec(request: ModifyRCDiskSpecRequest): ModifyRCDiskSpecResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyRCDiskSpec', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ModifyRCInstanceRequest {
   autoPay?: boolean(name='AutoPay', description='Specifies whether to enable the automatic payment feature. Valid values:
 
@@ -19272,36 +19378,36 @@ async function modifyRCInstanceAttribute(request: ModifyRCInstanceAttributeReque
 }
 
 model ModifyRCInstanceChargeTypeRequest {
-  autoPay?: boolean(name='AutoPay', position='Query'),
-  autoRenew?: string(name='AutoRenew', position='Query'),
-  autoUseCoupon?: boolean(name='AutoUseCoupon', position='Query'),
-  businessInfo?: string(name='BusinessInfo', position='Query'),
-  clientToken?: string(name='ClientToken', position='Query'),
-  dryRun?: boolean(name='DryRun', position='Query'),
-  includeDataDisks?: boolean(name='IncludeDataDisks', position='Query'),
-  instanceChargeType?: string(name='InstanceChargeType', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', position='Query'),
-  instanceIds?: string(name='InstanceIds', position='Query'),
-  payType: string(name='PayType', description='This parameter is required.', position='Query'),
-  period?: string(name='Period', position='Query'),
-  promotionCode?: string(name='PromotionCode', position='Query'),
-  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
-  usedTime?: int32(name='UsedTime', position='Query'),
+  autoPay?: boolean(name='AutoPay', example='None', position='Query'),
+  autoRenew?: string(name='AutoRenew', example='true', position='Query'),
+  autoUseCoupon?: boolean(name='AutoUseCoupon', example='true', position='Query'),
+  businessInfo?: string(name='BusinessInfo', example='None', position='Query'),
+  clientToken?: string(name='ClientToken', example='ETnLKlblzczshOTUbOC****', position='Query'),
+  dryRun?: boolean(name='DryRun', example='None', position='Query'),
+  includeDataDisks?: boolean(name='IncludeDataDisks', example='None', position='Query'),
+  instanceChargeType?: string(name='InstanceChargeType', example='None', position='Query'),
+  instanceId: string(name='InstanceId', description='This parameter is required.', example='rc-dh2jf9n6j4s14926****', position='Query'),
+  instanceIds?: string(name='InstanceIds', example='None', position='Query'),
+  payType: string(name='PayType', description='This parameter is required.', example='Postpaid', position='Query'),
+  period?: string(name='Period', example='Month', position='Query'),
+  promotionCode?: string(name='PromotionCode', example='72802442****', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
+  usedTime?: int32(name='UsedTime', example='2', position='Query'),
 }
 
 model ModifyRCInstanceChargeTypeResponseBody = {
-  chargeType?: string(name='ChargeType'),
+  chargeType?: string(name='ChargeType', example='POSTPAY'),
   expiredTime?: [ string ](name='ExpiredTime'),
   feeOfInstances?: [ 
     {
-      currency?: string(name='Currency'),
-      fee?: string(name='Fee'),
-      instanceId?: string(name='InstanceId'),
+      currency?: string(name='Currency', example='None'),
+      fee?: string(name='Fee', example='None'),
+      instanceId?: string(name='InstanceId', example='None'),
     }
   ](name='FeeOfInstances'),
   instanceIds?: [ string ](name='InstanceIds'),
-  orderId?: string(name='OrderId'),
-  requestId?: string(name='RequestId'),
+  orderId?: string(name='OrderId', example='2133400000****'),
+  requestId?: string(name='RequestId', example='6EF82B07-28D2-48D1-B5D6-7E78FED277C7'),
 }
 
 model ModifyRCInstanceChargeTypeResponse = {
@@ -20209,14 +20315,17 @@ async function rebootRCInstance(request: RebootRCInstanceRequest): RebootRCInsta
 }
 
 model RebootRCInstancesRequest {
-  batchOptimization?: string(name='BatchOptimization', position='Query'),
-  forceReboot?: boolean(name='ForceReboot', position='Query'),
-  instanceIds?: [ string ](name='InstanceIds', shrink='json', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  batchOptimization?: string(name='BatchOptimization', description='The batch operation mode. Set the value to **AllTogether**. In this mode, if all specified instances are restarted, a success message is returned. If an instance fails the verification, none of the specified instances can be restarted and an error message is returned.', example='AllTogether', position='Query'),
+  forceReboot?: boolean(name='ForceReboot', description='Specifies whether to forcefully restart the instance. Valid values:
+
+*   **true**
+*   **false** (default)', example='false', position='Query'),
+  instanceIds?: [ string ](name='InstanceIds', description='The node IDs.', shrink='json', position='Query'),
+  regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/26243.html) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
 }
 
 model RebootRCInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', description='The request ID.', example='32A5B40E-50DA-5166-9B22-35F00C5D1BC6'),
 }
 
 model RebootRCInstancesResponse = {
@@ -20226,6 +20335,8 @@ model RebootRCInstancesResponse = {
 }
 
 /**
+  * @description ### [](#)Supported database engine
+  * SQL Server
   * @param request  the request parameters of RebootRCInstances  RebootRCInstancesRequest
   * @return RebootRCInstancesResponse
  */
@@ -21411,13 +21522,13 @@ async function startRCInstance(request: StartRCInstanceRequest): StartRCInstance
 }
 
 model StartRCInstancesRequest {
-  batchOptimization?: string(name='BatchOptimization', position='Query'),
+  batchOptimization?: string(name='BatchOptimization', example='AllTogether', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', shrink='json', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model StartRCInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='847BA085-B377-4BFA-8267-F82345ECE1D2'),
 }
 
 model StartRCInstancesResponse = {
@@ -21504,14 +21615,14 @@ async function stopRCInstance(request: StopRCInstanceRequest): StopRCInstanceRes
 }
 
 model StopRCInstancesRequest {
-  batchOptimization?: string(name='BatchOptimization', position='Query'),
-  forceStop?: boolean(name='ForceStop', position='Query'),
+  batchOptimization?: string(name='BatchOptimization', example='AllTogether', position='Query'),
+  forceStop?: boolean(name='ForceStop', example='false', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', shrink='json', position='Query'),
-  regionId?: string(name='RegionId', position='Query'),
+  regionId?: string(name='RegionId', example='cn-hangzhou', position='Query'),
 }
 
 model StopRCInstancesResponseBody = {
-  requestId?: string(name='RequestId'),
+  requestId?: string(name='RequestId', example='481BC3B1-7069-5D37-9B6C-21757F8F9FB1'),
 }
 
 model StopRCInstancesResponse = {
@@ -21685,17 +21796,23 @@ async function switchDBInstanceVpc(request: SwitchDBInstanceVpcRequest): SwitchD
 }
 
 model SwitchReplicationLinkRequest {
-  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='rm-2zecuz9tolf******', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='The ID of the source or primary instance.
+
+This parameter is required.', example='rm-2zecuz9tolf******', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  targetInstanceName: string(name='TargetInstanceName', description='This parameter is required.', example='rm-t4neh0q12v1******', position='Query'),
-  targetInstanceRegionId: string(name='TargetInstanceRegionId', description='This parameter is required.', example='ap-southeast-1', position='Query'),
+  targetInstanceName: string(name='TargetInstanceName', description='The name of the destination DR instance.
+
+This parameter is required.', example='rm-t4neh0q12v1******', position='Query'),
+  targetInstanceRegionId: string(name='TargetInstanceRegionId', description='The ID of the region in which the destination DR instance resides.
+
+This parameter is required.', example='ap-southeast-1', position='Query'),
 }
 
 model SwitchReplicationLinkResponseBody = {
-  DBInstanceId?: string(name='DBInstanceId', example='135****'),
-  requestId?: string(name='RequestId', example='2F2DD69B-90AF-1E72-923C-87575658A9D9'),
-  taskId?: long(name='TaskId', example='159****'),
-  taskName?: string(name='TaskName', example='zbtest'),
+  DBInstanceId?: string(name='DBInstanceId', description='The ID of the DR instance.', example='135****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='2F2DD69B-90AF-1E72-923C-87575658A9D9'),
+  taskId?: long(name='TaskId', description='The task ID.', example='159****'),
+  taskName?: string(name='TaskName', description='The task name.', example='zbtest'),
 }
 
 model SwitchReplicationLinkResponse = {
@@ -21705,6 +21822,8 @@ model SwitchReplicationLinkResponse = {
 }
 
 /**
+  * @description ### [](#)Supported database engine
+  * SQL Server
   * @param request  the request parameters of SwitchReplicationLink  SwitchReplicationLinkRequest
   * @return SwitchReplicationLinkResponse
  */
