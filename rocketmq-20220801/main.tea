@@ -32,32 +32,36 @@ model DataTopicLagMapValue = {
   readyCount?: long(name='readyCount', description='Ready message count', example='1'),
   inflightCount?: long(name='inflightCount', description='The number of messages being consumed.', example='1'),
   deliveryDuration?: long(name='deliveryDuration', description='Delivery delay time, in seconds', example='12'),
-  lastConsumeTimestamp?: long(name='lastConsumeTimestamp'),
+  lastConsumeTimestamp?: long(name='lastConsumeTimestamp', description='lastConsumeTimestamp', example='1735629607846'),
 }
 
 model AddDisasterRecoveryItemRequest {
   topics?: [ 
     {
-      consumerGroupId?: string(name='consumerGroupId'),
-      deliveryOrderType?: string(name='deliveryOrderType'),
-      instanceId?: string(name='instanceId'),
-      instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
-      regionId?: string(name='regionId', description='regionId', example='cn-hangzhou'),
-      topicName?: string(name='topicName'),
+      consumerGroupId?: string(name='consumerGroupId', description='Consumer group ID, required for ACTIVE_ACTIVE bidirectional backup', example='GID_xxx'),
+      deliveryOrderType?: string(name='deliveryOrderType', description='The order in which messages are delivered to the target instance. The parameter values ​​are as follows:
+  - Concurrently: concurrent delivery
+  - Orderly: sequential delivery', example='Concurrently'),
+      instanceId?: string(name='instanceId', description='Instance ID, an instance ID will be automatically generated when `instanceType` is `EXTERNAL_ROCKETMQ`, and it can be obtained by querying the backup plan.', example='rmq-cn-em93y94xxx'),
+      instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+      regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
+      topicName?: string(name='topicName', description='Disaster recovery topic name, required', example='Topic_xxx'),
     }
-  ](name='topics'),
+  ](name='topics', description='Topics included in the backup mapping. Required.'),
 }
 
 model AddDisasterRecoveryItemResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: long(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Access denied details, only in the scenario where the user is denied access due to RAM not having permission', example='xxx'),
+  code?: string(name='code', description='Error code', example='200'),
+  data?: long(name='data', description='Return result, mapping task ID', example='1300000016'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='xxx'),
+  requestId?: string(name='requestId', description='Request ID', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model AddDisasterRecoveryItemResponse = {
@@ -67,7 +71,7 @@ model AddDisasterRecoveryItemResponse = {
 }
 
 /**
- * @summary 添加容灾计划条目
+ * @summary Add Disaster Recovery Plan Entry
  *
  * @param request AddDisasterRecoveryItemRequest
  * @param headers map
@@ -104,7 +108,7 @@ async function addDisasterRecoveryItemWithOptions(planId: string, request: AddDi
 }
 
 /**
- * @summary 添加容灾计划条目
+ * @summary Add Disaster Recovery Plan Entry
  *
  * @param request AddDisasterRecoveryItemRequest
  * @return AddDisasterRecoveryItemResponse
@@ -223,19 +227,14 @@ Valid values:
 *   DefaultRetryPolicy: Failed messages are retried at incremental intervals as the number of retries increases.
 
 This parameter is required.', example='DefaultRetryPolicy'),
-  }(name='consumeRetryPolicy', description='The consumption retry policy that you want to configure for the consumer group. For more information, see [Consumption retry](https://help.aliyun.com/document_detail/440356.html).
+  }(name='consumeRetryPolicy', description='consume retry policy
 
 This parameter is required.'),
-  deliveryOrderType?: string(name='deliveryOrderType', description='The message delivery order of the consumer group.
-
-Valid values:
-
-*   Concurrently: concurrent delivery
-*   Orderly: ordered delivery
+  deliveryOrderType?: string(name='deliveryOrderType', description='The dynamic error message.
 
 This parameter is required.', example='Concurrently'),
-  maxReceiveTps?: long(name='maxReceiveTps'),
-  remark?: string(name='remark', description='The remarks on the consumer group.', example='This is the remark for test.'),
+  maxReceiveTps?: long(name='maxReceiveTps', description='Maximum received message tps', example='300'),
+  remark?: string(name='remark', description='The HTTP status code.', example='This is the remark for test.'),
 }
 
 model CreateConsumerGroupResponseBody = {
@@ -245,8 +244,8 @@ model CreateConsumerGroupResponseBody = {
   dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='consumerGroupId'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
   message?: string(name='message', description='The error message.', example='Parameter consumerGroupId is invalid.'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+  requestId?: string(name='requestId', description='The request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model CreateConsumerGroupResponse = {
@@ -258,7 +257,11 @@ model CreateConsumerGroupResponse = {
 /**
  * @summary Creates a consumer group.
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description The ID of the consumer group. The ID is globally unique and is used to identify a consumer group.
+ * The following limits are imposed on the ID:
+ * *   Character limit: The ID can contain letters, digits, underscores (_), hyphens (-), and percent signs (%).
+ * *   Length limit: The ID must be 1 to 60 characters in length.
+ * For more information about strings that are reserved for the system, see [Limits on parameters](https://help.aliyun.com/document_detail/440347.html).
  *
  * @param request CreateConsumerGroupRequest
  * @param headers map
@@ -306,7 +309,11 @@ async function createConsumerGroupWithOptions(instanceId: string, consumerGroupI
 /**
  * @summary Creates a consumer group.
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description The ID of the consumer group. The ID is globally unique and is used to identify a consumer group.
+ * The following limits are imposed on the ID:
+ * *   Character limit: The ID can contain letters, digits, underscores (_), hyphens (-), and percent signs (%).
+ * *   Length limit: The ID must be 1 to 60 characters in length.
+ * For more information about strings that are reserved for the system, see [Limits on parameters](https://help.aliyun.com/document_detail/440347.html).
  *
  * @param request CreateConsumerGroupRequest
  * @return CreateConsumerGroupResponse
@@ -318,43 +325,57 @@ async function createConsumerGroup(instanceId: string, consumerGroupId: string, 
 }
 
 model CreateDisasterRecoveryPlanRequest {
-  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint'),
+  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.
+
+> This is effective only when consumption progress synchronization is enabled, i.e., the value of `syncCheckpointEnabled` is true.', example='true'),
   instances?: [ 
     {
-      authType?: string(name='authType', example='ACL_AUTH'),
-      endpointUrl?: string(name='endpointUrl'),
-      instanceId?: string(name='instanceId', example='rmq-cn-******'),
-      instanceRole?: string(name='instanceRole', example='PASSIVE'),
-      instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
+      authType?: string(name='authType', description='Authentication method. Not required for instanceType of ALIYUN_ROCKETMQ and version 4.0
+  - NO_AUTH: No authentication required
+  - ACL_AUTH: ACL authentication', example='ACL_AUTH'),
+      endpointUrl?: string(name='endpointUrl', description='Endpoint URL, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ', example='xxx'),
+      instanceId?: string(name='instanceId', description='Instance ID, not required for instanceType of EXTERNAL_ROCKETMQ, but required for ALIYUN_ROCKETMQ', example='rmq-cn-******'),
+      instanceRole?: string(name='instanceRole', description='Instance role, either primary or secondary
+  - ACTIVE: Primary
+  - PASSIVE: Secondary', example='PASSIVE'),
+      instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
       messageProperty?: {
-        propertyKey?: string(name='propertyKey', example='aaa'),
-        propertyValue?: string(name='propertyValue', example='bbb'),
-      }(name='messageProperty'),
-      networkType?: string(name='networkType', example='TCP_INTERNET'),
-      password?: string(name='password'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      securityGroupId?: string(name='securityGroupId', example='sg-bp17hpmgz9******'),
-      username?: string(name='username'),
-      vSwitchId?: string(name='vSwitchId', example='vsw-uf6gwtbn6etadpv******'),
-      vpcId?: string(name='vpcId', example='vpc-wz9qt50xhtj9krb******'),
+        propertyKey?: string(name='propertyKey', description='Property key', example='aaa'),
+        propertyValue?: string(name='propertyValue', description='Property value', example='bbb'),
+      }(name='messageProperty', description='Message filtering properties. When messages are synchronized to the target cluster, this property will be automatically added for SQL filtering during message consumption.'),
+      networkType?: string(name='networkType', description='Network type, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ
+Parameter values are as follows:
+  - TCP_INTERNET: TCP public network
+  - TCP_VPC: TCP VPC (Virtual Private Cloud)', example='TCP_INTERNET'),
+      password?: string(name='password', description='Authentication password, required when authType is ACL_AUTH. Not required for instanceType of ALIYUN_ROCKETMQ', example='xxx'),
+      regionId?: string(name='regionId', description='Region where the instance is located', example='cn-hangzhou'),
+      securityGroupId?: string(name='securityGroupId', description='Security group ID, required only when the `instanceType` is EXTERNAL_ROCKETMQ and `networkType` is TCP_VPC.', example='sg-bp17hpmgz9******'),
+      username?: string(name='username', description='Authentication username, required when authType is ACL_AUTH', example='xxx'),
+      vSwitchId?: string(name='vSwitchId', description='The ID of the switch associated with the instance, required only when the `instanceType` is EXTERNAL_ROCKETMQ and `networkType` is TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
+      vpcId?: string(name='vpcId', description='The ID of the private network associated with the created instance. The instanceType instance type is only EXTERNAL_ROCKETMQ. It is required when the networkType is TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
     }
-  ](name='instances'),
-  planDesc?: string(name='planDesc'),
-  planName?: string(name='planName'),
-  planType?: string(name='planType', example='ACTIVE_ACTIVE'),
-  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled'),
+  ](name='instances', description='Instances involved in the backup plan. Required'),
+  planDesc?: string(name='planDesc', description='Plan description', example='xxx'),
+  planName?: string(name='planName', description='Plan name, required', example='xxx'),
+  planType?: string(name='planType', description='Backup plan type, required. Please refer to the [documentation](https://help.aliyun.com/document_detail/2843187.html).
+Parameter values are as follows:
+  - ACTIVE_PASSIVE: One-way backup
+  - ACTIVE_ACTIVE: Two-way backup', example='ACTIVE_ACTIVE'),
+  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
 }
 
 model CreateDisasterRecoveryPlanResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: long(name='data', example='1234'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Access denied details, provided only in scenarios where access is denied due to lack of RAM permissions', example='xxx'),
+  code?: string(name='code', description='Error code', example='200'),
+  data?: long(name='data', description='The result, which is the backup plan ID', example='1234'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='xxx'),
+  requestId?: string(name='requestId', description='Request ID', example='C7E8AE3A-219B-52EE-BE32-4036F5xxxx'),
+  success?: boolean(name='success', description='Indicates whether the operation was successful', example='true'),
 }
 
 model CreateDisasterRecoveryPlanResponse = {
@@ -364,7 +385,7 @@ model CreateDisasterRecoveryPlanResponse = {
 }
 
 /**
- * @summary 创建容灾计划
+ * @summary Create Disaster Recovery Plan
  *
  * @param request CreateDisasterRecoveryPlanRequest
  * @param headers map
@@ -416,7 +437,7 @@ async function createDisasterRecoveryPlanWithOptions(request: CreateDisasterReco
 }
 
 /**
- * @summary 创建容灾计划
+ * @summary Create Disaster Recovery Plan
  *
  * @param request CreateDisasterRecoveryPlanRequest
  * @return CreateDisasterRecoveryPlanResponse
@@ -440,7 +461,9 @@ Valid values:
   commodityCode?: string(name='commodityCode', description='The commodity code. Valid values:
 
 *   ons_rmqpost_public_intl: pay-as-you-go
-*   ons_rmqsub_public_intl: subscription', example='ons_ rmqpost_public_cn'),
+*   ons_rmqsub_public_intl: subscription
+*   ons_rmqsrvlesspost_public_intl: serverless instance
+serverless instance requires this parameter', example='ons_ rmqpost_public_cn'),
   instanceName?: string(name='instanceName', description='The name of the instance that you want to create.
 
 If you leave this parameter empty, the instance ID is used as the instance name.', example='rmq-cn-72u3048uxxx'),
@@ -451,13 +474,13 @@ If you leave this parameter empty, the instance ID is used as the instance name.
 This parameter is required only if you set flowOutType to payByBandwidth.
 
 Valid values: 1 to 1000.', example='100'),
-      flowOutType?: string(name='flowOutType', description='The billing method of Internet usage.
+      flowOutType?: string(name='flowOutType', description='The metering method of Internet usage.
 
 Valid values:
 
 *   payByBandwidth: pay-by-bandwidth. This value is valid only if you enable Internet access.
 *   payByTraffic: pay-by-traffic. This value is valid only if you enable Internet access.
-*   uninvolved: No billing method is involved. This value is valid only if you disable Internet access.
+*   uninvolved: No metering method is involved. This value is valid only if you disable Internet access.
 
 This parameter is required.', example='uninvolved'),
       internetSpec?: string(name='internetSpec', description='Specifies whether to enable the Internet access feature.
@@ -470,10 +493,10 @@ Valid values:
 By default, ApsaraMQ for RocketMQ allows you to access instances in VPCs. If you enable Internet access for an instance, you can access the instance over the Internet. After you enable this feature, you are charged for outbound Internet traffic. For more information, see [Internet access fees](https://help.aliyun.com/document_detail/427240.html).
 
 This parameter is required.', example='disable'),
-      ipWhitelist?: [ string ](name='ipWhitelist', description='The whitelist that includes the IP addresses that are allowed to access the ApsaraMQ for RocketMQ broker over the Internet. This parameter can be configured only if you use the public endpoint to access the instance.
+      ipWhitelist?: [ string ](name='ipWhitelist', description='The whitelist that includes the CIDR blocks that are allowed to access the ApsaraMQ for RocketMQ broker over the Internet. This parameter can be configured only if you use the public endpoint to access the instance.
 
 *   If you do not configure an IP address whitelist, all CIDR blocks are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.
-*   If you configure an IP address whitelist, only the IP addresses in the whitelist are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.', deprecated=true),
+*   If you configure an IP address whitelist, only the CIDR blocks in the whitelist are allowed to access the ApsaraMQ for RocketMQ broker over the Internet.', deprecated=true),
     }(name='internetInfo', description='The Internet-related configurations.
 
 This parameter is required.'),
@@ -550,11 +573,11 @@ This parameter is required.', example='rmq.s2.2xlarge'),
 For example, if the maximum messaging TPS of an instance is 1,000 and the ratio of the message sending TPS to the messaging TPS of the instance is 0.8, the maximum message sending TPS of the instance is 800 and the maximum message receiving TPS is 200.
 
 Valid values: 0 to 1. Default value: 0.5.', example='0.5'),
-    storageEncryption?: boolean(name='storageEncryption', description='Indicates whether storage encryption is enabled.', example='false'),
-    storageSecretKey?: string(name='storageSecretKey', description='The storage encryption key.', example='xxx'),
-  }(name='productInfo', description='The information about the instance specifications.'),
+    storageEncryption?: boolean(name='storageEncryption', description='Specifies whether to enable the encryption at rest feature.', example='false'),
+    storageSecretKey?: string(name='storageSecretKey', description='The key for encryption at rest.', example='xxx'),
+  }(name='productInfo', description='The information about instance specifications.'),
   remark?: string(name='remark', description='The instance description.', example='This is the remark for test.'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzy6pist7uuna'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-aekzy6pist7uuna'),
   seriesCode?: string(name='seriesCode', description='The primary edition of the instance. For information about the differences among primary edition instances, see [Instance selection](https://help.aliyun.com/document_detail/444722.html).
 
 Valid values:
@@ -590,10 +613,10 @@ Valid values:
 This parameter is required.', example='cluster_ha'),
   tags?: [ 
     {
-      key?: string(name='key'),
-      value?: string(name='value'),
+      key?: string(name='key', description='The `key` of the tag.', example='aaa'),
+      value?: string(name='value', description='The `value` of the tag.', example='bbb'),
     }
-  ](name='tags'),
+  ](name='tags', description='The tags that you want to add to the instance.'),
   clientToken?: string(name='clientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the value of this parameter, but you must ensure that the value is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='c2c5d1274a8d4317a13bc5b0d4******'),
 }
 
@@ -984,29 +1007,29 @@ async function createInstanceIpWhitelist(instanceId: string, request: CreateInst
 }
 
 model CreateTopicRequest {
-  maxSendTps?: long(name='maxSendTps'),
+  maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1500'),
   messageType?: string(name='messageType', description='The type of messages in the topic that you want to create.
 
 Valid values:
 
 *   TRANSACTION: transactional messages
 *   FIFO: ordered messages
-*   DELAY: scheduled messages or delayed Message
+*   DELAY: scheduled or delayed messages
 *   NORMAL: normal messages
 
-> The type of messages in the topic must be the same as the type of messages that you want to send. For example, if you create a topic whose message type is ordered messages, the topic can be used to send and receive only ordered messages.', example='NORMAL'),
+>  The type of messages in the topic must be the same as the type of messages that you want to send. For example, if you create a topic whose message type is ordered messages, you can use the topic to send and receive only ordered messages.', example='NORMAL'),
   remark?: string(name='remark', description='The description of the topic that you want to create.', example='This is the remark for test.'),
 }
 
 model CreateTopicResponseBody = {
-  code?: string(name='code', description='The error code returned if the call failed.', example='Topic.Existed'),
-  data?: boolean(name='data', description='The returned result.', example='true'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='TopicName'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='topicName'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code returned.', example='400'),
-  message?: string(name='message', description='The error message.', example='The topic already exists.'),
-  requestId?: string(name='requestId', description='The ID of the request. Each request has a unique ID. You can use this ID to troubleshoot issues.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
+  code?: string(name='code', description='Error code.', example='Topic.Existed'),
+  data?: boolean(name='data', description='Return result.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='TopicName'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message.', example='topicName'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
+  message?: string(name='message', description='Error message.', example='The topic already exists.'),
+  requestId?: string(name='requestId', description='Request ID, each request\\\\"s ID is unique and can be used for troubleshooting and problem localization.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
 }
 
 model CreateTopicResponse = {
@@ -1016,7 +1039,7 @@ model CreateTopicResponse = {
 }
 
 /**
- * @summary Creates a topic.
+ * @summary Create Topic
  *
  * @param request CreateTopicRequest
  * @param headers map
@@ -1059,7 +1082,7 @@ async function createTopicWithOptions(instanceId: string, topicName: string, req
 }
 
 /**
- * @summary Creates a topic.
+ * @summary Create Topic
  *
  * @param request CreateTopicRequest
  * @return CreateTopicResponse
@@ -1222,15 +1245,15 @@ async function deleteConsumerGroupSubscription(instanceId: string, consumerGroup
 }
 
 model DeleteDisasterRecoveryItemResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: boolean(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Access denied details, only in the scenario where the user is denied access due to RAM not having permission', example='xxx'),
+  code?: string(name='code', description='Error code', example='DisasterRecoveryItemStatus.Error'),
+  data?: boolean(name='data', description='The return data', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='The current status of the disaster recovery item does not support this operation.'),
+  requestId?: string(name='requestId', description='Request ID', example='0B962390-D84B-5D44-8C11-79DFxxxx'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model DeleteDisasterRecoveryItemResponse = {
@@ -1280,15 +1303,15 @@ async function deleteDisasterRecoveryItem(planId: string, itemId: string): Delet
 }
 
 model DeleteDisasterRecoveryPlanResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: boolean(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='DisasterRecoveryPlanStatus.Error'),
+  data?: boolean(name='data', description='The data returned.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The current status of the disaster recovery plan does not support this operation.'),
+  requestId?: string(name='requestId', description='The request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model DeleteDisasterRecoveryPlanResponse = {
@@ -1298,7 +1321,7 @@ model DeleteDisasterRecoveryPlanResponse = {
 }
 
 /**
- * @summary 删除容灾计划
+ * @summary Deletes a global message backup plan.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1327,7 +1350,7 @@ async function deleteDisasterRecoveryPlanWithOptions(planId: string, headers: ma
 }
 
 /**
- * @summary 删除容灾计划
+ * @summary Deletes a global message backup plan.
  *
  * @return DeleteDisasterRecoveryPlanResponse
  */
@@ -1546,12 +1569,12 @@ async function deleteInstanceAcl(instanceId: string, username: string, request: 
 
 model DeleteInstanceIpWhitelistRequest {
   ipWhitelist?: string(name='ipWhitelist', description='The IP address whitelist.', example='0.0.0.0/0', deprecated=true),
-  ipWhitelists?: [ string ](name='ipWhitelists'),
+  ipWhitelists?: [ string ](name='ipWhitelists', description='The IP address whitelist.'),
 }
 
 model DeleteInstanceIpWhitelistShrinkRequest {
   ipWhitelist?: string(name='ipWhitelist', description='The IP address whitelist.', example='0.0.0.0/0', deprecated=true),
-  ipWhitelistsShrink?: string(name='ipWhitelists'),
+  ipWhitelistsShrink?: string(name='ipWhitelists', description='The IP address whitelist.'),
 }
 
 model DeleteInstanceIpWhitelistResponseBody = {
@@ -1760,7 +1783,7 @@ Valid values:
 
     <!-- -->', example='Concurrently'),
     instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
-    maxReceiveTps?: long(name='maxReceiveTps'),
+    maxReceiveTps?: long(name='maxReceiveTps', description='Maximum received message tps', example='1000'),
     regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
     remark?: string(name='remark', description='The remarks on the consumer group.', example='This is the remark for test.'),
     status?: string(name='status', description='The state of the consumer group.
@@ -1795,7 +1818,7 @@ Valid values:
 
     .', example='RUNNING'),
     updateTime?: string(name='updateTime', description='The time when the consumer group was last updated.', example='2022-08-01 20:05:50'),
-  }(name='data', description='The result data that is returned.'),
+  }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='ConsumerGroupId'),
   dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='consumerGroupId'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
@@ -1855,7 +1878,7 @@ async function getConsumerGroup(instanceId: string, consumerGroupId: string): Ge
 }
 
 model GetConsumerGroupLagRequest {
-  topicName?: string(name='topicName'),
+  topicName?: string(name='topicName', description='The topic name.', example='normal-topic-1'),
 }
 
 model GetConsumerGroupLagResponseBody = {
@@ -1868,7 +1891,7 @@ model GetConsumerGroupLagResponseBody = {
     totalLag?: {
       deliveryDuration?: long(name='deliveryDuration', description='Delivery delay time, in seconds', example='12'),
       inflightCount?: long(name='inflightCount', description='The number of messages being consumed.', example='1'),
-      lastConsumeTimestamp?: long(name='lastConsumeTimestamp'),
+      lastConsumeTimestamp?: long(name='lastConsumeTimestamp', description='Last consumption time', example='1735629607846'),
       readyCount?: long(name='readyCount', description='Ready message count', example='1'),
     }(name='totalLag', description='Total lag count'),
   }(name='data', description='The returned data.'),
@@ -2106,32 +2129,36 @@ async function getConsumerStack(instanceId: string, consumerGroupId: string, req
 }
 
 model GetDisasterRecoveryItemResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='200'),
   data?: {
-    createTime?: string(name='createTime'),
-    extInfo?: map[string]string(name='extInfo'),
-    itemId?: long(name='itemId'),
-    itemStatus?: string(name='itemStatus'),
-    planId?: long(name='planId'),
+    createTime?: string(name='createTime', description='The time when the topic mapping task was created.', example='2024-06-24 02:57:31'),
+    extInfo?: map[string]string(name='extInfo', description='Additional Information'),
+    itemId?: long(name='itemId', description='The ID of the topic mapping', example='100070284'),
+    itemStatus?: string(name='itemStatus', description='The topic mapping task status.', example='RUNNING'),
+    planId?: long(name='planId', description='The ID of the global message backup plan.', example='1300000016'),
     topics?: [ 
       {
-        consumerGroupId?: string(name='consumerGroupId'),
-        deliveryOrderType?: string(name='deliveryOrderType'),
-        instanceId?: string(name='instanceId'),
-        instanceType?: string(name='instanceType'),
+        consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='xxx_reserve_group'),
+        deliveryOrderType?: string(name='deliveryOrderType', description='The order in which messages are delivered to the target instance. The parameter values ​​are as follows:
+  - Concurrently: concurrent delivery
+  - Orderly: sequential delivery', example='Concurrently'),
+        instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-wwo3xxx'),
+        instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
         regionId?: string(name='regionId', description='regionId', example='cn-hangzhou'),
-        topicName?: string(name='topicName'),
+        topicName?: string(name='topicName', description='The topic name.', example='order_push_xxx'),
       }
-    ](name='topics'),
-    updateTime?: string(name='updateTime'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+    ](name='topics', description='Topics included in the backup mapping'),
+    updateTime?: string(name='updateTime', description='The time when the topic mapping task was last updated.', example='2024-09-26 02:13:10'),
+  }(name='data', description='The data returned.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='xxx'),
+  requestId?: string(name='requestId', description='Request ID', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model GetDisasterRecoveryItemResponse = {
@@ -2181,46 +2208,57 @@ async function getDisasterRecoveryItem(planId: string, itemId: string): GetDisas
 }
 
 model GetDisasterRecoveryPlanResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='200'),
   data?: {
-    autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint'),
-    createTime?: string(name='createTime'),
-    extInfo?: map[string]string(name='extInfo'),
+    autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.', example='true'),
+    createTime?: string(name='createTime', description='The time when the backup plan was created.', example='2022-08-01 20:05:50'),
+    extInfo?: map[string]string(name='extInfo', description='Additional Information'),
     instances?: [ 
       {
-        authType?: string(name='authType'),
-        endpointUrl?: string(name='endpointUrl'),
-        instanceId?: string(name='instanceId'),
-        instanceRole?: string(name='instanceRole'),
-        instanceType?: string(name='instanceType'),
+        authType?: string(name='authType', description='Authentication method. Not required for instanceType of ALIYUN_ROCKETMQ and version 4.0
+  - NO_AUTH: No authentication required
+  - ACL_AUTH: ACL authentication', example='ACL_AUTH'),
+        endpointUrl?: string(name='endpointUrl', description='Endpoint URL, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ', example='xxx'),
+        instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-gpz3qtcdxxx'),
+        instanceRole?: string(name='instanceRole', description='Instance role, either primary or secondary 
+  - ACTIVE: Primary
+  - PASSIVE: Secondary', example='ACTIVE'),
+        instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
         messageProperty?: {
-          propertyKey?: string(name='propertyKey'),
-          propertyValue?: string(name='propertyValue'),
-        }(name='messageProperty'),
-        networkType?: string(name='networkType'),
-        password?: string(name='password'),
-        regionId?: string(name='regionId'),
-        securityGroupId?: string(name='securityGroupId'),
-        username?: string(name='username'),
-        vSwitchId?: string(name='vSwitchId'),
-        vpcId?: string(name='vpcId', description='VPC ID'),
+          propertyKey?: string(name='propertyKey', description='Property key', example='xxx'),
+          propertyValue?: string(name='propertyValue', description='Property value', example='xxx'),
+        }(name='messageProperty', description='Message filtering properties. When messages are synchronized to the target cluster, this property will be automatically added for SQL filtering during message consumption.'),
+        networkType?: string(name='networkType', description='Network type, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ Parameter values are as follows:
+  - TCP_INTERNET: TCP public network
+  - TCP_VPC: TCP VPC (Virtual Private Cloud)', example='TCP_INTERNET'),
+        password?: string(name='password', description='Authentication password, required when authType is ACL_AUTH. Not required for instanceType of ALIYUN_ROCKETMQ', example='xxx'),
+        regionId?: string(name='regionId', description='Region ID.', example='cn-shanghai'),
+        securityGroupId?: string(name='securityGroupId', description='Security group ID, required only when the instanceType is EXTERNAL_ROCKETMQ and networkType is TCP_VPC.', example='sg-bp17hpmgz9******'),
+        username?: string(name='username', description='Authentication username, required when authType is ACL_AUTH', example='xxx'),
+        vSwitchId?: string(name='vSwitchId', description='The ID of the switch associated with the instance, required only when the instanceType is EXTERNAL_ROCKETMQ and networkType is TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
+        vpcId?: string(name='vpcId', description='The ID of the private network associated with the created instance. The instanceType instance type is only EXTERNAL_ROCKETMQ. It is required when the networkType is TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
       }
-    ](name='instances'),
-    planDesc?: string(name='planDesc'),
-    planId?: long(name='planId'),
-    planName?: string(name='planName'),
-    planStatus?: string(name='planStatus'),
-    planType?: string(name='planType'),
-    syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled'),
-    updateTime?: string(name='updateTime'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+    ](name='instances', description='Instances involved in the backup plan'),
+    planDesc?: string(name='planDesc', description='The describe of the global message backup plan.', example='xxxx'),
+    planId?: long(name='planId', description='The ID of the global message backup plan.', example='1300000016'),
+    planName?: string(name='planName', description='The name of the global message backup plan.', example='xxx'),
+    planStatus?: string(name='planStatus', description='The status of the global message backup plan.', example='RUNNING'),
+    planType?: string(name='planType', description='The type of the global message backup plan.
+values are as follows:
+  - ACTIVE_PASSIVE: One-way backup
+  - ACTIVE_ACTIVE: Two-way backup', example='ACTIVE_PASSIVE'),
+    syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
+    updateTime?: string(name='updateTime', description='The time when the backup plan was created.', example='2022-08-01 20:05:50'),
+  }(name='data', description='The data returned.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='xxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='7358418D-83BD-507A-8079-611C63E0xxx'),
+  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model GetDisasterRecoveryPlanResponse = {
@@ -2579,10 +2617,15 @@ If you do not configure this parameter, the default username of the instance is 
 model GetInstanceAccountResponseBody = {
   code?: string(name='code', description='The error code.', example='MissingInstanceId'),
   data?: {
-    accountStatus?: string(name='accountStatus'),
+    accountStatus?: string(name='accountStatus', description='The status of the account.
+
+Valid values:
+
+*   DISABLE
+*   ENABLE', example='ENABLE'),
     password?: string(name='password', description='The password of the account.', example='*************'),
     username?: string(name='username', description='The username of the account.', example='xxx'),
-  }(name='data', description='The data returned.'),
+  }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='ConsumerGroupId'),
   dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
@@ -2647,29 +2690,43 @@ async function getInstanceAccount(instanceId: string, request: GetInstanceAccoun
 }
 
 model GetInstanceAclRequest {
-  resourceName?: string(name='resourceName', description='This parameter is required.', example='test'),
-  resourceType?: string(name='resourceType', description='This parameter is required.', example='Topic'),
+  resourceName?: string(name='resourceName', description='The name of the resource on which you want to grant permissions.
+
+This parameter is required.', example='test'),
+  resourceType?: string(name='resourceType', description='The type of the resource on which you want to grant permissions.
+
+Valid values:
+
+*   Group
+*   Topic
+
+This parameter is required.', example='Topic'),
 }
 
 model GetInstanceAclResponseBody = {
-  code?: string(name='code', example='MissingInstanceId'),
+  code?: string(name='code', description='The error code.', example='MissingInstanceId'),
   data?: {
-    aclType?: string(name='aclType', example='apache_acl'),
-    actions?: [ string ](name='actions'),
-    decision?: string(name='decision', example='Allow'),
-    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
-    ipWhitelists?: [ string ](name='ipWhitelists'),
-    regionId?: string(name='regionId', example='cn-hangzhou'),
-    resourceName?: string(name='resourceName', example='test'),
-    resourceType?: string(name='resourceType', example='Topic'),
-    username?: string(name='username', example='abc'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The instance cannot be found.'),
-  requestId?: string(name='requestId', description='Id of the request', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', example='true'),
+    aclType?: string(name='aclType', description='The authentication type of the instance.
+
+Valid values:
+
+*   apache_acl: open source access control list (ACL)
+*   default: the default account of the instance', example='apache_acl'),
+    actions?: [ string ](name='actions', description='The type of operations that can be performed on the resource.'),
+    decision?: string(name='decision', description='The decision result of the authorization.', example='Allow'),
+    instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
+    ipWhitelists?: [ string ](name='ipWhitelists', description='The IP address whitelists.'),
+    regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+    resourceName?: string(name='resourceName', description='The name of the resource on which the permissions are granted.', example='test'),
+    resourceType?: string(name='resourceType', description='The type of the resource on which the permissions are granted.', example='Topic'),
+    username?: string(name='username', description='The username.', example='abc'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='xxx'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='xxx'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', description='The request ID', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model GetInstanceAclResponse = {
@@ -2679,7 +2736,7 @@ model GetInstanceAclResponse = {
 }
 
 /**
- * @summary 获取访问控制acl数据
+ * @summary Queries information about the access control list (ACL) of an instance.
  *
  * @param request GetInstanceAclRequest
  * @param headers map
@@ -2719,7 +2776,7 @@ async function getInstanceAclWithOptions(instanceId: string, username: string, r
 }
 
 /**
- * @summary 获取访问控制acl数据
+ * @summary Queries information about the access control list (ACL) of an instance.
  *
  * @param request GetInstanceAclRequest
  * @return GetInstanceAclResponse
@@ -2731,26 +2788,26 @@ async function getInstanceAcl(instanceId: string, username: string, request: Get
 }
 
 model GetInstanceIpWhitelistRequest {
-  ipWhitelists?: [ string ](name='ipWhitelists'),
+  ipWhitelists?: [ string ](name='ipWhitelists', description='The  filter IP address whitelists.'),
 }
 
 model GetInstanceIpWhitelistShrinkRequest {
-  ipWhitelistsShrink?: string(name='ipWhitelists'),
+  ipWhitelistsShrink?: string(name='ipWhitelists', description='The  filter IP address whitelists.'),
 }
 
 model GetInstanceIpWhitelistResponseBody = {
-  code?: string(name='code', example='Instance.NotFound'),
+  code?: string(name='code', description='The error code.', example='Instance.NotFound'),
   data?: {
-    instanceId?: string(name='instanceId', example='rmq-cn-7e22ody****'),
-    ipWhitelists?: [ string ](name='ipWhitelists'),
-    regionId?: string(name='regionId', example='cn-hangzhou'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='xxx'),
-  requestId?: string(name='requestId', example='0B962390-D84B-5D44-8C11-79DF40299D41'),
-  success?: boolean(name='success', example='true'),
+    instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-7e22ody****'),
+    ipWhitelists?: [ string ](name='ipWhitelists', description='The IP address whitelists.'),
+    regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+  }(name='data', description='The data returned.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='message', description='The error message.', example='xxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='0B962390-D84B-5D44-8C11-79DF40299D41'),
+  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
 }
 
 model GetInstanceIpWhitelistResponse = {
@@ -2760,7 +2817,7 @@ model GetInstanceIpWhitelistResponse = {
 }
 
 /**
- * @summary 获取实例ip白名单
+ * @summary Queries the information about the IP address whitelist of an instance.
  *
  * @param tmpReq GetInstanceIpWhitelistRequest
  * @param headers map
@@ -2802,7 +2859,7 @@ async function getInstanceIpWhitelistWithOptions(instanceId: string, tmpReq: Get
 }
 
 /**
- * @summary 获取实例ip白名单
+ * @summary Queries the information about the IP address whitelist of an instance.
  *
  * @param request GetInstanceIpWhitelistRequest
  * @return GetInstanceIpWhitelistResponse
@@ -2888,36 +2945,43 @@ async function getMessageDetail(instanceId: string, topicName: string, messageId
 }
 
 model GetTopicResponseBody = {
-  code?: string(name='code', description='The error code.', example='Topic.NotFound'),
+  code?: string(name='code', description='Error code.', example='Topic.NotFound'),
   data?: {
-    createTime?: string(name='createTime', description='The time when the topic was created.', example='2022-08-01 20:05:50'),
-    instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
-    maxSendTps?: long(name='maxSendTps'),
-    messageType?: string(name='messageType', description='The message type of the topic.
+    createTime?: string(name='createTime', description='Creation time of the topic.', example='2022-08-01 20:05:50'),
+    instanceId?: string(name='instanceId', description='The ID of the instance to which the topic belongs.', example='rmq-cn-7e22ody****'),
+    maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1000'),
+    messageType?: string(name='messageType', description='The type of messages in the topic.
 
 Valid values:
 
-*   TRANSACTION: transactional message
-*   FIFO: ordered message
-*   DELAY: scheduled or delayed message
-*   NORMAL: normal message', example='NORMAL'),
-    regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
-    remark?: string(name='remark', description='The remarks on the topic.', example='This is the remark for test.'),
-    status?: string(name='status', description='The state of the topic.
+*   TRANSACTION: transactional messages
+*   FIFO: ordered messages
+*   DELAY: scheduled or delayed messages
+*   NORMAL: normal messages
 
 Valid values:
 
-*   RUNNING: The topic is running.
-*   CREATING: The topic is being created.', example='RUNNING'),
-    topicName?: string(name='topicName', description='The name of the topic.', example='topic_test'),
-    updateTime?: string(name='updateTime', description='The time when the topic was last updated.', example='2022-08-01 20:05:50'),
-  }(name='data', description='The result data that is returned.'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='TopicName'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='topicName'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
-  message?: string(name='message', description='The error message.', example='The topic cannot be found.'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+*   TRANSACTION: transactional messages
+*   FIFO: ordered messages
+*   DELAY: scheduled or delayed messages
+*   NORMAL: normal messages', example='NORMAL'),
+    regionId?: string(name='regionId', description='The region ID to which the instance belongs.', example='cn-hangzhou'),
+    remark?: string(name='remark', description='Remark information of the topic.', example='This is the remark for test.'),
+    status?: string(name='status', description='The topic status.
+
+Valid values:
+
+*   RUNNING
+*   CREATING', example='RUNNING'),
+    topicName?: string(name='topicName', description='Topic name.', example='topic_test'),
+    updateTime?: string(name='updateTime', description='Last modification time of the topic.', example='2022-08-01 20:05:50'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='TopicName'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message.', example='topicName'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
+  message?: string(name='message', description='Error message.', example='The topic cannot be found.'),
+  requestId?: string(name='requestId', description='Request ID, each request\\\\"s ID is unique and can be used for troubleshooting and problem localization.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
 }
 
 model GetTopicResponse = {
@@ -2927,7 +2991,7 @@ model GetTopicResponse = {
 }
 
 /**
- * @summary Queries the details of a specified topic.
+ * @summary Query Topic Details
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2956,7 +3020,7 @@ async function getTopicWithOptions(instanceId: string, topicName: string, header
 }
 
 /**
- * @summary Queries the details of a specified topic.
+ * @summary Query Topic Details
  *
  * @return GetTopicResponse
  */
@@ -2978,8 +3042,8 @@ model GetTraceResponseBody = {
         }
       ](name='operations', description='Operation list.'),
       presetDelayTime?: string(name='presetDelayTime', description='Preset delivery time.', example='2023-03-22 12:17:08'),
-      recallResult?: string(name='recallResult'),
-    }(name='brokerInfo', description='Broker trace info.'),
+      recallResult?: string(name='recallResult', description='Withdraw scheduled message request result', example='RECALL_OK'),
+    }(name='brokerInfo', description='The broker trace.'),
     consumerInfos?: [ 
       {
         consumeStatus?: string(name='consumeStatus', description='Consume status.', example='SUCCESS'),
@@ -3038,14 +3102,14 @@ model GetTraceResponseBody = {
           produceDuration?: long(name='produceDuration', description='Producer duration.', example='100'),
           produceStatus?: string(name='produceStatus', description='Producer status.', example='SUCCESS'),
           produceTime?: string(name='produceTime', description='Producer time.', example='2023-03-22 12:17:08'),
-          recallTime?: string(name='recallTime'),
+          recallTime?: string(name='recallTime', description='The time when the scheduled message withdrawal request was initiated', example='2023-03-22 12:17:08'),
           userName?: string(name='userName', description='Producer name.', example='xxx'),
         }
-      ](name='records', description='Producer record list.'),
-    }(name='producerInfo', description='Producer trace info.'),
+      ](name='records', description='The production records.'),
+    }(name='producerInfo', description='The producer trace.'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
     topicName?: string(name='topicName', description='The topic name.', example='topic_test'),
-  }(name='data', description='The data returned.'),
+  }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
   dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
@@ -3238,7 +3302,7 @@ async function listConsumerConnections(instanceId: string, consumerGroupId: stri
 }
 
 model ListConsumerGroupSubscriptionsRequest {
-  topicName?: string(name='topicName'),
+  topicName?: string(name='topicName', description='The topic name. If you do not specify this parameter, all subscriptions of the consumer group are queried.', example='topic_test'),
 }
 
 model ListConsumerGroupSubscriptionsResponseBody = {
@@ -3331,66 +3395,38 @@ async function listConsumerGroupSubscriptions(instanceId: string, consumerGroupI
 }
 
 model ListConsumerGroupsRequest {
-  filter?: string(name='filter', description='The condition that you want to use to filter consumer groups in the instance. If you leave this parameter empty, all consumer groups in the instance are queried.', example='CID-TEST'),
-  pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries to return on each page.', example='10'),
+  filter?: string(name='filter', description='The filter condition for the query. If not provided, all consumer groups under the specified instance will be queried.', example='CID-TEST'),
+  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of results to return.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results to display per page.
+
+Value range: [10, 100].', example='10'),
 }
 
 model ListConsumerGroupsResponseBody = {
-  code?: string(name='code', description='The error code.', example='MissingInstanceId'),
+  code?: string(name='code', description='Error code.', example='MissingInstanceId'),
   data?: {
     list?: [ 
       {
-        consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='GID-TEST'),
-        createTime?: string(name='createTime', description='The time when the consumer group was created.', example='2022-08-01 20:05:50'),
-        instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
-        maxReceiveTps?: long(name='maxReceiveTps'),
-        regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
-        remark?: string(name='remark', description='The remarks on the consumer group.', example='This is the remark for test.'),
-        status?: string(name='status', description='The state of the consumer group.
-
-Valid values:
-
-*   RUNNING
-
-    <!-- -->
-
-    : The consumer group is
-
-    <!-- -->
-
-    running
-
-    <!-- -->
-
-    .
-
-*   CREATING
-
-    <!-- -->
-
-    : The consumer group is
-
-    <!-- -->
-
-    being created
-
-    <!-- -->
-
-    .', example='RUNNING'),
-        updateTime?: string(name='updateTime', description='The time when the consumer group was last updated.', example='2022-08-01 20:05:50'),
+        consumerGroupId?: string(name='consumerGroupId', description='Consumer group ID.', example='GID-TEST'),
+        createTime?: string(name='createTime', description='Creation time of the consumer group.', example='2022-08-01 20:05:50'),
+        instanceId?: string(name='instanceId', description='Instance ID.', example='rmq-cn-7e22ody****'),
+        maxReceiveTps?: long(name='maxReceiveTps', description='The maximum TPS for message sending.', example='1000'),
+        regionId?: string(name='regionId', description='The region ID to which the instance belongs.', example='cn-hangzhou'),
+        remark?: string(name='remark', description='Remark information of the consumer group.', example='This is the remark for test.'),
+        status?: string(name='status', description='Status of the consumer group.', example='RUNNING'),
+        updateTime?: string(name='updateTime', description='Last update time of the consumer group.', example='2022-08-01 20:05:50'),
       }
-    ](name='list', description='The paginated data.'),
-    pageNumber?: long(name='pageNumber', description='The page number of the returned page.', example='1'),
-    pageSize?: long(name='pageSize', description='The number of entries returned per page.', example='10'),
-    totalCount?: long(name='totalCount', description='The total number of returned entries.', example='1'),
-  }(name='data', description='The result data that is returned.'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
-  message?: string(name='message', description='The error message.', example='Parameter InstanceId is mandatory for this action .'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='5503A460-98ED-5543-92CF-4853DE28****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+    ](name='list', description='The consumer groups.'),
+    pageNumber?: long(name='pageNumber', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='Page size.', example='10'),
+    totalCount?: long(name='totalCount', description='Total number of returned results.', example='1'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='xxx'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='xxx'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
+  message?: string(name='message', description='Error message.', example='Parameter InstanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', description='Request ID, each request has a unique ID that can be used for troubleshooting and problem localization.', example='5503A460-98ED-5543-92CF-4853DE28****'),
+  success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
 }
 
 model ListConsumerGroupsResponse = {
@@ -3400,9 +3436,9 @@ model ListConsumerGroupsResponse = {
 }
 
 /**
- * @summary Queries the consumer groups in a specified instance.
+ * @summary List Consumer Groups
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description >Notice: The OpenAPI provided by Alibaba Cloud is a management API used for managing and querying related resources of Alibaba Cloud services. It is recommended to integrate it only in the management chain. Do not rely on OpenAPI implementation in the core data chain for message sending and receiving, as this may lead to risks in the chain.
  *
  * @param request ListConsumerGroupsRequest
  * @param headers map
@@ -3445,9 +3481,9 @@ async function listConsumerGroupsWithOptions(instanceId: string, request: ListCo
 }
 
 /**
- * @summary Queries the consumer groups in a specified instance.
+ * @summary List Consumer Groups
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description >Notice: The OpenAPI provided by Alibaba Cloud is a management API used for managing and querying related resources of Alibaba Cloud services. It is recommended to integrate it only in the management chain. Do not rely on OpenAPI implementation in the core data chain for message sending and receiving, as this may lead to risks in the chain.
  *
  * @param request ListConsumerGroupsRequest
  * @return ListConsumerGroupsResponse
@@ -3459,55 +3495,61 @@ async function listConsumerGroups(instanceId: string, request: ListConsumerGroup
 }
 
 model ListDisasterRecoveryCheckpointsRequest {
-  filter?: string(name='filter', example='topic_test'),
-  instanceId?: string(name='instanceId', description='This parameter is required.', example='rmq-cn-7e22ody****'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
+  filter?: string(name='filter', description='Filter Condition', example='topic_test'),
+  instanceId?: string(name='instanceId', description='Source Instance ID
+
+This parameter is required.', example='rmq-cn-7e22ody****'),
+  pageNumber?: int32(name='pageNumber', description='Current page number, starting from 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results returned per page.', example='10'),
 }
 
 model ListDisasterRecoveryCheckpointsResponseBody = {
-  code?: string(name='code', example='200'),
+  code?: string(name='code', description='Error code', example='200'),
   data?: {
     list?: [ 
       {
-        checkpointId?: long(name='checkpointId', example='10000000xx'),
-        itemId?: long(name='itemId', example='10000000xx'),
-        lastSyncTime?: long(name='lastSyncTime', example='1740724080343'),
-        planId?: long(name='planId', example='13000000xx'),
+        checkpointId?: long(name='checkpointId', description='Consumption Progress ID', example='10000000xx'),
+        itemId?: long(name='itemId', description='Backup Mapping ID', example='10000000xx'),
+        lastSyncTime?: long(name='lastSyncTime', description='Last synchronization time', example='1740724080343'),
+        planId?: long(name='planId', description='Backup Plan ID', example='13000000xx'),
         sourceProgress?: {
-          consumerGroupId?: string(name='consumerGroupId', example='GID_TEST'),
-          instanceId?: string(name='instanceId', example='rmq-cn-3mp3vblzxxx'),
-          instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
-          lastFetchTime?: long(name='lastFetchTime', example='1740724080343'),
+          consumerGroupId?: string(name='consumerGroupId', description='Consumer Group ID', example='GID_TEST'),
+          instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-3mp3vblzxxx'),
+          instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+          lastFetchTime?: long(name='lastFetchTime', description='Last fetch time', example='1740724080343'),
           progressData?: {
-            consumeTimestamp?: long(name='consumeTimestamp', example='1740724080343'),
-          }(name='progressData'),
-          regionId?: string(name='regionId', example='cn-hangzhou'),
-          topicName?: string(name='topicName', example='TOPIC_TEST'),
-        }(name='sourceProgress'),
+            consumeTimestamp?: long(name='consumeTimestamp', description='Latest consumption time', example='1740724080343'),
+          }(name='progressData', description='Consumption progress data'),
+          regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
+          topicName?: string(name='topicName', description='The topic name.', example='TOPIC_TEST'),
+        }(name='sourceProgress', description='Source consumption progress'),
         targetProgress?: {
-          consumerGroupId?: string(name='consumerGroupId', example='GID_TEST'),
-          instanceId?: string(name='instanceId', example='rmq-cn-nwy3i065xxx'),
-          instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
-          lastFetchTime?: long(name='lastFetchTime', example='1740724080343'),
+          consumerGroupId?: string(name='consumerGroupId', description='Consumer group ID', example='GID_TEST'),
+          instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-nwy3i065xxx'),
+          instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+          lastFetchTime?: long(name='lastFetchTime', description='Latest fetch time', example='1740724080343'),
           progressData?: {
-            consumeTimestamp?: long(name='consumeTimestamp', example='1740724080343'),
-          }(name='progressData'),
-          regionId?: string(name='regionId', example='cn-hangzhou'),
-          topicName?: string(name='topicName', example='TOPIC_TEST'),
-        }(name='targetProgress'),
+            consumeTimestamp?: long(name='consumeTimestamp', description='Latest consumption time', example='1740724080343'),
+          }(name='progressData', description='Consumption progress data'),
+          regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
+          topicName?: string(name='topicName', description='Topic name', example='TOPIC_TEST'),
+        }(name='targetProgress', description='Target consumption progress'),
       }
-    ](name='list'),
-    pageNumber?: long(name='pageNumber', example='1'),
-    pageSize?: long(name='pageSize', example='10'),
-    totalCount?: long(name='totalCount', example='1'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The instance cannot be found.'),
-  requestId?: string(name='requestId', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', example='true'),
+    ](name='list', description='Paged data'),
+    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
+    pageSize?: long(name='pageSize', description='Page size', example='10'),
+    totalCount?: long(name='totalCount', description='Total number of records', example='1'),
+  }(name='data', description='Response Data'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', description='Request ID', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model ListDisasterRecoveryCheckpointsResponse = {
@@ -3517,7 +3559,7 @@ model ListDisasterRecoveryCheckpointsResponse = {
 }
 
 /**
- * @summary 查询容灾计划消费进度信息
+ * @summary Query disaster recovery plan consumption progress information
  *
  * @param request ListDisasterRecoveryCheckpointsRequest
  * @param headers map
@@ -3563,7 +3605,7 @@ async function listDisasterRecoveryCheckpointsWithOptions(planId: string, itemId
 }
 
 /**
- * @summary 查询容灾计划消费进度信息
+ * @summary Query disaster recovery plan consumption progress information
  *
  * @param request ListDisasterRecoveryCheckpointsRequest
  * @return ListDisasterRecoveryCheckpointsResponse
@@ -3575,46 +3617,57 @@ async function listDisasterRecoveryCheckpoints(planId: string, itemId: string, r
 }
 
 model ListDisasterRecoveryItemsRequest {
-  filter?: string(name='filter', example='topic_test'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
+  filter?: string(name='filter', description='Filter condition, filter by topicName', example='topic_test'),
+  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of the results to query.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results displayed per page.', example='10'),
+  topicName?: string(name='topicName'),
 }
 
 model ListDisasterRecoveryItemsResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='Access denied details, provided only when access is denied due to lack of RAM permissions', example='xxx'),
+  code?: string(name='code', description='Error code', example='200'),
   data?: {
     list?: [ 
       {
-        createTime?: string(name='createTime'),
-        extInfo?: map[string]string(name='extInfo'),
-        itemId?: long(name='itemId'),
-        itemStatus?: string(name='itemStatus'),
-        planId?: long(name='planId'),
+        createTime?: string(name='createTime', description='Creation time', example='2024-09-20 03:38:28'),
+        extInfo?: map[string]string(name='extInfo', description='Extended information'),
+        itemId?: long(name='itemId', description='Backup plan ID', example='100070284'),
+        itemStatus?: string(name='itemStatus', description='Backup mapping status:
+  - CREATING (Creating)
+  - CHANGING (Changing)
+  - RUNNING (Running)
+  - MANUAL_STOPPED (Manually Stopped)
+  - OVERDUE_STOPPED (Stopped Due to Overdue)', example='RUNNING'),
+        planId?: long(name='planId', description='Mapping ID', example='1300000016'),
         topics?: [ 
           {
-            consumerGroupId?: string(name='consumerGroupId', example='group-test'),
-            deliveryOrderType?: string(name='deliveryOrderType'),
-            instanceId?: string(name='instanceId', example='rmq-cn-kh43w0olz0c'),
-            instanceType?: string(name='instanceType'),
-            regionId?: string(name='regionId', description='regionId', example='cn-hangzhou'),
-            topicName?: string(name='topicName', example='topic-test'),
+            consumerGroupId?: string(name='consumerGroupId', description='Consumer group ID', example='group-test'),
+            deliveryOrderType?: string(name='deliveryOrderType', description='The order in which messages are delivered to the target instance.
+
+Parameter values are as follows:
+- Concurrently: concurrent delivery
+- Orderly: sequential delivery', example='Concurrently'),
+            instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-kh43w0olz0c'),
+            instanceType?: string(name='instanceType', description='Instance type', example='ALIYUN_ROCKETMQ'),
+            regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
+            topicName?: string(name='topicName', description='The topic name.', example='topic-test'),
           }
-        ](name='topics'),
-        updateTime?: string(name='updateTime'),
+        ](name='topics', description='Topics included in the backup mapping'),
+        updateTime?: string(name='updateTime', description='Update time', example='2024-10-04 02:19:44'),
       }
-    ](name='list'),
-    pageNumber?: long(name='pageNumber'),
-    pageSize?: long(name='pageSize'),
-    scrollId?: string(name='scrollId'),
-    totalCount?: long(name='totalCount'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+    ](name='list', description='Paged data'),
+    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
+    pageSize?: long(name='pageSize', description='Page size', example='10'),
+    scrollId?: string(name='scrollId', description='Request scroll ID.
+Automatically generated by the system, subsequent pagination requests need to include this return value to continue pagination.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
+    totalCount?: long(name='totalCount', description='Total number of records', example='49'),
+  }(name='data', description='Return result'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='xxx'),
+  requestId?: string(name='requestId', description='Request ID', example='C115601B-8736-5BBF-AC99-7FEAE12xxxx'),
+  success?: boolean(name='success', description='Whether the request was successful', example='true'),
 }
 
 model ListDisasterRecoveryItemsResponse = {
@@ -3624,7 +3677,7 @@ model ListDisasterRecoveryItemsResponse = {
 }
 
 /**
- * @summary 查询容灾计划条目列表
+ * @summary Query Disaster Recovery Plan Entry List
  *
  * @param request ListDisasterRecoveryItemsRequest
  * @param headers map
@@ -3642,6 +3695,9 @@ async function listDisasterRecoveryItemsWithOptions(planId: string, request: Lis
   }
   if (!Util.isUnset(request.pageSize)) {
     query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.topicName)) {
+    query['topicName'] = request.topicName;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -3667,7 +3723,7 @@ async function listDisasterRecoveryItemsWithOptions(planId: string, request: Lis
 }
 
 /**
- * @summary 查询容灾计划条目列表
+ * @summary Query Disaster Recovery Plan Entry List
  *
  * @param request ListDisasterRecoveryItemsRequest
  * @return ListDisasterRecoveryItemsResponse
@@ -3679,60 +3735,69 @@ async function listDisasterRecoveryItems(planId: string, request: ListDisasterRe
 }
 
 model ListDisasterRecoveryPlansRequest {
-  filter?: string(name='filter'),
-  pageNumber?: int32(name='pageNumber', example='1'),
-  pageSize?: int32(name='pageSize', example='10'),
+  filter?: string(name='filter', description='Filter conditions, filter by backup name and description', example='xxx'),
+  instanceId?: string(name='instanceId'),
+  pageNumber?: int32(name='pageNumber', description='Page number, the page of results to be queried.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results displayed per page.', example='10'),
 }
 
 model ListDisasterRecoveryPlansResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied due to the reason that the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='Error code', example='200'),
   data?: {
     list?: [ 
       {
-        autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint'),
-        createTime?: string(name='createTime'),
-        extInfo?: map[string]string(name='extInfo'),
+        autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.', example='true'),
+        createTime?: string(name='createTime', description='Creation time', example='2022-08-01 20:05:50'),
+        extInfo?: map[string]string(name='extInfo', description='Extended information'),
         instances?: [ 
           {
-            authType?: string(name='authType'),
-            endpointUrl?: string(name='endpointUrl'),
-            instanceId?: string(name='instanceId'),
-            instanceRole?: string(name='instanceRole'),
-            instanceType?: string(name='instanceType'),
+            authType?: string(name='authType', description='Authentication method', example='NO_AUTH'),
+            endpointUrl?: string(name='endpointUrl', description='Endpoint URL', example='xxx'),
+            instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-ot93rbxxx'),
+            instanceRole?: string(name='instanceRole', description='Instance role', example='ACTIVE'),
+            instanceType?: string(name='instanceType', description='Instance type
+  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
+  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
             messageProperty?: {
-              propertyKey?: string(name='propertyKey'),
-              propertyValue?: string(name='propertyValue'),
-            }(name='messageProperty'),
-            networkType?: string(name='networkType'),
-            password?: string(name='password'),
-            regionId?: string(name='regionId'),
-            securityGroupId?: string(name='securityGroupId'),
-            username?: string(name='username'),
-            vSwitchId?: string(name='vSwitchId'),
-            vpcId?: string(name='vpcId', description='VPC ID'),
+              propertyKey?: string(name='propertyKey', description='Property key', example='aaa'),
+              propertyValue?: string(name='propertyValue', description='Property value', example='bbb'),
+            }(name='messageProperty', description='Message property'),
+            networkType?: string(name='networkType', description='Network type', example='TCP_INTERNET'),
+            password?: string(name='password', description='Authentication password', example='xxx'),
+            regionId?: string(name='regionId', description='The region where the instance is located', example='cn-hangzhou'),
+            securityGroupId?: string(name='securityGroupId', description='Security group ID', example='sg-bp17hpmgz9******'),
+            username?: string(name='username', description='Authentication username', example='xxx'),
+            vSwitchId?: string(name='vSwitchId', description='VSwitch ID', example='vsw-uf6gwtbn6etadpv******'),
+            vpcId?: string(name='vpcId', description='VPC ID', example='vpc-bp13docqysrgxtbxxxx'),
           }
-        ](name='instances'),
-        planDesc?: string(name='planDesc'),
-        planId?: long(name='planId'),
-        planName?: string(name='planName'),
-        planStatus?: string(name='planStatus'),
-        planType?: string(name='planType'),
-        syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled'),
-        updateTime?: string(name='updateTime'),
+        ](name='instances', description='Instances involved in the backup plan'),
+        planDesc?: string(name='planDesc', description='Plan description', example='xxx'),
+        planId?: long(name='planId', description='Plan ID', example='1300000016'),
+        planName?: string(name='planName', description='Plan name', example='xxx'),
+        planStatus?: string(name='planStatus', description='Plan status:
+  - CREATED (Created)
+  - RUNNING (Running)
+  - DELETED (Deleted)', example='RUNNING'),
+        planType?: string(name='planType', description='Plan type:
+  - ACTIVE_PASSIVE (One-way backup)
+  - ACTIVE_ACTIVE (Two-way backup)', example='ACTIVE_PASSIVE'),
+        syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Sync checkpoint switch', example='true'),
+        updateTime?: string(name='updateTime', description='Update time', example='2022-08-01 20:05:50'),
       }
-    ](name='list'),
-    pageNumber?: long(name='pageNumber'),
-    pageSize?: long(name='pageSize'),
-    scrollId?: string(name='scrollId'),
-    totalCount?: long(name='totalCount'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+    ](name='list', description='Paged data'),
+    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
+    pageSize?: long(name='pageSize', description='Page size', example='10'),
+    scrollId?: string(name='scrollId', description='Scroll request ID.
+Automatically generated by the system, subsequent paging requests need to include this result to continue paging.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
+    totalCount?: long(name='totalCount', description='Total number of records', example='28'),
+  }(name='data', description='Return result'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='xxx'),
+  requestId?: string(name='requestId', description='Request ID', example='855EF8E6-9C1D-5DE2-9E84-924E13Exxxx'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='True'),
 }
 
 model ListDisasterRecoveryPlansResponse = {
@@ -3742,7 +3807,7 @@ model ListDisasterRecoveryPlansResponse = {
 }
 
 /**
- * @summary 查询容灾计划列表
+ * @summary Query Disaster Recovery Plan List
  *
  * @param request ListDisasterRecoveryPlansRequest
  * @param headers map
@@ -3754,6 +3819,9 @@ async function listDisasterRecoveryPlansWithOptions(request: ListDisasterRecover
   var query : map[string]any = {};
   if (!Util.isUnset(request.filter)) {
     query['filter'] = request.filter;
+  }
+  if (!Util.isUnset(request.instanceId)) {
+    query['instanceId'] = request.instanceId;
   }
   if (!Util.isUnset(request.pageNumber)) {
     query['pageNumber'] = request.pageNumber;
@@ -3785,7 +3853,7 @@ async function listDisasterRecoveryPlansWithOptions(request: ListDisasterRecover
 }
 
 /**
- * @summary 查询容灾计划列表
+ * @summary Query Disaster Recovery Plan List
  *
  * @param request ListDisasterRecoveryPlansRequest
  * @return ListDisasterRecoveryPlansResponse
@@ -4431,30 +4499,34 @@ async function listMessages(instanceId: string, topicName: string, request: List
 }
 
 model ListMetricMetaRequest {
-  pageNumber?: int32(name='pageNumber', description='This parameter is required.', example='1'),
-  pageSize?: int32(name='pageSize', description='This parameter is required.', example='10'),
+  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of the results to return.
+
+This parameter is required.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, indicating the maximum number of results per page.
+
+This parameter is required.', example='10'),
 }
 
 model ListMetricMetaResponseBody = {
-  code?: string(name='code', example='Topic.NotFound'),
+  code?: string(name='code', description='Error code', example='Topic.NotFound'),
   data?: {
     list?: [ 
       {
-        category?: string(name='category', example='Bug'),
-        description?: string(name='description', example='Using Serverless Devs to deploy the infrastructure of project:get-userinfo-v1-infrastructure-as-template-project'),
-        metricName?: string(name='metricName', example='SendMessageCountPerInstance'),
+        category?: string(name='category', description='Monitoring item tag', example='Bug'),
+        description?: string(name='description', description='Monitoring item description', example='Using Serverless Devs to deploy the infrastructure of project:get-userinfo-v1-infrastructure-as-template-project'),
+        metricName?: string(name='metricName', description='Monitoring item name', example='SendMessageCountPerInstance'),
       }
-    ](name='list'),
-    pageNumber?: long(name='pageNumber', example='1'),
-    pageSize?: long(name='pageSize', example='10'),
-    totalCount?: long(name='totalCount', example='1'),
-  }(name='data'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The topic already exists.'),
-  requestId?: string(name='requestId', example='8B459455-4A35-5796-BA9D-98EF1AB9A931'),
-  success?: boolean(name='success', example='true'),
+    ](name='list', description='Paged data'),
+    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
+    pageSize?: long(name='pageSize', description='Page size', example='10'),
+    totalCount?: long(name='totalCount', description='Total record count', example='1'),
+  }(name='data', description='Return result'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='xxx'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='xxx'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='The topic already exists.'),
+  requestId?: string(name='requestId', description='Request ID', example='8B459455-4A35-5796-BA9D-98EF1AB9A931'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model ListMetricMetaResponse = {
@@ -4464,7 +4536,7 @@ model ListMetricMetaResponse = {
 }
 
 /**
- * @summary 查询监控项列表
+ * @summary Query Monitoring Items List
  *
  * @param request ListMetricMetaRequest
  * @param headers map
@@ -4504,7 +4576,7 @@ async function listMetricMetaWithOptions(request: ListMetricMetaRequest, headers
 }
 
 /**
- * @summary 查询监控项列表
+ * @summary Query Monitoring Items List
  *
  * @param request ListMetricMetaRequest
  * @return ListMetricMetaResponse
@@ -4766,125 +4838,57 @@ async function listTopicSubscriptions(instanceId: string, topicName: string): Li
 }
 
 model ListTopicsRequest {
-  filter?: string(name='filter', description='The condition that you want to use to filter topics in the instance. If you leave this parameter empty, all topics in the instance are queried.', example='topic_test'),
-  messageTypes?: [ string ](name='messageTypes', description='The message types of the topics.'),
-  pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries to return on each page.', example='3'),
+  filter?: string(name='filter', description='The filter condition for the query. If not provided, all topics under the instance will be queried.', example='topic_test'),
+  messageTypes?: [ string ](name='messageTypes', description='The message type of the topic.'),
+  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of results to return.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results to display per page.', example='3'),
 }
 
 model ListTopicsShrinkRequest {
-  filter?: string(name='filter', description='The condition that you want to use to filter topics in the instance. If you leave this parameter empty, all topics in the instance are queried.', example='topic_test'),
-  messageTypesShrink?: string(name='messageTypes', description='The message types of the topics.'),
-  pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries to return on each page.', example='3'),
+  filter?: string(name='filter', description='The filter condition for the query. If not provided, all topics under the instance will be queried.', example='topic_test'),
+  messageTypesShrink?: string(name='messageTypes', description='The message type of the topic.'),
+  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of results to return.', example='1'),
+  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results to display per page.', example='3'),
 }
 
 model ListTopicsResponseBody = {
-  code?: string(name='code', description='The error code.', example='Topic.NotFound'),
+  code?: string(name='code', description='Error code.', example='Topic.NotFound'),
   data?: {
     list?: [ 
       {
-        createTime?: string(name='createTime', description='The time when the topic was created.', example='2022-08-01 20:05:50'),
-        instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
-        maxSendTps?: long(name='maxSendTps'),
-        messageType?: string(name='messageType', description='The message type of the topic.
+        createTime?: string(name='createTime', description='Creation time.', example='2022-08-01 20:05:50'),
+        instanceId?: string(name='instanceId', description='Instance ID.', example='rmq-cn-7e22ody****'),
+        maxSendTps?: long(name='maxSendTps', description='The maximum TPS for message sending.', example='1000'),
+        messageType?: string(name='messageType', description='The type of messages in the topic.
 
 Valid values:
 
-*   TRANSACTION
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    transactional message
-
-    <!-- -->
-
-*   FIFO
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    ordered message
-
-    <!-- -->
-
-*   DELAY
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    scheduled or delayed message
-
-    <!-- -->
-
-*   NORMAL
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    normal message
-
-    <!-- -->', example='NORMAL'),
-        regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
-        remark?: string(name='remark', description='The remarks on the topic.', example='This is the remark for test.'),
-        status?: string(name='status', description='The state of the topic.
+*   TRANSACTION: transactional messages
+*   FIFO: ordered messages
+*   DELAY: scheduled or delayed messages
+*   NORMAL: normal messages', example='NORMAL'),
+        regionId?: string(name='regionId', description='The region ID to which the instance belongs.', example='cn-hangzhou'),
+        remark?: string(name='remark', description='Remark information of the topic.', example='This is the remark for test.'),
+        status?: string(name='status', description='The topic status.
 
 Valid values:
 
 *   RUNNING
-
-    <!-- -->
-
-    : The topic is
-
-    <!-- -->
-
-    running
-
-    <!-- -->
-
-    .
-
-*   CREATING
-
-    <!-- -->
-
-    : The topic is
-
-    <!-- -->
-
-    being created
-
-    <!-- -->
-
-    .', example='RUNNING'),
-        topicName?: string(name='topicName', description='The name of the topic.', example='topic_test'),
-        updateTime?: string(name='updateTime', description='The time when the topic was last updated.', example='2022-08-01 20:05:50'),
+*   CREATING', example='RUNNING'),
+        topicName?: string(name='topicName', description='Topic name.', example='topic_test'),
+        updateTime?: string(name='updateTime', description='Last update time of the topic.', example='2022-08-01 20:05:50'),
       }
-    ](name='list', description='The paginated data.'),
-    pageNumber?: long(name='pageNumber', description='The page number of the returned page.', example='1'),
-    pageSize?: long(name='pageSize', description='The number of entries returned per page.', example='3'),
-    totalCount?: long(name='totalCount', description='The total number of returned entries.', example='1'),
-  }(name='data', description='The result data that is returned.'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='TopicName'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='topicName'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
-  message?: string(name='message', description='The error message.', example='The topic cannot be found.'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+    ](name='list', description='The topics.'),
+    pageNumber?: long(name='pageNumber', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='Page size.', example='3'),
+    totalCount?: long(name='totalCount', description='Total number of results returned.', example='1'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='TopicName'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message.', example='topicName'),
+  httpStatusCode?: int32(name='httpStatusCode', example='400'),
+  message?: string(name='message', description='Error message.', example='The topic cannot be found.'),
+  requestId?: string(name='requestId', description='Request ID, each request has a unique ID that can be used for troubleshooting and problem localization.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
 }
 
 model ListTopicsResponse = {
@@ -4894,7 +4898,7 @@ model ListTopicsResponse = {
 }
 
 /**
- * @summary Queries the topics in a specified instance.
+ * @summary Query Topic List
  *
  * @param tmpReq ListTopicsRequest
  * @param headers map
@@ -4945,7 +4949,7 @@ async function listTopicsWithOptions(instanceId: string, tmpReq: ListTopicsReque
 }
 
 /**
- * @summary Queries the topics in a specified instance.
+ * @summary Query Topic List
  *
  * @param request ListTopicsRequest
  * @return ListTopicsResponse
@@ -5159,15 +5163,15 @@ async function resetConsumeOffset(instanceId: string, consumerGroupId: string, t
 }
 
 model StartDisasterRecoveryItemResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: boolean(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied due to the reason that the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='Error code', example='DisasterRecoveryItemStatus.Error'),
+  data?: boolean(name='data', description='Return result', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='The current status of the disaster recovery item does not support this operation.'),
+  requestId?: string(name='requestId', description='Request ID', example='C7E8AE3A-219B-52EE-BE32-4036Fxxxxx'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model StartDisasterRecoveryItemResponse = {
@@ -5177,7 +5181,7 @@ model StartDisasterRecoveryItemResponse = {
 }
 
 /**
- * @summary 启用容灾计划条目
+ * @summary Enable Disaster Recovery Plan Entry
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -5206,7 +5210,7 @@ async function startDisasterRecoveryItemWithOptions(planId: string, itemId: stri
 }
 
 /**
- * @summary 启用容灾计划条目
+ * @summary Enable Disaster Recovery Plan Entry
  *
  * @return StartDisasterRecoveryItemResponse
  */
@@ -5217,15 +5221,15 @@ async function startDisasterRecoveryItem(planId: string, itemId: string): StartD
 }
 
 model StopDisasterRecoveryItemResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: boolean(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='Error code', example='DisasterRecoveryItemStatus.Error'),
+  data?: boolean(name='data', description='Return result', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
+  message?: string(name='message', description='Error message', example='The current status of the disaster recovery item does not support this operation.'),
+  requestId?: string(name='requestId', description='Request ID', example='A07B41BD-6DD3-5349-9E76-00303xxxx'),
+  success?: boolean(name='success', description='Whether the operation was successful', example='true'),
 }
 
 model StopDisasterRecoveryItemResponse = {
@@ -5235,7 +5239,7 @@ model StopDisasterRecoveryItemResponse = {
 }
 
 /**
- * @summary 停用容灾计划条目
+ * @summary Deactivate Disaster Recovery Plan Entry
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -5264,7 +5268,7 @@ async function stopDisasterRecoveryItemWithOptions(planId: string, itemId: strin
 }
 
 /**
- * @summary 停用容灾计划条目
+ * @summary Deactivate Disaster Recovery Plan Entry
  *
  * @return StopDisasterRecoveryItemResponse
  */
@@ -5275,14 +5279,14 @@ async function stopDisasterRecoveryItem(planId: string, itemId: string): StopDis
 }
 
 model SyncDisasterRecoveryCheckpointResponseBody = {
-  code?: string(name='code', example='Topic.NotFound'),
-  data?: boolean(name='data', example='true'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='400'),
-  message?: string(name='message', example='Parameter instanceId is mandatory for this action .'),
-  requestId?: string(name='requestId', example='7358418D-83BD-507A-8079-611C63E05674'),
-  success?: boolean(name='success', example='true'),
+  code?: string(name='code', description='Error Code', example='Topic.NotFound'),
+  data?: boolean(name='data', description='Result Data', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic Error Code', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP Status Code', example='400'),
+  message?: string(name='message', description='Error Message', example='Parameter instanceId is mandatory for this action .'),
+  requestId?: string(name='requestId', description='Request ID', example='7358418D-83BD-507A-8079-611C63E05674'),
+  success?: boolean(name='success', description='Success or Not', example='true'),
 }
 
 model SyncDisasterRecoveryCheckpointResponse = {
@@ -5292,7 +5296,7 @@ model SyncDisasterRecoveryCheckpointResponse = {
 }
 
 /**
- * @summary 同步容灾计划消费进度
+ * @summary Synchronize Disaster Recovery Plan Consumption Progress
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -5321,7 +5325,7 @@ async function syncDisasterRecoveryCheckpointWithOptions(planId: string, itemId:
 }
 
 /**
- * @summary 同步容灾计划消费进度
+ * @summary Synchronize Disaster Recovery Plan Consumption Progress
  *
  * @return SyncDisasterRecoveryCheckpointResponse
  */
@@ -5521,20 +5525,20 @@ model UpdateConsumerGroupRequest {
   consumeRetryPolicy?: {
     deadLetterTargetTopic?: string(name='deadLetterTargetTopic', description='The dead-letter topic.
 
-If a consumer still fails to consume a message after the message is retried for a specified number of times, the message is delivered to a dead-letter topic for subsequent business recovery or troubleshooting. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
+If a consumer still fails to consume a message after the maximum number of retries specified for the message is reached, the message is delivered to the dead-letter topic for subsequent business recovery or troubleshooting. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
     maxRetryTimes?: int32(name='maxRetryTimes', description='The maximum number of retries.', example='16'),
     retryPolicy?: string(name='retryPolicy', description='The retry policy. For more information, see [Message retry](https://help.aliyun.com/document_detail/440356.html).
 
 Valid values:
 
-*   FixedRetryPolicy: Failed messages are retried at a fixed interval.
-*   DefaultRetryPolicy: Failed messages are retried at incremental intervals as the number of retries increases.
+*   FixedRetryPolicy: fixed-interval retry. This value is valid only if you set deliveryOrderType to Orderly.
+*   DefaultRetryPolicy: exponential backoff retry. This value is valid only if you set deliveryOrderType to Concurrently.
 
 This parameter is required.', example='DefaultRetryPolicy'),
-  }(name='consumeRetryPolicy', description='The new consumption retry policy that you want to configure for the consumer group. For more information, see [Consumption retry](https://help.aliyun.com/document_detail/440356.html).
+  }(name='consumeRetryPolicy', description='The new consumption retry policy of the consumer group. For more information, see [Consumption retry](https://help.aliyun.com/document_detail/440356.html).
 
 This parameter is required.'),
-  deliveryOrderType?: string(name='deliveryOrderType', description='The new message delivery order of the consumer group.
+  deliveryOrderType?: string(name='deliveryOrderType', description='The new message delivery method of the consumer group.
 
 Valid values:
 
@@ -5542,19 +5546,19 @@ Valid values:
 *   Orderly: ordered delivery
 
 This parameter is required.', example='Concurrently'),
-  maxReceiveTps?: long(name='maxReceiveTps'),
-  remark?: string(name='remark', description='The new remarks on the consumer group.', example='This is the remark for test.'),
+  maxReceiveTps?: long(name='maxReceiveTps', description='The maximum TPS for message sending.', example='100'),
+  remark?: string(name='remark', description='The new description of the consumer group.', example='This is the remark for test.'),
 }
 
 model UpdateConsumerGroupResponseBody = {
-  code?: string(name='code', description='The error code.', example='InvalidDeliveryOrderType'),
-  data?: boolean(name='data', description='The result data that is returned.', example='true'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='DeliveryOrderType'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='deliveryOrderType'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
-  message?: string(name='message', description='The error message.', example='Parameter deliveryOrderType is invalid.'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='C7F94090-3358-506A-97DC-34BC803C****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+  code?: string(name='code', description='Error code.', example='InvalidDeliveryOrderType'),
+  data?: boolean(name='data', description='The result returned.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='xxx'),
+  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message.', example='xxx'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
+  message?: string(name='message', description='Error message.', example='Parameter deliveryOrderType is invalid.'),
+  requestId?: string(name='requestId', description='The request ID, which is unique for each request and can be used for troubleshooting and problem localization.', example='C7F94090-3358-506A-97DC-34BC803C****'),
+  success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
 }
 
 model UpdateConsumerGroupResponse = {
@@ -5564,9 +5568,9 @@ model UpdateConsumerGroupResponse = {
 }
 
 /**
- * @summary Updates the basic information about and the consumption retry policy of a consumer group.
+ * @summary Update ConsumerGroup
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description >Notice: The OpenAPI provided by Alibaba Cloud is a management API used for managing and querying related resources of Alibaba Cloud services. It is recommended to integrate it only in the management chain. It is strictly prohibited to rely on OpenAPI implementation in the core data chain of message sending and receiving, otherwise it may lead to risks in the chain.
  *
  * @param request UpdateConsumerGroupRequest
  * @param headers map
@@ -5612,9 +5616,9 @@ async function updateConsumerGroupWithOptions(instanceId: string, consumerGroupI
 }
 
 /**
- * @summary Updates the basic information about and the consumption retry policy of a consumer group.
+ * @summary Update ConsumerGroup
  *
- * @description > API operations provided by Alibaba Cloud are used to manage and query resources of Alibaba Cloud services. We recommend that you integrate these API operations only in management systems. Do not use these API operations in the core system of messaging services. Otherwise, system risks may occur.
+ * @description >Notice: The OpenAPI provided by Alibaba Cloud is a management API used for managing and querying related resources of Alibaba Cloud services. It is recommended to integrate it only in the management chain. It is strictly prohibited to rely on OpenAPI implementation in the core data chain of message sending and receiving, otherwise it may lead to risks in the chain.
  *
  * @param request UpdateConsumerGroupRequest
  * @return UpdateConsumerGroupResponse
@@ -5628,25 +5632,33 @@ async function updateConsumerGroup(instanceId: string, consumerGroupId: string, 
 model UpdateDisasterRecoveryItemRequest {
   topics?: [ 
     {
-      consumerGroupId?: string(name='consumerGroupId', example='GID_xxx'),
-      deliveryOrderType?: string(name='deliveryOrderType', example='Concurrently'),
-      instanceId?: string(name='instanceId', example='rmq-cn-em93y94xxx'),
-      instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      topicName?: string(name='topicName', example='Topic_xxx'),
+      consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group. If you use the two-way backup mode, you must specify this parameter.', example='GID_xxx'),
+      deliveryOrderType?: string(name='deliveryOrderType', description='The method used to deliver messages to the destination instance.
+
+Valid values:
+
+*   Concurrently: concurrent delivery
+*   Orderly: ordered delivery', example='Concurrently'),
+      instanceId?: string(name='instanceId', description='The instance ID. If you set instanceType to EXTERNAL_ROCKETMQ, the system automatically generates an ID for the instance. You can obtain the ID by querying the global message backup plan.', example='rmq-cn-em93y94xxx'),
+      instanceType?: string(name='instanceType', description='The instance type. Valid values:
+
+*   ALIYUN_ROCKETMQ: ApsaraMQ for RocketMQ instance
+*   EXTERNAL_ROCKETMQ: open source RocketMQ cluster', example='ALIYUN_ROCKETMQ'),
+      regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+      topicName?: string(name='topicName', description='The topic name. You must specify this parameter.', example='Topic_xxx'),
     }
-  ](name='topics'),
+  ](name='topics', description='The topics involved in the topic mapping.'),
 }
 
 model UpdateDisasterRecoveryItemResponseBody = {
-  code?: string(name='code', example='Topic.NotFound'),
-  data?: boolean(name='data', example='true'),
-  dynamicCode?: string(name='dynamicCode', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', example='200'),
-  message?: string(name='message', example='The instance cannot be found.'),
-  requestId?: string(name='requestId', description='Id of the request', example='0C32BED2-FA9F-50AD-9DA7-8B70E26C9D0D'),
-  success?: boolean(name='success', example='true'),
+  code?: string(name='code', description='The error code.', example='Topic.NotFound'),
+  data?: boolean(name='data', description='The returned data.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The instance cannot be found.'),
+  requestId?: string(name='requestId', description='The request ID.', example='0C32BED2-FA9F-50AD-9DA7-8B70E26C9D0D'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateDisasterRecoveryItemResponse = {
@@ -5656,7 +5668,7 @@ model UpdateDisasterRecoveryItemResponse = {
 }
 
 /**
- * @summary 修改容灾计划条目
+ * @summary Updates a topic mapping in a global message backup plan.
  *
  * @param request UpdateDisasterRecoveryItemRequest
  * @param headers map
@@ -5693,7 +5705,7 @@ async function updateDisasterRecoveryItemWithOptions(planId: string, itemId: str
 }
 
 /**
- * @summary 修改容灾计划条目
+ * @summary Updates a topic mapping in a global message backup plan.
  *
  * @param request UpdateDisasterRecoveryItemRequest
  * @return UpdateDisasterRecoveryItemResponse
@@ -5705,43 +5717,60 @@ async function updateDisasterRecoveryItem(planId: string, itemId: string, reques
 }
 
 model UpdateDisasterRecoveryPlanRequest {
-  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint'),
+  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.
+
+> This is effective only when consumption progress synchronization is enabled, i.e., the value of `syncCheckpointEnabled` is true.', example='true'),
   instances?: [ 
     {
-      authType?: string(name='authType', example='NO_AUTH'),
-      endpointUrl?: string(name='endpointUrl'),
-      instanceId?: string(name='instanceId'),
-      instanceRole?: string(name='instanceRole', example='ACTIVE'),
-      instanceType?: string(name='instanceType', example='ALIYUN_ROCKETMQ'),
+      authType?: string(name='authType', description='The authentication type.
+
+*   NO_AUTH: no authentication
+*   ACL_AUTH: access control list (ACL)-based authentication', example='NO_AUTH'),
+      endpointUrl?: string(name='endpointUrl', description='The instance endpoint. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='xxx'),
+      instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-83l3r0xxxx'),
+      instanceRole?: string(name='instanceRole', description='The instance role. Valid values:
+
+*   ACTIVE: primary instance
+*   Passive: secondary instance', example='ACTIVE'),
+      instanceType?: string(name='instanceType', description='The instance type. Valid values:
+
+*   ALIYUN_ROCKETMQ: ApsaraMQ for RocketMQ instance
+*   EXTERNAL_ROCKETMQ: open source RocketMQ cluster', example='ALIYUN_ROCKETMQ'),
       messageProperty?: {
-        propertyKey?: string(name='propertyKey', example='aaa'),
-        propertyValue?: string(name='propertyValue', example='bbb'),
-      }(name='messageProperty'),
-      networkType?: string(name='networkType', example='TCP_INTERNET'),
-      password?: string(name='password'),
-      regionId?: string(name='regionId', example='cn-hangzhou'),
-      securityGroupId?: string(name='securityGroupId', example='sg-bp17hpmgz9******'),
-      username?: string(name='username'),
-      vSwitchId?: string(name='vSwitchId', example='vsw-uf6gwtbn6etadpv******'),
-      vpcId?: string(name='vpcId', example='vpc-wz9qt50xhtj9krb******'),
+        propertyKey?: string(name='propertyKey', description='The attribute key.', example='aaa'),
+        propertyValue?: string(name='propertyValue', description='The attribute value.', example='bbb'),
+      }(name='messageProperty', description='The message attribute. When you synchronize a message to the destination cluster, the system automatically adds the attribute to the message for SQL-based filtering.'),
+      networkType?: string(name='networkType', description='The network type. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ. Valid values:
+
+*   TCP_INTERNET: Internet over TCP
+*   TCP_VPC: virtual private cloud (VPC) over TCP.', example='TCP_INTERNET'),
+      password?: string(name='password', description='The password that is used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
+      regionId?: string(name='regionId', description='The region in which the instance resides.', example='cn-hangzhou'),
+      securityGroupId?: string(name='securityGroupId', description='The ID of the security group to which the instance belongs. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='sg-bp17hpmgz9******'),
+      username?: string(name='username', description='The username that is used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
+      vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated. If you want to specify multiple vSwitches, separate the vSwitches with vertical bars (|).', example='vsw-uf6gwtbn6etadpv******'),
+      vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='vpc-wz9qt50xhtj9krb******'),
     }
-  ](name='instances'),
-  planDesc?: string(name='planDesc'),
-  planName?: string(name='planName'),
-  planType?: string(name='planType', example='ACTIVE_PASSIVE'),
-  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled'),
+  ](name='instances', description='The instances that are involved in the global message backup plan.'),
+  planDesc?: string(name='planDesc', description='The description of the global message backup plan.', example='xxx'),
+  planName?: string(name='planName', description='The name of the global message backup plan.', example='xxx'),
+  planType?: string(name='planType', description='The type of the global message backup plan. Valid values:
+
+*   ACTIVE_PASSIVE: geo-disaster recovery
+*   ACTIVE_ACTIVE: active geo-redundancy', example='ACTIVE_PASSIVE'),
+  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
 }
 
 model UpdateDisasterRecoveryPlanResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail'),
-  code?: string(name='code'),
-  data?: boolean(name='data'),
-  dynamicCode?: string(name='dynamicCode'),
-  dynamicMessage?: string(name='dynamicMessage'),
-  httpStatusCode?: int32(name='httpStatusCode'),
-  message?: string(name='message'),
-  requestId?: string(name='requestId'),
-  success?: boolean(name='success'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='DisasterRecoveryPlanStatus.Error'),
+  data?: boolean(name='data', description='The data returned.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='The current status of the disaster recovery plan does not support this operation.'),
+  requestId?: string(name='requestId', description='The request ID.', example='A07B41BD-6DD3-5349-9E76-00303Dxxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model UpdateDisasterRecoveryPlanResponse = {
@@ -5751,7 +5780,7 @@ model UpdateDisasterRecoveryPlanResponse = {
 }
 
 /**
- * @summary 更新容灾计划
+ * @summary Modifies a global message backup plan.
  *
  * @param request UpdateDisasterRecoveryPlanRequest
  * @param headers map
@@ -5803,7 +5832,7 @@ async function updateDisasterRecoveryPlanWithOptions(planId: string, request: Up
 }
 
 /**
- * @summary 更新容灾计划
+ * @summary Modifies a global message backup plan.
  *
  * @param request UpdateDisasterRecoveryPlanRequest
  * @return UpdateDisasterRecoveryPlanResponse
@@ -6134,19 +6163,19 @@ async function updateInstanceAcl(instanceId: string, username: string, request: 
 }
 
 model UpdateTopicRequest {
-  maxSendTps?: long(name='maxSendTps'),
-  remark?: string(name='remark', description='The new remarks on the topic.', example='This is the remark for test.'),
+  maxSendTps?: long(name='maxSendTps', description='Maximum send message tps', example='500'),
+  remark?: string(name='remark', description='Updated remarks for the topic.', example='This is the remark for test.'),
 }
 
 model UpdateTopicResponseBody = {
-  code?: string(name='code', description='The error code.', example='Topic.NotFound'),
-  data?: boolean(name='data', description='The result data that is returned.', example='true'),
-  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='TopicName'),
-  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='topicName'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='400'),
-  message?: string(name='message', description='The error message.', example='The topic cannot be found.'),
-  requestId?: string(name='requestId', description='The ID of the request. The system generates a unique ID for each request. You can troubleshoot issues based on the request ID.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
-  success?: boolean(name='success', description='Indicates whether the call is successful.', example='true'),
+  code?: string(name='code', description='Error code.', example='Topic.NotFound'),
+  data?: boolean(name='data', description='Return result.', example='true'),
+  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='TopicName'),
+  dynamicMessage?: string(name='dynamicMessage', description='动态错误信息', example='topicName'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
+  message?: string(name='message', description='Error message.', example='The topic cannot be found.'),
+  requestId?: string(name='requestId', description='Request ID, each request has a unique ID that can be used for troubleshooting and problem localization.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
+  success?: boolean(name='success', description='Whether the execution result is successful.', example='true'),
 }
 
 model UpdateTopicResponse = {
@@ -6156,7 +6185,7 @@ model UpdateTopicResponse = {
 }
 
 /**
- * @summary Updates the basic information about a topic.
+ * @summary Update Topic
  *
  * @param request UpdateTopicRequest
  * @param headers map
@@ -6196,7 +6225,7 @@ async function updateTopicWithOptions(instanceId: string, topicName: string, req
 }
 
 /**
- * @summary Updates the basic information about a topic.
+ * @summary Update Topic
  *
  * @param request UpdateTopicRequest
  * @return UpdateTopicResponse
