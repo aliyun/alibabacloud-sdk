@@ -32,7 +32,13 @@ function close(): void {
 
 model AddAutoCcBlacklistRequest {
   regionId?: string(name='RegionId', position='Host'),
-  blacklist: string(name='Blacklist', description='This parameter is required.', example='[{"src":"198.51.XX.XX"},{"src":"198.52.XX.XX"}]', position='Query'),
+  blacklist: string(name='Blacklist', description='The IP addresses that you want to manage. This parameter is a JSON string. The string contains the following field:
+
+*   **src**: the IP address. This field is required and must be of the STRING type.
+
+>  You can manually add up to 2,000 IP addresses to the IP address blacklist. Separate multiple IP addresses with spaces or line breaks.
+
+This parameter is required.', example='[{"src":"198.51.XX.XX"},{"src":"198.52.XX.XX"}]', position='Query'),
   expireTime: int32(name='ExpireTime', description='This parameter is required.', example='300', position='Query'),
   instanceId: string(name='InstanceId', description='This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
 }
@@ -206,6 +212,31 @@ model ConfigDomainSecurityProfileResponse = {
 async function configDomainSecurityProfile(request: ConfigDomainSecurityProfileRequest): ConfigDomainSecurityProfileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ConfigDomainSecurityProfile', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ConfigL7GlobalRuleRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  domain: string(name='Domain', description='This parameter is required.', example='example.com', position='Query'),
+  ruleAttr: string(name='RuleAttr', description='This parameter is required.', example='[{\\"RuleId\\":\\"global_01\\",\\"Action\\":\\"block\\",\\"Enabled\\":0}]', position='Query'),
+}
+
+model ConfigL7GlobalRuleResponseBody = {
+  requestId?: string(name='RequestId', example='CF33B4C3-196E-4015-AADD-5CAD00057B80'),
+}
+
+model ConfigL7GlobalRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConfigL7GlobalRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ConfigL7GlobalRule  ConfigL7GlobalRuleRequest
+  * @return ConfigL7GlobalRuleResponse
+ */
+async function configL7GlobalRule(request: ConfigL7GlobalRuleRequest): ConfigL7GlobalRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ConfigL7GlobalRule', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ConfigL7RsPolicyRequest {
@@ -961,8 +992,8 @@ This parameter is required.', example='testpolicy', position='Query'),
 This parameter is required.', example='1585670400000', position='Query'),
   template: string(name='Template', description='The template of the policy. Valid values:
 
-*   **promotion**: important activity
-*   **bypass**: all traffic forwarded
+*   **promotion**: important activity.
+*   **bypass**: all traffic forwarded.
 
 This parameter is required.', example='promotion', position='Query'),
 }
@@ -1388,7 +1419,7 @@ model DeletePortRequest {
   frontendPort: string(name='FrontendPort', description='The forwarding port. Valid values: **0** to **65535**.
 
 This parameter is required.', example='55', position='Query'),
-  frontendProtocol: string(name='FrontendProtocol', description='The type of the protocol. Valid values:
+  frontendProtocol: string(name='FrontendProtocol', description='The type of the forwarding protocol. Valid values:
 
 *   **tcp**
 *   **udp**
@@ -2087,6 +2118,8 @@ model DescribeCertsResponse = {
 }
 
 /**
+  * @description This operation is used to query all applicable certificates of a domain name that you want to add to Anti-DDoS Proxy. Multiple certificates may be queried for a domain name. You can use an exact domain name to query exact-domain certificates or wildcard-domain certificates.
+  * >  If you want to query the certificate that is in use for the current domain name, you can call the [DescribeWebRules](https://help.aliyun.com/document_detail/473610.html) operation to obtain the values of the CertName and CertRegion parameters. Then, you can call the [ListUserCertificateOrder](https://help.aliyun.com/document_detail/411733.html) operation of Certificate Management Service to query the ID and other details of the certificate by using the value of the CertName parameter.
   * @param request  the request parameters of DescribeCerts  DescribeCertsRequest
   * @return DescribeCertsResponse
  */
@@ -2097,7 +2130,11 @@ async function describeCerts(request: DescribeCertsRequest): DescribeCertsRespon
 
 model DescribeCnameReusesRequest {
   regionId?: string(name='RegionId', position='Host'),
-  domains: [ string ](name='Domains', description='This parameter is required.', example='www.aliyun.com', position='Query'),
+  domains: [ string ](name='Domains', description='The domain names of the websites. You can specify the domain names of up to 200 websites.
+
+>  A forwarding rule must be configured for a domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query all domain names.
+
+This parameter is required.', example='www.aliyun.com', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', example='default', position='Query'),
 }
 
@@ -2196,6 +2233,7 @@ async function describeDDoSEvents(request: DescribeDDoSEventsRequest): DescribeD
 }
 
 model DescribeDDosAllEventListRequest {
+  regionId?: string(name='RegionId', position='Host'),
   endTime: long(name='EndTime', description='The end of the time range to query. The DDoS attack events occur before **EndTime** are queried. This value is a UNIX timestamp. Unit: seconds.
 
 This parameter is required.', example='1640966399', position='Query'),
@@ -2253,7 +2291,7 @@ model DescribeDDosAllEventListResponseBody = {
       pps?: long(name='Pps', description='The peak packet forwarding rate of attack traffic. Unit: packets per second (pps).', example='9664270'),
       startTime?: long(name='StartTime', description='The time when the DDoS attack started. This value is a UNIX timestamp. Unit: seconds.', example='1634543764'),
     }
-  ](name='AttackEvents', description='An array that consists of attack events.'),
+  ](name='AttackEvents', description='The DDoS attack events.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='25D83ED5-28CB-5683-9CF7-AECE521F3005'),
   total?: long(name='Total', description='The total number of DDoS attack events.', example='1'),
 }
@@ -2322,6 +2360,7 @@ async function describeDDosEventArea(request: DescribeDDosEventAreaRequest): Des
 }
 
 model DescribeDDosEventAttackTypeRequest {
+  regionId?: string(name='RegionId', position='Host'),
   eventType: string(name='EventType', description='The type of the attack event that you want to query. Valid values:
 
 *   **defense**: attack events that trigger traffic scrubbing
@@ -2471,6 +2510,7 @@ async function describeDDosEventIsp(request: DescribeDDosEventIspRequest): Descr
 }
 
 model DescribeDDosEventMaxRequest {
+  regionId?: string(name='RegionId', position='Host'),
   endTime: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp. Unit: seconds.
 
 This parameter is required.', example='1604073600', position='Query'),
@@ -3629,6 +3669,7 @@ model DescribeDomainViewTopUrlRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1583683200', position='Query'),
+  inerval?: long(name='Inerval', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default', position='Query'),
   startTime: long(name='StartTime', description='The beginning of the time range to query. The value is a UNIX timestamp. Unit: seconds.
 
@@ -4378,6 +4419,41 @@ async function describeInstances(request: DescribeInstancesRequest): DescribeIns
   return @handler.do('RPC', 'DescribeInstances', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeL7GlobalRuleRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  domain: string(name='Domain', description='This parameter is required.', example='example.com', position='Query'),
+  lang?: string(name='Lang', example='zh', position='Query'),
+}
+
+model DescribeL7GlobalRuleResponseBody = {
+  globalRules?: [ 
+    {
+      action?: string(name='Action', example='watch'),
+      actionDefault?: string(name='ActionDefault', example='watch'),
+      description?: string(name='Description'),
+      enabled?: long(name='Enabled', example='1'),
+      ruleId?: string(name='RuleId', example='global_1'),
+      ruleName?: string(name='RuleName'),
+    }
+  ](name='GlobalRules'),
+  requestId?: string(name='RequestId', example='CF33B4C3-196E-4015-AADD-5CAD00057B80'),
+}
+
+model DescribeL7GlobalRuleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeL7GlobalRuleResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeL7GlobalRule  DescribeL7GlobalRuleRequest
+  * @return DescribeL7GlobalRuleResponse
+ */
+async function describeL7GlobalRule(request: DescribeL7GlobalRuleRequest): DescribeL7GlobalRuleResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeL7GlobalRule', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeL7RsPolicyRequest {
   regionId?: string(name='RegionId', position='Host'),
   domain: string(name='Domain', description='The domain name of the website to query.
@@ -4744,17 +4820,26 @@ model DescribeNetworkRulesResponseBody = {
 
 *   **true**
 *   **false**', example='true'),
-      payloadRuleEnable?: long(name='PayloadRuleEnable'),
+      payloadRuleEnable?: long(name='PayloadRuleEnable', description='Indicates whether the payload filtering rule is enabled. Valid values:
+
+*   1: enabled.
+*   0: disabled.', example='1'),
       protocol?: string(name='Protocol', description='The forwarding protocol. Valid values:
 
 *   **tcp**
 *   **udp**', example='tcp'),
-      proxyEnable?: long(name='ProxyEnable'),
-      proxyStatus?: string(name='ProxyStatus'),
+      proxyEnable?: long(name='ProxyEnable', description='Indicates whether the traffic diversion switch is on. Valid values:
+
+*   0: on.
+*   1: off.', example='0'),
+      proxyStatus?: string(name='ProxyStatus', description='The status of traffic diversion. Valid values:
+
+*   on: Traffic diversion takes effect.
+*   off: Traffic diversion does not take effect.', example='on'),
       realServers?: [ string ](name='RealServers', description='The IP addresses of origin servers.'),
       remark?: string(name='Remark', description='The remarks of the port forwarding rule.', example='Test'),
     }
-  ](name='NetworkRules', description='The details of the port forwarding rule.'),
+  ](name='NetworkRules', description='The details of the port forwarding rules.'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='8597F235-FA5E-4FC7-BAD9-E4C0B01BC771'),
   totalCount?: long(name='TotalCount', description='The total number of returned port forwarding rules.', example='1'),
 }
@@ -4963,7 +5048,7 @@ model DescribePortAttackMaxFlowRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1583683200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='An array that consists of the IDs of instances to query.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances to query.
 
 This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management.
@@ -5276,9 +5361,9 @@ model DescribePortMaxConnsRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1583683200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='The ID of the instance.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances.
 
-> You can call the [DescribeInstanceIds](https://help.aliyun.com/document_detail/157459.html) operation to query the IDs of all instances.
+>  You can call the [DescribeInstanceIds](https://help.aliyun.com/document_detail/157459.html) operation to query the IDs of all Anti-DDoS Proxy instances.
 
 This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default', position='Query'),
@@ -5296,7 +5381,7 @@ model DescribePortMaxConnsResponseBody = {
       ip?: string(name='Ip', description='The IP address of the instance.', example='203.***.***.117'),
       port?: string(name='Port', description='The port of the instance.', example='80'),
     }
-  ](name='PortMaxConns', description='An array consisting of the details of the maximum number of connections that are established over a port of the instance.'),
+  ](name='PortMaxConns', description='The details of the maximum number of connections that can be established over a port of the instance.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='08F79110-2AF5-4FA7-998E-7C5E75EACF9C'),
 }
 
@@ -5322,12 +5407,12 @@ model DescribePortViewSourceCountriesRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1583683200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='An array that consists of the IDs of instances to query.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances to query.
 
 This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Anti-DDoS Proxy instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.
 
-For more information about resource groups, see [Create a resource group](https://help.aliyun.com/document_detail/94485.html).', example='rg-acfm2pz25js****', position='Query'),
+For information about resource groups, see [Create a resource group](https://help.aliyun.com/document_detail/94485.html).', example='rg-acfm2pz25js****', position='Query'),
   startTime: long(name='StartTime', description='The beginning of the time range to query. The value is a UNIX timestamp. Unit: seconds.
 
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
@@ -5344,7 +5429,7 @@ model DescribePortViewSourceCountriesResponseBody = {
 
 > For more information, see [Location parameters](https://help.aliyun.com/document_detail/167926.html).', example='cn'),
     }
-  ](name='SourceCountrys', description='An array consisting of countries or areas from which the requests are sent.'),
+  ](name='SourceCountrys', description='The details about the country or area from which the requests are sent.'),
 }
 
 model DescribePortViewSourceCountriesResponse = {
@@ -5369,12 +5454,12 @@ model DescribePortViewSourceIspsRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1583683200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='An array that consists of the IDs of instances to query.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances to query.
 
 This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management.
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Anti-DDoS Proxy instance belongs in Resource Management.
 
-If you do not configure this parameter, the instance belongs to the default resource group.', example='rg-acfm2pz25js****', position='Query'),
+If you do not specify this parameter, the instance belongs to the default resource group.', example='rg-acfm2pz25js****', position='Query'),
   startTime: long(name='StartTime', description='The beginning of the time range to query. This value is a UNIX timestamp. Unit: seconds.
 
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
@@ -5418,12 +5503,12 @@ model DescribePortViewSourceProvincesRequest {
   endTime?: long(name='EndTime', description='The end of the time range to query. The value is a UNIX timestamp. Unit: seconds. If you do not configure this parameter, the current system time is used as the end time.
 
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.', example='1583683200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='The IDs of instances to query.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances to query.
 
 This parameter is required.', example='ddoscoo-cn-mp91j1ao****', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the Anti-DDoS Proxy instance belongs in Resource Management. This parameter is empty by default, which indicates that the Anti-DDoS Origin instance belongs to the default resource group.
 
-For more information about resource groups, see [Create a resource group](https://help.aliyun.com/document_detail/94485.html).', example='rg-acfm2pz25js****', position='Query'),
+For information about resource groups, see [Create a resource group](https://help.aliyun.com/document_detail/94485.html).', example='rg-acfm2pz25js****', position='Query'),
   startTime: long(name='StartTime', description='The beginning of the time range to query. The value is a UNIX timestamp. Unit: seconds.
 
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
@@ -5442,7 +5527,7 @@ model DescribePortViewSourceProvincesResponseBody = {
 
 > For more information, see [Location parameters](https://help.aliyun.com/document_detail/167926.html).', example='440000'),
     }
-  ](name='SourceProvinces', description='Details about the administrative region in China from which the requests are sent.'),
+  ](name='SourceProvinces', description='The details of the administrative region in China from which the requests are sent.'),
 }
 
 model DescribePortViewSourceProvincesResponse = {
@@ -6021,7 +6106,7 @@ model DescribeTotalAttackMaxFlowRequest {
 > This UNIX timestamp must indicate a point in time that is accurate to the minute.
 
 This parameter is required.', example='1659697200', position='Query'),
-  instanceIds: [ string ](name='InstanceIds', description='The IDs of the instances. Separate multiple instance IDs with commas (,). Example: InstanceIds.1, InstanceIds.2, InstanceIds.3.
+  instanceIds: [ string ](name='InstanceIds', description='The IDs of the Anti-DDoS Proxy instances. Separate multiple instance IDs with commas (,). Example: InstanceIds.1, InstanceIds.2, InstanceIds.3.
 
 This parameter is required.', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. If you do not configure this parameter, the instance belongs to the default resource group.', example='default', position='Query'),
@@ -6034,7 +6119,7 @@ This parameter is required.', example='1669240800', position='Query'),
 
 model DescribeTotalAttackMaxFlowResponseBody = {
   bps?: long(name='Bps', description='The peak bandwidth of attack traffic. Unit: bit/s.', example='0'),
-  pps?: long(name='Pps', description='The peak packet rate of attack traffic . Unit: packets per second (pps).', example='0'),
+  pps?: long(name='Pps', description='The peak packet rate of attack traffic. Unit: packets per second (pps).', example='0'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='9173A3CB-C40B-559B-96B7-2373830BD06A'),
 }
 
@@ -6643,9 +6728,9 @@ async function describeWebCustomPorts(request: DescribeWebCustomPortsRequest): D
 
 model DescribeWebInstanceRelationsRequest {
   regionId?: string(name='RegionId', position='Host'),
-  domains: [ string ](name='Domains', description='The domain names of the website. list
+  domains: [ string ](name='Domains', description='The domain names of the website.
 
-> A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query all domain names.
+>  A forwarding rule must be configured for the domain names. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query all domain names.
 
 This parameter is required.', example='www.aliyun.com', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default', position='Query'),
@@ -6746,6 +6831,7 @@ async function describeWebPreciseAccessRule(request: DescribeWebPreciseAccessRul
 }
 
 model DescribeWebReportTopIpRequest {
+  regionId?: string(name='RegionId', position='Host'),
   domain?: string(name='Domain', description='The domain name of the website.
 
 >  A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query the domain names for which forwarding rules are configured.', example='app.bmjqxvb.cn', position='Query'),
@@ -6761,7 +6847,7 @@ This parameter is required.', example='1687228200', position='Query'),
 *   If the time span between StartTime and EndTime is 31 days or longer, the valid value is 86400.
 
 This parameter is required.', example='300', position='Query'),
-  queryType: string(name='QueryType', description='The source of the statistics. Valid value:
+  queryType: string(name='QueryType', description='The source of the statistics. Valid values:
 
 *   **visit**: indicates all IP addresses.
 *   **block**: indicates blocked IP addresses.
@@ -6802,7 +6888,7 @@ model DescribeWebReportTopIpResponseBody = {
 *   **100098**: Alibaba', example='100017'),
       sourceIp?: string(name='SourceIp', description='The source IP address.', example='117.186.XX.XX'),
     }
-  ](name='DataList', description='The response parameters.'),
+  ](name='DataList', description='The information about the IP addresses.'),
   requestId?: string(name='RequestId', description='The request ID.', example='D21BE0C4-8E83-5E32-86C6-AA6BE9B1B5BD'),
 }
 
@@ -7242,7 +7328,7 @@ model EnableWebAccessLogConfigRequest {
   regionId?: string(name='RegionId', position='Host'),
   domain: string(name='Domain', description='The domain name of the website.
 
-> A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query all domain names.
+>  A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/474212.html) operation to query all domain names.
 
 This parameter is required.', example='www.aliyun.com', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default', position='Query'),
@@ -7825,26 +7911,55 @@ async function modifyHttp2Enable(request: ModifyHttp2EnableRequest): ModifyHttp2
 
 model ModifyInstanceRequest {
   regionId?: string(name='RegionId', position='Host'),
-  addressType?: string(name='AddressType', example='Ipv4', position='Query'),
-  bandwidth?: string(name='Bandwidth', example='30', position='Query'),
-  baseBandwidth?: string(name='BaseBandwidth', example='30', position='Query'),
-  domainCount?: string(name='DomainCount', example='50', position='Query'),
-  editionSale?: string(name='EditionSale', example='coop', position='Query'),
-  functionVersion?: string(name='FunctionVersion', example='0', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='ddoscoo-cn-6ja1y6p5****', position='Query'),
-  modifyType: string(name='ModifyType', description='This parameter is required.', example='Upgrade', position='Query'),
-  normalBandwidth?: string(name='NormalBandwidth', example='200', position='Query'),
-  normalQps?: string(name='NormalQps', example='100', position='Query'),
-  portCount?: string(name='PortCount', example='50', position='Query'),
-  productPlan?: string(name='ProductPlan', example='0', position='Query'),
-  productType: string(name='ProductType', description='This parameter is required.', example='ddoscoo', position='Query'),
-  serviceBandwidth?: string(name='ServiceBandwidth', example='300', position='Query'),
-  servicePartner?: string(name='ServicePartner', example='coop-line-001', position='Query'),
+  addressType?: string(name='AddressType', description='Address type. Values:
+- **Ipv4**: IPv4.
+- **Ipv6**: IPv6.', example='Ipv4', position='Query'),
+  bandwidth?: string(name='Bandwidth', description='Elastic protection bandwidth (Mainland China). Unit: Gbps.', example='30', position='Query'),
+  baseBandwidth?: string(name='BaseBandwidth', description='Guaranteed protection bandwidth (Mainland China). Unit: Gbps.', example='30', position='Query'),
+  domainCount?: string(name='DomainCount', description='Number of protected domains.', example='50', position='Query'),
+  editionSale?: string(name='EditionSale', description='Protection package (Mainland China). Values:
+
+- **coop**: Indicates the DDoS High Defense (Mainland China) Professional Edition.
+- **advance**: Indicates the DDoS High Defense (Mainland China) Professional Edition.', example='coop', position='Query'),
+  functionVersion?: string(name='FunctionVersion', description='Function version, with values:
+
+- **0**: Standard function.
+- **1**: Enhanced function.', example='0', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the DDoS High Defense instance.
+> You can call [DescribeInstanceIds](https://help.aliyun.com/document_detail/157459.html) to query the ID information of all DDoS High Defense instances.
+
+This parameter is required.', example='ddoscoo-cn-6ja1y6p5****', position='Query'),
+  modifyType: string(name='ModifyType', description='Adjustment type, with values
+- UPGRADE: Upgrade.
+- DOWNGRADE: Downgrade.
+
+This parameter is required.', example='Upgrade', position='Query'),
+  normalBandwidth?: string(name='NormalBandwidth', description='Business bandwidth (outside Mainland China). Unit: Mbps.', example='200', position='Query'),
+  normalQps?: string(name='NormalQps', description='Business QPS. Unit: Mbps.', example='100', position='Query'),
+  portCount?: string(name='PortCount', description='Number of protected ports.', example='50', position='Query'),
+  productPlan?: string(name='ProductPlan', description='Protection package (outside Mainland China). Values:
+
+- **0**: Indicates the DDoS High Defense (outside Mainland China) Insurance Edition.
+- **1**: Indicates the DDoS High Defense (outside Mainland China) Worry-Free Edition.
+- **2**: Indicates the DDoS High Defense (outside Mainland China) Acceleration Line.
+- **3**: Indicates the DDoS High Defense (outside Mainland China) Secure Acceleration Line.', example='0', position='Query'),
+  productType: string(name='ProductType', description='Product type.
+Values:
+
+- **ddoscoo**: Indicates that the DDoS High Defense (Mainland China) instance is being adjusted for a China site account.
+- **ddoscoo_intl**: Indicates that the DDoS High Defense (Mainland China) instance is being adjusted for an international site account.
+- **ddosDip**: Indicates that the DDoS High Defense (outside Mainland China) instance is being adjusted for either a China or international site account.
+
+This parameter is required.', example='ddoscoo', position='Query'),
+  serviceBandwidth?: string(name='ServiceBandwidth', description='Business bandwidth (Mainland China). Unit: Mbps.', example='300', position='Query'),
+  servicePartner?: string(name='ServicePartner', description='Line resources of the instance (Mainland China). Values:
+
+- **coop-line-001**: Indicates the DDoS High Defense (Mainland China) 8-line BGP line.', example='coop-line-001', position='Query'),
 }
 
 model ModifyInstanceResponseBody = {
-  orderId?: long(name='OrderId', example='242461444340562'),
-  requestId?: string(name='RequestId', example='0018DF77-7189-5D33-947B-E5B34BFCE07E'),
+  orderId?: long(name='OrderId', description='Order ID.', example='242461444340562'),
+  requestId?: string(name='RequestId', description='The ID of this request, which is a unique identifier generated by Alibaba Cloud for this request and can be used for troubleshooting and problem localization.', example='0018DF77-7189-5D33-947B-E5B34BFCE07E'),
 }
 
 model ModifyInstanceResponse = {
@@ -7971,10 +8086,10 @@ model ModifyOcspStatusRequest {
 This parameter is required.', example='click.linktech.cn', position='Query'),
   enable: int32(name='Enable', description='Specifies whether to enable the OCSP feature. Valid values:
 
-*   **1**: yes
-*   **0**: no
+*   **1**: yes.
+*   **0**: no.
 
-This parameter is required.', position='Query'),
+This parameter is required.', example='1', position='Query'),
 }
 
 model ModifyOcspStatusResponseBody = {
@@ -8135,8 +8250,8 @@ This parameter is required.', example='321a-fd31-df51-****', position='Query'),
 This parameter is required.', example='1585670400000', position='Query'),
   template: string(name='Template', description='The template of the policy. Valid values:
 
-*   **promotion**: important activity
-*   **bypass**: all traffic forwarded
+*   **promotion**: important activity.
+*   **bypass**: all traffic forwarded.
 
 This parameter is required.', example='promotion', position='Query'),
 }
@@ -8300,7 +8415,7 @@ model ModifyWebAIProtectModeRequest {
 This parameter is required.', example='{"AiTemplate":"level60","AiMode":"defense"}', position='Query'),
   domain: string(name='Domain', description='The domain name of the website.
 
-> A forwarding rule must be configured for a domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query all domain names.
+>  A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/474212.html) operation to query all domain names.
 
 This parameter is required.', example='www.aliyun.com', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.', example='default', position='Query'),
@@ -8801,17 +8916,45 @@ async function modifyWebPreciseAccessSwitch(request: ModifyWebPreciseAccessSwitc
 
 model ModifyWebRuleRequest {
   regionId?: string(name='RegionId', position='Host'),
-  domain: string(name='Domain', description='This parameter is required.', example='www.aliyun.com', position='Query'),
-  httpsExt?: string(name='HttpsExt', example='{"Http2":1,"Http2https":1,"Https2http":1}', position='Query'),
+  domain: string(name='Domain', description='The domain name of the website.
+
+>  A forwarding rule must be configured for the domain name. You can call the [DescribeDomains](https://help.aliyun.com/document_detail/91724.html) operation to query the domain names for which forwarding rules are configured.
+
+This parameter is required.', example='www.aliyun.com', position='Query'),
+  httpsExt?: string(name='HttpsExt', description='The advanced HTTPS settings. This parameter takes effect only when the value of **ProxyType** includes **https**. The value is a string that consists of a JSON struct. The JSON struct contains the following fields:
+
+*   **Http2https**: specifies whether to turn on Enforce HTTPS Routing. This field is optional and must be an integer. Valid values: **0** and **1**. The value 0 indicates that Enforce HTTPS Routing is turned off. The value 1 indicates that Enforce HTTPS Routing is turned on. The default value is 0.
+
+    If your website supports both HTTP and HTTPS, this feature suits your needs. If you turn on the switch, all HTTP requests are redirected to HTTPS requests on port 443 by default.
+
+*   **Https2http**: specifies whether to turn on Enable HTTP. This field is optional and must be an integer. Valid values: **0** and **1**. The value 0 indicates that Enable HTTP is turned off. The value 1 indicates that Enable HTTP is turned on. The default value is 0.
+
+    If your website does not support HTTPS, this feature suits your needs. If you turn on the switch, all HTTPS requests are redirected to HTTP requests and forwarded to origin servers. The feature can also redirect WebSockets requests to WebSocket requests. All requests are redirected over port 80.
+
+*   **Http2**: specifies whether to turn on Enable HTTP/2. This field is optional and must be an integer. Valid values: **0** and **1**. The value 0 indicates that Enable HTTP/2 is turned off. The value 1 indicates that Enable HTTP/2 is turned on. The default value is 0.
+
+    After you turn on the switch, the protocol type is HTTP/2.', example='{"Http2":1,"Http2https":1,"Https2http":1}', position='Query'),
   instanceIds?: [ string ](name='InstanceIds', example='ddoscoo-cn-mp91j1ao****', position='Query'),
-  proxyTypes: string(name='ProxyTypes', description='This parameter is required.', example='[{"ProxyType":"https","ProxyPorts":[443]}]', position='Query'),
+  proxyTypes: string(name='ProxyTypes', description='The protocol of the forwarding rule. The value is a string that consists of JSON arrays. Each element in a JSON array is a JSON struct that contains the following fields:
+
+*   **ProxyType**: the protocol type. This field is required and must be a string. Valid values: **http**, **https**, **websocket**, and **websockets**.
+*   **ProxyPort**: the port number. This field is required and must be an array.
+
+This parameter is required.', example='[{"ProxyType":"https","ProxyPorts":[443]}]', position='Query'),
   realServers: [ string ](name='RealServers', description='This parameter is required.', example='1.xxx.xxx.1', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2pz25js****', position='Query'),
-  rsType: int32(name='RsType', description='This parameter is required.', example='0', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs in Resource Management. This parameter is empty by default, which indicates that the instance belongs to the default resource group.
+
+For more information about resource groups, see [Create a resource group](https://help.aliyun.com/document_detail/94485.html).', example='rg-acfm2pz25js****', position='Query'),
+  rsType: int32(name='RsType', description='The address type of the origin server. Valid values:
+
+*   **0**: IP address.
+*   **1**: domain name. Use the domain name of the origin server if you deploy proxies, such as Web Application Firewall (WAF), between the origin server and the Anti-DDoS Pro or Anti-DDoS Premium instance. If you use the domain name, you must enter the address of the proxy, such as the CNAME of WAF.
+
+This parameter is required.', example='0', position='Query'),
 }
 
 model ModifyWebRuleResponseBody = {
-  requestId?: string(name='RequestId', example='CB3261D2-7D1B-4ADA-9E98-A200B2CDA2DC'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CB3261D2-7D1B-4ADA-9E98-A200B2CDA2DC'),
 }
 
 model ModifyWebRuleResponse = {
@@ -8821,6 +8964,8 @@ model ModifyWebRuleResponse = {
 }
 
 /**
+  * @description ## Debugging
+  * [OpenAPI Explorer automatically calculates the signature value. For your convenience, we recommend that you call this operation in OpenAPI Explorer. OpenAPI Explorer dynamically generates the sample code of the operation for different SDKs.](https://api.aliyun.com/#product=ddoscoo\\&api=ModifyWebRule\\&type=RPC\\&version=2020-01-01)
   * @param request  the request parameters of ModifyWebRule  ModifyWebRuleRequest
   * @return ModifyWebRuleResponse
  */
