@@ -460,6 +460,7 @@ model OSSIngestionConfigurationSource {
   restoreObjectEnabled?: boolean(name='restoreObjectEnabled', example='true'),
   roleARN?: string(name='roleARN', example='acs:ram::12345:role/aliyunlogdefaultrole'),
   startTime?: long(name='startTime', example='1714274081'),
+  tagPackId?: boolean(name='tagPackId', example='true'),
   timeField?: string(name='timeField', example='__time__'),
   timeFormat?: string(name='timeFormat', example='yyyy-MM-dd HH:mm:ss'),
   timePattern?: string(name='timePattern', example='[0-9]{0,2}\\/[0-9a-zA-Z]+\\/[0-9:,]+'),
@@ -799,6 +800,69 @@ async function applyConfigToMachineGroup(project: string, machineGroup: string, 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return applyConfigToMachineGroupWithOptions(project, machineGroup, configName, headers, runtime);
+}
+
+model CallAiToolsRequest {
+  params?: map[string]string(name='params'),
+  regionId?: string(name='regionId'),
+  toolName?: string(name='toolName', description='This parameter is required.'),
+}
+
+model CallAiToolsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: string(name='body'),
+}
+
+/**
+ * @summary 调用 ai 工具
+ *
+ * @param request CallAiToolsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CallAiToolsResponse
+ */
+async function callAiToolsWithOptions(request: CallAiToolsRequest, headers: map[string]string, runtime: $RuntimeOptions): CallAiToolsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.params)) {
+    body['params'] = request.params;
+  }
+  if (!$isNull(request.regionId)) {
+    body['regionId'] = request.regionId;
+  }
+  if (!$isNull(request.toolName)) {
+    body['toolName'] = request.toolName;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CallAiTools',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/ml/tool/call`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'string',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 调用 ai 工具
+ *
+ * @param request CallAiToolsRequest
+ * @return CallAiToolsResponse
+ */
+async function callAiTools(request: CallAiToolsRequest): CallAiToolsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return callAiToolsWithOptions(request, headers, runtime);
 }
 
 model ChangeResourceGroupRequest {
@@ -1837,10 +1901,10 @@ async function createIndex(project: string, logstore: string, request: CreateInd
 }
 
 model CreateLogStoreRequest {
-  appendMeta?: boolean(name='appendMeta', description='Specifies whether to record the **public IP address** and **log receiving time**. Default value: false. Valid values:
+  appendMeta?: boolean(name='appendMeta', description='Specifies whether to record the **public IP address** and the **log receiving time**. Default value: false. Valid values:
 
-*   true********
-*   false********', example='false'),
+*   true: records the public IP address and the log receiving time. If you set this parameter to true, Simple Log Service automatically adds the public IP address of the device from which the log is collected and the time when Simple Log Service receives the log to the Tag field of the collected log.
+*   false: does not record the public IP address or log receiving time.', example='false'),
   autoSplit?: boolean(name='autoSplit', description='Specifies whether to enable automatic sharding. Valid values:
 
 *   true
@@ -1850,15 +1914,15 @@ model CreateLogStoreRequest {
 *   true
 *   false', example='false'),
   encryptConf?: EncryptConf(name='encrypt_conf', description='The data structure of the encryption configuration. The following parameters are included: `enable`, `encrypt_type`, and `user_cmk_info`. For more information, see [EncryptConf](https://help.aliyun.com/document_detail/409461.html).'),
-  hotTtl?: int32(name='hot_ttl', description='The retention period of data in the hot storage tier of the Logstore. Valid values: 7 to 3000. Unit: days.
+  hotTtl?: int32(name='hot_ttl', description='The data retention period for the hot storage tier. Unit: days. Minimum value: 7. The value of this parameter cannot exceed the value of ttl. If you set this parameter to -1, all data is stored in the hot storage tier.
 
 After the retention period that is specified for the hot storage tier elapses, the data is moved to the Infrequent Access (IA) storage tier. For more information, see [Enable hot and cold-tiered storage for a Logstore](https://help.aliyun.com/document_detail/308645.html).', example='60'),
-  infrequentAccessTTL?: int32(name='infrequentAccessTTL', description='The retention period of data in the IA storage tier of the Logstore. You must set this parameter to at least 30 days. After the data retention period that you specify for the IA storage tier elapses, the data is moved to the Archive storage tier.', example='30'),
+  infrequentAccessTTL?: int32(name='infrequentAccessTTL', description='The data retention period for the IA storage tier. You must set this parameter to at least 30 days. After the data retention period that you specify for the IA storage tier elapses, the data is moved to the Archive storage tier.', example='30'),
   logstoreName?: string(name='logstoreName', description='The name of the Logstore. The name must meet the following requirements:
 
 *   The name must be unique in a project.
 *   The name can contain only lowercase letters, digits, hyphens (-), and underscores (_).
-*   The name must start and end with a lowercase letter or a digit.
+*   The name must start and end with a lowercase letter or digit.
 *   The name must be 3 to 63 characters in length.
 
 This parameter is required.', example='my-logstore'),
@@ -1867,9 +1931,9 @@ This parameter is required.', example='my-logstore'),
 >  If you set autoSplit to true, you must specify this parameter.', example='64'),
   mode?: string(name='mode', description='The type of the Logstore. Simple Log Service provides two types of Logstores: Standard Logstores and Query Logstores. Valid values:
 
-*   **standard**: Standard Logstore. This type of Logstore supports the log analysis feature and is suitable for scenarios such as real-time monitoring and interactive analysis. You can also use this type of Logstore to build a comprehensive observability system.
-*   **query**: Query Logstore. This type of Logstore supports high-performance queries. The index traffic fee of a Query Logstore is approximately half that of a Standard Logstore. Query Logstores do not support SQL analysis. Query Logstores are suitable for scenarios in which the amount of data is large, the log retention period is long, or log analysis is not required. If logs are stored for weeks or months, the log retention period is considered long.', example='standard'),
-  processorId?: string(name='processorId'),
+*   **standard**: Standard Logstore. This type of Logstore supports the log analysis feature and is suitable for scenarios such as real-time monitoring and interactive analysis. You can use this type of Logstore to build a comprehensive observability system.
+*   **query**: Query Logstore. This type of Logstore supports high-performance query operations. The index traffic fee of a Query Logstore is approximately half that of a Standard Logstore. Query Logstores do not support SQL analysis. Query Logstores are suitable for scenarios in which the amount of data is large, the data retention period is long, or log analysis is not required. Data retention periods of weeks or months are considered long.', example='standard'),
+  processorId?: string(name='processorId', description='IngestProcessor ID'),
   shardCount?: int32(name='shardCount', description='The number of shards.
 
 >  You cannot call the CreateLogStore operation to change the number of shards. You can call the SplitShard or MergeShards operation to change the number of shards.
@@ -1879,7 +1943,7 @@ This parameter is required.', example='2'),
 
 *   **None** (default): log data
 *   **Metrics**: metric data', example='None'),
-  ttl?: int32(name='ttl', description='The retention period of data. Unit: days. Valid values: 1 to 3000. If you set this parameter to 3650, data is permanently stored.
+  ttl?: int32(name='ttl', description='The data retention period. Unit: days. Valid values: 1 to 3650. If you set this parameter to 3650, data is permanently stored.
 
 This parameter is required.', example='1'),
 }
@@ -2303,6 +2367,91 @@ async function createMachineGroup(project: string, request: CreateMachineGroupRe
   return createMachineGroupWithOptions(project, request, headers, runtime);
 }
 
+model CreateMaxComputeExportRequest {
+  configuration?: MaxComputeExportConfiguration(name='configuration', description='The setting of the MaxCompute data shipping job.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the MaxCompute data shipping job.'),
+  displayName?: string(name='displayName', description='The display name of the MaxCompute data shipping job.
+
+This parameter is required.', example='my-mc-job'),
+  name?: string(name='name', description='The unique identifier of the MaxCompute data shipping job.
+
+This parameter is required.', example='export-mc-1234567890-123456'),
+}
+
+model CreateMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Creates a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html).
+ *
+ * @param request CreateMaxComputeExportRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateMaxComputeExportResponse
+ */
+async function createMaxComputeExportWithOptions(project: string, request: CreateMaxComputeExportRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateMaxComputeExportResponse {
+  request.validate();
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!$isNull(request.configuration)) {
+    body['configuration'] = request.configuration;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Creates a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html).
+ *
+ * @param request CreateMaxComputeExportRequest
+ * @return CreateMaxComputeExportResponse
+ */
+async function createMaxComputeExport(project: string, request: CreateMaxComputeExportRequest): CreateMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createMaxComputeExportWithOptions(project, request, headers, runtime);
+}
+
 model CreateMetricStoreRequest {
   autoSplit?: boolean(name='autoSplit', description='Specifies whether to enable automatic sharding.', example='true'),
   hotTtl?: int32(name='hot_ttl'),
@@ -2650,10 +2799,10 @@ This parameter is required.', example='test_oss_store'),
   parameter?: {
     accessid?: string(name='accessid', description='The AccessKey ID.
 
-This parameter is required.', example='LTAI5tFsHGGeYry*****1Sz'),
+This parameter is required.', example='LTAI****************'),
     accesskey?: string(name='accesskey', description='The AccessKey secret.
 
-This parameter is required.', example='GyviCLDVHkHrOztdkxuE6******Rp6'),
+This parameter is required.', example='yourAccessKeySecret'),
     bucket?: string(name='bucket', description='The name of the OSS bucket.
 
 This parameter is required.', example='my-bucket'),
@@ -2669,13 +2818,13 @@ This parameter is required.', example='sls'),
     ](name='columns', description='The associated fields.
 
 This parameter is required.'),
-    endpoint?: string(name='endpoint', description='The OSS endpoint. For more information, see [Regions and endpoints](https://help.aliyun.com/document_detail/31837.html).
+    endpoint?: string(name='endpoint', description='The Object Storage Service (OSS) endpoint. For more information, see [Endpoints](https://help.aliyun.com/document_detail/31837.html).
 
 This parameter is required.', example='oss-cn-hangzhou.aliyuncs.com'),
-    objects?: [ string ](name='objects', description='The associated OSS objects. Valid values of n: 1 to 100.
+    objects?: [ string ](name='objects', description='The names of the associated OSS objects. Valid values of n: 1 to 100.
 
 This parameter is required.'),
-  }(name='parameter', description='The parameters of the external store.
+  }(name='parameter', description='The parameters that are configured for the external store.
 
 This parameter is required.'),
   storeType?: string(name='storeType', description='The type of the external store. Set the value to oss.
@@ -2749,19 +2898,27 @@ async function createOssExternalStore(project: string, request: CreateOssExterna
 }
 
 model CreateProjectRequest {
-  dataRedundancyType?: string(name='dataRedundancyType', description='Data redundancy type', example='LRS'),
+  dataRedundancyType?: string(name='dataRedundancyType', description='The disaster recovery type. Valid values:
+
+*   LRS: locally redundant storage
+*   ZRS: zone-redundant storage', example='LRS'),
   description?: string(name='description', description='The description of the project.
 
 This parameter is required.', example='this is test'),
-  projectName?: string(name='projectName', description='The name of the project. The name must be unique in a region. You cannot change the name after you create the project. The name must meet the following requirements:
+  projectName?: string(name='projectName', description='The project name must be unique in a region. You cannot change the name after you create the project. The name must meet the following requirements:
 
-*   The name must be unique.
-*   It can contain only lowercase letters, digits, and hyphens (-).
-*   It must start and end with a lowercase letter or a digit.
-*   It must be 3 to 63 characters in length.
+*   The name must be globally unique.
+*   The name can contain only lowercase letters, digits, and hyphens (-).
+*   The name must start and end with a lowercase letter or a digit.
+*   The name must be 3 to 63 characters in length.
 
 This parameter is required.', example='test-project'),
-  recycleBinEnabled?: boolean(name='recycleBinEnabled'),
+  recycleBinEnabled?: boolean(name='recycleBinEnabled', description='Specifies whether to enable the recycle bin feature.
+
+Valid values:
+
+*   true
+*   false', example='true'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aekzf******sxby'),
 }
 
@@ -2832,11 +2989,11 @@ model CreateRdsExternalStoreRequest {
 
 This parameter is required.', example='rds_store'),
   parameter?: {
-    db?: string(name='db', description='The name of the database in the ApsaraDB RDS for MySQL instance.
+    db?: string(name='db', description='The name of the database created on the ApsaraDB RDS for MySQL instance.
 
 This parameter is required.', example='meta'),
     host?: string(name='host', description='The internal or public endpoint of the ApsaraDB RDS for MySQL instance.', example='192.168.XX.XX'),
-    instanceId?: string(name='instance-id', description='The ID of the ApsaraDB RDS for MySQL instance.', example='i-bp1b6c719dfa08exf****'),
+    instanceId?: string(name='instance-id', description='You do not need to specify this parameter.', example='i-bp1b6c719dfa08exf****'),
     password?: string(name='password', description='The password that is used to log on to the ApsaraDB RDS for MySQL instance.
 
 This parameter is required.', example='sfdsfldsfksfls****'),
@@ -2846,7 +3003,7 @@ This parameter is required.', example='3306'),
     region?: string(name='region', description='The region where the ApsaraDB RDS for MySQL instance resides. Valid values: cn-qingdao, cn-beijing, and cn-hangzhou.
 
 This parameter is required.', example='cn-qingdao'),
-    table?: string(name='table', description='The name of the database table in the ApsaraDB RDS for MySQL instance.
+    table?: string(name='table', description='The name of the table in the database created on the ApsaraDB RDS for MySQL instance.
 
 This parameter is required.', example='join_meta'),
     username?: string(name='username', description='The username that is used to log on to the ApsaraDB RDS for MySQL instance.
@@ -2856,7 +3013,7 @@ This parameter is required.', example='root'),
   }(name='parameter', description='The parameter struct.
 
 This parameter is required.'),
-  storeType?: string(name='storeType', description='The storage type. Set the value to rds-vpc, which indicates an ApsaraDB RDS for MySQL database in a virtual private cloud (VPC).
+  storeType?: string(name='storeType', description='The storage type. Set the value to rds-vpc, which indicates a database created on an ApsaraDB RDS for MySQL instance in a virtual private cloud (VPC).
 
 This parameter is required.', example='rds-vpc'),
 }
@@ -3933,7 +4090,7 @@ model DeleteExternalStoreResponse = {
 }
 
 /**
- * @summary Deletes an external store.
+ * @summary Deletes an external storage configuration.
  *
  * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
  *
@@ -3963,7 +4120,7 @@ async function deleteExternalStoreWithOptions(project: string, externalStoreName
 }
 
 /**
- * @summary Deletes an external store.
+ * @summary Deletes an external storage configuration.
  *
  * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
  *
@@ -4259,6 +4416,60 @@ async function deleteMachineGroup(project: string, machineGroup: string): Delete
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteMachineGroupWithOptions(project, machineGroup, headers, runtime);
+}
+
+model DeleteMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Deletes a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteMaxComputeExportResponse
+ */
+async function deleteMaxComputeExportWithOptions(project: string, mcExportName: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteMaxComputeExportResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports/${mcExportName}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @return DeleteMaxComputeExportResponse
+ */
+async function deleteMaxComputeExport(project: string, mcExportName: string): DeleteMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteMaxComputeExportWithOptions(project, mcExportName, headers, runtime);
 }
 
 model DeleteMetricStoreResponse = {
@@ -4747,15 +4958,21 @@ async function deleteStoreView(project: string, name: string): DeleteStoreViewRe
 }
 
 model DescribeRegionsRequest {
-  language?: string(name='language', description='A short description of struct'),
+  language?: string(name='language', description='The language of the localName parameter that is returned.
+
+Valid values:
+
+*   ja
+*   en
+*   zh', example='zh'),
 }
 
 model DescribeRegionsResponseBody = {
   regions?: [ 
     {
-      internetEndpoint?: string(name='internetEndpoint'),
-      intranetEndpoint?: string(name='intranetEndpoint'),
-      localName?: string(name='localName'),
+      internetEndpoint?: string(name='internetEndpoint', description='The public endpoint of Simple Log Service.'),
+      intranetEndpoint?: string(name='intranetEndpoint', description='The internal endpoint of Simple Log Service.'),
+      localName?: string(name='localName', description='The name of the Simple Log Service region.'),
       region?: string(name='region', description='SLS region'),
     }
   ](name='regions'),
@@ -4768,7 +4985,7 @@ model DescribeRegionsResponse = {
 }
 
 /**
- * @summary 查询可用的区域
+ * @summary Queries supported regions.
  *
  * @param request DescribeRegionsRequest
  * @param headers map
@@ -4801,7 +5018,7 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, heade
 }
 
 /**
- * @summary 查询可用的区域
+ * @summary Queries supported regions.
  *
  * @param request DescribeRegionsRequest
  * @return DescribeRegionsResponse
@@ -6954,6 +7171,61 @@ async function getMachineGroup(project: string, machineGroup: string): GetMachin
   return getMachineGroupWithOptions(project, machineGroup, headers, runtime);
 }
 
+model GetMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MaxComputeExport  
+}
+
+/**
+ * @summary Queries a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetMaxComputeExportResponse
+ */
+async function getMaxComputeExportWithOptions(project: string, mcExportName: string, headers: map[string]string, runtime: $RuntimeOptions): GetMaxComputeExportResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports/${mcExportName}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Queries a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @return GetMaxComputeExportResponse
+ */
+async function getMaxComputeExport(project: string, mcExportName: string): GetMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getMaxComputeExportWithOptions(project, mcExportName, headers, runtime);
+}
+
 model GetMetricStoreResponseBody = {
   autoSplit?: boolean(name='autoSplit', description='Indicates whether the automatic sharding feature is enabled.', example='true'),
   createTime?: long(name='createTime', description='The creation time. The value is a UNIX timestamp.', example='1698933894'),
@@ -7821,6 +8093,63 @@ async function listAgentInstanceConfigs(request: ListAgentInstanceConfigsRequest
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listAgentInstanceConfigsWithOptions(request, headers, runtime);
+}
+
+model ListAiToolsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: [ 
+    {
+      fields?: [ 
+        {
+          name?: string(name='name'),
+          option?: [ string ](name='option'),
+          required?: boolean(name='required'),
+          type?: string(name='type'),
+          example?: string(name='example'),
+          description?: string(name='description'),
+        }
+      ](name='fields'),
+      name?: string(name='name'),
+      description?: string(name='description'),
+    }
+  ](name='body'),
+}
+
+/**
+ * @summary 获取 ai 工具列表
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAiToolsResponse
+ */
+async function listAiToolsWithOptions(headers: map[string]string, runtime: $RuntimeOptions): ListAiToolsResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAiTools',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/ml/tool/list`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'array',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 获取 ai 工具列表
+ *
+ * @return ListAiToolsResponse
+ */
+async function listAiTools(): ListAiToolsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAiToolsWithOptions(headers, runtime);
 }
 
 model ListAlertsRequest {
@@ -9144,6 +9473,90 @@ async function listMachines(project: string, machineGroup: string, request: List
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listMachinesWithOptions(project, machineGroup, request, headers, runtime);
+}
+
+model ListMaxComputeExportsRequest {
+  logstore?: string(name='logstore', example='my-logstore'),
+  offset?: int32(name='offset', example='0'),
+  size?: int32(name='size', description='The number of entries to return. Default value: 10.', example='100'),
+}
+
+model ListMaxComputeExportsResponseBody = {
+  count?: int32(name='count', example='2'),
+  results?: [
+    MaxComputeExport
+  ](name='results'),
+  total?: int32(name='total', example='10'),
+}
+
+model ListMaxComputeExportsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListMaxComputeExportsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries a list of MaxCompute data shipping jobs.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param request ListMaxComputeExportsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListMaxComputeExportsResponse
+ */
+async function listMaxComputeExportsWithOptions(project: string, request: ListMaxComputeExportsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMaxComputeExportsResponse {
+  request.validate();
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!$isNull(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
+  if (!$isNull(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!$isNull(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListMaxComputeExports',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Queries a list of MaxCompute data shipping jobs.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param request ListMaxComputeExportsRequest
+ * @return ListMaxComputeExportsResponse
+ */
+async function listMaxComputeExports(project: string, request: ListMaxComputeExportsRequest): ListMaxComputeExportsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listMaxComputeExportsWithOptions(project, request, headers, runtime);
 }
 
 model ListMetricStoresRequest {
@@ -10814,6 +11227,60 @@ async function startETL(project: string, etlName: string): StartETLResponse {
   return startETLWithOptions(project, etlName, headers, runtime);
 }
 
+model StartMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Starts a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html).
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StartMaxComputeExportResponse
+ */
+async function startMaxComputeExportWithOptions(project: string, mcExportName: string, headers: map[string]string, runtime: $RuntimeOptions): StartMaxComputeExportResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StartMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports/${mcExportName}?action=START`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Starts a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html).
+ *
+ * @return StartMaxComputeExportResponse
+ */
+async function startMaxComputeExport(project: string, mcExportName: string): StartMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return startMaxComputeExportWithOptions(project, mcExportName, headers, runtime);
+}
+
 model StartOSSExportResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -10988,6 +11455,60 @@ async function stopETL(project: string, etlName: string): StopETLResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return stopETLWithOptions(project, etlName, headers, runtime);
+}
+
+model StopMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Stops a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopMaxComputeExportResponse
+ */
+async function stopMaxComputeExportWithOptions(project: string, mcExportName: string, headers: map[string]string, runtime: $RuntimeOptions): StopMaxComputeExportResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StopMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports/${mcExportName}?action=STOP`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Stops a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @return StopMaxComputeExportResponse
+ */
+async function stopMaxComputeExport(project: string, mcExportName: string): StopMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopMaxComputeExportWithOptions(project, mcExportName, headers, runtime);
 }
 
 model StopOSSExportResponse = {
@@ -12635,6 +13156,85 @@ async function updateMachineGroupMachine(project: string, machineGroup: string, 
   return updateMachineGroupMachineWithOptions(project, machineGroup, request, headers, runtime);
 }
 
+model UpdateMaxComputeExportRequest {
+  configuration?: MaxComputeExportConfiguration(name='configuration', description='The setting of the MaxCompute data shipping job.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the MaxCompute data shipping job.'),
+  displayName?: string(name='displayName', description='The display name of the MaxCompute data shipping job.
+
+This parameter is required.', example='my-mc-job'),
+}
+
+model UpdateMaxComputeExportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Updates a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param request UpdateMaxComputeExportRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateMaxComputeExportResponse
+ */
+async function updateMaxComputeExportWithOptions(project: string, mcExportName: string, request: UpdateMaxComputeExportRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateMaxComputeExportResponse {
+  request.validate();
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!$isNull(request.configuration)) {
+    body['configuration'] = request.configuration;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateMaxComputeExport',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/maxcomputeexports/${mcExportName}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary Updates a MaxCompute data shipping job.
+ *
+ * @description *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
+ * *   An AccessKey pair is created and obtained. For more information, see [AccessKey pair](https://help.aliyun.com/document_detail/29009.html).
+ * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a Resource Access Management (RAM) user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
+ * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html)
+ *
+ * @param request UpdateMaxComputeExportRequest
+ * @return UpdateMaxComputeExportResponse
+ */
+async function updateMaxComputeExport(project: string, mcExportName: string, request: UpdateMaxComputeExportRequest): UpdateMaxComputeExportResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateMaxComputeExportWithOptions(project, mcExportName, request, headers, runtime);
+}
+
 model UpdateMetricStoreRequest {
   autoSplit?: boolean(name='autoSplit', description='Specifies whether to enable automatic sharding.', example='true'),
   hotTtl?: int32(name='hot_ttl'),
@@ -13058,12 +13658,12 @@ model UpdateOssExternalStoreRequest {
 
 This parameter is required.', example='test-oss-store'),
   parameter?: {
-    accessid?: string(name='accessid', description='The AccessKey ID of your account.
+    accessid?: string(name='accessid', description='The AccessKey ID.
 
-This parameter is required.', example='LTAI5tFsHGGeYry*****1Sz'),
-    accesskey?: string(name='accesskey', description='The AccessKey secret of your account.
+This parameter is required.', example='LTAI****************'),
+    accesskey?: string(name='accesskey', description='The AccessKey secret.
 
-This parameter is required.', example='GyviCLDVHkHrOztdkxuE6******Rp6'),
+This parameter is required.', example='yourAccessKeySecret'),
     bucket?: string(name='bucket', description='The name of the OSS bucket.
 
 This parameter is required.', example='my-bucket'),
@@ -13072,17 +13672,17 @@ This parameter is required.', example='my-bucket'),
         name?: string(name='name', description='The name of the field.
 
 This parameter is required.', example='test'),
-        type?: string(name='type', description='The type of the field.
+        type?: string(name='type', description='The data type of the field.
 
 This parameter is required.', example='varchar'),
       }
-    ](name='columns', description='The fields that are associated to the external store.
+    ](name='columns', description='The associated fields.
 
 This parameter is required.'),
     endpoint?: string(name='endpoint', description='The Object Storage Service (OSS) endpoint.
 
 This parameter is required.', example='oss-cn-hangzhou.aliyuncs.com'),
-    objects?: [ string ](name='objects', description='The names of the OSS objects that are associated to the external store.
+    objects?: [ string ](name='objects', description='The names of the associated OSS objects.
 
 This parameter is required.'),
   }(name='parameter', description='The parameters that are configured for the external store.
@@ -13242,7 +13842,7 @@ async function updateProject(project: string, request: UpdateProjectRequest): Up
 }
 
 model UpdateRdsExternalStoreRequest {
-  externalStoreName?: string(name='externalStoreName', description='The name of the external store.
+  externalStoreName?: string(name='externalStoreName', description='The name of the ExternalStore.
 
 This parameter is required.', example='rds_store'),
   parameter?: {
@@ -13283,7 +13883,8 @@ model UpdateRdsExternalStoreResponse = {
 /**
  * @summary Updates an ApsaraDB RDS external store.
  *
- * @description Host consists of a project name and a Log Service endpoint. You must specify a project in Host.
+ * @description ### [](#)Usage notes
+ * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
  *
  * @param request UpdateRdsExternalStoreRequest
  * @param headers map
@@ -13327,7 +13928,8 @@ async function updateRdsExternalStoreWithOptions(project: string, externalStoreN
 /**
  * @summary Updates an ApsaraDB RDS external store.
  *
- * @description Host consists of a project name and a Log Service endpoint. You must specify a project in Host.
+ * @description ### [](#)Usage notes
+ * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
  *
  * @param request UpdateRdsExternalStoreRequest
  * @return UpdateRdsExternalStoreResponse
