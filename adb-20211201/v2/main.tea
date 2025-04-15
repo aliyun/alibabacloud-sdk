@@ -400,6 +400,7 @@ model TableModel {
 model TableSummaryModel {
   createTime?: string(name='CreateTime'),
   description?: string(name='Description'),
+  mvDetailModel?: OpenStructMvDetailModel(name='MvDetailModel'),
   owner?: string(name='Owner'),
   SQL?: string(name='SQL'),
   schemaName?: string(name='SchemaName'),
@@ -407,6 +408,69 @@ model TableSummaryModel {
   tableSize?: long(name='TableSize'),
   tableType?: string(name='TableType'),
   updateTime?: string(name='UpdateTime'),
+}
+
+model OpenStructMVRecommendResultModel {
+  acceleratedQueriesCount?: long(name='AcceleratedQueriesCount'),
+  baseTables?: [
+    OpenStructMvBaseTableDetailModel
+  ](name='BaseTables'),
+  savedScanbytes?: long(name='SavedScanbytes'),
+  subquery?: string(name='Subquery'),
+  subqueryId?: long(name='SubqueryId'),
+  supportIncrementalRefresh?: boolean(name='SupportIncrementalRefresh'),
+}
+
+model OpenStructMvBaseTableDetailModel {
+  dataVolumn?: string(name='DataVolumn'),
+  enableBinlog?: boolean(name='EnableBinlog'),
+  schemaName?: string(name='SchemaName'),
+  tableName?: string(name='TableName'),
+}
+
+model OpenStructMvDetailModel {
+  baseTableNames?: [[ string ]  ](name='BaseTableNames'),
+  explicitHit?: long(name='ExplicitHit'),
+  firstRefreshTime?: string(name='FirstRefreshTime'),
+  implicitHit?: long(name='ImplicitHit'),
+  isInactive?: boolean(name='IsInactive'),
+  localSize?: long(name='LocalSize'),
+  queryRewriteEnabled?: boolean(name='QueryRewriteEnabled'),
+  refreshInterval?: string(name='RefreshInterval'),
+  refreshState?: string(name='RefreshState'),
+  remoteSize?: long(name='RemoteSize'),
+  resourceGroup?: string(name='ResourceGroup'),
+  updatedAt?: string(name='UpdatedAt'),
+}
+
+model OpenStructMvRecommendSubTaskModel {
+  endTime?: string(name='EndTime'),
+  scanQueriesCount?: long(name='ScanQueriesCount'),
+  startTime?: string(name='StartTime'),
+  status?: string(name='Status'),
+  subQueriesCount?: long(name='SubQueriesCount'),
+  subtaskId?: long(name='SubtaskId'),
+}
+
+model OpenStructMvRecommendTaskModel {
+  createdTime?: string(name='CreatedTime'),
+  description?: string(name='Description'),
+  lastRunAt?: string(name='LastRunAt'),
+  scanQueriesRange?: int32(name='ScanQueriesRange'),
+  schedulingSettings?: string(name='SchedulingSettings'),
+  taskName?: string(name='TaskName'),
+}
+
+model OpenStructRefreshJobModel {
+  endTime?: string(name='EndTime'),
+  name?: string(name='Name'),
+  processid?: string(name='Processid'),
+  refreshInterval?: string(name='RefreshInterval'),
+  refreshModel?: string(name='RefreshModel'),
+  resourceGroup?: string(name='ResourceGroup'),
+  schemaName?: string(name='SchemaName'),
+  startTime?: string(name='StartTime'),
+  status?: string(name='Status'),
 }
 
 model AllocateClusterPublicConnectionRequest {
@@ -635,14 +699,20 @@ async function attachUserENI(request: AttachUserENIRequest): AttachUserENIRespon
 }
 
 model BatchApplyAdviceByIdListRequest {
-  adviceDate?: long(name='AdviceDate', example='20221115'),
-  adviceIdList?: string(name='AdviceIdList', example='c2589ff3-e86c-4f19-80c8-2aeb7dd9****,53414470-ebf4-4a53-a312-8a1ad8fd****,6e8dce84-fec8-4b0b-9c04-b0cea12c****,b3b9703d-55ca-47e0-96dd-6a4a9dbf****'),
-  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='am-uf6g8w25jacm7****'),
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  adviceDate?: long(name='AdviceDate', description='The date on which you want to apply the suggestion. Format: yyyyMMdd.', example='20221115'),
+  adviceIdList?: string(name='AdviceIdList', description='The IDs of the suggestions that you want to apply. Separate multiple IDs with commas (,).', example='c2589ff3-e86c-4f19-80c8-2aeb7dd9****,53414470-ebf4-4a53-a312-8a1ad8fd****,6e8dce84-fec8-4b0b-9c04-b0cea12c****,b3b9703d-55ca-47e0-96dd-6a4a9dbf****'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
+
+> You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.
+
+This parameter is required.', example='am-uf6g8w25jacm7****'),
+  regionId?: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou'),
 }
 
 model BatchApplyAdviceByIdListResponseBody = {
-  requestId?: string(name='RequestId', example='86F92D26-B774-5FA1-8E53-82CBEEEBB012'),
+  requestId?: string(name='RequestId', description='The request ID.', example='86F92D26-B774-5FA1-8E53-82CBEEEBB012'),
 }
 
 model BatchApplyAdviceByIdListResponse = {
@@ -652,7 +722,7 @@ model BatchApplyAdviceByIdListResponse = {
 }
 
 /**
- * @summary The request ID.
+ * @summary Applies optimization suggestions.
  *
  * @param request BatchApplyAdviceByIdListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -695,7 +765,7 @@ async function batchApplyAdviceByIdListWithOptions(request: BatchApplyAdviceById
 }
 
 /**
- * @summary The request ID.
+ * @summary Applies optimization suggestions.
  *
  * @param request BatchApplyAdviceByIdListRequest
  * @return BatchApplyAdviceByIdListResponse
@@ -953,14 +1023,16 @@ async function cancelSparkReplStatement(request: CancelSparkReplStatementRequest
 }
 
 model CancelSparkWarehouseBatchSQLRequest {
-  agency?: string(name='Agency', example='DMS'),
-  DBClusterId?: string(name='DBClusterId', example='amv-uf6485635f***'),
-  queryId?: string(name='QueryId', description='This parameter is required.', example='sq202501011001s****'),
+  agency?: string(name='Agency', description='The name of the client, which can be up to 16 characters in length. Specify a descriptive name that makes it easy to identify.', example='DMS'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-uf6485635f***'),
+  queryId?: string(name='QueryId', description='The query ID of the Spark SQL statement.
+
+This parameter is required.', example='sq202501011001s****'),
 }
 
 model CancelSparkWarehouseBatchSQLResponseBody = {
   data?: SparkBatchSQL(name='Data', description='The returned data.', example='123'),
-  requestId?: string(name='RequestId', example='771C5FAA-530F-52F7-B84D-EBAD45***'),
+  requestId?: string(name='RequestId', description='The request ID.', example='771C5FAA-530F-52F7-B84D-EBAD45***'),
 }
 
 model CancelSparkWarehouseBatchSQLResponse = {
@@ -970,7 +1042,7 @@ model CancelSparkWarehouseBatchSQLResponse = {
 }
 
 /**
- * @summary 取消一段Spark Batch SQL的状态
+ * @summary Cancels the execution of a Spark SQL statement.
  *
  * @param request CancelSparkWarehouseBatchSQLRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1010,7 +1082,7 @@ async function cancelSparkWarehouseBatchSQLWithOptions(request: CancelSparkWareh
 }
 
 /**
- * @summary 取消一段Spark Batch SQL的状态
+ * @summary Cancels the execution of a Spark SQL statement.
  *
  * @param request CancelSparkWarehouseBatchSQLRequest
  * @return CancelSparkWarehouseBatchSQLResponse
@@ -1720,7 +1792,9 @@ async function createApsDatasoure(request: CreateApsDatasoureRequest): CreateAps
 
 model CreateApsHiveJobRequest {
   advancedConfig?: string(name='AdvancedConfig', description='The advanced configurations.', example='-'),
-  conflictStrategy?: string(name='ConflictStrategy', description='The policy to handle tables with the same name in the destination cluster.'),
+  conflictStrategy?: string(name='ConflictStrategy', description='The policy to handle tables with the same name in the destination cluster.', example='Intercept: reports error and aborts.
+Ignore: ignores and continues migrating the relevant tables.
+Skip: skips related tables and only migrates other tables.'),
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL cluster.
 
 This parameter is required.', example='amv-****'),
@@ -1897,7 +1971,7 @@ This parameter is required.', example='test_user'),
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroup?: string(name='ResourceGroup', description='The name of the resource group.', example='test'),
-  sourceRegionId?: string(name='SourceRegionId', description='源集群所处地域ID。', example='cn-beijing'),
+  sourceRegionId?: string(name='SourceRegionId', description='The region ID of the source cluster.', example='cn-beijing'),
   startingOffsets?: string(name='StartingOffsets', description='The start offset.
 
 This parameter is required.', example='test'),
@@ -1956,7 +2030,7 @@ This parameter is required.', example='test_user'),
 
 This parameter is required.', example='cn-hangzhou'),
   resourceGroup?: string(name='ResourceGroup', description='The name of the resource group.', example='test'),
-  sourceRegionId?: string(name='SourceRegionId', description='源集群所处地域ID。', example='cn-beijing'),
+  sourceRegionId?: string(name='SourceRegionId', description='The region ID of the source cluster.', example='cn-beijing'),
   startingOffsets?: string(name='StartingOffsets', description='The start offset.
 
 This parameter is required.', example='test'),
@@ -1981,7 +2055,7 @@ model CreateApsSlsADBJobResponseBody = {
   httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
   message?: string(name='Message', description='The returned message. Valid values:
 
-*   If the request was successful, a success message is returned.****
+*   If the request was successful, a success message is returned.
 *   If the request failed, an error message is returned.', example='Success'),
   requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-******-9F06-******'),
   success?: boolean(name='Success', description='Indicates whether the dry run succeeds. Valid values:
@@ -2786,7 +2860,8 @@ async function createElasticPlan(request: CreateElasticPlanRequest): CreateElast
 }
 
 model CreateLakeStorageRequest {
-  clientToken?: string(name='ClientToken', description='*', example='******'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='******'),
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL cluster with which you want to associate the lake storage.', example='amv-******'),
   description?: string(name='Description', description='The description of the lake storage.', example='test'),
   permissions?: [ 
@@ -2801,7 +2876,8 @@ model CreateLakeStorageRequest {
 }
 
 model CreateLakeStorageShrinkRequest {
-  clientToken?: string(name='ClientToken', description='*', example='******'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.
+You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='******'),
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL cluster with which you want to associate the lake storage.', example='amv-******'),
   description?: string(name='Description', description='The description of the lake storage.', example='test'),
   permissionsShrink?: string(name='Permissions', description='The permissions that you want to grant on the lake storage to the Alibaba Cloud account besides the permissions that are automatically granted to the Resource Access Management (RAM) user or the Alibaba Cloud account.', example='-'),
@@ -4031,105 +4107,6 @@ async function deletePerformanceView(request: DeletePerformanceViewRequest): Del
   return deletePerformanceViewWithOptions(request, runtime);
 }
 
-model DeleteProcessInstanceRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
-
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/612397.html) operation to query the IDs of all AnalyticDB for MySQL clusters within a region.
-
-This parameter is required.', example='am-wz9rq819u71ig****'),
-  processInstanceId?: long(name='ProcessInstanceId', description='The ID of the workflow instance.
-
-This parameter is required.', example='4017'),
-  projectCode?: long(name='ProjectCode', description='The project ID, which is the unique identifier of the project.
-
-This parameter is required.', example='9839028042592'),
-  regionId?: string(name='RegionId', description='The region ID of the cluster.
-
-This parameter is required.', example='cn-hangzhou'),
-}
-
-model DeleteProcessInstanceResponseBody = {
-  data?: boolean(name='Data', description='Indicates whether the workflow instance is deleted. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-  message?: string(name='Message', description='The returned message. Valid values:
-
-*   If the request was successful, **Success** is returned.
-*   If the request failed, an error message is returned.', example='Success'),
-  requestId?: string(name='RequestId', description='The request ID.', example='115F9CCA-EF2E-5F91-AB60-4961D52FEAB4'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-
-*   **true**
-*   **false**', example='true'),
-}
-
-model DeleteProcessInstanceResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: DeleteProcessInstanceResponseBody(name='body'),
-}
-
-/**
- * @summary Deletes a worflow instance from an AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
- *
- * @description *   Regional public endpoint: `adb.<region-id>.aliyuncs.com`. Example: `adb.cn-hangzhou.aliyuncs.com`.
- * *   Regional Virtual Private Cloud (VPC) endpoint: `adb-vpc.<region-id>.aliyuncs.com`. Example: `adb-vpc.cn-hangzhou.aliyuncs.com`.
- *
- * @param request DeleteProcessInstanceRequest
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteProcessInstanceResponse
- */
-async function deleteProcessInstanceWithOptions(request: DeleteProcessInstanceRequest, runtime: $RuntimeOptions): DeleteProcessInstanceResponse {
-  request.validate();
-  var query = {};
-  if (!$isNull(request.DBClusterId)) {
-    query['DBClusterId'] = request.DBClusterId;
-  }
-  if (!$isNull(request.processInstanceId)) {
-    query['ProcessInstanceId'] = request.processInstanceId;
-  }
-  if (!$isNull(request.projectCode)) {
-    query['ProjectCode'] = request.projectCode;
-  }
-  if (!$isNull(request.regionId)) {
-    query['RegionId'] = request.regionId;
-  }
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'DeleteProcessInstance',
-    version = '2021-12-01',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
-}
-
-/**
- * @summary Deletes a worflow instance from an AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
- *
- * @description *   Regional public endpoint: `adb.<region-id>.aliyuncs.com`. Example: `adb.cn-hangzhou.aliyuncs.com`.
- * *   Regional Virtual Private Cloud (VPC) endpoint: `adb-vpc.<region-id>.aliyuncs.com`. Example: `adb-vpc.cn-hangzhou.aliyuncs.com`.
- *
- * @param request DeleteProcessInstanceRequest
- * @return DeleteProcessInstanceResponse
- */
-async function deleteProcessInstance(request: DeleteProcessInstanceRequest): DeleteProcessInstanceResponse {
-  var runtime = new $RuntimeOptions{};
-  return deleteProcessInstanceWithOptions(request, runtime);
-}
-
 model DeleteSparkTemplateRequest {
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
 
@@ -4393,14 +4370,10 @@ async function describeAPSADBInstances(request: DescribeAPSADBInstancesRequest):
 }
 
 model DescribeAbnormalPatternDetectionRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
-
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/454250.html) operation to query the information about all AnalyticDB for MySQL clusters within a region, including cluster IDs.
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
 
 This parameter is required.', example='am-xxx'),
-  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mm:ssZ* format. The time must be in UTC.
-
->  The end time must be later than the start time.', example='2024-11-17T02:16Z'),
+  endTime?: string(name='EndTime', description='The end of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mmZ* format. The time must be in UTC.', example='2024-11-17T02:16Z'),
   lang?: string(name='Lang', description='The language. Valid values:
 
 *   **zh** (default): simplified Chinese.
@@ -4409,12 +4382,10 @@ This parameter is required.', example='am-xxx'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID.
 
->  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/143074.html) operation to query the most recent region list.
-
 This parameter is required.', example='cn-zhangjiakou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the yyyy-MM-ddTHH:mmZ format. The time must be in UTC.', example='2021-09-30T00:10Z'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query. Specify the time in the ISO 8601 standard in the *yyyy-MM-ddTHH:mmZ* format. The time must be in UTC.', example='2021-09-30T00:10Z'),
 }
 
 model DescribeAbnormalPatternDetectionResponseBody = {
@@ -4425,16 +4396,18 @@ model DescribeAbnormalPatternDetectionResponseBody = {
       results?: [ 
         {
           accessIp?: string(name='AccessIp', description='The IP address of the SQL client that submits the SQL pattern.', example='172.16.133.168'),
-          detail?: string(name='Detail', description='The description of the detection result.'),
+          detail?: string(name='Detail', description='The description of the detection result.', example='Two SQL patterns that have abnormal totalTime metric values are detected. This may result in increased CPU utilization, query slowdown, and degraded system stability. Go to the monitoring page to diagnose the issue and then perform optimization.'),
           failedCount?: long(name='FailedCount', description='The number of failed SQL patterns within the time range.', example='7'),
           patternId?: string(name='PatternId', description='The SQL pattern ID.', example='2803084667741875187'),
-          queryCount?: long(name='QueryCount', description='The number of executed SQL patterns within the time range.', example='72'),
-          relatedMetrics?: string(name='RelatedMetrics', description='The metrics related to the SQL pattern.'),
+          queryCount?: long(name='QueryCount', description='The number of queries.', example='72'),
+          relatedMetrics?: string(name='RelatedMetrics', description='The metrics related to the SQL pattern.', example='Maximum query duration: 1.43s
+Maximum peak memory: 20.73 MB
+Maximum read table data: 10.12 MB'),
           SQLPattern?: string(name='SQLPattern', description='The SQL statement that represents the SQL pattern.', example='SELECT `tsid`nFROM `prod_ods_marketing_engine_material`nWHERE `tsid` = ?nLIMIT ?'),
           tables?: string(name='Tables', description='The names of tables.', example='dw_student_exam.ods_school_queanal'),
           user?: string(name='User', description='The name of the database account that is used to submit the query.', example='test'),
         }
-      ](name='Results', description='The detection result.'),
+      ](name='Results', description='The detection result items.'),
     }
   ](name='DetectionItems', description='The queried detection items and detection results.'),
   requestId?: string(name='RequestId', description='The request ID.', example='19B824E0-690D-5A78-9992-5398C2F43694'),
@@ -5462,7 +5435,7 @@ model DescribeAppliedAdvicesResponseBody = {
   items?: [ 
     {
       adviceId?: string(name='AdviceId', description='The suggestion ID.', example='7417db9c-914d-43f3-a123-4d0e448f****'),
-      benefit?: string(name='Benefit', description='The benefit of the suggestion.'),
+      benefit?: string(name='Benefit', description='The benefit of the suggestion.', example='0.4 GB of storage saved'),
       buildSQL?: string(name='BuildSQL', description='The SQL statement that is used to execute the BUILD job.', example='build table `schema1`.`table1`'),
       jobStatus?: string(name='JobStatus', description='The status of the suggestion execution job. Valid values:
 
@@ -5793,21 +5766,21 @@ model DescribeApsDatasourceResponseBody = {
       kafkaTopic?: string(name='KafkaTopic', description='The topic of the Kafka instance.', example='[{\\\\"value\\\\": \\\\"hongxian_test\\\\"}]'),
     }(name='KafkaInfo', description='The information about the Kafka instance.', example='-'),
     polarDBMysqlInfo?: {
-      across?: boolean(name='Across', description='*', example='-'),
-      acrossRole?: string(name='AcrossRole', description='*', example='-'),
-      acrossUid?: string(name='AcrossUid', description='*', example='-'),
-      connectUrl?: string(name='ConnectUrl', description='*', example='-'),
-      instanceId?: string(name='InstanceId', description='*', example='-'),
-      regionId?: string(name='RegionId', description='*', example='-'),
-      securityGroup?: string(name='SecurityGroup', description='*', example='-'),
-      userName?: string(name='UserName', description='*', example='-'),
+      across?: boolean(name='Across', description='The parameter is no longer supported.', example='-'),
+      acrossRole?: string(name='AcrossRole', description='The parameter is no longer supported.', example='-'),
+      acrossUid?: string(name='AcrossUid', description='The parameter is no longer supported.', example='-'),
+      connectUrl?: string(name='ConnectUrl', description='The parameter is no longer supported.', example='-'),
+      instanceId?: string(name='InstanceId', description='The parameter is no longer supported.', example='-'),
+      regionId?: string(name='RegionId', description='The parameter is no longer supported.', example='-'),
+      securityGroup?: string(name='SecurityGroup', description='The parameter is no longer supported.', example='-'),
+      userName?: string(name='UserName', description='The parameter is no longer supported.', example='-'),
     }(name='PolarDBMysqlInfo', description='The parameter is no longer supported.', example='-'),
     rdsMysqlInfo?: {
-      connectUrl?: string(name='ConnectUrl', description='*', example='-'),
-      instanceId?: string(name='InstanceId', description='*', example='-'),
-      regionId?: string(name='RegionId', description='*', example='-'),
-      securityGroup?: string(name='SecurityGroup', description='*', example='-'),
-      userName?: string(name='UserName', description='*', example='-'),
+      connectUrl?: string(name='ConnectUrl', description='The parameter is no longer supported.', example='-'),
+      instanceId?: string(name='InstanceId', description='The parameter is no longer supported.', example='-'),
+      regionId?: string(name='RegionId', description='The parameter is no longer supported.', example='-'),
+      securityGroup?: string(name='SecurityGroup', description='The parameter is no longer supported.', example='-'),
+      userName?: string(name='UserName', description='The parameter is no longer supported.', example='-'),
     }(name='RdsMysqlInfo', description='The parameter is no longer supported.', example='-'),
     slsInfo?: {
       across?: boolean(name='Across', description='Indicates whether the data source is a cross-account resource. Valid values:
@@ -5820,7 +5793,7 @@ model DescribeApsDatasourceResponseBody = {
       sourceRegionId?: string(name='SourceRegionId', description='The region ID.', example='cn-hangzhou'),
       store?: string(name='Store', description='The name of the SLS Logstore.', example='***'),
     }(name='SlsInfo', description='The Simple Log Service (SLS) project.', example='-'),
-  }(name='ApsDatasource', description='*'),
+  }(name='ApsDatasource', description='The queried APS data source.'),
   requestId?: string(name='RequestId', description='The request ID.', example='******-**D8-5***-A***-****587'),
 }
 
@@ -5906,7 +5879,7 @@ model DescribeApsDatasourcesResponseBody = {
       datasourceType?: string(name='DatasourceType', description='The type of the data source.', example='SLS'),
       hasJob?: boolean(name='HasJob', description='Indicates whether a job is using the data source.', example='false'),
     }
-  ](name='ApsDatasources', description='*', example='-'),
+  ](name='ApsDatasources', description='The queried APS data sources.', example='-'),
   pageNumber?: string(name='PageNumber', description='The page number.', example='1'),
   pageSize?: string(name='PageSize', description='The number of entries per page.', example='30'),
   requestId?: string(name='RequestId', description='The request ID.', example='******-5213-******-B608-******'),
@@ -6176,7 +6149,7 @@ model DescribeApsJobsResponseBody = {
       delay?: long(name='Delay', description='The synchronization latency.', example='0'),
       destinationInstanceID?: string(name='DestinationInstanceID', description='The destination cluster ID.', example='amv-*******'),
       errMessage?: string(name='ErrMessage', description='The error message.', example='OK'),
-      projress?: string(name='Projress', description='The progress.'),
+      projress?: string(name='Projress', description='The progress.', example='30: The progress is 30%.'),
       sourceInstanceID?: string(name='SourceInstanceID', description='The ID of the source instance or cluster.', example='pc-******'),
       status?: string(name='Status', description='The status of the APS job.', example='-'),
       subStatus?: string(name='SubStatus', description='The status of the task.', example='-'),
@@ -6293,7 +6266,7 @@ model DescribeApsMigrationWorkloadsResponseBody = {
       targetType?: string(name='TargetType', description='The destination type.', example='OSS'),
       workloadSubType?: string(name='WorkloadSubType', description='The sub-type of the workload.', example='test'),
     }
-  ](name='MigrationWorkloads', description='*'),
+  ](name='MigrationWorkloads', description='The queried migration workloads.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
   requestId?: string(name='RequestId', description='The request ID.', example='******-3EEC-57F0-9F06-******'),
@@ -6837,14 +6810,14 @@ model DescribeAvailableAdvicesResponseBody = {
 
 *   **INDEX**: index optimization.
 *   **TIERING**: hot and cold data optimization.', example='INDEX'),
-      benefit?: string(name='Benefit', description='The benefit of the suggestion.'),
+      benefit?: string(name='Benefit', description='The benefit of the suggestion.', example='0.4 GB of storage saved'),
       pageNumber?: long(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
       pageSize?: long(name='PageSize', description='The number of entries per page. Valid values:
 
 *   **30** (default)
 *   **50**
 *   **100**', example='30'),
-      reason?: string(name='Reason', description='The reason why the suggestion was generated.'),
+      reason?: string(name='Reason', description='The reason why the suggestion was generated.', example='Unused for 15 days, historical usage less than 1%'),
       SQL?: string(name='SQL', description='The SQL statement that is used to apply the suggestion.', example='alter table `schema1`.`table1` drop key col1_1_idx'),
       schemaName?: string(name='SchemaName', description='The name of the database.', example='adb_demo'),
       tableName?: string(name='TableName', description='The name of the table.', example='test_table'),
@@ -7206,7 +7179,7 @@ model DescribeBadSqlDetectionResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-xxxx'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The information about the detection result.'),
+      message?: string(name='Message', description='The information about the detection result.', example='SQL statements that result in high peak memory are detected.'),
       name?: string(name='Name', description='The name of the detection item.', example='Cost'),
       results?: [ 
         {
@@ -7215,8 +7188,8 @@ model DescribeBadSqlDetectionResponseBody = {
 >  This value is the cumulative value of the `QueuedTime`, `TotalPlanningTime`, and `ExecutionTime` parameters.', example='709'),
           diagnosisResults?: [ 
             {
-              code?: string(name='Code', description='The diagnostic code.'),
-              detail?: string(name='Detail', description='The information about the diagnostic result.'),
+              code?: string(name='Code', description='The diagnostic code.', example='Large amounts of data are returned to the client.'),
+              detail?: string(name='Detail', description='The information about the diagnostic result.', example='Large amounts of data are returned to the client. Import the data to OSS.'),
               operatorId?: string(name='OperatorId', description='The operator ID.', example='TableScan[234]'),
               stageId?: string(name='StageId', description='The stage ID.', example='Stage[67]'),
             }
@@ -8014,8 +7987,8 @@ model DescribeControllerDetectionResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-xxx'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The information about the detection result.'),
-      name?: string(name='Name', description='The name of the detection item.'),
+      message?: string(name='Message', description='The information about the detection result.', example='A CPU increase is detected on the access node.'),
+      name?: string(name='Name', description='The name of the detection item.', example='CPU increase detection'),
       status?: string(name='Status', description='The severity level of the detection result. Valid values:
 
 *   NORMAL
@@ -10296,15 +10269,22 @@ async function describeEnabledPrivileges(request: DescribeEnabledPrivilegesReque
 }
 
 model DescribeEssdCacheConfigRequest {
-  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-uf685u1o987hj6rn'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-uf685u1o987hj6rn'),
 }
 
 model DescribeEssdCacheConfigResponseBody = {
   data?: {
-    enableEssdCache?: boolean(name='EnableEssdCache', example='true'),
-    essdCacheSize?: int32(name='EssdCacheSize', example='500'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='C7EDB8E4-9769-4233-88C7-DCA4C9******'),
+    enableEssdCache?: boolean(name='EnableEssdCache', description='Specifies whether to enable the disk cache feature.
+
+Valid values:
+
+*   true
+*   false', example='true'),
+    essdCacheSize?: int32(name='EssdCacheSize', description='The disk cache size. Unit: GB.', example='500'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C7EDB8E4-9769-4233-88C7-DCA4C9******'),
 }
 
 model DescribeEssdCacheConfigResponse = {
@@ -10314,7 +10294,7 @@ model DescribeEssdCacheConfigResponse = {
 }
 
 /**
- * @summary 查询EssdCache配置
+ * @summary Queries the disk cache size in the query acceleration configuration of an AnalyticDB for MySQL cluster.
  *
  * @param request DescribeEssdCacheConfigRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10348,7 +10328,7 @@ async function describeEssdCacheConfigWithOptions(request: DescribeEssdCacheConf
 }
 
 /**
- * @summary 查询EssdCache配置
+ * @summary Queries the disk cache size in the query acceleration configuration of an AnalyticDB for MySQL cluster.
  *
  * @param request DescribeEssdCacheConfigRequest
  * @return DescribeEssdCacheConfigResponse
@@ -10569,8 +10549,8 @@ model DescribeExecutorDetectionResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Warehouse Edition cluster.', example='am-xxx'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The information about the detection result.'),
-      name?: string(name='Name', description='The name of the detection item.'),
+      message?: string(name='Message', description='The information about the detection result.', example='Large amounts of memory resources are used by the Aggregation operator.'),
+      name?: string(name='Name', description='The name of the detection item.', example='Metric detection'),
       results?: {
         operatorAgg?: [ 
           {
@@ -10594,7 +10574,7 @@ model DescribeExecutorDetectionResponseBody = {
                 inputRows?: long(name='InputRows', description='The number of rows input by the operator.', example='123'),
                 inputSize?: long(name='InputSize', description='The amount of data input by the operator. Unit: bytes.', example='345'),
                 operatorCost?: double(name='OperatorCost', description='The total CPU time consumed by all operators in the stage, which is equivalent to the total CPU time of the stage. You can use this parameter to determine which parts of the stage consume a large amount of computing resources. Unit: milliseconds.', example='123'),
-                operatorInfo?: string(name='OperatorInfo', description='The property information about the operator.'),
+                operatorInfo?: string(name='OperatorInfo', description='The property information about the operator.', example='GROUP BY field: uid'),
                 operatorName?: string(name='OperatorName', description='The name of the operator.', example='Join'),
                 outputRows?: long(name='OutputRows', description='The number of rows output by the operator.', example='2345'),
                 outputSize?: long(name='OutputSize', description='The amount of data output by the operator. Unit: bytes.', example='234'),
@@ -10794,6 +10774,124 @@ async function describeInclinedNodesWithOptions(request: DescribeInclinedNodesRe
 async function describeInclinedNodes(request: DescribeInclinedNodesRequest): DescribeInclinedNodesResponse {
   var runtime = new $RuntimeOptions{};
   return describeInclinedNodesWithOptions(request, runtime);
+}
+
+model DescribeInclinedTablesRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-k2jofo4pi5zhd****'),
+  lang?: string(name='Lang', example='zh'),
+  order?: string(name='Order', example='[      {          "Field":"Name",          "Type":"Asc"      }  ]'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='30'),
+  regionId?: string(name='RegionId', example='cn-hongkong'),
+  tableType?: string(name='TableType', example='FactTable'),
+}
+
+model DescribeInclinedTablesResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail', example='{
+    "PolicyType": "AccountLevelIdentityBasedPolicy",
+    "AuthPrincipalOwnerId": "1*****************7",
+    "EncodedDiagnosticMessage": "AQIBIAAAAOPdwKY2QLOvgMEc7SkkoJfj1kvZwsaRqNYMh10Tv0wTe0fCzaCdrvgazfNb0EnJKETgXyhR+3BIQjx9WAqZryejBsp1Bl4qI5En/D9dEhcXAtKCxCmE2kZCiEzpy8BoEUt+bs0DmlaGWO5xkEpttypLIB4rUhDvZd+zwPg4EXk4KSSWSWsurxtqDkKEMshKlQFBTKvJcKwyhk62IeYly4hQ+5IpXjkh1GQXuDRCQ==",
+    "AuthPrincipalType": "SubUser",
+    "AuthPrincipalDisplayName": "2***************9",
+    "NoPermissionType": "ImplicitDeny",
+    "AuthAction": "adb:DescribeExcessivePrimaryKeys"
+}'),
+  detectionItems?: [ 
+    {
+      message?: string(name='Message'),
+      name?: string(name='Name'),
+      status?: string(name='Status', example='NORMAL
+WARNNING
+CRITICAL'),
+    }
+  ](name='DetectionItems'),
+  items?: {
+    table?: [ 
+      {
+        isIncline?: boolean(name='IsIncline', example='True'),
+        name?: string(name='Name', example='admin_daily_own_statistic_record'),
+        rowCount?: long(name='RowCount', example='1000'),
+        schema?: string(name='Schema', example='spark_test'),
+        size?: long(name='Size', example='200'),
+        spaceRatio?: double(name='SpaceRatio', example='0.4'),
+        totalSize?: long(name='TotalSize', example='53687091200'),
+        type?: string(name='Type', example='Fact'),
+      }
+    ](name='Table'),
+  }(name='Items'),
+  pageNumber?: string(name='PageNumber', example='1'),
+  pageSize?: string(name='PageSize', example='30'),
+  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  totalCount?: string(name='TotalCount', example='15'),
+}
+
+model DescribeInclinedTablesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeInclinedTablesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看表倾斜诊断结果
+ *
+ * @param request DescribeInclinedTablesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeInclinedTablesResponse
+ */
+async function describeInclinedTablesWithOptions(request: DescribeInclinedTablesRequest, runtime: $RuntimeOptions): DescribeInclinedTablesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.DBClusterId)) {
+    query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!$isNull(request.lang)) {
+    query['Lang'] = request.lang;
+  }
+  if (!$isNull(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.tableType)) {
+    query['TableType'] = request.tableType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeInclinedTables',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查看表倾斜诊断结果
+ *
+ * @param request DescribeInclinedTablesRequest
+ * @return DescribeInclinedTablesResponse
+ */
+async function describeInclinedTables(request: DescribeInclinedTablesRequest): DescribeInclinedTablesResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeInclinedTablesWithOptions(request, runtime);
 }
 
 model DescribeJobResourceUsageRequest {
@@ -11202,8 +11300,8 @@ model DescribeOversizeNonPartitionTableInfosResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='am-bp16t5ci7r74s****'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The information about the detection result.'),
-      name?: string(name='Name', description='The name of the detection item.'),
+      message?: string(name='Message', description='The information about the detection result.', example='Multiple oversized non-partitioned tables are detected.'),
+      name?: string(name='Name', description='The name of the detection item.', example='Oversized non-partitioned tables'),
       status?: string(name='Status', description='The severity level of the detection result.', example='NORMAL
 WARNING
 CRITICAL'),
@@ -11522,9 +11620,20 @@ model DescribePerformanceViewAttributeResponseBody = {
 *   **ResourceGroup**', example='Node'),
         keys?: [ 
           {
-            enableAutoMc?: boolean(name='EnableAutoMc'),
-            engine?: [ string ](name='Engine'),
-            groupType?: [ string ](name='GroupType'),
+            enableAutoMc?: boolean(name='EnableAutoMc', description='Indicates whether the multi-cluster feature is enabled. Valid values:
+
+- true
+
+- false', example='true'),
+            engine?: [ string ](name='Engine', description='The database engine of the cluster. Valid values:
+
+*  AnalyticDB'),
+            groupType?: [ string ](name='GroupType', description='The type of the resource group. Valid values:
+
+*   **Interactive**
+*   **Job**
+
+>  For more information about resource groups, see [Resource group overview](https://help.aliyun.com/document_detail/428610.html).'),
             keyName?: string(name='KeyName', description='The name of the metric.', example='AnalyticDB_CPU'),
             selected?: boolean(name='Selected', description='Specifies whether to select the metric. Valid values:
 
@@ -11823,6 +11932,81 @@ async function describeRegionsWithOptions(request: DescribeRegionsRequest, runti
 async function describeRegions(request: DescribeRegionsRequest): DescribeRegionsResponse {
   var runtime = new $RuntimeOptions{};
   return describeRegionsWithOptions(request, runtime);
+}
+
+model DescribeResourceGroupSpecRequest {
+  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-8vbo40tl1dxxxxxx'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupType?: string(name='ResourceGroupType', description='This parameter is required.', example='ai'),
+}
+
+model DescribeResourceGroupSpecResponseBody = {
+  requestId?: string(name='RequestId', description='requestId', example='10226189-4391-5B10-97AF-5CA5XXXXXXX'),
+  specs?: [ 
+    {
+      allocateUnits?: [ string ](name='AllocateUnits'),
+      maxQuantity?: int32(name='MaxQuantity', example='8'),
+      name?: string(name='Name', example='xlarge'),
+      type?: string(name='Type', example='GPU'),
+    }
+  ](name='Specs'),
+}
+
+model DescribeResourceGroupSpecResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeResourceGroupSpecResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询资源组规格相关信息
+ *
+ * @param request DescribeResourceGroupSpecRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeResourceGroupSpecResponse
+ */
+async function describeResourceGroupSpecWithOptions(request: DescribeResourceGroupSpecRequest, runtime: $RuntimeOptions): DescribeResourceGroupSpecResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.DBClusterId)) {
+    query['DBClusterId'] = request.DBClusterId;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceGroupType)) {
+    query['ResourceGroupType'] = request.resourceGroupType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeResourceGroupSpec',
+    version = '2021-12-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
+    return callApi(params, req, runtime);
+  } else {
+    return execute(params, req, runtime);
+  }
+}
+
+/**
+ * @summary 查询资源组规格相关信息
+ *
+ * @param request DescribeResourceGroupSpecRequest
+ * @return DescribeResourceGroupSpecResponse
+ */
+async function describeResourceGroupSpec(request: DescribeResourceGroupSpecRequest): DescribeResourceGroupSpecResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeResourceGroupSpecWithOptions(request, runtime);
 }
 
 model DescribeSQLPatternsRequest {
@@ -13344,8 +13528,8 @@ model DescribeTablePartitionDiagnoseResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-bp171g24yvbxxxxx'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The detection result.'),
-      name?: string(name='Name', description='The name of the detection item.'),
+      message?: string(name='Message', description='The detection result.', example='Multiple oversized non-partitioned tables are detected.'),
+      name?: string(name='Name', description='The name of the detection item.', example='Improper partition field diagnostics'),
       status?: string(name='Status', description='The severity level of the detection result. Valid values:
 
 *   NORMAL
@@ -13621,12 +13805,12 @@ model DescribeWorkerDetectionResponseBody = {
   DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='am-xxxxx'),
   detectionItems?: [ 
     {
-      message?: string(name='Message', description='The information about the detection result.'),
-      name?: string(name='Name', description='The name of the detection item.'),
+      message?: string(name='Message', description='The information about the detection result.', example='There are a total of 10 tables with an excessive number of primary keys.'),
+      name?: string(name='Name', description='The name of the detection item.', example='Metric detection'),
       results?: {
         operatorAgg?: [ 
           {
-            metricName?: string(name='MetricName', description='The detection result items of operator metric aggregation.'),
+            metricName?: string(name='MetricName', description='The detection result items of operator metric aggregation.', example='Peak memory'),
             searchResults?: [ 
               {
                 avgValue?: double(name='AvgValue', description='The average value of the operator metric.', example='2234'),
@@ -13646,7 +13830,7 @@ model DescribeWorkerDetectionResponseBody = {
                 inputRows?: long(name='InputRows', description='The number of rows input by the operator.', example='123'),
                 inputSize?: long(name='InputSize', description='The amount of data input by the operator. Unit: bytes.', example='123'),
                 operatorCost?: long(name='OperatorCost', description='The total CPU time consumed by all operators in the stage, which is equivalent to the total CPU time of the stage. You can use this parameter to determine which parts of the stage consume a large amount of computing resources. Unit: milliseconds.', example='23'),
-                operatorInfo?: string(name='OperatorInfo', description='The property information about the operator.'),
+                operatorInfo?: string(name='OperatorInfo', description='The property information about the operator.', example='GROUP BY field: id'),
                 operatorName?: string(name='OperatorName', description='The name of the operator.', example='TableScan'),
                 outputRows?: long(name='OutputRows', description='The number of rows output by the operator.', example='123'),
                 outputSize?: long(name='OutputSize', description='The amount of data output by the operator. Unit: bytes.', example='123'),
@@ -13683,7 +13867,7 @@ model DescribeWorkerDetectionResponseBody = {
         ](name='SkewedTables', description='The detection result items of skewed tables.'),
         topAccessTables?: [ 
           {
-            metricName?: string(name='MetricName', description='The name of the detection metric.'),
+            metricName?: string(name='MetricName', description='The name of the detection metric.', example='Peak memory detection'),
             searchResults?: [ 
               {
                 accessCount?: long(name='AccessCount', description='The number of accesses to the table.', example='1111'),
@@ -14469,23 +14653,29 @@ async function executeSparkReplStatement(request: ExecuteSparkReplStatementReque
 }
 
 model ExecuteSparkWarehouseBatchSQLRequest {
-  agency?: string(name='Agency', description='The name of the client.', example='Dataworks。'),
-  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-bp11q28kvl688****'),
+  agency?: string(name='Agency', description='The name of the client.', example='DataWorks'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-bp11q28kvl688****'),
   executeResultLimit?: long(name='ExecuteResultLimit', description='The maximum amount of execution result data that can be written to Object Storage Service (OSS). Unit: MB. Default value: 4096. The size of compressed objects is difficult to estimate. The data that is actually written to OSS is smaller than the specified value.', example='4096'),
   executeTimeLimitInSeconds?: long(name='ExecuteTimeLimitInSeconds', description='The maximum execution duration. Unit: seconds. If a set of SQL statements fail to be executed for the specified period of time after submission, they are marked as a timeout error. The default value is 360000 seconds, which is equivalent to 100 hours.', example='3600000'),
-  query?: string(name='Query', description='This parameter is required.', example='CREATE TABLE user(id INT, name STRING);
+  query?: string(name='Query', description='The SQL statements that you want to execute in batches. Separate multiple SQL statements with semicolons (;). The execution engine executes the SQL statements in sequence in the same session.
+
+This parameter is required.', example='CREATE TABLE user(id INT, name STRING);
 INSERT INTO t VALUE(1, \\\\"Bob\\\\");
 SELECT * FROM t;'),
-  resourceGroupName?: string(name='ResourceGroupName', description='This parameter is required.', example='test'),
-  runtimeConfig?: string(name='RuntimeConfig', example='{
+  resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.
+
+This parameter is required.', example='test'),
+  runtimeConfig?: string(name='RuntimeConfig', description='The additional runtime parameter. Specify the parameter in the JSON format.', example='{
  "OSSURL": "oss://testBucketname/"
 }'),
-  schema?: string(name='Schema', example='adb_demo'),
+  schema?: string(name='Schema', description='The name of the database.', example='adb_demo'),
 }
 
 model ExecuteSparkWarehouseBatchSQLResponseBody = {
   data?: SparkBatchSQL(name='Data', description='The returned data.', example='true'),
-  requestId?: string(name='RequestId', example='CBE843D8-964D-5EA3-9D31-822125611B6E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CBE843D8-964D-5EA3-9D31-822125611B6E'),
 }
 
 model ExecuteSparkWarehouseBatchSQLResponse = {
@@ -14495,7 +14685,7 @@ model ExecuteSparkWarehouseBatchSQLResponse = {
 }
 
 /**
- * @summary 执行一段Spark Batch SQL
+ * @summary Executes Spark SQL statements in batches.
  *
  * @param request ExecuteSparkWarehouseBatchSQLRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -14550,7 +14740,7 @@ async function executeSparkWarehouseBatchSQLWithOptions(request: ExecuteSparkWar
 }
 
 /**
- * @summary 执行一段Spark Batch SQL
+ * @summary Executes Spark SQL statements in batches.
  *
  * @param request ExecuteSparkWarehouseBatchSQLRequest
  * @return ExecuteSparkWarehouseBatchSQLResponse
@@ -16309,13 +16499,15 @@ async function getSparkTemplateFullTree(request: GetSparkTemplateFullTreeRequest
 
 model GetSparkWarehouseBatchSQLRequest {
   agency?: string(name='Agency', description='The name of the client, which can be up to 16 characters in length. Specify a descriptive name that makes it easy to identify.', example='DMS'),
-  DBClusterId?: string(name='DBClusterId', example='amv-uf6485635f***'),
-  queryId?: string(name='QueryId', description='This parameter is required.', example='sq2024123*****'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.', example='amv-uf6485635f***'),
+  queryId?: string(name='QueryId', description='The query ID of the Spark SQL statement.
+
+This parameter is required.', example='sq2024123*****'),
 }
 
 model GetSparkWarehouseBatchSQLResponseBody = {
   data?: SparkBatchSQL(name='Data', description='The returned data.', example='{\\\\"DBClusterId\\\\": \\\\"amv-uf6485635fz852mn\\\\", \\\\"Statements\\\\": [{\\\\"Code\\\\": \\\\"show databases\\\\", \\\\"State\\\\": \\\\"FINISHED\\\\", \\\\"StatementId\\\\": \\\\"sq202501141001sh8e12e080006846-0000\\\\", \\\\"Result\\\\": \\\\"+--------------------+n'),
-  requestId?: string(name='RequestId', example='3D44EDA0-A9DC-580D-9B5A-019370C075F4'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3D44EDA0-A9DC-580D-9B5A-019370C075F4'),
 }
 
 model GetSparkWarehouseBatchSQLResponse = {
@@ -16325,7 +16517,7 @@ model GetSparkWarehouseBatchSQLResponse = {
 }
 
 /**
- * @summary 获取一段Spark Batch SQL的状态
+ * @summary Queries the execution result of a Spark SQL statement.
  *
  * @param request GetSparkWarehouseBatchSQLRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16365,7 +16557,7 @@ async function getSparkWarehouseBatchSQLWithOptions(request: GetSparkWarehouseBa
 }
 
 /**
- * @summary 获取一段Spark Batch SQL的状态
+ * @summary Queries the execution result of a Spark SQL statement.
  *
  * @param request GetSparkWarehouseBatchSQLRequest
  * @return GetSparkWarehouseBatchSQLResponse
@@ -16926,6 +17118,7 @@ Default value: {"Type": "Desc","Field": "ViewName"}.', example='{"Type": "Desc",
 
 This parameter is required.', example='cn-hangzhou'),
   schemaName?: string(name='SchemaName', description='The name of the database.', example='adb_demo'),
+  showMvBaseTable?: boolean(name='ShowMvBaseTable'),
 }
 
 model GetViewObjectsResponseBody = {
@@ -16996,6 +17189,9 @@ async function getViewObjectsWithOptions(request: GetViewObjectsRequest, runtime
   }
   if (!$isNull(request.schemaName)) {
     query['SchemaName'] = request.schemaName;
+  }
+  if (!$isNull(request.showMvBaseTable)) {
+    query['ShowMvBaseTable'] = request.showMvBaseTable;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -17469,7 +17665,7 @@ model ListApsLifecycleStrategyResponseBody = {
           processAll?: string(name='ProcessAll', description='Indicates whether all tables in the database are selected.', example='true'),
           tableNames?: [ string ](name='TableNames', description='The names of the tables.'),
         }
-      ](name='OperationTables', description='*'),
+      ](name='OperationTables', description='The operation tables.'),
       status?: string(name='Status', description='The status of the lifecycle management policy. Valid values:
 
 1.  on: enables the current policy.
@@ -17880,9 +18076,9 @@ async function listLakeStorages(request: ListLakeStoragesRequest): ListLakeStora
 }
 
 model ListResultExportJobHistoryRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
+  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
 
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition (V3.0) clusters within a region.
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition clusters within a region.
 
 This parameter is required.', example='amv-7xv5ty5m9o4v****'),
   databaseUser?: string(name='DatabaseUser', description='The name of the database account.', example='test1'),
@@ -17936,9 +18132,9 @@ This parameter is required.', example='cn-hangzhou'),
 }
 
 model ListResultExportJobHistoryShrinkRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
+  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
 
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition (V3.0) clusters within a region.
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition clusters within a region.
 
 This parameter is required.', example='amv-7xv5ty5m9o4v****'),
   databaseUser?: string(name='DatabaseUser', description='The name of the database account.', example='test1'),
@@ -18001,7 +18197,7 @@ model ListResultExportJobHistoryResponseBody = {
       message?: string(name='Message', description='The returned message. This parameter is returned only when the request failed.', example='Failed to execute SQL'),
       processId?: string(name='ProcessId', description='The query ID that can be used for diagnostics.
 
->  You can call the [DescribeDiagnosisSQLInfo](https://help.aliyun.com/document_detail/612495.html) operation to query the execution information about a query.', example='202306121421111720161451770345339****'),
+>  You can call the [DescribeDiagnosisSQLInfo](https://help.aliyun.com/document_detail/612337.html) operation to query the execution information about a query.', example='202306121421111720161451770345339****'),
       progress?: string(name='Progress', description='The progress of the result set export job. Unit: %. Valid values: 0 to 100.', example='30'),
       resourceGroup?: string(name='ResourceGroup', description='The name of the resource group that runs the result set export job.', example='test'),
       schema?: string(name='Schema', description='The name of the database.', example='lake_db'),
@@ -18520,22 +18716,26 @@ async function listSparkTemplateFileIds(request: ListSparkTemplateFileIdsRequest
 }
 
 model ListSparkWarehouseBatchSQLRequest {
-  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='am-bp1ub9grke1****'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='am-bp1ub9grke1****'),
   pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
   pageSize?: string(name='PageSize', description='The number of entries per page.', example='30'),
-  resourceGroupName?: string(name='ResourceGroupName', description='This parameter is required.', example='test'),
+  resourceGroupName?: string(name='ResourceGroupName', description='The name of the interactive resource group for which the Spark engine is enabled.
+
+This parameter is required.', example='test'),
 }
 
 model ListSparkWarehouseBatchSQLResponseBody = {
   data?: {
-    pageNumber?: long(name='PageNumber', example='1'),
-    pageSize?: long(name='PageSize', example='20'),
+    pageNumber?: long(name='PageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='PageSize', description='The number of entries per page.', example='20'),
     queries?: [
       SparkBatchSQL
     ](name='Queries', description='The queried Spark SQL statements.'),
-    total?: long(name='Total', example='0'),
+    total?: long(name='Total', description='The total number of entries.', example='0'),
   }(name='Data', description='The returned data.'),
-  requestId?: string(name='RequestId', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
 }
 
 model ListSparkWarehouseBatchSQLResponse = {
@@ -18545,7 +18745,7 @@ model ListSparkWarehouseBatchSQLResponse = {
 }
 
 /**
- * @summary 列出提交的的SparkBatchSQL
+ * @summary Queries a list of Spark SQL statements.
  *
  * @param request ListSparkWarehouseBatchSQLRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -18588,7 +18788,7 @@ async function listSparkWarehouseBatchSQLWithOptions(request: ListSparkWarehouse
 }
 
 /**
- * @summary 列出提交的的SparkBatchSQL
+ * @summary Queries a list of Spark SQL statements.
  *
  * @param request ListSparkWarehouseBatchSQLRequest
  * @return ListSparkWarehouseBatchSQLResponse
@@ -18995,24 +19195,24 @@ This parameter is required.', example='1'),
   kafkaInfo?: {
     kafkaClusterId?: string(name='KafkaClusterId', description='The ID of the Kafka instance.', example='-'),
     kafkaTopic?: string(name='KafkaTopic', description='The topic of the Kafka instance.', example='test-topic'),
-  }(name='KafkaInfo', description='*', example='-'),
+  }(name='KafkaInfo', description='The information about the Kafka instance.', example='-'),
   lakehouseId?: {
     securityGroup?: string(name='SecurityGroup', description='The name of the security group.', example='sg-******'),
     vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-******'),
     vswitch?: string(name='Vswitch', description='The name of the vSwitch.', example='vsw-******'),
   }(name='LakehouseId', description='The lakehouse ID.', example='123'),
   polarDBMysqlInfo?: {
-    connectUrl?: string(name='ConnectUrl', description='*', example='-'),
-    password?: string(name='Password', description='*', example='-'),
-    regionId?: string(name='RegionId', description='*', example='-'),
-    userName?: string(name='UserName', description='*', example='-'),
-  }(name='PolarDBMysqlInfo', description='The retired data source.', example='-'),
+    connectUrl?: string(name='ConnectUrl', description='The parameter is no longer supported.', example='-'),
+    password?: string(name='Password', description='The parameter is no longer supported.', example='-'),
+    regionId?: string(name='RegionId', description='The parameter is no longer supported.', example='-'),
+    userName?: string(name='UserName', description='The parameter is no longer supported.', example='-'),
+  }(name='PolarDBMysqlInfo', description='The parameter is no longer supported.', example='-'),
   rdsMysqlInfo?: {
-    connectUrl?: string(name='ConnectUrl', description='*', example='-'),
-    password?: string(name='Password', description='*', example='-'),
-    regionId?: string(name='RegionId', description='*', example='-'),
-    userName?: string(name='UserName', description='*', example='-'),
-  }(name='RdsMysqlInfo', description='The retired data source.', example='-'),
+    connectUrl?: string(name='ConnectUrl', description='The parameter is no longer supported.', example='-'),
+    password?: string(name='Password', description='The parameter is no longer supported.', example='-'),
+    regionId?: string(name='RegionId', description='The parameter is no longer supported.', example='-'),
+    userName?: string(name='UserName', description='The parameter is no longer supported.', example='-'),
+  }(name='RdsMysqlInfo', description='The parameter is no longer supported.', example='-'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-shanghai'),
@@ -19036,10 +19236,10 @@ This parameter is required.', example='amv-*******'),
 
 This parameter is required.', example='1'),
   datasourceName?: string(name='DatasourceName', description='The name of the data source.', example='sls-******'),
-  kafkaInfoShrink?: string(name='KafkaInfo', description='*', example='-'),
+  kafkaInfoShrink?: string(name='KafkaInfo', description='The information about the Kafka instance.', example='-'),
   lakehouseIdShrink?: string(name='LakehouseId', description='The lakehouse ID.', example='123'),
-  polarDBMysqlInfoShrink?: string(name='PolarDBMysqlInfo', description='The retired data source.', example='-'),
-  rdsMysqlInfoShrink?: string(name='RdsMysqlInfo', description='The retired data source.', example='-'),
+  polarDBMysqlInfoShrink?: string(name='PolarDBMysqlInfo', description='The parameter is no longer supported.', example='-'),
+  rdsMysqlInfoShrink?: string(name='RdsMysqlInfo', description='The parameter is no longer supported.', example='-'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-shanghai'),
@@ -19311,7 +19511,7 @@ This parameter is required.', example='aps-******'),
 
 model ModifyApsSlsADBJobResponseBody = {
   code?: string(name='Code', description='The HTTP status code or the error code.', example='InvalidInput'),
-  data?: map[string]any(name='Data', description='The returned data.'),
+  data?: map[string]any(name='Data', description='The returned data.', example='-'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The response code. The status code 200 indicates that the request was successful.', example='200'),
   message?: string(name='Message', description='The returned message. Valid values:
 
@@ -19748,14 +19948,20 @@ async function modifyBackupPolicy(request: ModifyBackupPolicyRequest): ModifyBac
 }
 
 model ModifyClickhouseEngineRequest {
-  cacheSize?: int32(name='CacheSize', example='200'),
-  DBClusterId?: string(name='DBClusterId', description='This parameter is required.', example='amv-bp11q28kvl688****'),
-  enabled?: boolean(name='Enabled', example='true'),
+  cacheSize?: int32(name='CacheSize', description='The disk cache size of the wide table engine. Unit: GB. Default value: 100. Valid values: 100 to 1000.', example='200'),
+  DBClusterId?: string(name='DBClusterId', description='The cluster ID.
+
+This parameter is required.', example='amv-bp11q28kvl688****'),
+  enabled?: boolean(name='Enabled', description='Specifies whether to enable the wide table engine feature. Valid values:
+
+- true
+
+- false', example='true'),
   ownerId?: string(name='OwnerId'),
 }
 
 model ModifyClickhouseEngineResponseBody = {
-  requestId?: string(name='RequestId', example='D761DA51-12F8-5457-AAA9-F52B9F436D2D'),
+  requestId?: string(name='RequestId', description='The request ID.', example='D761DA51-12F8-5457-AAA9-F52B9F436D2D'),
 }
 
 model ModifyClickhouseEngineResponse = {
@@ -19765,7 +19971,7 @@ model ModifyClickhouseEngineResponse = {
 }
 
 /**
- * @summary 开启宽表引擎
+ * @summary Enables the wide table engine feature for an AnalyticDB for MySQL cluster or modifies the disk cache size of the wide table engine of an AnalyticDB for MySQL cluster for which you enabled the wide table engine feature.
  *
  * @param request ModifyClickhouseEngineRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -19808,7 +20014,7 @@ async function modifyClickhouseEngineWithOptions(request: ModifyClickhouseEngine
 }
 
 /**
- * @summary 开启宽表引擎
+ * @summary Enables the wide table engine feature for an AnalyticDB for MySQL cluster or modifies the disk cache size of the wide table engine of an AnalyticDB for MySQL cluster for which you enabled the wide table engine feature.
  *
  * @param request ModifyClickhouseEngineRequest
  * @return ModifyClickhouseEngineResponse
@@ -20084,15 +20290,12 @@ This parameter is required.', example='amv-bp1r053byu48p****'),
 
 *   true (default)
 *   false', example='true'),
-  ownerAccount?: string(name='OwnerAccount'),
-  ownerId?: long(name='OwnerId'),
   productForm?: string(name='ProductForm', example='LegacyForm'),
   regionId?: string(name='RegionId', description='The region ID of the cluster.
 
 >  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/454314.html) operation to query the most recent region list.', example='cn-hangzhou'),
   reservedNodeCount?: int32(name='ReservedNodeCount'),
   reservedNodeSize?: string(name='ReservedNodeSize', example='LegacyForm'),
-  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   storageResource?: string(name='StorageResource', description='The reserved storage resources. Valid values: 0ACU to 2064ACU. The value must be in increments of 24ACU. Each ACU is approximately equal to 1 core and 4 GB memory.
 
 >  This parameter must be specified with a unit.', example='24ACU'),
@@ -20137,12 +20340,6 @@ async function modifyDBClusterWithOptions(request: ModifyDBClusterRequest, runti
   if (!$isNull(request.enableDefaultResourcePool)) {
     query['EnableDefaultResourcePool'] = request.enableDefaultResourcePool;
   }
-  if (!$isNull(request.ownerAccount)) {
-    query['OwnerAccount'] = request.ownerAccount;
-  }
-  if (!$isNull(request.ownerId)) {
-    query['OwnerId'] = request.ownerId;
-  }
   if (!$isNull(request.productForm)) {
     query['ProductForm'] = request.productForm;
   }
@@ -20154,9 +20351,6 @@ async function modifyDBClusterWithOptions(request: ModifyDBClusterRequest, runti
   }
   if (!$isNull(request.reservedNodeSize)) {
     query['ReservedNodeSize'] = request.reservedNodeSize;
-  }
-  if (!$isNull(request.resourceOwnerAccount)) {
-    query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
   }
   if (!$isNull(request.storageResource)) {
     query['StorageResource'] = request.storageResource;
@@ -21989,13 +22183,13 @@ async function startSparkSQLEngine(request: StartSparkSQLEngineRequest): StartSp
 }
 
 model SubmitResultExportJobRequest {
-  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition (V3.0) cluster.
+  DBClusterId?: string(name='DBClusterId', description='The ID of the AnalyticDB for MySQL Data Lakehouse Edition cluster.
 
->  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition (V3.0) clusters within a region.
+>  You can call the [DescribeDBClusters](https://help.aliyun.com/document_detail/129857.html) operation to query the IDs of all AnalyticDB for MySQL Data Lakehouse Edition clusters within a region.
 
 This parameter is required.', example='amv-bp10a0ng21t5****'),
   engine?: string(name='Engine', description='The engine that is used to run the result set export job. Set the value to XIHE.', example='XIHE'),
-  exportType?: string(name='ExportType'),
+  exportType?: string(name='ExportType', description='The export type.'),
   regionId?: string(name='RegionId', description='The region ID.
 
 >  You can call the [DescribeRegions](https://help.aliyun.com/document_detail/143074.html) operation to query the most recent region list.
@@ -22765,7 +22959,7 @@ This parameter is required.', example='am-uf6g8w25jacm7****'),
 }
 
 model UpgradeKernelVersionResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A444FFFFFF'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1AD222E9-E606-4A42-BF6D-8A444FFFFFF'),
 }
 
 model UpgradeKernelVersionResponse = {
