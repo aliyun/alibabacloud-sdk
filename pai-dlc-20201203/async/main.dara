@@ -727,7 +727,7 @@ This parameter is required.', example='tf-mnist-test', minLength=1, maxLength=10
 A DLC job consists of different types of nodes. If nodes of the same type have exactly the same configuration, the configuration is called JobSpec. **JobSpecs** specifies the configurations of all types of nodes. The value is of the array type.
 
 This parameter is required.', position='Body'),
-  jobType: string(name='JobType', description='The job type. The value is case-sensitive. Valid values:
+  jobType: string(name='JobType', description='The job type. The value is case-sensitive. The following job types are supported:
 
 *   TFJob
 *   PyTorchJob
@@ -758,7 +758,7 @@ This parameter is required.', example='TFJob', minLength=1, maxLength=32, positi
   resourceId?: string(name='ResourceId', description='The ID of the resource group. This parameter is optional.
 
 *   If you leave this parameter empty, the job is submitted to a public resource group.
-*   If a resource quota is associated with the current workspace, you can specify the resource quota ID. For more information about how to query the resource quota ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='rs-xxx', position='Body'),
+*   If a resource quota is bound to the current workspace, you can specify the resource quota ID. For more information about how to query the resource quota ID, see [Manage resource quotas](https://help.aliyun.com/document_detail/2651299.html).', example='rs-xxx', position='Body'),
   settings?: JobSettings(name='Settings', description='The additional parameter configurations of the job.', position='Body'),
   successPolicy?: string(name='SuccessPolicy', description='The policy that is used to check whether a distributed multi-node job is successful. Only TensorFlow distributed multi-node jobs are supported.
 
@@ -1265,6 +1265,32 @@ async function getPodLogs(request: GetPodLogsRequest): GetPodLogsResponse {
   return @handler.do('RESTFUL', 'GetPodLogs', 'GET', '/api/v1/jobs/{JobId}/pods/{PodId}/logs', 'json', false, 'json', request);
 }
 
+model GetRayDashboardRequest {
+  jobId?: string(name='jobId', example='dlc1k7426goc7bvy', position='Path'),
+  isShared?: boolean(name='isShared', example='false', position='Query'),
+  token?: string(name='token', example='some_token_value', position='Query'),
+}
+
+model GetRayDashboardResponseBody = {
+  metricsEnabled?: string(name='metricsEnabled', example='true'),
+  url?: string(name='url', example='https://pre-pai-dlc-proxy-cn-hangzhou.aliyun.com/ray/dashboard/dlc1k7426goc7bvy'),
+}
+
+model GetRayDashboardResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRayDashboardResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetRayDashboard  GetRayDashboardRequest
+  * @return GetRayDashboardResponse
+ */
+async function getRayDashboard(request: GetRayDashboardRequest): GetRayDashboardResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRayDashboard', 'GET', '/api/v1/jobs/{jobId}/rayDashboard', 'json', false, 'json', request);
+}
+
 model GetTensorboardRequest {
   tensorboardId: string(name='TensorboardId', description='The ID of the TensorBoard instance. For more information about how to obtain the ID of the TensorBoard instance, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
 
@@ -1505,7 +1531,7 @@ model ListJobsRequest {
   endTime?: string(name='EndTime', description='The end time of the query. Use the job creation time to filter data. The default value is the current time.', example='2020-11-09T14:45:00Z', position='Query'),
   fromAllWorkspaces?: boolean(name='FromAllWorkspaces', description='Specifies whether to query a list of jobs across workspaces. This parameter must be used together with `ShowOwn=true`. You can use this parameter to query a list of jobs recently submitted by the current user.', example='false', position='Query'),
   jobId?: string(name='JobId', description='The job ID. Fuzzy query is supported. The name is case-insensitive. Wildcards are not supported. The default value null indicates any job ID.', example='dlc********', position='Query'),
-  jobType?: string(name='JobType', description='The job type. You can query any job type. The default value null indicates any job type. Valid values:
+  jobType?: string(name='JobType', description='The job type. The default value null indicates any type. Valid values:
 
 *   TFJob
 *   PyTorchJob
@@ -1523,13 +1549,13 @@ model ListJobsRequest {
 *   AcceptQuotaOverSold-true (true indicates that the job uses idle resources.)
 *   AcceptQuotaOverSold-false (false indicates that the job uses guaranteed resources.)', example='ForbiddenQuotaOverSold', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The number of the page to return for the current query. Minimum value: 1. Default value: 1.', example='1', minimum=1, maximum=1000, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50', minimum=1, maximum=100, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of jobs per page.', example='50', minimum=1, maximum=100, position='Query'),
   paymentType?: string(name='PaymentType', position='Query'),
   pipelineId?: string(name='PipelineId', description='The specific pipeline ID used to filter jobs.', example='flow-*******', position='Query'),
   resourceId?: string(name='ResourceId', description='The resource group ID. For information about how to obtain the ID of a dedicated resource group, see [Manage resource quota](https://help.aliyun.com/document_detail/2651299.html).', example='r*****', position='Query'),
   resourceQuotaName?: string(name='ResourceQuotaName', description='The resource quota name used to filter jobs. Fuzzy search is supported. Wildcards are not supported. The default value null indicates that jobs are not filtered by resource quota name.', example='quota***', position='Query'),
   showOwn?: boolean(name='ShowOwn', description='Specifies whether to query only the jobs submitted by the current user.', example='true', position='Query'),
-  sortBy?: string(name='SortBy', description='The sorting field in the returned job list. Valid values:
+  sortBy?: string(name='SortBy', description='The sorting field. Valid values:
 
 *   DisplayName
 *   JobType
@@ -1659,8 +1685,7 @@ model StartTensorboardRequest {
   tensorboardId: string(name='TensorboardId', description='The TensorBoard instance ID. For more information about how to obtain the TensorBoard instance ID, see [ListTensorboards](https://help.aliyun.com/document_detail/459689.html).
 
 This parameter is required.', example='tensorboard-20210114104214-vf9lowjt3pso', minLength=1, maxLength=256, position='Path'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">For more information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='380', position='Query'),
 }
 
 model StartTensorboardResponseBody = {
