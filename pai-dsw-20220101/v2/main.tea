@@ -26,6 +26,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model BandwidthLimit {
+  egressRate?: string(name='EgressRate'),
+  egressWhitelists?: [ string ](name='EgressWhitelists'),
+  ingressRate?: string(name='IngressRate'),
+  ingressWhitelists?: [ string ](name='IngressWhitelists'),
+}
+
 model CredentialConfig {
   aliyunEnvRoleKey?: string(name='AliyunEnvRoleKey', example='0'),
   configs?: [ 
@@ -58,6 +65,18 @@ model DemoCategory {
   subCategories?: [
     DemoCategory
   ](name='SubCategories'),
+}
+
+model DynamicMount {
+  enable?: boolean(name='Enable'),
+  mountPoints?: [
+    DynamicMountPoint
+  ](name='MountPoints'),
+}
+
+model DynamicMountPoint {
+  options?: string(name='Options'),
+  rootPath?: string(name='RootPath', description='This parameter is required.'),
 }
 
 model ForwardInfo {
@@ -97,17 +116,23 @@ model ForwardInfoResponse {
 }
 
 model CreateIdleInstanceCullerRequest {
-  cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
-  gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
-  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
+  cpuPercentThreshold?: int32(name='CpuPercentThreshold', description='The CPU utilization threshold. Unit: percentage. Valid values: 1 to 100. If the CPU utilization of the instance is lower than this threshold, the instance is considered idle.', example='20'),
+  gpuPercentThreshold?: int32(name='GpuPercentThreshold', description='The GPU utilization threshold. Unit: percentage. Valid values: 1 to 100. This parameter takes effect only if the instance is of the GPU instance type. If both CPU and GPU utilization is lower than the thresholds, the instance is considered idle.', example='10'),
+  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', description='The maximum time duration for which the instance is idle. Unit: minutes. If the time duration for which the instance is idle exceeds this value, the system automatically stops the instance.', example='60'),
 }
 
 model CreateIdleInstanceCullerResponseBody = {
-  code?: string(name='Code', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The error message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model CreateIdleInstanceCullerResponse = {
@@ -117,6 +142,8 @@ model CreateIdleInstanceCullerResponse = {
 }
 
 /**
+ * @summary Creates an automatic stop policy for a specific Data Science Workshop (DSW) instance. When the conditions are met, the instance is automatically stopped. You can create only one automatic stop policy for an idle DSW instance. If the specific instance has an automatic stop policy, call DeleteIdleInstanceCuller to delete it first.
+ *
  * @param request CreateIdleInstanceCullerRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -150,14 +177,12 @@ async function createIdleInstanceCullerWithOptions(InstanceId: string, request: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Creates an automatic stop policy for a specific Data Science Workshop (DSW) instance. When the conditions are met, the instance is automatically stopped. You can create only one automatic stop policy for an idle DSW instance. If the specific instance has an automatic stop policy, call DeleteIdleInstanceCuller to delete it first.
+ *
  * @param request CreateIdleInstanceCullerRequest
  * @return CreateIdleInstanceCullerResponse
  */
@@ -168,87 +193,173 @@ async function createIdleInstanceCuller(InstanceId: string, request: CreateIdleI
 }
 
 model CreateInstanceRequest {
-  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  accessibility?: string(name='Accessibility', description='The instance accessibility.
+
+Valid values:
+
+*   PUBLIC: The instances are accessible to all members in the workspace.
+*   PRIVATE: The instances are accessible only to you and the administrator of the workspace.', example='PRIVATE'),
   affinity?: {
     CPU?: {
-      enable?: boolean(name='Enable'),
-    }(name='CPU'),
-  }(name='Affinity'),
+      enable?: boolean(name='Enable', description='Specifies whether to enable the CPU affinity feature.
+
+*   false
+*   true', example='true'),
+    }(name='CPU', description='The CPU affinity configuration. Only subscription instances that use general-purpose computing resources support CPU affinity configuration.'),
+  }(name='Affinity', description='The affinity configuration.'),
   cloudDisks?: [ 
     {
-      capacity?: string(name='Capacity', example='30Gi'),
-      mountPath?: string(name='MountPath', example='/mmt/workspace'),
-      path?: string(name='Path', example='workspace'),
+      capacity?: string(name='Capacity', description='If **Resource Type** is **Public Resource** or if **Resource Quota** is subscription-based general-purpose computing resources (CPU cores ≥ 2 and memory ≥ 4 GB, or configured with GPU):
+
+Each instance has a free system disk of 100 GiB for persistent storage. **If the DSW instance is stopped and not launched for more than 15 days, the disk is cleared**. The disk can be expanded. For specific pricing, refer to the console.
+
+**
+
+**Warning**
+
+*   After the expansion, you cannot reduce the storage space. Proceed with caution.
+
+*   After the expansion, the disk is not cleared if the instance is stopped for more than 15 days. However, it will continue to incur fees.
+
+*   If you delete the instance, the system disk is also released and the data stored in the disk is deleted. Make sure that you have backed up your data before you delete the instance.
+
+If you need persistent storage, you can **mount a dataset** or add the OSS, NAS, or CPFS path to the **storage path**.', example='100Gi'),
+      mountPath?: string(name='MountPath', description='The mount path of the cloud disk.', example='/mnt/systemDisk'),
+      path?: string(name='Path', description='The subpath of the cloud disk that is mounted to the instance.', example='workspace'),
       status?: {
-        available?: long(name='Available'),
-        capacity?: long(name='Capacity'),
-        usage?: long(name='Usage'),
-      }(name='Status'),
-      subType?: string(name='SubType', example='rootfs'),
+        available?: long(name='Available', description='The available capacity. Unit: bytes.', example='31841058816'),
+        capacity?: long(name='Capacity', description='The capacity. Unit: bytes.', example='32212254720'),
+        usage?: long(name='Usage', description='The used capacity. Unit: bytes.', example='371195904'),
+      }(name='Status', description='The disk or snapshot usage.'),
+      subType?: string(name='SubType', description='The cloud disk type.
+
+*   rootfs: Mounts the disk as a system disk. The system environment is stored on the disk.', example='rootfs'),
     }
-  ](name='CloudDisks', example='[]'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig'),
+  ](name='CloudDisks', description='The cloud disks.', example='[]'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='The credential configuration.'),
   datasets?: [ 
     {
-      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
-      datasetVersion?: string(name='DatasetVersion'),
-      mountAccess?: string(name='MountAccess'),
-      mountPath?: string(name='MountPath', example='/mnt/data'),
-      optionType?: string(name='OptionType', deprecated=true),
-      options?: string(name='Options'),
-      uri?: string(name='Uri', example='oss://bucket.oss-cn-shanghai.aliyuncs.com/data/path/'),
+      datasetId?: string(name='DatasetId', description='The dataset ID. If the dataset is read-only, you cannot change the dataset permission from read-only to read and write by using MountAccess.
+
+You can call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to obtain the dataset ID. If you configure the dataset ID, you cannot configure the dataset URI.', example='d-vsqjvsjp4orp5l206u'),
+      datasetVersion?: string(name='DatasetVersion', description='The dataset version. You must also configure DatasetId. If you leave this parameter empty, the value v1 is used by default.', example='v1'),
+      dynamic?: boolean(name='Dynamic', description='Specifies whether to enable dynamic mounting. Default value: false.
+
+*   Currently, only instances using general-purpose computing resources are supported.
+*   Currently, only OSS datasets are supported. The mounted datasets are read-only.
+*   The mount path of the dynamically mounted dataset must be a subpath of the root path. Example: /mnt/dynamic/data1/
+*   A dynamically mounted dataset must be after non-dynamic datasets.', example='true'),
+      mountAccess?: string(name='MountAccess', description='The read and write permissions of the dataset. If the dataset is read-only, it cannot be changed to read and write.', example='RW'),
+      mountPath?: string(name='MountPath', description='The mount path of the dataset.', example='/mnt/data'),
+      optionType?: string(name='OptionType', description='The mount type. You cannot specify Options at the same time. This is deprecated, and you can use Options instead.', example='ReadOnly', deprecated=true),
+      options?: string(name='Options', description='The custom dataset mount options. Only OSS is supported. You cannot specify OptionType at the same time. For more information, see [DSW mount configurations](https://help.aliyun.com/zh/pai/user-guide/read-and-write-dataset-data).', example='{
+  "fs.oss.download.thread.concurrency": "10",
+  "fs.oss.upload.thread.concurrency": "10",
+  "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
+}'),
+      uri?: string(name='Uri', description='The URI of the storage service directory, which can be directly mounted. This parameter is mutually exclusive with DatasetId.
+
+URI formats of different types of storage:
+
+*   OSS: oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/
+*   NAS: nas://29\\\\*\\\\*d-b12\\\\*\\\\*\\\\*\\\\*446.cn-hangzhou.nas.aliyuncs.com/data/path/
+*   Extreme NAS: nas://29\\\\*\\\\*\\\\*\\\\*123-y\\\\*\\\\*r.cn-hangzhou.extreme.nas.aliyuncs.com/data/path/
+*   CPFS: cpfs://cpfs-213\\\\*\\\\*\\\\*\\\\*87.cn-wulanchabu/ptc-292\\\\*\\\\*\\\\*\\\\*\\\\*cbb/exp-290\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*03e/data/path/
+*   Lingjun CPFS: bmcpfs://cpfs-290\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*foflh-vpc-x\\\\*\\\\*\\\\*\\\\*8r.cn-wulanchabu.cpfs.aliyuncs.com/data/path/', example='oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/'),
     }
-  ](name='Datasets'),
-  driver?: string(name='Driver', example='535.54.03'),
-  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
-  environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}'),
-  imageAuth?: string(name='ImageAuth'),
-  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-  instanceName?: string(name='InstanceName', example='training_data'),
+  ](name='Datasets', description='The datasets.'),
+  driver?: string(name='Driver', description='The NVIDIA driver configuration.', example='535.54.03'),
+  dynamicMount?: DynamicMount(name='DynamicMount', description='The dynamic mount configuration.'),
+  ecsSpec?: string(name='EcsSpec', description='The ECS instance type of the instance. You can call [ListEcsSpecs](https://help.aliyun.com/document_detail/470423.html) to obtain the ECS instance type.', example='ecs.c6.large'),
+  environmentVariables?: map[string]string(name='EnvironmentVariables', description='The environment variables.', example='{userName: "Chris"}'),
+  imageAuth?: string(name='ImageAuth', description='The Base64-encoded account and password for the user\\\\"s private image. The password will be hidden.', example='****'),
+  imageId?: string(name='ImageId', description='The image ID. You can call [ListImages](https://help.aliyun.com/document_detail/449118.html) to obtain the image ID.', example='image-05cefd0be2exxxx'),
+  imageUrl?: string(name='ImageUrl', description='The image address. You can call [ListImages](https://help.aliyun.com/document_detail/449118.html) to obtain the image address.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  instanceName?: string(name='InstanceName', description='The instance name. The name must meet the following requirements:
+
+*   The name can contain only letters, digits, and underscores (_).
+*   The name can be up to 27 characters in length.', example='training_data'),
   labels?: [ 
     {
-      key?: string(name='Key', example='stsTokenOwner'),
-      value?: string(name='Value', example='123xxxxxxxx'),
+      key?: string(name='Key', description='The custom label key.', example='stsTokenOwner'),
+      value?: string(name='Value', description='The custom label value.', example='123xxxxxxxx'),
     }
-  ](name='Labels', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
-  priority?: long(name='Priority', example='1'),
+  ](name='Labels', description='The custom labels.', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
+  priority?: long(name='Priority', description='The priority based on which resources are allocated to instances. Valid values: 1 to 9.
+
+*   1: the lowest priority.
+*   9: the highest priority.', example='1'),
   requestedResource?: {
-    CPU?: string(name='CPU', example='32'),
-    GPU?: string(name='GPU', example='4'),
-    GPUType?: string(name='GPUType', example='v100'),
-    memory?: string(name='Memory', example='32'),
-    sharedMemory?: string(name='SharedMemory', example='32'),
-  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
-  resourceId?: string(name='ResourceId', example='dsw-123456789'),
+    CPU?: string(name='CPU', description='The number of CPU cores.', example='32'),
+    GPU?: string(name='GPU', description='The number of GPUs.', example='4'),
+    GPUType?: string(name='GPUType', description='The GPU memory type. Valid values:
+
+*   V100
+*   A100
+*   T4
+*   A10
+*   P100', example='v100'),
+    memory?: string(name='Memory', description='The memory size. Unit: GB.', example='32'),
+    sharedMemory?: string(name='SharedMemory', description='The size of the shared memory. Unit: GB.', example='32'),
+  }(name='RequestedResource', description='The resource configurations.', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource group. This parameter is configured during prepayment. For information about how to create a dedicated resource group, see [Create a dedicated resource group and purchase general computing resources](https://help.aliyun.com/document_detail/202827.html).', example='dsw-123456789'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='tag1'),
+      value?: string(name='Value', description='The tag value.', example='value1'),
     }
-  ](name='Tag'),
-  userId?: string(name='UserId', example='1612285282502324'),
+  ](name='Tag', description='The tags.'),
+  userId?: string(name='UserId', description='The ID of the instance owner. Valid values: Alibaba Cloud account and RAM user.', example='161228528250****'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
-    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    bandwidthLimit?: BandwidthLimit(name='BandwidthLimit'),
+    defaultRoute?: string(name='DefaultRoute', description='The default route. Valid values:
+
+*   eth0: The default network interface is used to access the Internet through the public gateway.
+*   eth1: The user\\\\"s elastic network interface (ENI) is used to access the Internet through the private gateway. For more information about the configuration method, see [Enable Internet access for a DSW instance by using a private Internet NAT gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR blocks.
+
+*   If you leave the SwitchId and ExtendedCIDRs parameters empty, the system automatically obtains all CIDR blocks in a VPC.
+*   If you configure the SwitchId and ExtendedCIDRs parameters, we recommend that you specify all CIDR blocks in a VPC.', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     forwardInfos?: [
       ForwardInfo
-    ](name='ForwardInfos'),
-    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
-    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
-  }(name='UserVpc'),
-  workspaceId?: string(name='WorkspaceId', example='40823'),
-  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
+    ](name='ForwardInfos', description='The forward information.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-xxxxx'),
+  }(name='UserVpc', description='The virtual private cloud (VPC) configurations.'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='40823'),
+  workspaceSource?: string(name='WorkspaceSource', description='The storage corresponding to the working directory. You can mount disks or datasets to /mnt/workspace at the same time. OSS datasets and dynamically mounted datasets are not supported.
+
+Valid values:
+
+*   rootfsCloudDisk: Mount the disk to the working directory.
+*   Mount path of the dataset, such as /mnt/data: Datasets in URI format only support this method.
+*   Dataset ID, such as d-vsqjvs\\\\*\\\\*\\\\*\\\\*rp5l206u: If a single dataset is mounted to multiple paths, the first path is selected. We recommend that you do not use this method, use the mount path instead.
+
+If you leave this parameter empty:
+
+*   If the instance uses cloud disks, cloud disks are selected by default.
+*   if no cloud disks are available, the first NAS or CPFS dataset is selected as the working directory.
+*   If no cloud disks, and NAS or CPFS datasets are available, the host space is used.', example='rootfsCloudDisk'),
 }
 
 model CreateInstanceResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404
+*   200', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model CreateInstanceResponse = {
@@ -258,7 +369,7 @@ model CreateInstanceResponse = {
 }
 
 /**
- * @summary 创建实例
+ * @summary Creates a Data Science Workshop (DSW) instance.
  *
  * @param request CreateInstanceRequest
  * @param headers map
@@ -285,6 +396,9 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
   }
   if (!$isNull(request.driver)) {
     body['Driver'] = request.driver;
+  }
+  if (!$isNull(request.dynamicMount)) {
+    body['DynamicMount'] = request.dynamicMount;
   }
   if (!$isNull(request.ecsSpec)) {
     body['EcsSpec'] = request.ecsSpec;
@@ -347,15 +461,11 @@ async function createInstanceWithOptions(request: CreateInstanceRequest, headers
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 创建实例
+ * @summary Creates a Data Science Workshop (DSW) instance.
  *
  * @param request CreateInstanceRequest
  * @return CreateInstanceResponse
@@ -367,17 +477,26 @@ async function createInstance(request: CreateInstanceRequest): CreateInstanceRes
 }
 
 model CreateInstanceShutdownTimerRequest {
-  dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
-  remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
+  dueTime?: string(name='DueTime', description='The scheduled stop time.', example='2021-01-12T14:36:01Z'),
+  remainingTimeInMs?: long(name='RemainingTimeInMs', description='The time duration before the instance is stopped. Unit: milliseconds.', example='3600000'),
 }
 
 model CreateInstanceShutdownTimerResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model CreateInstanceShutdownTimerResponse = {
@@ -387,7 +506,7 @@ model CreateInstanceShutdownTimerResponse = {
 }
 
 /**
- * @summary 创建定时关机任务
+ * @summary Creates a scheduled stop task for an instance.
  *
  * @param request CreateInstanceShutdownTimerRequest
  * @param headers map
@@ -419,15 +538,11 @@ async function createInstanceShutdownTimerWithOptions(InstanceId: string, reques
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 创建定时关机任务
+ * @summary Creates a scheduled stop task for an instance.
  *
  * @param request CreateInstanceShutdownTimerRequest
  * @return CreateInstanceShutdownTimerResponse
@@ -513,11 +628,7 @@ async function createInstanceSnapshotWithOptions(InstanceId: string, request: Cr
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -533,11 +644,20 @@ async function createInstanceSnapshot(InstanceId: string, request: CreateInstanc
 }
 
 model DeleteIdleInstanceCullerResponseBody = {
-  code?: string(name='Code', example='ValidationError'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='ValidationError'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.
+
+*   If the request is successful, null is returned.
+*   If the request fails, the failure cause is returned.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model DeleteIdleInstanceCullerResponse = {
@@ -547,6 +667,8 @@ model DeleteIdleInstanceCullerResponse = {
 }
 
 /**
+ * @summary Deletes the automatic stop policy of an instance.
+ *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteIdleInstanceCullerResponse
@@ -566,14 +688,12 @@ async function deleteIdleInstanceCullerWithOptions(InstanceId: string, headers: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Deletes the automatic stop policy of an instance.
+ *
  * @return DeleteIdleInstanceCullerResponse
  */
 async function deleteIdleInstanceCuller(InstanceId: string): DeleteIdleInstanceCullerResponse {
@@ -583,12 +703,22 @@ async function deleteIdleInstanceCuller(InstanceId: string): DeleteIdleInstanceC
 }
 
 model DeleteInstanceResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404
+*   200', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+*   true
+*   false', example='true'),
 }
 
 model DeleteInstanceResponse = {
@@ -598,7 +728,7 @@ model DeleteInstanceResponse = {
 }
 
 /**
- * @summary 删除实例
+ * @summary Deletes a specific instance.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -619,15 +749,11 @@ async function deleteInstanceWithOptions(InstanceId: string, headers: map[string
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 删除实例
+ * @summary Deletes a specific instance.
  *
  * @return DeleteInstanceResponse
  */
@@ -638,11 +764,13 @@ async function deleteInstance(InstanceId: string): DeleteInstanceResponse {
 }
 
 model DeleteInstanceLabelsRequest {
-  labelKeys?: string(name='LabelKeys', description='This parameter is required.', example='labelKey1,labelKey2,labelKey3'),
+  labelKeys?: string(name='LabelKeys', description='The keys of the tags that you want to delete. Separate multiple tags with commas (,).
+
+This parameter is required.', example='labelKey1,labelKey2,labelKey3'),
 }
 
 model DeleteInstanceLabelsResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
 }
 
 model DeleteInstanceLabelsResponse = {
@@ -652,7 +780,7 @@ model DeleteInstanceLabelsResponse = {
 }
 
 /**
- * @summary 删除DSW实例的标签
+ * @summary Delete tags from a Data Science Workshop (DSW) instance.
  *
  * @param request DeleteInstanceLabelsRequest
  * @param headers map
@@ -681,15 +809,11 @@ async function deleteInstanceLabelsWithOptions(InstanceId: string, request: Dele
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 删除DSW实例的标签
+ * @summary Delete tags from a Data Science Workshop (DSW) instance.
  *
  * @param request DeleteInstanceLabelsRequest
  * @return DeleteInstanceLabelsResponse
@@ -701,12 +825,21 @@ async function deleteInstanceLabels(InstanceId: string, request: DeleteInstanceL
 }
 
 model DeleteInstanceShutdownTimerResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model DeleteInstanceShutdownTimerResponse = {
@@ -716,7 +849,7 @@ model DeleteInstanceShutdownTimerResponse = {
 }
 
 /**
- * @summary 删除定时关机任务
+ * @summary Deletes a scheduled stop task of an instance.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -737,15 +870,11 @@ async function deleteInstanceShutdownTimerWithOptions(InstanceId: string, header
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 删除定时关机任务
+ * @summary Deletes a scheduled stop task of an instance.
  *
  * @return DeleteInstanceShutdownTimerResponse
  */
@@ -793,11 +922,7 @@ async function deleteInstanceSnapshotWithOptions(InstanceId: string, SnapshotId:
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -812,15 +937,21 @@ async function deleteInstanceSnapshot(InstanceId: string, SnapshotId: string): D
 }
 
 model GetIdleInstanceCullerResponseBody = {
-  code?: string(name='Code', example='ValidationError'),
-  cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
-  gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
-  idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='ValidationError'),
+  cpuPercentThreshold?: int32(name='CpuPercentThreshold', description='The CPU utilization threshold. Unit: percentage. Valid values: 1 to 100. If the CPU utilization of the instance is lower than this threshold, the instance is considered idle.', example='20'),
+  gpuPercentThreshold?: int32(name='GpuPercentThreshold', description='The GPU utilization threshold. Unit: percentage. Valid values: 1 to 100. This parameter takes effect only if the instance is of the GPU instance type. If both CPU and GPU utilization is lower than the thresholds, the instance is considered idle.', example='10'),
+  idleTimeInMinutes?: int32(name='IdleTimeInMinutes', description='The time duration for which the instance is idle. Unit: minutes.', example='30'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', description='The maximum time duration for which the instance is idle. Unit: minutes. If the time duration for which the instance is idle exceeds this value, the system automatically stops the instance.', example='60'),
+  message?: string(name='Message', description='The error message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+*   true
+*   false', example='true'),
 }
 
 model GetIdleInstanceCullerResponse = {
@@ -830,6 +961,8 @@ model GetIdleInstanceCullerResponse = {
 }
 
 /**
+ * @summary Queries the information about an auto stop policy for a specific idle instance.
+ *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetIdleInstanceCullerResponse
@@ -849,14 +982,12 @@ async function getIdleInstanceCullerWithOptions(InstanceId: string, headers: map
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Queries the information about an auto stop policy for a specific idle instance.
+ *
  * @return GetIdleInstanceCullerResponse
  */
 async function getIdleInstanceCuller(InstanceId: string): GetIdleInstanceCullerResponse {
@@ -866,143 +997,212 @@ async function getIdleInstanceCuller(InstanceId: string): GetIdleInstanceCullerR
 }
 
 model GetInstanceRequest {
-  token?: string(name='Token'),
+  token?: string(name='Token', description='The sharing token information.', example='WUzWCMr325LV0bH2JH4C4HoDaKIU6C4S'),
 }
 
 model GetInstanceResponseBody = {
-  acceleratorType?: string(name='AcceleratorType', example='CPU'),
-  accessibility?: string(name='Accessibility', example='PRIVATE'),
-  accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+  acceleratorType?: string(name='AcceleratorType', description='The accelerator type of the instance.
+
+Valid values:
+
+*   CPU
+*   GPU', example='CPU'),
+  accessibility?: string(name='Accessibility', description='The accessibility. Valid values:
+
+*   PRIVATE: Accessible only to you and the administrator of the workspace.
+*   PUBLIC: Accessible to all members in the workspace.', example='PRIVATE'),
+  accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', description='The accumulated running duration. Unit: milliseconds.', example='3600000'),
   affinity?: {
     CPU?: {
-      enable?: boolean(name='Enable'),
-    }(name='CPU'),
-  }(name='Affinity'),
+      enable?: boolean(name='Enable', description='Indicates whether CPU affinity is enabled.
+
+true false', example='true'),
+    }(name='CPU', description='The CPU affinity configuration. Only subscription instances that use general-purpose computing resources support CPU affinity configuration.'),
+  }(name='Affinity', description='The affinity configuration.'),
   cloudDisks?: [ 
     {
-      capacity?: string(name='Capacity', example='30Gi'),
-      mountPath?: string(name='MountPath', example='/mmt/workspace'),
-      path?: string(name='Path', example='/workspace'),
-      subType?: string(name='SubType', example='rootfs'),
+      capacity?: string(name='Capacity', description='Disk Capacity', example='30Gi'),
+      mountPath?: string(name='MountPath', description='The mount path of the cloud disk in the container.', example='/mmt/workspace'),
+      path?: string(name='Path', description='The directory on the cloud disk that is mounted to the container.', example='/workspace'),
+      subType?: string(name='SubType', description='The usage mode of the cloud disk. The value rootfs indicates that the cloud disk is used as the root file system.', example='rootfs'),
     }
-  ](name='CloudDisks', example='[]'),
-  code?: string(name='Code', example='null'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig'),
+  ](name='CloudDisks', description='The cloud disks of the instance.', example='[]'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: All errors, except for parameter validation errors, are internal errors.
+*   ValidationError: A parameter validation error.', example='null'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='The credential injection configuration.'),
   datasets?: [ 
     {
-      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
-      datasetVersion?: string(name='DatasetVersion'),
-      mountAccess?: string(name='MountAccess'),
-      mountPath?: string(name='MountPath', example='/mnt/data'),
-      optionType?: string(name='OptionType'),
-      options?: string(name='Options'),
-      uri?: string(name='Uri', example='oss://bucket.oss-cn-shanghai.aliyuncs.com/data/path/'),
+      datasetId?: string(name='DatasetId', description='The dataset ID.', example='d-vsqjvsjp4orp5l206u'),
+      datasetVersion?: string(name='DatasetVersion', description='The dataset version.', example='v1'),
+      dynamic?: boolean(name='Dynamic', description='Indicates whether dynamic mounting is enabled. Default value: false.', example='false'),
+      mountAccess?: string(name='MountAccess', description='The read and write permissions. Valid values: RW and RO.', example='RW'),
+      mountPath?: string(name='MountPath', description='The mount path in the container.', example='/mnt/data'),
+      optionType?: string(name='OptionType', description='The mount type of the dataset (deprecated).', example='FastReadWrite'),
+      options?: string(name='Options', description='The mount type of the dataset.', example='{
+  "fs.oss.download.thread.concurrency": "10",
+  "fs.oss.upload.thread.concurrency": "10",
+  "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
+}'),
+      uri?: string(name='Uri', description='The dataset URI.', example='oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/'),
     }
-  ](name='Datasets'),
-  driver?: string(name='Driver', example='535.54.03'),
-  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
-  environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}'),
-  gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  ](name='Datasets', description='The datasets.'),
+  driver?: string(name='Driver', description='The NVIDIA driver configuration.', example='535.54.03'),
+  dynamicMount?: DynamicMount(name='DynamicMount', description='The dynamic mount configuration.'),
+  ecsSpec?: string(name='EcsSpec', description='The ECS instance type of the instance.', example='ecs.c6.large'),
+  environmentVariables?: map[string]string(name='EnvironmentVariables', description='The environment variables.', example='{userName: "Chris"}'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time of the instance.', example='2021-01-12T14:36:01Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The last modified time of the instance.', example='2021-01-12T14:36:01Z'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
   idleInstanceCuller?: {
-    cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
-    gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
-    idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
-    instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-    maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
-  }(name='IdleInstanceCuller', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
-  imageAuth?: string(name='ImageAuth'),
-  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-  imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  instanceName?: string(name='InstanceName', example='training_data'),
+    cpuPercentThreshold?: int32(name='CpuPercentThreshold', description='The CPU utilization threshold. Unit: percentage. Valid values: 1 to 100. If the CPU utilization of the instance is lower than this threshold, the instance is considered idle.', example='20'),
+    gpuPercentThreshold?: int32(name='GpuPercentThreshold', description='The GPU utilization threshold. Unit: percentage. Valid values: 1 to 100. This parameter takes effect only if the instance is of the GPU instance type. If both CPU and GPU utilization is lower than the thresholds, the instance is considered idle.', example='10'),
+    idleTimeInMinutes?: int32(name='IdleTimeInMinutes', description='The current time duration for which the instance is idle. Unit: minutes.', example='30'),
+    instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+    maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', description='The maximum time duration for which the instance is idle. Unit: minutes. If the time duration for which the instance is idle exceeds this value, the system automatically stops the instance.', example='60'),
+  }(name='IdleInstanceCuller', description='The automatic shutdown settings.', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
+  imageAuth?: string(name='ImageAuth', description='The Base64-encoded account and password for the user‘s private image. The password will be hidden.', example='YWxpeXVuNjUzMzM5MjIwMzoqKioqKio='),
+  imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+  imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+  imageUrl?: string(name='ImageUrl', description='The image address.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='training_data'),
   instanceShutdownTimer?: {
-    dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
-    gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-    gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-    instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-    remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
-  }(name='InstanceShutdownTimer'),
+    dueTime?: string(name='DueTime', description='The scheduled stop time.', example='2021-01-12T14:36:01Z'),
+    gmtCreateTime?: string(name='GmtCreateTime', description='The creation time.', example='2021-01-12T14:36:01Z'),
+    gmtModifiedTime?: string(name='GmtModifiedTime', description='The modified time.', example='2021-01-12T14:36:01Z'),
+    instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+    remainingTimeInMs?: long(name='RemainingTimeInMs', description='The remaining time before the instance is stopped. Unit: milliseconds.', example='3600000'),
+  }(name='InstanceShutdownTimer', description='The scheduled stop tasks.'),
   instanceSnapshotList?: [ 
     {
-      gmtCreateTime?: string(name='GmtCreateTime', description='快照创建时间', example='2021-01-12T14:36:01Z'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', description='快照修改时间', example='2021-01-12T14:36:01Z'),
-      imageId?: string(name='ImageId', description='镜像Id', example='image-05cefd0be2exxxx'),
-      imageName?: string(name='ImageName', description='镜像名称', example='py36_cpu_tf1.12_ubuntu'),
-      imageUrl?: string(name='ImageUrl', description='镜像Url', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-      reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
-      reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
-      repositoryUrl?: string(name='RepositoryUrl', description='镜像仓库Url', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-      status?: string(name='Status', description='实例快照状态', example='Pushing'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='The time when the snapshot was created.', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the snapshot was modified.', example='2021-01-12T14:36:01Z'),
+      imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+      imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+      imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      reasonCode?: string(name='ReasonCode', description='The error code of the instance snapshot.', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', description='The error message of the instance snapshot.', example='ImagePullBackOff'),
+      repositoryUrl?: string(name='RepositoryUrl', description='The image repository URL.', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+      status?: string(name='Status', description='The instance snapshot status.', example='Pushing'),
     }
-  ](name='InstanceSnapshotList', example='[]'),
-  instanceUrl?: string(name='InstanceUrl', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
-  jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
+  ](name='InstanceSnapshotList', description='The instance snapshots.', example='[]'),
+  instanceUrl?: string(name='InstanceUrl', description='The instance URL.', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
+  jupyterlabUrl?: string(name='JupyterlabUrl', description='The JupyterLab URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
   labels?: [ 
     {
-      key?: string(name='Key', example='stsTokenOwner'),
-      value?: string(name='Value', example='123xxxxxxxx'),
+      key?: string(name='Key', description='The tag key.', example='stsTokenOwner'),
+      value?: string(name='Value', description='The tag value.', example='123xxxxxxxx'),
     }
-  ](name='Labels', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
+  ](name='Labels', description='The custom tags.', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
   latestSnapshot?: {
-    gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-    gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-    imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-    imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-    imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-    reasonCode?: string(name='ReasonCode', description='实例快照错误代码', example='Internal Error'),
-    reasonMessage?: string(name='ReasonMessage', description='实例快照错误消息', example='ImagePullBackOff'),
-    repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-    status?: string(name='Status', description='实例快照状态', example='Pushing'),
-  }(name='LatestSnapshot'),
-  message?: string(name='Message', example='"XXX"'),
+    gmtCreateTime?: string(name='GmtCreateTime', description='The time when the snapshot was created.', example='2021-01-12T14:36:01Z'),
+    gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the snapshot was modified.', example='2021-01-12T14:36:01Z'),
+    imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+    imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+    imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+    reasonCode?: string(name='ReasonCode', description='The error code of the instance snapshot.', example='Internal Error'),
+    reasonMessage?: string(name='ReasonMessage', description='The error message of the instance snapshot.', example='ImagePullBackOff'),
+    repositoryUrl?: string(name='RepositoryUrl', description='The image repository URL.', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+    status?: string(name='Status', description='The instance snapshot status.
+
+Valid values:
+
+*   Committing
+*   Pushing
+*   Failed
+*   Saved', example='Pushing'),
+  }(name='LatestSnapshot', description='The latest user image saved.'),
+  message?: string(name='Message', description='The error message. Valid values:
+
+*   If the request is successful, null is returned.
+*   If the request fails, the cause for the failure is returned.', example='"XXX"'),
   nodeErrorRecovery?: {
-    autoSwitchCountdownSeconds?: long(name='autoSwitchCountdownSeconds'),
-    enableAutoSwitchOnNodeError?: boolean(name='enableAutoSwitchOnNodeError'),
-    hasNodeError?: boolean(name='hasNodeError'),
-  }(name='NodeErrorRecovery'),
-  paymentType?: string(name='PaymentType', example='PayAsYouGo'),
-  priority?: long(name='Priority', example='1'),
-  proxyPath?: string(name='ProxyPath'),
-  reasonCode?: string(name='ReasonCode', example='Internal Error'),
-  reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+    autoSwitchCountdownSeconds?: long(name='autoSwitchCountdownSeconds', description='The number of seconds to wait before automatic switchover.', example='30'),
+    enableAutoSwitchOnNodeError?: boolean(name='enableAutoSwitchOnNodeError', description='Indicates whether to enable automatic switchover when a node error occurs.', example='true'),
+    hasNodeError?: boolean(name='hasNodeError', description='Indicates whether the node has an error.', example='false'),
+  }(name='NodeErrorRecovery', description='The error recovery configuration of the node.'),
+  paymentType?: string(name='PaymentType', description='The billing method. Valid values:
+
+*   PayAsYouGo
+*   Subscription', example='PayAsYouGo'),
+  priority?: long(name='Priority', description='The priority based on which resources are allocated to instances.', example='1'),
+  proxyPath?: string(name='ProxyPath', description='The proxy path.', example='dsw-170197/proxy/'),
+  reasonCode?: string(name='ReasonCode', description='The error code of the instance.', example='Internal Error'),
+  reasonMessage?: string(name='ReasonMessage', description='The cause of the instance error.', example='ImagePullBackOff'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
   requestedResource?: {
-    CPU?: string(name='CPU', example='32'),
-    GPU?: string(name='GPU', example='4'),
-    GPUType?: string(name='GPUType', example='v100'),
-    memory?: string(name='Memory', example='32'),
-    sharedMemory?: string(name='SharedMemory', example='32'),
-  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
-  resourceId?: string(name='ResourceId', example='dsw-123456789'),
-  resourceName?: string(name='ResourceName', example='ecs.g7.xlarge'),
-  status?: string(name='Status', example='Running'),
-  success?: boolean(name='Success', example='true'),
+    CPU?: string(name='CPU', description='The number of CPU cores.', example='32'),
+    GPU?: string(name='GPU', description='The number of GPUs.', example='4'),
+    GPUType?: string(name='GPUType', description='The GPU type. Valid values:
+
+*   V100
+*   A100
+*   T4
+*   A10
+*   P100', example='v100'),
+    memory?: string(name='Memory', description='The memory size. Unit: GB.', example='32'),
+    sharedMemory?: string(name='SharedMemory', description='The shared memory size. Unit: GB.', example='32'),
+  }(name='RequestedResource', description='The resource configurations in subscription scenarios.', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+  resourceId?: string(name='ResourceId', description='The resource ID. This parameter is available if the billing method is subscription.', example='dsw-123456789'),
+  resourceName?: string(name='ResourceName', description='The specification type.
+
+*   For subscription, this is the requested CPU and memory size.
+*   For pay-as-you-go, this is the selected ECS instance type.', example='ecs.g7.xlarge'),
+  status?: string(name='Status', description='The instance status.
+
+Valid values:
+
+*   Creating
+*   SaveFailed
+*   Stopped
+*   Failed
+*   ResourceAllocating
+*   Stopping
+*   Updating
+*   Saving
+*   Queuing
+*   Recovering
+*   Starting
+*   Running
+*   Saved
+*   Deleting
+*   EnvPreparing', example='Running'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
   tags?: [ 
     {
-      tagKey?: string(name='TagKey'),
-      tagValue?: string(name='TagValue'),
+      tagKey?: string(name='TagKey', description='The tag key.', example='tag1'),
+      tagValue?: string(name='TagValue', description='The tag value.', example='value1'),
     }
-  ](name='Tags'),
-  terminalUrl?: string(name='TerminalUrl', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
-  userId?: string(name='UserId', example='1612285282502324'),
-  userName?: string(name='UserName', example='测试用户'),
+  ](name='Tags', description='The tags.'),
+  terminalUrl?: string(name='TerminalUrl', description='The terminal URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
+  userId?: string(name='UserId', description='The user ID.', example='1612285282502324'),
+  userName?: string(name='UserName', description='The username.', example='测试用户'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
-    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    bandwidthLimit?: BandwidthLimit(name='BandwidthLimit'),
+    defaultRoute?: string(name='DefaultRoute', description='Default Route', example='eth0 | eth1'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR block.
+
+*   If you leave VSwitchId empty, this parameter is not required and the system automatically obtains all CIDR blocks in the VPC.
+*   If VSwitchId is not empty, this parameter is required. Specify all CIDR blocks in the VPC.', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     forwardInfos?: [
       ForwardInfoResponse
-    ](name='ForwardInfos'),
-    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
-    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-    vpcId?: string(name='VpcId', description='Vpc Id。', example='vpc-xxxxx'),
-  }(name='UserVpc'),
-  webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
-  workspaceId?: string(name='WorkspaceId', example='40823'),
-  workspaceName?: string(name='WorkspaceName', example='training_data'),
-  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
+    ](name='ForwardInfos', description='The forward information.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-xxxxx'),
+  }(name='UserVpc', description='The virtual private cloud (VPC) configurations.'),
+  webIDEUrl?: string(name='WebIDEUrl', description='The Web IDE URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='40823'),
+  workspaceName?: string(name='WorkspaceName', description='The workspace name.', example='training_data'),
+  workspaceSource?: string(name='WorkspaceSource', description='The storage for the workspace. If you leave this parameter empty, the workspace uses File Storage NAS (NAS) storage, cloud disks, or local disks in sequence.', example='d-123456789'),
 }
 
 model GetInstanceResponse = {
@@ -1012,7 +1212,7 @@ model GetInstanceResponse = {
 }
 
 /**
- * @summary 获取实例详情
+ * @summary Queries the details of a DSW instance.
  *
  * @param request GetInstanceRequest
  * @param headers map
@@ -1041,15 +1241,11 @@ async function getInstanceWithOptions(InstanceId: string, request: GetInstanceRe
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 获取实例详情
+ * @summary Queries the details of a DSW instance.
  *
  * @param request GetInstanceRequest
  * @return GetInstanceResponse
@@ -1061,20 +1257,30 @@ async function getInstance(InstanceId: string, request: GetInstanceRequest): Get
 }
 
 model GetInstanceEventsRequest {
-  endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
-  maxEventsNum?: int32(name='MaxEventsNum', example='2000'),
-  startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
-  token?: string(name='Token'),
+  endTime?: string(name='EndTime', description='The end of the time range to query.', example='2020-11-08T15:00:00Z'),
+  maxEventsNum?: int32(name='MaxEventsNum', description='The maximum number of events. Default value: 2000.', example='2000'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query.', example='2020-11-08T15:00:00Z'),
+  token?: string(name='Token', description='The token used to share the URL.'),
 }
 
 model GetInstanceEventsResponseBody = {
-  code?: string(name='Code', example='None'),
-  events?: [ string ](name='Events'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='XXX'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='None'),
+  events?: [ string ](name='Events', description='The events.'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400: One or more parameters are invalid.
+*   404: The instance does not exist.
+*   200: The request is normal.', example='200'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='XXX'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+*   true
+*   false', example='true'),
 }
 
 model GetInstanceEventsResponse = {
@@ -1084,6 +1290,8 @@ model GetInstanceEventsResponse = {
 }
 
 /**
+ * @summary Queries a list of system events for a Data Science Workshop (DSW) instance.
+ *
  * @param request GetInstanceEventsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1120,14 +1328,12 @@ async function getInstanceEventsWithOptions(InstanceId: string, request: GetInst
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Queries a list of system events for a Data Science Workshop (DSW) instance.
+ *
  * @param request GetInstanceEventsRequest
  * @return GetInstanceEventsResponse
  */
@@ -1138,30 +1344,50 @@ async function getInstanceEvents(InstanceId: string, request: GetInstanceEventsR
 }
 
 model GetInstanceMetricsRequest {
-  endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
-  metricType?: string(name='MetricType', description='This parameter is required.', example='GpuCoreUsage'),
-  startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
-  timeStep?: string(name='TimeStep', example='15m'),
+  endTime?: string(name='EndTime', description='The end of the time range to query.', example='2020-11-08T15:00:00Z'),
+  metricType?: string(name='MetricType', description='The metric type. Valid values:
+
+*   GpuCoreUsage: the GPU utilization.
+*   GpuMemoryUsage: the GPU memory utilization.
+*   CpuCoreUsage: the CPU utilization.
+*   MemoryUsage: the memory utilization.
+*   NetworkInputRate: the network ingress rate.
+*   NetworkOutputRate: the network egress rate.
+*   DiskReadRate: the disk read rate.
+*   DiskWriteRate: the disk write rate.
+
+This parameter is required.', example='GpuCoreUsage'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query.', example='2020-11-08T15:00:00Z'),
+  timeStep?: string(name='TimeStep', description='The interval at which metrics are returned. Unit: minutes.', example='15m'),
 }
 
 model GetInstanceMetricsResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
   podMetrics?: [ 
     {
       metrics?: [ 
         {
-          time?: long(name='Time', example='1670890560'),
-          value?: float(name='Value', example='25.901031'),
+          time?: long(name='Time', description='The timestamp corresponding to the metric.', example='1670890560'),
+          value?: float(name='Value', description='The metric value.', example='25.901031'),
         }
-      ](name='Metrics'),
-      podId?: string(name='PodId', example='dsw-15870-695f44c5bc-hd6xm'),
+      ](name='Metrics', description='The metrics of the pod that corresponds to the instance.'),
+      podId?: string(name='PodId', description='The ID of the pod that corresponds to the instance.', example='dsw-15870-695f44c5bc-hd6xm'),
     }
-  ](name='PodMetrics'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  ](name='PodMetrics', description='The information about the metrics of the pod that corresponds to the instance.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+*   true
+*   false', example='true'),
 }
 
 model GetInstanceMetricsResponse = {
@@ -1171,6 +1397,8 @@ model GetInstanceMetricsResponse = {
 }
 
 /**
+ * @summary Queries the resource metrics of an instance.
+ *
  * @param request GetInstanceMetricsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1207,14 +1435,12 @@ async function getInstanceMetricsWithOptions(InstanceId: string, request: GetIns
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Queries the resource metrics of an instance.
+ *
  * @param request GetInstanceMetricsRequest
  * @return GetInstanceMetricsResponse
  */
@@ -1265,11 +1491,7 @@ async function getInstanceShutdownTimerWithOptions(InstanceId: string, headers: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1336,11 +1558,7 @@ async function getInstanceSnapshotWithOptions(InstanceId: string, SnapshotId: st
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1355,28 +1573,54 @@ async function getInstanceSnapshot(InstanceId: string, SnapshotId: string): GetI
 }
 
 model GetLifecycleRequest {
-  endTime?: string(name='EndTime', example='2020-11-08T15:00:00Z'),
-  limit?: int32(name='Limit', example='1'),
-  order?: string(name='Order', example='DESC'),
-  sessionNumber?: int32(name='SessionNumber', example='1'),
-  startTime?: string(name='StartTime', example='2020-11-08T15:00:00Z'),
-  token?: string(name='Token'),
+  endTime?: string(name='EndTime', description='The end of the time range to query.', example='2020-11-08T15:00:00Z'),
+  limit?: int32(name='Limit', description='The number of sessions to query.', example='1'),
+  order?: string(name='Order', description='The sorting order of the results. Valid values:
+
+*   ASC: sorted by time in ascending order.
+*   DESC: sorted by time in descending order.', example='DESC'),
+  sessionNumber?: int32(name='SessionNumber', description='A session refers to the process of an instance from startup to failure or shutdown. The sessionNumber indicates the offset value for the instance\\\\"s session sequence.', example='1'),
+  startTime?: string(name='StartTime', description='The beginning of the time range to query.', example='2020-11-08T15:00:00Z'),
+  token?: string(name='Token', description='The token used to share the URL.'),
 }
 
 model GetLifecycleResponseBody = {
-  code?: string(name='Code', example='null'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: All errors, except for parameter validation errors, are internal errors.
+*   ValidationError: A parameter validation error.', example='null'),
   lifecycle?: [[ 
     {
-      status?: string(name='Status', example='Starting'),
-      reasonCode?: string(name='ReasonCode', example='“”'),
-      reasonMessage?: string(name='ReasonMessage', example='“”'),
-      gmtCreateTime?: string(name='GmtCreateTime', example='2022-10-21T07:27:44Z'),
+      status?: string(name='Status', description='The status of the instance. Valid values:
+
+*   Creating
+*   SaveFailed: The instance image failed to be saved.
+*   Stopped
+*   Failed
+*   ResourceAllocating
+*   Stopping
+*   Updating
+*   Saving
+*   Starting
+*   Running
+*   Saved
+*   EnvPreparing: Preparing environment.
+*   ArrearStopping: The service is being stopped due to overdue payments.
+*   Arrearge: The service is stopped due to overdue payments.
+*   Queuing
+*   Recovering', example='Starting'),
+      reasonCode?: string(name='ReasonCode', description='The reason code that corresponds to an event.', example='“”'),
+      reasonMessage?: string(name='ReasonMessage', description='The reason message that corresponds to an event.', example='“”'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='The time the status was created, specifically the time the instance transitioned to this status (in GMT).', example='2022-10-21T07:27:44Z'),
     }
-  ]  ](name='Lifecycle', example='[[{"Status":"Creating","GmtCreateTime":"2022-09-19T22:38:00Z","Reason":"","ReasonCode":""}]]'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: int32(name='TotalCount', example='35'),
+  ]  ](name='Lifecycle', description='The lifecycle details.', example='[[{"Status":"Creating","GmtCreateTime":"2022-09-19T22:38:00Z","Reason":"","ReasonCode":""}]]'),
+  message?: string(name='Message', description='The returned message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
+  totalCount?: int32(name='TotalCount', description='The total number of queried sessions.', example='35'),
 }
 
 model GetLifecycleResponse = {
@@ -1386,6 +1630,10 @@ model GetLifecycleResponse = {
 }
 
 /**
+ * @summary Obtains the lifecycle of an instance
+ *
+ * @description Obtains the lifecycle transition information for an instance, including details on the status an instance transitions to at a specific point in time.
+ *
  * @param request GetLifecycleRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1428,14 +1676,14 @@ async function getLifecycleWithOptions(InstanceId: string, request: GetLifecycle
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Obtains the lifecycle of an instance
+ *
+ * @description Obtains the lifecycle transition information for an instance, including details on the status an instance transitions to at a specific point in time.
+ *
  * @param request GetLifecycleRequest
  * @return GetLifecycleResponse
  */
@@ -1523,11 +1771,7 @@ async function getMetricsWithOptions(InstanceId: string, request: GetMetricsRequ
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1601,11 +1845,7 @@ async function getResourceGroupStatisticsWithOptions(request: GetResourceGroupSt
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1619,16 +1859,24 @@ async function getResourceGroupStatistics(request: GetResourceGroupStatisticsReq
 }
 
 model GetTokenRequest {
-  expireTime?: int32(name='ExpireTime', example='60'),
-  instanceId?: string(name='InstanceId', description='This parameter is required.', example='dsw-730xxxxxxxxxx'),
+  expireTime?: int32(name='ExpireTime', description='The validity period. Unit: seconds.', example='60'),
+  instanceId?: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='dsw-730xxxxxxxxxx'),
 }
 
 model GetTokenResponseBody = {
-  code?: string(name='Code', example='ValidationError'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
-  token?: string(name='Token', example='*******'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: All errors, except for parameter validation errors, are internal errors.
+*   ValidationError: A parameter validation error.', example='ValidationError'),
+  message?: string(name='Message', description='The error message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
+  token?: string(name='Token', description='The temporary authentication information of the DSW instance.', example='*******'),
 }
 
 model GetTokenResponse = {
@@ -1638,6 +1886,8 @@ model GetTokenResponse = {
 }
 
 /**
+ * @summary Obtains the temporary authentication information of a DSW instance.
+ *
  * @param request GetTokenRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -1668,14 +1918,12 @@ async function getTokenWithOptions(request: GetTokenRequest, headers: map[string
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Obtains the temporary authentication information of a DSW instance.
+ *
  * @param request GetTokenRequest
  * @return GetTokenResponse
  */
@@ -1738,11 +1986,7 @@ async function getUserConfigWithOptions(headers: map[string]string, runtime: $Ru
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1842,11 +2086,7 @@ async function listEcsSpecsWithOptions(request: ListEcsSpecsRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1943,11 +2183,7 @@ async function listInstanceSnapshotWithOptions(InstanceId: string, request: List
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2011,11 +2247,7 @@ async function listInstanceStatisticsWithOptions(request: ListInstanceStatistics
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2031,199 +2263,323 @@ async function listInstanceStatistics(request: ListInstanceStatisticsRequest): L
 }
 
 model ListInstancesRequest {
-  acceleratorType?: string(name='AcceleratorType', example='AcceleratorType'),
-  accessibility?: string(name='Accessibility', example='PRIVATE'),
-  createUserId?: string(name='CreateUserId'),
-  gpuType?: string(name='GpuType'),
-  imageName?: string(name='ImageName'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  instanceName?: string(name='InstanceName', example='training_data'),
-  labels?: map[string]any(name='Labels'),
-  maxCpu?: string(name='MaxCpu'),
-  maxGpu?: string(name='MaxGpu'),
-  maxGpuMemory?: string(name='MaxGpuMemory'),
-  maxMemory?: string(name='MaxMemory'),
-  minCpu?: string(name='MinCpu'),
-  minGpu?: string(name='MinGpu'),
-  minGpuMemory?: string(name='MinGpuMemory'),
-  minMemory?: string(name='MinMemory'),
-  order?: string(name='Order', example='DESC'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
-  paymentType?: string(name='PaymentType', example='PayAsYouGo'),
-  resourceId?: string(name='ResourceId', example='rg-123456789'),
-  sortBy?: string(name='SortBy', example='gmtCreate'),
-  status?: string(name='Status', example='Running'),
+  acceleratorType?: string(name='AcceleratorType', description='The accelerator type.
+
+*   CPU: Only CPU computing is used.
+*   GPU: GPUs are used to accelerate computing.', example='CPU'),
+  accessibility?: string(name='Accessibility', description='The accessibility. Valid values:
+
+*   PRIVATE (default): The instances are accessible only to you and the administrator of the workspace.
+*   PUBLIC: The instances are accessible only to all members in the workspace.', example='PRIVATE'),
+  createUserId?: string(name='CreateUserId', description='The UID of the creator.', example='12345*****67890'),
+  gpuType?: string(name='GpuType', description='The GPU type.', example='NVIDIA A10'),
+  imageName?: string(name='ImageName', description='The image name.', example='modelscope:1.9.4-pytorch2.0.1tensorflow2.13.0-cpu-py38-ubuntu20.04'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can call [ListInstances](https://help.aliyun.com/document_detail/470439.html) to obtain the instance ID.', example='dsw-730xxxxxxxxxx'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='training_data'),
+  labels?: map[string]any(name='Labels', description='The labels. A maximum of four labels are supported.', example='{
+  "key1": "value1",
+  "key2": "value2",
+  "key3": "value3"
+}'),
+  maxCpu?: string(name='MaxCpu', description='The maximum number of CPUs. Unit: 0.001 CPU. The value 1000 indicates one CPU.', example='30000'),
+  maxGpu?: string(name='MaxGpu', description='The maximum number of GPUs. Unit: 0.001 GPU. The value 1000 indicates one GPU.', example='8000'),
+  maxGpuMemory?: string(name='MaxGpuMemory', description='The maximum memory size per GPU card. Unit: GB.', example='16'),
+  maxMemory?: string(name='MaxMemory', description='The maximum memory size. Unit: GB.', example='48'),
+  minCpu?: string(name='MinCpu', description='The minimum number of CPUs. Unit: 0.001 CPU. The value 1000 indicates one CPU.', example='2000'),
+  minGpu?: string(name='MinGpu', description='The minimum number of GPUs. Unit: 0.001 GPU. The value 1000 indicates one GPU.', example='100'),
+  minGpuMemory?: string(name='MinGpuMemory', description='The minimum memory size per GPU card. Unit: GB.', example='8'),
+  minMemory?: string(name='MinMemory', description='The minimum memory size. Unit: GB.', example='4'),
+  order?: string(name='Order', description='The order that you use to sort the query results.
+
+Valid values:
+
+*   ASC
+*   DESC', example='DESC'),
+  oversoldInfo?: string(name='OversoldInfo'),
+  oversoldType?: string(name='OversoldType'),
+  pageNumber?: long(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page.', example='10'),
+  paymentType?: string(name='PaymentType', description='The billing method.
+
+Valid values:
+
+*   PayAsYouGo
+*   Subscription', example='PayAsYouGo'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. If you leave this parameter empty, the instances in the pay-as-you-go resource group are queried. If you set this parameter to ALL, all instances are queried.', example='rg-123456789'),
+  sortBy?: string(name='SortBy', description='The field that you use to sort the query results.
+
+Valid values:
+
+*   Priority
+*   GmtCreateTime
+*   GmtModifiedTime', example='gmtCreate'),
+  status?: string(name='Status', description='The instance status.
+
+Valid values:
+
+*   Creating
+*   SaveFailed
+*   Stopped
+*   Failed
+*   ResourceAllocating
+*   Stopping
+*   Updating
+*   Saving
+*   Queuing
+*   Recovering
+*   Starting
+*   Running
+*   Saved
+*   Deleting
+*   EnvPreparing', example='Running'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='tag1'),
+      value?: string(name='Value', description='The tag value.', example='value1'),
     }
-  ](name='Tag'),
-  workspaceId?: string(name='WorkspaceId', example='40823'),
+  ](name='Tag', description='The tags.'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='40823'),
 }
 
 model ListInstancesShrinkRequest {
-  acceleratorType?: string(name='AcceleratorType', example='AcceleratorType'),
-  accessibility?: string(name='Accessibility', example='PRIVATE'),
-  createUserId?: string(name='CreateUserId'),
-  gpuType?: string(name='GpuType'),
-  imageName?: string(name='ImageName'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  instanceName?: string(name='InstanceName', example='training_data'),
-  labelsShrink?: string(name='Labels'),
-  maxCpu?: string(name='MaxCpu'),
-  maxGpu?: string(name='MaxGpu'),
-  maxGpuMemory?: string(name='MaxGpuMemory'),
-  maxMemory?: string(name='MaxMemory'),
-  minCpu?: string(name='MinCpu'),
-  minGpu?: string(name='MinGpu'),
-  minGpuMemory?: string(name='MinGpuMemory'),
-  minMemory?: string(name='MinMemory'),
-  order?: string(name='Order', example='DESC'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='10'),
-  paymentType?: string(name='PaymentType', example='PayAsYouGo'),
-  resourceId?: string(name='ResourceId', example='rg-123456789'),
-  sortBy?: string(name='SortBy', example='gmtCreate'),
-  status?: string(name='Status', example='Running'),
-  tagShrink?: string(name='Tag'),
-  workspaceId?: string(name='WorkspaceId', example='40823'),
+  acceleratorType?: string(name='AcceleratorType', description='The accelerator type.
+
+*   CPU: Only CPU computing is used.
+*   GPU: GPUs are used to accelerate computing.', example='CPU'),
+  accessibility?: string(name='Accessibility', description='The accessibility. Valid values:
+
+*   PRIVATE (default): The instances are accessible only to you and the administrator of the workspace.
+*   PUBLIC: The instances are accessible only to all members in the workspace.', example='PRIVATE'),
+  createUserId?: string(name='CreateUserId', description='The UID of the creator.', example='12345*****67890'),
+  gpuType?: string(name='GpuType', description='The GPU type.', example='NVIDIA A10'),
+  imageName?: string(name='ImageName', description='The image name.', example='modelscope:1.9.4-pytorch2.0.1tensorflow2.13.0-cpu-py38-ubuntu20.04'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can call [ListInstances](https://help.aliyun.com/document_detail/470439.html) to obtain the instance ID.', example='dsw-730xxxxxxxxxx'),
+  instanceName?: string(name='InstanceName', description='The instance name.', example='training_data'),
+  labelsShrink?: string(name='Labels', description='The labels. A maximum of four labels are supported.', example='{
+  "key1": "value1",
+  "key2": "value2",
+  "key3": "value3"
+}'),
+  maxCpu?: string(name='MaxCpu', description='The maximum number of CPUs. Unit: 0.001 CPU. The value 1000 indicates one CPU.', example='30000'),
+  maxGpu?: string(name='MaxGpu', description='The maximum number of GPUs. Unit: 0.001 GPU. The value 1000 indicates one GPU.', example='8000'),
+  maxGpuMemory?: string(name='MaxGpuMemory', description='The maximum memory size per GPU card. Unit: GB.', example='16'),
+  maxMemory?: string(name='MaxMemory', description='The maximum memory size. Unit: GB.', example='48'),
+  minCpu?: string(name='MinCpu', description='The minimum number of CPUs. Unit: 0.001 CPU. The value 1000 indicates one CPU.', example='2000'),
+  minGpu?: string(name='MinGpu', description='The minimum number of GPUs. Unit: 0.001 GPU. The value 1000 indicates one GPU.', example='100'),
+  minGpuMemory?: string(name='MinGpuMemory', description='The minimum memory size per GPU card. Unit: GB.', example='8'),
+  minMemory?: string(name='MinMemory', description='The minimum memory size. Unit: GB.', example='4'),
+  order?: string(name='Order', description='The order that you use to sort the query results.
+
+Valid values:
+
+*   ASC
+*   DESC', example='DESC'),
+  oversoldInfo?: string(name='OversoldInfo'),
+  oversoldType?: string(name='OversoldType'),
+  pageNumber?: long(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of entries per page.', example='10'),
+  paymentType?: string(name='PaymentType', description='The billing method.
+
+Valid values:
+
+*   PayAsYouGo
+*   Subscription', example='PayAsYouGo'),
+  resourceId?: string(name='ResourceId', description='The resource group ID. If you leave this parameter empty, the instances in the pay-as-you-go resource group are queried. If you set this parameter to ALL, all instances are queried.', example='rg-123456789'),
+  sortBy?: string(name='SortBy', description='The field that you use to sort the query results.
+
+Valid values:
+
+*   Priority
+*   GmtCreateTime
+*   GmtModifiedTime', example='gmtCreate'),
+  status?: string(name='Status', description='The instance status.
+
+Valid values:
+
+*   Creating
+*   SaveFailed
+*   Stopped
+*   Failed
+*   ResourceAllocating
+*   Stopping
+*   Updating
+*   Saving
+*   Queuing
+*   Recovering
+*   Starting
+*   Running
+*   Saved
+*   Deleting
+*   EnvPreparing', example='Running'),
+  tagShrink?: string(name='Tag', description='The tags.'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='40823'),
 }
 
 model ListInstancesResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
   instances?: [ 
     {
-      acceleratorType?: string(name='AcceleratorType', example='CPU'),
-      accessibility?: string(name='Accessibility', example='PRIVATE'),
-      accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', example='3600000'),
+      acceleratorType?: string(name='AcceleratorType', description='The accelerator type of the instance. Valid values:
+
+*   CPU
+*   GPU', example='CPU'),
+      accessibility?: string(name='Accessibility', description='The accessibility. Valid values:
+
+*   PRIVATE (default): The instances are accessible only to you and the administrator of the workspace.
+*   PUBLIC: The instances are accessible only to all members in the workspace.', example='PRIVATE'),
+      accumulatedRunningTimeInMs?: long(name='AccumulatedRunningTimeInMs', description='The accumulated running duration. Unit: milliseconds.', example='3600000'),
       affinity?: {
         CPU?: {
-          enable?: boolean(name='Enable'),
-        }(name='CPU'),
-      }(name='Affinity'),
+          enable?: boolean(name='Enable', description='Indicates whether the CPU affinity feature was enabled.
+
+true false', example='true'),
+        }(name='CPU', description='The CPU affinity configuration. Only subscription instances that use general-purpose computing resources support CPU affinity configuration.'),
+      }(name='Affinity', description='The affinity configuration.'),
       cloudDisks?: [ 
         {
-          capacity?: string(name='Capacity', example='30Gi'),
-          mountPath?: string(name='MountPath', example='/mmt/workspace'),
-          path?: string(name='Path', example='/workspace'),
-          subType?: string(name='SubType', example='rootfs'),
+          capacity?: string(name='Capacity', description='The cloud disk capacity.', example='30Gi'),
+          mountPath?: string(name='MountPath', description='The mount path of the cloud disk in the container.', example='/mmt/workspace'),
+          path?: string(name='Path', description='The directory on the cloud disk that is mounted to the container.', example='/workspace'),
+          subType?: string(name='SubType', description='The cloud disk type. The value rootfs indicates that the cloud disk is used as the root file system (rootfs).', example='rootfs'),
         }
-      ](name='CloudDisks', example='[]'),
-      credentialConfig?: CredentialConfig(name='CredentialConfig'),
+      ](name='CloudDisks', description='The cloud disks of the instance.', example='[]'),
+      credentialConfig?: CredentialConfig(name='CredentialConfig', description='The credential configuration.'),
       datasets?: [ 
         {
-          datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
-          datasetVersion?: string(name='DatasetVersion'),
-          mountAccess?: string(name='MountAccess'),
-          mountPath?: string(name='MountPath', example='/mnt/data'),
-          optionType?: string(name='OptionType'),
-          options?: string(name='Options'),
-          uri?: string(name='Uri'),
+          datasetId?: string(name='DatasetId', description='The dataset ID.', example='d-vsqjvsjp4orp5l206u'),
+          datasetVersion?: string(name='DatasetVersion', description='The dataset version.', example='v1'),
+          dynamic?: boolean(name='Dynamic', description='Indicates whether dynamic mounting was enabled. Default value: false.', example='false'),
+          mountAccess?: string(name='MountAccess', description='The read and write permissions. Valid values: RW and RO.', example='RW'),
+          mountPath?: string(name='MountPath', description='The mount path in the container.', example='/mnt/data'),
+          optionType?: string(name='OptionType', description='The type of the mount option.', example='FastReadWrite'),
+          options?: string(name='Options', description='The mount type of the dataset.', example='{
+  "fs.oss.download.thread.concurrency": "10",
+  "fs.oss.upload.thread.concurrency": "10",
+  "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
+}'),
+          uri?: string(name='Uri', description='The dataset URI.', example='oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/'),
         }
-      ](name='Datasets'),
-      driver?: string(name='Driver', example='535.54.03'),
-      ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
-      environmentVariables?: map[string]string(name='EnvironmentVariables', example='{userName: "Chris"}'),
-      gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
+      ](name='Datasets', description='The datasets.'),
+      driver?: string(name='Driver', description='The NVIDIA driver configuration.', example='535.54.03'),
+      dynamicMount?: DynamicMount(name='DynamicMount', description='The dynamic mount configurations.'),
+      ecsSpec?: string(name='EcsSpec', description='The ECS instance type of the instance.', example='ecs.c6.large'),
+      environmentVariables?: map[string]string(name='EnvironmentVariables', description='The environment variables.', example='{userName: "Chris"}'),
+      gmtCreateTime?: string(name='GmtCreateTime', description='The time when the instance was created.', example='2021-01-12T14:36:01Z'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the instance was modified.', example='2021-01-12T14:36:01Z'),
       idleInstanceCuller?: {
-        cpuPercentThreshold?: int32(name='CpuPercentThreshold', example='20'),
-        gpuPercentThreshold?: int32(name='GpuPercentThreshold', example='10'),
-        idleTimeInMinutes?: int32(name='IdleTimeInMinutes', example='30'),
-        instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-        maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', example='60'),
-      }(name='IdleInstanceCuller', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
-      imageAuth?: string(name='ImageAuth'),
-      imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-      imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-      imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-      instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-      instanceName?: string(name='InstanceName', example='training_data'),
+        cpuPercentThreshold?: int32(name='CpuPercentThreshold', description='The CPU utilization threshold. Unit: percentage. Valid values: 1 to 100. If the CPU utilization of the instance is lower than this threshold, the instance is considered idle.', example='20'),
+        gpuPercentThreshold?: int32(name='GpuPercentThreshold', description='The GPU utilization threshold. Unit: percentage. Valid values: 1 to 100. This parameter takes effect only if the instance is of the GPU instance type. If both CPU and GPU utilization is lower than the thresholds, the instance is considered idle.', example='10'),
+        idleTimeInMinutes?: int32(name='IdleTimeInMinutes', description='The time duration for which the instance is idle. Unit: minutes.', example='30'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+        maxIdleTimeInMinutes?: int32(name='MaxIdleTimeInMinutes', description='The maximum time duration for which the instance is idle. Unit: minutes. If the time duration for which the instance is idle exceeds this value, the system automatically stops the instance.', example='60'),
+      }(name='IdleInstanceCuller', description='The rule for stopping idle instances.', example='{"InstanceId":"dsw-05cefd0be2e5a278","CpuPercentThreshold":20,"GpuPercentThreshold":10,"MaxIdleTimeInMinutes":120,"IdleTimeInMinutes":30}'),
+      imageAuth?: string(name='ImageAuth', description='The Base64-encoded account and password for the user\\\\"s private image. The password will be hidden.', example='aGFyYm9yYWlAeGltYWxheWE6KioqKioq'),
+      imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+      imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+      imageUrl?: string(name='ImageUrl', description='The image address.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+      instanceName?: string(name='InstanceName', description='The instance name.', example='training_data'),
       instanceShutdownTimer?: {
-        dueTime?: string(name='DueTime', example='2021-01-12T14:36:01Z'),
-        gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-        gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-        instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-        remainingTimeInMs?: long(name='RemainingTimeInMs', example='3600000'),
-      }(name='InstanceShutdownTimer'),
+        dueTime?: string(name='DueTime', description='The scheduled stop time.', example='2021-01-12T14:36:01Z'),
+        gmtCreateTime?: string(name='GmtCreateTime', description='The time when the instance was created.', example='2021-01-12T14:36:01Z'),
+        gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the instance was modified.', example='2021-01-12T14:36:01Z'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+        remainingTimeInMs?: long(name='RemainingTimeInMs', description='The remaining time before the instance is stopped.', example='3600000'),
+      }(name='InstanceShutdownTimer', description='The scheduled stop task.'),
       instanceSnapshotList?: [ 
         {
-          gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-          gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-          imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-          imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-          imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-          reasonCode?: string(name='ReasonCode', example='Internal Error'),
-          reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
-          repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-          status?: string(name='Status', example='Pushing'),
+          gmtCreateTime?: string(name='GmtCreateTime', description='The time when the snapshot was created.', example='2021-01-12T14:36:01Z'),
+          gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the snapshot was modified.', example='2021-01-12T14:36:01Z'),
+          imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+          imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+          imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+          reasonCode?: string(name='ReasonCode', description='The error code of the instance snapshot.', example='Internal Error'),
+          reasonMessage?: string(name='ReasonMessage', description='The error message of the instance snapshot.', example='ImagePullBackOff'),
+          repositoryUrl?: string(name='RepositoryUrl', description='The URL of the image repository.', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+          status?: string(name='Status', description='The status of the instance snapshot.', example='Pushing'),
         }
-      ](name='InstanceSnapshotList', example='[]'),
-      instanceUrl?: string(name='InstanceUrl', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
-      jupyterlabUrl?: string(name='JupyterlabUrl', description='Jupyterlab Url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
+      ](name='InstanceSnapshotList', description='The instance snapshots.', example='[]'),
+      instanceUrl?: string(name='InstanceUrl', description='The instance URL.', example='https://dsw-cn-shanghai.data.aliyun.com/notebook.htm?instance=39772#/'),
+      jupyterlabUrl?: string(name='JupyterlabUrl', description='The JupyterLab URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/lab/'),
       labels?: [ 
         {
-          key?: string(name='Key', example='stsTokenOwner'),
-          value?: string(name='Value', example='123xxxxxxxx'),
+          key?: string(name='Key', description='The custom label key.', example='stsTokenOwner'),
+          value?: string(name='Value', description='The custom label value.', example='123xxxxxxxx'),
         }
-      ](name='Labels', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
+      ](name='Labels', description='The custom labels.', example='{\\\\"foo\\\\": \\\\"bar\\\\"}'),
       latestSnapshot?: {
-        gmtCreateTime?: string(name='GmtCreateTime', example='2021-01-12T14:36:01Z'),
-        gmtModifiedTime?: string(name='GmtModifiedTime', example='2021-01-12T14:36:01Z'),
-        imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-        imageName?: string(name='ImageName', example='py36_cpu_tf1.12_ubuntu'),
-        imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-        reasonCode?: string(name='ReasonCode', example='Internal Error'),
-        reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
-        repositoryUrl?: string(name='RepositoryUrl', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
-        status?: string(name='Status', example='Pushing'),
-      }(name='LatestSnapshot'),
-      paymentType?: string(name='PaymentType', example='PayAsYouGo'),
-      priority?: long(name='Priority', example='1'),
-      reasonCode?: string(name='ReasonCode', example='Internal Error'),
-      reasonMessage?: string(name='ReasonMessage', example='ImagePullBackOff'),
+        gmtCreateTime?: string(name='GmtCreateTime', description='The time when the snapshot was created.', example='2021-01-12T14:36:01Z'),
+        gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the snapshot was modified.', example='2021-01-12T14:36:01Z'),
+        imageId?: string(name='ImageId', description='The image ID.', example='image-05cefd0be2exxxx'),
+        imageName?: string(name='ImageName', description='The image name.', example='py36_cpu_tf1.12_ubuntu'),
+        imageUrl?: string(name='ImageUrl', description='The image URL.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+        reasonCode?: string(name='ReasonCode', description='The error code of the instance snapshot.', example='Internal Error'),
+        reasonMessage?: string(name='ReasonMessage', description='The error message of the instance snapshot.', example='ImagePullBackOff'),
+        repositoryUrl?: string(name='RepositoryUrl', description='The URL of the image repository.', example='https://cr.console.aliyun.com/repository/cn-hangzhou/zouxu/kf/images'),
+        status?: string(name='Status', description='The status of the instance snapshot.', example='Pushing'),
+      }(name='LatestSnapshot', description='The user image that was latest saved.'),
+      oversoldInfo?: string(name='OversoldInfo'),
+      oversoldType?: string(name='OversoldType'),
+      paymentType?: string(name='PaymentType', description='The billing method. Valid values:
+
+*   PayAsYouGo
+*   Subscription', example='PayAsYouGo'),
+      priority?: long(name='Priority', description='The priority based on which resources are allocated to instances. Resources are preferentially allocated to instances with higher priorities.', example='1'),
+      reasonCode?: string(name='ReasonCode', description='The error code of the instance.', example='Internal Error'),
+      reasonMessage?: string(name='ReasonMessage', description='The cause of the instance error.', example='ImagePullBackOff'),
       requestedResource?: {
-        CPU?: string(name='CPU', example='32'),
-        GPU?: string(name='GPU', example='4'),
-        GPUType?: string(name='GPUType', example='v100'),
-        memory?: string(name='Memory', example='32'),
-        sharedMemory?: string(name='SharedMemory', example='32'),
-      }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
-      resourceId?: string(name='ResourceId', example='dsw-123456789'),
-      resourceName?: string(name='ResourceName', example='resource_group'),
-      status?: string(name='Status', example='Running'),
+        CPU?: string(name='CPU', description='The number of CPU cores.', example='32'),
+        GPU?: string(name='GPU', description='The number of GPUs.', example='4'),
+        GPUType?: string(name='GPUType', description='The GPU memory type.', example='v100'),
+        memory?: string(name='Memory', description='The memory size.', example='32'),
+        sharedMemory?: string(name='SharedMemory', description='The size of the shared memory.', example='32'),
+      }(name='RequestedResource', description='The resource configurations.', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+      resourceId?: string(name='ResourceId', description='The resource ID. This parameter is valid only if you set PaymentType to Subscription.', example='dsw-123456789'),
+      resourceName?: string(name='ResourceName', description='The specifications.
+
+*   In pay-as-you-go scenarios, the value is the specifications of the purchased ECS instance type.
+*   In subscription scenarios, the value is the requested number of CPU cores and memory size.', example='resource_group'),
+      status?: string(name='Status', description='The instance status.', example='Running'),
       tags?: [ 
         {
-          tagKey?: string(name='TagKey'),
-          tagValue?: string(name='TagValue'),
+          tagKey?: string(name='TagKey', description='The tag key.', example='tag1'),
+          tagValue?: string(name='TagValue', description='The tag value.', example='value1'),
         }
-      ](name='Tags'),
-      terminalUrl?: string(name='TerminalUrl', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
-      userId?: string(name='UserId', example='1612285282502324'),
-      userName?: string(name='UserName', example='测试用户'),
+      ](name='Tags', description='The tags.'),
+      terminalUrl?: string(name='TerminalUrl', description='The terminal URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/tty/'),
+      userId?: string(name='UserId', description='The user ID.', example='1612285282502324'),
+      userName?: string(name='UserName', description='The username.', example='测试用户'),
       userVpc?: {
-        defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
-        extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+        bandwidthLimit?: BandwidthLimit(name='BandwidthLimit'),
+        defaultRoute?: string(name='DefaultRoute', description='The default route.', example='eth0 | eth1'),
+        extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR blocks.', example='["192.168.0.1/24", "192.168.1.1/24"]'),
         forwardInfos?: [
           ForwardInfoResponse
-        ](name='ForwardInfos'),
-        securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
-        vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-        vpcId?: string(name='VpcId', example='vpc-xxxxx'),
-      }(name='UserVpc'),
-      webIDEUrl?: string(name='WebIDEUrl', description='Web IDE url。', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
-      workspaceId?: string(name='WorkspaceId', example='40823'),
-      workspaceName?: string(name='WorkspaceName', example='training_data'),
-      workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
+        ](name='ForwardInfos', description='The forward information.'),
+        securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-xxxxxx'),
+        vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
+        vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-xxxxx'),
+      }(name='UserVpc', description='The virtual private cloud (VPC) configurations.'),
+      webIDEUrl?: string(name='WebIDEUrl', description='The Web IDE URL.', example='https://dsw-gateway-cn-shanghai.aliyun.com/dsw-39772/ide/'),
+      workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='40823'),
+      workspaceName?: string(name='WorkspaceName', description='The workspace name.', example='training_data'),
+      workspaceSource?: string(name='WorkspaceSource', description='The storage for the workspace. If you leave this parameter empty, the workspace uses File Storage NAS (NAS) storage, cloud disks, or local disks in sequence.', example='d-123456789'),
     }
-  ](name='Instances'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
-  totalCount?: long(name='TotalCount', example='35'),
+  ](name='Instances', description='The instances returned on this page.'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.
+
+*   true
+*   false', example='true'),
+  totalCount?: long(name='TotalCount', description='The total number of instances.', example='35'),
 }
 
 model ListInstancesResponse = {
@@ -2233,6 +2589,8 @@ model ListInstancesResponse = {
 }
 
 /**
+ * @summary Queries a list of Data Science Workshop (DSW) instances.
+ *
  * @param tmpReq ListInstancesRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -2300,6 +2658,12 @@ async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: m
   if (!$isNull(request.order)) {
     query['Order'] = request.order;
   }
+  if (!$isNull(request.oversoldInfo)) {
+    query['OversoldInfo'] = request.oversoldInfo;
+  }
+  if (!$isNull(request.oversoldType)) {
+    query['OversoldType'] = request.oversoldType;
+  }
   if (!$isNull(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
@@ -2340,14 +2704,12 @@ async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: m
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
+ * @summary Queries a list of Data Science Workshop (DSW) instances.
+ *
  * @param request ListInstancesRequest
  * @return ListInstancesResponse
  */
@@ -2394,11 +2756,7 @@ async function startInstanceWithOptions(InstanceId: string, headers: map[string]
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2461,11 +2819,7 @@ async function stopInstanceWithOptions(InstanceId: string, request: StopInstance
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2481,70 +2835,152 @@ async function stopInstance(InstanceId: string, request: StopInstanceRequest): S
 }
 
 model UpdateInstanceRequest {
-  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  accessibility?: string(name='Accessibility', description='The visibility of the instance.
+
+Valid values:
+
+*   PUBLIC: Accessible to all members in the workspace.
+*   PRIVATE: Accessible only to you and the administrator of the workspace.', example='PRIVATE'),
   affinity?: {
     CPU?: {
-      enable?: boolean(name='Enable'),
-    }(name='CPU'),
-  }(name='Affinity'),
+      enable?: boolean(name='Enable', description='Specifies whether CPU affinity is enabled.
+
+*   true
+*   false', example='true'),
+    }(name='CPU', description='The CPU affinity configuration. Only subscription instances that use general-purpose computing resources support CPU affinity configuration.'),
+  }(name='Affinity', description='The affinity configuration.'),
   cloudDisks?: [ 
     {
-      capacity?: string(name='Capacity', example='30Gi'),
-      subType?: string(name='SubType', example='rootfs'),
+      capacity?: string(name='Capacity', description='If **Resource Type** is **Public Resource** or if **Resource Quota** is subscription-based general-purpose computing resources (CPU cores ≥ 2 and memory ≥ 4 GB, or configured with GPU):
+
+Each instance has a free system disk quota of 100 GiB for persistent storage. **If the DSW instance is stopped and not launched for more than 15 days, the disk is cleared**. The disk can be expanded. For specific pricing, refer to the console.
+
+**
+
+**Warning**
+
+*   After the expansion, you cannot reduce the storage space. Proceed with caution.
+
+*   After the expansion, the disk is not cleared if the instance is stopped for more than 15 days. However, it will continue to incur fees.
+
+*   If you delete the instance, the system disk is also released and the data stored in the disk is deleted. Make sure that you have backed up your data before you delete the instance.
+
+If you need persistent storage, you can **mount a dataset** or add the OSS, NAS, or CPFS path to the **storage path**.', example='100Gi'),
+      subType?: string(name='SubType', description='Disk type:
+
+*   rootfs: Mounts the disk as a system disk. The system environment is stored on the disk.', example='rootfs'),
     }
-  ](name='CloudDisks', example='[]'),
-  credentialConfig?: CredentialConfig(name='CredentialConfig'),
+  ](name='CloudDisks', description='The cloud disks.', example='[]'),
+  credentialConfig?: CredentialConfig(name='CredentialConfig', description='The credential configuration.'),
   datasets?: [ 
     {
-      datasetId?: string(name='DatasetId', example='d-vsqjvsjp4orp5l206u'),
-      datasetVersion?: string(name='DatasetVersion'),
-      mountAccess?: string(name='MountAccess'),
-      mountPath?: string(name='MountPath', example='/mnt/data'),
-      optionType?: string(name='OptionType', deprecated=true),
-      options?: string(name='Options'),
-      uri?: string(name='Uri', example='oss://bucket.oss-cn-shanghai.aliyuncs.com/data/path/'),
+      datasetId?: string(name='DatasetId', description='The dataset ID. If the dataset is read-only, you cannot change the dataset pemission from read-only to read and write by using MountAccess.
+
+You can call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to obtain the dataset ID. If you configure the dataset ID, you cannot configure the dataset URI.', example='d-vsqjvsjp4orp5l206u'),
+      datasetVersion?: string(name='DatasetVersion', description='The dataset version. You must also configure DatasetId. If you leave this parameter empty, the value v1 is used by default.', example='v1'),
+      dynamic?: boolean(name='Dynamic', description='Specifies whether dynamic mounting is enabled. Default value: false.
+
+*   Currently, only instances using general-purpose computing resources are supported.
+*   Currently, only OSS datasets are supported. The mounted datasets are read-only.
+*   The MountPath of the dynamically mounted dataset must be a subpath of the root path. Example: /mnt/dynamic/data1/
+*   A dynamically mounted dataset must be after non-dynamic datasets.', example='false'),
+      mountAccess?: string(name='MountAccess', description='The read and write permissions of the dataset. If the dataset is read-only, it cannot be changed to read and write.', example='RW'),
+      mountPath?: string(name='MountPath', description='The mount path of the dataset.', example='/mnt/data'),
+      optionType?: string(name='OptionType', description='The mount type. You cannot specify Options at the same time. This is deprecated, you can use Options instead.', example='ReadOnly', deprecated=true),
+      options?: string(name='Options', description='The custom dataset mount options. Only OSS is supported. You cannot specify OptionType at the same time. For more information, see [DSW mount configurations](https://help.aliyun.com/zh/pai/user-guide/read-and-write-dataset-data).', example='{
+  "fs.oss.download.thread.concurrency": "10",
+  "fs.oss.upload.thread.concurrency": "10",
+  "fs.jindo.args": "-oattr_timeout=3 -oentry_timeout=0 -onegative_timeout=0 -oauto_cache -ono_symlink"
+}'),
+      uri?: string(name='Uri', description='The URI of the storage service directory, which can be directly mounted. This parameter is mutually exclusive with DatasetId.
+
+URI formats of different types of storage:
+
+*   OSS: oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/
+*   NAS: nas://29\\\\*\\\\*d-b12\\\\*\\\\*\\\\*\\\\*446.cn-hangzhou.nas.aliyuncs.com/data/path/
+*   Extreme NAS: nas://29\\\\*\\\\*\\\\*\\\\*123-y\\\\*\\\\*r.cn-hangzhou.extreme.nas.aliyuncs.com/data/path/
+*   CPFS: cpfs://cpfs-213\\\\*\\\\*\\\\*\\\\*87.cn-wulanchabu/ptc-292\\\\*\\\\*\\\\*\\\\*\\\\*cbb/exp-290\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*03e/data/path/
+*   Lingjun CPFS: bmcpfs://cpfs-290\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*foflh-vpc-x\\\\*\\\\*\\\\*\\\\*8r.cn-wulanchabu.cpfs.aliyuncs.com/data/path/', example='oss://bucket-name.oss-cn-shanghai-internal.aliyuncs.com/data/path/'),
     }
-  ](name='Datasets'),
-  disassociateCredential?: boolean(name='DisassociateCredential'),
-  disassociateDatasets?: boolean(name='DisassociateDatasets', example='false'),
-  disassociateDriver?: boolean(name='DisassociateDriver', example='false'),
-  disassociateForwardInfos?: boolean(name='DisassociateForwardInfos', example='false'),
-  disassociateVpc?: boolean(name='DisassociateVpc', example='false'),
-  driver?: string(name='Driver', example='535.54.03'),
-  ecsSpec?: string(name='EcsSpec', example='ecs.c6.large'),
-  imageAuth?: string(name='ImageAuth'),
-  imageId?: string(name='ImageId', example='image-05cefd0be2exxxx'),
-  imageUrl?: string(name='ImageUrl', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
-  instanceName?: string(name='InstanceName', example='training_data'),
-  priority?: long(name='Priority', example='1'),
+  ](name='Datasets', description='The datasets.'),
+  disassociateCredential?: boolean(name='DisassociateCredential', description='Specifies whether to delete the credential injection information.', example='false'),
+  disassociateDatasets?: boolean(name='DisassociateDatasets', description='Specifies whether to delete the associated datasets.
+
+*   true
+*   false', example='false'),
+  disassociateDriver?: boolean(name='DisassociateDriver', description='Specifies whether to delete the NVIDIA driver configuration.', example='false'),
+  disassociateForwardInfos?: boolean(name='DisassociateForwardInfos', description='Specifies whether to delete the associated forward information.', example='false'),
+  disassociateVpc?: boolean(name='DisassociateVpc', description='Specifies whether to delete the associated user VPC.', example='false'),
+  driver?: string(name='Driver', description='The NVIDIA driver configuration.', example='535.54.03'),
+  dynamicMount?: DynamicMount(name='DynamicMount', description='The dynamic mount configuration.'),
+  ecsSpec?: string(name='EcsSpec', description='The ECS instance type of the instance. You can call [ListEcsSpecs](https://help.aliyun.com/document_detail/470423.html) to obtain the ECS instance type.', example='ecs.c6.large'),
+  imageAuth?: string(name='ImageAuth', description='The Base64-encoded account and password for the user‘s private image. The password will be hidden.', example='****'),
+  imageId?: string(name='ImageId', description='The image ID. You can call [ListImages](https://help.aliyun.com/document_detail/449118.html) to obtain the image ID.', example='image-05cefd0be2exxxx'),
+  imageUrl?: string(name='ImageUrl', description='The image address. You can call [ListImages](https://help.aliyun.com/document_detail/449118.html) to obtain the image address.', example='registry.cn-shanghai.aliyuncs.com/pai_product/tensorflow:py36_cpu_tf1.12_ubuntu'),
+  instanceName?: string(name='InstanceName', description='The instance name. Format requirements:
+
+*   The name can contain only letters, digits, and underscores (_).
+*   The name can be up to 27 characters in length.', example='training_data'),
+  priority?: long(name='Priority', description='The priority based on which resources are allocated to instances. Valid values: 1 to 9.
+
+*   1: the lowest priority.
+*   9 is the highest priority.', example='1'),
   requestedResource?: {
-    CPU?: string(name='CPU', example='32'),
-    GPU?: string(name='GPU', example='4'),
-    GPUType?: string(name='GPUType', example='v100'),
-    memory?: string(name='Memory', example='32'),
-    sharedMemory?: string(name='SharedMemory', example='32'),
-  }(name='RequestedResource', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
-  userId?: string(name='UserId', example='1612285282502324'),
+    CPU?: string(name='CPU', description='The number of vCPU cores.', example='32'),
+    GPU?: string(name='GPU', description='The number of GPUs.', example='4'),
+    GPUType?: string(name='GPUType', description='The GPU type.', example='v100'),
+    memory?: string(name='Memory', description='The memory size. Unit: GB.', example='32'),
+    sharedMemory?: string(name='SharedMemory', description='The shared memory size. Unit: GB.', example='32'),
+  }(name='RequestedResource', description='The resource configurations.', example='{"CPU":"4","Memory":"8Gi","SharedMemory":"4Gi","GPU":"1","GPUType":"Tesla-V100-16G"}'),
+  userId?: string(name='UserId', description='the User ID of the instance.', example='16122**********'),
   userVpc?: {
-    defaultRoute?: string(name='DefaultRoute', example='eth0 | eth1'),
-    extendedCIDRs?: [ string ](name='ExtendedCIDRs', example='["192.168.0.1/24", "192.168.1.1/24"]'),
+    bandwidthLimit?: BandwidthLimit(name='BandwidthLimit'),
+    defaultRoute?: string(name='DefaultRoute', description='The default route. Valid values:
+
+*   eth0: The default network interface is used to access the Internet through the public gateway.
+*   eth1: The user\\\\"s Elastic Network Interface is used to access the Internet through the private gateway.', example='eth0'),
+    extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR blocks.
+
+*   If you leave VSwitchId empty, this parameter is not required and the system automatically obtains all CIDR blocks in the VPC.
+*   If VSwitchId is not empty, this parameter is required. Specify all CIDR blocks in the VPC.', example='["192.168.0.1/24", "192.168.1.1/24"]'),
     forwardInfos?: [
       ForwardInfo
-    ](name='ForwardInfos'),
-    securityGroupId?: string(name='SecurityGroupId', example='sg-xxxxxx'),
-    vSwitchId?: string(name='VSwitchId', example='vsw-xxxxx'),
-    vpcId?: string(name='VpcId', example='vpc-xxxxx'),
-  }(name='UserVpc'),
-  workspaceSource?: string(name='WorkspaceSource', example='d-123456789'),
+    ](name='ForwardInfos', description='The forward configuration of the instance.'),
+    securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-xxxxxx'),
+    vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-xxxxx'),
+    vpcId?: string(name='VpcId', description='The VPC ID.', example='vpc-xxxxx'),
+  }(name='UserVpc', description='The virtual private cloud (VPC) configurations.'),
+  workspaceSource?: string(name='WorkspaceSource', description='Specifies the storage corresponding to the working directory. You can mount disks or datasets to /mnt/workspace at the same time. OSS datasets and dynamically mounted datasets are not supported.
+
+Valid values:
+
+*   rootfsCloudDisk: Mount disk to the working directory.
+*   Mount path of the dataset, such as /mnt/data: Datasets in URI format only support this method.
+*   Dataset ID, such as d-vsqjvs\\\\*\\\\*\\\\*\\\\*rp5l206u: If a single dataset is mounted to multiple paths, the first path is selected. We recommend that you do not use this method, use the mount path instead.
+
+If you leave this parameter empty:
+
+*   If the instance uses cloud disks, cloud disks are selected by default.
+*   if no disks are available, the first NAS or CPFS dataset is selected as the working directory.
+*   If no disk, NAS, or CPFS datasets is available, the host space is used.', example='/mnt/data'),
 }
 
 model UpdateInstanceResponseBody = {
-  code?: string(name='Code', example='null'),
-  httpStatusCode?: int32(name='HttpStatusCode', example='null'),
-  instanceId?: string(name='InstanceId', example='dsw-730xxxxxxxxxx'),
-  message?: string(name='Message', example='"XXX"'),
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='The status code. Valid values:
+
+*   InternalError: an internal error. All errors, except for parameter validation errors, are classified as internal errors.
+*   ValidationError: a parameter validation error.', example='null'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. Valid values:
+
+*   400
+*   404', example='null'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='dsw-730xxxxxxxxxx'),
+  message?: string(name='Message', description='The response message.', example='"XXX"'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model UpdateInstanceResponse = {
@@ -2554,7 +2990,7 @@ model UpdateInstanceResponse = {
 }
 
 /**
- * @summary 更新实例
+ * @summary Updates the properties of a DSW instance.
  *
  * @param request UpdateInstanceRequest
  * @param headers map
@@ -2596,6 +3032,9 @@ async function updateInstanceWithOptions(InstanceId: string, request: UpdateInst
   }
   if (!$isNull(request.driver)) {
     body['Driver'] = request.driver;
+  }
+  if (!$isNull(request.dynamicMount)) {
+    body['DynamicMount'] = request.dynamicMount;
   }
   if (!$isNull(request.ecsSpec)) {
     body['EcsSpec'] = request.ecsSpec;
@@ -2643,15 +3082,11 @@ async function updateInstanceWithOptions(InstanceId: string, request: UpdateInst
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 更新实例
+ * @summary Updates the properties of a DSW instance.
  *
  * @param request UpdateInstanceRequest
  * @return UpdateInstanceResponse
@@ -2665,14 +3100,20 @@ async function updateInstance(InstanceId: string, request: UpdateInstanceRequest
 model UpdateInstanceLabelsRequest {
   labels?: [ 
     {
-      key?: string(name='Key', description='This parameter is required.', example='customLabelKey'),
-      value?: string(name='Value', description='This parameter is required.', example='labelValue'),
+      key?: string(name='Key', description='The key of the custom tag.
+
+This parameter is required.', example='customLabelKey'),
+      value?: string(name='Value', description='The value of the custom tag.
+
+This parameter is required.', example='labelValue'),
     }
-  ](name='Labels', description='This parameter is required.'),
+  ](name='Labels', description='The tags that you want to update.
+
+This parameter is required.'),
 }
 
 model UpdateInstanceLabelsResponseBody = {
-  requestId?: string(name='RequestId', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E7D55162-4489-1619-AAF5-3F97D5FCA948'),
 }
 
 model UpdateInstanceLabelsResponse = {
@@ -2682,7 +3123,7 @@ model UpdateInstanceLabelsResponse = {
 }
 
 /**
- * @summary 修改DSW实例的标签
+ * @summary Updates the tags of a Data Science Workshop (DSW) instance. If the tags do not exist, the system adds tags.
  *
  * @param request UpdateInstanceLabelsRequest
  * @param headers map
@@ -2711,15 +3152,11 @@ async function updateInstanceLabelsWithOptions(InstanceId: string, request: Upda
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if ($isNull(@signatureVersion) || @signatureVersion != 'v4') {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
- * @summary 修改DSW实例的标签
+ * @summary Updates the tags of a Data Science Workshop (DSW) instance. If the tags do not exist, the system adds tags.
  *
  * @param request UpdateInstanceLabelsRequest
  * @return UpdateInstanceLabelsResponse
