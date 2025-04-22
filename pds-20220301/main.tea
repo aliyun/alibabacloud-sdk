@@ -534,6 +534,7 @@ model Domain {
   sizeQuota?: long(name='size_quota'),
   sizeQuotaUsed?: long(name='size_quota_used'),
   status?: long(name='status'),
+  storeRedundancyType?: string(name='store_redundancy_type', example='LRS'),
   updatedAt?: string(name='updated_at'),
   usedSize?: long(name='used_size'),
   userCountQuota?: long(name='user_count_quota'),
@@ -1032,6 +1033,35 @@ model PersonalRightsInfoResponse {
 model PersonalSpaceInfo {
   totalSize?: long(name='total_size'),
   usedSize?: long(name='used_size'),
+}
+
+model ReceivedMsg {
+  hasRead?: boolean(name='has_read', example='false'),
+  msgCategory?: string(name='msg_category', example='system'),
+  msgContent?: {
+    msgData?: map[string]any(name='msg_data'),
+  }(name='msg_content'),
+  msgId?: string(name='msg_id', example='50d6f2aaa16525c7d053998e48fac265962f585f'),
+  msgSubCategory?: string(name='msg_sub_category', example='change_user_setting'),
+  msgType?: string(name='msg_type', example='edit_user'),
+  publishAt?: long(name='publish_at', example='1716363191123'),
+  readAt?: long(name='read_at', example='1716363191123'),
+}
+
+model RecentActedFile {
+  actionList?: [ string ](name='action_list'),
+  category?: string(name='category', example='doc'),
+  deleted?: boolean(name='deleted', example='true'),
+  driveId?: string(name='drive_id', example='50d6f2aaa16525c7d053998e48fac265962f585f'),
+  driveIsHandover?: boolean(name='drive_is_handover', example='false'),
+  driveName?: string(name='drive_name', example='group drive'),
+  driveOwnerId?: string(name='drive_owner_id', example='50d6f2aaa16525c7d053998e48fac265962f585f'),
+  driveOwnerType?: string(name='drive_owner_type', example='group'),
+  fileId?: string(name='file_id', example='50d6f2aaa16525c7d053998e48fac265962f585f'),
+  fileName?: string(name='file_name', example='a.jpg'),
+  size?: long(name='size', example='100'),
+  thumbnail?: string(name='thumbnail', example='https://xxx.jpg'),
+  trashed?: boolean(name='trashed', example='true'),
 }
 
 model RecycleBinConfig {
@@ -1722,14 +1752,25 @@ async function assignRole(request: AssignRoleRequest): AssignRoleResponse {
 }
 
 model AuditLogExportRequest {
-  fileName?: string(name='file_name', example='2024-01-log.csv'),
-  language?: string(name='language', example='zh_CN'),
-  orderBy?: string(name='order_by', example='acted_at DESC'),
-  query?: string(name='query', example='acted_at > \\\\"2025-03-10T16:00:00\\\\" and acted_at < \\\\"2025-03-17T15:59:59\\\\"'),
+  fileName?: string(name='file_name', description='The name of the exported file. The name can be up to 1,024 characters in length. The default name suffix is log.csv.', example='2024-01-log.csv'),
+  language?: string(name='language', description='The export language. Default value: zh-CN. Valid values:
+
+*   zh-CN: Chinese
+*   en_US: English', example='zh_CN'),
+  orderBy?: string(name='order_by', description='The sort order based on the operation time. If you leave this parameter empty, the value acted_at DESC is used. Valid values:
+
+*   acted_at DESC: sorts the entries by operation time in descending order
+*   acted_at ASC: sorts the entries by operation time in ascending order', example='acted_at DESC'),
+  query?: string(name='query', description='The fields used for query. You can specify one or more of the following fields:
+
+*   drive_id (space ID, in the form of a string)
+*   actor_id (operator ID, in the form of a string)
+*   acted_at (operation time, in the yyyy-MM-ddTHH:mm:ssZ format in UTC, for example, 2006-01-02T00:00:00)
+*   action_type (operation type, in the form of a string)', example='acted_at > \\\\"2025-03-10T16:00:00\\\\" and acted_at < \\\\"2025-03-17T15:59:59\\\\"'),
 }
 
 model AuditLogExportResponseBody = {
-  asyncTaskId?: string(name='async_task_id', example='4221bf6e6ab43c255edc4463bf3a6f5f5d31****'),
+  asyncTaskId?: string(name='async_task_id', description='The ID of the asynchronous task used to export audit logs.', example='4221bf6e6ab43c255edc4463bf3a6f5f5d31****'),
 }
 
 model AuditLogExportResponse = {
@@ -1739,7 +1780,9 @@ model AuditLogExportResponse = {
 }
 
 /**
- * @summary 导出审计日志
+ * @summary Exports audit logs.
+ *
+ * @description Log audit is a value-added feature that is provided by Drive and Photo Service (PDS) Developer Edition. Before you call this operation, make sure that you learn about the [value-added billable items](https://www.alibabacloud.com/help/document_detail/425220.html).
  *
  * @param request AuditLogExportRequest
  * @param headers map
@@ -1781,7 +1824,9 @@ async function auditLogExportWithOptions(request: AuditLogExportRequest, headers
 }
 
 /**
- * @summary 导出审计日志
+ * @summary Exports audit logs.
+ *
+ * @description Log audit is a value-added feature that is provided by Drive and Photo Service (PDS) Developer Edition. Before you call this operation, make sure that you learn about the [value-added billable items](https://www.alibabacloud.com/help/document_detail/425220.html).
  *
  * @param request AuditLogExportRequest
  * @return AuditLogExportResponse
@@ -5537,6 +5582,7 @@ model GetShareLinkByAnonymousResponseBody = {
   downloadCount?: long(name='download_count', description='The number of times that the shared files are downloaded.', example='50'),
   downloadLimit?: long(name='download_limit', description='The maximum number of times that the shared files can be downloaded.', example='100'),
   expiration?: string(name='expiration', description='The time when the share link expires.', example='2020-08-20T06:51:27.292Z'),
+  hasPwd?: boolean(name='has_pwd'),
   previewCount?: long(name='preview_count', description='The number of times that the shared files are previewed.', example='80'),
   previewLimit?: long(name='preview_limit', description='The maximum number of times that the shared files can be previewed.', example='100'),
   reportCount?: long(name='report_count', description='The number of times that the shared files are reported.', example='0'),
@@ -7021,103 +7067,60 @@ async function listFacegroups(request: ListFacegroupsRequest): ListFacegroupsRes
 }
 
 model ListFileRequest {
-  category?: string(name='category', description='The category of the file. Valid values:
+  category?: string(name='category', description='The file category. Valid values:
 
-app: installation package. zip: compressed package. image: image. doc: document. video: video. audio: audio. others: other files.
+app: installation package zip: compressed package image doc: document video audio others
 
 By default, files of all categories are returned.', example='image'),
   driveId?: string(name='drive_id', description='The drive ID.', example='1'),
-  fields?: string(name='fields', description='The fields to return.
+  fields?: string(name='fields', description='The field that is used to return additional information about a child subject. Valid values:
 
-1.  If this parameter is set to \\\\*, all fields of the file except the fields that must be specified are returned.
-2.  If only specific fields are required, you can specify the following fields: url, exif, cropping_suggestion, characteristic_hash, video_metadata, and video_preview_metadata. If multiple fields are required, separate them with commas (,). Example: url,exif.
-3.  The investigation_info field is returned only if you specify this field.
+*   url: returns the URL of the thumbnail of a file in the response.
+*   exif: returns the Exchangeable Image File Format (EXIF) data of a file in the response.
+*   cropping_suggestion: returns the cropping suggestion on a file in the response.
+*   characteristic_hash: returns the characteristic hash value of a file in the response.
+*   video_metadata: returns the metadata of a video file, such as the video duration, bitrate, height, and width, in the response.
+*   video_preview_metadata: returns the transcoding information of a video file, such as the transcoding specification for each definition, in the response.
+*   investigation_info: returns the investigation information in the response.
+*   dir_size: returns the statistics on each subfolder in the response.
+*   user_tags: returns the user tags of each child subject in the response.
 
-By default, all fields except the fields that must be specified are returned.', example='*'),
+You can specify multiple fields by separating them with commas (,). Example: "url,dir_size,user_tags".', example='*'),
   limit?: int32(name='limit', description='The maximum number of results to return. Valid values: 1 to 100.
 
-The number of returned results must be less than or equal to the specified number.', example='50'),
-  marker?: string(name='marker', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of marker.\\\\
-By default, this parameter is empty.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
-  orderBy?: string(name='order_by', description='The sorting field.
+The number of returned entries must be less than or equal to the value of this parameter.', example='50'),
+  marker?: string(name='marker', description='The name of the entry after which the list begins. Entries whose names are alphabetically after the value of this parameter are returned. If you do not specify this parameter, all entries are returned.\\\\
+This parameter is left empty by default.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
+  orderBy?: string(name='order_by', description='The sorting field. Valid values:
+
+created_at: sorts the entries by creation time. updated_at: sorts the entries by update time. size: sorts the entries by file size. name: sorts the entries by file name.
 
 Default value: created_at.
 
-Valid values:
+Enumeration:
 
-*   updated_at
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    sorts the results based on the time when the file was last modified
-
-    <!-- -->
-
-    .
-
-*   size
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    sorts the results based on the size of the file
-
-    <!-- -->
-
-    .
-
-*   name
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    sorts the results based on the name of the file
-
-    <!-- -->
-
-    .
-
-*   created_at
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    sorts the results based on the time when the file was created
-
-    <!-- -->
-
-    .', example='updated_at'),
+*   updated_at: update time
+*   size: file size
+*   name: file name
+*   created_at: creation time', example='updated_at'),
   orderDirection?: string(name='order_direction', description='The sorting direction. Valid values:
 
-ASC: ascending order. DESC: descending order.
+ASC: ascending order DESC: descending order
 
 Default value: ASC.', example='ASC'),
   parentFileId?: string(name='parent_file_id', description='The ID of the parent folder. If the parent folder is a root directory, set this parameter to root.
 
 This parameter is required.', example='root'),
-  shareId?: string(name='share_id', description='The share ID. If you want to manage a file by using a share link, carry the `x-share-token` header for authentication in the request and specify share_id. In this case, `drive_id` is invalid. Otherwise, use an `AccessKey pair` or `access token` for authentication and specify `drive_id`. You must specify one of `share_id` and `drive_id`.', example='7JQX1FswpQ8'),
-  status?: string(name='status', description='The state of the file. Valid values:
+  shareId?: string(name='share_id', description='The share ID. If you want to share a file, carry the `x-share-token` header for authentication in the request and specify share_id. In this case, `drive_id` is invalid. Otherwise, use an `AccessKey pair` or `access token` for authentication and specify `drive_id`. You must specify one of `share_id` and `drive_id`.', example='7JQX1FswpQ8'),
+  status?: string(name='status', description='The state of the files to return. Valid values:
 
-available: Only normal files are returned. uploading: Only files that are being uploaded are returned.
+available: returns only normal files. uploading: returns only files that are being uploaded.
 
 By default, only files in the available state are returned.', example='available'),
   thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='The thumbnail configurations. Up to five thumbnails can be returned at a time. The value contains key-value pairs. You can customize the keys. The URL of a thumbnail is returned based on the key.'),
-  type?: string(name='type', description='The type of the file. Valid values:
+  type?: string(name='type', description='The file type. Valid values:
 
-file: Only files are returned. folder: Only folders are returned.
+file: returns only files. folder: returns only folders.
 
 By default, files of all types are returned.', example='file'),
 }
@@ -9106,35 +9109,35 @@ async function searchDrive(request: SearchDriveRequest): SearchDriveResponse {
 
 model SearchFileRequest {
   driveId?: string(name='drive_id', description='The drive ID.', example='1'),
-  fields?: string(name='fields', example='url,thumbnail', deprecated=true),
-  limit?: int32(name='limit', description='The maximum number of results to return. Valid values: 1 to 100.
+  fields?: string(name='fields', example='url,thumbnail'),
+  limit?: int32(name='limit', description='The maximum number of entries to return. Valid values: 1 to 100.
 
-The number of returned results must be less than or equal to the specified number.', example='50'),
-  marker?: string(name='marker', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of marker.\\\\
-By default, this parameter is left empty.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
-  orderBy?: string(name='order_by', description='The field by which to sort the returned results. Default value: created_at. Valid values:
+The number of returned entries must be less than or equal to the value of this parameter.', example='50'),
+  marker?: string(name='marker', description='The name of the entry after which the list begins. Entries whose names are alphabetically after the value of this parameter are returned. If you do not specify this parameter, all entries are returned.\\\\
+This parameter is left empty by default.', example='NWQ1Yjk4YmI1ZDRlYmU1Y2E0YWE0NmJhYWJmODBhNDQ2NzhlMTRhMg'),
+  orderBy?: string(name='order_by', description='The field by which to sort the returned entries. Default value: created_at. Valid values:
 
-*   created_at: sorts the results by the time when the file was created.
-*   updated_at: sorts the results by the time when the file was modified.
-*   size: sorts the results by the size of the file.
-*   name: sorts the results by the name of the file.
+*   created_at: sorts the entries by creation time.
+*   updated_at: sorts the entries by update time.
+*   size: sorts the entries by file size.
+*   name: sorts the entries by file name.
 
-The order in which you want to sort the returned results. Valid values:
+The order in which you want to sort the returned entries. Valid values:
 
-*   ASC: sorts the results in ascending order.
-*   DESC: sorts the results in descending order.
+*   ASC: ascending order
+*   DESC: descending order
 
-You must specify this parameter in the \\\\<field name> \\\\<ASC or DESC> format. Separate multiple field names with commas (,). A preceding field has a higher priority than a following field. Examples:
+You must specify this parameter in the \\\\<field> \\\\<ASC or DESC> format. Separate multiple fields with commas (,). A preceding field has a higher priority than a following field. Examples:
 
-*   If you want to sort the results based on the file name in ascending order, set this parameter to "name ASC".
-*   If you want to sort the results based on the creation time in descending order, set this parameter to "created_at DESC".
-*   If you want to sort the results based on the creation time in descending order first, and then sort the results based on the file name in ascending order if the creation time is the same, set this parameter to "created_at DESC,name ASC".', example='name'),
-  query?: string(name='query', description='The search condition. Fuzzy searches based on the file name or directory name are supported. The search condition can be up to 4,096 characters in length.
+*   If you want to sort the entries by file name in ascending order, set this parameter to "name ASC".
+*   If you want to sort the entries by creation time in descending order, set this parameter to "created_at DESC".
+*   If you want to sort the entries by creation time in descending order and sort the entries by file name in ascending order in case of the same creation time, set this parameter to "created_at DESC,name ASC".', example='name'),
+  query?: string(name='query', description='The search conditions. Fuzzy searches based on the file name or directory name are supported. The value of this parameter can be up to 4,096 characters in length.
 
 This parameter is required.', example='not name=123'),
-  recursive?: boolean(name='recursive'),
+  recursive?: boolean(name='recursive', description='Specifies whether to perform recursive search on a folder that is specified by setting parent_file_id in the query parameter.', example='true'),
   returnTotalCount?: boolean(name='return_total_count', description='Specifies whether to return the total number of retrieved files.', example='true'),
-  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes'),
+  thumbnailProcesses?: map[string]ImageProcess(name='thumbnail_processes', description='The thumbnail configurations. Up to five thumbnails can be returned at a time. The value contains key-value pairs. You can customize the keys. The URL of a thumbnail is returned based on the key.'),
 }
 
 model SearchFileResponseBody = {
@@ -9152,7 +9155,7 @@ model SearchFileResponse = {
 }
 
 /**
- * @summary Queries files. For more information about best practices, visit https://help.aliyun.com/document_detail/175890.html.
+ * @summary Searches for files.
  *
  * @param request SearchFileRequest
  * @param headers map
@@ -9209,7 +9212,7 @@ async function searchFileWithOptions(request: SearchFileRequest, headers: map[st
 }
 
 /**
- * @summary Queries files. For more information about best practices, visit https://help.aliyun.com/document_detail/175890.html.
+ * @summary Searches for files.
  *
  * @param request SearchFileRequest
  * @return SearchFileResponse
