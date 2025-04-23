@@ -1,0 +1,1119 @@
+/**
+ *
+ */
+import Util;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('paillmtrace', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model EvaluationConfig {
+  answer?: {
+    jsonPathInSpan?: string(name='JsonPathInSpan'),
+    jsonPathInSpanValue?: string(name='JsonPathInSpanValue'),
+    spanName?: string(name='SpanName'),
+  }(name='Answer'),
+  context?: {
+    jsonPathInSpan?: string(name='JsonPathInSpan'),
+    jsonPathInSpanValue?: string(name='JsonPathInSpanValue'),
+    spanName?: string(name='SpanName'),
+  }(name='Context'),
+  query?: {
+    jsonPathInSpan?: string(name='JsonPathInSpan'),
+    jsonPathInSpanValue?: string(name='JsonPathInSpanValue'),
+    spanName?: string(name='SpanName'),
+  }(name='Query'),
+}
+
+model ModelConfig {
+  apiKey?: string(name='ApiKey'),
+  endpoint?: string(name='Endpoint'),
+  isSelfHost?: boolean(name='IsSelfHost'),
+  name?: string(name='Name'),
+  temperature?: float(name='Temperature'),
+  topP?: float(name='TopP'),
+  useFunctionCall?: boolean(name='UseFunctionCall'),
+}
+
+model CreateOnlineEvalTaskRequest {
+  body?: {
+    appName?: string(name='AppName', example='my-best-llm-app'),
+    description?: string(name='Description'),
+    endTime?: string(name='EndTime', example='2025-06-05 14:00:01
+2025-06-05'),
+    evaluationConfig?: EvaluationConfig(name='EvaluationConfig'),
+    filters?: [ 
+      {
+        key?: string(name='Key', example='ServiceId
+ServiceName
+Input
+Output
+Status
+TraceType
+SpanType
+TraceName
+SpanName'),
+        operator?: string(name='Operator', example='=
+StartsWith
+Contains'),
+        value?: string(name='Value', example='foo'),
+      }
+    ](name='Filters'),
+    modelConfig?: ModelConfig(name='ModelConfig'),
+    samplingFrequencyMinutes?: int32(name='SamplingFrequencyMinutes', example='9'),
+    samplingRatio?: int32(name='SamplingRatio', example='50'),
+    startTime?: string(name='StartTime', example='2025-04-05 14:00:01
+2025-04-05'),
+    taskName?: string(name='TaskName', example='my-llm-app-eval-task-1'),
+  }(name='body'),
+}
+
+model CreateOnlineEvalTaskShrinkRequest {
+  bodyShrink?: string(name='body'),
+}
+
+model CreateOnlineEvalTaskResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='EvaluationConfig.Answer.SpanName is required.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+  taskId?: string(name='TaskId', example='711ef9112343286810abbfce04e161ee'),
+}
+
+model CreateOnlineEvalTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateOnlineEvalTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建一个在线评估任务
+ *
+ * @param tmpReq CreateOnlineEvalTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateOnlineEvalTaskResponse
+ */
+async function createOnlineEvalTaskWithOptions(tmpReq: CreateOnlineEvalTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateOnlineEvalTaskResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateOnlineEvalTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.bodyShrink)) {
+    query['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateOnlineEvalTask',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建一个在线评估任务
+ *
+ * @param request CreateOnlineEvalTaskRequest
+ * @return CreateOnlineEvalTaskResponse
+ */
+async function createOnlineEvalTask(request: CreateOnlineEvalTaskRequest): CreateOnlineEvalTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createOnlineEvalTaskWithOptions(request, headers, runtime);
+}
+
+model CreateServiceIdentityRoleResponseBody = {
+  code?: string(name='Code', description='The error code returned if the request fails.', example='InvalidInputParams'),
+  message?: string(name='Message', description='The error message returned if the request fails.', example='User don\\\\"t have permission to create SLR.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+  roleDetails?: string(name='RoleDetails', description='The role details.', example='AliyunServiceRoleForPaiLLMTrace'),
+  roleName?: string(name='RoleName', description='The name of the service-linked role. Default value: AliyunServiceRoleForPaiLLMTrace.', example='AliyunServiceRoleForPaiLLMTrace'),
+}
+
+model CreateServiceIdentityRoleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateServiceIdentityRoleResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a service-linked role required for the PaiLLMTrace service.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateServiceIdentityRoleResponse
+ */
+async function createServiceIdentityRoleWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): CreateServiceIdentityRoleResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateServiceIdentityRole',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/ServiceIdentityRole`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a service-linked role required for the PaiLLMTrace service.
+ *
+ * @return CreateServiceIdentityRoleResponse
+ */
+async function createServiceIdentityRole(): CreateServiceIdentityRoleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createServiceIdentityRoleWithOptions(headers, runtime);
+}
+
+model DeleteOnlineEvalTaskResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='task id is empty'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+}
+
+model DeleteOnlineEvalTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteOnlineEvalTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除一个在线评估任务
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteOnlineEvalTaskResponse
+ */
+async function deleteOnlineEvalTaskWithOptions(TaskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteOnlineEvalTaskResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteOnlineEvalTask',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks/${OpenApiUtil.getEncodeParam(TaskId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除一个在线评估任务
+ *
+ * @return DeleteOnlineEvalTaskResponse
+ */
+async function deleteOnlineEvalTask(TaskId: string): DeleteOnlineEvalTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteOnlineEvalTaskWithOptions(TaskId, headers, runtime);
+}
+
+model EvaluateTraceRequest {
+  appName?: string(name='AppName', example='my-llm-app'),
+  evaluationConfig?: EvaluationConfig(name='EvaluationConfig', description='This parameter is required.'),
+  evaluationId?: string(name='EvaluationId', example='44aea0ee00000000be5be24b2abb8f98'),
+  maxTime?: string(name='MaxTime', example='2025-04-05 13:24:25
+2025-04-05'),
+  minTime?: string(name='MinTime', example='2025-04-05 13:24:25
+2025-04-05'),
+  modelConfig?: ModelConfig(name='ModelConfig'),
+}
+
+model EvaluateTraceResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  evaluationId?: string(name='EvaluationId', example='6000043e103011f0922edec44617e03c'),
+  message?: string(name='Message', example='eval_request missing dataset id or times'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F1AB295E-0D1F-5ECE-9FFA-98ABB4CB5DF5'),
+}
+
+model EvaluateTraceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EvaluateTraceResponseBody(name='body'),
+}
+
+/**
+ * @summary 基于traceId创建和执行评估任务
+ *
+ * @param request EvaluateTraceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EvaluateTraceResponse
+ */
+async function evaluateTraceWithOptions(TraceId: string, request: EvaluateTraceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): EvaluateTraceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appName)) {
+    body['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.evaluationConfig)) {
+    body['EvaluationConfig'] = request.evaluationConfig;
+  }
+  if (!Util.isUnset(request.evaluationId)) {
+    body['EvaluationId'] = request.evaluationId;
+  }
+  if (!Util.isUnset(request.maxTime)) {
+    body['MaxTime'] = request.maxTime;
+  }
+  if (!Util.isUnset(request.minTime)) {
+    body['MinTime'] = request.minTime;
+  }
+  if (!Util.isUnset(request.modelConfig)) {
+    body['ModelConfig'] = request.modelConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'EvaluateTrace',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/eval/trace/${OpenApiUtil.getEncodeParam(TraceId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 基于traceId创建和执行评估任务
+ *
+ * @param request EvaluateTraceRequest
+ * @return EvaluateTraceResponse
+ */
+async function evaluateTrace(TraceId: string, request: EvaluateTraceRequest): EvaluateTraceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return evaluateTraceWithOptions(TraceId, request, headers, runtime);
+}
+
+model GetEvaluationTemplatesResponseBody = {
+  code?: string(name='Code', example='ExecutionFailure'),
+  evaluationTemplates?: [ any ](name='EvaluationTemplates'),
+  message?: string(name='Message', example='cannot get data back.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+}
+
+model GetEvaluationTemplatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetEvaluationTemplatesResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取用于评估的prompt templates内容
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetEvaluationTemplatesResponse
+ */
+async function getEvaluationTemplatesWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetEvaluationTemplatesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetEvaluationTemplates',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/eval/templates`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取用于评估的prompt templates内容
+ *
+ * @return GetEvaluationTemplatesResponse
+ */
+async function getEvaluationTemplates(): GetEvaluationTemplatesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getEvaluationTemplatesWithOptions(headers, runtime);
+}
+
+model GetOnlineEvalTaskResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='task id is empty'),
+  requestId?: string(name='RequestId', description='POP request id', example='6F352A02-9C0D-54A7-B57C-663CF71D5714'),
+  task?: {
+    aliyunUid?: string(name='AliyunUid', example='1195531608511111'),
+    appName?: string(name='AppName', example='my-llm-app'),
+    description?: string(name='Description'),
+    evalResults?: string(name='EvalResults'),
+    evaluationConfig?: EvaluationConfig(name='EvaluationConfig'),
+    filters?: [ 
+      {
+        key?: string(name='Key', example='ServiceId
+ServiceName
+Input
+Output
+Status
+TraceType
+SpanType
+TraceName
+SpanName'),
+        operator?: string(name='Operator', example='=
+StartsWith
+Contains'),
+        value?: string(name='Value', example='foo'),
+      }
+    ](name='Filters'),
+    gmtCreateTime?: string(name='GmtCreateTime', example='2024-07-31 08:30:00'),
+    gmtEndTime?: string(name='GmtEndTime', example='2024-08-10 13:20:00'),
+    gmtLastSamplingWindowEndTime?: string(name='GmtLastSamplingWindowEndTime', example='2024-08-10 13:14:00'),
+    gmtLastSamplingWindowStartTime?: string(name='GmtLastSamplingWindowStartTime', example='2024-08-10 13:11:00'),
+    gmtStartTime?: string(name='GmtStartTime', example='2024-08-02'),
+    id?: string(name='Id', example='0839a02d-aa24-4174-90bb-7a773885934d'),
+    modelConfig?: ModelConfig(name='ModelConfig'),
+    name?: string(name='Name', example='my-eval-task-1'),
+    recordCount?: int32(name='RecordCount', example='999'),
+    samplingFrequencyMinutes?: int32(name='SamplingFrequencyMinutes', example='3'),
+    samplingRatio?: int32(name='SamplingRatio', example='70'),
+    status?: string(name='Status', example='CREATED
+RUNNING
+FINISHED
+USER_CANCELED'),
+    userId?: string(name='UserId', example='222222222222222222'),
+  }(name='Task'),
+}
+
+model GetOnlineEvalTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOnlineEvalTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取一个在线评估任务的详情
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOnlineEvalTaskResponse
+ */
+async function getOnlineEvalTaskWithOptions(TaskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetOnlineEvalTaskResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetOnlineEvalTask',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks/${OpenApiUtil.getEncodeParam(TaskId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取一个在线评估任务的详情
+ *
+ * @return GetOnlineEvalTaskResponse
+ */
+async function getOnlineEvalTask(TaskId: string): GetOnlineEvalTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOnlineEvalTaskWithOptions(TaskId, headers, runtime);
+}
+
+model GetServiceIdentityRoleResponseBody = {
+  code?: string(name='Code', description='The internal error code. This parameter is returned only when an error occurs.', example='EntityNotExist'),
+  message?: string(name='Message', description='The error message. This parameter is returned only when an error occurs.', example='Serivce role does not exit.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+  roleDetail?: string(name='RoleDetail', description='The role details.', example='AliyunServiceRoleForPaiLLMTrace'),
+  roleName?: string(name='RoleName', description='The name of the service-linked role. Default value: AliyunServiceRoleForPaiLLMTrace.', example='AliyunServiceRoleForPaiLLMTrace'),
+}
+
+model GetServiceIdentityRoleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceIdentityRoleResponseBody(name='body'),
+}
+
+/**
+ * @summary Obtains the information related to the service-linked role.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetServiceIdentityRoleResponse
+ */
+async function getServiceIdentityRoleWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetServiceIdentityRoleResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetServiceIdentityRole',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/ServiceIdentityRole`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Obtains the information related to the service-linked role.
+ *
+ * @return GetServiceIdentityRoleResponse
+ */
+async function getServiceIdentityRole(): GetServiceIdentityRoleResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getServiceIdentityRoleWithOptions(headers, runtime);
+}
+
+model GetXtraceTokenResponseBody = {
+  code?: string(name='Code', description='The internal error code. This parameter is returned only when an error occurs.', example='InvalidInputParams'),
+  grpcEndpoint?: string(name='GrpcEndpoint', description='The gRPC endpoint used for uploading ARM traces.', example='http://tracing-analysis-dc-hz.aliyuncs.com:8090'),
+  grpcInternalEndpoint?: string(name='GrpcInternalEndpoint', description='The internal gRPC endpoint used for uploading ARMS traces used by Alibaba Cloud.', example='http://tracing-analysis-dc-hz-internal.aliyuncs.com:8090'),
+  httpEndpoint?: string(name='HttpEndpoint', description='The endpoint used for uploading ARMS traces.', example='http://tracing-analysis-dc-hz.aliyuncs.com/aaa@bbb@ccc/api/otlp/traces'),
+  httpInternalEndpoint?: string(name='HttpInternalEndpoint', description='The internal endpoint used for uploading ARMS traces used by Alibaba Cloud.', example='http://tracing-analysis-dc-hz-internal.aliyuncs.com/aaa@bbb@ccc/api/otlp/traces'),
+  message?: string(name='Message', description='The error message. This parameter is returned only when an error occurs.', example='get_xtrace_token: failed, ERROR: NoPermission'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+  token?: string(name='Token', description='The token used for uploading ARMS traces.', example='h1abcw7@5abcb_h1abcw7@5abc01'),
+}
+
+model GetXtraceTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetXtraceTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary Obtains the token used in the Xtrace service and the endpoint required for uploading trace data.
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetXtraceTokenResponse
+ */
+async function getXtraceTokenWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetXtraceTokenResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetXtraceToken',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/XtraceToken`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Obtains the token used in the Xtrace service and the endpoint required for uploading trace data.
+ *
+ * @return GetXtraceTokenResponse
+ */
+async function getXtraceToken(): GetXtraceTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getXtraceTokenWithOptions(headers, runtime);
+}
+
+model ListOnlineEvalTaskResultsRequest {
+  evaluationId?: string(name='EvaluationId', example='0bb05ae8888c11ef9757faaa2a1ec0c6'),
+  mostRecentResultsOnly?: boolean(name='MostRecentResultsOnly', example='True'),
+  pageNumber?: int32(name='PageNumber', example='2'),
+  pageSize?: int32(name='PageSize', example='50'),
+  traceIds?: [ string ](name='TraceIds'),
+}
+
+model ListOnlineEvalTaskResultsShrinkRequest {
+  evaluationId?: string(name='EvaluationId', example='0bb05ae8888c11ef9757faaa2a1ec0c6'),
+  mostRecentResultsOnly?: boolean(name='MostRecentResultsOnly', example='True'),
+  pageNumber?: int32(name='PageNumber', example='2'),
+  pageSize?: int32(name='PageSize', example='50'),
+  traceIdsShrink?: string(name='TraceIds'),
+}
+
+model ListOnlineEvalTaskResultsResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  evaluationResults?: [ string ](name='EvaluationResults'),
+  message?: string(name='Message', example='must provide trace_id(s) or eval_id'),
+  requestId?: string(name='RequestId', description='Id of the request', example='22BA9A5A-E3D8-5B4C-90FC-F33F6E5853F8'),
+  totalCount?: int32(name='TotalCount', example='123'),
+}
+
+model ListOnlineEvalTaskResultsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOnlineEvalTaskResultsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看符合条件的在线评估任务的结果
+ *
+ * @param tmpReq ListOnlineEvalTaskResultsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOnlineEvalTaskResultsResponse
+ */
+async function listOnlineEvalTaskResultsWithOptions(tmpReq: ListOnlineEvalTaskResultsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOnlineEvalTaskResultsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListOnlineEvalTaskResultsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.traceIds)) {
+    request.traceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.traceIds, 'TraceIds', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.evaluationId)) {
+    query['EvaluationId'] = request.evaluationId;
+  }
+  if (!Util.isUnset(request.mostRecentResultsOnly)) {
+    query['MostRecentResultsOnly'] = request.mostRecentResultsOnly;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.traceIdsShrink)) {
+    query['TraceIds'] = request.traceIdsShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListOnlineEvalTaskResults',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltaskresults`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看符合条件的在线评估任务的结果
+ *
+ * @param request ListOnlineEvalTaskResultsRequest
+ * @return ListOnlineEvalTaskResultsResponse
+ */
+async function listOnlineEvalTaskResults(request: ListOnlineEvalTaskResultsRequest): ListOnlineEvalTaskResultsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOnlineEvalTaskResultsWithOptions(request, headers, runtime);
+}
+
+model ListOnlineEvalTasksRequest {
+  keyword?: string(name='Keyword', example='foo'),
+  maxTime?: string(name='MaxTime', example='2025-04-07 13:24:25
+2025-04-07'),
+  minTime?: string(name='MinTime', example='2025-04-05 13:24:25
+2025-04-05'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='50'),
+}
+
+model ListOnlineEvalTasksResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='page number should be greater than 0'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6F352A02-9C0D-54A7-B57C-663CF71D5714'),
+  tasks?: [ 
+    {
+      aliyunUid?: string(name='AliyunUid', example='1512522691911111'),
+      appName?: string(name='AppName', example='my-llm-app'),
+      description?: string(name='Description'),
+      evaluationConfig?: EvaluationConfig(name='EvaluationConfig'),
+      filters?: [ 
+        {
+          key?: string(name='Key', example='ServiceId
+ServiceName
+Input
+Output
+Status
+TraceType
+SpanType
+TraceName
+SpanName'),
+          operator?: string(name='Operator', example='=
+StartsWith
+Contains'),
+          value?: string(name='Value', example='foo'),
+        }
+      ](name='Filters'),
+      gmtCreateTime?: string(name='GmtCreateTime', example='2025-04-07 13:24:35'),
+      gmtEndTime?: string(name='GmtEndTime', example='2025-04-09 13:24:35'),
+      gmtStartTime?: string(name='GmtStartTime', example='2025-04-08 13:24:35'),
+      id?: string(name='Id', example='9f50cd72efcf36535152ee811a911115'),
+      modelConfig?: ModelConfig(name='ModelConfig'),
+      name?: string(name='Name', example='my-foo-evaluation-task'),
+      samplingFrequencyMinutes?: int32(name='SamplingFrequencyMinutes', example='12'),
+      samplingRatio?: int32(name='SamplingRatio', example='50'),
+      status?: string(name='Status', example='CREATED
+RUNNING
+FINISHED
+USER_CANCELED'),
+      userId?: string(name='UserId', example='2222222222'),
+    }
+  ](name='Tasks'),
+  totalCount?: int32(name='TotalCount', example='22'),
+}
+
+model ListOnlineEvalTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOnlineEvalTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看符合条件的在线评估任务
+ *
+ * @param request ListOnlineEvalTasksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOnlineEvalTasksResponse
+ */
+async function listOnlineEvalTasksWithOptions(request: ListOnlineEvalTasksRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListOnlineEvalTasksResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.keyword)) {
+    query['Keyword'] = request.keyword;
+  }
+  if (!Util.isUnset(request.maxTime)) {
+    query['MaxTime'] = request.maxTime;
+  }
+  if (!Util.isUnset(request.minTime)) {
+    query['MinTime'] = request.minTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListOnlineEvalTasks',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看符合条件的在线评估任务
+ *
+ * @param request ListOnlineEvalTasksRequest
+ * @return ListOnlineEvalTasksResponse
+ */
+async function listOnlineEvalTasks(request: ListOnlineEvalTasksRequest): ListOnlineEvalTasksResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOnlineEvalTasksWithOptions(request, headers, runtime);
+}
+
+model ListTracesDatasRequest {
+  endUserId?: string(name='EndUserId', example='end-user.12345'),
+  filters?: [ 
+    {
+      key?: string(name='Key'),
+      operator?: string(name='Operator'),
+      value?: string(name='Value'),
+    }
+  ](name='Filters'),
+  hasEvents?: boolean(name='HasEvents', example='False'),
+  hasStatusMessage?: boolean(name='HasStatusMessage', example='False'),
+  llmAppName?: string(name='LlmAppName', example='My.super_LLM-app2'),
+  maxTime?: string(name='MaxTime', example='2024-01-31
+2024-12-31 23:59:59'),
+  minTime?: string(name='MinTime', description='This parameter is required.', example='2024-01-31
+2024-12-31 23:59:59'),
+  opentelemetryCompatible?: boolean(name='OpentelemetryCompatible', example='False'),
+  ownerId?: string(name='OwnerId'),
+  ownerSubId?: string(name='OwnerSubId', example='123456789'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  sortBy?: string(name='SortBy'),
+  sortOrder?: string(name='SortOrder'),
+  spanIds?: [ string ](name='SpanIds'),
+  traceIds?: [ string ](name='TraceIds'),
+  traceReduceMethod?: string(name='TraceReduceMethod'),
+}
+
+model ListTracesDatasShrinkRequest {
+  endUserId?: string(name='EndUserId', example='end-user.12345'),
+  filtersShrink?: string(name='Filters'),
+  hasEvents?: boolean(name='HasEvents', example='False'),
+  hasStatusMessage?: boolean(name='HasStatusMessage', example='False'),
+  llmAppName?: string(name='LlmAppName', example='My.super_LLM-app2'),
+  maxTime?: string(name='MaxTime', example='2024-01-31
+2024-12-31 23:59:59'),
+  minTime?: string(name='MinTime', description='This parameter is required.', example='2024-01-31
+2024-12-31 23:59:59'),
+  opentelemetryCompatible?: boolean(name='OpentelemetryCompatible', example='False'),
+  ownerId?: string(name='OwnerId'),
+  ownerSubId?: string(name='OwnerSubId', example='123456789'),
+  pageNumber?: int32(name='PageNumber', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  sortBy?: string(name='SortBy'),
+  sortOrder?: string(name='SortOrder'),
+  spanIdsShrink?: string(name='SpanIds'),
+  traceIdsShrink?: string(name='TraceIds'),
+  traceReduceMethod?: string(name='TraceReduceMethod'),
+}
+
+model ListTracesDatasResponseBody = {
+  code?: string(name='Code', example='ExecutionFailure'),
+  message?: string(name='Message', example='failed to get trace data'),
+  requestId?: string(name='RequestId', description='POP request id', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+  totalCount?: int32(name='TotalCount', example='22'),
+  traces?: [ any ](name='Traces'),
+}
+
+model ListTracesDatasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTracesDatasResponseBody(name='body'),
+}
+
+/**
+ * @summary 从trace日志中list出符合条件的trace数据。
+ *
+ * @param tmpReq ListTracesDatasRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTracesDatasResponse
+ */
+async function listTracesDatasWithOptions(tmpReq: ListTracesDatasRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListTracesDatasResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListTracesDatasShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filters)) {
+    request.filtersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filters, 'Filters', 'json');
+  }
+  if (!Util.isUnset(tmpReq.spanIds)) {
+    request.spanIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.spanIds, 'SpanIds', 'simple');
+  }
+  if (!Util.isUnset(tmpReq.traceIds)) {
+    request.traceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.traceIds, 'TraceIds', 'simple');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.endUserId)) {
+    query['EndUserId'] = request.endUserId;
+  }
+  if (!Util.isUnset(request.filtersShrink)) {
+    query['Filters'] = request.filtersShrink;
+  }
+  if (!Util.isUnset(request.hasEvents)) {
+    query['HasEvents'] = request.hasEvents;
+  }
+  if (!Util.isUnset(request.hasStatusMessage)) {
+    query['HasStatusMessage'] = request.hasStatusMessage;
+  }
+  if (!Util.isUnset(request.llmAppName)) {
+    query['LlmAppName'] = request.llmAppName;
+  }
+  if (!Util.isUnset(request.maxTime)) {
+    query['MaxTime'] = request.maxTime;
+  }
+  if (!Util.isUnset(request.minTime)) {
+    query['MinTime'] = request.minTime;
+  }
+  if (!Util.isUnset(request.opentelemetryCompatible)) {
+    query['OpentelemetryCompatible'] = request.opentelemetryCompatible;
+  }
+  if (!Util.isUnset(request.ownerId)) {
+    query['OwnerId'] = request.ownerId;
+  }
+  if (!Util.isUnset(request.ownerSubId)) {
+    query['OwnerSubId'] = request.ownerSubId;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.sortBy)) {
+    query['SortBy'] = request.sortBy;
+  }
+  if (!Util.isUnset(request.sortOrder)) {
+    query['SortOrder'] = request.sortOrder;
+  }
+  if (!Util.isUnset(request.spanIdsShrink)) {
+    query['SpanIds'] = request.spanIdsShrink;
+  }
+  if (!Util.isUnset(request.traceIdsShrink)) {
+    query['TraceIds'] = request.traceIdsShrink;
+  }
+  if (!Util.isUnset(request.traceReduceMethod)) {
+    query['TraceReduceMethod'] = request.traceReduceMethod;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListTracesDatas',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/TracesDatas`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 从trace日志中list出符合条件的trace数据。
+ *
+ * @param request ListTracesDatasRequest
+ * @return ListTracesDatasResponse
+ */
+async function listTracesDatas(request: ListTracesDatasRequest): ListTracesDatasResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listTracesDatasWithOptions(request, headers, runtime);
+}
+
+model StopOnlineEvalTaskResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='task id is empty'),
+  requestId?: string(name='RequestId', description='Id of the POP request', example='31E5FBC2-792D-5B5C-A5EB-3019984ABFC8'),
+}
+
+model StopOnlineEvalTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StopOnlineEvalTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 停止一个在线评估任务的执行
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopOnlineEvalTaskResponse
+ */
+async function stopOnlineEvalTaskWithOptions(TaskId: string, headers: map[string]string, runtime: Util.RuntimeOptions): StopOnlineEvalTaskResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'StopOnlineEvalTask',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks/${OpenApiUtil.getEncodeParam(TaskId)}/stop`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 停止一个在线评估任务的执行
+ *
+ * @return StopOnlineEvalTaskResponse
+ */
+async function stopOnlineEvalTask(TaskId: string): StopOnlineEvalTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return stopOnlineEvalTaskWithOptions(TaskId, headers, runtime);
+}
+
+model UpdateOnlineEvalTaskRequest {
+  appName?: string(name='AppName', example='my-llm-one'),
+  description?: string(name='Description'),
+  endTime?: string(name='EndTime', example='2024-09-02 22:24:00'),
+  evaluationConfig?: EvaluationConfig(name='EvaluationConfig'),
+  filters?: [ 
+    {
+      key?: string(name='Key', example='ServiceId
+ServiceName
+Input
+Output
+Status
+TraceType
+SpanType
+TraceName
+SpanName'),
+      operator?: string(name='Operator', example='=
+StartsWith
+Contains'),
+      value?: string(name='Value', example='foo'),
+    }
+  ](name='Filters'),
+  modelConfig?: ModelConfig(name='ModelConfig'),
+  samplingFrequencyMinutes?: int32(name='SamplingFrequencyMinutes', example='10'),
+  samplingRatio?: int32(name='SamplingRatio', example='50'),
+  startTime?: string(name='StartTime', example='2024-07-31 08:30:00'),
+  taskName?: string(name='TaskName'),
+}
+
+model UpdateOnlineEvalTaskResponseBody = {
+  code?: string(name='Code', example='InvalidInputParams'),
+  message?: string(name='Message', example='cannot modify a stopped task'),
+  requestId?: string(name='RequestId', description='Id of the POP request', example='6A87228C-969A-1381-98CF-AE07AE630FA5'),
+}
+
+model UpdateOnlineEvalTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateOnlineEvalTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 更改一个在线评估任务的配置
+ *
+ * @param request UpdateOnlineEvalTaskRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateOnlineEvalTaskResponse
+ */
+async function updateOnlineEvalTaskWithOptions(TaskId: string, request: UpdateOnlineEvalTaskRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateOnlineEvalTaskResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appName)) {
+    body['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    body['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.evaluationConfig)) {
+    body['EvaluationConfig'] = request.evaluationConfig;
+  }
+  if (!Util.isUnset(request.filters)) {
+    body['Filters'] = request.filters;
+  }
+  if (!Util.isUnset(request.modelConfig)) {
+    body['ModelConfig'] = request.modelConfig;
+  }
+  if (!Util.isUnset(request.samplingFrequencyMinutes)) {
+    body['SamplingFrequencyMinutes'] = request.samplingFrequencyMinutes;
+  }
+  if (!Util.isUnset(request.samplingRatio)) {
+    body['SamplingRatio'] = request.samplingRatio;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    body['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.taskName)) {
+    body['TaskName'] = request.taskName;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateOnlineEvalTask',
+    version = '2024-03-11',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/PAILLMTrace/onlineevaltasks/${OpenApiUtil.getEncodeParam(TaskId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更改一个在线评估任务的配置
+ *
+ * @param request UpdateOnlineEvalTaskRequest
+ * @return UpdateOnlineEvalTaskResponse
+ */
+async function updateOnlineEvalTask(TaskId: string, request: UpdateOnlineEvalTaskRequest): UpdateOnlineEvalTaskResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateOnlineEvalTaskWithOptions(TaskId, request, headers, runtime);
+}
+
