@@ -1,6 +1,10 @@
 /**
  *
  */
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -299,6 +303,170 @@ async function checkVerifyLogWithOptions(request: CheckVerifyLogRequest, runtime
 async function checkVerifyLog(request: CheckVerifyLogRequest): CheckVerifyLogResponse {
   var runtime = new $RuntimeOptions{};
   return checkVerifyLogWithOptions(request, runtime);
+}
+
+model CredentialVerifyIntlRequest {
+  credName?: string(name='CredName', description='This parameter is required.', example='0101'),
+  credType?: string(name='CredType', description='This parameter is required.', example='01'),
+  imageFile?: string(name='ImageFile'),
+  imageUrl?: string(name='ImageUrl', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
+  productCode?: string(name='ProductCode', description='This parameter is required.'),
+}
+
+model CredentialVerifyIntlAdvanceRequest {
+  credName?: string(name='CredName', description='This parameter is required.', example='0101'),
+  credType?: string(name='CredType', description='This parameter is required.', example='01'),
+  imageFileObject?: readable(name='ImageFile'),
+  imageUrl?: string(name='ImageUrl', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
+  productCode?: string(name='ProductCode', description='This parameter is required.'),
+}
+
+model CredentialVerifyIntlResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  resultObject?: {
+    materialInfo?: string(name='MaterialInfo'),
+    result?: string(name='Result', example='1'),
+    riskScore?: map[string]string(name='RiskScore'),
+    riskTag?: string(name='RiskTag', example='PS'),
+  }(name='ResultObject'),
+}
+
+model CredentialVerifyIntlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CredentialVerifyIntlResponseBody(name='body'),
+}
+
+/**
+ * @summary 凭证核验
+ *
+ * @param request CredentialVerifyIntlRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CredentialVerifyIntlResponse
+ */
+async function credentialVerifyIntlWithOptions(request: CredentialVerifyIntlRequest, runtime: $RuntimeOptions): CredentialVerifyIntlResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.credName)) {
+    query['CredName'] = request.credName;
+  }
+  if (!$isNull(request.credType)) {
+    query['CredType'] = request.credType;
+  }
+  if (!$isNull(request.imageUrl)) {
+    query['ImageUrl'] = request.imageUrl;
+  }
+  if (!$isNull(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.imageFile)) {
+    body['ImageFile'] = request.imageFile;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CredentialVerifyIntl',
+    version = '2022-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 凭证核验
+ *
+ * @param request CredentialVerifyIntlRequest
+ * @return CredentialVerifyIntlResponse
+ */
+async function credentialVerifyIntl(request: CredentialVerifyIntlRequest): CredentialVerifyIntlResponse {
+  var runtime = new $RuntimeOptions{};
+  return credentialVerifyIntlWithOptions(request, runtime);
+}
+
+async function credentialVerifyIntlAdvance(request: CredentialVerifyIntlAdvanceRequest, runtime: $RuntimeOptions): CredentialVerifyIntlResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if($isNull(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if($isNull(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApiUtil.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Cloudauth-intl',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var credentialVerifyIntlReq = new CredentialVerifyIntlRequest{};
+  OpenApiUtil.convert(request, credentialVerifyIntlReq);
+
+  if(!$isNull(request.imageFileObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.imageFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    credentialVerifyIntlReq.imageFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var credentialVerifyIntlResp = credentialVerifyIntlWithOptions(credentialVerifyIntlReq, runtime);
+  return credentialVerifyIntlResp;
 }
 
 model DeepfakeDetectIntlRequest {
