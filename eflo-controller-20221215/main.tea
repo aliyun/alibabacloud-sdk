@@ -333,7 +333,9 @@ model CreateClusterRequest {
   nimizVSwitches?: [ string ](name='NimizVSwitches', description='Node VSwitches'),
   nodeGroups?: [ 
     {
+      fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled'),
       imageId?: string(name='ImageId', description='System image ID', example='i190297201634099844192'),
+      keyPairName?: string(name='KeyPairName', description='The name of the key pair.', example='sc-key'),
       machineType?: string(name='MachineType', description='Machine type', example='efg1.nvga1'),
       nodeGroupDescription?: string(name='NodeGroupDescription', description='Node group description', example='Node group description'),
       nodeGroupName?: string(name='NodeGroupName', description='Node group name', example='emr-default'),
@@ -347,10 +349,18 @@ model CreateClusterRequest {
         }
       ](name='Nodes', description='Node list'),
       systemDisk?: {
-        category?: string(name='Category'),
-        performanceLevel?: string(name='PerformanceLevel'),
-        size?: int32(name='Size'),
-      }(name='SystemDisk'),
+        category?: string(name='Category', description='The disk type. Valid values:
+
+*   cloud_ssd: standard SSD', example='cloud_essd'),
+        performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD that is used as the system disk. Valid values:
+
+*   PL0: A single ESSD can provide up to 10,000 random read/write IOPS.
+*   PL1: A single ESSD can provide up to 50,000 random read/write IOPS.
+
+
+Default value: PL1.', example='PL1'),
+        size?: int32(name='Size', description='The size. Unit: GB.', example='20'),
+      }(name='SystemDisk', description='SystemDisk'),
       userData?: string(name='UserData', description='Instance custom data. It needs to be Base64 encoded, and the original data should not exceed 16 KB.', example='ZWNobyBoZWxsbyBlY3Mh'),
       zoneId?: string(name='ZoneId', description='Zone ID', example='cn-hangzhou-i'),
     }
@@ -754,9 +764,11 @@ This parameter is required.', example='i118191731740041623425'),
     az?: string(name='Az', description='Availability Zone
 
 This parameter is required.', example='cn-wulanchabu-b'),
+    fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled'),
     imageId?: string(name='ImageId', description='Image ID.
 
 This parameter is required.', example='i191887641687336652616'),
+    keyPairName?: string(name='KeyPairName', description='The name of the key pair.', example='test-keypair'),
     machineType?: string(name='MachineType', description='Machine type
 
 This parameter is required.', example='mock-machine-type3'),
@@ -765,10 +777,18 @@ This parameter is required.', example='mock-machine-type3'),
 
 This parameter is required.', example='PAI-LINGJUN'),
     systemDisk?: {
-      category?: string(name='Category'),
-      performanceLevel?: string(name='PerformanceLevel'),
-      size?: int32(name='Size'),
-    }(name='SystemDisk'),
+      category?: string(name='Category', description='Disk performance level', example='cloud_essd'),
+      performanceLevel?: string(name='PerformanceLevel', description='The performance level of the disk if the disk is an ESSD. Valid values:
+
+*   PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
+*   PL1: A single ESSD can deliver up to 50,000 random read/write IOPS.
+
+
+Default value: PL1.
+
+For information about ESSD performance levels, see [ESSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL!'),
+      size?: int32(name='Size', description='System disk size', example='250'),
+    }(name='SystemDisk', description='SystemDisk'),
     userData?: string(name='UserData', description='user data', example='#!/bin/bash
 uptime
 echo "aaaaaaa" >> /tmp/ttttt20250110141010.sh'),
@@ -932,6 +952,89 @@ async function createSession(request: CreateSessionRequest): CreateSessionRespon
   return createSessionWithOptions(request, runtime);
 }
 
+model CreateVscRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000'),
+  nodeId?: string(name='NodeId', description='This parameter is required.', example='e01-cn-zvp2tgykr08'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2xdkc6icwfha'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='key001'),
+      value?: string(name='Value', example='value001'),
+    }
+  ](name='Tag'),
+  vscName?: string(name='VscName', example='test_name'),
+  vscType?: string(name='VscType', example='primary'),
+}
+
+model CreateVscResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='887FA855-89F4-5DB3-B305-C5879EC480E6'),
+  vscId?: string(name='VscId', example='vsc-001'),
+}
+
+model CreateVscResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateVscResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建Vsc
+ *
+ * @param request CreateVscRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateVscResponse
+ */
+async function createVscWithOptions(request: CreateVscRequest, runtime: Util.RuntimeOptions): CreateVscResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.nodeId)) {
+    body['NodeId'] = request.nodeId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.tag)) {
+    body['Tag'] = request.tag;
+  }
+  if (!Util.isUnset(request.vscName)) {
+    body['VscName'] = request.vscName;
+  }
+  if (!Util.isUnset(request.vscType)) {
+    body['VscType'] = request.vscType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateVsc',
+    version = '2022-12-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建Vsc
+ *
+ * @param request CreateVscRequest
+ * @return CreateVscResponse
+ */
+async function createVsc(request: CreateVscRequest): CreateVscResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createVscWithOptions(request, runtime);
+}
+
 model DeleteClusterRequest {
   clusterId?: string(name='ClusterId', description='Cluster ID
 
@@ -1050,6 +1153,67 @@ async function deleteNodeGroupWithOptions(request: DeleteNodeGroupRequest, runti
 async function deleteNodeGroup(request: DeleteNodeGroupRequest): DeleteNodeGroupResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteNodeGroupWithOptions(request, runtime);
+}
+
+model DeleteVscRequest {
+  clientToken?: string(name='ClientToken', example='123e4567-e89b-12d3-a456-426655440000'),
+  vscId?: string(name='VscId', description='This parameter is required.', example='vsc-001'),
+}
+
+model DeleteVscResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='4FD06DF0-9167-5C6F-A145-F30CA4A15D54'),
+}
+
+model DeleteVscResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteVscResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除Vsc
+ *
+ * @param request DeleteVscRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteVscResponse
+ */
+async function deleteVscWithOptions(request: DeleteVscRequest, runtime: Util.RuntimeOptions): DeleteVscResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.vscId)) {
+    body['VscId'] = request.vscId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteVsc',
+    version = '2022-12-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除Vsc
+ *
+ * @param request DeleteVscRequest
+ * @return DeleteVscResponse
+ */
+async function deleteVsc(request: DeleteVscRequest): DeleteVscResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteVscWithOptions(request, runtime);
 }
 
 model DescribeClusterRequest {
@@ -1550,14 +1714,22 @@ model DescribeNodeResponseBody = {
   createTime?: string(name='CreateTime', description='Creation time', example='2022-09-30T03:35:53Z'),
   disks?: [ 
     {
-      category?: string(name='Category'),
-      diskId?: string(name='DiskId'),
-      performanceLevel?: string(name='PerformanceLevel'),
-      size?: int32(name='Size'),
-      type?: string(name='Type'),
+      category?: string(name='Category', description='The category of the disk.
+
+*   cloud_ssd: all-flash disk.', example='cloud_essd'),
+      diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp1fi88ryk4yah8a6yos'),
+      performanceLevel?: string(name='PerformanceLevel', description='The performance level of the ESSD. Valid values:
+
+*   PL0: A single ESSD can deliver up to 10,000 random read/write IOPS.
+*   PL1: A single ESSD can deliver up to 50,000 random read/write IOPS.', example='PL1'),
+      size?: int32(name='Size', description='The size of the disk. Unit: GiB.', example='100'),
+      type?: string(name='Type', description='The type of the disk. Valid values:
+
+*   system: system disk', example='system'),
     }
-  ](name='Disks'),
+  ](name='Disks', description='Disk infos'),
   expiredTime?: string(name='ExpiredTime', description='Expiration time', example='2022-06-23T16:00:00Z'),
+  fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled', description='是否支持文件存储挂载'),
   hostname?: string(name='Hostname', description='Hostname', example='31d38530-241e-11ed-bc63-acde48001122'),
   hpnZone?: string(name='HpnZone', description='Cluster number', example='A1'),
   imageId?: string(name='ImageId', description='Image ID', example='i190297201634099844192'),
@@ -1941,6 +2113,67 @@ async function describeTask(request: DescribeTaskRequest): DescribeTaskResponse 
   return describeTaskWithOptions(request, runtime);
 }
 
+model DescribeVscRequest {
+  vscId?: string(name='VscId', description='This parameter is required.', example='vsc-001'),
+}
+
+model DescribeVscResponseBody = {
+  nodeId?: string(name='NodeId', example='e01-cn-kvw44e6dn04'),
+  requestId?: string(name='RequestId', description='Id of the request', example='4FD06DF0-9167-5C6F-A145-F30CA4A15D54'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2k3rqlvv6ytq'),
+  status?: string(name='Status', example='NORMAL'),
+  vscId?: string(name='VscId', description='VscId', example='vsc-001'),
+  vscName?: string(name='VscName', example='test_name'),
+  vscType?: string(name='VscType', example='primary'),
+}
+
+model DescribeVscResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeVscResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取单个Vsc详情
+ *
+ * @param request DescribeVscRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeVscResponse
+ */
+async function describeVscWithOptions(request: DescribeVscRequest, runtime: Util.RuntimeOptions): DescribeVscResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.vscId)) {
+    body['VscId'] = request.vscId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeVsc',
+    version = '2022-12-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取单个Vsc详情
+ *
+ * @param request DescribeVscRequest
+ * @return DescribeVscResponse
+ */
+async function describeVsc(request: DescribeVscRequest): DescribeVscResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeVscWithOptions(request, runtime);
+}
+
 model DescribeZonesRequest {
   acceptLanguage?: string(name='AcceptLanguage', description='Filter the returned results based on Chinese or English. For more information, see RFC7231. Valid values:
 
@@ -2209,6 +2442,7 @@ model ListClusterNodesResponseBody = {
       commodityCode?: string(name='CommodityCode', description='product code', example='bcccluster'),
       createTime?: string(name='CreateTime', description='Creation time', example='1642472468000'),
       expiredTime?: string(name='ExpiredTime', description='Machine expiration time', example='1762185600000'),
+      fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled', description='whether or not support file system mount'),
       hostname?: string(name='Hostname', description='Hostname', example='72432f80-273e-11ed-b57a-acde48001122'),
       hpnZone?: string(name='HpnZone', description='Hpn Zone', example='A1'),
       imageId?: string(name='ImageId', description='System image ID', example='i190297201669099844192'),
@@ -3010,6 +3244,7 @@ model ListNodeGroupsResponseBody = {
       clusterName?: string(name='ClusterName', description='Cluster name', example='wzq-exclusivelite-71'),
       createTime?: string(name='CreateTime', description='Creation time', example='2024-02-27T13:16:31.599'),
       description?: string(name='Description', description='Description', example='created by ga2_prepare'),
+      fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled'),
       groupId?: string(name='GroupId', description='Group ID.', example='238276221'),
       groupName?: string(name='GroupName', description='Group name.', example='backend-group'),
       imageId?: string(name='ImageId', description='Image ID', example='i194015071707321240258'),
@@ -3223,6 +3458,126 @@ async function listUserClusterTypesWithOptions(runtime: Util.RuntimeOptions): Li
 async function listUserClusterTypes(): ListUserClusterTypesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listUserClusterTypesWithOptions(runtime);
+}
+
+model ListVscsRequest {
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='563d42ae0b17572449ec8c97f7f66069'),
+  nodeIds?: [ string ](name='NodeIds'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2xdkc6icwfha'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='key001'),
+      value?: string(name='Value', example='value001'),
+    }
+  ](name='Tag'),
+  vscName?: string(name='VscName', example='test_name'),
+}
+
+model ListVscsShrinkRequest {
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='563d42ae0b17572449ec8c97f7f66069'),
+  nodeIdsShrink?: string(name='NodeIds'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-aek2xdkc6icwfha'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='key001'),
+      value?: string(name='Value', example='value001'),
+    }
+  ](name='Tag'),
+  vscName?: string(name='VscName', example='test_name'),
+}
+
+model ListVscsResponseBody = {
+  maxResults?: int32(name='MaxResults', example='0'),
+  nextToken?: string(name='NextToken', description='This parameter is required.', example='3a6b93229825ac667104463b56790c91'),
+  requestId?: string(name='RequestId', description='Id of the request', example='03668372-18FF-5959-98D9-6B36A4643C7A'),
+  totalCount?: int32(name='TotalCount', example='3'),
+  vscs?: [ 
+    {
+      nodeId?: string(name='NodeId', example='e01-cn-fzh47xd7u08'),
+      resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm2zkwhkns57i'),
+      status?: string(name='Status', example='NORMAL'),
+      tags?: [ 
+        {
+          tagKey?: string(name='TagKey', example='key001'),
+          tagValue?: string(name='TagValue', example='value001'),
+        }
+      ](name='Tags'),
+      vscId?: string(name='VscId', description='VscId', example='vsc-001'),
+      vscName?: string(name='VscName', example='test_name'),
+      vscType?: string(name='VscType', example='primary'),
+    }
+  ](name='Vscs'),
+}
+
+model ListVscsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListVscsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询Vsc列表
+ *
+ * @param tmpReq ListVscsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListVscsResponse
+ */
+async function listVscsWithOptions(tmpReq: ListVscsRequest, runtime: Util.RuntimeOptions): ListVscsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListVscsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.nodeIds)) {
+    request.nodeIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.nodeIds, 'NodeIds', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.nodeIdsShrink)) {
+    body['NodeIds'] = request.nodeIdsShrink;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    body['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.vscName)) {
+    body['VscName'] = request.vscName;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListVscs',
+    version = '2022-12-15',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询Vsc列表
+ *
+ * @param request ListVscsRequest
+ * @return ListVscsResponse
+ */
+async function listVscs(request: ListVscsRequest): ListVscsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listVscsWithOptions(request, runtime);
 }
 
 model RebootNodesRequest {
@@ -4203,6 +4558,8 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateNodeGroupRequest {
+  fileSystemMountEnabled?: boolean(name='FileSystemMountEnabled'),
+  keyPairName?: string(name='KeyPairName', description='The name of the key pair.', example='sc-key'),
   newNodeGroupName?: string(name='NewNodeGroupName', description='Node group name', example='test-update'),
   nodeGroupId?: string(name='NodeGroupId', description='Node group ID', example='i120021051733814190732'),
   userData?: string(name='UserData', description='user data', example='#!/bin/bash
@@ -4212,6 +4569,7 @@ echo "aaaaaaa" >> /tmp/ttttt20250110141010.sh'),
 
 model UpdateNodeGroupResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request', example='8F065DDD-6996-5973-9691-9EC57BD0072E'),
+  taskId?: string(name='TaskId', description='Task ID', example='i15374011238111706'),
 }
 
 model UpdateNodeGroupResponse = {
@@ -4232,6 +4590,12 @@ model UpdateNodeGroupResponse = {
 async function updateNodeGroupWithOptions(request: UpdateNodeGroupRequest, runtime: Util.RuntimeOptions): UpdateNodeGroupResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.fileSystemMountEnabled)) {
+    body['FileSystemMountEnabled'] = request.fileSystemMountEnabled;
+  }
+  if (!Util.isUnset(request.keyPairName)) {
+    body['KeyPairName'] = request.keyPairName;
+  }
   if (!Util.isUnset(request.newNodeGroupName)) {
     body['NewNodeGroupName'] = request.newNodeGroupName;
   }
