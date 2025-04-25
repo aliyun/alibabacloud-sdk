@@ -174,7 +174,7 @@ model AddBackendServersRequest {
     {
       ip?: string(name='Ip', description='The IP address of the backend server.', example='192.168.X.X'),
       port?: int32(name='Port', description='The backend port that is used by the ELB instance.', example='3309', minimum=0, maximum=65535),
-      serverId: string(name='ServerId', description='The ID of the backend server.
+      serverId: string(name='ServerId', description='The ID of the ENS instance.
 
 This parameter is required.', example='i-5uf6dwyzch3wly790****'),
       type?: string(name='Type', description='The type of the backend server. Valid values:
@@ -235,7 +235,7 @@ async function addBackendServers(request: AddBackendServersRequest): AddBackendS
 }
 
 model AddNetworkInterfaceToInstanceRequest {
-  autoStart?: boolean(name='AutoStart', description='Specifies whether to specify the instance.', example='true', position='Query'),
+  autoStart?: boolean(name='AutoStart', description='Specifies whether to automatically restart the instance.', example='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.
 
 This parameter is required.', example='yourInstance ID', position='Query'),
@@ -255,8 +255,7 @@ model AddNetworkInterfaceToInstanceResponse = {
 }
 
 /**
-  * @description # [](#)Usage notes
-  * *   You can call this operation up to 100 times per second.
+  * @description *   You can call this operation up to 100 times per second per account.
   * *   You can call this operation up to 5 times per second per user.
   * *   Internal networks and IPv4 addresses are not supported.
   * @param request  the request parameters of AddNetworkInterfaceToInstance  AddNetworkInterfaceToInstanceRequest
@@ -336,11 +335,11 @@ This parameter is required.', example='eip-5sc1sgcrsrwgwdvx44hru3p63', position=
 This parameter is required.', example='lb-5saivuir6b1mupxjfbhmk1xkb', position='Query'),
   instanceType?: string(name='InstanceType', description='The type of instance with which you want to associate the EIP. Valid values:
 
-*   **Nat**: a NAT gateway.
-*   **SlbInstance**: an ELB instance.
-*   **NetworkInterface**: a secondary elastic network interface (ENI).
-*   **NatSlbInstance**: If you want to associate multiple EIPs to an ELB instance, you need to set the parameter to this value.
-*   **EnsInstance** (default): an ENS instance.', example='SlbInstance', position='Query'),
+*   **Nat**: NAT gateway.
+*   **SlbInstance**: Edge Load Balancer (ELB) instance.
+*   **NetworkInterface**: secondary elastic network interface (ENI).
+*   **NatSlbInstance**: If you want to associate multiple EIPs with an ELB instance, you need to set the parameter to this value.
+*   **EnsInstance** (default): ENS instance.', example='SlbInstance', position='Query'),
   standby?: boolean(name='Standby', description='Specifies whether the EIP is a secondary EIP. Valid values:
 
 *   true
@@ -375,8 +374,8 @@ This parameter is required.', example='havip-5p14t****', position='Query'),
 This parameter is required.', example='i-50c4****', position='Query'),
   instanceType?: string(name='InstanceType', description='The type of the instance to be associated with the HAVIP. Valid values:
 
-*   EnsInstance (default): ENS instance.
-*   NetworkInterface: ENI. If you want to associate the HAVIP with an ENI, this parameter is required.', example='EnsInstance', position='Query'),
+*   EnsInstance (default): ENS instance
+*   NetworkInterface: elastic network interface (ENI)', example='EnsInstance', position='Query'),
 }
 
 model AssociateHaVipResponseBody = {
@@ -1029,20 +1028,18 @@ The following limits apply to the **SnapshotId** and **Size** parameters:
 *   If the size of the snapshot specified by **SnapshotId** is smaller than the specified **Size** value, the size of the created disk is equal to the specified **Size** value.', example='s-897654321****', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N of the instance. Valid values of N: **1** to **20**.
+      key?: string(name='Key', description='The key of the tag. Valid values of N: **1** to **20**.
 
 *   The key cannot start with `aliyun`, `acs:`, `http://`, or `https://`.
 *   The key must be up to 64 characters in length.
 *   The tag key cannot be an empty string.', example='pro'),
       value?: string(name='Value', description='The value of a tag that is attached to the topics you want to query. This parameter is not required. If you configure this parameter, you must also configure the **Key** parameter.**** If you include the Key and Value parameters in a request, this operation queries only the topics that use the specified tags. If you do not include these parameters in a request, this operation queries all topics that you can access.
 
-*   Valid values of N: 1 to 20.
+*   Valid values: 1 to 20.
 *   The value of this parameter can be an empty string.
-*   The tag key can be up to 128 characters in length and cannot contain http:// or https://. The tag key cannot start with acs: or aliyun.', example='tagValue'),
+*   The tag value can be up to 128 characters in length. It cannot start with aliyun or acs: and cannot contain http:// or https://.', example='tagValue'),
     }
-  ](name='Tag', description='The tags.
-
-You can specify at most 20 tags.', position='Query'),
+  ](name='Tag', description='The tags of the instance. You can specify at most 20 tags in each call.', position='Query'),
 }
 
 model CreateDiskResponseBody = {
@@ -1070,7 +1067,12 @@ async function createDisk(request: CreateDiskRequest): CreateDiskResponse {
 
 model CreateEipInstanceRequest {
   bandwidth?: long(name='Bandwidth', description='The maximum bandwidth of the EIP. Default value: 5. Valid values: 5 to 10000. Unit: Mbit/s.', example='5', minimum=5, maximum=10000, position='Query'),
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can contain only ASCII characters and cannot exceed 64 characters in length.', example='26C28756-2586-17AF-B802-0DC50D8FDEBB', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. This prevents repeated operations caused by multiple retries.
+
+*   You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can only contain ASCII characters and cannot exceed 64 characters in length.
+*   If you use a ClientToken that has been used and other request parameters remain unchanged in a repeated request, the client will receive the same result as the first request. This does not affect the status of your server.
+*   You can initiate a retry when the operation times out or the error code is PROCESSING. The idempotence is valid. If HTTP status code 200 is returned, the client receives the same result as the last request. However, your server status is not affected. If HTTP status code 4xx is returned and error code is not PROCESSING, the idempotence is invalid.
+*   A client token is valid for 10 minutes.', example='26C28756-2586-17AF-B802-0DC50D8FDEBB', position='Query'),
   description?: string(name='Description', description='The description of the EIP.', example='yourDescription', position='Query'),
   ensRegionId: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.
 
@@ -1142,7 +1144,7 @@ This parameter is required.', example='i-5vb7leks9z4mxy1ay258', position='Query'
   routeTableId: string(name='RouteTableId', description='The ID of the route table to which you want to add a custom route entry.
 
 This parameter is required.', example='vtb-bp1cifr72dioje82lse2j', position='Query'),
-  sourceCidrBlock?: string(name='SourceCidrBlock', description='The new source CIDR block of the inbound or outbound traffic.', example='172.XXX.XXX.0/24', position='Query'),
+  sourceCidrBlock?: string(name='SourceCidrBlock', description='The source CIDR block is available when you configure a route entry in the gateway route table, but is not unavailable when you configure a route entry in the vSwitch route table.', example='172.XXX.XXX.0/24', position='Query'),
 }
 
 model CreateEnsRouteEntryResponseBody = {
@@ -1406,7 +1408,9 @@ async function createForwardEntry(request: CreateForwardEntryRequest): CreateFor
 }
 
 model CreateHaVipRequest {
-  amount?: int32(name='Amount', example='6', minimum=1, maximum=10, position='Query'),
+  amount?: int32(name='Amount', description='The number of HAVIPs that you want to create. Valid values: 1 to 10. The value can be only 1 if you specify an IP address.
+
+Default value: 1.', example='6', minimum=1, maximum=10, position='Query'),
   description?: string(name='Description', example='testDescription', maxLength=128, position='Query'),
   ipAddress?: string(name='IpAddress', example='120.24.243.91', position='Query'),
   name?: string(name='Name', example='yourName', maxLength=256, position='Query'),
@@ -1444,8 +1448,10 @@ model CreateImageRequest {
 This parameter is required.', example='ImageName', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5rr1bnyrc4tswr8cq3w6y****', position='Query'),
   snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='s-bp67acfmxazb4p****', position='Query'),
-  targetOSSRegionId?: string(name='TargetOSSRegionId', description='The region of the target OSS where the image is to be stored.', example='cn-beijing', position='Query'),
-  withDataDisks?: boolean(name='WithDataDisks', position='Query'),
+  targetOSSRegionId?: string(name='TargetOSSRegionId', description='The region of the destination OSS bucket where the image is to be stored.', example='cn-beijing', position='Query'),
+  withDataDisks?: boolean(name='WithDataDisks', description='创建镜像是否包含数据盘。', example='取值
+true：附带数据盘
+false：默认值，不附带数据盘', position='Query'),
 }
 
 model CreateImageResponseBody = {
@@ -1632,7 +1638,12 @@ async function createKeyPair(request: CreateKeyPairRequest): CreateKeyPairRespon
 }
 
 model CreateLoadBalancerRequest {
-  clientToken?: string(name='ClientToken', position='Query'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. This prevents repeated operations caused by multiple retries.
+
+*   You can use the client to generate the token, but you must make sure that the token is unique among different requests. The token can only contain ASCII characters and cannot exceed 64 characters in length.
+*   If you retry an API request with the same client token and request parameters after it has completed successfully, the result of the original request is returned. The server status does not change.
+*   You can initiate a retry when the operation times out or the error code is PROCESSING. The idempotence is valid. If HTTP status code 200 is returned, the client receives the same result as the last request. However, your server status is not affected. If HTTP status code 4xx is returned and error code is not PROCESSING, the idempotence is invalid.
+*   A client token is valid for 10 minutes.', example='26C28756-2586-17AF-B802-0DC50D8FDEBB', position='Query'),
   ensRegionId: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.
 
 This parameter is required.', example='cn-chengdu-telecom', position='Query'),
@@ -1679,7 +1690,7 @@ async function createLoadBalancer(request: CreateLoadBalancerRequest): CreateLoa
 }
 
 model CreateLoadBalancerHTTPListenerRequest {
-  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend ELB server of the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend server of the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
   description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='Monitoring instructions', minLength=1, maxLength=80, position='Query'),
@@ -1707,12 +1718,12 @@ This parameter is required.', example='on', position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Default value: **2**. Unit: seconds.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='2', minimum=1, maximum=50, position='Query'),
-  healthCheckMethod?: string(name='HealthCheckMethod', description='The health check method used in HTTP health checks. Valid values:
+  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP request method for health checks. Valid values:
 
 *   **head** (default)
 *   **get**
 
->  This parameter takes effect only if you set HealthCheck to on.', example='head', position='Query'),
+>  This parameter takes effect only if the HealthCheck parameter is set to on.', example='head', position='Query'),
   healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
@@ -1737,7 +1748,7 @@ This parameter is required.', example='on', position='Query'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Default value: 15. Valid values: **1** to **60**. Unit: seconds.
 
 >  If no request is received within the specified timeout period, ELB closes the connection. When a request is received, ELB creates a new connection.', example='15', minimum=1, maximum=60, position='Query'),
-  listenerForward?: string(name='ListenerForward', description='Specifies whether to enable HTTP-to-HTTPS redirection. Valid values:
+  listenerForward?: string(name='ListenerForward', description='Specifies whether to enable redirection from HTTP to HTTPS. Valid values:
 
 *   **on**
 *   **off** (default)', example='off', position='Query'),
@@ -1752,14 +1763,14 @@ This parameter is required.', example='lb-5s7crik3yo3bp03gqrbp5****', position='
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of a request. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
 >  If no response is received from the backend server within the specified timeout period, ALB returns an HTTP 504 error code to the client.', example='60', minimum=1, maximum=180, position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
-*   **wrr**: Backend servers with higher weights receive more requests than backend servers with lower weights. This is the default value.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wrr** (default): Backend servers with higher weights receive more requests than backend servers with lower weights.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**. Default value: **3**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
@@ -1791,7 +1802,7 @@ async function createLoadBalancerHTTPListener(request: CreateLoadBalancerHTTPLis
 }
 
 model CreateLoadBalancerHTTPSListenerRequest {
-  backendServerPort?: int32(name='BackendServerPort', description='The listening port that is used by the backend instances. Valid values: 1 to 65535.', example='8080', minimum=1, maximum=65535, position='Query'),
+  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080', minimum=1, maximum=65535, position='Query'),
   cookie?: string(name='Cookie', description='The cookie that is configured on the server. The cookie must be **1** to **200** characters in length and contain only ASCII characters and digits.
 
 >  This parameter is required if you set StickySession to on and StickySessionType to server.', example='example', position='Query'),
@@ -1802,7 +1813,7 @@ model CreateLoadBalancerHTTPSListenerRequest {
 
 >  The value cannot start with `http://` or `https://`.', example='https_80', minLength=1, maxLength=80, position='Query'),
   forwardPort?: int32(name='ForwardPort', description='The listener port that is used to redirect HTTP requests to HTTPS.', example='0', minimum=1, maximum=65535, position='Query'),
-  healthCheck: string(name='HealthCheck', description='Specifies whether to enable the health check feature. Valid values:
+  healthCheck: string(name='HealthCheck', description='Indicates whether the health check feature is enabled. Valid values:
 
 *   **on**
 *   **off**
@@ -1825,12 +1836,12 @@ This parameter is required.', example='on', position='Query'),
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Default value: **2**. Unit: seconds.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='2', minimum=1, maximum=50, position='Query'),
-  healthCheckMethod?: string(name='HealthCheckMethod', description='The health check method used by HTTP listeners. Valid values:
+  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP request method for health checks. Valid values:
 
 *   **head** (default): requests the head of the page.
 *   **get**: requests the specified part of the page and returns the entity body.
 
->  This parameter takes effect only if you set HealthCheck to on.', example='head', position='Query'),
+>  This parameter takes effect only if the HealthCheck parameter is set to on.', example='head', position='Query'),
   healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
 
 *   Default value: 5.
@@ -1851,7 +1862,7 @@ This parameter is required.', example='on', position='Query'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Default value: 15. Valid values: **1** to **60**. Unit: seconds.
 
 >  If no request is received within the specified timeout period, ELB closes the connection. When another request is received, ELB establishes a new connection.', example='15', minimum=1, maximum=60, position='Query'),
-  listenerForward?: string(name='ListenerForward', description='Specifies whether to enable HTTP-to-HTTPS redirection. Valid values:
+  listenerForward?: string(name='ListenerForward', description='Specifies whether to enable redirection from HTTP to HTTPS. Valid values:
 
 *   **on**
 *   **off** (default)', example='off', position='Query'),
@@ -1866,23 +1877,23 @@ This parameter is required.', example='lb-5s8w63yydi59w7klaikam****', position='
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
 >  If no response is received from the backend server within the specified timeout period, ELB returns an HTTP 504 error code to the client.', example='60', minimum=1, maximum=180, position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr** (default): Backend servers with higher weights receive more requests than backend servers with lower weights.
 *   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   serverCertificateId: string(name='ServerCertificateId', description='The ID of the server certificate.
 
 This parameter is required.', example='60276**', position='Query'),
-  stickySessionType?: string(name='StickySessionType', description='The method that is used to handle a cookie. Valid values:
+  stickySessionType?: string(name='StickySessionType', description='The method that is used to handle cookies. Valid values:
 
 *   **insert**: inserts a cookie. ELB inserts a session cookie (SERVERID) into the first HTTP or HTTPS response that is sent to a client. Subsequent requests to ELB carry this cookie, and ELB determines the destination servers of the requests based on the cookies.
-*   **server**: rewrites a cookie. When ELB detects a user-defined cookie, it overwrites the original cookie with the user-defined cookie. The next request from the client carries the user-defined cookie, and the listener forwards this request to the recorded backend server.
+*   **server**: rewrites the original cookie. SLB rewrites the custom cookies in requests from a client. Subsequent requests from the client that carry the new cookie are forwarded to the same backend server as the first request.
 
->  This parameter is required if you set StickySession to on.', example='insert', position='Query'),
+>  This parameter is required when the StickySession parameter is set to on.', example='insert', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**. Default value: **3**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
@@ -1914,7 +1925,7 @@ model CreateLoadBalancerTCPListenerRequest {
   description?: string(name='Description', description='The name of the listener. The value must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
-  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
+  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable elastic IP address (EIP) pass-through. Valid values:
 
 *   **on**
 *   **off** (default)', example='on', position='Query'),
@@ -1957,11 +1968,11 @@ This parameter is required.', example='lb-5ovkn1piwqmoqrfjdyhq4****', position='
   scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr** (default): Backend servers with higher weights receive more requests than backend servers with lower weights.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**. Default value: **3**.', example='4', minimum=2, maximum=10, position='Query'),
 }
 
@@ -2110,7 +2121,7 @@ This parameter is required.', example='n-5qj7ykuxmjn7k96l090sp****', position='Q
       value?: string(name='Value', description='The value of tag N that is added to the resource. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length. It cannot start with acs: or contain http:// or https://.', example='Deep'),
     }
   ](name='Tag', description='The tags.', position='Query'),
-  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5savh5ngxh8sbj14bu7n****', position='Query'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the new vSwitch.', example='vsw-5savh5ngxh8sbj14bu7n****', position='Query'),
 }
 
 model CreateNatGatewayResponseBody = {
@@ -2222,7 +2233,7 @@ This parameter is required.', example='10.0.0.0/24', position='Query'),
   description?: string(name='Description', description='The description of the network ACL.
 
 The description must be 1 to 256 characters in length and cannot start with http:// or https://.', example='This is my NetworkAcl.', maxLength=256, position='Query'),
-  direction: string(name='Direction', description='Specifies whether the ACL rule controls inbound or outbound access requests. Valid values:
+  direction: string(name='Direction', description='The direction in which the rule is applied. Valid values:
 
 *   **ingress**
 *   **egress**
@@ -2249,7 +2260,7 @@ This parameter is required.', example='-1/-1', position='Query'),
   priority: int32(name='Priority', description='The priority of the rule. Valid values: **1 to 100**. Default value: **1**.
 
 This parameter is required.', example='1', minimum=1, maximum=100, position='Query'),
-  protocol: string(name='Protocol', description='The protocol. Valid values:
+  protocol: string(name='Protocol', description='The type of the protocol. Valid values:
 
 *   **icmp**: ICMP
 *   **tcp**: TCP
@@ -2362,59 +2373,46 @@ model CreateSecurityGroupRequest {
   description?: string(name='Description', description='The description. The description must be 2 to 256 characters in length. It must start with a letter but cannot start with http:// or https://.', example='testDescription', maxLength=256, position='Query'),
   permissions?: [ 
     {
-      description?: string(name='Description', description='The description of the SDG.
-
->  We recommend that you specify this parameter in details for subsequent queries.', example='testDescription', maxLength=256),
-      destCidrIp?: string(name='DestCidrIp', description='The destination IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.
-
-This parameter is used to support quintuple rules. For more information, see [Security group quintuple rules](https://help.aliyun.com/document_detail/97439.html).', example='0.0.0.0/0'),
+      description?: string(name='Description', description='The description. It must be 2 to 256 characters in length and cannot start with http:// or https://.', example='testDescription', maxLength=256),
+      destCidrIp?: string(name='DestCidrIp', description='The destination IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.', example='0.0.0.0/0'),
       direction: string(name='Direction', description='The direction in which the security group rule is applied.
 
-This parameter is required.', example='ingress'),
-      ipProtocol: string(name='IpProtocol', description='The protocol. The values of this parameter are case-insensitive. Valid values:
+*   egress
+*   ingress
 
-*   TCP.
-*   UDP.
-*   ICMP.
-*   ICMPv6.
-*   GRE.
+This parameter is required.', example='ingress'),
+      ipProtocol: string(name='IpProtocol', description='The protocol type. Valid values:
+
+*   TCP
+*   UDP
+*   ICMP
 *   ALL: All protocols are supported.
 
 This parameter is required.', example='TCP'),
       policy: string(name='Policy', description='The action of the security group rule. Valid values:
 
-*   accept: allows inbound access.
-*   drop: denies inbound access and returns no responses. In this case, the request times out or the connection cannot be established.
-
-Default value: accept.
+*   Accept
+*   Drop
 
 This parameter is required.', example='Accept'),
       portRange: string(name='PortRange', description='The range of destination port numbers for the protocols specified in the security group rule. Valid values:
 
 *   If you set IpProtocol to TCP or UDP, the port number range is 1 to 65535. Specify a port range in the format of \\<Start port number>/\\<End port number>. Example: 1/200.
 *   If you set IpProtocol to ICMP, the port number range is -1/-1.
-*   If you set IpProtocol to GRE, the port number range is -1/-1.
-*   If you set IpProtocol to ALL, the port number range is -1/-1, which indicates all port numbers.
+*   If you set IpProtocol to ALL, the port number range is -1/-1.
 
 This parameter is required.', example='80/80'),
       priority: int32(name='Priority', description='The priority of the security group rule. A smaller value specifies a higher priority. Valid values: 1 to 100.
 
-Default value: 1.
-
 This parameter is required.', example='1', minimum=1, maximum=100),
-      sourceCidrIp?: string(name='SourceCidrIp', description='The source IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.
-
-This parameter is used to support quintuple rules. For more information, see [Security group quintuple rules](https://help.aliyun.com/document_detail/97439.html).', example='0.0.0.0/0'),
+      sourceCidrIp?: string(name='SourceCidrIp', description='The source IPv4 CIDR block. IPv4 CIDR blocks and IPv4 addresses are supported.', example='0.0.0.0/0'),
       sourcePortRange?: string(name='SourcePortRange', description='The range of source port numbers for the protocols specified in the security group rule. Valid values:
 
-*   If you set IpProtocol to TCP or UDP, the port number range is 1 to 65535. Specify a port number range in the format of \\<Start port number>/\\<End port number>. Example: 1/200.
+*   If you set IpProtocol to TCP or UDP, the port number range is 1 to 65535. Specify a port range in the format of \\<Start port number>/\\<End port number>. Example: 1/200.
 *   If you set IpProtocol to ICMP, the port number range is -1/-1.
-*   If you set IpProtocol to GRE, the port number range is -1/-1.
-*   If you set IpProtocol to ALL, the port number range is -1/-1, which indicates all port numbers.
-
-This parameter is used to support quintuple rules. For more information, see [Security group quintuple rules](https://help.aliyun.com/document_detail/97439.html).', example='22/22'),
+*   If you set IpProtocol to ALL, the port number range is -1/-1, which indicates all port numbers.', example='22/22'),
     }
-  ](name='Permissions', description='Schema of Response', shrink='json', position='Query'),
+  ](name='Permissions', description='An array of security group rules. You can specify up to 200 IDs of security group rules.', shrink='json', position='Query'),
   securityGroupName?: string(name='SecurityGroupName', description='The name of the security group. The name must be 2 to 128 characters in length and can contain letters, digits, colons (:), underscores (_), and hyphens (-). It must start with a letter but cannot start with http:// or https://. It can contain letters, digits, colons (:), underscores (_), and hyphens (-). By default, this parameter is empty.', example='Dcdn1:2_3-4', maxLength=128, position='Query'),
 }
 
@@ -2445,7 +2443,7 @@ By default, this parameter is left empty.', example='testDescription', position=
   diskId: string(name='DiskId', description='The ID of the cloud disk.
 
 This parameter is required.', example='d-bp1s5fnvk4gn2tws0****', position='Query'),
-  ensRegionId: string(name='EnsRegionId', description='The ID of the ENS node. You can query the node ID by calling the [DescribeEnsRegions](~~DescribeEnsRegions~~) operation.
+  ensRegionId: string(name='EnsRegionId', description='The ID of the edge node.
 
 This parameter is required.', example='cn-shenzhen-3', position='Query'),
   snapshotName?: string(name='SnapshotName', description='The name of the snapshot. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), and hyphens (-).', example='testSnapshotName', position='Query'),
@@ -2473,14 +2471,12 @@ async function createSnapshot(request: CreateSnapshotRequest): CreateSnapshotRes
 }
 
 model CreateSnatEntryRequest {
-  eipAffinity?: boolean(name='EipAffinity', description='Specifies whether to enable EIP affinity. Valid values:
+  eipAffinity?: boolean(name='EipAffinity', description='Specifies whether to enable IP affinity. If you do not specify this parameter, IP affinity is enabled by default. Valid values:
 
-*   **0**: no
-*   **1**: yes
+*   **false**
+*   **true**
 
-**
-
-**Description** After you enable EIP affinity, if multiple EIPs are associated with an SNAT entry, each client uses one EIP to access the Internet. If EIP affinity is disabled, each client uses a random EIP to access the Internet.', example='false', position='Query'),
+>  After you enable IP affinity, if multiple EIPs are associated with an SNAT entry, one client uses the same EIP to for communication. If IP affinity is disabled, the client uses a random EIP for communication.', example='false', position='Query'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period for idle connections. Valid values: **1** to **86400**. Unit: seconds.', example='15', minimum=1, maximum=86400, position='Query'),
   ispAffinity?: boolean(name='IspAffinity', description='Whether to enable operator affinity. Value taking:
 
@@ -2593,12 +2589,12 @@ This parameter is required.', example='cn-shenzhen-3', position='Query'),
 This parameter is required.', example='sgw-****', position='Query'),
   isAuth?: string(name='IsAuth', description='Specifies whether to enable authentication. Valid values:
 
-*   **1**: enable authentication.
-*   **0** (default): disable authentication.', example='0', position='Query'),
-  isEnable?: string(name='IsEnable', description='Specifies whether to enable the volume. Valid values:
+*   **1**: Authentication is enabled.
+*   **0** (default): Authentication is disabled.', example='0', position='Query'),
+  isEnable?: string(name='IsEnable', description='Indicates whether the volume is enabled. Valid values:
 
-*   **1** (default): enable the volume.
-*   **0**: disable the volume.', example='1', position='Query'),
+*   **1** (default): The volume is enabled.
+*   **0**: The volume is disabled.', example='1', position='Query'),
   storageId: string(name='StorageId', description='The ID of the storage medium.
 
 This parameter is required.', example='si-****', position='Query'),
@@ -3068,14 +3064,7 @@ model DeleteLoadBalancerListenerRequest {
 This parameter is required.', example='8080', minimum=1, maximum=65535, position='Query'),
   listenerProtocol?: string(name='ListenerProtocol', description='The frontend protocol that is used by the ELB instance.
 
->  This parameter is required if the same port is used by listeners that use different protocols.
-
-Valid values:
-
-*   tcp
-*   udp
-*   http
-*   https', example='tcp', position='Query'),
+>  This parameter is required if the same port is used by listeners that use different protocols.', example='tcp', position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
 
 This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='Query'),
@@ -3135,15 +3124,7 @@ async function deleteMountTarget(request: DeleteMountTargetRequest): DeleteMount
 }
 
 model DeleteNatGatewayRequest {
-  forceDelete?: boolean(name='ForceDelete', description='Specifies whether to forcefully delete the VPC. Valid values:
-
-- **true**: yes
-- **false** (default): no
-
-You can forcefully delete a VPC in the following scenarios:
-
-- Only an IPv4 gateway and routes that point to the IPv4 gateway exist in the VPC.
-- Only an IPv6 gateway and routes that point to the IPv6 gateway exist in the VPC.', example='true', position='Query'),
+  forceDelete?: boolean(name='ForceDelete', description='Specifies whether to forcefully delete the NAT instance.', example='true', position='Query'),
   natGatewayId: string(name='NatGatewayId', description='The ID of the NAT gateway that you want to delete.
 
 This parameter is required.', example='nat-5t7nh1cfm6kxiszlttr38****', position='Query'),
@@ -3682,7 +3663,7 @@ asc: ascending order. desc: descending order.', example='{"ServerIdSort":"desc",
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page **1**.
 
 Default value: **1**.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. The maximum value is **100**.
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: **100**.
 
 Default value: **10**.', example='10', maximum=100, position='Query'),
   serverIds?: [ string ](name='ServerIds', description='The IDs of the ARM servers.', shrink='json', position='Query'),
@@ -3791,7 +3772,7 @@ This parameter is required.', example='a2bac6f4-75dc-455e-8389-2dc8e47526d3', po
 
 Default value: National.', example='National', position='Query'),
   outDetailStatParams?: string(name='OutDetailStatParams', description='Specifies whether to return other information about the application, such as statistics on resource instances and pods. The value must be a JSON string. By default, all information is returned.', example='{\\"appInfo\\":true,\\"detailStat\\": true, \\"appVersionStat\\": true, \\"districtStat\\":true ,\\"instanceStat\\": true, \\"podCountStat\\": true}', position='Query'),
-  resourceSelector?: string(name='ResourceSelector', description='The resource filter.', example='[{\\"regionCode\\": \\"cn-wuxi-telecom_unicom_cmcc-3\\",    \\"ispCode\\": \\"telecom\\",    \\"count\\": 2	},{    \\"regionCode\\": \\"cn-shanghai-cmcc\\",    \\"count\\": 4	}]', position='Query'),
+  resourceSelector?: string(name='ResourceSelector', description='The resource filtering condition.', example='[{\\"regionCode\\": \\"cn-wuxi-telecom_unicom_cmcc-3\\",    \\"ispCode\\": \\"telecom\\",    \\"count\\": 2	},{    \\"regionCode\\": \\"cn-shanghai-cmcc\\",    \\"count\\": 4	}]', position='Query'),
 }
 
 model DescribeApplicationResponseBody = {
@@ -4409,7 +4390,7 @@ This parameter is required.', example='e76f8985-7965-41fc-925b-9648bb6bf650', po
   instanceIds?: string(name='InstanceIds', description='The IDs of ENS instances. Separate multiple IDs with commas (,). By default, all instances are queried.', example='i-7ecpqvkicnchxccozrp,i-6ecpqvkicnchxccozrp', position='Query'),
   maxDate?: string(name='MaxDate', description='The end of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-02-01', position='Query'),
   minDate?: string(name='MinDate', description='The beginning of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-01-02', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. This parameter is optional if you want to return the distribution status of all data files.', example='1', minimum=1, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. This parameter is optional if you want to return the push status of all data files.', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. This parameter is optional if you want to return the distribution status of all data files.', example='10', position='Query'),
 }
 
@@ -4520,7 +4501,7 @@ This parameter is required.', example='e76f8985-7965-41fc-925b-9648bb6bf650', po
   dataVersions?: string(name='DataVersions', description='The version number of the data file. Separate multiple numbers with commas (,). By default, all versions of data files are queried.', example='90396', position='Query'),
   maxDate?: string(name='MaxDate', description='The end of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-02-20', position='Query'),
   minDate?: string(name='MinDate', description='The beginning of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-02-15', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. This parameter is optional if you want to return the push status of all data files.', example='1', minimum=1, position='Query'),
+  pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. This parameter is optional if you want to return the push status of all data files.', example='10', position='Query'),
   regionIds?: string(name='RegionIds', description='The IDs of ENS nodes. Separate multiple IDs with commas (,). By default, all ENS nodes are queried.', example='cn-wuhan-telecom_unicom_cmcc-2,cn-jiaozuo-2', position='Query'),
 }
@@ -4788,11 +4769,10 @@ model DescribeDisksResponseBody = {
 *   local_hdd: local HDD.
 *   local_ssd: local SSD.', example='local_ssd'),
       creationTime?: string(name='CreationTime', description='The time when the disk was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-11-11T14:34:55+08:00'),
-      deleteWithInstance?: boolean(name='DeleteWithInstance', description='Specifies whether the disk to be attached is released with the instance. Valid values:
+      deleteWithInstance?: boolean(name='DeleteWithInstance', description='Indicates whether the disk is released when the instance to which the disk is attached is released. Valid values:
 
-*   true: The disk will be released when the ECS instance is released.
-*   false: The disk will be retained when the ECS instance is released.
-*   If you leave this parameter empty, the default value is used.', example='false'),
+*   true: The disk is released when the associated instance is released.
+*   false: The disk is retained when the associated instance is released.', example='false'),
       description?: string(name='Description', description='The namespace description.', example='disk-description'),
       diskChargeType?: string(name='DiskChargeType', description='The billing method of the cloud disk or local disk. Valid values:
 
@@ -4958,14 +4938,14 @@ async function describeEnsCommodityModuleCode(request: DescribeEnsCommodityModul
 model DescribeEnsEipAddressesRequest {
   allocationId?: string(name='AllocationId', description='The ID of the EIP that you want to query. You can specify up to 50 EIP IDs. Separate multiple IDs with commas (,).', example='eip-5q9uwkd9bznjpxz8hr6cirnjk', position='Query'),
   associatedInstanceId?: string(name='AssociatedInstanceId', description='The ID of the instance with which you want to associate the EIP.', example='lb-5t18quoohsrc3xkf86spmnu77', position='Query'),
-  associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of the instance with which you want to associate the EIP. Valid values:
+  associatedInstanceType?: string(name='AssociatedInstanceType', description='The type of the instance that is associated with the EIP. Valid values:
 
 *   **EnsInstance**: ENS instance in a VPC
-*   **SlbInstance**: Edge Load Balancer (ELB) instance', example='SlbInstance', position='Query'),
+*   **SlbInstance**: SLB instance', example='SlbInstance', position='Query'),
   eipAddress?: string(name='EipAddress', description='The EIP that you want to query. You can specify up to 50 EIPs. Separate multiple EIPs with commas (,).', example='192.168.0.1', position='Query'),
   eipName?: string(name='EipName', description='The name of the EIP.', example='test', position='Query'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-chengdu-telecom', position='Query'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='ENS节点ID数组。数组长度：1~100。', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 100. Default value: 10.', example='50', maximum=100, position='Query'),
   standby?: string(name='Standby', description='Specifies whether the EIP is a secondary EIP. Valid values:
@@ -5019,10 +4999,10 @@ model DescribeEnsEipAddressesResponseBody = {
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key'),
-          tagKey?: string(name='TagKey', deprecated='true'),
-          tagValue?: string(name='TagValue', deprecated='true'),
-          value?: string(name='Value'),
+          key?: string(name='Key', example='TestKey'),
+          tagKey?: string(name='TagKey', example='TestKey', deprecated='true'),
+          tagValue?: string(name='TagValue', example='TestValue', deprecated='true'),
+          value?: string(name='Value', example='TestValue'),
         }
       ](name='Tag')
       }(name='Tags'),
@@ -5388,7 +5368,7 @@ model DescribeEnsRouteEntryListResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   routeEntrys?: [ 
     {
-      creationTime?: string(name='CreationTime', description='The time when the entry was created. The time is displayed in UTC.', example='2023-02-16T03:50:05Z'),
+      creationTime?: string(name='CreationTime', description='The time when the IP address was created. The time is displayed in UTC.', example='2023-02-16T03:50:05Z'),
       description?: string(name='Description', description='Enter a description for the route.', example='test'),
       destinationCidrBlock?: string(name='DestinationCidrBlock', description='The destination CIDR block of the route.', example='101.0.45.0/24'),
       nextHops?: [ 
@@ -5401,7 +5381,7 @@ model DescribeEnsRouteEntryListResponseBody = {
       routeEntryId?: string(name='RouteEntryId', description='The ID of the route.', example='rte-2zeksx7h436f5unk349m1'),
       routeEntryName?: string(name='RouteEntryName', description='The name of the route.', example='test0'),
       routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='vtb-uf62p9o5cn35fi8xgurnm'),
-      sourceCidrBlock?: string(name='SourceCidrBlock', description='The new source CIDR block of the inbound or outbound traffic.', example='10.XXX.XXX.0/24'),
+      sourceCidrBlock?: string(name='SourceCidrBlock', description='The source CIDR block. This field is used when you configure a route entry in the gateway route table. This field is not supported in the vSwitch route table.', example='10.XXX.XXX.0/24'),
       status?: string(name='Status', description='The status of the route entry. Valid values:', example='Available'),
       type?: string(name='Type', description='The type of the route entry.', example='Custom'),
     }
@@ -5425,22 +5405,19 @@ async function describeEnsRouteEntryList(request: DescribeEnsRouteEntryListReque
 }
 
 model DescribeEnsRouteTablesRequest {
-  associateType?: string(name='AssociateType', description='The type of the route table. Valid values:
+  associateType?: string(name='AssociateType', description='The type of the resource with which the route table is associated. Valid values:
 
-*   **VSwitch** (default): vSwitch route table
-*   **Gateway**: gateway route table', example='Gateway', position='Query'),
+*   **VSwitch**
+*   **Gateway**', example='Gateway', position='Query'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-xian-unicom', position='Query'),
   ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of edge nodes. You can specify 1 to 100 IDs.', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-257gqcdfvx6n****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', maximum=100, position='Query'),
   routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='vtb-5p1cifr72di****', position='Query'),
-  routeTableName?: string(name='RouteTableName', description='The name of the route table that you want to query.
+  routeTableName?: string(name='RouteTableName', description='The name of the route table.', example='tftest-nat04', maxLength=128, position='Query'),
+  type?: string(name='Type', description='The SNAT type.
 
-The name must be 2 to 128 characters in length, and can contain letters, digits, periods (.), underscores (_), and hyphens (-).', example='tftest-nat04', maxLength=128, position='Query'),
-  type?: string(name='Type', description='The type of the NAT.
-
-*   Empty: symmetric NAT.
 *   FullCone: full cone NAT.', example='FullCone', position='Query'),
 }
 
@@ -5450,16 +5427,14 @@ model DescribeEnsRouteTablesResponseBody = {
   requestId?: string(name='RequestId', description='The ID of the request.', example='DC51ACB0-460D-5CA0-BA2D-E1F3B5547AE9'),
   routeTables?: [ 
     {
-      associateType?: string(name='AssociateType', description='The type of the route table. Valid values:
+      associateType?: string(name='AssociateType', description='The type of the resource with which the route table is associated. Valid values:
 
-*   **VSwitch** (default): vSwitch route table
-*   **Gateway**: gateway route table', example='VSwitch'),
+*   **VSwitch**
+*   **Gateway**', example='VSwitch'),
       creationTime?: string(name='CreationTime', description='The time when the route table was created. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2024-03-08T08:35:18Z'),
-      description?: string(name='Description', description='The description of the network.
-
-The description must be 2 to 256 characters in length. It must start with a letter but cannot start with http:// or https://.', example='test'),
+      description?: string(name='Description', description='The description.', example='test'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing-15'),
-      isDefaultGatewayRouteTable?: boolean(name='IsDefaultGatewayRouteTable', description='Is the gateway routing table the default.', example='false'),
+      isDefaultGatewayRouteTable?: boolean(name='IsDefaultGatewayRouteTable', description='Specifies whether it is the default gateway route table.', example='false'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5v9lufsezl4g****'),
       routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='rt-5xde2bit9****'),
       routeTableName?: string(name='RouteTableName', description='The name of the route table that you want to query.
@@ -6212,7 +6187,7 @@ async function describeForwardTableEntries(request: DescribeForwardTableEntriesR
 
 model DescribeHaVipsRequest {
   ensRegionId?: string(name='EnsRegionId', description='The ID of the region.', example='cn-beijing-cmcc', position='Query'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of edge nodes. You can specify 1 to 100 IDs.', position='Query'),
   haVipAddress?: string(name='HaVipAddress', description='The IP address of the HAVIP.', example='10.5.XX.XX', position='Query'),
   haVipId?: string(name='HaVipId', description='The ID of the HAVIP.', example='havip-5p14t****', position='Query'),
   name?: string(name='Name', description='The name of the HAVIP.', example='test', position='Query'),
@@ -6358,7 +6333,7 @@ This parameter is required.', example='m-5s7qotzavwbrnzaqh4unm****', position='Q
 Default value: **1**.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: **100**.
 
-Default value: **10**', example='10', maximum=100, position='Query'),
+Default value: **10**.', example='10', maximum=100, position='Query'),
 }
 
 model DescribeImageSharePermissionResponseBody = {
@@ -6370,9 +6345,9 @@ model DescribeImageSharePermissionResponseBody = {
   ](name='Account')
   }(name='Accounts', description='The account information.'),
   imageId?: string(name='ImageId', description='The ID of the image.', example='m-5qkf6jv9a0tzd5ipwx5fi****'),
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='100'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='A44EE357-6174-5E37-A801-48F5790F9ACE'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A44EE357-6174-5E37-A801-48F5790F9ACE'),
   totalCount?: int32(name='TotalCount', description='The total number of Alibaba Cloud accounts with which you share the image.', example='2'),
 }
 
@@ -6443,11 +6418,11 @@ qcow2'),
 
 *   Linux
 *   Windows', example='centos'),
-      regionId?: string(name='RegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-qingdao'),
+      regionId?: string(name='RegionId', description='The region ID.', example='cn-qingdao'),
       snapshotId?: string(name='SnapshotId', description='The ID of the snapshot.', example='mock-clone_snapshot_id'),
     }
   ](name='Image')
-  }(name='Images', description='The information about images.'),
+  }(name='Images', description='The information about the images.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='8331AA01-C16D-5481-BB47-D19CEBAA811E'),
@@ -6513,8 +6488,8 @@ model DescribeInstanceBandwidthDetailRequest {
   ensRegionId?: string(name='EnsRegionId', example='cn-beijing-cmcc', position='Query'),
   instanceId?: string(name='InstanceId', example='i-6ecpqvkicnchxccozrpxxxx', position='Query'),
   instanceType?: string(name='InstanceType', example='vm', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 200.', example='10', position='Query'),
   serviceType?: string(name='ServiceType', example='vm', position='Query'),
   startTime: string(name='StartTime', description='This parameter is required.', example='2024-01-11 00:00:00', position='Query'),
 }
@@ -6557,18 +6532,20 @@ async function describeInstanceBandwidthDetail(request: DescribeInstanceBandwidt
 }
 
 model DescribeInstanceBootConfigurationRequest {
-  bootSet?: string(name='BootSet', example='legacy', position='Query'),
-  bootType?: string(name='BootType', example='pxe', position='Query'),
-  diskSet?: string(name='DiskSet', example='on', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='i-****', position='Query'),
+  bootSet?: string(name='BootSet', description='The startup method.', example='legacy', position='Query'),
+  bootType?: string(name='BootType', description='The startup type.', example='pxe', position='Query'),
+  diskSet?: string(name='DiskSet', description='Specifies whether the startup depends on the disk.', example='on', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the instance.
+
+This parameter is required.', example='i-****', position='Query'),
 }
 
 model DescribeInstanceBootConfigurationResponseBody = {
   instances?: {
-    bootSet?: string(name='BootSet', example='legacy'),
-    bootType?: string(name='BootType', example='disk'),
-    diskSet?: string(name='DiskSet', example='off'),
-    instanceId?: string(name='InstanceId', example='i-****'),
+    bootSet?: string(name='BootSet', description='The startup method.', example='legacy'),
+    bootType?: string(name='BootType', description='The startup type.', example='disk'),
+    diskSet?: string(name='DiskSet', description='Specifies whether the startup depends on the disk.', example='off'),
+    instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-****'),
   }(name='Instances', description='Schema of Response'),
   requestId?: string(name='RequestId', description='Id of the request', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
 }
@@ -6580,6 +6557,7 @@ model DescribeInstanceBootConfigurationResponse = {
 }
 
 /**
+  * @description Queries the boot configuration of a heterogeneous PC Farm bare metal instance.
   * @param request  the request parameters of DescribeInstanceBootConfiguration  DescribeInstanceBootConfigurationRequest
   * @return DescribeInstanceBootConfigurationResponse
  */
@@ -6633,7 +6611,7 @@ model DescribeInstanceSDGStatusRequest {
 
 This parameter is required.', example='aic-xxxxx', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1. Default value: 1.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', minimum=1, maximum=100, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned on each page.', example='10', minimum=1, maximum=100, position='Query'),
   SDGIds?: [ string ](name='SDGIds', description='The IDs of SDGs that you want to query. By default, all SDGs are queried.', shrink='json', position='Query'),
   status?: string(name='Status', description='The deployment status of the SDG.', example='success', position='Query'),
 }
@@ -6830,10 +6808,7 @@ model DescribeInstancesResponseBody = {
           diskName?: string(name='DiskName', description='The name of the disk.', example='DiskName'),
           diskSize?: int32(name='DiskSize', description='The size of the disk. Unit: GiB.', example='100'),
           encryptKeyId?: string(name='EncryptKeyId', description='The KMS key ID used by the cloud drive.', example='0e478b7a-4262-4802-b8cb-00d3fxxxxx'),
-          encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the new system disk. Valid values:
-
-*   **true**
-*   **false** (default): no', example='true'),
+          encrypted?: boolean(name='Encrypted', description='Specifies whether to encrypt the disk.', example='true'),
           size?: int32(name='Size', description='The size of the disk. Unit: MiB.', example='51200'),
           deviceType?: string(name='device_type', description='The extended field of the disk category. Valid values:
 
@@ -7016,12 +6991,12 @@ async function describeInstances(request: DescribeInstancesRequest): DescribeIns
 
 model DescribeKeyPairsRequest {
   keyPairId?: string(name='KeyPairId', description='The ID of the key pair.', example='ssh-50cynkq42sgj4ej1tn78t4***', position='Query'),
-  keyPairName?: string(name='KeyPairName', description='The name of the key pair. The name must be 2 to 128 characters in length. The name must start with a letter but cannot start with `http://` or `https://`. The name can contain the following characters:
+  keyPairName?: string(name='KeyPairName', description='The name of the key pair that you want to bind to the simple application server. The name must be 2 to 128 characters in length. The name must start with a letter but cannot start with `http://` or `https://`. The name can contain the following characters:
 
-*   Digits
+*   Numbers.
 *   :
 *   _
-*   *
+*   .
 
 You can specify only one name. By default, all key pairs are queried.', example='TestKeyPairName', position='Query'),
   pageNumber?: string(name='PageNumber', description='The page number of the returned page. Valid values: integers that are greater than 0. Default value: 1.', example='1', position='Query'),
@@ -7136,7 +7111,7 @@ This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='
 }
 
 model DescribeLoadBalancerHTTPListenerAttributeResponseBody = {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend server of the ELB instance. Valid values: **1** to **65535**.', example='8080'),
   bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB) instance. The default value is -1, which indicates that the bandwidth is not limited.', example='-1'),
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
 
@@ -7254,7 +7229,7 @@ This parameter is required.', example='lb-5qoxu2rsr0ytanpn4r3i****', position='Q
 }
 
 model DescribeLoadBalancerHTTPSListenerAttributeResponseBody = {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend server of the ELB instance. Valid values: **1** to **65535**.', example='8080'),
   bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB). The default value is -1, which indicates that the bandwidth is not limited.', example='50'),
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.', example='abc'),
   forwardPort?: int32(name='ForwardPort', description='The listener port that is used to redirect HTTP requests to HTTPS.', example='0'),
@@ -7391,7 +7366,7 @@ model DescribeLoadBalancerListenMonitorResponseBody = {
       proto?: string(name='Proto', description='The network protocol.', example='tcp'),
       vPort?: string(name='VPort', description='The VIP port of the ELB instance.', example='80'),
       validRsNum?: string(name='ValidRsNum', description='The number of available servers that are attached to the monitored ELB instance.', example='2'),
-      vip?: string(name='Vip', description='The VIP of the instance.', example='10.8.*.*'),
+      vip?: string(name='Vip', description='The virtual IP address (VIP) of the instance.', example='10.8.*.*'),
       vni?: string(name='Vni', description='The ID of the tunnel.', example='53284'),
     }
   ](name='LoadBalancerMonitorListenData', description='The TCP/UDP monitoring data of the ELB instance.'),
@@ -7506,7 +7481,7 @@ async function describeLoadBalancerSpec(request: DescribeLoadBalancerSpecRequest
 }
 
 model DescribeLoadBalancerTCPListenerAttributeRequest {
-  listenerPort: int32(name='ListenerPort', description='The frontend port that is used by the Edge Load Balance (ELB) instance. Valid values: **1** to **65535**.
+  listenerPort: int32(name='ListenerPort', description='The listening port that you want to query. Valid values: **1** to **65535**.
 
 This parameter is required.', example='80', minimum=0, maximum=65535, position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
@@ -7515,9 +7490,9 @@ This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='
 }
 
 model DescribeLoadBalancerTCPListenerAttributeResponseBody = {
-  backendServerPort?: int32(name='BackendServerPort', description='The backend port that is used by the ELB instance. Valid values: **1** to **65535**.', example='8080'),
-  bandwidth?: int32(name='Bandwidth', description='The maximum bandwidth of the elastic IP address (EIP). Default value: 5. Valid values: **5** to **10000**. Unit: Mbit/s.', example='5'),
-  description?: string(name='Description', description='The description of the listener.', example='example'),
+  backendServerPort?: int32(name='BackendServerPort', description='The port used by the backend server of the ELB instance. Valid values: **1** to **65535**.', example='8080'),
+  bandwidth?: int32(name='Bandwidth', description='The peak bandwidth of the Edge Load Balancer (ELB) instance. The default value is -1, which indicates that the bandwidth is not limited.', example='5'),
+  description?: string(name='Description', description='The name of the listener.', example='example'),
   eipTransmit?: string(name='EipTransmit', description='Indicates whether EIP pass-through is enabled. Valid values:
 
 *   **on**
@@ -7530,7 +7505,7 @@ model DescribeLoadBalancerTCPListenerAttributeResponseBody = {
   healthCheckConnectPort?: int32(name='HealthCheckConnectPort', description='The port that is used for health checks. Valid values: **1** to **65535**. If an empty string is returned for this parameter, the port specified by BackendServerPort is used for health checks.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='8000'),
-  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period of a health check response. If a backend server does not respond within the specified timeout period, the server fails to pass the health check.
+  healthCheckConnectTimeout?: int32(name='HealthCheckConnectTimeout', description='The timeout period for a health check response. If a backend server does not respond within the specified timeout period, the server fails the health check.
 
 *   Default value: 5.
 *   Valid values: **1** to **300**.
@@ -7538,9 +7513,9 @@ model DescribeLoadBalancerTCPListenerAttributeResponseBody = {
 
 > 
 
-*   This parameter is returned only if you set HealthCheck to on.
+*   This parameter takes effect only if the HealthCheck parameter is set to on.
 
-*   If the value of the HealthCheckConnectTimeout parameter is smaller than that of the HealthCheckInterval parameter, the timeout period specified by the HealthCheckConnectTimeout parameter becomes invalid and the value of the HealthCheckInterval parameter is used as the timeout period.', example='100'),
+*   If the value of the HealthCheckTimeout property is smaller than the value of the HealthCheckInterval property, the timeout period specified by the HealthCheckTimeout property becomes invalid and the value of the HealthCheckInterval property is used as the timeout period.', example='100'),
   healthCheckDomain?: string(name='HealthCheckDomain', description='The domain name that is used for health checks.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='example.com'),
@@ -7557,13 +7532,13 @@ model DescribeLoadBalancerTCPListenerAttributeResponseBody = {
 
 *   **tcp** (default)
 *   **http**', example='tcp'),
-  healthCheckURI?: string(name='HealthCheckURI', description='The Uniform Resource Identifier (URI) that is used for health checks. The URI must be **1** to **80** characters in length.
+  healthCheckURI?: string(name='HealthCheckURI', description='The URI used for health checks. The URI must be **1** to **80** characters in length.
 
 > 
 
-*   The URL must start with a forward slash (`/`) and contain characters other than forward slashes (`/`).
+*   A URL must start with a forward slash (`/`) but cannot contain only forward slashes (`/`).
 
-*   This parameter is returned only if you set HealthCheck to on.', example='/example/index.html'),
+*   This parameter takes effect only if the HealthCheck parameter is set to on.', example='/example/index.html'),
   healthyThreshold?: int32(name='HealthyThreshold', description='The number of consecutive successful health checks that must occur before an unhealthy and inaccessible backend server is declared healthy and accessible. Valid values: **2** to **10**.
 
 >  This parameter is returned only if you set HealthCheck to on.', example='4'),
@@ -7832,8 +7807,8 @@ This parameter is required.', example='cn-beijing-cmcc', position='Query'),
 
 This parameter is required.', example='c50f8*****', position='Query'),
   mountTargetName?: string(name='MountTargetName', description='The name of the mount target.', example='TestMountPath', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. The maximum value is 100. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the page to return. Pages start from page 1. Default value: 1', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries returned per page. Maximum value: 100. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
 }
 
 model DescribeMountTargetsResponseBody = {
@@ -8005,10 +7980,10 @@ async function describeNCInformation(request: DescribeNCInformationRequest): Des
 
 model DescribeNatGatewaysRequest {
   ensRegionId?: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) node.', example='cn-wuxi-9', position='Query'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', description='The node information.', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of edge nodes. You can specify 1 to 100 IDs.', position='Query'),
   name?: string(name='Name', description='The name of the NAT gateway.', example='test0', position='Query'),
   natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='nat-5t7nh1cfm6kxiszlttr38****', position='Query'),
-  natGatewayIds?: [ string ](name='NatGatewayIds', description='The IDs of NAT Gateways.', position='Query'),
+  natGatewayIds?: [ string ](name='NatGatewayIds', description='The IDs of the NAT gateways. You can specify 1 to 100 IDs.', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page **1**.
 
@@ -8026,31 +8001,30 @@ model DescribeNatGatewaysResponseBody = {
       ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-xiangyang-5'),
       ipLists?: [ 
         {
-          allocationId?: string(name='AllocationId', description='The ID of the instance.', example='eip-50g****'),
-          ipAddress?: string(name='IpAddress', description='The IP address of the EIP associated with the NAT gateway.', example='8.XX.XX.162'),
+          allocationId?: string(name='AllocationId', description='The ID of the EIP.', example='eip-50g****'),
+          ipAddress?: string(name='IpAddress', description='The EIP.', example='8.XX.XX.162'),
           usingStatus?: string(name='UsingStatus', description='The association between the EIP and the Internet NAT gateway. Valid values:
 
 *   **UsedByForwardTable**: The EIP is specified in a DNAT entry.
 *   **UsedBySnatTable**: The EIP is specified in an SNAT entry.
-*   **UsedByForwardSnatTable**: The EIP is specified in both an SNAT entry and a DNAT entry.
-*   **Idle**: The EIP is not specified in a DNAT or SNAT entry.', example='Idle'),
+*   **Idle**: The EIP is not specified in an SNAT entry or a DNAT entry.', example='Idle'),
         }
-      ](name='IpLists', description='The list of elastic IP addresses (EIPs) that are associated with the Internet NAT gateway.'),
+      ](name='IpLists', description='The EIPs that are associated with the NAT gateway.'),
       name?: string(name='Name', description='The name of the NAT gateway.', example='test0'),
       natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='nat-5t7nh1cfm6kxiszlttr38****'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5s2ml1olj0kzaws9n1yrj****'),
       spec?: string(name='Spec', description='The type of the NAT gateway.', example='enat.default'),
-      status?: string(name='Status', description='The status of the SNAT entry.
+      status?: string(name='Status', description='The status of the NAT gateway. Valid values:
 
-*   Pending: The SNAT entry is being created or modified.
-*   Available: The SNAT entry is available.
-*   Deleting: The SNAT entry is being deleted.', example='Available'),
+*   **Creating**: After you send a request to create a NAT gateway, the system creates the NAT gateway in the background. The NAT gateway remains in the Creating state until the operation is completed.
+*   **Available**: The NAT gateway is in the Available state after the creation is complete.
+*   **Deleting**: After you send a request to delete a NAT gateway, the system deletes the NAT gateway in the background. The NAT gateway remains in the Deleting state until the operation is completed.', example='Available'),
       tags?: [ 
         {
-          key?: string(name='Key'),
-          tagKey?: string(name='TagKey', deprecated='true'),
-          tagValue?: string(name='TagValue', deprecated='true'),
-          value?: string(name='Value'),
+          key?: string(name='Key', example='TestKey'),
+          tagKey?: string(name='TagKey', example='TestKey', deprecated='true'),
+          tagValue?: string(name='TagValue', example='TestValue', deprecated='true'),
+          value?: string(name='Value', example='TestValue'),
         }
       ](name='Tags'),
       vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5szpp1os9m55myirbflfw****'),
@@ -8204,9 +8178,7 @@ model DescribeNetworkAttributeResponseBody = {
   createdTime?: string(name='CreatedTime', description='The time when the network was created. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mm:ssZ format. The time is displayed in UTC.', example='2019-06-01T00:00:00Z'),
   description?: string(name='Description', description='The description of the network.', example='abc'),
   ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing'),
-  gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table associated with the IPv6 gateway.
-
->  This parameter is available only when the IPv6 gateway is associated with a gateway route table.', example='rt-539***tbs'),
+  gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table.', example='rt-539***tbs'),
   haVipIds?: {
     haVipId?: [ string ](name='HaVipId')
   }(name='HaVipIds', description='List of HaVipIds.'),
@@ -8226,7 +8198,7 @@ model DescribeNetworkAttributeResponseBody = {
   }(name='NetworkInterfaceIds', description='A list of multicast source IDs.'),
   networkName?: string(name='NetworkName', description='The name of the network.', example='abc'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  routeTableId?: string(name='RouteTableId', description='The ID of the route table that you want to query.', example='rt-539***fpu'),
+  routeTableId?: string(name='RouteTableId', description='The ID of the route table.', example='rt-539***fpu'),
   routeTableIds?: {
     routeTableId?: [ string ](name='RouteTableId')
   }(name='RouteTableIds', description='List of routing table IDs.'),
@@ -8259,12 +8231,12 @@ async function describeNetworkAttribute(request: DescribeNetworkAttributeRequest
 
 model DescribeNetworkInterfacesRequest {
   ensRegionId?: string(name='EnsRegionId', description='The region ID of the instance.', example='cn-tianjin-cmcc', position='Query'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', description='The node information.', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of edge nodes. N indicates the number of edge node IDs that you can specify at the same time. Valid values of N: 1 to 100.', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-5t7z99n32gplriv', position='Query'),
   ipv6Address?: [ string ](name='Ipv6Address', description='IPv6 addresses N of the ENI. You can specify multiple IPv6 addresses. Valid values of N: 1 to 100.', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the network.', example='n-2zeuphj08tt7q3brd****', position='Query'),
   networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the ENI.', example='eni-58z57orgmt6d1****', position='Query'),
-  networkInterfaceIds?: [ string ](name='NetworkInterfaceIds', description='A list of multicast source IDs.', position='Query'),
+  networkInterfaceIds?: [ string ](name='NetworkInterfaceIds', description='The IDs of the elastic network interfaces (ENIs). N indicates the number of ENI IDs that you can specify at the same time. Valid values of N: 1 to 100.', position='Query'),
   networkInterfaceName?: string(name='NetworkInterfaceName', description='The name of the ENI.', example='test-01', maxLength=128, position='Query'),
   pageNumber?: string(name='PageNumber', description='The page number of the returned page. Pages start from page 1. Default value: 1.', example='1', position='Query'),
   pageSize?: string(name='PageSize', description='The number of entries to return on each page. Maximum value: 100. Default value: 50.', example='50', maximum=100, position='Query'),
@@ -8380,9 +8352,7 @@ model DescribeNetworksResponseBody = {
       createdTime?: string(name='CreatedTime', description='The timestamp when the instance was created. Unit: milliseconds.', example='2020-06-16T06:33:15Z'),
       description?: string(name='Description', description='The description of the network.', example='exampleDescription'),
       ensRegionId?: string(name='EnsRegionId', description='The ID of the edge node.', example='cn-beijing'),
-      gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table associated with the IPv6 gateway.
-
->  This parameter is available only when the IPv6 gateway is associated with a gateway route table.', example='rt-5*****tbs'),
+      gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The ID of the gateway route table.', example='rt-5*****tbs'),
       networkAclId?: string(name='NetworkAclId', description='The ID of the network access control list (ACL).', example='nacl-a2do9e413e0spxscd****'),
       networkId?: string(name='NetworkId', description='The ID of the network.', example='n-5***'),
       networkName?: string(name='NetworkName', description='The name of the network.', example='example'),
@@ -8398,10 +8368,10 @@ model DescribeNetworksResponseBody = {
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key'),
-          tagKey?: string(name='TagKey', deprecated='true'),
-          tagValue?: string(name='TagValue', deprecated='true'),
-          value?: string(name='Value'),
+          key?: string(name='Key', example='TestKey'),
+          tagKey?: string(name='TagKey', example='TestKey', deprecated='true'),
+          tagValue?: string(name='TagValue', example='TestValue', deprecated='true'),
+          value?: string(name='Value', example='TestValue'),
         }
       ](name='Tag')
       }(name='Tags'),
@@ -8944,9 +8914,9 @@ async function describeResourceTimeline(request: DescribeResourceTimelineRequest
 
 model DescribeSDGRequest {
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page.
 
-Default value: 10', example='10', minimum=1, maximum=100, position='Query'),
+Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
   SDGIds?: [ string ](name='SDGIds', description='The IDs of SDGs that you want to query. By default, all SDGs are queried.', shrink='json', position='Query'),
 }
 
@@ -9263,10 +9233,10 @@ model DescribeSecurityGroupsResponseBody = {
       instanceCount?: int32(name='InstanceCount', description='The number of associated instances.', example='5'),
       instanceIds?: {
         instanceId?: [ string ](name='InstanceId')
-      }(name='InstanceIds', description='The list of instance IDs.'),
+      }(name='InstanceIds', description='The IDs of the instances that are associated with the security group.'),
       networkInterfaceIds?: {
         networkInterfaceId?: [ string ](name='NetworkInterfaceId')
-      }(name='NetworkInterfaceIds', description='The IDs of ENIs.'),
+      }(name='NetworkInterfaceIds', description='The IDs of the ENIs that are associated with the security group.'),
       securityGroupId?: string(name='SecurityGroupId', description='The ID of the security group.', example='sg-bp67acfmxazb4ph***'),
       securityGroupName?: string(name='SecurityGroupName', description='The name of the security group.', example='DocTest'),
     }
@@ -9536,7 +9506,7 @@ async function describeServerLoadBalancerMonitor(request: DescribeServerLoadBala
 
 model DescribeSnapshotsRequest {
   diskId?: string(name='DiskId', description='The ID of the disk.', example='d-bp67acfmxazb4p****', position='Query'),
-  ensRegionId?: string(name='EnsRegionId', description='The region ID of the disk. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent list of regions.', example='cn-hangzhou', position='Query'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node. You can query the node ID by calling the [DescribeEnsRegions](https://help.aliyun.com/document_detail/2637662.html) operation.', example='cn-hangzhou', position='Query'),
   ensRegionIds?: string(name='EnsRegionIds', description='The node information.', example='["cn-suzhou-telecom","cn-chengdu-telecom"]', position='Query'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='i-bp67acfmxazb4p****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
@@ -9605,14 +9575,12 @@ This parameter is required.', example='snat-5tc08qfj5ecblfdn2rqr9****', position
 model DescribeSnatAttributeResponseBody = {
   creationTime?: string(name='CreationTime', description='The time when the entry was created. The time is displayed in UTC.', example='2020-04-26T15:38:27Z'),
   destCIDR?: string(name='DestCIDR', description='The destination CIDR block. The rule takes effect only on requests that access the destination CIDR block.', example='101.10. XX.XX/24'),
-  eipAffinity?: boolean(name='EipAffinity', description='Specifies whether to enable EIP affinity. Valid values:
+  eipAffinity?: boolean(name='EipAffinity', description='Specifies whether to enable IP affinity. Valid values:
 
-*   **0**: no
-*   **1**: yes
+*   **false**
+*   **true**
 
-**
-
-**Description** After you enable EIP affinity, if multiple EIPs are associated with an SNAT entry, each client uses one EIP to access the Internet. If EIP affinity is disabled, each client uses a random EIP to access the Internet.', example='false'),
+>  After you enable IP affinity, if multiple EIPs are associated with an SNAT entry, one client uses the same EIP to for communication. If IP affinity is disabled, the client uses a random EIP for communication.', example='false'),
   idleTimeout?: int32(name='IdleTimeout', description='The timeout period. Unit: seconds.', example='10'),
   ispAffinity?: boolean(name='IspAffinity', description='Whether to enable operator affinity. Value taking:
 - false:Do not open.
@@ -9965,12 +9933,12 @@ async function describeVSwitchAttributes(request: DescribeVSwitchAttributesReque
 
 model DescribeVSwitchesRequest {
   ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-xian-unicom', position='Query'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', description='The node information.', position='Query'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of edge nodes. You can specify 1 to 100 IDs.', position='Query'),
   networkId?: string(name='NetworkId', description='The ID of the VPC to which the vSwitch belongs.', example='vpc-25cdvfeq58pl****', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **50**. Default value: **10**.', example='10', maximum=100, position='Query'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5m9xhlq8oh***', position='Query'),
-  vSwitchIds?: [ string ](name='VSwitchIds', description='The list of vSwitches in the network.', position='Query'),
+  vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of vSwitches. You can specify 1 to 100 IDs.', position='Query'),
   vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch.', example='testVSwitchName', position='Query'),
 }
 
@@ -9995,10 +9963,10 @@ model DescribeVSwitchesResponseBody = {
       tags?: {
         tag?: [ 
         {
-          key?: string(name='Key'),
-          tagKey?: string(name='TagKey', deprecated='true'),
-          tagValue?: string(name='TagValue', deprecated='true'),
-          value?: string(name='Value'),
+          key?: string(name='Key', example='TestKey'),
+          tagKey?: string(name='TagKey', example='TestKey', deprecated='true'),
+          tagValue?: string(name='TagValue', example='TestValue', deprecated='true'),
+          value?: string(name='Value', example='TestValue'),
         }
       ](name='Tag')
       }(name='Tags'),
@@ -10595,6 +10563,7 @@ model JoinVSwitchesToEpnInstanceResponse = {
 }
 
 /**
+  * @description For the Internal Connection mode and the Intelligent Acceleration and Internal Connection mode, instances of the vSwitch take effect automatically. You do not need to manually add instances. For public connections such as intelligent acceleration, you need to call an operation to manually add the instances to Internet-facing instances.
   * @param request  the request parameters of JoinVSwitchesToEpnInstance  JoinVSwitchesToEpnInstanceRequest
   * @return JoinVSwitchesToEpnInstanceResponse
  */
@@ -10646,7 +10615,7 @@ Default value: National.', example='National', position='Query'),
   maxDate?: string(name='MaxDate', description='The end of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-02-20', position='Query'),
   minDate?: string(name='MinDate', description='The beginning of the time range to query. Specify the time in the 2006-01-02 format. By default, the time range to query is not restricted.', example='2022-02-15', position='Query'),
   outAppInfoParams?: string(name='OutAppInfoParams', description='Specifies whether to return other information about the application, such as statistics on resource instances and pods. The value must be a JSON string. By default, all information is returned.', example='{\\"appInfo\\":true,\\"detailStat\\": true, \\"appVersionStat\\": true, \\"districtStat\\":true ,\\"instanceStat\\": true, \\"podCountStat\\": true}', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. This parameter is optional if you want to return all information about the applications.', example='1', minimum=1, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. This parameter is optional if you want to return the push status of all data files.', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. This parameter is optional if you want to return all information about the applications.', example='10', position='Query'),
 }
 
@@ -10876,8 +10845,8 @@ model ListProductAbilitiesRequest {
 }
 
 model ListProductAbilitiesResponseBody = {
-  productAbilities?: [ string ](name='ProductAbilities'),
-  requestId?: string(name='RequestId', example='xxxxx-75ED-422E-A022-7121FA18C968'),
+  productAbilities?: [ string ](name='ProductAbilities', description='Products supported by the edge node.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='xxxxx-75ED-422E-A022-7121FA18C968'),
 }
 
 model ListProductAbilitiesResponse = {
@@ -10898,7 +10867,7 @@ async function listProductAbilities(request: ListProductAbilitiesRequest): ListP
 model ListTagResourcesRequest {
   nextToken?: string(name='NextToken', description='The token of the first page to query.', example='153ba0bbb2be03f84eb48b699f0a4123', position='Query'),
   resourceId?: [ string ](name='ResourceId', description='The IDs of resources. Valid values of N: 1 to 50.', position='Query'),
-  resourceType: string(name='ResourceType', description='The type of the resource. Set the value to instance.
+  resourceType: string(name='ResourceType', description='The resource type. Set the value to instance.
 
 This parameter is required.', example='instance', position='Query'),
   tag?: [ 
@@ -11064,22 +11033,25 @@ async function modifyFileSystem(request: ModifyFileSystemRequest): ModifyFileSys
 }
 
 model ModifyForwardEntryRequest {
-  externalIp?: string(name='ExternalIp', description='The elastic IP address (EIP) that is used to access the Internet.', example='121.XXX.XXX.28', position='Query'),
+  externalIp?: string(name='ExternalIp', description='The EIP in the DNAT entry. The public IP address is used to access the Internet.', example='121.XXX.XXX.28', position='Query'),
   externalPort?: string(name='ExternalPort', description='The external port or port range that is used for port forwarding.
 
 *   Valid values: 1 to 65535.
-*   To specify a port range, separate the first port and the last port with a forward slash (/), such as 10/20.
-*   If you set ExternalPort to a port range, you must also set InternalPort to a port range. The number of ports in the port ranges must be the same. For example, if you set ExternalPort to 10/20, you can set InternalPort to 80/90.', example='22', position='Query'),
+*   To specify a port range, separate the first port and the last port with a forward slash (/), such as 10/20. The first port and the last port are included.
+*   If you set ExternalPort to a port range, you must also set InternalPort to a port range. The number of ports in the port ranges must be the same. For example, if you set ExternalPort to 10/20, you can set InternalPort to 80/90.
+*   The maximum port range is 1000.', example='22', position='Query'),
   forwardEntryId: string(name='ForwardEntryId', description='The ID of the DNAT entry.
 
 This parameter is required.', example='dnat-5tfjp3537mi6iokl59g5c****', position='Query'),
   forwardEntryName?: string(name='ForwardEntryName', description='The name of the DNAT entry. The name must be 2 to 128 characters in length. It cannot start with `http://` or `https://`.', example='test0', maxLength=128, position='Query'),
   healthCheckPort?: int32(name='HealthCheckPort', description='The probe port. The port must be within the internal port range. By default, this parameter is left empty.', example='80', minimum=0, maximum=65535, position='Query'),
   internalIp?: string(name='InternalIp', description='The private IP address of the instance that uses the DNAT entry for Internet communication.', example='10.XXX.XXX.50', position='Query'),
-  internalPort?: string(name='InternalPort', description='The internal port or port range that is used for port forwarding.
+  internalPort?: string(name='InternalPort', description='The private port or port range that is used in port forwarding.
 
 *   Valid values: 1 to 65535.
-*   To specify a port range, separate the first port and the last port with a forward slash (/), such as 10/20.', example='22', position='Query'),
+*   To specify a port range, separate the first port and the last port with a forward slash (/), such as 10/20. The first port and the last port are included.
+*   If you set InternalPort to a port range, you must also set ExternalPort to a port range. The number of ports in the port ranges must be the same. For example, if you set ExternalPort to 10/20, you can set InternalPort to 80/90.
+*   The maximum port range is 1000.', example='22', position='Query'),
   ipProtocol?: string(name='IpProtocol', description='The protocol. Valid values:
 
 *   **TCP**: forwards TCP packets.
@@ -11300,6 +11272,7 @@ false (default): does not enable auto-payment. The order is generated but not pa
 true: enables auto-renewal for the instance.
 
 false', example='false', position='Query'),
+  billingCycle?: string(name='BillingCycle', position='Query'),
   includeDataDisks?: boolean(name='IncludeDataDisks', description='Specifies whether to change the billing method of all data disks that are created with the instance to subscription when you change the billing method of the instance from pay-as-you-go to subscription. Valid values:
 
 true
@@ -11531,11 +11504,16 @@ async function modifySnapshotAttribute(request: ModifySnapshotAttributeRequest):
 }
 
 model ModifySnatEntryRequest {
-  eipAffinity?: boolean(name='EipAffinity', position='Query'),
+  eipAffinity?: boolean(name='EipAffinity', description='Specifies whether to enable IP affinity. Default value: true. Valid values:
+
+*   **false**
+*   **true**
+
+>  Description After you enable IP affinity, if multiple EIPs are associated with an SNAT entry, one client uses the same EIP to for communication. If IP affinity is disabled, the client uses a random EIP for communication.', example='false', position='Query'),
   ispAffinity?: boolean(name='IspAffinity', example='true', position='Query'),
   snatEntryId: string(name='SnatEntryId', description='This parameter is required.', example='snat-5tfjp36fsrb36zs36faj0****', position='Query'),
   snatEntryName?: string(name='SnatEntryName', example='test0', maxLength=128, position='Query'),
-  snatIp?: string(name='SnatIp', position='Query'),
+  snatIp?: string(name='SnatIp', description='Separate multiple EIPs in the SNAT entry with commas (,).', example='120.XXX.XXX.71', position='Query'),
 }
 
 model ModifySnatEntryResponseBody = {
@@ -11558,17 +11536,17 @@ async function modifySnatEntry(request: ModifySnatEntryRequest): ModifySnatEntry
 }
 
 model ModifyVSwitchAttributeRequest {
-  description?: string(name='Description', description='The description of the vSwitch.
+  description?: string(name='Description', description='The description of the listener.
 
 *   The description must be 2 to 256 characters in length.
-*   The description cannot start with http:// or https://.', example='this is my first network', minLength=2, maxLength=256, position='Query'),
+*   It must start with a letter but cannot start with http:// or https://.', example='this is my first network', minLength=2, maxLength=256, position='Query'),
   vSwitchId: string(name='VSwitchId', description='The ID of the vSwitch.
 
 This parameter is required.', example='n-****', position='Query'),
   vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch.
 
-*   The name must be 2 to 128 characters in length.
-*   The name must start with a letter and cannot start with http:// or https://.', example='Test-switch', minLength=2, maxLength=128, position='Query'),
+*   The name must be 2 to 128 characters in length and can contain letters, digits, colons (:), underscores (_), and hyphens (-).
+*   It must start with a letter but cannot start with http:// or https://.', example='Test-switch', minLength=2, maxLength=128, position='Query'),
 }
 
 model ModifyVSwitchAttributeResponseBody = {
@@ -11641,7 +11619,7 @@ model PreloadRegionSDGRequest {
   destinationRegionIds: [ string ](name='DestinationRegionIds', description='The IDs of the destination nodes.
 
 This parameter is required.', shrink='json', position='Query'),
-  namespaces?: [ string ](name='Namespaces', description='The namespaces.', shrink='json', position='Query'),
+  namespaces?: [ string ](name='Namespaces', description='An array that consists of queried namespaces.', shrink='json', position='Query'),
   redundantNum: int32(name='RedundantNum', description='The number of redundant replicas to support rapid deployment.
 
 This parameter is required.', example='2', minimum=1, maximum=20, position='Query'),
@@ -11660,7 +11638,7 @@ model PreloadRegionSDGResponseBody = {
           destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination node.', example='cn-hangzhou-xxx'),
           errorMessage?: string(name='ErrorMessage', description='The error message that is returned.', example='region not found'),
         }
-      ](name='FailedItems', description='Details about failed tasks.'),
+      ](name='FailedItems', description='Details about the failed tasks.'),
       successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
     }(name='Result', description='The execution result of the synchronization request.'),
     success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
@@ -11951,10 +11929,10 @@ async function rebootARMServerInstance(request: RebootARMServerInstanceRequest):
 }
 
 model RebootInstanceRequest {
-  forceStop?: string(name='ForceStop', description='Indicates whether to stop the instance forcibly before you reboot it. Default value: false. Valid values:
+  forceStop?: string(name='ForceStop', description='Specifies whether to forcefully stop the instance before you restart it.
 
 *   **true**
-*   **false**', example='true', position='Query'),
+*   **false** (default)', example='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance that you want to reboot. You can specify only one instance ID.
 
 This parameter is required.', example='i-instanceid****', position='Query'),
@@ -12482,11 +12460,13 @@ model RescaleApplicationRequest {
   appId: string(name='AppId', description='The ID of the application. You can query the application ID by calling the ListApplications operation.
 
 This parameter is required.', example='474bdef0-d149-4695-abfb-52912d9143f0', position='Query'),
-  rescaleLevel?: string(name='RescaleLevel', description='The level of resource scaling. The value must be of the enumerated data type. Valid values:
+  rescaleLevel?: string(name='RescaleLevel', description='The level of resource scaling. The value is of the enumeration type. Valid values:
 
 *   AreaIspCode (default): scales resources based on the Internet service provider (ISP).
 *   RegionId: scales resources based on the edge node.
-*   InstanceId: scales resources based on the instance ID. Resource scale-out specifies resource hosting and scale-in specifies resource release.', example='RegionId', position='Query'),
+*   InstanceId: scales resources based on the instance ID. Resource scale-out specifies resource hosting and scale-in specifies resource release.
+
+Default value: AreaIspCode.', example='RegionId', position='Query'),
   rescaleType: string(name='RescaleType', description='The scaling operation. The value must be of the enumerated data type. Valid values:
 
 *   Add: adds new resources.
@@ -12822,7 +12802,7 @@ This parameter is required.', example='1', minimum=1, maximum=100, position='Que
 *   The specified time must be at least one hour later than the current time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2023-06-28T14:38:52Z', position='Query'),
-  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the premium bandwidth plan. Examples:
+  autoRenew?: boolean(name='AutoRenew', description='Specifies whether to enable auto-renewal for the premium bandwidth plan. Valid values:
 
 *   **true**.
 *   **false** (default).
@@ -12835,10 +12815,12 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2023-06-28T14:38:52Z', pos
 *   **Month**.', example='Day', position='Query'),
   carrier?: string(name='Carrier', description='The Internet service provider (ISP).
 
->  This parameter is not available if ScheduleAreaLevel is set to Region and is required if ScheduleAreaLevel is set to other values.', example='telecom', position='Query'),
+>  This parameter required if ScheduleAreaLevel is set to Region.\\
+If you set ScheduleAreaLevel to Region, a node has multiple ISPs, and you do not specify an ISP, then the create instance uses the ISP of the node. If the node has two ISPs, such as China Mobile and China Unicom, the created instance has two ISPs.\\
+You can call the DescribeRegionIsps operation to query ISPs of the edge node.[](~~2637461~~)', example='telecom', position='Query'),
   dataDisk?: [ 
     {
-      category?: string(name='Category', description='The category of the disk. Examples:
+      category?: string(name='Category', description='The category of the disk. Valid values:
 
 *   **cloud_efficiency**: ultra disk.
 *   **cloud_ssd**: all-flash disk.
@@ -12866,10 +12848,10 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2023-06-28T14:38:52Z', pos
 
 *   **instance**: Bills are generated based on instances.
 *   If you do not specify this parameter, bills are generated based on users.', example='instance', position='Query'),
-  instanceChargeType: string(name='InstanceChargeType', description='The billing method of the instance. Examples:
+  instanceChargeType: string(name='InstanceChargeType', description='The billing method of the instance. Valid values:
 
 *   **PrePaid**: subscription.
-*   **PostPaid**: pay-as-you-go.
+*   **PostPaid:** pay-as-you-go.
 
 This parameter is required.', example='PostPaid', position='Query'),
   instanceName?: string(name='InstanceName', description='The name of the instance. The name must be 2 to 128 characters in length. It must start with a letter and cannot start with `http://` or `https://`. It can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
@@ -12931,7 +12913,7 @@ This parameter is required.', example='1', position='Query'),
 *   **Region**: node
 
 This parameter is required.', example='Region', position='Query'),
-  schedulingPriceStrategy?: string(name='SchedulingPriceStrategy', description='The scheduling price policy. Examples:
+  schedulingPriceStrategy?: string(name='SchedulingPriceStrategy', description='The scheduling price policy. Valid values:
 
 *   **PriceHighPriority**: The high price prevails.
 *   **PriceLowPriority**: The low price prevails.', example='PriceHighPriority', position='Query'),
@@ -13085,20 +13067,20 @@ async function saveSDG(request: SaveSDGRequest): SaveSDGResponse {
 model SetBackendServersRequest {
   backendServers: [ 
     {
-      serverId: string(name='ServerId', description='The ID of the instance that you want to use as the backend server.
+      serverId: string(name='ServerId', description='The ID of the instance that you use as the backend server.
 
 This parameter is required.', example='i-5ze0o05xccvbljtn****'),
       type?: string(name='Type', description='The type of the backend server. Valid values:
 
-*   **ens**: ENS instance.
-*   **eni**: Elastic Network Interface (ENI) instance.', example='ens'),
+*   **ens**: ENS instance
+*   **eni**: elastic network interface (ENI)', example='ens'),
       weight: int32(name='Weight', description='The weight of the backend server. Default value: 100. Valid values: **0** to **100**.
 
 >  The value 0 indicates that requests are not forwarded to the backend server.
 
 This parameter is required.', example='20', minimum=0, maximum=100),
     }
-  ](name='BackendServers', description='The list of backend servers that you want to add. You can modify at most 20 backend servers.
+  ](name='BackendServers', description='The list of backend servers that you added. You can modify the weights of up to 20 backend servers in each request.
 
 This parameter is required.', shrink='json', position='Query'),
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.
@@ -13210,11 +13192,11 @@ This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='
   scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr**: Backend servers with higher weights receive more requests than those with lower weights.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: Consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: Consistent hashing based on Quick UDP Internet Connection (QUIC) IDs. Requests that contain the same QUIC ID are scheduled to the same backend server.
-*   **iqch**: Consistent hashing based on three specific bytes of iQUIC CID. Requests with the same second, third, and forth bytes are scheduled to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='3', minimum=2, maximum=10, position='Query'),
@@ -13270,12 +13252,12 @@ model SetLoadBalancerHTTPSListenerAttributeRequest {
   healthCheckInterval?: int32(name='HealthCheckInterval', description='The interval at which health checks are performed. Valid values: **1** to **50**. Unit: seconds.
 
 >  This parameter takes effect only if you set HealthCheck to on.', example='2', minimum=1, maximum=50, position='Query'),
-  healthCheckMethod?: string(name='HealthCheckMethod', description='The health check method used in HTTP health checks. Valid values:
+  healthCheckMethod?: string(name='HealthCheckMethod', description='The HTTP request method for health checks. Valid values:
 
 *   **head** (default): requests the head of the page.
 *   **get**: requests the specified part of the page and returns the entity body.
 
->  This parameter takes effect only if you set HealthCheck to on.', example='get', position='Query'),
+>  This parameter takes effect only if the HealthCheck parameter is set to on.', example='get', position='Query'),
   healthCheckTimeout?: int32(name='HealthCheckTimeout', description='The timeout period of a health check response. If the backend ENS does not respond within the specified time, the health check fails.
 
 *   Default value: 5.
@@ -13309,14 +13291,14 @@ This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='
   requestTimeout?: int32(name='RequestTimeout', description='The timeout period of requests. Default value: 60. Valid values: **1** to **180**. Unit: seconds.
 
 >  If no response is received from the backend server within the specified timeout period, ELB returns an HTTP 504 error code to the client.', example='60', minimum=1, maximum=180, position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr**: Backend servers with higher weights receive more requests than those with lower weights.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections to a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   serverCertificateId?: string(name='ServerCertificateId', description='The ID of the server certificate.', example='6027667', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**.
 
@@ -13348,10 +13330,10 @@ model SetLoadBalancerStatusRequest {
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the ELB instance.
 
 This parameter is required.', example='lb-5t18quoohsrc3xkf86spmnu77', position='Query'),
-  loadBalancerStatus: string(name='LoadBalancerStatus', description='The status of the listener after the modification. Valid values:
+  loadBalancerStatus: string(name='LoadBalancerStatus', description='The new instance status. Valid values:
 
-*   **Active**: The listener for the instance can forward the received traffic based on forwarding rules.
-*   **InActive**: The listener for the instance does not forward the received traffic.
+*   **Active**
+*   **InActive**
 
 This parameter is required.', example='Active', position='Query'),
 }
@@ -13381,7 +13363,7 @@ model SetLoadBalancerTCPListenerAttributeRequest {
   description?: string(name='Description', description='The description of the listener. The description must be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
-  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
+  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable elastic IP address (EIP) pass-through. Valid values:
 
 *   **on**
 *   **off** (default)', example='on', position='Query'),
@@ -13421,14 +13403,14 @@ This parameter is required.', example='lb-5snthcyu1x10g7tywj7iu****', position='
 *   Default value: 0. If the default value is used, the system disables session persistence.
 *   Valid values: **0** to **3600**.
 *   Unit: seconds.', example='0', minimum=0, maximum=3600, position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr**: Backend servers with higher weights receive more requests than those with lower weights.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections to a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**.', example='4', minimum=2, maximum=10, position='Query'),
 }
 
@@ -13457,7 +13439,7 @@ model SetLoadBalancerUDPListenerAttributeRequest {
   description?: string(name='Description', description='The name of the listener. The valuemust be **1** to **80** characters in length.
 
 >  The value cannot start with `http://` or `https://`.', example='example', minLength=1, maxLength=80, position='Query'),
-  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable Elastic IP address (EIP) pass-through. Valid values:
+  eipTransmit?: string(name='EipTransmit', description='Specifies whether to enable elastic IP address (EIP) pass-through. Valid values:
 
 *   **on**
 *   **off** (default)', example='on', position='Query'),
@@ -13480,14 +13462,14 @@ This parameter is required.', example='80', minimum=1, maximum=65535, position='
   loadBalancerId: string(name='LoadBalancerId', description='The ID of the Edge Load Balancer (ELB) instance.
 
 This parameter is required.', example='lb-5pzipr2fszqtl2xf64uy5****', position='Query'),
-  scheduler?: string(name='Scheduler', description='The routing algorithm. Valid values:
+  scheduler?: string(name='Scheduler', description='The scheduling algorithm. Valid values:
 
 *   **wrr**: Backend servers with higher weights receive more requests than those with lower weights.
-*   **wlc**: Requests are distributed based on the weight and load of each backend server. The load refers to the number of connections on a backend server. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
+*   **wlc**: Requests are distributed based on the weights and number of connections to backend servers. If two backend servers have the same weight, the backend server that has fewer connections receives more requests.
 *   **rr**: Requests are distributed to backend servers in sequence.
-*   **sch**: consistent hashing that is based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
-*   **qch**: consistent hashing that is based on QUIC connection IDs. Requests that contain the same QUIC connection ID are distributed to the same backend server.
-*   **iqch**: consistent hashing that is based on specific three bytes of the iQUIC CIDs. Requests whose second to fourth bytes are the same are distributed to the same backend server.', example='wrr', position='Query'),
+*   **sch**: consistent hashing based on source IP addresses. Requests from the same source IP address are distributed to the same backend server.
+*   **qch**: consistent hashing based on QUIC connection IDs (CIDs). Requests that contain the same QUIC CID are distributed to the same backend server.
+*   **iqch**: consistent hashing based on three specific bytes of iQUIC CIDs. Requests with the same second, third, and fourth bytes are distributed to the same backend server.', example='wrr', position='Query'),
   unhealthyThreshold?: int32(name='UnhealthyThreshold', description='The number of consecutive failed health checks that must occur before a healthy and accessible backend server is declared unhealthy and inaccessible. Valid values: **2** to **10**.', example='4', minimum=2, maximum=10, position='Query'),
 }
 
@@ -13683,10 +13665,10 @@ async function stopEpnInstance(request: StopEpnInstanceRequest): StopEpnInstance
 }
 
 model StopInstanceRequest {
-  forceStop?: string(name='ForceStop', description='Specifies whether to forcibly stop the servers.
+  forceStop?: string(name='ForceStop', description='Specifies whether to forcibly stop the instance.
 
-*   **true**: forcibly stops the instance.
-*   **false**: normally stops the servers. This is the default value.', example='true', position='Query'),
+*   **true**
+*   **false** (default)', example='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance that you want to stop. You can specify only one instance ID.
 
 This parameter is required.', example='i-instanceid****', position='Query'),
@@ -13848,10 +13830,10 @@ model UnAssociateEnsEipAddressRequest {
   allocationId: string(name='AllocationId', description='The ID of the EIP.
 
 This parameter is required.', example='eip-5sqa431nx3vee8heqxfxp****', position='Query'),
-  force?: boolean(name='Force', description='Specifies whether to forcefully release the instance if it is in the Running status. Valid values:
+  force?: boolean(name='Force', description='Specifies whether to disassociate the EIP from a NAT gateway if a DNAT or SNAT entry is added to the NAT gateway. Valid values:
 
-*   true. If you set the Force parameter to true, temporary data in the memory and storage of the instance is erased and cannot be restored after you call the operation, which is similar to the effect of a power-off action.
-*   false (default)', example='false', position='Query'),
+*   **false** (default): does not disassociate the EIP from a NAT gateway if a DNAT or SNAT entry is added to the NAT gateway.
+*   **true**: disassociates the EIP from a NAT gateway if a DNAT or SNAT entry is added to the NAT gateway.', example='false', position='Query'),
 }
 
 model UnAssociateEnsEipAddressResponseBody = {
@@ -13972,7 +13954,7 @@ model UnloadRegionSDGRequest {
   destinationRegionIds: [ string ](name='DestinationRegionIds', description='The destination nodes.
 
 This parameter is required.', shrink='json', position='Query'),
-  namespaces?: [ string ](name='Namespaces', description='The namespaces.', shrink='json', position='Query'),
+  namespaces?: [ string ](name='Namespaces', description='An array that consists of queried namespaces.', shrink='json', position='Query'),
   SDGId: string(name='SDGId', description='Deletes the shared data group (SDG) ID of the preloaded data.
 
 This parameter is required.', example='sdg-xxxx', position='Query'),
@@ -13988,7 +13970,7 @@ model UnloadRegionSDGResponseBody = {
           destinationRegionId?: string(name='DestinationRegionId', description='The ID of the destination node.', example='cn-hangzhou-xxx'),
           errorMessage?: string(name='ErrorMessage', description='The error message that is returned.', example='region not found'),
         }
-      ](name='FailedItems', description='Details about failed tasks.'),
+      ](name='FailedItems', description='Details about the failed tasks.'),
       successCount?: long(name='SuccessCount', description='The number of successful tasks.', example='1'),
     }(name='Result', description='The execution result of the synchronization request.'),
     success?: boolean(name='Success', description='Indicates whether all tasks are successful. Valid values:
@@ -14068,15 +14050,6 @@ model UntagResourcesRequest {
 
 This parameter is required.', position='Query'),
   resourceType: string(name='ResourceType', description='The type of the resource.
-
-Valid values:
-
-*   instance
-*   eip
-*   disk
-*   network
-*   natgateway
-*   vswitch
 
 This parameter is required.', example='instance', position='Query'),
   tagKey?: [ string ](name='TagKey', description='The keys of the tags. Valid values of N: 1 to 20.', position='Query'),
