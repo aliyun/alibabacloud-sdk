@@ -2320,6 +2320,187 @@ async function id2MetaVerify(request: Id2MetaVerifyRequest): Id2MetaVerifyRespon
   return id2MetaVerifyWithOptions(request, runtime);
 }
 
+model Id2MetaVerifyWithOCRRequest {
+  certFile?: string(name='CertFile'),
+  certNationalFile?: string(name='CertNationalFile'),
+  certNationalUrl?: string(name='CertNationalUrl', example='https://www.aliyun.com/cert.jpeg'),
+  certUrl?: string(name='CertUrl', example='https://www.aliyun.com/cert.jpeg'),
+}
+
+model Id2MetaVerifyWithOCRAdvanceRequest {
+  certFileObject?: readable(name='CertFile'),
+  certNationalFileObject?: readable(name='CertNationalFile'),
+  certNationalUrl?: string(name='CertNationalUrl', example='https://www.aliyun.com/cert.jpeg'),
+  certUrl?: string(name='CertUrl', example='https://www.aliyun.com/cert.jpeg'),
+}
+
+model Id2MetaVerifyWithOCRResponseBody = {
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF03****'),
+  resultObject?: {
+    bizCode?: string(name='BizCode', example='1'),
+    cardInfo?: string(name='CardInfo'),
+  }(name='ResultObject'),
+}
+
+model Id2MetaVerifyWithOCRResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Id2MetaVerifyWithOCRResponseBody(name='body'),
+}
+
+/**
+ * @summary 身份二要素图片核验
+ *
+ * @param request Id2MetaVerifyWithOCRRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return Id2MetaVerifyWithOCRResponse
+ */
+async function id2MetaVerifyWithOCRWithOptions(request: Id2MetaVerifyWithOCRRequest, runtime: $RuntimeOptions): Id2MetaVerifyWithOCRResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.certFile)) {
+    body['CertFile'] = request.certFile;
+  }
+  if (!$isNull(request.certNationalFile)) {
+    body['CertNationalFile'] = request.certNationalFile;
+  }
+  if (!$isNull(request.certNationalUrl)) {
+    body['CertNationalUrl'] = request.certNationalUrl;
+  }
+  if (!$isNull(request.certUrl)) {
+    body['CertUrl'] = request.certUrl;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Id2MetaVerifyWithOCR',
+    version = '2019-03-07',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 身份二要素图片核验
+ *
+ * @param request Id2MetaVerifyWithOCRRequest
+ * @return Id2MetaVerifyWithOCRResponse
+ */
+async function id2MetaVerifyWithOCR(request: Id2MetaVerifyWithOCRRequest): Id2MetaVerifyWithOCRResponse {
+  var runtime = new $RuntimeOptions{};
+  return id2MetaVerifyWithOCRWithOptions(request, runtime);
+}
+
+async function id2MetaVerifyWithOCRAdvance(request: Id2MetaVerifyWithOCRAdvanceRequest, runtime: $RuntimeOptions): Id2MetaVerifyWithOCRResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if($isNull(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if($isNull(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApiUtil.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Cloudauth',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var id2MetaVerifyWithOCRReq = new Id2MetaVerifyWithOCRRequest{};
+  OpenApiUtil.convert(request, id2MetaVerifyWithOCRReq);
+
+  if(!$isNull(request.certFileObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.certFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    id2MetaVerifyWithOCRReq.certFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  if(!$isNull(request.certNationalFileObject)) {
+    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+    ossConfig.accessKeyId = authResponse.body.accessKeyId;
+    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+    ossClient = new OSS(ossConfig);
+
+    fileObj = new FileForm.FileField{
+      filename = authResponse.body.objectKey,
+      content = request.certNationalFileObject,
+      contentType = '',
+    };
+    ossHeader = new OSS.PostObjectRequest.header{
+      accessKeyId = authResponse.body.accessKeyId,
+      policy = authResponse.body.encodedPolicy,
+      signature = authResponse.body.signature,
+      key = authResponse.body.objectKey,
+      file = fileObj,
+      successActionStatus = '201',
+    };
+    uploadRequest = new OSS.PostObjectRequest{
+      bucketName = authResponse.body.bucket,
+      header = ossHeader,
+    };
+    ossClient.postObject(uploadRequest, ossRuntime);
+    id2MetaVerifyWithOCRReq.certNationalFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+  }
+  var id2MetaVerifyWithOCRResp = id2MetaVerifyWithOCRWithOptions(id2MetaVerifyWithOCRReq, runtime);
+  return id2MetaVerifyWithOCRResp;
+}
+
 model InitFaceVerifyRequest {
   appQualityCheck?: string(name='AppQualityCheck'),
   authId?: string(name='AuthId'),
