@@ -75,6 +75,31 @@ function close(): void {
   @handler.close();
 }
 
+model AcceptRCInquiredSystemEventRequest {
+  eventId: string(name='EventId', description='This parameter is required.', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+}
+
+model AcceptRCInquiredSystemEventResponseBody = {
+  orderId?: string(name='OrderId'),
+  requestId?: string(name='RequestId'),
+}
+
+model AcceptRCInquiredSystemEventResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AcceptRCInquiredSystemEventResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AcceptRCInquiredSystemEvent  AcceptRCInquiredSystemEventRequest
+  * @return AcceptRCInquiredSystemEventResponse
+ */
+async function acceptRCInquiredSystemEvent(request: AcceptRCInquiredSystemEventRequest): AcceptRCInquiredSystemEventResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AcceptRCInquiredSystemEvent', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ActivateMigrationTargetInstanceRequest {
   DBInstanceName: string(name='DBInstanceName', description='The instance ID. You can call the DescribeDBInstances operation to query the instance ID.
 
@@ -2727,12 +2752,8 @@ model CreateGADInstanceResponse = {
 }
 
 /**
-  * @description ### [](#)Supported database engine
+  * @description ### [](#)Supported database engines
   * *   MySQL
-  * <props="china">
-  * ### [](#)References
-  * > : Before you call this operation, carefully read the following documentation. Make sure that you fully understand the prerequisites and impacts for calling this operation.
-  * [Create and release an ApsaraDB RDS global active database cluster](https://help.aliyun.com/document_detail/328592.html)
   * @param request  the request parameters of CreateGADInstance  CreateGADInstanceRequest
   * @return CreateGADInstanceResponse
  */
@@ -3304,15 +3325,11 @@ model CreateRCDiskRequest {
   description?: string(name='Description', description='The disk description. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`. By default, this parameter is left empty.', example='test', position='Query'),
   diskCategory?: string(name='DiskCategory', description='The category of the data disk. Valid values:
 
-*   **cloud** (default): basic disk
 *   **cloud_efficiency**: ultra disk.
 *   **cloud_ssd**: standard SSD.
-*   **cloud_essd**: Enterprise ESSD (ESSD).
-*   **cloud_auto**: ESSD AutoPL disk
-*   **cloud_essd_entry**: ESSD Entry disk
-*   **elastic_ephemeral_disk_standard**: standard elastic ephemeral disk
-*   **elastic_ephemeral_disk_premium**: premium elastic ephemeral disk', example='cloud_ssd', position='Query'),
-  diskName?: string(name='DiskName', description='The disk name. The name must be 2 to 128 characters in length and can contain letters and digits. The name can contain colons (:), underscores (_), periods (.), and hyphens (-).
+*   **cloud_essd**: ESSD.
+*   **cloud_auto**: ESSD AutoPL disk.', example='cloud_ssd', position='Query'),
+  diskName?: string(name='DiskName', description='The name of the data disk. The name must be 2 to 128 characters in length and can contain letters and digits. The name can contain colons (:), underscores (_), periods (.), and hyphens (-).
 
 By default, this parameter is left empty.', example='ZStack-Hybrid-Test-ECS-Instance', position='Query'),
   instanceChargeType?: string(name='InstanceChargeType', description='The billing method. Set the value to **Postpaid**, which specifies the pay-as-you-go billing method.', example='Postpaid', position='Query'),
@@ -3324,17 +3341,15 @@ By default, this parameter is left empty.', example='ZStack-Hybrid-Test-ECS-Inst
 *   **PL2**: A single ESSD delivers up to 100,000 random read/write IOPS.
 *   **PL3**: A single ESSD delivers up to 1,000,000 random read/write IOPS.
 
-For information about ESSD PLs, see [ESSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL1', position='Query'),
+For information about ESSD PLs, see [ESSDs](https://help.aliyun.com/document_detail/2859916.html).', example='PL1', position='Query'),
   period?: int32(name='Period', description='A reserved parameter. You do not need to specify this parameter.', example='none', position='Query'),
   periodUnit?: string(name='PeriodUnit', description='A reserved parameter. You do not need to specify this parameter.', example='none', position='Query'),
   regionId: string(name='RegionId', description='The region ID. You can call the DescribeRegions operation to query the most recent region list.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  size?: int32(name='Size', description='The disk size. Unit: GiB. This parameter is required.
+  size?: int32(name='Size', description='The disk size. Unit: GiB. This parameter is required. Valid values:
 
-*   Valid values if you set DiskCategory to **cloud**: 5 to 2000.
-
-*   Valid values if you set DiskCategory to **cloud_efficiency**: 20 to 32768.
+*   Valid values if you set DiskCategory to **cloud_essd_entry**: 10 to 32768.
 
 *   Valid values if you set DiskCategory to **cloud_ssd**: 20 to 32768.
 
@@ -3347,12 +3362,6 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 
 *   Valid values if you set DiskCategory to **cloud_auto**: 1 to 65536.
 
-*   Valid values if you set DiskCategory to **cloud_essd_entry**: 10 to 32768.
-
-*   Valid values if you set DiskCategory to **elastic_ephemeral_disk_standard**: 64 to 8192.
-
-*   Valid values if you set DiskCategory to **elastic_ephemeral_disk_premium**: 64 to 8192.
-
 If `SnapshotId` is specified, the following limits apply to `SnapshotId` and `Size`:
 
 *   If the size of the snapshot specified by `SnapshotId` is larger than the value of `Size`, the size of the created disk is equal to the size of the snapshot.
@@ -3362,11 +3371,13 @@ If `SnapshotId` is specified, the following limits apply to `SnapshotId` and `Si
 *   If the size of the snapshot specified by `SnapshotId` is larger than the value of `Size`, the size of the created disk is equal to the specified snapshot size.
 *   If the size of the snapshot specified by `SnapshotId` is smaller than the value of `Size`, the size of the created disk is equal to the value of `Size`.
 *   You cannot create elastic ephemeral disks from snapshots.', example='rcds-umtnkvevqbu****', position='Query'),
-  zoneId?: string(name='ZoneId', description='The zone ID.', example='cn-hangzhou-a', position='Query'),
+  zoneId?: string(name='ZoneId', description='The zone ID.
+
+This parameter is required if you do not specify **InstanceId**.', example='cn-hangzhou-a', position='Query'),
 }
 
 model CreateRCDiskResponseBody = {
-  diskId?: string(name='DiskId', description='The disk ID.', example='rcd-2zegrjtnkp6dqbe1egca'),
+  diskId?: string(name='DiskId', description='The cloud disk ID.', example='rcd-2zegrjtnkp6dqbe1egca'),
   orderId?: string(name='OrderId', description='The order ID.', example='100789370230206'),
   requestId?: string(name='RequestId', description='The request ID.', example='F2911788-25E8-42E5-A3A3-1B38D263F01E'),
 }
@@ -12240,13 +12251,13 @@ model DescribePriceRequest {
   commodityCode?: string(name='CommodityCode', description='The commodity code of the instance. Valid values:
 
 *   **bards**: The instance is a pay-as-you-go primary instance. This value is available at the China site (aliyun.com).
-*   **rds** (default): The instance is a subscription primary instance. This value is available on the China site (aliyun.com).
+*   **rds** (default): The instance is a subscription primary instance. This value is available at the China site (aliyun.com).
 *   **rords**: The instance is a pay-as-you-go read-only instance. This value is available at the China site (aliyun.com).
 *   **rds_rordspre_public_cn**: The instance is a subscription read-only instance. This value is available at the China site (aliyun.com).
 *   **bards_intl**: The instance is a pay-as-you-go primary instance. This value is available at the international site (alibabacloud.com).
 *   **rds_intl**: The instance is a subscription primary instance. This value is available at the international site (alibabacloud.com).
 *   **rords_intl**: The instance is a pay-as-you-go read-only instance. This value is available at the international site (alibabacloud.com).
-*   **rds_rordspre_public_intl**: The instance is a subscription read-only instance. This value is available on the international site (alibabacloud.com).
+*   **rds_rordspre_public_intl**: The instance is a subscription read-only instance. This value is available at the international site (alibabacloud.com).
 
 >  If you want to query the price of a read-only instance, you must specify this parameter.', example='rds', position='Query'),
   DBInstanceClass: string(name='DBInstanceClass', description='The instance type of the instance. For more information, see [Primary ApsaraDB RDS instance types](https://help.aliyun.com/document_detail/26312.html).
@@ -13034,6 +13045,189 @@ model DescribeRCInstanceAttributeResponse = {
 async function describeRCInstanceAttribute(request: DescribeRCInstanceAttributeRequest): DescribeRCInstanceAttributeResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeRCInstanceAttribute', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeRCInstanceDdosCountRequest {
+  ddosRegionId?: string(name='DdosRegionId', example='cn-beijing', position='Query'),
+  instanceType?: string(name='InstanceType', example='ecs', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+}
+
+model DescribeRCInstanceDdosCountResponseBody = {
+  ddosCount?: {
+    blackholeCount?: string(name='BlackholeCount', example='0'),
+    defenseCount?: string(name='DefenseCount', example='0'),
+    instacenCount?: string(name='InstacenCount', example='6'),
+  }(name='DdosCount'),
+  requestId?: string(name='RequestId', example='F77F3176-AAEA-5836-B2B4-A854E3ED****_Zv**'),
+}
+
+model DescribeRCInstanceDdosCountResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRCInstanceDdosCountResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRCInstanceDdosCount  DescribeRCInstanceDdosCountRequest
+  * @return DescribeRCInstanceDdosCountResponse
+ */
+async function describeRCInstanceDdosCount(request: DescribeRCInstanceDdosCountRequest): DescribeRCInstanceDdosCountResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRCInstanceDdosCount', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeRCInstanceHistoryEventsRequest {
+  eventPublishTime?: {
+    end?: string(name='End'),
+    start?: string(name='Start'),
+  }(name='EventPublishTime', position='Query'),
+  notBefore?: {
+    end?: string(name='End'),
+    start?: string(name='Start', example='2017-11-30T06:32:31Z'),
+  }(name='NotBefore', position='Query'),
+  eventCycleStatus?: string(name='EventCycleStatus', position='Query'),
+  eventId?: [ string ](name='EventId', position='Query'),
+  eventType?: string(name='EventType', position='Query'),
+  impactLevel?: string(name='ImpactLevel', position='Query'),
+  instanceEventCycleStatus?: [ string ](name='InstanceEventCycleStatus', position='Query'),
+  instanceEventType?: [ string ](name='InstanceEventType', position='Query'),
+  instanceId?: string(name='InstanceId', position='Query'),
+  maxResults?: string(name='MaxResults', position='Query'),
+  pageNumber?: string(name='PageNumber', position='Query'),
+  pageSize?: string(name='PageSize', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', position='Query'),
+  resourceGroupId?: string(name='ResourceGroupId', position='Query'),
+  resourceId?: [ string ](name='ResourceId', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag', position='Query'),
+}
+
+model DescribeRCInstanceHistoryEventsResponseBody = {
+  instanceSystemEventSet?: [ 
+    {
+      eventCycleStatus?: {
+        code?: string(name='Code'),
+        name?: string(name='Name'),
+      }(name='EventCycleStatus'),
+      eventFinishTime?: string(name='EventFinishTime'),
+      eventId?: string(name='EventId'),
+      eventPublishTime?: string(name='EventPublishTime'),
+      eventType?: {
+        code?: string(name='Code'),
+        name?: string(name='Name'),
+      }(name='EventType'),
+      extendedAttribute?: {
+        canAccept?: string(name='CanAccept'),
+        code?: string(name='Code'),
+        device?: string(name='Device'),
+        diskId?: string(name='DiskId'),
+        hostId?: string(name='HostId'),
+        hostType?: string(name='HostType'),
+        inactiveDisks?: [ 
+          {
+            creationTime?: string(name='CreationTime'),
+            deviceCategory?: string(name='DeviceCategory'),
+            deviceSize?: string(name='DeviceSize'),
+            deviceType?: string(name='DeviceType'),
+            releaseTime?: string(name='ReleaseTime'),
+          }
+        ](name='InactiveDisks'),
+        migrationOptions?: [ string ](name='MigrationOptions'),
+        onlineRepairPolicy?: string(name='OnlineRepairPolicy'),
+        punishDomain?: string(name='PunishDomain'),
+        punishType?: string(name='PunishType'),
+        punishUrl?: string(name='PunishUrl'),
+        rack?: string(name='Rack'),
+        responseResult?: string(name='ResponseResult'),
+      }(name='ExtendedAttribute'),
+      impactLevel?: string(name='ImpactLevel'),
+      instanceId?: string(name='InstanceId'),
+      notBefore?: string(name='NotBefore'),
+      reason?: string(name='Reason'),
+      reasonCode?: string(name='ReasonCode'),
+      resourceType?: string(name='ResourceType'),
+    }
+  ](name='InstanceSystemEventSet'),
+  nextToken?: string(name='NextToken'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  requestId?: string(name='RequestId'),
+  totalCount?: int32(name='TotalCount'),
+}
+
+model DescribeRCInstanceHistoryEventsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRCInstanceHistoryEventsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRCInstanceHistoryEvents  DescribeRCInstanceHistoryEventsRequest
+  * @return DescribeRCInstanceHistoryEventsResponse
+ */
+async function describeRCInstanceHistoryEvents(request: DescribeRCInstanceHistoryEventsRequest): DescribeRCInstanceHistoryEventsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRCInstanceHistoryEvents', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeRCInstanceIpAddressRequest {
+  currentPage?: int32(name='CurrentPage', example='1', position='Query'),
+  ddosRegionId?: string(name='DdosRegionId', example='cn-beijing', position='Query'),
+  ddosStatus?: string(name='DdosStatus', example='defense', position='Query'),
+  instanceId?: string(name='InstanceId', example='rc-y6dn4pyuub1r89******', position='Query'),
+  instanceIp?: string(name='InstanceIp', example='39.105.XXX.XXX', position='Query'),
+  instanceName?: string(name='InstanceName', example='rc-y6dn4pyuub1r89******', position='Query'),
+  instanceType?: string(name='InstanceType', example='ecs', position='Query'),
+  pageSize?: int32(name='PageSize', example='10', position='Query'),
+  regionId?: string(name='RegionId', example='cn-beijing', position='Query'),
+  resourceType?: string(name='ResourceType', example='ecs', position='Query'),
+}
+
+model DescribeRCInstanceIpAddressResponseBody = {
+  RCInstanceList?: [ 
+    {
+      instanceId?: string(name='InstanceId', example='rc-kti8hw44yy0x53******'),
+      instanceName?: string(name='InstanceName', example='rc-kti8hw44yy0x53******'),
+      instanceStatus?: string(name='InstanceStatus', example='normal'),
+      instanceType?: string(name='InstanceType', example='ecs'),
+      ipAddressConfig?: [ 
+        {
+          blackholeThreshold?: int32(name='BlackholeThreshold', example='5200'),
+          defenseBpsThreshold?: int32(name='DefenseBpsThreshold', example='300'),
+          defensePpsThreshold?: int32(name='DefensePpsThreshold', example='70000'),
+          elasticThreshold?: int32(name='ElasticThreshold', example='12310'),
+          instanceIp?: string(name='InstanceIp', example='39.105.XXX.XXX'),
+          ipStatus?: string(name='IpStatus', example='normal'),
+          ipVersion?: string(name='IpVersion', example='v4'),
+          isBgppack?: boolean(name='IsBgppack', example='true'),
+          isFullProtection?: int32(name='IsFullProtection', example='0'),
+          regionId?: string(name='RegionId', example='cn-beijing-wt97-a01'),
+        }
+      ](name='IpAddressConfig'),
+    }
+  ](name='RCInstanceList'),
+  requestId?: string(name='RequestId', example='C048E440-EA84-5E97-8C81-2A7060D0****_th**'),
+  total?: string(name='Total', example='1'),
+}
+
+model DescribeRCInstanceIpAddressResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeRCInstanceIpAddressResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeRCInstanceIpAddress  DescribeRCInstanceIpAddressRequest
+  * @return DescribeRCInstanceIpAddressResponse
+ */
+async function describeRCInstanceIpAddress(request: DescribeRCInstanceIpAddressRequest): DescribeRCInstanceIpAddressResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeRCInstanceIpAddress', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeRCInstanceTypeFamiliesRequest {
@@ -21888,15 +22082,15 @@ async function switchDBInstanceVpc(request: SwitchDBInstanceVpcRequest): SwitchD
 }
 
 model SwitchOverMajorVersionUpgradeRequest {
-  DBInstanceName?: string(name='DBInstanceName', position='Query'),
+  DBInstanceName?: string(name='DBInstanceName', example='pgm-m5e4gegx63fh92bn', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
-  regionId?: bytes(name='RegionId', position='Query'),
-  switchoverTimeout?: int32(name='SwitchoverTimeout', minimum=10, maximum=3600, position='Query'),
-  type?: string(name='Type', position='Query'),
+  regionId?: bytes(name='RegionId', example='cn-hangzhou', position='Query'),
+  switchoverTimeout?: int32(name='SwitchoverTimeout', example='10', minimum=10, maximum=3600, position='Query'),
+  type?: string(name='Type', example='switch', position='Query'),
 }
 
 model SwitchOverMajorVersionUpgradeResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17F57FEE-EA4F-4337-8D2E-9C23CAA63D74'),
 }
 
 model SwitchOverMajorVersionUpgradeResponse = {
@@ -21906,6 +22100,8 @@ model SwitchOverMajorVersionUpgradeResponse = {
 }
 
 /**
+  * @description Supported database engine
+  * *   PostgreSQL
   * @param request  the request parameters of SwitchOverMajorVersionUpgrade  SwitchOverMajorVersionUpgradeRequest
   * @return SwitchOverMajorVersionUpgradeResponse
  */
