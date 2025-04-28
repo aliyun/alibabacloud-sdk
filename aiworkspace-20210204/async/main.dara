@@ -86,12 +86,14 @@ model Dataset {
 }
 
 model DatasetFileMeta {
+  contentType?: string(name='ContentType', example='image/jpeg'),
   dataSize?: long(name='DataSize', example='12'),
   datasetFileMetaId?: string(name='DatasetFileMetaId'),
   downloadUrl?: string(name='DownloadUrl'),
   fileCreateTime?: string(name='FileCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2021-01-12T14:36:01.000Z'),
   fileFingerPrint?: string(name='FileFingerPrint'),
   fileName?: string(name='FileName', example='car.png'),
+  fileType?: string(name='FileType', example='image'),
   fileUpdateTime?: string(name='FileUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2021-01-12T14:36:01.000Z'),
   metaAttributes?: string(name='MetaAttributes', example='{     "ImageHeight": 400,     "ImageWidth": 800 }'),
   score?: float(name='Score', example='0.6'),
@@ -1199,8 +1201,8 @@ model CreateModelRequest {
   accessibility?: string(name='Accessibility', description='The visibility of the model in the workspace. Valid values:
 
 *   PRIVATE (default): Visible only to you and the administrator of the workspace.
-*   PUBLIC: Visible to all users in the workspace.', example='PRIVATE', position='Body'),
-  domain?: string(name='Domain', description='The domain of the model. Describes the domain in which the model is for. Example: nlp (Natural Language Processing), cv (computer vision), and others.', example='nlp', position='Body'),
+*   PUBLIC: Vvisible to all users in the workspace.', example='PRIVATE', position='Body'),
+  domain?: string(name='Domain', description='The domain of the model. Describes the domain in which the model is for. Example: nlp (natural language processing), cv (computer vision), and others.', example='nlp', position='Body'),
   extraInfo?: map[string]any(name='ExtraInfo', description='Other information about the model.', example='{
 	"RatingCount": 2866,
 	"Rating": 4.94,
@@ -1212,8 +1214,8 @@ model CreateModelRequest {
 }', position='Body'),
   labels?: [
     Label
-  ](name='Labels', description='The tags.', position='Body'),
-  modelDescription?: string(name='ModelDescription', description='The model description, which is used to distinguish different models.', position='Body'),
+  ](name='Labels', description='The tags. This parameter will be deprecated and replaced by Tag.', position='Body'),
+  modelDescription?: string(name='ModelDescription', description='The model description, used to distinguish different models.', position='Body'),
   modelDoc?: string(name='ModelDoc', description='The documentation of the model.', example='https://*.md', position='Body'),
   modelName: string(name='ModelName', description='The name of the model. The name must be 1 to 127 characters in length.
 
@@ -1223,9 +1225,9 @@ This parameter is required.', position='Body'),
   origin?: string(name='Origin', description='The source of the model. The community or organization to which the source model belongs, such as ModelScope or HuggingFace.', example='ModelScope', position='Body'),
   tag?: [
     Label
-  ](name='Tag', position='Body'),
+  ](name='Tag', description='The tags.', position='Body'),
   task?: string(name='Task', description='The task of the model. Describes the specific problem that the model solves. Example: text-classification.', example='text-classification', position='Body'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. To obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='796**', position='Body'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. Call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='796**', position='Body'),
 }
 
 model CreateModelResponseBody = {
@@ -1580,32 +1582,32 @@ This parameter is required.', example='123', position='Path'),
 *   prod: production environment
 
 This parameter is required.', example='prod'),
-      groupName?: string(name='GroupName', description='The name of the resource group, which is unique within your Alibaba Cloud account.', example='groupName'),
+      groupName?: string(name='GroupName', description='The name of the resource group, which is unique within your Alibaba Cloud account. This parameter is required for MaxCompute, Elastic Compute Service (ECS), Lingjun, Alibaba Cloud Container Compute Service (ACS), and Realtime Compute for Apache Flink resources.', example='groupName'),
       isDefault?: boolean(name='IsDefault', description='Specifies whether the resource is the default resource. Each type of resources has a default resource. Valid values:
 
 *   false (default)
 *   true', example='false'),
       labels?: [ 
         {
-          key?: string(name='Key', description='The tag key.', example='system.support.eas'),
-          value?: string(name='Value', description='The tag value.', example='true'),
+          key?: string(name='Key', description='The label key.', example='system.support.eas'),
+          value?: string(name='Value', description='The label value.', example='true'),
         }
-      ](name='Labels', description='The tags added to the resource.'),
-      name: string(name='Name', description='The resource name. Format:
+      ](name='Labels', description='The labels added to the resource.'),
+      name: string(name='Name', description='The resource name. The name must meet the following requirements:
 
 *   The name must be 3 to 28 characters in length, and can contain only letters, digits, and underscores (_). The name must start with a letter.
-*   The name is unique in the region.
+*   The name must be unique in the region.
 
 This parameter is required.', example='ResourceName'),
-      productType?: string(name='ProductType', description='**This field is no longer used and will be removed. Use the ResourceType field instead.', example='MaxCompute'),
+      productType?: string(name='ProductType', description='**This parameter is no longer used and will be removed. Use the ResourceType parameter instead.', example='MaxCompute'),
       quotas?: [ 
         {
           id: string(name='Id', description='The quota ID. You can call [ListQuotas](https://help.aliyun.com/document_detail/449144.html) to obtain the quota ID.
 
 This parameter is required.', example='232892******92912'),
         }
-      ](name='Quotas', description='The list of quotas. Only MaxCompute quotas are available.'),
-      resourceType?: string(name='ResourceType', description='The resource type. Valid values:
+      ](name='Quotas', description='The quotas. Only MaxCompute quotas are available.'),
+      resourceType?: string(name='ResourceType', description='The resource types. Valid values:
 
 *   MaxCompute
 *   ECS
@@ -1671,6 +1673,46 @@ model DeleteCodeSourceResponse = {
 async function deleteCodeSource(request: DeleteCodeSourceRequest): DeleteCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteCodeSource', 'DELETE', '/api/v1/codesources/{CodeSourceId}', 'json', false, 'json', request);
+}
+
+model DeleteConfigRequest {
+  workspaceId: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='98***', position='Path'),
+  configKey: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+
+This parameter is required.', example='tempStoragePath', position='Path'),
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle - DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
+  labels?: string(name='Labels', description='The filter conditions. Separate multiple conditions with commas (,). The conditions have an AND relationship.', example='key1=value;key2=value2', position='Query'),
+}
+
+model DeleteConfigResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+}
+
+model DeleteConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteConfig  DeleteConfigRequest
+  * @return DeleteConfigResponse
+ */
+async function deleteConfig(request: DeleteConfigRequest): DeleteConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteConfig', 'DELETE', '/api/v1/workspaces/{WorkspaceId}/configs/{ConfigKey}', 'json', false, 'json', request);
 }
 
 model DeleteDatasetRequest {
@@ -2124,7 +2166,7 @@ This parameter is required.', example='DataPrivacyConfig', position='Path'),
 }
 
 model DeleteUserConfigResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='dsjk****dfjksdf'),
+  requestId?: string(name='RequestId', description='The request ID.', example='dsjk****dfjksdf'),
 }
 
 model DeleteUserConfigResponse = {
@@ -2248,6 +2290,42 @@ model GetCodeSourceResponse = {
 async function getCodeSource(request: GetCodeSourceRequest): GetCodeSourceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetCodeSource', 'GET', '/api/v1/codesources/{CodeSourceId}', 'json', false, 'json', request);
+}
+
+model GetConfigRequest {
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='1234******2', position='Path'),
+  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Query'),
+  configKey?: string(name='ConfigKey', example='tempStoragePath', position='Query'),
+  verbose?: string(name='Verbose', example='oss://***', position='Query'),
+}
+
+model GetConfigResponseBody = {
+  categoryName?: string(name='CategoryName', example='CommonResourceConfig'),
+  configKey?: string(name='ConfigKey', example='tempStoragePath'),
+  configValue?: string(name='ConfigValue', example='oss://***'),
+  labels?: [ 
+    {
+      key?: string(name='Key', example='key1'),
+      value?: string(name='Value', example='value1'),
+    }
+  ](name='Labels'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  workspaceId?: string(name='WorkspaceId', example='1234******2'),
+}
+
+model GetConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetConfig  GetConfigRequest
+  * @return GetConfigResponse
+ */
+async function getConfig(request: GetConfigRequest): GetConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetConfig', 'GET', '/api/v1/workspaces/{WorkspaceId}/config', 'json', false, 'json', request);
 }
 
 model GetDatasetRequest {
@@ -2418,19 +2496,32 @@ async function getDatasetFileMeta(request: GetDatasetFileMetaRequest): GetDatase
 }
 
 model GetDatasetFileMetasStatisticsRequest {
-  datasetId: string(name='DatasetId', description='This parameter is required.', example='d-rbvg5wz****c9ks92', position='Path'),
-  aggregateBy?: string(name='AggregateBy', example='filedir', position='Query'),
-  datasetVersion: string(name='DatasetVersion', description='This parameter is required.', example='v1', position='Query'),
-  maxResults?: int32(name='MaxResults', example='10', position='Query'),
-  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='145883', position='Query'),
+  datasetId: string(name='DatasetId', description='The dataset ID. You can call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to obtain the dataset ID.
+
+This parameter is required.', example='d-rbvg5wz****c9ks92', position='Path'),
+  aggregateBy?: string(name='AggregateBy', description='Aggregates statistics based on the specified metadata field. The value is not case-sensitive. If not specified, the total number of dataset file metadata will be returned, instead of aggregation lists. Valid values:
+
+*   filedir: the directory path of the file
+*   file_type: the file type
+*   tags.user: user-defined tag
+*   tags.user-delete-ai-tags: algorithm tags deleted by the user
+*   tags.ai: algorithm tags (aggregated by all tagging tasks)
+*   tags.all: algorithm tags and user-defined tags (excluding alogorithm tags deleted by the user)', example='filedir', position='Query'),
+  datasetVersion: string(name='DatasetVersion', description='The dataset version.
+
+This parameter is required.', example='v1', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results to be returned from a single query when the NextToken parameter is used in the query. Valid values: 1 to 100. Default value: 10.', example='10', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.
+
+This parameter is required.', example='145883', position='Query'),
 }
 
 model GetDatasetFileMetasStatisticsResponseBody = {
   datasetFileMetasStats?: [
     DatasetFileMetasStat
-  ](name='DatasetFileMetasStats'),
-  totalCount?: int32(name='TotalCount', example='73'),
-  requestId?: string(name='requestId', example='ADF6D849-*****-7E7030F0CE53'),
+  ](name='DatasetFileMetasStats', description='The details of the returned aggregation list, including the number of each aggregate item. The list is by default sorted in descending order based on the count number.'),
+  totalCount?: int32(name='TotalCount', description='The returned number. Example: the number of metadata records or the number of user-defined tags.', example='73'),
+  requestId?: string(name='requestId', description='The request ID.', example='ADF6D849-*****-7E7030F0CE53'),
 }
 
 model GetDatasetFileMetasStatisticsResponse = {
@@ -3089,20 +3180,18 @@ async function getWorkspace(request: GetWorkspaceRequest): GetWorkspaceResponse 
 
 model ListCodeSourcesRequest {
   displayName?: string(name='DisplayName', description='The display name of the code source. Fuzzy match is supported.', example='MyDataSource', position='Query'),
-  order?: string(name='Order', description='The order in which the entries are sorted by the specific field on the returned page.
+  order?: string(name='Order', description='The order in which the entries are sorted by the specific field on the returned page. Valid values:
 
-Valid values:
-
-*   asc: ascending order. This is the default value.
-*   desc: descending order.', example='desc', position='Query'),
+*   ASC (default)
+*   DESC', example='desc', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 20.', example='10', position='Query'),
   sortBy?: string(name='SortBy', description='The field used for sorting. Valid values:
 
-*   GmtModifyTime: the time when the source code is modified.
+*   GmtModifyTime: the time when the code source was modified.
 *   DisplayName: the display name.
-*   CodeSourceId: the ID of the code source.
-*   GmtCreateTime: the time when the code source is created. This is the default value.', example='GmtModifyTime', position='Query'),
+*   CodeSourceId: the code source ID.
+*   GmtCreateTime: the time when the code source was created. This is the default value.', example='GmtModifyTime', position='Query'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='1234', position='Query'),
 }
 
@@ -3129,6 +3218,46 @@ async function listCodeSources(request: ListCodeSourcesRequest): ListCodeSources
   return @handler.do('RESTFUL', 'ListCodeSources', 'GET', '/api/v1/codesources', 'json', false, 'json', request);
 }
 
+model ListConfigsRequest {
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='87***', position='Path'),
+  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Query'),
+  configKeys?: string(name='ConfigKeys', example='tempStoragePath', position='Query'),
+  labels?: string(name='Labels', example='key1=value1,key2=value2', position='Query'),
+  verbose?: string(name='Verbose', example='true', position='Query'),
+}
+
+model ListConfigsResponseBody = {
+  configs?: [ 
+    {
+      configKey?: string(name='ConfigKey', example='tempTableLifecycle'),
+      configValue?: string(name='ConfigValue', example='oss://***'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='key1'),
+          value?: string(name='Value', example='value1'),
+        }
+      ](name='Labels'),
+    }
+  ](name='Configs'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  totalCount?: long(name='TotalCount', example='15'),
+}
+
+model ListConfigsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConfigsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListConfigs  ListConfigsRequest
+  * @return ListConfigsResponse
+ */
+async function listConfigs(request: ListConfigsRequest): ListConfigsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListConfigs', 'GET', '/api/v1/workspaces/{WorkspaceId}/configs', 'json', false, 'json', request);
+}
+
 model ListDatasetFileMetasRequest {
   datasetId: string(name='DatasetId', description='The dataset ID. You can call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to obtain the dataset ID.
 
@@ -3136,11 +3265,11 @@ This parameter is required.', example='d-rbvg5*****jhc9ks92', position='Path'),
   datasetVersion: string(name='DatasetVersion', description='The dataset version.
 
 This parameter is required.', example='v1', position='Query'),
-  endFileUpdateTime?: string(name='EndFileUpdateTime', description='The end time when the file is updated. This parameter is used when you want to query file metadata during a period of time. The time follows the ISO 8601 standard. This parameter is valid only when QueryType is set to TAG.
+  endFileUpdateTime?: string(name='EndFileUpdateTime', description='The update time range to query. The end time. The time follows the ISO 8601 standard. This parameter is valid only when QueryType is set to TAG.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01Z', position='Query'),
-  endTagUpdateTime?: string(name='EndTagUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', position='Query'),
-  maxResults?: int32(name='MaxResults', position='Query'),
+  endTagUpdateTime?: string(name='EndTagUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01.000Z', position='Query'),
+  maxResults?: int32(name='MaxResults', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token.
 
 >  If you do not configure this parameter, the data on the first page is returned. A return value other than Null of this parameter indicates that not all entries have been returned. You can use this value as an input parameter to obtain entries on the next page. The value Null indicates that all query results have been returned.', example='90a6ee35-****-4cd4-927e-1f45e1cb8b62_1729644433000', position='Query'),
@@ -3149,10 +3278,10 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01
 *   ASC
 *   DESC', example='DESC', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 1000.', example='10', deprecated='true', position='Query'),
-  queryFileDir?: string(name='QueryFileDir', position='Query'),
-  queryFileName?: string(name='QueryFileName', position='Query'),
+  queryFileDir?: string(name='QueryFileDir', example='cars/20250221/', position='Query'),
+  queryFileName?: string(name='QueryFileName', example='shuima', position='Query'),
   queryFileTypeIncludeAny?: [ string ](name='QueryFileTypeIncludeAny', shrink='simple', position='Query'),
-  queryImage?: string(name='QueryImage', position='Query'),
+  queryImage?: string(name='QueryImage', example='oss://test-xxx-oss/car/0001.png', position='Query'),
   queryTagsExclude?: [ string ](name='QueryTagsExclude', shrink='simple', position='Query'),
   queryTagsIncludeAll?: [ string ](name='QueryTagsIncludeAll', shrink='simple', position='Query'),
   queryTagsIncludeAny?: [ string ](name='QueryTagsIncludeAny', shrink='simple', position='Query'),
@@ -3166,11 +3295,11 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01
 
 *   FileCreateTime (default): The results are sorted by the time when the file is created.
 *   FileUpdateTime: The results are sorted by the time when the file is last modified.', example='FileCreateTime', position='Query'),
-  startFileUpdateTime?: string(name='StartFileUpdateTime', description='The start time when the file is updated. This parameter is used when you want to query file metadata during a period of time. The time follows the ISO 8601 standard. This parameter is valid only when QueryType is set to TAG.
+  startFileUpdateTime?: string(name='StartFileUpdateTime', description='The update time range to query. The start time. The time follows the ISO 8601 standard. This parameter is valid only when QueryType is set to TAG.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01Z', position='Query'),
-  startTagUpdateTime?: string(name='StartTagUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', position='Query'),
-  thumbnailMode?: string(name='ThumbnailMode', position='Query'),
+  startTagUpdateTime?: string(name='StartTagUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2025-01-12T14:36:01.000Z', position='Query'),
+  thumbnailMode?: string(name='ThumbnailMode', example='w_100', position='Query'),
   topK?: int32(name='TopK', description='The number of search results to return. A maximum of Top K search results can be returned. This parameter is valid only when QueryType is set to VECTOR.', example='100', minimum=1, maximum=1000, position='Query'),
   workspaceId: string(name='WorkspaceId', description='The ID of the workspace to which the dataset belongs. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.
 
@@ -3183,9 +3312,9 @@ model ListDatasetFileMetasResponseBody = {
   ](name='DatasetFileMetas', description='The metadata records of the dataset files.'),
   datasetId?: string(name='DatasetId', description='The dataset ID.', example='d-rbvg5*****jhc9ks92'),
   datasetVersion?: string(name='DatasetVersion', description='The dataset version.', example='v1'),
-  maxResults?: int32(name='MaxResults'),
+  maxResults?: int32(name='MaxResults', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token. If the number of results exceeds the maximum number of entries allowed per page, a pagination token is returned. This token can be used as an input parameter to obtain the next page of results. If all results are obtained, no token is returned.', example='90******-f5c5-4cd4-927e-1f45e1cb8b62_1729644433000'),
-  pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='30', deprecated='true'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', deprecated='true'),
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='123'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='105173'),
 }
@@ -3296,15 +3425,6 @@ This parameter is required.', example='10', position='Query'),
 *   DIRECTORY
 *   FILE', example='DIRECTORY', position='Query'),
   sortBy?: string(name='SortBy', description='The field used to sort the results in queries by page. Default value: GmtCreateTime.
-
-*
-*
-*
-*
-*
-*
-*
-
 Valid values:
 
 *   SourceType
@@ -3324,13 +3444,7 @@ Valid values:
 
 *   PAI-PUBLIC-DATASET: a public dataset of Platform for AI (PAI).
 *   ITAG: a dataset generated from a labeling job of iTAG.
-*   USER: a dataset registered by a user.
-
-<!---->
-
-*
-*
-*', example='USER', position='Query'),
+*   USER: a dataset registered by a user.', example='USER', position='Query'),
 }
 
 model ListDatasetVersionsResponseBody = {
@@ -3394,13 +3508,7 @@ model ListDatasetsRequest {
 
 *   PAI-PUBLIC-DATASET: a public dataset of Platform for AI (PAI).
 *   ITAG: a dataset generated from a labeling job of iTAG.
-*   USER: a dataset registered by a user.
-
-<!---->
-
-*
-*
-*', example='USER,ITAG', position='Query'),
+*   USER: a dataset registered by a user.', example='USER,ITAG', position='Query'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the dataset belongs. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID. If you do not specify this parameter, the default workspace is used. If the default workspace does not exist, an error is reported.', example='324**', position='Query'),
 }
 
@@ -3745,10 +3853,10 @@ model ListModelsRequest {
   sortBy?: string(name='SortBy', description='The field used to sort the results. The GmtCreateTime field is used for sorting.', example='GmtCreateTime', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key'),
-      value?: string(name='Value'),
+      key?: string(name='Key', description='The tag key.', example='key1'),
+      value?: string(name='Value', description='The tag value.', example='value1'),
     }
-  ](name='Tag', shrink='json', position='Query'),
+  ](name='Tag', description='The tags of the model.', shrink='json', position='Query'),
   task?: string(name='Task', description='The task used to filter the models that belong to the task type. Example: text-classification.', example='text-classification', position='Query'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID. Only models in this workspace are queried. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='324**', position='Query'),
 }
@@ -4519,7 +4627,7 @@ model SetUserConfigsRequest {
 }
 
 model SetUserConfigsResponseBody = {
-  requestId?: string(name='RequestId', description='Id of the request', example='dsjk****dfjksdf'),
+  requestId?: string(name='RequestId', description='The request ID.', example='dsjk****dfjksdf'),
 }
 
 model SetUserConfigsResponse = {
@@ -4601,6 +4709,74 @@ async function updateCodeSource(request: UpdateCodeSourceRequest): UpdateCodeSou
   return @handler.do('RESTFUL', 'UpdateCodeSource', 'PUT', '/api/v1/codesources/{CodeSourceId}', 'json', false, 'json', request);
 }
 
+model UpdateConfigRequest {
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='1234******2', position='Path'),
+  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Body'),
+  configKey?: string(name='ConfigKey', example='tempStoragePath', position='Body'),
+  configValue?: string(name='ConfigValue', example='oss://***', position='Body'),
+  labels?: [ 
+    {
+      key?: string(name='Key', example='key1'),
+      value?: string(name='Value', example='value1'),
+    }
+  ](name='Labels', position='Body'),
+}
+
+model UpdateConfigResponseBody = {
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+}
+
+model UpdateConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateConfig  UpdateConfigRequest
+  * @return UpdateConfigResponse
+ */
+async function updateConfig(request: UpdateConfigRequest): UpdateConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateConfig', 'PUT', '/api/v1/workspaces/{WorkspaceId}/config', 'json', false, 'json', request);
+}
+
+model UpdateConfigsRequest {
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='83***', position='Path'),
+  configs?: [ 
+    {
+      categoryName?: string(name='CategoryName', example='CommonResourceConfig'),
+      configKey?: string(name='ConfigKey', example='tempStoragePath'),
+      configValue?: string(name='ConfigValue', example='oss://test/s/'),
+      labels?: [ 
+        {
+          key?: string(name='Key', example='key1'),
+          value?: string(name='Value', example='value1'),
+        }
+      ](name='Labels'),
+    }
+  ](name='Configs', position='Body'),
+}
+
+model UpdateConfigsResponseBody = {
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+}
+
+model UpdateConfigsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateConfigsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateConfigs  UpdateConfigsRequest
+  * @return UpdateConfigsResponse
+ */
+async function updateConfigs(request: UpdateConfigsRequest): UpdateConfigsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateConfigs', 'PUT', '/api/v1/workspaces/{WorkspaceId}/configs', 'json', false, 'json', request);
+}
+
 model UpdateDatasetRequest {
   datasetId: string(name='DatasetId', description='The dataset ID. You can call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to obtain the dataset ID.
 
@@ -4647,7 +4823,7 @@ This parameter is required.', example='d-lfd60v0p****ujtsdx', position='Path'),
 This parameter is required.', position='Body'),
   datasetVersion?: string(name='DatasetVersion', description='The dataset version.', example='v1', position='Body'),
   tagJobId?: string(name='TagJobId', description='The ID of the tagging job that is associated with the metadata tag of the dataset file.', example='dsjob-hv0b1****u8taig3y', position='Body'),
-  workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the dataset belongs. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='796**', position='Body'),
+  workspaceId?: string(name='WorkspaceId', description='The ID of the workspace to which the dataset belongs. To obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='796**', position='Body'),
 }
 
 model UpdateDatasetFileMetasResponseBody = {
