@@ -468,7 +468,7 @@ model CreateSessionClusterRequest {
     }
   ](name='applicationConfigs', description='The Spark configurations.', position='Body'),
   autoStartConfiguration?: {
-    enable?: boolean(name='enable', description='Specifies whether to enable automatic startup is enabled.
+    enable?: boolean(name='enable', description='Specifies whether to enable automatic startup.
 
 *   true
 *   false', example='false'),
@@ -479,7 +479,7 @@ model CreateSessionClusterRequest {
 *   true
 *   false', example='false'),
     idleTimeoutMinutes?: integer(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='60'),
-  }(name='autoStopConfiguration', description='The automatic termination configurations.', position='Body'),
+  }(name='autoStopConfiguration', description='The automatic termination configuration.', position='Body'),
   displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-3.3.1', position='Body'),
   envId?: string(name='envId', description='The ID of the Python environment. This parameter takes effect only for notebook sessions.', example='env-cpv569tlhtgndjl86t40', position='Body'),
   fusion?: boolean(name='fusion', description='Specifies whether to enable Fusion engine for acceleration.', example='false', position='Body'),
@@ -487,7 +487,7 @@ model CreateSessionClusterRequest {
 
 *   SQL
 *   NOTEBOOK', example='SQL', position='Body'),
-  name?: string(name='name', description='The name of the Spark job.', example='spark_job_name', position='Body'),
+  name?: string(name='name', description='The name of the job.', example='spark_job_name', position='Body'),
   queueName?: string(name='queueName', description='The queue name.', example='root_queue', position='Body'),
   releaseVersion?: string(name='releaseVersion', description='The version number of Spark.', example='esr-3.3.1', position='Body'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou', position='Query'),
@@ -596,6 +596,35 @@ async function createWorkspace(request: CreateWorkspaceRequest): CreateWorkspace
   return @handler.do('RESTFUL', 'CreateWorkspace', 'POST', '/api/v1/workspaces', 'json', false, 'json', request);
 }
 
+model EditWorkspaceQueueRequest {
+  environments?: [ string ](name='environments', position='Body'),
+  resourceSpec?: {
+    cu?: long(name='cu', example='1000'),
+  }(name='resourceSpec', position='Body'),
+  workspaceId?: string(name='workspaceId', example='w-975bcfda9625****', position='Body'),
+  workspaceQueueName?: string(name='workspaceQueueName', example='dev_queue', position='Body'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model EditWorkspaceQueueResponseBody = {
+  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model EditWorkspaceQueueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EditWorkspaceQueueResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of EditWorkspaceQueue  EditWorkspaceQueueRequest
+  * @return EditWorkspaceQueueResponse
+ */
+async function editWorkspaceQueue(request: EditWorkspaceQueueRequest): EditWorkspaceQueueResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'EditWorkspaceQueue', 'POST', '/api/v1/workspaces/queues/action/edit', 'json', false, 'json', request);
+}
+
 model GetCuHoursRequest {
   workspaceId: string(name='workspaceId', description='The workspace ID.
 
@@ -685,12 +714,12 @@ model GetJobRunResponseBody = {
       configurations?: [
         Configuration
       ](name='configurations', description='The configurations.'),
-    }(name='configurationOverrides', description='The job configurations of Spark.'),
-    displayReleaseVersion?: string(name='displayReleaseVersion'),
+    }(name='configurationOverrides', description='The configurations of the Spark jobs.'),
+    displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
     endTime?: long(name='endTime', description='The end time of the job.', example='1684119314000'),
-    environmentId?: string(name='environmentId'),
+    environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpv569tlhtgndjl8****'),
     executionTimeoutSeconds?: int32(name='executionTimeoutSeconds', description='The timeout period of the job.', example='3600'),
-    fusion?: boolean(name='fusion'),
+    fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='false'),
     jobDriver?: JobDriver(name='jobDriver', description='The information about Spark Driver.'),
     jobRunId?: string(name='jobRunId', description='The job ID.', example='jr-231231'),
     log?: RunLog(name='log', description='The path where the operational logs are stored.'),
@@ -706,7 +735,7 @@ model GetJobRunResponseBody = {
     submitTime?: long(name='submitTime', description='The time when the job was submitted.', example='1684119314000'),
     tags?: [
       Tag
-    ](name='tags', description='The tags.'),
+    ](name='tags', description='The tags of the job.'),
     webUI?: string(name='webUI', description='The web UI of the job.', example='http://spark-ui'),
     workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-1234abcd'),
   }(name='jobRun', description='The details of the job.'),
@@ -858,7 +887,12 @@ async function getSqlStatement(request: GetSqlStatementRequest): GetSqlStatement
 model GetTemplateRequest {
   workspaceBizId?: string(name='workspaceBizId', description='The workspace ID.', example='w-8adde60aa809701f', position='Path'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou', position='Query'),
-  templateType?: string(name='templateType', description='The template type.', example='TASK', position='Query'),
+  templateType?: string(name='templateType', description='The template type.
+
+Valid values:
+
+*   TASK
+*   SESSION', example='TASK', position='Query'),
 }
 
 model GetTemplateResponseBody = {
@@ -921,10 +955,10 @@ This parameter is required.', example='w-1234abcd', position='Path'),
     endTime?: long(name='endTime', description='The end of the end time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the end time range.', example='1709740800000'),
   }(name='endTime', description='The range of end time.', shrink='json', position='Query'),
-  jobRunDeploymentId?: string(name='jobRunDeploymentId', position='Query'),
+  jobRunDeploymentId?: string(name='jobRunDeploymentId', description='The job run ID.', example='jd-b6d003f1930f****', position='Query'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx', position='Query'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20', position='Query'),
-  minDuration?: long(name='minDuration', position='Query'),
+  minDuration?: long(name='minDuration', description='The minimum running duration of the job. Unit: ms.', example='60000', position='Query'),
   name?: string(name='name', description='The job name.', example='emr-spark-demo-job', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou', position='Query'),
@@ -1187,7 +1221,7 @@ model ListSessionClustersResponseBody = {
       domain?: string(name='domain', description='The public endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou.data.aliyun.com'),
       domainInner?: string(name='domainInner', description='The internal endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
       draftId?: string(name='draftId', description='The ID of the job that is associated with the session.', example='TSK-xxxxxxxxx'),
-      extra?: string(name='extra'),
+      extra?: string(name='extra', description='The additional metadata of the session.', example='{"extraInfoKey":"extraInfoValue"}'),
       fusion?: boolean(name='fusion', description='Indicates whether the Fusion engine is used for acceleration.', example='false'),
       gmtCreate?: long(name='gmtCreate', description='The creation time.', example='1732267598000'),
       kind?: string(name='kind', description='The session type.
@@ -1262,17 +1296,23 @@ model ListWorkspaceQueuesResponseBody = {
           displayName?: string(name='displayName', description='The display name of the permission.', example='文件目录遍历、文件浏览'),
         }
       ](name='allowActions', description='The operations allowed for the queue.'),
-      createTime?: long(name='createTime'),
+      createTime?: long(name='createTime', description='The time when the workspace was created.', example='1684115879955'),
       creator?: string(name='creator', description='The ID of the user who created the queue.', example='237109'),
       environments?: [ string ](name='environments', description='The environment types of the queue.'),
       maxResource?: string(name='maxResource', description='The maximum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
       minResource?: string(name='minResource', description='The minimum capacity of resources that can be used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
-      paymentType?: string(name='paymentType'),
+      paymentType?: string(name='paymentType', description='The billing method. Valid values:
+
+*   PayAsYouGo
+*   Pre', example='PayAsYouGo'),
       properties?: string(name='properties', description='The queue label.', example='dev_queue'),
       queueName?: string(name='queueName', description='The name of the queue.', example='dev_queue'),
       queueScope?: string(name='queueScope', description='The queue architecture.', example='{"arch": "x86"}'),
       queueStatus?: string(name='queueStatus', description='The status of the queue.', example='RUNNING'),
-      queueType?: string(name='queueType', description='The queue type.', example='instance, instanceChildren'),
+      queueType?: string(name='queueType', description='The type of the queue. Valid values:
+
+*   instance
+*   instanceChildren', example='instance, instanceChildren'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
       usedResource?: string(name='usedResource', description='The capacity of resources that are used in the queue.', example='{"cpu": "2","memory": "2Gi"}'),
       workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-1234abcd'),
