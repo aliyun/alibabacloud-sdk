@@ -4367,6 +4367,9 @@ model CreateScalingRuleRequest {
       dimensionValue?: string(name='DimensionValue', description='The dimension value of the metric.', example='sgp-l1cbirz451yxuxxx'),
     }
   ](name='AlarmDimensions', description='The metric dimensions. This parameter is applicable to target tracking scaling rules. If your predefined metric requires extra dimensions, you must specify this parameter. For example, if you use LoadBalancerRealServerAverageQps as your predefined metric, you must use this parameter to specify the rulePool dimension.'),
+  alarmOptions?: {
+    period?: int32(name='Period'),
+  }(name='AlarmOptions'),
   cooldown?: int32(name='Cooldown', description='The cooldown time of the scaling rule. This parameter is available only if you set the ScalingRuleType parameter to SimpleScalingRule. Valid values: 0 to 86400. Unit: seconds.
 
 By default, this parameter is left empty.', example='60'),
@@ -4531,6 +4534,9 @@ async function createScalingRuleWithOptions(request: CreateScalingRuleRequest, r
   if (!$isNull(request.alarmDimensions)) {
     query['AlarmDimensions'] = request.alarmDimensions;
   }
+  if (!$isNull(request.alarmOptions)) {
+    query['AlarmOptions'] = request.alarmOptions;
+  }
   if (!$isNull(request.cooldown)) {
     query['Cooldown'] = request.cooldown;
   }
@@ -4652,10 +4658,10 @@ model CreateScheduledTaskRequest {
   launchExpirationTime?: int32(name='LaunchExpirationTime', description='The time period during which the failed scheduled task can be retried. Unit: seconds. Valid values: 0 to 1800.
 
 Default value: 600.', example='600'),
-  launchTime?: string(name='LaunchTime', description='The point in time at which the scheduled task is triggered. The time follows the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot enter a point in time that is later than 90 days from the point in time at which the scheduled task is created.
+  launchTime?: string(name='LaunchTime', description='The point in time at which the scheduled task is triggered. Specify the time in the ISO 8601 standard. The time must be in UTC. You cannot trigger a scheduled task more than 90 days after its creation.
 
-*   If you specify the `RecurrenceType` parameter, the scheduled task is repeatedly executed at the point in time that is specified by the LaunchTime parameter.
-*   If you do not specify the `RecurrenceType` parameter, the task is executed only once at the point in time that is specified by the LaunchTime parameter.', example='2014-08-17T16:52Z'),
+*   If you specify `RecurrenceType`, the scheduled task is repeatedly triggered at the point in time that is specified by LaunchTime.
+*   If you do not specify `RecurrenceType`, the scheduled task is triggered only once at the time point that is specified by LaunchTime.', example='2014-08-17T16:52Z'),
   maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group if you specify the ScalingGroupId parameter.', example='10'),
   minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group if you specify the ScalingGroupId parameter.', example='0'),
   ownerAccount?: string(name='OwnerAccount'),
@@ -6937,7 +6943,11 @@ Default value: NoSpot.', example='NoSpot'),
 }
 
 model DescribeElasticStrengthResponseBody = {
-  elasticStrength?: string(name='ElasticStrength', example='Strong'),
+  elasticStrength?: string(name='ElasticStrength', description='The scaling strength level of the scaling group. Valid values:
+
+*   Strong
+*   Medium
+*   Weak', example='Strong'),
   elasticStrengthModels?: [ 
     {
       elasticStrength?: string(name='ElasticStrength', description='The scaling strength level of the scaling group. Valid values:
@@ -6995,13 +7005,28 @@ Valid values: 0 to 3.', example='2'),
       code?: string(name='Code', description='The error code returned when the scaling strength is the weakest.', example='IMG_NOT_SUPPORTED'),
       instanceType?: string(name='InstanceType', description='The instance type of the resource pool.', example='ecs.c7t.xlarge'),
       inventoryHealth?: {
-        adequacyScore?: int32(name='AdequacyScore', example='3'),
-        healthScore?: int32(name='HealthScore', example='3'),
-        hotScore?: int32(name='HotScore', example='3'),
-        supplyScore?: int32(name='SupplyScore', example='3'),
-      }(name='InventoryHealth'),
+        adequacyScore?: int32(name='AdequacyScore', description='The adequacy score.
+
+Valid values: 0 to 3.', example='3'),
+        healthScore?: int32(name='HealthScore', description='The inventory health score.
+
+*   A score between 5 and 6 indicates a sufficient inventory.
+*   A score between 1 and 4 indicates that there is no guarantee of a sufficient inventory. Select a reservation as necessary.
+*   A score between -3 and 0 indicates that the inventory is sufficient, and an alert is triggered. Select another instance type.
+
+Calculation formula: `HealthScore` = `AdequacyScore` + `SupplyScore` - `HotScore`.', example='3'),
+        hotScore?: int32(name='HotScore', description='The popularity score.
+
+Valid values: 0 to 3.', example='3'),
+        supplyScore?: int32(name='SupplyScore', description='The replenishment capability score.
+
+Valid values: 0 to 3.', example='3'),
+      }(name='InventoryHealth', description='The inventory health.'),
       msg?: string(name='Msg', description='The error message returned when the scaling strength is the weakest.', example='The instanceType does not support the image in the configuration.'),
-      status?: string(name='Status', example='Available'),
+      status?: string(name='Status', description='Indicates whether the resource pool is available. Valid values:
+
+*   Available
+*   Unavailable (If a constraint is not provided, the instance type is not deployed, or the instance type is out of stock, the resource pool becomes unavailable.)', example='Available'),
       strength?: double(name='Strength', description='The scaling strength of the resource pool.', example='0.6'),
       vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of the vSwitches in the zones of the resource pool.'),
       zoneId?: string(name='ZoneId', description='The zone ID of the resource pool.', example='cn-hangzhou-g'),
@@ -8878,20 +8903,57 @@ async function describeScalingGroupDetail(request: DescribeScalingGroupDetailReq
 }
 
 model DescribeScalingGroupDiagnoseDetailsRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', example='cn-qingdao'),
-  scalingGroupId?: string(name='ScalingGroupId', description='This parameter is required.', example='asg-bp18p2yfxow2dloq****'),
+  regionId?: string(name='RegionId', description='The ID of the region to which the scaling group belongs.
+
+This parameter is required.', example='cn-qingdao'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****'),
 }
 
 model DescribeScalingGroupDiagnoseDetailsResponseBody = {
   details?: [ 
     {
-      diagnoseType?: string(name='DiagnoseType', example='SecurityGroup'),
-      errorCode?: string(name='ErrorCode', example='AccountArrearage'),
-      resourceId?: string(name='ResourceId', example='sg-280ih****'),
-      status?: string(name='Status', example='Normal'),
+      diagnoseType?: string(name='DiagnoseType', description='Item type for diagnostics. Possible values:
+- AccountArrearage: Checks if the user\\\\"s account is in arrears.
+- AccountNotEnoughBalance: Checks the account balance.
+- ElasticStrength: Checks the inventory health of instance types corresponding to the scaling group configuration.
+- VSwitch: Checks if the switch is available, for example, whether it has been deleted.
+- SecurityGroup: Checks if the security group is available, for example, whether it has been deleted.
+- KeyPair: Checks if the key pair is available, for example, whether it has been deleted.
+- SlbBackendServerQuota: Checks if the number of ECS instances mounted to the default SLB group and virtual server group exceeds the quota.
+- AlbBackendServerQuota: Checks if the number of ECS instances mounted to the ALB group exceeds the quota.
+- NlbBackendServerQuota: Checks if the number of ECS instances mounted to the NLB group exceeds the quota.', example='SecurityGroup'),
+      errorCode?: string(name='ErrorCode', description='Error code of the diagnostic item. Possible values:
+
+- VSwitchIdNotFound: The VSwitch does not exist.
+
+- SecurityGroupNotFound: The security group does not exist.
+
+- KeyPairNotFound: The key pair does not exist.
+
+- SlbBackendServerQuotaExceeded: The number of ECS instances mounted on the backend of the SLB default group and virtual server group exceeds the quota.
+
+- AlbBackendServerQuotaExceeded: The number of ECS instances mounted on the backend of the ALB group exceeds the quota.
+
+- NlbBackendServerQuotaExceeded: The number of ECS instances mounted on the backend of the NLB group exceeds the quota.
+
+- AccountArrearage: The account is in arrears.
+
+- AccountNotEnoughBalance: The account balance is insufficient.
+
+- ElasticStrengthAlert: The inventory health is poor.', example='AccountArrearage'),
+      resourceId?: string(name='ResourceId', description='The resource ID corresponding to the diagnostic result.', example='sg-280ih****'),
+      status?: string(name='Status', description='Status of the diagnostic item. Possible values:
+
+- Normal: The diagnostic result is normal.
+
+- Warn: The diagnostic result is a warning.
+
+- Critical: The diagnostic result is critical.', example='Normal'),
     }
-  ](name='Details'),
-  requestId?: string(name='RequestId', description='Id of the request', example='688B18B8-FB1E-42EB-A1ED-7F55B090****'),
+  ](name='Details', description='Details of the diagnostic report.'),
+  requestId?: string(name='RequestId', description='ID of the request', example='688B18B8-FB1E-42EB-A1ED-7F55B090****'),
 }
 
 model DescribeScalingGroupDiagnoseDetailsResponse = {
@@ -8901,7 +8963,7 @@ model DescribeScalingGroupDiagnoseDetailsResponse = {
 }
 
 /**
- * @summary Queries the latest diagnosis details for a scaling group. Diagnosis details are only returned in the presence of exceptions.
+ * @summary DescribeScalingGroupDiagnoseDetails
  *
  * @param request DescribeScalingGroupDiagnoseDetailsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -8928,7 +8990,7 @@ async function describeScalingGroupDiagnoseDetailsWithOptions(request: DescribeS
 }
 
 /**
- * @summary Queries the latest diagnosis details for a scaling group. Diagnosis details are only returned in the presence of exceptions.
+ * @summary DescribeScalingGroupDiagnoseDetails
  *
  * @param request DescribeScalingGroupDiagnoseDetailsRequest
  * @return DescribeScalingGroupDiagnoseDetailsResponse
@@ -9559,6 +9621,7 @@ model DescribeScalingRulesResponseBody = {
 
 *   system: system metrics
 *   custom: custom metrics', example='system'),
+          period?: int32(name='Period'),
           statistics?: string(name='Statistics', description='The statistical method of the event-triggered task that is associated with the scaling rule. Valid values:
 
 *   Average
@@ -14358,6 +14421,9 @@ model ModifyScalingRuleRequest {
       dimensionValue?: string(name='DimensionValue', description='The dimension value of the metric.', example='sgp-l1cbirz451yxu2dxxx'),
     }
   ](name='AlarmDimensions', description='The dimensions. This parameter is applicable to target tracking scaling rules. You can specify this parameter if your predefined metric requires extra dimensions. For example, if you predefine the LoadBalancerRealServerAverageQps metric, you must use this parameter to specify the rulePool dimension.'),
+  alarmOptions?: {
+    period?: int32(name='Period'),
+  }(name='AlarmOptions'),
   cooldown?: int32(name='Cooldown', description='The cooldown time of the scaling rule. This parameter is available only if you set the ScalingRuleType parameter to SimpleScalingRule.
 
 Valid values: 0 to 86400. Unit: seconds.', example='60'),
@@ -14478,6 +14544,9 @@ async function modifyScalingRuleWithOptions(request: ModifyScalingRuleRequest, r
   }
   if (!$isNull(request.alarmDimensions)) {
     query['AlarmDimensions'] = request.alarmDimensions;
+  }
+  if (!$isNull(request.alarmOptions)) {
+    query['AlarmOptions'] = request.alarmOptions;
   }
   if (!$isNull(request.cooldown)) {
     query['Cooldown'] = request.cooldown;
@@ -14954,9 +15023,12 @@ Default value: false.', example='false'),
 
 This parameter is required.'),
   lifecycleHookContext?: {
-    disableLifecycleHook?: boolean(name='DisableLifecycleHook'),
-    ignoredLifecycleHookIds?: [ string ](name='IgnoredLifecycleHookIds'),
-  }(name='LifecycleHookContext'),
+    disableLifecycleHook?: boolean(name='DisableLifecycleHook', description='Specifies whether to disable the lifecycle hook. Valid Values:
+
+*   true
+*   false', example='false'),
+    ignoredLifecycleHookIds?: [ string ](name='IgnoredLifecycleHookIds', description='The IDs of the lifecycle hooks that you want to disable.'),
+  }(name='LifecycleHookContext', description='The context of the lifecycle hook.'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-qingdao'),
@@ -15013,7 +15085,7 @@ Default value: false.', example='false'),
   instanceIds?: [ string ](name='InstanceIds', description='The IDs of the ECS instances that you want to remove from the scaling group.
 
 This parameter is required.'),
-  lifecycleHookContextShrink?: string(name='LifecycleHookContext'),
+  lifecycleHookContextShrink?: string(name='LifecycleHookContext', description='The context of the lifecycle hook.'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-qingdao'),
@@ -15444,6 +15516,7 @@ This parameter is required.', example='100'),
     memory?: float(name='Memory', description='The memory size that you want to allocate to the instance. Unit: GiB.', example='4'),
   }(name='Overrides', description='The overrides that allow you to adjust the scaling group of the Elastic Container Instance type during a scale-out event.'),
   ownerId?: long(name='OwnerId'),
+  parallelTask?: boolean(name='ParallelTask'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
 
@@ -15479,6 +15552,7 @@ This parameter is required.', example='100'),
   minAdjustmentMagnitude?: int32(name='MinAdjustmentMagnitude', description='The minimum number of instances allowed in each adjustment. This parameter takes effect only if you set the `AdjustmentType` parameter to `PercentChangeInCapacity`.', example='1'),
   overridesShrink?: string(name='Overrides', description='The overrides that allow you to adjust the scaling group of the Elastic Container Instance type during a scale-out event.'),
   ownerId?: long(name='OwnerId'),
+  parallelTask?: boolean(name='ParallelTask'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
 
@@ -15558,6 +15632,9 @@ async function scaleWithAdjustmentWithOptions(tmpReq: ScaleWithAdjustmentRequest
   }
   if (!$isNull(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
+  }
+  if (!$isNull(request.parallelTask)) {
+    query['ParallelTask'] = request.parallelTask;
   }
   if (!$isNull(request.resourceOwnerAccount)) {
     query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
