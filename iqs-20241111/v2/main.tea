@@ -172,9 +172,9 @@ model UnifiedPageItem {
   link?: string(name='link'),
   mainText?: string(name='mainText'),
   markdownText?: string(name='markdownText'),
-  publishedTime?: string(name='publishedTime'),
+  publishedTime?: string(name='publishedTime', example='2025-04-07T10:15:30.123+08:00'),
   rerankScore?: double(name='rerankScore'),
-  snippet?: string(name='snippet', example='2025-04-07T10:15:30.123+08:00'),
+  snippet?: string(name='snippet'),
   summary?: string(name='summary'),
   title?: string(name='title'),
 }
@@ -199,7 +199,7 @@ model UnifiedSearchInformation {
   searchTime?: long(name='searchTime'),
 }
 
-model UnifiedSearchRequest {
+model UnifiedSearchInput {
   category?: string(name='category'),
   contents?: RequestContents(name='contents'),
   engineType?: string(name='engineType'),
@@ -207,7 +207,7 @@ model UnifiedSearchRequest {
   timeRange?: string(name='timeRange'),
 }
 
-model UnifiedSearchResponse {
+model UnifiedSearchOutput {
   costCredits?: UnifiedCostCredits(name='costCredits'),
   pageItems?: [
     UnifiedPageItem
@@ -547,5 +547,55 @@ async function globalSearch(request: GlobalSearchRequest): GlobalSearchResponse 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return globalSearchWithOptions(request, headers, runtime);
+}
+
+model UnifiedSearchRequest {
+  body?: UnifiedSearchInput(name='body'),
+}
+
+model UnifiedSearchResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnifiedSearchOutput  
+}
+
+/**
+ * @summary 通晓统一搜索API
+ *
+ * @param request UnifiedSearchRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UnifiedSearchResponse
+ */
+async function unifiedSearchWithOptions(request: UnifiedSearchRequest, headers: map[string]string, runtime: $RuntimeOptions): UnifiedSearchResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UnifiedSearch',
+    version = '2024-11-11',
+    protocol = 'HTTPS',
+    pathname = `/linked-retrieval/linked-retrieval-entry/v1/iqs/search/unified`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 通晓统一搜索API
+ *
+ * @param request UnifiedSearchRequest
+ * @return UnifiedSearchResponse
+ */
+async function unifiedSearch(request: UnifiedSearchRequest): UnifiedSearchResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return unifiedSearchWithOptions(request, headers, runtime);
 }
 
