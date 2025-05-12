@@ -63,6 +63,39 @@ async function authDiagnosis(request: AuthDiagnosisRequest): AuthDiagnosisRespon
   return @handler.do('RESTFUL', 'AuthDiagnosis', 'POST', '/api/v1/openapi/diagnosis/auth', 'json', false, 'json', request);
 }
 
+model CheckInstanceSupportRequest {
+  instances?: [ string ](name='instances', example='["i-2zxxxxxx"]', position='Body'),
+  region?: string(name='region', example='cn-hangzhou', position='Body'),
+}
+
+model CheckInstanceSupportResponseBody = {
+  code?: string(name='code', example='Success'),
+  data?: [ 
+    {
+      instance?: string(name='instance', example='i-wz9d00ut2ska3mlyhn6j'),
+      reason?: string(name='reason', example='instance not found in ecs'),
+      support?: boolean(name='support', example='true'),
+    }
+  ](name='data'),
+  message?: string(name='message', example='SysomOpenAPIAssumeRoleException: EntityNotExist.Role The role not exists: acs:ram::xxxxx:role/aliyunserviceroleforsysom'),
+  requestId?: string(name='requestId', description='Id of the request', example='2D693121-C925-5154-8DF6-C09A8B369822'),
+}
+
+model CheckInstanceSupportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckInstanceSupportResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CheckInstanceSupport  CheckInstanceSupportRequest
+  * @return CheckInstanceSupportResponse
+ */
+async function checkInstanceSupport(request: CheckInstanceSupportRequest): CheckInstanceSupportResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CheckInstanceSupport', 'POST', '/api/v1/am/supportInstanceList/checkInstanceSupport', 'json', false, 'json', request);
+}
+
 model GenerateCopilotResponseRequest {
   llmParamString?: string(name='llmParamString', position='Body'),
 }
@@ -974,9 +1007,9 @@ model GetRangeScoreResponseBody = {
   code?: string(name='code', description='代表资源一级ID的资源属性字段', example='Success'),
   data?: [ 
     {
-      time?: float(name='time', example='1725797727754'),
+      time?: long(name='time', example='1725797727754'),
       type?: string(name='type', example='saturation'),
-      value?: float(name='value', example='100'),
+      value?: long(name='value', example='100'),
     }
   ](name='data'),
   message?: string(name='message', example='""'),
@@ -1244,21 +1277,32 @@ model ListAbnormalyEventsResponseBody = {
   code?: string(name='code', example='Success'),
   data?: [ 
     {
-      createdAt?: float(name='created_at', example='1725801090000'),
+      createdAt?: long(name='created_at', example='1725801090000'),
       description?: string(name='description'),
-      id?: string(name='id', example='1'),
+      diagStatus?: int32(name='diag_status'),
+      endAt?: long(name='end_at'),
       instance?: string(name='instance', example='i-wz9d00ut2ska3mlyhn6j'),
       item?: string(name='item'),
-      opts?: {
-        label?: string(name='label', example='diagnose'),
-        params?: string(name='params', example='"{\\"service_name\\": \\"oomcheck\\", \\"params\\": {\\"auto_initial\\": true, \\"instance\\": \\"i-wz9d00ut2ska3mlyhn6i\\", \\"region\\": \\"cn-shenzhen\\", \\"uuid\\": \\"24576d0c-a19d-49dd-8a64-3867440fd7a6\\", \\"is_history\\": 1}}"'),
-        type?: string(name='type', example='realtime'),
-      }(name='opts'),
+      level?: string(name='level'),
+      namespace?: string(name='namespace'),
+      opts?: [ 
+        {
+          label?: string(name='label'),
+          result?: {
+            status?: string(name='status'),
+            url?: string(name='url'),
+          }(name='result'),
+          type?: string(name='type'),
+        }
+      ](name='opts'),
+      pod?: string(name='pod'),
       regionId?: string(name='region_id', example='cn-shanghai'),
       type?: string(name='type', example='saturation'),
+      uuid?: string(name='uuid'),
     }
   ](name='data'),
   message?: string(name='message'),
+  total?: int32(name='total'),
 }
 
 model ListAbnormalyEventsResponse = {
@@ -1507,15 +1551,17 @@ model ListInstanceHealthRequest {
 
 model ListInstanceHealthResponseBody = {
   code?: string(name='code', example='SysomOpenAPI.ServerError'),
-  data?: {
-    images?: [ string ](name='images'),
-    instance?: string(name='instance', example='i-wz9d00ut2ska3mlyhn6j'),
-    namespace?: string(name='namespace', example='default'),
-    pod?: string(name='pod', example='test-pod'),
-    regionId?: string(name='region_id', example='cn-shenzhen'),
-    score?: float(name='score', example='100'),
-    status?: string(name='status', example='Running'),
-  }(name='data'),
+  data?: [ 
+    {
+      images?: [ string ](name='images'),
+      instance?: string(name='instance'),
+      namespace?: string(name='namespace'),
+      pod?: string(name='pod'),
+      regionId?: string(name='region_id'),
+      score?: float(name='score'),
+      status?: string(name='status'),
+    }
+  ](name='data'),
   message?: string(name='message', example='Query no data'),
   requestId?: string(name='request_id', example='35F91AAB-5FDF-5A22-B211-C7C6B00817D0'),
   total?: int32(name='total', example='42'),
@@ -1690,6 +1736,7 @@ model ListInstancesWithEcsInfoResponseBody = {
           tagValue?: string(name='tag_value', example='test_tag_value'),
         }
       ](name='instance_tag'),
+      kernelVersion?: string(name='kernel_version'),
       osArch?: string(name='os_arch', example='x86'),
       osHealthScore?: string(name='os_health_score', example='100'),
       osName?: string(name='os_name', example='Alibaba Cloud Linux  3.2104 LTS 64bit'),
@@ -1930,11 +1977,9 @@ async function uninstallAgentForCluster(request: UninstallAgentForClusterRequest
 }
 
 model UpdateEventsAttentionRequest {
-  body?: {
-    mode?: int32(name='mode', example='0'),
-    range?: string(name='range', example='cluster'),
-    uuid: string(name='uuid', description='This parameter is required.', example='03de78af-f49f-433d-b5b1-0f6a70c493ba'),
-  }(name='body', shrink='json', position='Query'),
+  mode?: int32(name='mode', position='Body'),
+  range?: string(name='range', position='Body'),
+  uuid: string(name='uuid', description='This parameter is required.', position='Body'),
 }
 
 model UpdateEventsAttentionResponseBody = {
@@ -1967,15 +2012,18 @@ model UpdateFuncSwitchRecordRequest {
     args?: {
       addCmd?: string(name='add_cmd', example='java'),
       cpu?: string(name='cpu', example='true'),
+      duration?: int32(name='duration'),
       javaStorePath?: string(name='java_store_path', example='/tmp/sysom/java-profiler'),
       locks?: string(name='locks', example='true'),
       loop?: int32(name='loop', example='-1'),
       mem?: string(name='mem', example='true'),
+      pid?: int32(name='pid'),
       systemProfiling?: string(name='system_profiling', example='true'),
     }(name='args'),
     functionName: string(name='function_name', description='This parameter is required.', example='mullprof'),
     instance?: string(name='instance', example='i-2zei55fwj8nnu31h3z46'),
     op?: string(name='op', example='restart'),
+    region?: string(name='region'),
     uid?: string(name='uid', example='1664516888213680'),
   }(name='params', description='This parameter is required.', shrink='json', position='Query'),
   serviceName: string(name='service_name', description='This parameter is required.', example='livetrace', position='Query'),
