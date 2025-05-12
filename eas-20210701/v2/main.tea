@@ -570,7 +570,7 @@ model CreateAppServiceResponse = {
 }
 
 /**
- * @summary Creates an application service.
+ * @summary Creates an application service to obtain the inference capabilities of large models.
  *
  * @param request CreateAppServiceRequest
  * @param headers map
@@ -627,7 +627,7 @@ async function createAppServiceWithOptions(request: CreateAppServiceRequest, hea
 }
 
 /**
- * @summary Creates an application service.
+ * @summary Creates an application service to obtain the inference capabilities of large models.
  *
  * @param request CreateAppServiceRequest
  * @return CreateAppServiceResponse
@@ -996,8 +996,8 @@ model CreateResourceRequest {
   ecsInstanceType?: string(name='EcsInstanceType', description='The type of the Elastic Compute Service (ECS) instance.
 
 >  This parameter is required when the ResourceType parameter is set to Dedicated.', example='ecs.c6.8xlarge'),
-  labels?: map[string]string(name='Labels', description='The custom tag.'),
-  resourceName?: string(name='ResourceName'),
+  labels?: map[string]string(name='Labels', description='The labels.'),
+  resourceName?: string(name='ResourceName', example='MyResource'),
   resourceType?: string(name='ResourceType', description='The type of the resource group. Valid values:
 
 *   Dedicated: the dedicated resource group.
@@ -1009,7 +1009,7 @@ model CreateResourceRequest {
     nodeMatchLabels?: map[string]string(name='NodeMatchLabels', description='The tag key-value pairs of the node.'),
     nodeTolerations?: [ 
       {
-        effect?: string(name='effect', description='The result.
+        effect?: string(name='effect', description='The effect.
 
 Valid values:
 
@@ -7702,6 +7702,65 @@ async function updateGateway(GatewayId: string, ClusterId: string, request: Upda
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateGatewayWithOptions(GatewayId, ClusterId, request, headers, runtime);
+}
+
+model UpdateGroupRequest {
+  trafficMode?: string(name='TrafficMode', description='The traffic mode. Valid values: auto and customized. auto: The traffic is automatically allocated based on the proportion of the number of instances to the total number of instances. customized: The traffic is allocated based on a custom weight.', example='auto'),
+}
+
+model UpdateGroupResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='40325405-579C-4D82****'),
+}
+
+model UpdateGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the specific fields of a service group.
+ *
+ * @param request UpdateGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateGroupResponse
+ */
+async function updateGroupWithOptions(ClusterId: string, GroupName: string, request: UpdateGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateGroupResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.trafficMode)) {
+    body['TrafficMode'] = request.trafficMode;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateGroup',
+    version = '2021-07-01',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/groups/${$URL.percentEncode(ClusterId)}/${$URL.percentEncode(GroupName)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the specific fields of a service group.
+ *
+ * @param request UpdateGroupRequest
+ * @return UpdateGroupResponse
+ */
+async function updateGroup(ClusterId: string, GroupName: string, request: UpdateGroupRequest): UpdateGroupResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateGroupWithOptions(ClusterId, GroupName, request, headers, runtime);
 }
 
 model UpdateResourceRequest {
