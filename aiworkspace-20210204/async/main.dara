@@ -55,6 +55,31 @@ model Collection {
   userId?: string(name='UserId', example='155770209******'),
 }
 
+model Connection {
+  accessibility?: string(name='Accessibility'),
+  configs?: map[string]string(name='Configs'),
+  connectionId?: string(name='ConnectionId'),
+  connectionName?: string(name='ConnectionName'),
+  connectionType?: string(name='ConnectionType'),
+  creator?: string(name='Creator'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime'),
+  gmtModifiedTime?: string(name='GmtModifiedTime'),
+  models?: [ 
+    {
+      displayName?: string(name='DisplayName'),
+      model?: string(name='Model'),
+      modelType?: string(name='ModelType'),
+    }
+  ](name='Models'),
+  resourceMeta?: {
+    instanceId?: string(name='InstanceId'),
+    instanceName?: string(name='InstanceName'),
+  }(name='ResourceMeta'),
+  secrets?: map[string]string(name='Secrets'),
+  workspaceId?: string(name='WorkspaceId'),
+}
+
 model Dataset {
   accessibility?: string(name='Accessibility', example='PRIVATE PUBLIC'),
   dataSourceType?: string(name='DataSourceType', example='OSS URL'),
@@ -110,6 +135,7 @@ model DatasetFileMetaConentUpdate {
   dataSize?: long(name='DataSize'),
   datasetFileMetaId: string(name='DatasetFileMetaId', description='This parameter is required.'),
   fileCreateTime?: string(name='FileCreateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2021-01-12T14:36:01.000Z'),
+  fileFingerPrint?: string(name='FileFingerPrint'),
   fileName?: string(name='FileName'),
   fileType?: string(name='FileType'),
   fileUpdateTime?: string(name='FileUpdateTime', description='Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='2021-01-12T14:36:01.000Z'),
@@ -1307,7 +1333,8 @@ This parameter is required.', example='model-dfs1****5c', position='Path'),
 *   ONNX', example='SavedModel', position='Body'),
   frameworkType?: string(name='FrameworkType', description='The framework of the model. Valid values:
 
-*   Pytorch -XGBoost
+*   Pytorch 
+*   XGBoost
 *   Keras
 *   Caffe
 *   Alink
@@ -2293,24 +2320,48 @@ async function getCodeSource(request: GetCodeSourceRequest): GetCodeSourceRespon
 }
 
 model GetConfigRequest {
-  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='1234******2', position='Path'),
-  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Query'),
-  configKey?: string(name='ConfigKey', example='tempStoragePath', position='Query'),
-  verbose?: string(name='Verbose', example='oss://***', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='1234******2', position='Path'),
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle
+*   DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
+  configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath', position='Query'),
+  verbose?: string(name='Verbose', description='The value of the configuration item.', example='oss://***', position='Query'),
 }
 
 model GetConfigResponseBody = {
-  categoryName?: string(name='CategoryName', example='CommonResourceConfig'),
-  configKey?: string(name='ConfigKey', example='tempStoragePath'),
-  configValue?: string(name='ConfigValue', example='oss://***'),
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle
+*   DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig'),
+  configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath'),
+  configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://***'),
   labels?: [ 
     {
-      key?: string(name='Key', example='key1'),
-      value?: string(name='Value', example='value1'),
+      key?: string(name='Key', description='The tag key.', example='key1'),
+      value?: string(name='Value', description='The tag value.', example='value1'),
     }
-  ](name='Labels'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
-  workspaceId?: string(name='WorkspaceId', example='1234******2'),
+  ](name='Labels', description='The tags of the configuration item.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='1234******2'),
 }
 
 model GetConfigResponse = {
@@ -3219,28 +3270,49 @@ async function listCodeSources(request: ListCodeSourcesRequest): ListCodeSources
 }
 
 model ListConfigsRequest {
-  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='87***', position='Path'),
-  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Query'),
-  configKeys?: string(name='ConfigKeys', example='tempStoragePath', position='Query'),
-  labels?: string(name='Labels', example='key1=value1,key2=value2', position='Query'),
-  verbose?: string(name='Verbose', example='true', position='Query'),
+  workspaceId: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='87***', position='Path'),
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle
+*   DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
+  configKeys?: string(name='ConfigKeys', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath', position='Query'),
+  labels?: string(name='Labels', description='The tags used as filter conditions. Separate multiple tags with commas (,). These conditions are in an AND relationship.', example='key1=value1,key2=value2', position='Query'),
+  verbose?: string(name='Verbose', description='Specifies whether to show the tag information.
+
+*   true
+*   false', example='true', position='Query'),
 }
 
 model ListConfigsResponseBody = {
   configs?: [ 
     {
-      configKey?: string(name='ConfigKey', example='tempTableLifecycle'),
-      configValue?: string(name='ConfigValue', example='oss://***'),
+      configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempTableLifecycle'),
+      configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://***'),
       labels?: [ 
         {
-          key?: string(name='Key', example='key1'),
-          value?: string(name='Value', example='value1'),
+          key?: string(name='Key', description='The tag key.', example='key1'),
+          value?: string(name='Value', description='The tag value.', example='value1'),
         }
-      ](name='Labels'),
+      ](name='Labels', description='The tags of the configuration item.'),
     }
-  ](name='Configs'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
-  totalCount?: long(name='TotalCount', example='15'),
+  ](name='Configs', description='The configuration items.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  totalCount?: long(name='TotalCount', description='The number of items returned.', example='15'),
 }
 
 model ListConfigsResponse = {
@@ -4710,20 +4782,33 @@ async function updateCodeSource(request: UpdateCodeSourceRequest): UpdateCodeSou
 }
 
 model UpdateConfigRequest {
-  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='1234******2', position='Path'),
-  categoryName?: string(name='CategoryName', example='CommonResourceConfig', position='Body'),
-  configKey?: string(name='ConfigKey', example='tempStoragePath', position='Body'),
-  configValue?: string(name='ConfigValue', example='oss://***', position='Body'),
+  workspaceId: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='1234******2', position='Path'),
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle
+*   DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig', position='Body'),
+  configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath', position='Body'),
+  configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://***', position='Body'),
   labels?: [ 
     {
-      key?: string(name='Key', example='key1'),
-      value?: string(name='Value', example='value1'),
+      key?: string(name='Key', description='The key of the tag.', example='key1'),
+      value?: string(name='Value', description='The value of the tag.', example='value1'),
     }
-  ](name='Labels', position='Body'),
+  ](name='Labels', description='The tags of the configuration item.', position='Body'),
 }
 
 model UpdateConfigResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
 }
 
 model UpdateConfigResponse = {
@@ -4742,24 +4827,37 @@ async function updateConfig(request: UpdateConfigRequest): UpdateConfigResponse 
 }
 
 model UpdateConfigsRequest {
-  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='83***', position='Path'),
+  workspaceId: string(name='WorkspaceId', description='The workspace ID.
+
+This parameter is required.', example='83***', position='Path'),
   configs?: [ 
     {
-      categoryName?: string(name='CategoryName', example='CommonResourceConfig'),
-      configKey?: string(name='ConfigKey', example='tempStoragePath'),
-      configValue?: string(name='ConfigValue', example='oss://test/s/'),
+      categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+
+*   CommonResourceConfig
+*   DLCAutoRecycle
+*   DLCPriorityConfig
+*   DSWPriorityConfig
+*   QuotaMaximumDuration', example='CommonResourceConfig'),
+      configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
+*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
+*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath'),
+      configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://test/s/'),
       labels?: [ 
         {
-          key?: string(name='Key', example='key1'),
-          value?: string(name='Value', example='value1'),
+          key?: string(name='Key', description='The key of the tag.', example='key1'),
+          value?: string(name='Value', description='The value of the tag.', example='value1'),
         }
-      ](name='Labels'),
+      ](name='Labels', description='The tags of the configuration item.'),
     }
-  ](name='Configs', position='Body'),
+  ](name='Configs', description='The list of workspace configurations to update or add.', position='Body'),
 }
 
 model UpdateConfigsResponseBody = {
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A******C83E'),
 }
 
 model UpdateConfigsResponse = {
