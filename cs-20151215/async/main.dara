@@ -579,11 +579,11 @@ async function checkControlPlaneLogEnable(request: CheckControlPlaneLogEnableReq
 model CheckServiceRoleRequest {
   roles: [ 
     {
-      name: string(name='name', description='The name of the service role. For more information about ACK roles, see [ACK roles](https://help.aliyun.com/document_detail/86483.html).
+      name: string(name='name', description='The server role name. For more information about the service roles and their permissions in ACK, see [ACK roles](https://help.aliyun.com/document_detail/86483.html).
 
 This parameter is required.', example='AliyunCSManagedAutoScalerRole'),
     }
-  ](name='roles', description='The service roles that you want to check.
+  ](name='roles', description='The list of service roles you want to check.
 
 This parameter is required.', position='Body'),
 }
@@ -1339,12 +1339,12 @@ model CreateClusterResponse = {
 }
 
 /**
-  * @description ### [](#-openapi-)Generate API request parameters in the ACK console
-  * When you fail to create an ACK cluster by calling the CreateCluster operation due to invalid parameter settings, you can generate valid API request parameters in the ACK console. Procedure:
-  * 1.  Log on to the [ACK console](https://cs.console.aliyun.com). In the left-side navigation pane, click **Clusters**.
-  * 2.  On the **Cluster** page, click **Cluster Templates**.
-  * 3.  In the Select Cluster Template dialog box, select the type of cluster that you want to create and click Create. Then, configure the cluster setting parameters.
-  * 4.  After you configure the cluster parameters, click **Generate API Request Parameters** in the **Confirm Order** step.
+  * @description ### [](#-openapi-)Generate API request parameters through the ACK console
+  * When calling the CreateCluster operation to create a cluster, if the API call fails due to invalid parameter settings, you can generate valid request parameters through the ACK console. Follow these steps:
+  * 1.  Log on to the [ACK console](https://csnew.console.aliyun.com). In the left-side navigation pane, click **Clusters**.
+  * 2.  On the **Clusters** page, click **Cluster Templates**.
+  * 3.  In the Select Cluster Template dialog box, select the type of cluster you want to create and click Create. Then, configure the cluster parameters.
+  * 4.  In the **Confirm** step, click **Generate API Request Parameters**.
   *     The API request parameters are displayed in the API Request Parameters dialog box.
   * @param request  the request parameters of CreateCluster  CreateClusterRequest
   * @return CreateClusterResponse
@@ -1415,6 +1415,32 @@ async function createClusterDiagnosis(request: CreateClusterDiagnosisRequest): C
   return @handler.do('RESTFUL', 'CreateClusterDiagnosis', 'POST', '/clusters/{cluster_id}/diagnosis', 'json', false, 'json', request);
 }
 
+model CreateClusterInspectConfigRequest {
+  clusterId: string(name='clusterId', description='This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  disabledCheckItems?: [ string ](name='disabledCheckItems', position='Body'),
+  enabled: boolean(name='enabled', description='This parameter is required.', example='true', position='Body'),
+  recurrence: string(name='recurrence', description='This parameter is required.', example='FREQ=DAILY;BYHOUR=10;BYMINUTE=15', position='Body'),
+}
+
+model CreateClusterInspectConfigResponseBody = {
+  requestId?: string(name='requestId', example='873DC52C-28AA-5A5C-938C-684D3D4B****'),
+}
+
+model CreateClusterInspectConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateClusterInspectConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateClusterInspectConfig  CreateClusterInspectConfigRequest
+  * @return CreateClusterInspectConfigResponse
+ */
+async function createClusterInspectConfig(request: CreateClusterInspectConfigRequest): CreateClusterInspectConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateClusterInspectConfig', 'POST', '/clusters/{clusterId}/inspectConfig', 'json', false, 'json', request);
+}
+
 model CreateClusterNodePoolRequest {
   clusterId: string(name='ClusterId', description='The ID of the cluster.
 
@@ -1457,9 +1483,9 @@ Default value: `false`.
 **
 
 **Important** This parameter is deprecated. Use the internet_charge_type and internet_max_bandwidth_out parameters instead.', example='true', deprecated='true'),
-    maxInstances?: long(name='max_instances', description='The maximum number to which the Elastic Compute Service (ECS) instances in the node pool can be scaled. The number of nodes in the node pool cannot be greater than this value. This parameter takes effect only if `enable` is set to true. Valid values: [min_instances, 2000]. Default value: 0.', example='10'),
-    minInstances?: long(name='min_instances', description='The minimum number to which the ECS instances in the node pool can be scaled. The number of nodes in the node pool cannot be smaller than this value. This parameter takes effect only if `enable` is set to true. Valid values: [0, max_instances]. Default value: 0.', example='1'),
-    type?: string(name='type', description='The instance type that is used for auto scaling. This parameter takes effect only if `enable` is set to true. Valid values:
+    maxInstances?: long(name='max_instances', description='The maximum number to which the Elastic Compute Service (ECS) instances in the node pool can be scaled. The number of nodes in the node pool cannot be greater than this value. This parameter takes effect only when `enable` is set to true. Valid values: [min_instances, 2000]. Default value: 0.', example='10'),
+    minInstances?: long(name='min_instances', description='The minimum number to which the ECS instances in the node pool can be scaled. The number of nodes in the node pool cannot be smaller than this value. This parameter takes effect only when `enable` is set to true. Valid values: [0, max_instances]. Default value: 0.', example='1'),
+    type?: string(name='type', description='The instance type that is used for auto scaling. This parameter takes effect only when `enable` is set to true. Valid values:
 
 *   `cpu`: regular instance.
 *   `gpu`: GPU-accelerated instance.
@@ -1510,7 +1536,7 @@ The configurations of the edge node pool.', deprecated='true', position='Body'),
 *   `true`: installs the CloudMonitor agent on ECS nodes.
 *   `false`: does not install the CloudMonitor agent on ECS nodes.
 
-Default value: `false`.', example='true'),
+Default value: `false`', example='true'),
     cpuPolicy?: string(name='cpu_policy', description='The CPU management policy of nodes in the node pool. The following policies are supported if the Kubernetes version of the cluster is 1.12.6 or later:
 
 *   `static`: allows pods with specific resource characteristics on the node to be granted with enhanced CPU affinity and exclusivity.
@@ -1542,54 +1568,54 @@ Default value: containerd.', example='docker'),
     userData?: string(name='user_data', description='The user-defined data of nodes. You can specify custom scripts that are automatically executed after the nodes are initialized.', example='dGhpcyBpcyBhIGV4YW1wbGU='),
   }(name='kubernetes_config', description='The configurations of the cluster.', position='Body'),
   management?: {
-    autoRepair?: boolean(name='auto_repair', description='Specifies whether to enable auto node repair. This parameter takes effect only if `enable` is set to true.
+    autoRepair?: boolean(name='auto_repair', description='Specifies whether to enable auto node repair. This parameter takes effect only when `enable` is set to true.
 
 *   `true`: enables auto node repair.
 *   `false`: disables auto node repair.
 
 If `enable` is set to true, the default value of this parameter is `true`. If `enable` is set to false, the default value of this parameter is `false`.', example='false'),
     autoRepairPolicy?: {
-      restartNode?: boolean(name='restart_node', description='Specifies whether to allow node restart. This parameter takes effect only if `auto_repair` is set to true. Valid values:
+      restartNode?: boolean(name='restart_node', description='Specifies whether to allow node restart. This parameter takes effect only when `auto_repair` is set to true. Valid values:
 
 *   `true`: allows node restart.
 *   `false`: does not allow node restart.
 
 If `auto_repair` is set to true, the default value of this parameter is `true`. If `auto_repair` is set to false, the default value of this parameter is `false`.', example='true'),
     }(name='auto_repair_policy', description='The auto node repair policy.'),
-    autoUpgrade?: boolean(name='auto_upgrade', description='Specifies whether to enable auto node upgrade. This parameter takes effect only if `enable` is set to true.
+    autoUpgrade?: boolean(name='auto_upgrade', description='Specifies whether to enable auto node upgrade. This parameter takes effect only when `enable` is set to true.
 
 *   `true`: enables auto node upgrade.
 *   `false`: disables auto node upgrade.
 
 If `enable` is set to true, the default value of this parameter is `true`. If `enable` is set to false, the default value of this parameter is `false`.', example='true'),
     autoUpgradePolicy?: {
-      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', description='Specifies whether to allow the auto upgrade of the kubelet. This parameter takes effect only if `auto_upgrade` is set to true. Valid values:
+      autoUpgradeKubelet?: boolean(name='auto_upgrade_kubelet', description='Specifies whether to allow the auto upgrade of the kubelet. This parameter takes effect only when `auto_upgrade` is set to true. Valid values:
 
 *   `true`: allows the auto upgrade of the kubelet.
 *   `false`: does not allow the auto upgrade of the kubelet.
 
 If `auto_upgrade` is set to true, the default value of this parameter is `true`. If `auto_upgrade` is set to false, the default value of this parameter is `false`.', example='true'),
-      autoUpgradeOs?: boolean(name='auto_upgrade_os', description='Specifies whether to allow the auto upgrade of the OS. This parameter takes effect only if `auto_upgrade` is set to true. Valid values:
+      autoUpgradeOs?: boolean(name='auto_upgrade_os', description='Specifies whether to allow the auto upgrade of the OS. This parameter takes effect only when `auto_upgrade` is set to true. Valid values:
 
 *   `true`: allows the auto upgrade of the OS.
 *   `false`: does not allow the auto upgrade of the OS.
 
-Default value: `false`.'),
-      autoUpgradeRuntime?: boolean(name='auto_upgrade_runtime', description='Specifies whether to allow the auto upgrade of the runtime. This parameter takes effect only if `auto_upgrade` is set to true. Valid values:
+Default value: `false`.', example='false'),
+      autoUpgradeRuntime?: boolean(name='auto_upgrade_runtime', description='Specifies whether to allow the auto upgrade of the runtime. This parameter takes effect only when `auto_upgrade` is set to true. Valid values:
 
 *   `true`: allows the auto upgrade of the runtime.
 *   `false`: does not allow the auto upgrade of the runtime.
 
-Default value: `false`.'),
+Default value: `false`.', example='false'),
     }(name='auto_upgrade_policy', description='The auto node upgrade policy.'),
-    autoVulFix?: boolean(name='auto_vul_fix', description='Specifies whether to enable auto Common Vulnerabilities and Exposures (CVE) patching. This parameter takes effect only if `enable` is set to true.
+    autoVulFix?: boolean(name='auto_vul_fix', description='Specifies whether to enable auto Common Vulnerabilities and Exposures (CVE) patching. This parameter takes effect only when `enable` is set to true.
 
 *   `true`: enables auto CVE patching.
 *   `false`: disables auto CVE patching.
 
 If `enable` is set to true, the default value of this parameter is `true`. If `enable` is set to false, the default value of this parameter is `false`.', example='true'),
     autoVulFixPolicy?: {
-      restartNode?: boolean(name='restart_node', description='Specifies whether to allow node restart. This parameter takes effect only if `auto_vul_fix` is set to true. Valid values:
+      restartNode?: boolean(name='restart_node', description='Specifies whether to allow node restart. This parameter takes effect only when `auto_vul_fix` is set to true. Valid values:
 
 *   `true`: allows node restart.
 *   `false`: does not allow node restart. If `auto_vul_fix` is set to true, the default value of this parameter is `false`. If `auto_vul_fix` is set to false, the default value of this parameter is `false`.', example='true'),
@@ -1604,7 +1630,7 @@ If `auto_vul_fix` is set to true, the default value of this parameter is `asap`.
     enable?: boolean(name='enable', description='Specifies whether to enable the managed node pool feature. Valid values:
 
 *   `true`: enables the managed node pool feature.
-*   `false`: disables the managed node pool feature. Other parameters in this section take effect only if enable is set to true.
+*   `false`: disables the managed node pool feature. Other parameters in this section take effect only when enable is set to true.
 
 Default value: false.', example='false'),
     upgradeConfig?: {
@@ -1618,10 +1644,10 @@ Default value: false.', example='false'),
 **Caution** This parameter is deprecated. Use the preceding auto_upgrade parameter instead.', example='false', deprecated='true'),
       maxUnavailable?: long(name='max_unavailable', description='The maximum number of nodes that can be in the Unavailable state. Valid values: 1 to 1000.
 
-Default value: 1', example='1'),
+Default value: 1.', example='1'),
       surge?: long(name='surge', description='The number of nodes that are temporarily added to the node pool during an auto upgrade.', example='0'),
-      surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes that are temporarily added to the node pool during an auto update. You must set this parameter or `surge`.', example='0'),
-    }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effects only if `enable` is set to true.', deprecated='true'),
+      surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes that are temporarily added to the node pool during an auto upgrade. You must set this parameter or `surge`.', example='0'),
+    }(name='upgrade_config', description='The configurations of auto upgrade. The configurations take effect only when `enable` is set to true.', deprecated='true'),
   }(name='management', description='The configurations of the managed node pool feature.', position='Body'),
   maxNodes?: long(name='max_nodes', description='This parameter is deprecated.
 
@@ -1669,8 +1695,8 @@ Default value: 1.', example='1'),
 *   `AliyunLinux`: Alibaba Cloud Linux 2.
 *   `AliyunLinuxSecurity`: Alibaba Cloud Linux 2 (UEFI).
 *   `AliyunLinux3`: Alibaba Cloud Linux 3
-*   `AliyunLinux3Arm64`: Alibaba Cloud Linux 3 (ARM).
-*   `AliyunLinux3Security`: Alibaba Cloud Linux 3 (UEFI).
+*   `AliyunLinux3Arm64`: Alibaba Cloud Linux 3 for ARM.
+*   `AliyunLinux3Security`: Alibaba Cloud Linux 3 for ARM.
 *   `CentOS`: CentOS.
 *   `Windows`: Windows.
 *   `WindowsCore`: Windows Core.
@@ -1681,7 +1707,7 @@ Default value: 1.', example='1'),
 *   `PrePaid`: subscription.
 *   `PostPaid`: pay-as-you-go.
 
-Default value: `PostPaid`.
+Default value: `PostPaid`
 
 This parameter is required.', example='PrePaid'),
     instancePatterns?: [
@@ -1701,7 +1727,7 @@ This parameter is required.'),
 
 >  If you select ContainerOS as the OS of nodes in the node pool, you must specify `key_pair`.', example='np-key-name'),
     loginAsNonRoot?: boolean(name='login_as_non_root', description='Specifies whether to allow a non-root user to log on to an ECS instance that is added to the node pool.', example='true'),
-    loginPassword?: string(name='login_password', description='The password for SSH logon. You must set this parameter or `key_pair`. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello1234'),
+    loginPassword?: string(name='login_password', description='The password for SSH logon. You must specify this parameter or the `key_pair` parameter. The password must be 8 to 30 characters in length, and must contain at least three of the following character types: uppercase letters, lowercase letters, digits, and special characters.', example='Hello1234'),
     multiAzPolicy?: string(name='multi_az_policy', description='The ECS instance scaling policy for the multi-zone scaling group. Valid values:
 
 *   `PRIORITY`: ECS instances are scaled based on the value of VSwitchIds.N. If an ECS instance cannot be created in the zone where the vSwitch that has the highest priority resides, the system creates the ECS instance in the zone where the vSwitch that has the next highest priority resides.
@@ -1721,13 +1747,13 @@ Default value: `PRIORITY`.', example='COST_OPTIMIZED'),
 
 *   If `period_unit` is set to Week, the valid values of `period` are 1, 2, 3, and 4.
 *   If `period_unit` is set to Month, the valid values of `period` are 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 24, 36, 48, and 60.', example='1'),
-    periodUnit?: string(name='period_unit', description='The billing cycle of nodes in the node pool. This parameter takes effect and is required if you set `instance_charge_type` to `PrePaid`. Valid values:
+    periodUnit?: string(name='period_unit', description='The billing cycle of nodes in the node pool. This parameter takes effect and is required only when you set `instance_charge_type` to `PrePaid`. Valid values:
 
 *   `Month`: The subscription duration is measured in months.
 *   `Week`: The subscription duration is measured in weeks.
 
 Default value: `Month`.', example='Month'),
-    platform?: string(name='platform', description='The OS distribution that is used. Valid values:
+    platform?: string(name='platform', description='The operating system distribution. Valid values:
 
 *   `CentOS`
 *   `AliyunLinux`
@@ -1758,12 +1784,12 @@ Default value: `AliyunLinux`.', example='AliyunLinux', deprecated='true'),
 Default value: `release`.', example='release'),
     securityGroupId?: string(name='security_group_id', description='The ID of the security group to which you want to add the node pool. You must specify this parameter or the `security_group_ids` parameter. We recommend that you specify `security_group_ids`.', example='sg-wz9a8g2mt6x5llu0****', deprecated='true'),
     securityGroupIds?: [ string ](name='security_group_ids', description='The IDs of security groups. You must specify this parameter or `security_group_id`. We recommend that you specify `security_group_ids`. If you specify both `security_group_id` and `security_group_ids`, `security_group_ids` is used.'),
-    securityHardeningOs?: boolean(name='security_hardening_os', description='Specifies whether to enable Alibaba Cloud Linux Security Hardening. Valid values:
+    securityHardeningOs?: boolean(name='security_hardening_os', description='Indicates whether Alibaba Cloud Linux Security Hardening is enabled. Valid values:
 
 *   `true`: enables Alibaba Cloud Linux Security Hardening.
 *   `false`: disables Alibaba Cloud Linux Security Hardening.
 
-Default value: `false`.'),
+Default value: `false`.', example='false'),
     socEnabled?: boolean(name='soc_enabled', description='Specifies whether to enable MLPS Security Hardening. You can enable security hardening based on Multi-Level Protection Scheme (MLPS) only when Alibaba Cloud Linux 2 or Alibaba Cloud Linux 3 is installed on nodes. Alibaba Cloud provides standards for baseline checks and a scanner to ensure the compliance of Alibaba Cloud Linux 2 and Alibaba Cloud Linux 3 images with the level 3 standards of MLPS 2.0.', example='false'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances can be supplemented. If you set this parameter to true, when the scaling group receives a system message indicating that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values:
@@ -1802,22 +1828,22 @@ This parameter is available only when `SystemDiskCategory` is set to `cloud_auto
 *   `cloud`: basic disk.
 *   `cloud_efficiency`: ultra disk.
 *   `cloud_ssd`: standard SSD.
-*   `cloud_essd`: Enterprise ESSD (ESSD).
+*   `cloud_essd`: ESSD.
 *   `cloud_auto`: ESSD AutoPL disk.
 *   `cloud_essd_entry`: ESSD Entry disk.
 
 Default value: `cloud_efficiency`.', example='cloud_efficiency'),
-    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', description='The encryption algorithm that is used to encrypt the system disk. The value is aes-256.', example='aes-256'),
+    systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', description='The encryption algorithm that is used to encrypt the system disk. Set the value to aes-256.', example='aes-256'),
     systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='Specifies whether to encrypt the system disk. true: encrypts the system disk. false: does not encrypt the system disk.', example='false'),
-    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', description='The ID of the Key Management Service (KMS) key that is used to encrypt the system disk.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
-    systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk. This parameter takes effect only for an ESSD.
+    systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', description='The ID of the KMS key that is used to encrypt the system disk.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
+    systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The PL of the system disk. This parameter takes effect only for an ESSD.
 
 *   PL0: moderate maximum concurrent I/O performance and low I/O latency.
 *   PL1: moderate maximum concurrent I/O performance and low I/O latency.
 *   PL2: high maximum concurrent I/O performance and low I/O latency.
 *   PL3: ultra-high maximum concurrent I/O performance and ultra-low I/O latency.
 
->  Disks support all of the preceding PLs. However, when you create a disk, the available PLs vary based on the ECS instance type that you selected. For more information, see [Overview of ECS instance families](https://help.aliyun.com/document_detail/25378.html).', example='PL1'),
+>  Alibaba Cloud disks support the preceding PLs. However, when you create a disk, the available PLs vary based on the ECS instance type that you selected. For more information, see [Overview of ECS instance families](https://help.aliyun.com/document_detail/25378.html).', example='PL1'),
     systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', description='The preset IOPS of the system disk. Valid values: 0 to min{50,000, 1,000 × Capacity - Baseline IOPS}. Baseline IOPS = min{1,800 + 50 × Capacity, 50,000}.
 
 This parameter is supported only when `SystemDiskCategory` is set to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='1000'),
@@ -2159,6 +2185,29 @@ model DeleteClusterResponse = {
 async function deleteCluster(request: DeleteClusterRequest): DeleteClusterResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteCluster', 'DELETE', '/clusters/{ClusterId}', 'json', false, 'json', request);
+}
+
+model DeleteClusterInspectConfigRequest {
+  clusterId: string(name='clusterId', description='This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+}
+
+model DeleteClusterInspectConfigResponseBody = {
+  requestId?: string(name='requestId', example='873DC52C-28AA-5A5C-938C-684D3D4B****'),
+}
+
+model DeleteClusterInspectConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteClusterInspectConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteClusterInspectConfig  DeleteClusterInspectConfigRequest
+  * @return DeleteClusterInspectConfigResponse
+ */
+async function deleteClusterInspectConfig(request: DeleteClusterInspectConfigRequest): DeleteClusterInspectConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteClusterInspectConfig', 'DELETE', '/clusters/{clusterId}/inspectConfig', 'json', false, 'json', request);
 }
 
 model DeleteClusterNodepoolRequest {
@@ -2646,32 +2695,32 @@ This parameter is required.', example='ca375a93a30474552ad2a0ebe183e****', posit
 
 Default value: `amd64`.
 
->  This parameter is required if you want to add the existing node to a Container Service for Kubernetes (ACK) Edge cluster.', example='amd64', position='Body'),
-  expired?: long(name='expired', description='Describes the expiration time of the generated token, formatted as a Unix timestamp. For example, 1739980800 represents 2025-02-20 00:00:00.', example='1740037333', position='Body'),
-  formatDisk?: boolean(name='format_disk', description='Specifies whether to mount data disks to an existing instance when you manually add this instance to the cluster. You can add data disks to store container data and images. Valid values:
+>  This parameter is required if you want to add a node to an ACK Edge cluster.', example='amd64', position='Body'),
+  expired?: long(name='expired', description='The expiration time of the token that is generated. The value is a UNIX timestamp. For example, a value of 1739980800 indicates 00:00:00 (UTC+8) on February 20, 2025.', example='1740037333', position='Body'),
+  formatDisk?: boolean(name='format_disk', description='Specifies whether to mount data disks to an existing instance when you manually add this instance to the cluster. You can use data disks to store container data and images. Valid values:
 
-*   `true`: mounts data disks to the existing instance. Back up the data first to prevent losses.
-*   `false`: does not mount data disks to the existing instance.
+*   `true`: mounts data disks to the instance that you want to add. After a data disk is mounted, the original data on the disk is erased. Back up data before you mount a data disk.
+*   `false`: does not mount data disks to the instance.
 
 Default value: `false`.
 
-Mounting rules:
+How a data disk is mounted:
 
-*   If the Elastic Compute Service (ECS) instances are already mounted with data disks and the file system of the last data disk is uninitialized, the system automatically formats this data disk to ext4 and mounts it to /var/lib/docker and /var/lib/kubelet.
-*   If no data disk is mounted to the ECS instance, no new disk will be mounted.', example='false', position='Body'),
-  keepInstanceName?: boolean(name='keep_instance_name', description='Specifies whether to retain the name of the existing instance when it is added to the cluster. ``Valid values:
+*   If the Elastic Compute Service (ECS) instances are already mounted with data disks and the file system of the last data disk is uninitialized, the system automatically formats this data disk to ext4 and uses the disk to store the data in the /var/lib/docker and /var/lib/kubelet directories.
+*   If no data disk is mounted to the ECS instance, the system does not purchase a new data disk.', example='false', position='Body'),
+  keepInstanceName?: boolean(name='keep_instance_name', description='Specifies whether to retain the name of an existing instance when it is added to the cluster. If you do not retain the instance name, the instance is renamed in the `worker-k8s-for-cs-<clusterid>` format. Valid values:
 
 *   `true`: retains the instance name.
-*   `false`: renames the instance to worker-k8s-for-cs-\\<clusterid>.
+*   `false`: does not retain the instance name.
 
 Default value: `true`.', example='true', position='Body'),
   nodepoolId?: string(name='nodepool_id', description='The ID of the node pool to which you want to add an existing node.
 
->  If not specified, the node is added to the default node pool.', example='np1c9229d9be2d432c93f77a88fca0****', position='Body'),
-  options?: string(name='options', description='The node configurations for the existing instance that you want to add as a node.
+>  If you do not specify a node pool ID, the node is added to the default node pool.', example='np1c9229d9be2d432c93f77a88fca0****', position='Body'),
+  options?: string(name='options', description='The node configurations for the node that you want to add.
 
->  This parameter is required if you want to add the existing node to an ACK Edge cluster.', example='{\\"enableIptables\\": true,\\"manageRuntime\\": true,\\"quiet\\": true,\\"allowedClusterAddons\\": [\\"kube-proxy\\",\\"flannel\\",\\"coredns\\"]}', position='Body'),
-  rdsInstances?: [ string ](name='rds_instances', description='If you specify a list of ApsaraDB RDS instances, ECS instances in the cluster will be automatically added to the whitelist of the ApsaraDB RDS instances.', position='Body'),
+>  This parameter is required if you want to add a node to an ACK Edge cluster.', example='{\\"enableIptables\\": true,\\"manageRuntime\\": true,\\"quiet\\": true,\\"allowedClusterAddons\\": [\\"kube-proxy\\",\\"flannel\\",\\"coredns\\"]}', position='Body'),
+  rdsInstances?: [ string ](name='rds_instances', description='A list of ApsaraDB RDS instances. ECS instances in the cluster are automatically added to the whitelist of the ApsaraDB RDS instances.', position='Body'),
 }
 
 model DescribeClusterAttachScriptsResponse = {
@@ -2740,10 +2789,10 @@ model DescribeClusterDetailResponseBody = {
   dockerVersion?: string(name='docker_version', description='The Docker version that is used by the cluster.', example='19.03.5'),
   externalLoadbalancerId?: string(name='external_loadbalancer_id', description='The ID of the Server Load Balancer (SLB) instance that is created for the Ingress of the cluster.', example='lb-2zehc05z3b8dwiifh****'),
   initVersion?: string(name='init_version', description='The initial Kubernetes version of the cluster.', example='1.16.6-aliyun.1'),
-  ipStack?: string(name='ip_stack', description='The IP protocol stack of the cluster. Valid values:
+  ipStack?: string(name='ip_stack', description='The IP stack of the cluster. Valid values:
 
-*   ipv4: creates a cluster that supports only the IPv4 protocol stack.
-*   dual: creates a cluster that supports IPv4/IPv6 dual-stack.', example='ipv4'),
+*   ipv4: The cluster is an IPv4 cluster.
+*   dual: The cluster is an IPv4/IPv6 dual-stack cluster.', example='ipv4'),
   maintenanceWindow?: MaintenanceWindow(name='maintenance_window', description='The maintenance window of the cluster. This feature is available only in ACK Pro clusters.'),
   masterUrl?: string(name='master_url', description='The endpoints of the cluster, including an internal endpoint and a public endpoint.', example='{\\"intranet_api_server_endpoint\\":\\"https://192.168.0.251:6443\\"***}'),
   metaData?: string(name='meta_data', description='The metadata of the cluster.', example='\\"Addons\\":***'),
@@ -2814,7 +2863,7 @@ The pod CIDR block cannot overlap with the CIDR block of the VPC in which the cl
 For more information about the network planning of ACK clusters, see [Plan CIDR blocks for an ACK cluster](https://help.aliyun.com/document_detail/186964.html).', example='172.20.0.0/16', deprecated='true'),
   tags?: [
     Tag
-  ](name='tags', description='The resource labels of the cluster.'),
+  ](name='tags', description='The resource tags of the cluster.'),
   timezone?: string(name='timezone', description='The time zone', example='Asia/Shanghai'),
   updated?: string(name='updated', description='The time when the cluster was updated.', example='2020-01-13T23:01:03+08:00'),
   vpcId?: string(name='vpc_id', description='The ID of the VPC where the cluster is deployed. This parameter is required when you create a cluster.', example='vpc-2zecuu62b9zw7a7qn****'),
@@ -2951,6 +3000,9 @@ This parameter is required.', example='np31da1b38983f4511b490fc62108a****', posi
 }
 
 model DescribeClusterNodePoolDetailResponseBody = {
+  autoMode?: {
+    enable?: boolean(name='enable'),
+  }(name='auto_mode'),
   autoScaling?: {
     eipBandwidth?: long(name='eip_bandwidth', description='The maximum bandwidth of the elastic IP address (EIP).', example='5'),
     eipInternetChargeType?: string(name='eip_internet_charge_type', description='The metering method of the EIP. Valid values:
@@ -3085,7 +3137,7 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
     autoRenewPeriod?: long(name='auto_renew_period', description='The duration of the auto-renewal. This parameter takes effect and is required only when `instance_charge_type` is set to `PrePaid`.
 
 If you specify `PeriodUnit=Month`, the valid values are 1, 2, 3, 6, and 12.', example='1'),
-    cisEnabled?: boolean(name='cis_enabled', description='【The field is deprecated】Please use the parameter security_hardening_os instead.', example='false', deprecated='true'),
+    cisEnabled?: boolean(name='cis_enabled', description='[**Deprecated**] Please use the parameter security_hardening_os instead.', example='false', deprecated='true'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Indicates whether pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as cost or insufficient inventory. This parameter takes effect when `multi_az_policy` is set to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: Pay-as-you-go instances are automatically created to meet the required number of ECS instances if preemptible instances cannot be created.
@@ -3273,6 +3325,9 @@ This parameter is required.', example='cc0f87de0b8fb403f86e10e204f83****', posit
 model DescribeClusterNodePoolsResponseBody = {
   nodepools?: [ 
     {
+      autoMode?: {
+        enable?: boolean(name='enable'),
+      }(name='auto_mode'),
       autoScaling?: {
         eipBandwidth?: long(name='eip_bandwidth', description='The maximum bandwidth of the elastic IP address (EIP).', example='5'),
         eipInternetChargeType?: string(name='eip_internet_charge_type', description='The billing method of the EIP. Valid values:
@@ -3800,7 +3855,7 @@ Default value: `false`.', example='true', position='Query'),
 }
 
 model DescribeClusterUserKubeconfigResponseBody = {
-  config?: string(name='config', description='The kubeconfig file of the cluster. For more information about the content of the kubeconfig file, see [Configure cluster credentials](https://help.aliyun.com/document_detail/86494.html).', example='apiVersion: v1****'),
+  config?: string(name='config', description='The content of the kubeconfig file. For more information about how to view the kubeconfig file, see [Configure cluster credentials](https://help.aliyun.com/document_detail/86494.html).', example='apiVersion: v1****'),
   expiration?: string(name='expiration', description='The validity period of the kubeconfig file. The value is the UTC time displayed in RFC3339 format.', example='2024-03-10T09:56:17Z'),
 }
 
@@ -4045,7 +4100,7 @@ This parameter is required.', example='172.21.0.0/20'),
       vpcId?: string(name='vpc_id', description='The ID of the virtual private cloud (VPC) to which the cluster belongs.', example='vpc-2zeg8nf1ukc0fcmvq****'),
       vswitchIds?: [ string ](name='vswitch_ids', description='The list of vSwitches on the control plane of the cluster.'),
     }
-  ](name='clusters', description='The information about the clusters returned.'),
+  ](name='clusters', description='The information about the queried clusters.'),
   pageInfo?: {
     pageNumber?: int32(name='page_number', description='The number of pages.', example='1'),
     pageSize?: int32(name='page_size', description='The number of records on each page.', example='10'),
@@ -4192,7 +4247,7 @@ The pod CIDR block cannot overlap with the CIDR block of the VPC in which the cl
 For more information about the network planning of Container Service for Kubernetes (ACK) clusters, see [Plan CIDR blocks for an ACK cluster](https://help.aliyun.com/document_detail/86500.html).', example='172.21.0.0/16', deprecated='true'),
       tags?: [
         Tag
-      ](name='tags', description='The resource labels of the cluster.'),
+      ](name='tags', description='The resource tags of the cluster.'),
       timezone?: string(name='timezone', description='The time zone', example='Asia/Shanghai'),
       updated?: string(name='updated', description='The time when the cluster was updated.', example='2020-09-16T11:09:55+08:00'),
       vpcId?: string(name='vpc_id', description='The ID of the VPC where the cluster is deployed. This parameter is required when you create a cluster.', example='vpc-2vcg932hsxsxuqbgl****'),
@@ -4201,7 +4256,7 @@ For more information about the network planning of Container Service for Kuberne
       workerRamRoleName?: string(name='worker_ram_role_name', description='The name of the worker Resource Access Management (RAM) role. The RAM role is assigned to the worker nodes of the cluster to allow the worker nodes to manage ECS instances.', example='KubernetesWorkerRole-ec87d15b-edca-4302-933f-c8a16bf0****'),
       zoneId?: string(name='zone_id', description='The ID of the zone where the cluster is deployed.', example='cn-beijing-b'),
     }
-  ](name='clusters', description='The queried cluster(s) details.'),
+  ](name='clusters', description='The queried cluster details.'),
   pageInfo?: {
     pageNumber?: int32(name='page_number', description='The page number.', example='3'),
     pageSize?: int32(name='page_size', description='The number of entries per page.', example='20'),
@@ -4918,14 +4973,22 @@ async function describePolicyInstancesStatus(request: DescribePolicyInstancesSta
 }
 
 model DescribeResourcesDeleteProtectionRequest {
-  clusterId: string(name='ClusterId', description='The ID of the cluster.
+  clusterId: string(name='ClusterId', description='The ID of the Container Service for Kubernetes (ACK) cluster.
 
 This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
-  resourceType: string(name='ResourceType', description='The type of resources for which deletion protection is enabled or disabled. You can specify namespaces or services.
+  resourceType: string(name='ResourceType', description='The type of the resource that you want to query. Valid values:
+
+*   Namespaces
+*   services
 
 This parameter is required.', example='namespaces', position='Path'),
-  namespace?: string(name='namespace', description='The namespace to which the resource belongs.', example='default', position='Query'),
-  resources?: string(name='resources', description='The name of the resource that you want to query. Separate multiple resource names with commas (,).', example='test1,test2', position='Query'),
+  namespace?: string(name='namespace', description='The namespace in which the resources that you want to query reside.
+
+This parameter is required when you set resource_type to services. Default value: default.', example='default', position='Query'),
+  resources?: string(name='resources', description='The names of the resources that you want to query. Separate multiple resource names with commas (,).
+
+*   When you set resource_type to namespaces, you must specify namespace names. If you leave this parameter empty, all namespaces in the cluster are queried.
+*   If you set resource_type to services, you must specify Service names.', example='test1,test2', position='Query'),
 }
 
 model DescribeResourcesDeleteProtectionResponse = {
@@ -4933,17 +4996,15 @@ model DescribeResourcesDeleteProtectionResponse = {
   statusCode?: int32(name='statusCode'),
   body?: [ 
     {
-      name: string(name='name', description='The name of the resource.
+      name: string(name='name', description='The resource name.
 
 This parameter is required.', example='test'),
       namespace?: string(name='namespace', description='The namespace to which the resource belongs.', example='default'),
-      resource?: string(name='resource', description='The type of resource for which deletion protection is enabled.', example='namespaces'),
+      resource?: string(name='resource', description='The type of the resource.', example='namespaces'),
       protection?: boolean(name='protection', description='Indicates whether deletion protection is enabled.
 
 *   true: deletion protection is enabled.
-*   false: deletion protection is disabled.
-
-Default value: false', example='false'),
+*   false: deletion protection is disabled.', example='false'),
     }
   ](name='body'),
 }
@@ -4978,7 +5039,7 @@ Valid values: 15 to 4320 (three days).
 }
 
 model DescribeSubaccountK8sClusterUserConfigResponseBody = {
-  config: string(name='config', description='The cluster kubeconfig file. For more information about the content of the kubeconfig file, see [Configure cluster credentials](https://help.aliyun.com/document_detail/86494.html).
+  config: string(name='config', description='The cluster kubeconfig file. For more information about how to view the kubeconfig file content, see [Configure cluster credentials](https://help.aliyun.com/document_detail/86494.html).
 
 This parameter is required.', example='apiVersion: v1****'),
   expiration?: string(name='expiration', description='The expiration date of the kubeconfig file. The value is the UTC time displayed in RFC3339 format.', example='2024-03-10T09:56:17Z'),
@@ -5628,6 +5689,126 @@ async function getClusterDiagnosisResult(request: GetClusterDiagnosisResultReque
   return @handler.do('RESTFUL', 'GetClusterDiagnosisResult', 'GET', '/clusters/{cluster_id}/diagnosis/{diagnosis_id}/result', 'json', false, 'json', request);
 }
 
+model GetClusterInspectConfigRequest {
+  clusterId: string(name='clusterId', description='The cluster ID.
+
+This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+}
+
+model GetClusterInspectConfigResponseBody = {
+  disabledCheckItems?: [ string ](name='disabledCheckItems', description='The list of disabled inspection items.'),
+  enabled?: boolean(name='enabled', description='Specifies whether to enable inspection.', example='true'),
+  recurrence?: string(name='recurrence', description='The inspection schedule defined through the RFC5545 Recurrence Rule syntax. You must specify BYHOUR and BYMINUTE. Only FREQ=DAILY is supported. COUNT and UNTIL are not supported.', example='FREQ=DAILY;BYHOUR=10;BYMINUTE=15'),
+  requestId?: string(name='requestId', description='The request ID.', example='49511F2D-D56A-5C24-B9AE-C8491E09B095'),
+}
+
+model GetClusterInspectConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetClusterInspectConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetClusterInspectConfig  GetClusterInspectConfigRequest
+  * @return GetClusterInspectConfigResponse
+ */
+async function getClusterInspectConfig(request: GetClusterInspectConfigRequest): GetClusterInspectConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetClusterInspectConfig', 'GET', '/clusters/{clusterId}/inspectConfig', 'json', false, 'json', request);
+}
+
+model GetClusterInspectReportDetailRequest {
+  clusterId: string(name='clusterId', description='The ID of the cluster.
+
+This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  reportId: string(name='reportId', description='The ID of the inspection report.
+
+This parameter is required.', example='782df89346054a0000562063a****', position='Path'),
+  category?: string(name='category', description='The category of the inspection item. Valid values:
+
+*   security: Security compliance
+*   performance: Performance efficiency
+*   stability: Business stability
+*   limitation: Service limits
+*   cost: Cost optimization', example='cost', position='Query'),
+  enableFilter?: boolean(name='enableFilter', description='Inspection results filtering. If this parameter is set to true, only abnormal inspection items are returned.', example='true', position='Query'),
+  language?: string(name='language', description='The query language.
+
+*   zh_CN
+*   en_US', example='zh_CN', position='Query'),
+  level?: string(name='level', description='The level of the inspection item. Valid values:
+
+*   advice: Suggestions
+*   warning: Low severity
+*   error: Medium severity
+*   critical: High severity', example='error', position='Query'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page. Maximum value: 50.', example='20', position='Query'),
+  nextToken?: string(name='nextToken', description='The token that is used to display the returned tags on multiple pages.', example='bb41e2bcb47b747389dce6c0d2', position='Query'),
+  targetType?: string(name='targetType', description='The type of the inspection object. Only items that meet the targetType parameter are returned.', example='NodePool', position='Query'),
+}
+
+model GetClusterInspectReportDetailResponseBody = {
+  checkItemResults?: [ 
+    {
+      category?: string(name='category', description='The category of the inspection item. Valid values:
+
+*   security: Security compliance
+*   performance: Performance efficiency
+*   stability: Business stability
+*   limitation: Service limits
+*   cost: Cost optimization', example='stability'),
+      checkItemUid?: string(name='checkItemUid', description='The unique identifier of the inspection item.', example='APIServerClbInstanceStatus'),
+      description?: string(name='description', description='The description of the inspection item.'),
+      fix?: string(name='fix', description='The fixing suggestion.'),
+      level?: string(name='level', description='The level of the inspection item. Valid values:
+
+*   advice: Suggestions
+*   warning: Low severity
+*   error: Medium severity
+*   critical: High severity', example='critical'),
+      name?: string(name='name', description='The name of the inspection item.'),
+      result?: string(name='result', description='The inspection results. Valid values:
+
+*   true: The inspection item is abnormal.
+*   false: The inspection item is normal.
+*   disable: The inspection item is not enabled.', example='false'),
+      targetType?: string(name='targetType', description='The resource type of the inspection object.', example='CLB'),
+      targets?: [ string ](name='targets', description='The inspection objects.'),
+    }
+  ](name='checkItemResults', description='The results.'),
+  endTime?: string(name='endTime', description='The completion time of the inspection report.', example='2024-12-18T19:41:12.778433+08:00'),
+  nextToken?: string(name='nextToken', description='The token that is used to display the returned tags on multiple pages.', example='AK8uQQrxgFK8sbARvnCj6w9R3kPme4I3'),
+  reportId?: string(name='reportId', description='The ID of the inspection report.', example='782df89346054a0000562063a****'),
+  requestId?: string(name='requestId', description='The request ID.', example='49511F2D-D56A-5C24-B9AE-C8491E09B***'),
+  startTime?: string(name='startTime', description='The start time of the inspection report.', example='2024-12-18T19:40:16.778333+08:00'),
+  status?: string(name='status', description='The status of the inspection report. Valid values:
+
+*   completed: The inspection report is generated.
+*   running: The inspection report is generating.', example='completed'),
+  summary?: {
+    adviceCount?: int32(name='adviceCount', description='The number of check items whose inspection result is advice.', example='0'),
+    code?: string(name='code', description='Check the status code of the inspection task.', example='warning'),
+    errorCount?: int32(name='errorCount', description='The number of check items whose inspection result is error.', example='0'),
+    normalCount?: int32(name='normalCount', description='The number of check items whose inspection result is normal.', example='10'),
+    warnCount?: int32(name='warnCount', description='The number of check items whose inspection result is warning.', example='1'),
+  }(name='summary', description='Overview of inspection reports.'),
+}
+
+model GetClusterInspectReportDetailResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetClusterInspectReportDetailResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetClusterInspectReportDetail  GetClusterInspectReportDetailRequest
+  * @return GetClusterInspectReportDetailResponse
+ */
+async function getClusterInspectReportDetail(request: GetClusterInspectReportDetailRequest): GetClusterInspectReportDetailResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetClusterInspectReportDetail', 'GET', '/clusters/{clusterId}/inspectReports/{reportId}', 'json', false, 'json', request);
+}
+
 model GetKubernetesTriggerRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
@@ -5948,6 +6129,47 @@ model ListClusterChecksResponse = {
 async function listClusterChecks(request: ListClusterChecksRequest): ListClusterChecksResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListClusterChecks', 'GET', '/clusters/{cluster_id}/checks', 'json', false, 'json', request);
+}
+
+model ListClusterInspectReportsRequest {
+  clusterId: string(name='clusterId', description='This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  maxResults?: int32(name='maxResults', example='20', position='Query'),
+  nextToken?: string(name='nextToken', example='AK8uQQrxgFKsI3OiS5TbhUQ9R3kPme4I3', position='Query'),
+}
+
+model ListClusterInspectReportsResponseBody = {
+  nextToken?: string(name='nextToken', example='405b99e5411f9a4e7148506e45'),
+  reports?: [ 
+    {
+      endTime?: string(name='endTime', example='2024-12-18T19:40:16.778333+08:00'),
+      reportId?: string(name='reportId', example='782df89346054a0000562063a6****'),
+      startTime?: string(name='startTime', example='2024-12-18T19:40:16.778333+08:00'),
+      status?: string(name='status', example='completed'),
+      summary?: {
+        adviceCount?: int32(name='adviceCount', example='0'),
+        code?: string(name='code', example='warning'),
+        errorCount?: int32(name='errorCount', example='0'),
+        normalCount?: int32(name='normalCount', example='1'),
+        warnCount?: int32(name='warnCount', example='0'),
+      }(name='summary'),
+    }
+  ](name='reports'),
+  requestId?: string(name='requestId', example='49511F2D-D56A-5C24-B9AE-C8491E09B***'),
+}
+
+model ListClusterInspectReportsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListClusterInspectReportsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListClusterInspectReports  ListClusterInspectReportsRequest
+  * @return ListClusterInspectReportsResponse
+ */
+async function listClusterInspectReports(request: ListClusterInspectReportsRequest): ListClusterInspectReportsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListClusterInspectReports', 'GET', '/clusters/{clusterId}/inspectReports', 'json', false, 'json', request);
 }
 
 model ListClusterKubeconfigStatesRequest {
@@ -6504,7 +6726,7 @@ Default value: `false`', example='true'),
 Default value: `none`.', example='none'),
     labels?: [
       Tag
-    ](name='labels', description='The labels of the nodes in the node pool. You can add labels to the nodes in the cluster. You must add labels based on the following rules:
+    ](name='labels', description='The labels of the nodes in the node pool. You can add labels to the nodes in the cluster. You must add the label based on the following rules:
 
 *   A label is a case-sensitive key-value pair. You can add up to 20 labels.
 *   The key must be unique and cannot exceed 64 characters in length. The value can be empty and cannot exceed 128 characters in length. Keys and values cannot start with `aliyun`, `acs:`, `https://`, or `http://`. For more information, see [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set).'),
@@ -6527,8 +6749,8 @@ Default value: `true`.', example='true'),
     autoRepairPolicy?: {
       restartNode?: boolean(name='restart_node', description='Specifies whether ACK is allowed to automatically restart nodes after repairing the nodes. Valid values:
 
-*   `true`: yes.
-*   `false`: no.', example='true'),
+*   `true`: allows node restart.
+*   `false`: does not allow node restart.', example='true'),
     }(name='auto_repair_policy', description='The auto node repair policy.'),
     autoUpgrade?: boolean(name='auto_upgrade', description='Indicates whether auto update is enabled. Valid values:
 
@@ -6541,16 +6763,16 @@ Default value: `true`.', example='true'),
 *   `false`: no.', example='true'),
       autoUpgradeOs?: boolean(name='auto_upgrade_os', description='Specifies whether ACK is allowed to automatically update the operating system. This parameter takes effect only when you specify `auto_upgrade=true`. Valid values:
 
-*   `true`: yes.
-*   `false`: no.
+*   `true`: allows the auto upgrade of the OS.
+*   `false`: does not allow the auto upgrade of the OS.
 
-Default value: `false`.'),
+Default value: `false`.', example='false'),
       autoUpgradeRuntime?: boolean(name='auto_upgrade_runtime', description='Specifies whether ACK is allowed to automatically update the runtime. This parameter takes effect only when you specify `auto_upgrade=true`. Valid values:
 
-*   `true`: yes.
-*   `false`: no.
+*   `true`: allows the auto upgrade of the runtime.
+*   `false`: does not allow the auto upgrade of the runtime.
 
-Default value: `false`.'),
+Default value: `false`.', example='false'),
     }(name='auto_upgrade_policy', description='The auto update policy.'),
     autoVulFix?: boolean(name='auto_vul_fix', description='Specifies whether ACK is allowed to automatically patch CVE vulnerabilities. Valid values:
 
@@ -6559,8 +6781,8 @@ Default value: `false`.'),
     autoVulFixPolicy?: {
       restartNode?: boolean(name='restart_node', description='Specifies whether ACK is allowed to automatically restart nodes after repairing the nodes. Valid values:
 
-*   `true`: yes.
-*   `false`: no.', example='true'),
+*   `true`: allows node restart.
+*   `false`: does not allow node restart.', example='true'),
       vulLevel?: string(name='vul_level', description='The severity levels of vulnerabilities that ACK is allowed to automatically patch. Multiple severity levels are separated by commas (,).', example='asap,nntf'),
     }(name='auto_vul_fix_policy', description='The auto CVE patching policy.'),
     enable?: boolean(name='enable', description='Specifies whether to enable the managed node pool feature. Valid values:
@@ -6580,8 +6802,8 @@ Default value: `true`.', example='true', deprecated='true'),
 
 Valid values: 1 to 1000.
 
-Default value: 1', example='1'),
-      surge?: long(name='surge', description='The number of nodes that are temporarily added to the node pool during an auto upgrade. Additional nodes are used to host the workloads of nodes that are being updated.
+Default value: 1.', example='1'),
+      surge?: long(name='surge', description='The number of additional nodes that are temporarily added to the node pool during an auto update. Additional nodes are used to host the workloads of nodes that are being updated.
 
 >  We recommend that you set the number of additional nodes to a value that does not exceed the current number of existing nodes.', example='5'),
       surgePercentage?: long(name='surge_percentage', description='The percentage of additional nodes to the nodes in the node pool. You must set this parameter or `surge`.', example='0'),
@@ -6596,23 +6818,24 @@ The name must be 1 to 63 characters in length, and can contain digits, letters, 
   scalingGroup?: {
     autoRenew?: boolean(name='auto_renew', description='Specifies whether to enable auto-renewal for the nodes in the node pool. This parameter takes effect only when you set `instance_charge_type` to `PrePaid`. Valid values:
 
-*   `true`: enables auto-renewal
+*   `true`: enables auto-renewal.
 *   `false`: disables auto-renewal.
 
 Default value: `false`', example='true'),
-    autoRenewPeriod?: long(name='auto_renew_period', description='The auto-renewal period. Valid values:
+    autoRenewPeriod?: long(name='auto_renew_period', description='The auto-renewal period. Valid value:
 
-*   Valid values when PeriodUnit is set to Week: 1, 2, and 3
-*   Valid values when PeriodUnit is set to Month: 1, 2, 3, 6, 12, 24, 36, 48, and 60
+*   Valid values when PeriodUnit is set to Week: 1, 2, and 3.
+*   Valid values when PeriodUnit is set to Month: 1, 2, 3, 6, 12, 24, 36, 48, and 60.
 
-Default value: 1', example='1'),
+Default value: 1.', example='1'),
     compensateWithOnDemand?: boolean(name='compensate_with_on_demand', description='Specifies whether to automatically create pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created due to reasons such as the cost or insufficient inventory. This parameter takes effect only when you set `multi_az_policy` to `COST_OPTIMIZED`. Valid values:
 
 *   `true`: automatically creates pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created
-*   `false`', example='true'),
+*   `false`: does not create pay-as-you-go instances to meet the required number of ECS instances if preemptible instances cannot be created.', example='true'),
     dataDisks?: [
       DataDisk
     ](name='data_disks', description='The configurations of the data disks that are mounted to nodes in the node pool. Valid values: 0 to 10. You can mount at most 10 data disks to the nodes in the node pool.'),
+    deploymentsetId?: string(name='deploymentset_id'),
     desiredSize?: long(name='desired_size', description='The expected number of nodes in the node pool.', example='2'),
     imageId?: string(name='image_id', description='The custom image ID. You can call the `DescribeKubernetesVersionMetadata` operation to query the supported images. By default, the latest image is used.', example='aliyun_2_1903_x64_20G_alibase_20200904.vhd'),
     imageType?: string(name='image_type', description='The type of operating system distribution that you want to use. We recommend that you use this parameter to specify the node operating system. Valid values:
@@ -6686,6 +6909,7 @@ Default value: `Month`.', example='Month'),
 
 *   `release`: the standard mode. ECS instances are created and released based on resource usage.
 *   `recycle`: the swift mode. ECS instances are created, stopped, or started during scaling events. This reduces the time required for the next scale-out event. When the instance is stopped, you are charged only for the storage service. This does not apply to ECS instances that are attached to local disks.', example='release'),
+    securityGroupIds?: [ string ](name='security_group_ids'),
     spotInstancePools?: long(name='spot_instance_pools', description='The number of instance types that are available for creating preemptible instances. Auto Scaling creates preemptible instances of multiple instance types that are available at the lowest cost. Valid values: 1 to 10.', example='5'),
     spotInstanceRemedy?: boolean(name='spot_instance_remedy', description='Indicates whether preemptible instances can be supplemented. If the supplementation of preemptible instances is enabled, when the scaling group receives a system message that a preemptible instance is to be reclaimed, the scaling group attempts to create a new instance to replace this instance. Valid values:
 
@@ -6715,7 +6939,7 @@ For more information, see [Create a preemptible elastic container instance](http
 
 Default value: `cloud_ssd`', example='cloud_efficiency'),
     systemDiskEncryptAlgorithm?: string(name='system_disk_encrypt_algorithm', description='The encryption algorithm that is used by the system disk. The value is aes-256.', example='aes-256'),
-    systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='Indicates whether the system disk is encrypted. Valid values: true false: does not encrypt the system disk.', example='false'),
+    systemDiskEncrypted?: boolean(name='system_disk_encrypted', description='Indicates whether the system disk is encrypted. Valid values: true: encrypts the system disk. false: does not encrypt the system disk.', example='false'),
     systemDiskKmsKeyId?: string(name='system_disk_kms_key_id', description='The ID of the Key Management Service (KMS) key that is used to encrypt the system disk.', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
     systemDiskPerformanceLevel?: string(name='system_disk_performance_level', description='The performance level (PL) of the system disk that you want to use for the node. This parameter takes effect only for ESSDs. You can specify a higher PL if you increase the size of the data disk. For more information, see [ESSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL1'),
     systemDiskProvisionedIops?: long(name='system_disk_provisioned_iops', description='The predefined read and write IOPS of the system disk when the disk type is cloud_auto.', example='1000'),
@@ -6741,7 +6965,7 @@ The label key must be unique and cannot exceed 128 characters in length. The lab
 *   `true`: enables confidential computing for the cluster.
 *   `false`: disables confidential computing for the cluster.
 
-Default value: `false`', example='false'),
+Default value: `false`.', example='false'),
   }(name='tee_config', description='The configurations about confidential computing for the cluster.', position='Body'),
   updateNodes?: boolean(name='update_nodes', description='Specifies whether to update node information, such as labels and taints.', example='true', position='Body'),
 }
@@ -7195,6 +7419,32 @@ model RunClusterCheckResponse = {
 async function runClusterCheck(request: RunClusterCheckRequest): RunClusterCheckResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'RunClusterCheck', 'POST', '/clusters/{cluster_id}/checks', 'json', false, 'json', request);
+}
+
+model RunClusterInspectRequest {
+  clusterId: string(name='clusterId', description='This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  clientToken?: string(name='clientToken', example='c82e6987e2961451182edacd74faf', position='Body'),
+}
+
+model RunClusterInspectResponseBody = {
+  reportId?: string(name='reportId', example='5d6557c983064c45bed62ab2a2119cc7'),
+  requestId?: string(name='requestId', example='0AB4D067-4DD7-5471-B90A-FCC564BC3337'),
+  taskId?: string(name='taskId', example='T-67d7ec016ce37c0106000***'),
+}
+
+model RunClusterInspectResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RunClusterInspectResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RunClusterInspect  RunClusterInspectRequest
+  * @return RunClusterInspectResponse
+ */
+async function runClusterInspect(request: RunClusterInspectRequest): RunClusterInspectResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RunClusterInspect', 'POST', '/clusters/{clusterId}/inspectReports', 'json', false, 'json', request);
 }
 
 model ScaleClusterRequest {
@@ -7671,6 +7921,32 @@ async function updateClusterAuditLogConfig(request: UpdateClusterAuditLogConfigR
   return @handler.do('RESTFUL', 'UpdateClusterAuditLogConfig', 'PUT', '/clusters/{clusterid}/audit_log', 'json', false, 'json', request);
 }
 
+model UpdateClusterInspectConfigRequest {
+  clusterId: string(name='clusterId', description='This parameter is required.', example='c82e6987e2961451182edacd74faf****', position='Path'),
+  disabledCheckItems?: [ string ](name='disabledCheckItems', position='Body'),
+  enabled?: boolean(name='enabled', example='true', position='Body'),
+  scheduleTime?: string(name='scheduleTime', example='FREQ=DAILY;BYHOUR=10;BYMINUTE=15', position='Body'),
+}
+
+model UpdateClusterInspectConfigResponseBody = {
+  requestId?: string(name='requestId', example='49511F2D-D56A-5C24-B9AE-C8491E09B***'),
+}
+
+model UpdateClusterInspectConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateClusterInspectConfigResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateClusterInspectConfig  UpdateClusterInspectConfigRequest
+  * @return UpdateClusterInspectConfigResponse
+ */
+async function updateClusterInspectConfig(request: UpdateClusterInspectConfigRequest): UpdateClusterInspectConfigResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateClusterInspectConfig', 'PUT', '/clusters/{clusterId}/inspectConfig', 'json', false, 'json', request);
+}
+
 model UpdateContactGroupForAlertRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID. You can call the ListCluster operation to query the cluster ID.', example='ce7d08276f8a6422282c46272a84bxxxx', position='Path'),
   alertRuleGroupName?: string(name='alert_rule_group_name', description='The name of the alert contact group.', example='sample', position='Body'),
@@ -7860,9 +8136,9 @@ Note:
   ](name='body', description='The request body.', position='Body'),
   mode?: string(name='mode', description='The authorization method. Valid values:
 
-*   `apply`: updates all permissions of the RAM user or RAM role. If you use this method, the existing permissions of the RAM user or RAM role on the cluster are overwritten. You must specify all the permissions that you want to grant to the RAM user or RAM role in the request parameters when you call the operation.
-*   `delete`: revokes the specified permissions from the RAM user or RAM role. If you use this method, only the permissions that you specify are revoked, while other permissions of the RAM user or RAM role on the cluster are not affected.
-*   `patch`: grants the specified permissions to the RAM user or role. If you use this method, only the permissions that you specify are granted, while other permissions of the RAM user or RAM role on the cluster are not affected.
+*   `apply`: The global update mode. Overwrites all existing permissions of the RAM user or RAM role on the cluster. You must specify all the permissions you want to grant to the RAM user or RAM role in the request parameters when you call this operation.
+*   `delete`: The deletion mode. Revokes only the cluster permissions specified in the request, preserving other existing permissions of the RAM user or RAM role.
+*   `patch`: The incremental mode. Adds only the cluster permissions specified in the request, preserving other existing permissions of the RAM user or RAM role.
 
 Default value: `apply`.', example='apply', position='Query'),
 }
@@ -7975,24 +8251,24 @@ This parameter is required.', example='c106f377e16f34eb1808d6b9362c9****', posit
   nodepoolId: string(name='NodepoolId', description='The node pool ID.
 
 This parameter is required.', example='np31da1b38983f4511b490fc62108a****', position='Path'),
-  imageId?: string(name='image_id', description='The ID of the OS image that is used by the nodes.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd', position='Body'),
-  kubernetesVersion?: string(name='kubernetes_version', description='The Kubernetes version that is used by the nodes. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation to query the Kubernetes version of the cluster returned in the current_version parameter.', example='1.22.15-aliyun.1', position='Body'),
-  nodeNames?: [ string ](name='node_names', description='The nodes that you want to update. If you do not specify this parameter, all nodes in the node pool are updated by default.', position='Body'),
+  imageId?: string(name='image_id', description='The ID of the OS image used by the nodes.', example='aliyun_2_1903_x64_20G_alibase_20200529.vhd', position='Body'),
+  kubernetesVersion?: string(name='kubernetes_version', description='The Kubernetes version used by the nodes. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation and get the Kubernetes version of the current cluster in the current_version field.', example='1.22.15-aliyun.1', position='Body'),
+  nodeNames?: [ string ](name='node_names', description='The nodes you want to update. If you do not specify this parameter, all nodes in the node pool are updated by default.', position='Body'),
   rollingPolicy?: {
     batchInterval?: int32(name='batch_interval', description='The update interval between batches takes effect only when the pause policy is set to NotPause. Unit: minutes. Valid values: 5 to 120.', example='5 minutes'),
     maxParallelism?: int32(name='max_parallelism', description='The maximum number of nodes per batch.', example='3'),
-    pausePolicy?: string(name='pause_policy', description='The policy that is used to pause the update. Valid values:
+    pausePolicy?: string(name='pause_policy', description='The policy used to pause the update. Valid values:
 
-*   FirstBatch: pauses the update after the first batch is completed.
-*   EveryBatch: pauses after each batch is completed.
+*   FirstBatch: pauses after the first batch is updated.
+*   EveryBatch: pauses after each batch is updated.
 *   NotPause: does not pause.', example='NotPause'),
-  }(name='rolling_policy', description='The rotation configuration.', position='Body'),
-  runtimeType?: string(name='runtime_type', description='The runtime type. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation to query the runtime information returned in the runtime parameter.', example='containerd', position='Body'),
-  runtimeVersion?: string(name='runtime_version', description='The version of the container runtime that is used by the nodes. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation to query the runtime version returned in the runtime parameter.', example='1.5.10', position='Body'),
+  }(name='rolling_policy', description='The rolling update configuration.', position='Body'),
+  runtimeType?: string(name='runtime_type', description='The runtime type. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation and get the runtime information in the runtime field.', example='containerd', position='Body'),
+  runtimeVersion?: string(name='runtime_version', description='The version of the container runtime used by the nodes. You can call the [DescribeKubernetesVersionMetadata](https://help.aliyun.com/document_detail/2667899.html) operation and get the runtime version in the runtime field.', example='1.5.10', position='Body'),
   useReplace?: boolean(name='use_replace', description='Specifies whether to perform the update by replacing the system disk. Valid values:
 
-*   true: updates by replacing the system disk.
-*   false: does not update by replacing the system disk.
+*   true: replaces the system disk.
+*   false: does not replace the system disk.
 
 Default value: false.', example='false', position='Body'),
 }
