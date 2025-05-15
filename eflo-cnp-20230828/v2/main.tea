@@ -1,44 +1,54 @@
 /**
-  *
-  */
-import BaseClientBuilder;
-import TeaAsyncHandler;
-import TeaRequest;
-import AsyncRequestBody;
-import RequestBody;
-import AsyncResponseHandler;
-import ClientConfiguration;
-import ClientExecutionParams;
-extends BaseClientBuilder;
-type @product = string
-type @version = string
-type @endpointRule = string
-type @endpointMap = map[string]string
-type @REQUEST = TeaRequest
-type @handler = TeaAsyncHandler
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
 
-init(configuration: ClientConfiguration){
-  @handler = new TeaAsyncHandler(configuration);
-  @product = 'eflo-cnp';
-  @version = '2023-08-28';
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
   @endpointRule = '';
-  @endpointMap = {
-  };
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('eflo-cnp', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function close(): void {
-  @handler.close();
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model DataResultsTaskIndividualResultMapValue = {
+  experimentId?: long(name='ExperimentId', description='Experiment ID', example='54'),
+  hostname?: string(name='Hostname', description='Host IP', example='p-jt-waf-app1'),
+  podName?: string(name='PodName', description='Pod name', example='fluxserv-6fc89b45cf-w8wq6'),
+  gpuNum?: int32(name='GpuNum', description='GPU数量', example='8'),
+  gpuName?: string(name='GpuName', description='GPU名称', example='8x OAM 810 GPU'),
+  warningFlag?: boolean(name='WarningFlag', description='Whether there is a warning', example='false'),
+  warningMsg?: string(name='WarningMsg', description='Warning message', example='warning message'),
+  errorFlag?: boolean(name='ErrorFlag', description='Whether there is an error', example='false'),
+  errorMsg?: string(name='ErrorMsg', description='Error message', example='error message'),
+  tflops?: double(name='Tflops', description='TFLOPS value', example='45'),
+  samplesPerSecond?: double(name='SamplesPerSecond', description='Throughput', example='23'),
 }
 
 model ChangeResourceGroupRequest {
-  regionId?: string(name='RegionId', description='Region Id', example='cn-shanghai', position='Query'),
-  resourceGroupId: string(name='ResourceGroupId', description='The resource group id.
+  regionId?: string(name='RegionId', description='Region Id', example='cn-shanghai'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The resource group id.
 
-This parameter is required.', example='rg-aek25k3b4pbhc4a', position='Query'),
-  resourceId: string(name='ResourceId', description='The resource id.
+This parameter is required.', example='rg-aek25k3b4pbhc4a'),
+  resourceId?: string(name='ResourceId', description='The resource id.
 
-This parameter is required.', example='123', position='Query'),
-  resourceType?: string(name='ResourceType', description='The resource type.', example='ExperimentPlan', position='Query'),
+This parameter is required.', example='123'),
+  resourceType?: string(name='ResourceType', description='The resource type.', example='ExperimentPlan'),
 }
 
 model ChangeResourceGroupResponseBody = {
@@ -52,31 +62,89 @@ model ChangeResourceGroupResponse = {
 }
 
 /**
-  * @param request  the request parameters of ChangeResourceGroup  ChangeResourceGroupRequest
-  * @return ChangeResourceGroupResponse
+ * @summary Change resource group
+ *
+ * @param request ChangeResourceGroupRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChangeResourceGroupResponse
+ */
+async function changeResourceGroupWithOptions(request: ChangeResourceGroupRequest, runtime: $RuntimeOptions): ChangeResourceGroupResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ChangeResourceGroup',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Change resource group
+ *
+ * @param request ChangeResourceGroupRequest
+ * @return ChangeResourceGroupResponse
  */
 async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeResourceGroupResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ChangeResourceGroup', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return changeResourceGroupWithOptions(request, runtime);
 }
 
 model CreateExperimentPlanRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  externalParams?: map[string]any(name='ExternalParams', description='Additional parameters', example='{}', shrink='json', position='Query'),
-  planTemplateName?: string(name='PlanTemplateName', description='Plan Template Name', example='test', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID', example='rg-aekzij65sf2rr5i', position='Query'),
-  resourceId: long(name='ResourceId', description='Resource ID
+  externalParams?: map[string]any(name='ExternalParams', description='Additional parameters', example='{}'),
+  planTemplateName?: string(name='PlanTemplateName', description='Plan Template Name', example='test'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID', example='rg-aekzij65sf2rr5i'),
+  resourceId?: long(name='ResourceId', description='Resource ID
 
-This parameter is required.', example='189', position='Query'),
+This parameter is required.', example='189'),
   tag?: [ 
     {
       key?: string(name='Key', description='Key', example='owner'),
       value?: string(name='Value', description='Value', example='test'),
     }
-  ](name='Tag', description='Resource tags', position='Query'),
-  templateId: long(name='TemplateId', description='Template ID
+  ](name='Tag', description='Resource tags'),
+  templateId?: long(name='TemplateId', description='Template ID
 
-This parameter is required.', example='349623', position='Query'),
+This parameter is required.', example='349623'),
+}
+
+model CreateExperimentPlanShrinkRequest {
+  externalParamsShrink?: string(name='ExternalParams', description='Additional parameters', example='{}'),
+  planTemplateName?: string(name='PlanTemplateName', description='Plan Template Name', example='test'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID', example='rg-aekzij65sf2rr5i'),
+  resourceId?: long(name='ResourceId', description='Resource ID
+
+This parameter is required.', example='189'),
+  tag?: [ 
+    {
+      key?: string(name='Key', description='Key', example='owner'),
+      value?: string(name='Value', description='Value', example='test'),
+    }
+  ](name='Tag', description='Resource tags'),
+  templateId?: long(name='TemplateId', description='Template ID
+
+This parameter is required.', example='349623'),
 }
 
 model CreateExperimentPlanResponseBody = {
@@ -93,66 +161,131 @@ model CreateExperimentPlanResponse = {
 }
 
 /**
-  * @param request  the request parameters of CreateExperimentPlan  CreateExperimentPlanRequest
-  * @return CreateExperimentPlanResponse
+ * @summary Create Experiment Plan
+ *
+ * @param tmpReq CreateExperimentPlanRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExperimentPlanResponse
+ */
+async function createExperimentPlanWithOptions(tmpReq: CreateExperimentPlanRequest, runtime: $RuntimeOptions): CreateExperimentPlanResponse {
+  tmpReq.validate();
+  var request = new CreateExperimentPlanShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.externalParams)) {
+    request.externalParamsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.externalParams, 'ExternalParams', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.externalParamsShrink)) {
+    query['ExternalParams'] = request.externalParamsShrink;
+  }
+  if (!$isNull(request.planTemplateName)) {
+    query['PlanTemplateName'] = request.planTemplateName;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateExperimentPlan',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Create Experiment Plan
+ *
+ * @param request CreateExperimentPlanRequest
+ * @return CreateExperimentPlanResponse
  */
 async function createExperimentPlan(request: CreateExperimentPlanRequest): CreateExperimentPlanResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateExperimentPlan', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return createExperimentPlanWithOptions(request, runtime);
 }
 
 model CreateExperimentPlanTemplateRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  privacyLevel: string(name='PrivacyLevel', description='Privacy Level
+  privacyLevel?: string(name='PrivacyLevel', description='Privacy Level
 
-This parameter is required.', example='private', position='Query'),
-  templateDescription?: string(name='TemplateDescription', description='Template Description', example='The template installs jdk and tomcat on a new ECS instance.', position='Query'),
-  templateId?: long(name='TemplateId', description='Template ID', example='4724', position='Query'),
-  templateName: string(name='TemplateName', description='Template Name
+This parameter is required.', example='private'),
+  templateDescription?: string(name='TemplateDescription', description='Template Description', example='The template installs jdk and tomcat on a new ECS instance.'),
+  templateId?: long(name='TemplateId', description='Template ID', example='4724'),
+  templateName?: string(name='TemplateName', description='Template Name
 
-This parameter is required.', example='test', position='Query'),
-  templatePipeline: [ 
+This parameter is required.', example='test'),
+  templatePipeline?: [ 
     {
-      envParams: {
-        cpuPerWorker: int32(name='CpuPerWorker', description='CPU allocation count
+      envParams?: {
+        cpuPerWorker?: int32(name='CpuPerWorker', description='CPU allocation count
 
 This parameter is required.', example='90'),
         cudaVersion?: string(name='CudaVersion', description='CUDA Version', example='1.0.0'),
         gpuDriverVersion?: string(name='GpuDriverVersion', description='GPU Driver Version', example='1.0.0'),
-        gpuPerWorker: int32(name='GpuPerWorker', description='GPU allocation count
+        gpuPerWorker?: int32(name='GpuPerWorker', description='GPU allocation count
 
 This parameter is required.', example='8'),
-        memoryPerWorker: int32(name='MemoryPerWorker', description='Memory (GB) allocation count
+        memoryPerWorker?: int32(name='MemoryPerWorker', description='Memory (GB) allocation count
 
 This parameter is required.', example='500'),
         NCCLVersion?: string(name='NCCLVersion', description='NCCL Version', example='1.0.0'),
         pyTorchVersion?: string(name='PyTorchVersion', description='PyTorch Version', example='1.0.0'),
-        shareMemory: int32(name='ShareMemory', description='Shared Memory (GB) allocation count
+        shareMemory?: int32(name='ShareMemory', description='Shared Memory (GB) allocation count
 
 This parameter is required.', example='500'),
-        workerNum: int32(name='WorkerNum', description='Number of nodes
+        workerNum?: int32(name='WorkerNum', description='Number of nodes
 
 This parameter is required.', example='1'),
       }(name='EnvParams', description='Configured Environment Parameters
 
 This parameter is required.'),
-      pipelineOrder: int32(name='PipelineOrder', description='Node Order Number
+      pipelineOrder?: int32(name='PipelineOrder', description='Node Order Number
 
 This parameter is required.', example='1'),
-      scene: string(name='Scene', description='Usage Scenario, e.g., "baseline"
+      scene?: string(name='Scene', description='Usage Scenario, e.g., "baseline"
 
 This parameter is required.', example='baseline'),
       settingParams?: map[string]string(name='SettingParams', description='Configured Workload Parameters'),
-      workloadId: long(name='WorkloadId', description='Workload ID
+      workloadId?: long(name='WorkloadId', description='Workload ID
 
 This parameter is required.', example='14'),
-      workloadName: string(name='WorkloadName', description='Workload Name
+      workloadName?: string(name='WorkloadName', description='Workload Name
 
 This parameter is required.', example='test'),
     }
   ](name='TemplatePipeline', description='Template Pipeline
 
-This parameter is required.', shrink='json', position='Body'),
+This parameter is required.'),
+}
+
+model CreateExperimentPlanTemplateShrinkRequest {
+  privacyLevel?: string(name='PrivacyLevel', description='Privacy Level
+
+This parameter is required.', example='private'),
+  templateDescription?: string(name='TemplateDescription', description='Template Description', example='The template installs jdk and tomcat on a new ECS instance.'),
+  templateId?: long(name='TemplateId', description='Template ID', example='4724'),
+  templateName?: string(name='TemplateName', description='Template Name
+
+This parameter is required.', example='test'),
+  templatePipelineShrink?: string(name='TemplatePipeline', description='Template Pipeline
+
+This parameter is required.'),
 }
 
 model CreateExperimentPlanTemplateResponseBody = {
@@ -200,57 +333,123 @@ model CreateExperimentPlanTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of CreateExperimentPlanTemplate  CreateExperimentPlanTemplateRequest
-  * @return CreateExperimentPlanTemplateResponse
+ * @summary Create/Update Test Plan Template
+ *
+ * @param tmpReq CreateExperimentPlanTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExperimentPlanTemplateResponse
+ */
+async function createExperimentPlanTemplateWithOptions(tmpReq: CreateExperimentPlanTemplateRequest, runtime: $RuntimeOptions): CreateExperimentPlanTemplateResponse {
+  tmpReq.validate();
+  var request = new CreateExperimentPlanTemplateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.templatePipeline)) {
+    request.templatePipelineShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.templatePipeline, 'TemplatePipeline', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.privacyLevel)) {
+    query['PrivacyLevel'] = request.privacyLevel;
+  }
+  if (!$isNull(request.templateDescription)) {
+    query['TemplateDescription'] = request.templateDescription;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  if (!$isNull(request.templateName)) {
+    query['TemplateName'] = request.templateName;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.templatePipelineShrink)) {
+    body['TemplatePipeline'] = request.templatePipelineShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateExperimentPlanTemplate',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Create/Update Test Plan Template
+ *
+ * @param request CreateExperimentPlanTemplateRequest
+ * @return CreateExperimentPlanTemplateResponse
  */
 async function createExperimentPlanTemplate(request: CreateExperimentPlanTemplateRequest): CreateExperimentPlanTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateExperimentPlanTemplate', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createExperimentPlanTemplateWithOptions(request, runtime);
 }
 
 model CreateResourceRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  clusterDesc?: string(name='ClusterDesc', description='Cluster Description', example='ppu集群', position='Query'),
-  clusterId: string(name='ClusterId', description='Cluster ID
+  clusterDesc?: string(name='ClusterDesc', description='Cluster Description', example='ppu集群'),
+  clusterId?: string(name='ClusterId', description='Cluster ID
 
-This parameter is required.', example='ehpc-sh-fj71c0ycfw', position='Query'),
-  clusterName: string(name='ClusterName', description='Cluster Name
+This parameter is required.', example='ehpc-sh-fj71c0ycfw'),
+  clusterName?: string(name='ClusterName', description='Cluster Name
 
-This parameter is required.', example='tre-1-ppu', position='Query'),
-  machineTypes: {
+This parameter is required.', example='tre-1-ppu'),
+  machineTypes?: {
     bondNum?: int32(name='BondNum', description='Number of Network Bonds', example='5'),
-    cpuInfo: string(name='CpuInfo', description='CPU Information
+    cpuInfo?: string(name='CpuInfo', description='CPU Information
 
 This parameter is required.', example='2x Intel Saphhire Rapid 8469C 48C CPU'),
-    diskInfo?: string(name='DiskInfo', description='Disk Information', example='2x 480GB SATA SSD \\n 4x 3.84TB NVMe SSD'),
-    gpuInfo: string(name='GpuInfo', description='GPU Information
+    diskInfo?: string(name='DiskInfo', description='Disk Information', example='2x 480GB SATA SSD \\\\n 4x 3.84TB NVMe SSD'),
+    gpuInfo?: string(name='GpuInfo', description='GPU Information
 
 This parameter is required.', example='8x NVIDIA SXM4 80GB A100 GPU'),
     memoryInfo?: string(name='MemoryInfo', description='Memory Information', example='32x 64GB DDR4 4800 Memory'),
     name?: string(name='Name', description='Specification Name', example='efg1.nvga1n'),
-    networkInfo?: string(name='NetworkInfo', description='Network Information', example='1x 200Gbps Dual Port BF3 DPU for VPC\\\\n4x 200Gbps Dual Port EIC'),
+    networkInfo?: string(name='NetworkInfo', description='Network Information', example='1x 200Gbps Dual Port BF3 DPU for VPC\\\\\\\\n4x 200Gbps Dual Port EIC'),
     networkMode?: string(name='NetworkMode', description='Network Mode', example='2'),
     nodeCount?: int32(name='NodeCount', description='Number of Nodes', example='1'),
     type?: string(name='Type', description='Type', example='Private'),
   }(name='MachineTypes', description='Machine Types
 
-This parameter is required.', shrink='json', position='Body'),
-  userAccessParam: {
-    accessId: string(name='AccessId', description='User ID
+This parameter is required.'),
+  userAccessParam?: {
+    accessId?: string(name='AccessId', description='User ID
 
 This parameter is required.', example='dev'),
-    accessKey: string(name='AccessKey', description='User Key
+    accessKey?: string(name='AccessKey', description='User Key
 
 This parameter is required.', example='test'),
-    endpoint: string(name='Endpoint', description='Endpoint
+    endpoint?: string(name='Endpoint', description='Endpoint
 
 This parameter is required.', example='test'),
-    workspaceId: string(name='WorkspaceId', description='Workspace ID
+    workspaceId?: string(name='WorkspaceId', description='Workspace ID
 
 This parameter is required.', example='1245688643'),
   }(name='UserAccessParam', description='User Access Parameters
 
-This parameter is required.', shrink='json', position='Body'),
+This parameter is required.'),
+}
+
+model CreateResourceShrinkRequest {
+  clusterDesc?: string(name='ClusterDesc', description='Cluster Description', example='ppu集群'),
+  clusterId?: string(name='ClusterId', description='Cluster ID
+
+This parameter is required.', example='ehpc-sh-fj71c0ycfw'),
+  clusterName?: string(name='ClusterName', description='Cluster Name
+
+This parameter is required.', example='tre-1-ppu'),
+  machineTypesShrink?: string(name='MachineTypes', description='Machine Types
+
+This parameter is required.'),
+  userAccessParamShrink?: string(name='UserAccessParam', description='User Access Parameters
+
+This parameter is required.'),
 }
 
 model CreateResourceResponseBody = {
@@ -266,20 +465,73 @@ model CreateResourceResponse = {
 }
 
 /**
-  * @param request  the request parameters of CreateResource  CreateResourceRequest
-  * @return CreateResourceResponse
+ * @summary Create Evaluation Resource
+ *
+ * @param tmpReq CreateResourceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateResourceResponse
+ */
+async function createResourceWithOptions(tmpReq: CreateResourceRequest, runtime: $RuntimeOptions): CreateResourceResponse {
+  tmpReq.validate();
+  var request = new CreateResourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.machineTypes)) {
+    request.machineTypesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.machineTypes, 'MachineTypes', 'json');
+  }
+  if (!$isNull(tmpReq.userAccessParam)) {
+    request.userAccessParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userAccessParam, 'UserAccessParam', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.clusterDesc)) {
+    query['ClusterDesc'] = request.clusterDesc;
+  }
+  if (!$isNull(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!$isNull(request.clusterName)) {
+    query['ClusterName'] = request.clusterName;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.machineTypesShrink)) {
+    body['MachineTypes'] = request.machineTypesShrink;
+  }
+  if (!$isNull(request.userAccessParamShrink)) {
+    body['UserAccessParam'] = request.userAccessParamShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateResource',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Create Evaluation Resource
+ *
+ * @param request CreateResourceRequest
+ * @return CreateResourceResponse
  */
 async function createResource(request: CreateResourceRequest): CreateResourceResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateResource', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createResourceWithOptions(request, runtime);
 }
 
 model DeleteExperimentRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  experimentId: long(name='ExperimentId', description='Plan ID
+  experimentId?: long(name='ExperimentId', description='Plan ID
 
-This parameter is required.', example='234', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sdkfjgnvd24', position='Query'),
+This parameter is required.', example='234'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sdkfjgnvd24'),
 }
 
 model DeleteExperimentResponseBody = {
@@ -296,19 +548,53 @@ model DeleteExperimentResponse = {
 }
 
 /**
-  * @param request  the request parameters of DeleteExperiment  DeleteExperimentRequest
-  * @return DeleteExperimentResponse
+ * @summary Delete Experiment
+ *
+ * @param request DeleteExperimentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentResponse
+ */
+async function deleteExperimentWithOptions(request: DeleteExperimentRequest, runtime: $RuntimeOptions): DeleteExperimentResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.experimentId)) {
+    query['ExperimentId'] = request.experimentId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteExperiment',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Delete Experiment
+ *
+ * @param request DeleteExperimentRequest
+ * @return DeleteExperimentResponse
  */
 async function deleteExperiment(request: DeleteExperimentRequest): DeleteExperimentResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteExperiment', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return deleteExperimentWithOptions(request, runtime);
 }
 
 model DeleteExperimentPlanRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  planId: long(name='PlanId', description='Plan ID
+  planId?: long(name='PlanId', description='Plan ID
 
-This parameter is required.', example='189', position='Query'),
+This parameter is required.', example='189'),
 }
 
 model DeleteExperimentPlanResponseBody = {
@@ -325,19 +611,50 @@ model DeleteExperimentPlanResponse = {
 }
 
 /**
-  * @param request  the request parameters of DeleteExperimentPlan  DeleteExperimentPlanRequest
-  * @return DeleteExperimentPlanResponse
+ * @summary 获取实验计划详情
+ *
+ * @param request DeleteExperimentPlanRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentPlanResponse
+ */
+async function deleteExperimentPlanWithOptions(request: DeleteExperimentPlanRequest, runtime: $RuntimeOptions): DeleteExperimentPlanResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.planId)) {
+    query['PlanId'] = request.planId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteExperimentPlan',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取实验计划详情
+ *
+ * @param request DeleteExperimentPlanRequest
+ * @return DeleteExperimentPlanResponse
  */
 async function deleteExperimentPlan(request: DeleteExperimentPlanRequest): DeleteExperimentPlanResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteExperimentPlan', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return deleteExperimentPlanWithOptions(request, runtime);
 }
 
 model DeleteExperimentPlanTemplateRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  templateId: long(name='TemplateId', description='Template ID
+  templateId?: long(name='TemplateId', description='Template ID
 
-This parameter is required.', example='346527', position='Query'),
+This parameter is required.', example='346527'),
 }
 
 model DeleteExperimentPlanTemplateResponseBody = {
@@ -353,20 +670,51 @@ model DeleteExperimentPlanTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of DeleteExperimentPlanTemplate  DeleteExperimentPlanTemplateRequest
-  * @return DeleteExperimentPlanTemplateResponse
+ * @summary Delete Test Plan Template
+ *
+ * @param request DeleteExperimentPlanTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteExperimentPlanTemplateResponse
+ */
+async function deleteExperimentPlanTemplateWithOptions(request: DeleteExperimentPlanTemplateRequest, runtime: $RuntimeOptions): DeleteExperimentPlanTemplateResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteExperimentPlanTemplate',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Delete Test Plan Template
+ *
+ * @param request DeleteExperimentPlanTemplateRequest
+ * @return DeleteExperimentPlanTemplateResponse
  */
 async function deleteExperimentPlanTemplate(request: DeleteExperimentPlanTemplateRequest): DeleteExperimentPlanTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteExperimentPlanTemplate', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return deleteExperimentPlanTemplateWithOptions(request, runtime);
 }
 
 model GetExperimentRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  experimentId: long(name='ExperimentId', description='Experiment ID
+  experimentId?: long(name='ExperimentId', description='Experiment ID
 
-This parameter is required.', example='234', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sdsmfg23', position='Query'),
+This parameter is required.', example='234'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sdsmfg23'),
 }
 
 model GetExperimentResponseBody = {
@@ -407,11 +755,11 @@ model GetExperimentResponseBody = {
       machineType?: {
         bondNum?: int32(name='BondNum', description='Number of network bonds', example='5'),
         cpuInfo?: string(name='CpuInfo', description='CPU information', example='2x Intel Icelake 8369B 32C CPU'),
-        diskInfo?: string(name='DiskInfo', description='Disk information', example='2x 480GB SATA SSD \\n 4x 3.84TB NVMe SSD'),
+        diskInfo?: string(name='DiskInfo', description='Disk information', example='2x 480GB SATA SSD \\\\n 4x 3.84TB NVMe SSD'),
         gpuInfo?: string(name='GpuInfo', description='GPU information', example='8x NVIDIA SXM4 80GB A100 GPU'),
         memoryInfo?: string(name='MemoryInfo', description='Memory information', example='32x 64GB DDR4 3200 Memory'),
         name?: string(name='Name', description='Specification name', example='efg1.nvga1n'),
-        networkInfo?: string(name='NetworkInfo', description='Network information', example='1x 100Gbps DP NIC for VPC \\n 4x 100Gbps DP RoCE NIC'),
+        networkInfo?: string(name='NetworkInfo', description='Network information', example='1x 100Gbps DP NIC for VPC \\\\n 4x 100Gbps DP RoCE NIC'),
         networkMode?: string(name='NetworkMode', description='Network mode', example='2'),
         nodeCount?: int32(name='NodeCount', description='Number of nodes', example='1'),
         type?: string(name='Type', description='Type', example='Public'),
@@ -553,19 +901,53 @@ model GetExperimentResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetExperiment  GetExperimentRequest
-  * @return GetExperimentResponse
+ * @summary Get Experiment Details
+ *
+ * @param request GetExperimentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentResponse
+ */
+async function getExperimentWithOptions(request: GetExperimentRequest, runtime: $RuntimeOptions): GetExperimentResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.experimentId)) {
+    query['ExperimentId'] = request.experimentId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetExperiment',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Experiment Details
+ *
+ * @param request GetExperimentRequest
+ * @return GetExperimentResponse
  */
 async function getExperiment(request: GetExperimentRequest): GetExperimentResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetExperiment', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getExperimentWithOptions(request, runtime);
 }
 
 model GetExperimentPlanRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  planId: long(name='PlanId', description='Plan ID
+  planId?: long(name='PlanId', description='Plan ID
 
-This parameter is required.', example='189', position='Query'),
+This parameter is required.', example='189'),
 }
 
 model GetExperimentPlanResponseBody = {
@@ -630,19 +1012,50 @@ model GetExperimentPlanResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetExperimentPlan  GetExperimentPlanRequest
-  * @return GetExperimentPlanResponse
+ * @summary Get Experiment Plan Details
+ *
+ * @param request GetExperimentPlanRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentPlanResponse
+ */
+async function getExperimentPlanWithOptions(request: GetExperimentPlanRequest, runtime: $RuntimeOptions): GetExperimentPlanResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.planId)) {
+    query['PlanId'] = request.planId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetExperimentPlan',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Experiment Plan Details
+ *
+ * @param request GetExperimentPlanRequest
+ * @return GetExperimentPlanResponse
  */
 async function getExperimentPlan(request: GetExperimentPlanRequest): GetExperimentPlanResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetExperimentPlan', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getExperimentPlanWithOptions(request, runtime);
 }
 
 model GetExperimentPlanTemplateRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  templateId: long(name='TemplateId', description='Template ID
+  templateId?: long(name='TemplateId', description='Template ID
 
-This parameter is required.', example='315797', position='Query'),
+This parameter is required.', example='315797'),
 }
 
 model GetExperimentPlanTemplateResponseBody = {
@@ -702,22 +1115,53 @@ model GetExperimentPlanTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetExperimentPlanTemplate  GetExperimentPlanTemplateRequest
-  * @return GetExperimentPlanTemplateResponse
+ * @summary Query Test Plan Template Details
+ *
+ * @param request GetExperimentPlanTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentPlanTemplateResponse
+ */
+async function getExperimentPlanTemplateWithOptions(request: GetExperimentPlanTemplateRequest, runtime: $RuntimeOptions): GetExperimentPlanTemplateResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetExperimentPlanTemplate',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query Test Plan Template Details
+ *
+ * @param request GetExperimentPlanTemplateRequest
+ * @return GetExperimentPlanTemplateResponse
  */
 async function getExperimentPlanTemplate(request: GetExperimentPlanTemplateRequest): GetExperimentPlanTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetExperimentPlanTemplate', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getExperimentPlanTemplateWithOptions(request, runtime);
 }
 
 model GetExperimentResultDataRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  experimentId: long(name='ExperimentId', description='Experiment ID
+  experimentId?: long(name='ExperimentId', description='Experiment ID
 
-This parameter is required.', example='234', position='Query'),
-  hostname?: string(name='Hostname', description='Hostname', example='iZj6ccwd7zwfms7hzaz2riZ', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sfjgskdfj3k4', position='Query'),
-  workloadType?: string(name='WorkloadType', description='Workload Type', example='AI', position='Query'),
+This parameter is required.', example='234'),
+  hostname?: string(name='Hostname', description='Hostname', example='iZj6ccwd7zwfms7hzaz2riZ'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-sfjgskdfj3k4'),
+  workloadType?: string(name='WorkloadType', description='Workload Type', example='AI'),
 }
 
 model GetExperimentResultDataResponseBody = {
@@ -749,19 +1193,59 @@ model GetExperimentResultDataResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetExperimentResultData  GetExperimentResultDataRequest
-  * @return GetExperimentResultDataResponse
+ * @summary Fetch Experiment Result Data
+ *
+ * @param request GetExperimentResultDataRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetExperimentResultDataResponse
+ */
+async function getExperimentResultDataWithOptions(request: GetExperimentResultDataRequest, runtime: $RuntimeOptions): GetExperimentResultDataResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.experimentId)) {
+    query['ExperimentId'] = request.experimentId;
+  }
+  if (!$isNull(request.hostname)) {
+    query['Hostname'] = request.hostname;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.workloadType)) {
+    query['WorkloadType'] = request.workloadType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetExperimentResultData',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Fetch Experiment Result Data
+ *
+ * @param request GetExperimentResultDataRequest
+ * @return GetExperimentResultDataResponse
  */
 async function getExperimentResultData(request: GetExperimentResultDataRequest): GetExperimentResultDataResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetExperimentResultData', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getExperimentResultDataWithOptions(request, runtime);
 }
 
 model GetResourceRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  clusterId: string(name='ClusterId', description='The cluster ID of Lingjun
+  clusterId?: string(name='ClusterId', description='The cluster ID of Lingjun
 
-This parameter is required.', example='ehpc-bj-uo8f26cpmo', position='Query'),
+This parameter is required.', example='ehpc-bj-uo8f26cpmo'),
 }
 
 model GetResourceResponseBody = {
@@ -775,11 +1259,11 @@ model GetResourceResponseBody = {
     machineType?: {
       bondNum?: int32(name='BondNum', description='Number of network bonds', example='5'),
       cpuInfo?: string(name='CpuInfo', description='CPU information', example='2x Intel Saphhire Rapid 8469C 48C CPU'),
-      diskInfo?: string(name='DiskInfo', description='Disk information', example='2x 480GB SATA SSD\\n4x 3.84TB NVMe SSD'),
+      diskInfo?: string(name='DiskInfo', description='Disk information', example='2x 480GB SATA SSD\\\\n4x 3.84TB NVMe SSD'),
       gpuInfo?: string(name='GpuInfo', description='GPU information', example='8x OAM 810 GPU'),
       memoryInfo?: string(name='MemoryInfo', description='Memory information', example='32x 64GB DDR4 4800 Memory'),
       name?: string(name='Name', description='Specification name', example='efg2.p8en'),
-      networkInfo?: string(name='NetworkInfo', description='Network information', example='1x 200Gbps Dual Port BF3 DPU for VPC\\n4x 200Gbps Dual Port EIC'),
+      networkInfo?: string(name='NetworkInfo', description='Network information', example='1x 200Gbps Dual Port BF3 DPU for VPC\\\\n4x 200Gbps Dual Port EIC'),
       networkMode?: string(name='NetworkMode', description='Network mode', example='2'),
       nodeCount?: int32(name='NodeCount', description='Number of nodes', example='1'),
       type?: string(name='Type', description='Type', example='Private'),
@@ -812,20 +1296,51 @@ model GetResourceResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetResource  GetResourceRequest
-  * @return GetResourceResponse
+ * @summary Get Resource Information
+ *
+ * @param request GetResourceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetResourceResponse
+ */
+async function getResourceWithOptions(request: GetResourceRequest, runtime: $RuntimeOptions): GetResourceResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetResource',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Resource Information
+ *
+ * @param request GetResourceRequest
+ * @return GetResourceResponse
  */
 async function getResource(request: GetResourceRequest): GetResourceResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetResource', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getResourceWithOptions(request, runtime);
 }
 
 model GetResourcePredictResultRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  resourceId?: long(name='ResourceId', description='Resource ID', example='36', position='Query'),
-  templateId: long(name='TemplateId', description='Template ID
+  resourceId?: long(name='ResourceId', description='Resource ID', example='36'),
+  templateId?: long(name='TemplateId', description='Template ID
 
-This parameter is required.', example='315797', position='Query'),
+This parameter is required.', example='315797'),
 }
 
 model GetResourcePredictResultResponseBody = {
@@ -841,19 +1356,53 @@ model GetResourcePredictResultResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetResourcePredictResult  GetResourcePredictResultRequest
-  * @return GetResourcePredictResultResponse
+ * @summary Query the resource prediction results of the test plan template
+ *
+ * @param request GetResourcePredictResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetResourcePredictResultResponse
+ */
+async function getResourcePredictResultWithOptions(request: GetResourcePredictResultRequest, runtime: $RuntimeOptions): GetResourcePredictResultResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetResourcePredictResult',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query the resource prediction results of the test plan template
+ *
+ * @param request GetResourcePredictResultRequest
+ * @return GetResourcePredictResultResponse
  */
 async function getResourcePredictResult(request: GetResourcePredictResultRequest): GetResourcePredictResultResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetResourcePredictResult', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getResourcePredictResultWithOptions(request, runtime);
 }
 
 model GetWorkloadRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  workloadId: long(name='WorkloadId', description='Workload ID
+  workloadId?: long(name='WorkloadId', description='Workload ID
 
-This parameter is required.', example='13', position='Query'),
+This parameter is required.', example='13'),
 }
 
 model GetWorkloadResponseBody = {
@@ -900,17 +1449,48 @@ model GetWorkloadResponse = {
 }
 
 /**
-  * @param request  the request parameters of GetWorkload  GetWorkloadRequest
-  * @return GetWorkloadResponse
+ * @summary Retrieve workload information by ID
+ *
+ * @param request GetWorkloadRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetWorkloadResponse
+ */
+async function getWorkloadWithOptions(request: GetWorkloadRequest, runtime: $RuntimeOptions): GetWorkloadResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.workloadId)) {
+    query['WorkloadId'] = request.workloadId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetWorkload',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieve workload information by ID
+ *
+ * @param request GetWorkloadRequest
+ * @return GetWorkloadResponse
  */
 async function getWorkload(request: GetWorkloadRequest): GetWorkloadResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetWorkload', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return getWorkloadWithOptions(request, runtime);
 }
 
 model ListExperimentPlanTemplatesRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  privacyLevel?: string(name='PrivacyLevel', description='The sharing level of the template, default is private, options are public and private.', example='private', position='Query'),
+  privacyLevel?: string(name='PrivacyLevel', description='The sharing level of the template, default is private, options are public and private.', example='private'),
 }
 
 model ListExperimentPlanTemplatesResponseBody = {
@@ -959,32 +1539,77 @@ model ListExperimentPlanTemplatesResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListExperimentPlanTemplates  ListExperimentPlanTemplatesRequest
-  * @return ListExperimentPlanTemplatesResponse
+ * @summary Query Test Plan Template List
+ *
+ * @param request ListExperimentPlanTemplatesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentPlanTemplatesResponse
+ */
+async function listExperimentPlanTemplatesWithOptions(request: ListExperimentPlanTemplatesRequest, runtime: $RuntimeOptions): ListExperimentPlanTemplatesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.privacyLevel)) {
+    query['PrivacyLevel'] = request.privacyLevel;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListExperimentPlanTemplates',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query Test Plan Template List
+ *
+ * @param request ListExperimentPlanTemplatesRequest
+ * @return ListExperimentPlanTemplatesResponse
  */
 async function listExperimentPlanTemplates(request: ListExperimentPlanTemplatesRequest): ListExperimentPlanTemplatesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListExperimentPlanTemplates', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return listExperimentPlanTemplatesWithOptions(request, runtime);
 }
 
 model ListExperimentPlansRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  creatTimeOrder?: string(name='CreatTimeOrder', description='Creation Time Sorting Rule', example='desc', position='Query'),
-  endTimeOrder?: string(name='EndTimeOrder', description='End Time Sorting Rule', example='desc', position='Query'),
-  page?: int32(name='Page', description='Page Number', example='1', position='Query'),
-  planTaskStatus?: [ string ](name='PlanTaskStatus', description='Execution Status', shrink='json', position='Body'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group ID', example='rg-aekzij65sf2rr5i', position='Query'),
-  resourceId?: long(name='ResourceId', description='Resource ID', example='189', position='Query'),
-  resourceName?: [ string ](name='ResourceName', description='Resource', shrink='json', position='Body'),
-  size?: int32(name='Size', description='Number of Items', example='100', position='Query'),
-  startTimeOrder?: string(name='StartTimeOrder', description='Start Time Sorting Rule', example='desc', position='Query'),
+  creatTimeOrder?: string(name='CreatTimeOrder', description='Creation Time Sorting Rule', example='desc'),
+  endTimeOrder?: string(name='EndTimeOrder', description='End Time Sorting Rule', example='desc'),
+  page?: int32(name='Page', description='Page Number', example='1'),
+  planTaskStatus?: [ string ](name='PlanTaskStatus', description='Execution Status'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group ID', example='rg-aekzij65sf2rr5i'),
+  resourceId?: long(name='ResourceId', description='Resource ID', example='189'),
+  resourceName?: [ string ](name='ResourceName', description='Resource'),
+  size?: int32(name='Size', description='Number of Items', example='100'),
+  startTimeOrder?: string(name='StartTimeOrder', description='Start Time Sorting Rule', example='desc'),
   tag?: [ 
     {
       key?: string(name='Key', description='The tag key.', example='owner'),
       value?: string(name='Value', description='Tag value', example='test'),
     }
-  ](name='Tag', description='The tags.', shrink='json', position='Query'),
-  templateId?: long(name='TemplateId', description='Template Id', example='96', position='Query'),
+  ](name='Tag', description='The tags.'),
+  templateId?: long(name='TemplateId', description='Template Id', example='96'),
+}
+
+model ListExperimentPlansShrinkRequest {
+  creatTimeOrder?: string(name='CreatTimeOrder', description='Creation Time Sorting Rule', example='desc'),
+  endTimeOrder?: string(name='EndTimeOrder', description='End Time Sorting Rule', example='desc'),
+  page?: int32(name='Page', description='Page Number', example='1'),
+  planTaskStatusShrink?: string(name='PlanTaskStatus', description='Execution Status'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group ID', example='rg-aekzij65sf2rr5i'),
+  resourceId?: long(name='ResourceId', description='Resource ID', example='189'),
+  resourceNameShrink?: string(name='ResourceName', description='Resource'),
+  size?: int32(name='Size', description='Number of Items', example='100'),
+  startTimeOrder?: string(name='StartTimeOrder', description='Start Time Sorting Rule', example='desc'),
+  tagShrink?: string(name='Tag', description='The tags.'),
+  templateId?: long(name='TemplateId', description='Template Id', example='96'),
 }
 
 model ListExperimentPlansResponseBody = {
@@ -1021,19 +1646,93 @@ model ListExperimentPlansResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListExperimentPlans  ListExperimentPlansRequest
-  * @return ListExperimentPlansResponse
+ * @summary Query Experiment Plan List
+ *
+ * @param tmpReq ListExperimentPlansRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentPlansResponse
+ */
+async function listExperimentPlansWithOptions(tmpReq: ListExperimentPlansRequest, runtime: $RuntimeOptions): ListExperimentPlansResponse {
+  tmpReq.validate();
+  var request = new ListExperimentPlansShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.planTaskStatus)) {
+    request.planTaskStatusShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.planTaskStatus, 'PlanTaskStatus', 'json');
+  }
+  if (!$isNull(tmpReq.resourceName)) {
+    request.resourceNameShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.resourceName, 'ResourceName', 'json');
+  }
+  if (!$isNull(tmpReq.tag)) {
+    request.tagShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tag, 'Tag', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.creatTimeOrder)) {
+    query['CreatTimeOrder'] = request.creatTimeOrder;
+  }
+  if (!$isNull(request.endTimeOrder)) {
+    query['EndTimeOrder'] = request.endTimeOrder;
+  }
+  if (!$isNull(request.page)) {
+    query['Page'] = request.page;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.size)) {
+    query['Size'] = request.size;
+  }
+  if (!$isNull(request.startTimeOrder)) {
+    query['StartTimeOrder'] = request.startTimeOrder;
+  }
+  if (!$isNull(request.tagShrink)) {
+    query['Tag'] = request.tagShrink;
+  }
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.planTaskStatusShrink)) {
+    body['PlanTaskStatus'] = request.planTaskStatusShrink;
+  }
+  if (!$isNull(request.resourceNameShrink)) {
+    body['ResourceName'] = request.resourceNameShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListExperimentPlans',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query Experiment Plan List
+ *
+ * @param request ListExperimentPlansRequest
+ * @return ListExperimentPlansResponse
  */
 async function listExperimentPlans(request: ListExperimentPlansRequest): ListExperimentPlansResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListExperimentPlans', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listExperimentPlansWithOptions(request, runtime);
 }
 
 model ListExperimentsRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  order?: int32(name='Order', description='Order', example='1', position='Query'),
-  planId?: long(name='PlanId', description='Plan ID', example='189', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='资源组id', example='rg-uo8f26cpmo', position='Query'),
+  order?: int32(name='Order', description='Order', example='1'),
+  planId?: long(name='PlanId', description='Plan ID', example='189'),
+  resourceGroupId?: string(name='ResourceGroupId', description='资源组id', example='rg-uo8f26cpmo'),
 }
 
 model ListExperimentsResponseBody = {
@@ -1125,27 +1824,64 @@ model ListExperimentsResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListExperiments  ListExperimentsRequest
-  * @return ListExperimentsResponse
+ * @summary Query the experiment list based on the plan ID
+ *
+ * @param request ListExperimentsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListExperimentsResponse
+ */
+async function listExperimentsWithOptions(request: ListExperimentsRequest, runtime: $RuntimeOptions): ListExperimentsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.order)) {
+    query['Order'] = request.order;
+  }
+  if (!$isNull(request.planId)) {
+    query['PlanId'] = request.planId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListExperiments',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query the experiment list based on the plan ID
+ *
+ * @param request ListExperimentsRequest
+ * @return ListExperimentsResponse
  */
 async function listExperiments(request: ListExperimentsRequest): ListExperimentsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListExperiments', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return listExperimentsWithOptions(request, runtime);
 }
 
 model ListTagResourcesRequest {
-  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  nextToken?: string(name='NextToken', description='Next token for the next query', example='F0lqbr2JpLDppro1RahGKViWtqXr3L28cePimcRn', position='Query'),
-  resourceId?: [ string ](name='ResourceId', description='ResourceId', position='Query'),
-  resourceType: string(name='ResourceType', description='Resource type
+  nextToken?: string(name='NextToken', description='Next token for the next query', example='F0lqbr2JpLDppro1RahGKViWtqXr3L28cePimcRn'),
+  resourceId?: [ string ](name='ResourceId', description='ResourceId'),
+  resourceType?: string(name='ResourceType', description='Resource type
 
-This parameter is required.', example='ExperimentPlan', position='Query'),
+This parameter is required.', example='ExperimentPlan'),
   tag?: [ 
     {
       key?: string(name='Key', description='Tag key, with n in the range [1, 20].', example='owner'),
       value?: string(name='Value', description='Tag value', example='syg'),
     }
-  ](name='Tag', description='The list of tags to be queried. The value range for N is 1~20.', position='Query'),
+  ](name='Tag', description='The list of tags to be queried. The value range for N is 1~20.'),
 }
 
 model ListTagResourcesResponseBody = {
@@ -1170,17 +1906,57 @@ model ListTagResourcesResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListTagResources  ListTagResourcesRequest
-  * @return ListTagResourcesResponse
+ * @summary Query Resource Tags
+ *
+ * @param request ListTagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListTagResourcesResponse
+ */
+async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: $RuntimeOptions): ListTagResourcesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!$isNull(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListTagResources',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Query Resource Tags
+ *
+ * @param request ListTagResourcesRequest
+ * @return ListTagResourcesResponse
  */
 async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return listTagResourcesWithOptions(request, runtime);
 }
 
 model ListWorkloadsRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  scope?: string(name='Scope', description='Scope', example='common', position='Query'),
+  scope?: string(name='Scope', description='Scope', example='common'),
 }
 
 model ListWorkloadsResponseBody = {
@@ -1229,20 +2005,51 @@ model ListWorkloadsResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListWorkloads  ListWorkloadsRequest
-  * @return ListWorkloadsResponse
+ * @summary Get Workload List
+ *
+ * @param request ListWorkloadsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListWorkloadsResponse
+ */
+async function listWorkloadsWithOptions(request: ListWorkloadsRequest, runtime: $RuntimeOptions): ListWorkloadsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.scope)) {
+    query['Scope'] = request.scope;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListWorkloads',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Workload List
+ *
+ * @param request ListWorkloadsRequest
+ * @return ListWorkloadsResponse
  */
 async function listWorkloads(request: ListWorkloadsRequest): ListWorkloadsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListWorkloads', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return listWorkloadsWithOptions(request, runtime);
 }
 
 model StopExperimentRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  experimentId: long(name='ExperimentId', description='Plan ID
+  experimentId?: long(name='ExperimentId', description='Plan ID
 
-This parameter is required.', example='234', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-kdsflsdfj23m', position='Query'),
+This parameter is required.', example='234'),
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource Group Id', example='rg-kdsflsdfj23m'),
 }
 
 model StopExperimentResponseBody = {
@@ -1259,30 +2066,64 @@ model StopExperimentResponse = {
 }
 
 /**
-  * @param request  the request parameters of StopExperiment  StopExperimentRequest
-  * @return StopExperimentResponse
+ * @summary Stop Experiment
+ *
+ * @param request StopExperimentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StopExperimentResponse
+ */
+async function stopExperimentWithOptions(request: StopExperimentRequest, runtime: $RuntimeOptions): StopExperimentResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.experimentId)) {
+    query['ExperimentId'] = request.experimentId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'StopExperiment',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stop Experiment
+ *
+ * @param request StopExperimentRequest
+ * @return StopExperimentResponse
  */
 async function stopExperiment(request: StopExperimentRequest): StopExperimentResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'StopExperiment', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return stopExperimentWithOptions(request, runtime);
 }
 
 model TagResourcesRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  resourceId: [ string ](name='ResourceId', description='ResourceId
+  resourceId?: [ string ](name='ResourceId', description='ResourceId
 
-This parameter is required.', position='Query'),
-  resourceType: string(name='ResourceType', description='Resource type
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='Resource type
 
-This parameter is required.', example='ExperimentPlan', position='Query'),
-  tag: [ 
+This parameter is required.', example='ExperimentPlan'),
+  tag?: [ 
     {
-      key?: string(name='Key', description='Tag key.', example='owner', maxLength=128),
-      value?: string(name='Value', description='Tag value', example='syg', maxLength=256),
+      key?: string(name='Key', description='Tag key.', example='owner'),
+      value?: string(name='Value', description='Tag value', example='syg'),
     }
   ](name='Tag', description='List of tags, up to 20.
 
-This parameter is required.', position='Query'),
+This parameter is required.'),
 }
 
 model TagResourcesResponseBody = {
@@ -1299,26 +2140,63 @@ model TagResourcesResponse = {
 }
 
 /**
-  * @param request  the request parameters of TagResources  TagResourcesRequest
-  * @return TagResourcesResponse
+ * @summary Tag Resources with User Labels
+ *
+ * @param request TagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return TagResourcesResponse
+ */
+async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: $RuntimeOptions): TagResourcesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!$isNull(request.tag)) {
+    query['Tag'] = request.tag;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'TagResources',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Tag Resources with User Labels
+ *
+ * @param request TagResourcesRequest
+ * @return TagResourcesResponse
  */
 async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return tagResourcesWithOptions(request, runtime);
 }
 
 model UntagResourcesRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  all?: boolean(name='All', description='Whether to delete all, only effective when TagKey.N is empty. Allowed values: true, false, True, False. Default is false.', example='true', position='Query'),
-  resourceId: [ string ](name='ResourceId', description='Resource ID
+  all?: boolean(name='All', description='Whether to delete all, only effective when TagKey.N is empty. Allowed values: true, false, True, False. Default is false.', example='true'),
+  resourceId?: [ string ](name='ResourceId', description='Resource ID
 
-This parameter is required.', position='Query'),
-  resourceType: string(name='ResourceType', description='Resource type
+This parameter is required.'),
+  resourceType?: string(name='ResourceType', description='Resource type
 
-This parameter is required.', example='ExperimentPlan', position='Query'),
-  tagKey: [ string ](name='TagKey', description='Tag key group, up to 20 items
+This parameter is required.', example='ExperimentPlan'),
+  tagKey?: [ string ](name='TagKey', description='Tag key group, up to 20 items
 
-This parameter is required.', position='Query'),
+This parameter is required.'),
 }
 
 model UntagResourcesResponseBody = {
@@ -1335,22 +2213,62 @@ model UntagResourcesResponse = {
 }
 
 /**
-  * @param request  the request parameters of UntagResources  UntagResourcesRequest
-  * @return UntagResourcesResponse
+ * @summary Remove User Tags from Resources
+ *
+ * @param request UntagResourcesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UntagResourcesResponse
+ */
+async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime: $RuntimeOptions): UntagResourcesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.all)) {
+    query['All'] = request.all;
+  }
+  if (!$isNull(request.resourceId)) {
+    query['ResourceId'] = request.resourceId;
+  }
+  if (!$isNull(request.resourceType)) {
+    query['ResourceType'] = request.resourceType;
+  }
+  if (!$isNull(request.tagKey)) {
+    query['TagKey'] = request.tagKey;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UntagResources',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Remove User Tags from Resources
+ *
+ * @param request UntagResourcesRequest
+ * @return UntagResourcesResponse
  */
 async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return untagResourcesWithOptions(request, runtime);
 }
 
 model UpdateExperimentPlanRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  planId: long(name='PlanId', description='Experiment plan ID
+  planId?: long(name='PlanId', description='Experiment plan ID
 
-This parameter is required.', example='189', position='Query'),
-  planTemplateName: string(name='PlanTemplateName', description='Experiment plan name
+This parameter is required.', example='189'),
+  planTemplateName?: string(name='PlanTemplateName', description='Experiment plan name
 
-This parameter is required.', example='test', position='Query'),
+This parameter is required.', example='test'),
 }
 
 model UpdateExperimentPlanResponseBody = {
@@ -1367,61 +2285,104 @@ model UpdateExperimentPlanResponse = {
 }
 
 /**
-  * @param request  the request parameters of UpdateExperimentPlan  UpdateExperimentPlanRequest
-  * @return UpdateExperimentPlanResponse
+ * @summary Update Experiment Plan
+ *
+ * @param request UpdateExperimentPlanRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExperimentPlanResponse
+ */
+async function updateExperimentPlanWithOptions(request: UpdateExperimentPlanRequest, runtime: $RuntimeOptions): UpdateExperimentPlanResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.planId)) {
+    query['PlanId'] = request.planId;
+  }
+  if (!$isNull(request.planTemplateName)) {
+    query['PlanTemplateName'] = request.planTemplateName;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateExperimentPlan',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Update Experiment Plan
+ *
+ * @param request UpdateExperimentPlanRequest
+ * @return UpdateExperimentPlanResponse
  */
 async function updateExperimentPlan(request: UpdateExperimentPlanRequest): UpdateExperimentPlanResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateExperimentPlan', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return updateExperimentPlanWithOptions(request, runtime);
 }
 
 model UpdateExperimentPlanTemplateRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  templateId: long(name='TemplateId', description='Template code
+  templateId?: long(name='TemplateId', description='Template code
 
-This parameter is required.', example='349623', position='Query'),
-  templatePipeline: [ 
+This parameter is required.', example='349623'),
+  templatePipeline?: [ 
     {
-      envParams: {
-        cpuPerWorker: int32(name='CpuPerWorker', description='CPU allocation count
+      envParams?: {
+        cpuPerWorker?: int32(name='CpuPerWorker', description='CPU allocation count
 
 This parameter is required.', example='90'),
         cudaVersion?: string(name='CudaVersion', description='CUDA version', example='1.0.0'),
         gpuDriverVersion?: string(name='GpuDriverVersion', description='GPU driver version', example='1.0.0'),
-        gpuPerWorker: int32(name='GpuPerWorker', description='GPU allocation count
+        gpuPerWorker?: int32(name='GpuPerWorker', description='GPU allocation count
 
 This parameter is required.', example='8'),
-        memoryPerWorker: int32(name='MemoryPerWorker', description='Memory GB allocation count
+        memoryPerWorker?: int32(name='MemoryPerWorker', description='Memory GB allocation count
 
 This parameter is required.', example='500'),
         NCCLVersion?: string(name='NCCLVersion', description='NCCL version', example='1.0.0'),
         pyTorchVersion?: string(name='PyTorchVersion', description='PyTorch version', example='1.0.0'),
-        shareMemory: int32(name='ShareMemory', description='Shared memory GB allocation count
+        shareMemory?: int32(name='ShareMemory', description='Shared memory GB allocation count
 
 This parameter is required.', example='500'),
-        workerNum: int32(name='WorkerNum', description='Number of nodes
+        workerNum?: int32(name='WorkerNum', description='Number of nodes
 
 This parameter is required.', example='1'),
       }(name='EnvParams', description='Configured environment parameters
 
 This parameter is required.'),
-      pipelineOrder: int32(name='PipelineOrder', description='Node order number
+      pipelineOrder?: int32(name='PipelineOrder', description='Node order number
 
 This parameter is required.', example='1'),
-      scene: string(name='Scene', description='Usage scenario, e.g., "baseline"
+      scene?: string(name='Scene', description='Usage scenario, e.g., "baseline"
 
 This parameter is required.', example='baseline'),
       settingParams?: map[string]string(name='SettingParams', description='Configured workload parameters'),
-      workloadId: long(name='WorkloadId', description='Workload ID
+      workloadId?: long(name='WorkloadId', description='Workload ID
 
 This parameter is required.', example='14'),
-      workloadName: string(name='WorkloadName', description='Workload name
+      workloadName?: string(name='WorkloadName', description='Workload name
 
 This parameter is required.', example='test'),
     }
   ](name='TemplatePipeline', description='Template pipeline
 
-This parameter is required.', shrink='json', position='Body'),
+This parameter is required.'),
+}
+
+model UpdateExperimentPlanTemplateShrinkRequest {
+  templateId?: long(name='TemplateId', description='Template code
+
+This parameter is required.', example='349623'),
+  templatePipelineShrink?: string(name='TemplatePipeline', description='Template pipeline
+
+This parameter is required.'),
 }
 
 model UpdateExperimentPlanTemplateResponseBody = {
@@ -1481,25 +2442,73 @@ model UpdateExperimentPlanTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of UpdateExperimentPlanTemplate  UpdateExperimentPlanTemplateRequest
-  * @return UpdateExperimentPlanTemplateResponse
+ * @summary Update Test Plan Template
+ *
+ * @param tmpReq UpdateExperimentPlanTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateExperimentPlanTemplateResponse
+ */
+async function updateExperimentPlanTemplateWithOptions(tmpReq: UpdateExperimentPlanTemplateRequest, runtime: $RuntimeOptions): UpdateExperimentPlanTemplateResponse {
+  tmpReq.validate();
+  var request = new UpdateExperimentPlanTemplateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.templatePipeline)) {
+    request.templatePipelineShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.templatePipeline, 'TemplatePipeline', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.templateId)) {
+    query['TemplateId'] = request.templateId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.templatePipelineShrink)) {
+    body['TemplatePipeline'] = request.templatePipelineShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateExperimentPlanTemplate',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Update Test Plan Template
+ *
+ * @param request UpdateExperimentPlanTemplateRequest
+ * @return UpdateExperimentPlanTemplateResponse
  */
 async function updateExperimentPlanTemplate(request: UpdateExperimentPlanTemplateRequest): UpdateExperimentPlanTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateExperimentPlanTemplate', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return updateExperimentPlanTemplateWithOptions(request, runtime);
 }
 
 model ValidateResourceRequest {
-  regionId?: string(name='RegionId', position='Host'),
-  clusterId: string(name='ClusterId', description='Resource ID
+  clusterId?: string(name='ClusterId', description='Resource ID
 
-This parameter is required.', example='ehpc-sh-ouypm5aucy', position='Query'),
+This parameter is required.', example='ehpc-sh-ouypm5aucy'),
   userAccessParam?: {
     accessId?: string(name='AccessId', description='User ID', example='dev'),
     accessKey?: string(name='AccessKey', description='User Key', example='test'),
     endpoint?: string(name='Endpoint', description='Endpoint', example='test'),
     workspaceId?: string(name='WorkspaceId', description='Workspace ID', example='test'),
-  }(name='UserAccessParam', description='User Authorization Parameters', shrink='json', position='Body'),
+  }(name='UserAccessParam', description='User Authorization Parameters'),
+}
+
+model ValidateResourceShrinkRequest {
+  clusterId?: string(name='ClusterId', description='Resource ID
+
+This parameter is required.', example='ehpc-sh-ouypm5aucy'),
+  userAccessParamShrink?: string(name='UserAccessParam', description='User Authorization Parameters'),
 }
 
 model ValidateResourceResponseBody = {
@@ -1515,25 +2524,53 @@ model ValidateResourceResponse = {
 }
 
 /**
-  * @param request  the request parameters of ValidateResource  ValidateResourceRequest
-  * @return ValidateResourceResponse
+ * @summary Resource Connectivity Test
+ *
+ * @param tmpReq ValidateResourceRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ValidateResourceResponse
  */
-async function validateResource(request: ValidateResourceRequest): ValidateResourceResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ValidateResource', 'POST', '/', 'json', true, 'form', request);
+async function validateResourceWithOptions(tmpReq: ValidateResourceRequest, runtime: $RuntimeOptions): ValidateResourceResponse {
+  tmpReq.validate();
+  var request = new ValidateResourceShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.userAccessParam)) {
+    request.userAccessParamShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.userAccessParam, 'UserAccessParam', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.userAccessParamShrink)) {
+    body['UserAccessParam'] = request.userAccessParamShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ValidateResource',
+    version = '2023-08-28',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
 }
 
-model DataResultsTaskIndividualResultMapValue = {
-  experimentId?: long(name='ExperimentId', description='Experiment ID', example='54'),
-  hostname?: string(name='Hostname', description='Host IP', example='p-jt-waf-app1'),
-  podName?: string(name='PodName', description='Pod name', example='fluxserv-6fc89b45cf-w8wq6'),
-  gpuNum?: int32(name='GpuNum', description='GPU数量', example='8'),
-  gpuName?: string(name='GpuName', description='GPU名称', example='8x OAM 810 GPU'),
-  warningFlag?: boolean(name='WarningFlag', description='Whether there is a warning', example='false'),
-  warningMsg?: string(name='WarningMsg', description='Warning message', example='warning message'),
-  errorFlag?: boolean(name='ErrorFlag', description='Whether there is an error', example='false'),
-  errorMsg?: string(name='ErrorMsg', description='Error message', example='error message'),
-  tflops?: double(name='Tflops', description='TFLOPS value', example='45'),
-  samplesPerSecond?: double(name='SamplesPerSecond', description='Throughput', example='23'),
+/**
+ * @summary Resource Connectivity Test
+ *
+ * @param request ValidateResourceRequest
+ * @return ValidateResourceResponse
+ */
+async function validateResource(request: ValidateResourceRequest): ValidateResourceResponse {
+  var runtime = new $RuntimeOptions{};
+  return validateResourceWithOptions(request, runtime);
 }
 
