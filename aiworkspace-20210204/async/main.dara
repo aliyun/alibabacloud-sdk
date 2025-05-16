@@ -684,14 +684,56 @@ async function createCodeSource(request: CreateCodeSourceRequest): CreateCodeSou
   return @handler.do('RESTFUL', 'CreateCodeSource', 'POST', '/api/v1/codesources', 'json', false, 'json', request);
 }
 
-model CreateDatasetRequest {
-  accessibility?: string(name='Accessibility', description='The visibility of the workspace. Valid values:
+model CreateConnectionRequest {
+  accessibility?: string(name='Accessibility', example='PRIVATE', position='Body'),
+  configs: map[string]string(name='Configs', description='This parameter is required.', position='Body'),
+  connectionName: string(name='ConnectionName', description='This parameter is required.', example='llm-connection', position='Body'),
+  connectionType?: string(name='ConnectionType', example='DashScopeConnection', position='Body'),
+  description?: string(name='Description', position='Body'),
+  models?: [ 
+    {
+      displayName?: string(name='DisplayName'),
+      model?: string(name='Model', example='model_001'),
+      modelType?: string(name='ModelType', example='LLM'),
+      toolCall?: boolean(name='ToolCall', example='true'),
+    }
+  ](name='Models', position='Body'),
+  resourceMeta?: {
+    instanceId?: string(name='InstanceId', example='ld-uf69****9nqjjes'),
+    instanceName?: string(name='InstanceName'),
+  }(name='ResourceMeta', position='Body'),
+  secrets?: map[string]string(name='Secrets', position='Body'),
+  workspaceId?: string(name='WorkspaceId', example='123**45', position='Body'),
+}
 
-*   PRIVATE (default): The workspace is visible only to you and the administrator of the workspace.
-*   PUBLIC: The workspace is visible to all users.', example='PRIVATE', position='Body'),
+model CreateConnectionResponseBody = {
+  connectionId?: string(name='ConnectionId', example='conn-pai9m***mi47'),
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model CreateConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateConnectionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateConnection  CreateConnectionRequest
+  * @return CreateConnectionResponse
+ */
+async function createConnection(request: CreateConnectionRequest): CreateConnectionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateConnection', 'POST', '/api/v1/connections', 'json', false, 'json', request);
+}
+
+model CreateDatasetRequest {
+  accessibility?: string(name='Accessibility', description='The workspace accessibility. Valid values:
+
+*   PRIVATE: The workspace is accessible only to you and the administrator of the workspace. This is the default value.
+*   PUBLIC: The workspace is accessible to all users.', example='PRIVATE', position='Body'),
   dataCount?: long(name='DataCount', description='The number of dataset files.', example='500', minimum=1, maximum=999999999999, position='Body'),
   dataSize?: long(name='DataSize', description='The size of the dataset file. Unit: bytes.', example='10000', minimum=1, maximum=999999999999, position='Body'),
-  dataSourceType: string(name='DataSourceType', description='The type of the data source. Valid values:
+  dataSourceType: string(name='DataSourceType', description='The data source type. Valid values:
 
 *   OSS: Object Storage Service (OSS).
 *   NAS: File Storage NAS (NAS).
@@ -710,41 +752,41 @@ This parameter is required.', example='NAS', position='Body'),
 **OSS**
 
 {\\
-"region": "${region}",// The region ID\\
-"bucket": "${bucket}",//The bucket name\\
-"path": "${path}" // The file path\\
+"region": "${region}",// The region ID.\\
+"bucket": "${bucket}",//The bucket name.\\
+"path": "${path}" // The file path.\\
 }\\
 
 
 **NAS**
 
 {\\
-"region": "${region}",// The region ID\\
-"fileSystemId": "${file_system_id}", // The file system ID\\
-"path": "${path}", // The file system path\\
-"mountTarget": "${mount_target}" // The mount point of the file system\\
+"region": "${region}",// The region ID.\\
+"fileSystemId": "${file_system_id}", // The file system ID.\\
+"path": "${path}", // The file system path.\\
+"mountTarget": "${mount_target}" // The mount point of the file system.\\
 }\\
 
 
 **CPFS**
 
 {\\
-"region": "${region}",// The region ID\\
-"fileSystemId": "${file_system_id}", // The file system ID\\
-"protocolServiceId":"${protocol_service_id}", // The file system protocol service\\
-"exportId": "${export_id}", // The file system export directory\\
-"path": "${path}", // The file system path\\
+"region": "${region}",// The region ID.\\
+"fileSystemId": "${file_system_id}", // The file system ID.\\
+"protocolServiceId":"${protocol_service_id}", // The file system protocol service.\\
+"exportId": "${export_id}", // The file system export directory.\\
+"path": "${path}", // The file system path.\\
 }\\
 
 
 **CPFS for Lingjun**
 
 {\\
-"region": "${region}",// The region ID\\
-"fileSystemId": "${file_system_id}", // The file system ID\\
-"path": "${path}", // The file system path\\
-"mountTarget": "${mount_target}" // The mount point of the file system, CPFS for Lingjun only\\
-"isVpcMount": boolean, // Whether the mount point is a virtual private cloud (VPC) mount point, CPFS for Lingjun only\\
+"region": "${region}",// The region ID.\\
+"fileSystemId": "${file_system_id}", // The file system ID.\\
+"path": "${path}", // The file system path.\\
+"mountTarget": "${mount_target}" // The mount point of the file system, CPFS for Lingjun only.\\
+"isVpcMount": boolean, // Whether the mount point is a virtual private cloud (VPC) mount point, CPFS for Lingjun only.\\
 }\\', example='{
     "region": "cn-wulanchabu",
     "fileSystemId": "bmcpfs-xxxxxxxxxxx",
@@ -781,22 +823,24 @@ This parameter is required.', example='DIRECTORY', position='Body'),
 
 *   Ecs (default)
 *   Lingjun', example='Ecs', position='Body'),
-  sourceDatasetId?: string(name='SourceDatasetId', description='The ID of the source dataset of the labeled dataset.', example='d-bvfasdfxxxxj8o411', position='Body'),
-  sourceDatasetVersion?: string(name='SourceDatasetVersion', description='The version of the source dataset of the labeled dataset.', example='v2', position='Body'),
-  sourceId?: string(name='SourceId', description='The ID of the data source.
+  sourceDatasetId?: string(name='SourceDatasetId', description='The ID of the source dataset for the labeled dataset.', example='d-bvfasdfxxxxj8o411', position='Body'),
+  sourceDatasetVersion?: string(name='SourceDatasetVersion', description='The version of the source dataset for the labeled dataset.', example='v2', position='Body'),
+  sourceId?: string(name='SourceId', description='The data source ID.
 
-*   If SourceType is set to USER, the value of SourceId can be a custom string.
+*   If SourceType is set to USER, the value of SourceId is a custom string.
 *   If SourceType is set to ITAG, the value of SourceId is the ID of the labeling job of iTAG.
-*   If SourceType is set to PAI_PUBLIC_DATASET, the value of SourceId is empty by default.', example='jdnhf***fnrimv', position='Body'),
-  sourceType?: string(name='SourceType', description='The type of the data source. Default value: USER. Valid values:
+*   If SourceType is set to PAI_PUBLIC_DATASET, SourceId is empty by default.', example='jdnhf***fnrimv', position='Body'),
+  sourceType?: string(name='SourceType', description='The type of the data source. Default value: USER.
 
-*   PAI-PUBLIC-DATASET: a public dataset of Platform for AI (PAI).
+Valid values:
+
+*   PAI_PUBLIC_DATASET: a public dataset of PAI.
 *   ITAG: a dataset generated from a labeling job of iTAG.
 *   USER: a dataset registered by a user.', example='USER', position='Body'),
   uri: string(name='Uri', description='The URI of the data source.
 
-*   Value format when DataSourceType is set to OSS: `oss://bucket.endpoint/object`.
-*   Value formats when DataSourceType is set to NAS: General-purpose NAS: `nas://<nasfisid>.region/subpath/to/dir/`. CPFS 1.0: `nas://<cpfs-fsid>.region/subpath/to/dir/`. CPFS 2.0: `nas://<cpfs-fsid>.region/<protocolserviceid>/`. You can distinguish CPFS 1.0 and CPFS 2.0 file systems based on the format of the file system ID: The ID for CPFS 1.0 is in the cpfs-<8-bit ASCII characters> format. The ID for CPFS 2.0 is in the cpfs-<16-bit ASCII characters> format.
+*   Value format if DataSourceType is set to OSS: `oss://bucket.endpoint/object`.
+*   Value formats if DataSourceType is set to NAS: General-purpose NAS: `nas://<nasfisid>.region/subpath/to/dir/`. CPFS 1.0: `nas://<cpfs-fsid>.region/subpath/to/dir/`. CPFS 2.0: `nas://<cpfs-fsid>.region/<protocolserviceid>/`. You can distinguish CPFS 1.0 and CPFS 2.0 file systems based on the format of the file system ID: The ID for CPFS 1.0 is in the cpfs-<8-bit ASCII characters> format. The ID for CPFS 2.0 is in the cpfs-<16-bit ASCII characters> format.
 
 This parameter is required.', example='nas://09f****f2.cn-hangzhou/', position='Body'),
   userId?: string(name='UserId', description='The ID of the Alibaba Cloud account to which the dataset belongs. The workspace owner and administrator have permissions to create datasets for specified members in the workspace.', example='2485765****023475', position='Body'),
@@ -1325,13 +1369,13 @@ This parameter is required.', example='model-dfs1****5c', position='Path'),
 *   Pending
 *   Approved
 *   Rejected', example='Approved', position='Body'),
-  compressionSpec?: map[string]any(name='CompressionSpec', description='Compression Configuration', example='{}', position='Body'),
-  evaluationSpec?: map[string]any(name='EvaluationSpec', description='Evaluation Configuration', example='{}', position='Body'),
-  extraInfo?: map[string]any(name='ExtraInfo', description='Other information.', example='{
+  compressionSpec?: map[string]any(name='CompressionSpec', description='The compression configuration.', example='{}', position='Body'),
+  evaluationSpec?: map[string]any(name='EvaluationSpec', description='The evaluation configuration.', example='{}', position='Body'),
+  extraInfo?: map[string]any(name='ExtraInfo', description='The additional information.', example='{
 	"CoverUris": ["https://e***u.oss-cn-hangzhou.aliyuncs.com/st****017.preview.png"],
 	"TrainedWords": ["albedo_overlord"]
 }', position='Body'),
-  formatType?: string(name='FormatType', description='The format of the model. Valid values:
+  formatType?: string(name='FormatType', description='The model format. Valid values:
 
 *   OfflineModel
 *   SavedModel
@@ -1343,21 +1387,21 @@ This parameter is required.', example='model-dfs1****5c', position='Path'),
 *   PMML
 *   AlinkModel
 *   ONNX', example='SavedModel', position='Body'),
-  frameworkType?: string(name='FrameworkType', description='The framework of the model. Valid values:
+  frameworkType?: string(name='FrameworkType', description='The model framework. Valid values:
 
-*   Pytorch 
+*   Pytorch
 *   XGBoost
 *   Keras
 *   Caffe
 *   Alink
 *   Xflow
 *   TensorFlow', example='TensorFlow', position='Body'),
-  inferenceSpec?: map[string]any(name='InferenceSpec', description='Describes how to apply to downstream inference services. For example, describes the processor and container of EAS. Example: `{ "processor": "tensorflow_gpu_1.12" }`', example='{
+  inferenceSpec?: map[string]any(name='InferenceSpec', description='Describes how to apply to downstream inference services. For example, describe the processor and container of EAS. Example: `{ "processor": "tensorflow_gpu_1.12" }`', example='{
     "processor": "tensorflow_gpu_1.12"
 }', position='Body'),
   labels?: [
     Label
-  ](name='Labels', description='The tags.', position='Body'),
+  ](name='Labels', description='The labels.', position='Body'),
   metrics?: map[string]any(name='Metrics', description='The metrics for the model. The length after serialization is limited to 8,192.', example='{
   "Results": [{
     "Dataset": {
@@ -1376,35 +1420,35 @@ This parameter is required.', example='model-dfs1****5c', position='Path'),
   }]
 }', position='Body'),
   options?: string(name='Options', description='The extended field. This is a JSON string.', example='{}', position='Body'),
-  sourceId?: string(name='SourceId', description='The source ID.
+  sourceId?: string(name='SourceId', description='The ID of the model source.
 
-*   If the source type is Custom, this field is not limited.
-*   If the source is PAIFlow or TrainingService, the format is:
+*   If SourceType is set to Custom, this parameter is not limited.
+*   If SourceType is set to PAIFlow or TrainingService, the ID of the model source is in the following format:
 
 <!---->
 
     region=<region_id>,workspaceId=<workspace_id>,kind=<kind>,id=<id>
 
-Where,
+Take note of the following parameters:
 
-*   region is the region ID.
-*   workspaceId is the ID of the workspace.
-*   kind is the type. Valid values: PipelineRun (PAIFlow) and ServiceJob (training service).
-*   id: a unique identifier.', example='region=cn-shanghai,workspaceId=13**,kind=PipelineRun,id=run-sakdb****jdf', position='Body'),
+*   region indicates the region ID.
+*   workspaceId indicates the workspace ID.
+*   kind indicates the type. Valid values: PipelineRun (PAIFlow) and ServiceJob (training service).
+*   id indicates the unique identifier.', example='region=cn-shanghai,workspaceId=13**,kind=PipelineRun,id=run-sakdb****jdf', position='Body'),
   sourceType?: string(name='SourceType', description='The type of the model source. Valid values:
 
 *   Custom (default)
 *   PAIFlow
-*   TrainingService: PAI training service.', example='PAIFlow', position='Body'),
-  trainingSpec?: map[string]any(name='TrainingSpec', description='The training configurations. Used for fine-tuning and incremental training.', example='{}', position='Body'),
+*   TrainingService: the Platform for AI (PAI) training service.', example='PAIFlow', position='Body'),
+  trainingSpec?: map[string]any(name='TrainingSpec', description='The training configurations, which is used for fine-tuning and incremental training.', example='{}', position='Body'),
   uri: string(name='Uri', description='The URI of the model version, which is the location where the model is stored. Valid values:
 
 *   The HTTP(S) address of the model. Example: `https://myweb.com/mymodel.tar.gz`.
-*   The OSS path of the model, in the format of `oss://<bucket>.<endpoint>/object`. For endpoint, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html). Example: `oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/`.
+*   The OSS path of the model, in the format of `oss://<bucket>.<endpoint>/object`. For information about endpoints, see [OSS regions and endpoints](https://help.aliyun.com/document_detail/31837.html). Example: `oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/`.
 
 This parameter is required.', example='oss://mybucket.oss-cn-beijing.aliyuncs.com/mypath/', position='Body'),
-  versionDescription?: string(name='VersionDescription', description='The version descriptions.', position='Body'),
-  versionName?: string(name='VersionName', description='The model version, which is unique for each model. If left empty, the first version is **0.1.0** by default. After that, the version number is increased by 1 in sequence. For example, the second version number is **0.2.0**. A version number consists of a major version number, a minor version number, and a stage version number, separated by periods (.). Among them: the major version number and minor version number are numeric. The stage version number begins with a digit and can include numbers, underscores, and letters. For example, the version number is 1.1.0 or 2.3.4_beta.', example='0.1.0', position='Body'),
+  versionDescription?: string(name='VersionDescription', description='The version description.', position='Body'),
+  versionName?: string(name='VersionName', description='The model version, which is unique for each model. If you leave this parameter empty, the first version is **0.1.0** by default. After that, the minor version number is increased by 1 in sequence. For example, the second version number is **0.2.0**. A version number consists of a major version number, a minor version number, and a stage version number, separated by periods (.). The major version number and minor version number are numeric. The stage version number begins with a digit and can include numbers, underscores, and letters. For example, the version number is 1.1.0 or 2.3.4_beta.', example='0.1.0', position='Body'),
 }
 
 model CreateModelVersionResponseBody = {
@@ -1718,20 +1762,22 @@ model DeleteConfigRequest {
   workspaceId: string(name='WorkspaceId', description='The workspace ID.
 
 This parameter is required.', example='98***', position='Path'),
-  configKey: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+  configKey: string(name='ConfigKey', description='The key of the configuration item. Valid values:
 
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
 *   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: Predefined tags of the workspace. Created resources must include tags.
 
 This parameter is required.', example='tempStoragePath', position='Path'),
-  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Valid values:
 
 *   CommonResourceConfig
 *   DLCAutoRecycle - DLCPriorityConfig
 *   DSWPriorityConfig
-*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
+*   QuotaMaximumDuration
+*   CommonTagConfig', example='CommonResourceConfig', position='Query'),
   labels?: string(name='Labels', description='The filter conditions. Separate multiple conditions with commas (,). The conditions have an AND relationship.', example='key1=value;key2=value2', position='Query'),
 }
 
@@ -1752,6 +1798,31 @@ model DeleteConfigResponse = {
 async function deleteConfig(request: DeleteConfigRequest): DeleteConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteConfig', 'DELETE', '/api/v1/workspaces/{WorkspaceId}/configs/{ConfigKey}', 'json', false, 'json', request);
+}
+
+model DeleteConnectionRequest {
+  connectionId: string(name='ConnectionId', description='The connection ID. You can call [ListConnections](url) to obtain the connection ID.
+
+This parameter is required.', example='conn-pai9m***mi47', position='Path'),
+}
+
+model DeleteConnectionResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='5A14FA81-DD4E-******-6343FE44B941'),
+}
+
+model DeleteConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteConnectionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteConnection  DeleteConnectionRequest
+  * @return DeleteConnectionResponse
+ */
+async function deleteConnection(request: DeleteConnectionRequest): DeleteConnectionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteConnection', 'DELETE', '/api/v1/connections/{ConnectionId}', 'json', false, 'json', request);
 }
 
 model DeleteDatasetRequest {
@@ -2202,7 +2273,7 @@ model DeleteUserConfigRequest {
 
 This parameter is required.', example='DataPrivacyConfig', position='Path'),
   configKey?: string(name='ConfigKey', description='The configuration item keys. Currently, only customizePAIAssumedRole.', example='tempStoragePath', position='Query'),
-  scope?: string(name='Scope', position='Query'),
+  scope?: string(name='Scope', description='The scope. Valid values: subUser and owner.', example='subUser', position='Query'),
 }
 
 model DeleteUserConfigResponseBody = {
@@ -2336,36 +2407,40 @@ model GetConfigRequest {
   workspaceId: string(name='WorkspaceId', description='The workspace ID.
 
 This parameter is required.', example='1234******2', position='Path'),
-  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Valid values:
 
 *   CommonResourceConfig
 *   DLCAutoRecycle
 *   DLCPriorityConfig
 *   DSWPriorityConfig
-*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
-  configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+*   QuotaMaximumDuration
+*   CommonTagConfig', example='CommonResourceConfig', position='Query'),
+  configKey?: string(name='ConfigKey', description='The key of the configuration item. Valid values:
 
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
 *   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath', position='Query'),
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: Predefined tags of the workspace. Created resources must include tags.', example='tempStoragePath', position='Query'),
   verbose?: string(name='Verbose', description='The value of the configuration item.', example='oss://***', position='Query'),
 }
 
 model GetConfigResponseBody = {
-  categoryName?: string(name='CategoryName', description='The category of the configuration item. Supported categories:
+  categoryName?: string(name='CategoryName', description='The category of the configuration item. Valid values:
 
 *   CommonResourceConfig
 *   DLCAutoRecycle
 *   DLCPriorityConfig
 *   DSWPriorityConfig
-*   QuotaMaximumDuration', example='CommonResourceConfig'),
-  configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
+*   QuotaMaximumDuration
+*   CommonTagConfig', example='CommonResourceConfig'),
+  configKey?: string(name='ConfigKey', description='The key of the configuration item. Valid values:
 
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
 *   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath'),
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: Predefined tags of the workspace. Created resources must include tags.', example='tempStoragePath'),
   configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://***'),
   labels?: [ 
     {
@@ -2390,6 +2465,53 @@ model GetConfigResponse = {
 async function getConfig(request: GetConfigRequest): GetConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetConfig', 'GET', '/api/v1/workspaces/{WorkspaceId}/config', 'json', false, 'json', request);
+}
+
+model GetConnectionRequest {
+  connectionId: string(name='ConnectionId', description='This parameter is required.', example='conn-pai9m***mi47', position='Path'),
+  encryptOption?: string(name='EncryptOption', example='PlainText', position='Query'),
+}
+
+model GetConnectionResponseBody = {
+  accessibility?: string(name='Accessibility', example='PRIVATE'),
+  configs?: map[string]string(name='Configs'),
+  connectionId?: string(name='ConnectionId', example='conn-pai9m***mi47'),
+  connectionName?: string(name='ConnectionName'),
+  connectionType?: string(name='ConnectionType', example='OpenSearchConnection'),
+  creator?: string(name='Creator', example='28632***898231'),
+  description?: string(name='Description'),
+  gmtCreateTime?: string(name='GmtCreateTime', example='2025-03-07T07:54:56Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', example='2025-03-07T07:54:56Z'),
+  models?: [ 
+    {
+      displayName?: string(name='DisplayName'),
+      model?: string(name='Model', example='model_001'),
+      modelType?: string(name='ModelType', example='LLM'),
+      toolCall?: boolean(name='ToolCall', example='true'),
+    }
+  ](name='Models'),
+  requestId?: string(name='RequestId', example='5A14FA81-DD4E-******-6343FE44B941'),
+  resourceMeta?: {
+    instanceId?: string(name='InstanceId', example='ld-2vc1***v1zaqgzol'),
+    instanceName?: string(name='InstanceName'),
+  }(name='ResourceMeta'),
+  secrets?: map[string]string(name='Secrets'),
+  workspaceId?: string(name='WorkspaceId', example='11**43'),
+}
+
+model GetConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetConnectionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetConnection  GetConnectionRequest
+  * @return GetConnectionResponse
+ */
+async function getConnection(request: GetConnectionRequest): GetConnectionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetConnection', 'GET', '/api/v1/connections/{ConnectionId}', 'json', false, 'json', request);
 }
 
 model GetDatasetRequest {
@@ -3292,13 +3414,15 @@ This parameter is required.', example='87***', position='Path'),
 *   DLCAutoRecycle
 *   DLCPriorityConfig
 *   DSWPriorityConfig
-*   QuotaMaximumDuration', example='CommonResourceConfig', position='Query'),
+*   QuotaMaximumDuration
+*   CommonTagConfig', example='CommonResourceConfig', position='Query'),
   configKeys?: string(name='ConfigKeys', description='The key of the configuration item. Supported keys:
 
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
 *   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath', position='Query'),
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: The predefined tags of the workspace. All created resources must have tags', example='tempStoragePath', position='Query'),
   labels?: string(name='Labels', description='The tags used as filter conditions. Separate multiple tags with commas (,). These conditions are in an AND relationship.', example='key1=value1,key2=value2', position='Query'),
   verbose?: string(name='Verbose', description='Specifies whether to show the tag information.
 
@@ -3314,7 +3438,8 @@ model ListConfigsResponseBody = {
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempTableLifecycle'),
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: The predefined tags of the workspace. All created resources must have tags', example='tempTableLifecycle'),
       configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://***'),
       labels?: [ 
         {
@@ -3341,6 +3466,57 @@ model ListConfigsResponse = {
 async function listConfigs(request: ListConfigsRequest): ListConfigsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListConfigs', 'GET', '/api/v1/workspaces/{WorkspaceId}/configs', 'json', false, 'json', request);
+}
+
+model ListConnectionsRequest {
+  connectionIds?: [ string ](name='ConnectionIds', description='The list of connection IDs.', shrink='simple', position='Query'),
+  connectionName?: string(name='ConnectionName', description='The connection name.', position='Query'),
+  connectionTypes?: [ string ](name='ConnectionTypes', description='The list of connection types.', shrink='simple', position='Query'),
+  encryptOption?: string(name='EncryptOption', description='The encryption settings. Valid values:
+
+*   PlainText
+*   Secret', example='PlainText', position='Query'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='10', position='Query'),
+  model?: string(name='Model', description='The model identifier.', example='model_001', position='Query'),
+  modelTypes?: [ string ](name='ModelTypes', description='The list of model types.', shrink='simple', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that indicates the start position from which to retrieve data on the next page.', example='15', position='Query'),
+  order?: string(name='Order', description='The order in which the entries are sorted by the specific field on the returned page. This parameter must be used together with SortBy.
+
+*   ASC: ascending order.
+*   DESC: descending order. This is the default value.', example='DESC', position='Query'),
+  sortBy?: string(name='SortBy', description='The field used to sort the results in queries by page. Default value: GmtCreateTime. Valid value:
+
+*   GmtCreateTime: The results are sorted by creation time. This is the default value.', example='GmtCreateTime', position='Query'),
+  toolCall?: boolean(name='ToolCall', description='Specifies whether a tool can be called by using ToolCall. Valid values:
+
+*   true
+*   false', example='true', position='Query'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. You can call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='478**', position='Query'),
+}
+
+model ListConnectionsResponseBody = {
+  connections?: [
+    Connection
+  ](name='Connections', description='The connection list.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page.', example='10'),
+  nextToken?: string(name='NextToken', description='The pagination token that indicates the start position from which to retrieve data on the next page.', example='15'),
+  requestId?: string(name='RequestId', description='The request ID.', example='B2C51F93-1C07-5477-9705-5FDB****F19F'),
+  totalCount?: int32(name='TotalCount', description='The total number of connections that meet the filter conditions.', example='27'),
+}
+
+model ListConnectionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConnectionsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListConnections  ListConnectionsRequest
+  * @return ListConnectionsResponse
+ */
+async function listConnections(request: ListConnectionsRequest): ListConnectionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListConnections', 'GET', '/api/v1/connections', 'json', false, 'json', request);
 }
 
 model ListDatasetFileMetasRequest {
@@ -4703,10 +4879,18 @@ async function setExperimentLabels(request: SetExperimentLabelsRequest): SetExpe
 model SetUserConfigsRequest {
   configs?: [ 
     {
-      categoryName?: string(name='CategoryName', description='The category. Currently, only DataPrivacyConfig is supported.', example='DataPrivacyConfig'),
-      configKey?: string(name='ConfigKey', description='The key of the configuration item.', example='customizePAIAssumedRole'),
-      configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='role'),
-      scope?: string(name='Scope', description='The scope. Currently, subUser and owner are supported.', example='owner'),
+      categoryName: string(name='CategoryName', description='The category. Only DataPrivacyConfig is supported.
+
+This parameter is required.', example='DataPrivacyConfig'),
+      configKey: string(name='ConfigKey', description='The key of the configuration item.
+
+This parameter is required.', example='customizePAIAssumedRole'),
+      configValue: string(name='ConfigValue', description='The value of the configuration item.
+
+This parameter is required.', example='role'),
+      scope: string(name='Scope', description='The scope. Valid values: subUser and owner.
+
+This parameter is required.', example='owner'),
     }
   ](name='Configs', description='The configurations list.', position='Body'),
 }
@@ -4853,17 +5037,21 @@ This parameter is required.', example='83***', position='Path'),
 *   DLCAutoRecycle
 *   DLCPriorityConfig
 *   DSWPriorityConfig
-*   QuotaMaximumDuration', example='CommonResourceConfig'),
+*   QuotaMaximumDuration
+*   CommonTagConfig', example='CommonResourceConfig'),
       configKey?: string(name='ConfigKey', description='The key of the configuration item. Supported keys:
 
 *   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
 *   isAutoRecycle: Automatic recycle configuration. This key can be used only when CategoryName is set to DLCAutoRecycle.
-*   priorityConfig: Priority configuration. This key can be used only when CategoryName is set to DLCPriorityConfig or DSWPriorityConfig.
-*   quotaMaximumDuration Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.', example='tempStoragePath'),
-      configValue?: string(name='ConfigValue', description='The value of the configuration item.', example='oss://test/s/'),
+*   tempStoragePath: Temporary storage path. This key can be used only when CategoryName is set to CommonResourceConfig.
+*   quotaMaximumDuration: Maximum run time of DLC jobs for a quota. This key can be used only when CategoryName is set to QuotaMaximumDuration.
+*   predefinedTags: The predefined tags of the workspace. All created resources must have tags.', example='tempStoragePath'),
+      configValue?: string(name='ConfigValue', description='The value of the configuration item.
+
+*   When ConfigKey is predefinedTags, the ConfigValue follows this format: [{"Type":"Tag","Key":"Key1","Value":"{"Products":"DLC,DSW,EAS","Values":"value1,value2,value3"}"}]. "Products" indicates the products that use the predefined tags.', example='oss://test/s/'),
       labels?: [ 
         {
-          key?: string(name='Key', description='The key of the tag.', example='key1'),
+          key?: string(name='Key', description='The tag key.', example='key1'),
           value?: string(name='Value', description='The value of the tag.', example='value1'),
         }
       ](name='Labels', description='The tags of the configuration item.'),
@@ -4888,6 +5076,49 @@ model UpdateConfigsResponse = {
 async function updateConfigs(request: UpdateConfigsRequest): UpdateConfigsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateConfigs', 'PUT', '/api/v1/workspaces/{WorkspaceId}/configs', 'json', false, 'json', request);
+}
+
+model UpdateConnectionRequest {
+  connectionId: string(name='ConnectionId', description='The connection ID. You can call [ListConnections](url) to obtain the connection ID.
+
+This parameter is required.', example='conn-pai9m***mi47', position='Path'),
+  configs?: map[string]string(name='Configs', description='The connection configuration. The connection configuration is in the key-value format. The keys configured for different connection types are different. For more information, see the supplementary description of the request parameters in CreateConnection.', position='Body'),
+  description?: string(name='Description', description='The connection description.', position='Body'),
+  models?: [ 
+    {
+      displayName?: string(name='DisplayName', description='The display name of the model.', example='car_tag'),
+      model?: string(name='Model', description='The model identifier.', example='model_001'),
+      modelType?: string(name='ModelType', description='The model type. Valid values:
+
+*   LLM
+*   Embedding
+*   ReRank', example='LLM'),
+      toolCall?: boolean(name='ToolCall', description='Indicates whether tool calling is supported. Valid values:
+
+*   true
+*   false', example='true'),
+    }
+  ](name='Models', description='The models.', position='Body'),
+  secrets?: map[string]string(name='Secrets', description='The key-value configuration to be encrypted, such as the database logon password and the key for model connection.', position='Body'),
+}
+
+model UpdateConnectionResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='A0F049F0-8D69-5BAC-8F10-B******A34C'),
+}
+
+model UpdateConnectionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateConnectionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateConnection  UpdateConnectionRequest
+  * @return UpdateConnectionResponse
+ */
+async function updateConnection(request: UpdateConnectionRequest): UpdateConnectionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateConnection', 'PUT', '/api/v1/connections/{ConnectionId}', 'json', false, 'json', request);
 }
 
 model UpdateDatasetRequest {
