@@ -68,9 +68,11 @@ model NodeTemplate {
     {
       category?: string(name='Category', example='cloud_auto'),
       deleteWithInstance?: boolean(name='DeleteWithInstance', example='false'),
+      device?: string(name='Device', example='/dev/xvdb'),
       level?: string(name='Level', example='PL0'),
       mountDir?: string(name='MountDir', example='/data1'),
       size?: int32(name='Size', example='40'),
+      snapshotId?: string(name='SnapshotId', example='s-bp1ei2b44ripxuo46hym'),
     }
   ](name='DataDisks'),
   duration?: int32(name='Duration', example='1'),
@@ -106,6 +108,7 @@ model QueueTemplate {
   minCount?: int32(name='MinCount', example='0'),
   queueName: string(name='QueueName', description='This parameter is required.', example='comp'),
   ramRole?: string(name='RamRole', example='AliyunECSInstanceForEHPCRole'),
+  reservedNodePoolId?: string(name='ReservedNodePoolId', example='rnp-756vlp7a'),
   vSwitchIds?: [ string ](name='VSwitchIds'),
 }
 
@@ -116,6 +119,57 @@ model SharedStorageTemplate {
   mountTargetDomain?: string(name='MountTargetDomain', example='008b****-sihc.cn-hangzhou.extreme.nas.aliyuncs.com'),
   NASDirectory?: string(name='NASDirectory', example='/'),
   protocolType?: string(name='ProtocolType', example='NFS'),
+}
+
+model AttachNodesRequest {
+  clusterId: string(name='ClusterId', description='The cluster ID.
+
+This parameter is required.', example='ehpc-hz-xxxxxxx', position='Query'),
+  computeNode: {
+    imageId: string(name='ImageId', description='The image ID. This image will be used to replace the original system disk image.
+
+This parameter is required.', example='m-bp1h765oyqyxxxxxxxxx'),
+    instanceIds: [ string ](name='InstanceIds', description='The instance IDs.
+
+This parameter is required.'),
+  }(name='ComputeNode', description='The compute node information.
+
+This parameter is required.', shrink='json', position='Query'),
+  queueName?: string(name='QueueName', description='The name of the queue to which the instance is to be added.', example='comp', position='Query'),
+}
+
+model AttachNodesResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='2263XXXX-XXXX-XXXX-XXXX-XXXX2448XXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.
+
+Valid values:
+
+*   true
+*   false', example='true'),
+}
+
+model AttachNodesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachNodesResponseBody(name='body'),
+}
+
+/**
+  * @description The ECS instances must meet the following requirements:
+  * *   The ECS instances do not belong to any E-HPC cluster.
+  * *   The ECS instances reside in the same virtual private cloud (VPC) as the cluster.
+  * *   The ECS instances are in the Stopped state.
+  * Take of the following limits:
+  * *   You can specify multiple instance IDs to add them at a time. However, the instances must be of the same type.
+  * *   When an instance is added to the cluster, [the system disk is reset](https://help.aliyun.com/zh/ecs/user-guide/re-initialize-a-system-disk) by using the image specified by the input parameters.
+  * *   If the instance has data disks, they are not automatically created and mounted after the instance is added.
+  * *   The hostname of the instance remains the same. Therefore, you must ensure that the hostname of the instance to be added is different from the hostname of an existing node in the cluster.
+  * @param request  the request parameters of AttachNodes  AttachNodesRequest
+  * @return AttachNodesResponse
+ */
+async function attachNodes(request: AttachNodesRequest): AttachNodesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AttachNodes', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AttachSharedStoragesRequest {
@@ -259,19 +313,19 @@ For more information, see [Basic security groups and advanced security groups](h
     DNS?: {
       type?: string(name='Type', description='The domain name resolution type.
 
-Valid values:
+Valid value:
 
-*   NIS: NIS.', example='NIS'),
+*   NIS', example='NIS'),
       version?: string(name='Version', description='The version of the domain name resolution service.', example='2.31'),
     }(name='DNS', description='The configurations of the domain name resolution service.'),
     directoryService?: {
       type?: string(name='Type', description='The type of the domain account.
 
-Valid values:
+Valid value:
 
-*   NIS: NIS.', example='NIS'),
+*   NIS', example='NIS'),
       version?: string(name='Version', description='The version of the domain account service.', example='2.31'),
-    }(name='DirectoryService', description='The configurations of the directory service.'),
+    }(name='DirectoryService', description='The configurations of the domain account service.'),
     managerNode?: NodeTemplate(name='ManagerNode', description='The hardware configurations of the management node.'),
     scheduler?: {
       type?: string(name='Type', description='The scheduler type. Valid values:
@@ -288,7 +342,7 @@ Valid values:
   maxCount?: int32(name='MaxCount', description='The maximum number of compute nodes that the cluster can manage. Valid values: 0 to 5,000.', example='500', position='Query'),
   queues?: [
     QueueTemplate
-  ](name='Queues', description='The configurations of the queues in the cluster. The number of queues can be 0 to 8.', shrink='json', position='Query'),
+  ](name='Queues', description='The queues in the cluster. The number of queues can be 0 to 8.', shrink='json', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the cluster belongs.
 
 You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/158855.html) operation to obtain the IDs of the resource groups.', example='rg-acfmxazb4******', position='Query'),
@@ -297,7 +351,7 @@ You can call the [ListResourceGroups](https://help.aliyun.com/document_detail/15
 You can call the [DescribeSecurityGroups](https://help.aliyun.com/document_detail/25556.html) operation to query available security groups in the current region.', example='sg-bp13n61xsydodfyg****', position='Query'),
   sharedStorages?: [
     SharedStorageTemplate
-  ](name='SharedStorages', description='The configurations of shared storage in the cluster.', shrink='json', position='Query'),
+  ](name='SharedStorages', description='The shared storage resources of the cluster.', shrink='json', position='Query'),
   tags?: [ 
     {
       key?: string(name='Key', description='The tag key. Valid values of N: 1 to 20. The tag key cannot be an empty string. The tag key can be up to 128 characters in length and cannot start with `acs:` or `aliyun`. The tag key cannot contain `http://` or `https://`.', example='ClusterId'),
@@ -401,7 +455,7 @@ You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.ht
 *   If the number of available Elastic Compute Service (ECS) instances is smaller than the MinCount value, the nodes fail to be added.
 *   If the number of available ECS instances is larger than the MinCount value but smaller than the Count value, nodes are added based on the MinCount value.
 *   If the number of available ECS instances is larger than the Count value, nodes are added based on the Count value.', example='10', position='Query'),
-  deploymentSetId?: string(name='DeploymentSetId', position='Query'),
+  deploymentSetId?: string(name='DeploymentSetId', description='Deployment set ID. You can obtain the deployment set ID through [DescribeDeploymentSets](https://help.aliyun.com/document_detail/91313.html). Currently, only deployment sets with a low network latency strategy are supported.', example='ds-bp1frxuzdg87zh4pzq****', position='Query'),
   HPCInterConnect?: string(name='HPCInterConnect', description='The type of the network between compute nodes. Valid values:
 
 *   vpc
@@ -411,6 +465,7 @@ You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.ht
   keepAlive?: string(name='KeepAlive', description='Specifies whether to enable deletion protection for the added compute nodes.', example='false', position='Query'),
   queueName?: string(name='QueueName', description='The name of the queue for which you want to create compute nodes.', example='test1', position='Query'),
   ramRole?: string(name='RamRole', description='The Resource Access Management (RAM) role to be assumed by the added nodes.', example='AliyunServiceRoleForOOSBandwidthScheduler', position='Query'),
+  reservedNodePoolId?: string(name='ReservedNodePoolId', description='Preset node pool ID.', example='rnp-756vlp7a', position='Query'),
   vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to be used by the added nodes.', example='vsw-bp1lfcjbfb099rrjn****', position='Query'),
 }
 
@@ -886,7 +941,7 @@ This parameter is required.', example='Web Portal'),
     version: string(name='Version', description='The addon version.
 
 This parameter is required.', example='1.0'),
-  }(name='Addon', description='The details about the addon.'),
+  }(name='Addon', description='The information about the addon.'),
   requestId?: string(name='RequestId', description='The request ID.', example='BBC2F93D-003A-49C4-850C-B826EECF****'),
 }
 
@@ -1015,13 +1070,19 @@ model GetClusterResponseBody = {
   maxCoreCount?: string(name='MaxCoreCount', description='The maximum total number of vCPUs that can be used by all compute nodes managed by the cluster.', example='10000'),
   maxCount?: string(name='MaxCount', description='The maximum number of compute nodes that the cluster can manage.', example='100'),
   monitorSpec?: {
-    enableComputeLoadMonitor?: boolean(name='EnableComputeLoadMonitor'),
-  }(name='MonitorSpec'),
+    enableComputeLoadMonitor?: boolean(name='EnableComputeLoadMonitor', description='Indicates whether the monitoring component of compute nodes is enabled for the cluster. Valid values:
+
+*   true
+*   false', example='true'),
+  }(name='MonitorSpec', description='The monitoring details of the cluster.'),
   requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmxazb4ph****'),
   schedulerSpec?: {
-    enableTopologyAwareness?: boolean(name='EnableTopologyAwareness'),
-  }(name='SchedulerSpec'),
+    enableTopologyAwareness?: boolean(name='EnableTopologyAwareness', description='Indicates whether the topology awareness feature is enabled for the cluster. Valid values:
+
+*   true
+*   false', example='true'),
+  }(name='SchedulerSpec', description='The scheduler specifications of the cluster.'),
   securityGroupId?: string(name='SecurityGroupId', description='The security group ID.', example='sg-f8z9vb2zaezpkr69a21k'),
 }
 
@@ -1270,6 +1331,7 @@ model GetQueueResponseBody = {
 
 This parameter is required.', example='comp'),
     ramRole?: string(name='RamRole', description='The Resource Access Management (RAM) role that is assumed by compute nodes in the queue.', example='AliyunECSInstanceForEHPCRole'),
+    reservedNodePoolId?: string(name='ReservedNodePoolId', description='Preset node pool ID.', example='rnp-756vlp7a'),
     vSwitchIds?: [ string ](name='VSwitchIds', description='The available vSwitches for compute nodes in the queue. Valid values of N: 1 to 5.'),
   }(name='Queue', description='The queue configurations.'),
   requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
@@ -1358,6 +1420,10 @@ model InstallSoftwaresResponse = {
 }
 
 /**
+  * @description ## Interface Description
+  * When calling this interface, please note the following:
+  * - The cluster status must be `Running`. 
+  * - If the cluster series is `Serverless`, ensure that there is at least one login node or compute node in the cluster; otherwise, software cannot be added to the target cluster.
   * @param request  the request parameters of InstallSoftwares  InstallSoftwaresRequest
   * @return InstallSoftwaresResponse
  */
@@ -1883,13 +1949,13 @@ This parameter is required.', example='ehpc-hz-csbua72***', position='Query'),
     createTimeStart?: string(name='CreateTimeStart', description='The time when the job started. The value is a UNIX timestamp representing the number of seconds that have elapsed since 1970-01-01T00:00:00Z.', example='1724122486'),
     diagnosis?: [ 
       {
-        operator?: string(name='Operator'),
-        option?: string(name='Option'),
-        threshold?: string(name='Threshold'),
+        operator?: string(name='Operator', description='Job diagnosis threshold comparator.', example='greater'),
+        option?: string(name='Option', description='Job diagnosis and analysis metrics', example='run_duration'),
+        threshold?: string(name='Threshold', description='Job diagnosis threshold.', example='24'),
       }
-    ](name='Diagnosis'),
+    ](name='Diagnosis', description='Job diagnosis and analysis list.'),
     jobName?: string(name='JobName', description='The job name. Fuzzy match is supported.', example='testjob'),
-    jobStatus?: string(name='JobStatus', description='The job state. Valid values:
+    jobStatus?: string(name='JobStatus', description='The job status. Valid values:
 
 *   all: returns all jobs.
 *   finished: returns completed jobs.
@@ -1954,13 +2020,13 @@ model ListJobsResponseBody = {
           nodes?: string(name='Nodes', description='The number of compute nodes that were used to run the job.', example='3'),
         }(name='Resources', description='The information about the resources required to run the job.'),
         resourcesActualOccupied?: {
-          cores?: string(name='Cores'),
-          gpus?: string(name='Gpus'),
-          memory?: string(name='Memory'),
-          nodes?: string(name='Nodes'),
-        }(name='ResourcesActualOccupied'),
+          cores?: string(name='Cores', description='Number of CPU cores.', example='4'),
+          gpus?: string(name='Gpus', description='Number of CPUs', example='0'),
+          memory?: string(name='Memory', description='Number of memory.', example='982MB'),
+          nodes?: string(name='Nodes', description='Number of compute nodes.', example='2'),
+        }(name='ResourcesActualOccupied', description='Actual resource usage of the job program'),
         runasUser?: string(name='RunasUser', description='The user that ran the job.', example='testuser1'),
-        startTime?: string(name='StartTime'),
+        startTime?: string(name='StartTime', description='Job start time.', example='1724122486'),
         state?: string(name='State', description='The job state. Valid values: (PBS cluster and Slurm cluster)
 
 *   FINISHED/Completed
@@ -2025,7 +2091,7 @@ model ListNodesResponseBody = {
   nodes?: [ 
     {
       addTime?: string(name='AddTime', description='The time when the node was created.', example='2020-06-09T06:22:02.000Z'),
-      deploymentSetId?: string(name='DeploymentSetId'),
+      deploymentSetId?: string(name='DeploymentSetId', description='The deployment set ID.', example='ds-8vbe4av4gededlqg****'),
       expiredTime?: string(name='ExpiredTime', description='The time when the node expires.', example='2020-06-09T06:22:02.000Z'),
       hostname?: string(name='Hostname', description='The hostname of the node.', example='edas.cn-shanghai.aliyuncs.com'),
       htEnabled?: boolean(name='HtEnabled', description='Indicates whether hyper-threading is enabled.', example='true'),
@@ -2288,7 +2354,7 @@ Pages start from page 1.
 Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Valid values: 1 to 50.
 
-Default value: 10', example='10', maximum=50, position='Query'),
+Default value: 10.', example='10', maximum=50, position='Query'),
 }
 
 model ListUsersResponseBody = {
@@ -2419,6 +2485,9 @@ model UninstallSoftwaresResponse = {
 }
 
 /**
+  * @description ## Interface Description
+  * When calling this interface, please note:
+  * The cluster status must be `Running`.
   * @param request  the request parameters of UninstallSoftwares  UninstallSoftwaresRequest
   * @return UninstallSoftwaresResponse
  */
@@ -2428,48 +2497,55 @@ async function uninstallSoftwares(request: UninstallSoftwaresRequest): Uninstall
 }
 
 model UpdateClusterRequest {
-  clientVersion?: string(name='ClientVersion', description='The client version. By default, the latest version is used.', example='2.1.0', position='Query'),
+  clientVersion?: string(name='ClientVersion', description='Specifies whether to enable auto scale-out for the cluster. Valid values:
+
+*   true
+*   false', example='2.1.0', position='Query'),
   clusterCustomConfiguration?: {
-    args?: string(name='Args', description='The arguments that are used to run the post-processing script.', example='E-HPC cn-hangzhou'),
-    script?: string(name='Script', description='The URL that is used to download the post-processing script.', example='http://*****'),
-  }(name='ClusterCustomConfiguration', description='The post-processing script of the cluster.', shrink='json', position='Query'),
-  clusterDescription?: string(name='ClusterDescription', description='The cluster description. The description must be 1 to 128 characters in length and can contain letters, digits, hyphens (-), and underscores (_).', example='slurm22.05.8-serverless-cluster-20240805', position='Query'),
-  clusterId?: string(name='ClusterId', description='The cluster ID.
-
-You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.html) operation to query the cluster ID.', example='ehpc-hz-FYUr32****', position='Query'),
-  clusterName?: string(name='ClusterName', description='The cluster name. The name must be 1 to 128 characters in length and can contain letters, digits, hyphens (-), and underscores (_).', example='slurm22.05.8-serverless-cluster-20240805', position='Query'),
-  deletionProtection?: boolean(name='DeletionProtection', description='Specifies whether to enable deletion protection for the cluster. Deletion protection decides whether the cluster can be deleted in the console or by calling the DeleteCluster operation. Valid values:
+    args?: string(name='Args', description='Specifies whether to enable the monitoring component of compute nodes. Valid values:
 
 *   true
-*   false
-
-Default value: false.', example='false', position='Query'),
-  enableScaleIn?: boolean(name='EnableScaleIn', description='Specifies whether to enable auto scale-in for the cluster. Valid values:
-
-*   true
-*   false', example='true', position='Query'),
-  enableScaleOut?: boolean(name='EnableScaleOut', description='Specifies whether to enable auto scale-out for the cluster. Valid values:
+*   false', example='E-HPC cn-hangzhou'),
+    script?: string(name='Script', description='The monitoring details of the cluster.', example='http://*****'),
+  }(name='ClusterCustomConfiguration', description='Specifies whether to enable auto scale-in for the cluster. Valid values:
 
 *   true
-*   false', example='true', position='Query'),
-  growInterval?: int32(name='GrowInterval', description='The interval at which the cluster is automatically scaled out.', example='2', position='Query'),
-  idleInterval?: int32(name='IdleInterval', description='The idle duration of the compute nodes allowed by the cluster.', example='4', position='Query'),
-  maxCoreCount?: int32(name='MaxCoreCount', description='The total maximum number of vCPUs for use by compute nodes in the cluster. Valid values: 0 to 100,000.', example='10000', position='Query'),
-  maxCount?: int32(name='MaxCount', description='The maximum number of compute nodes that the cluster can manage. Valid values: 0 to 5,000.', example='500', position='Query'),
+*   false', shrink='json', position='Query'),
+  clusterDescription?: string(name='ClusterDescription', description='The URL that is used to download the post-processing script.', example='slurm22.05.8-serverless-cluster-20240805', position='Query'),
+  clusterId?: string(name='ClusterId', description='The client version. By default, the latest version is used.', example='ehpc-hz-FYUr32****', position='Query'),
+  clusterName?: string(name='ClusterName', description='The post-processing script of the cluster.', example='slurm22.05.8-serverless-cluster-20240805', position='Query'),
+  deletionProtection?: boolean(name='DeletionProtection', description='The idle duration of the compute nodes allowed by the cluster.', example='false', position='Query'),
+  enableScaleIn?: boolean(name='EnableScaleIn', description='The request result. Valid values:
+
+*   true: The request was successful.
+*   false: The request failed.', example='true', position='Query'),
+  enableScaleOut?: boolean(name='EnableScaleOut', description='The response parameters.', example='true', position='Query'),
+  growInterval?: int32(name='GrowInterval', description='The scheduler specifications of the cluster.', example='2', position='Query'),
+  idleInterval?: int32(name='IdleInterval', description='Specifies whether to enable the topology awareness feature. Valid values:
+
+*   true
+*   false', example='4', position='Query'),
+  maxCoreCount?: int32(name='MaxCoreCount', description='The interval at which the cluster is automatically scaled out.', example='10000', position='Query'),
+  maxCount?: int32(name='MaxCount', description='The arguments that are used to run the post-processing script.', example='500', position='Query'),
   monitorSpec?: {
-    enableComputeLoadMonitor?: boolean(name='EnableComputeLoadMonitor'),
-  }(name='MonitorSpec', shrink='json', position='Query'),
+    enableComputeLoadMonitor?: boolean(name='EnableComputeLoadMonitor', description='Specifies whether to enable the monitoring component of compute nodes. Valid values:
+
+*   true
+*   false', example='true'),
+  }(name='MonitorSpec', description='The monitoring details of the cluster.', shrink='json', position='Query'),
   schedulerSpec?: {
-    enableTopologyAwareness?: boolean(name='EnableTopologyAwareness'),
-  }(name='SchedulerSpec', shrink='json', position='Query'),
+    enableTopologyAwareness?: boolean(name='EnableTopologyAwareness', description='Specifies whether to enable the topology awareness feature. Valid values:
+
+*   true
+*   false', example='true'),
+  }(name='SchedulerSpec', description='The scheduler specifications of the cluster.', shrink='json', position='Query'),
 }
 
 model UpdateClusterResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
-  success?: boolean(name='Success', description='The request result. Valid values:
-
-*   true: The request was successful.
-*   false: The request failed.', example='true'),
+  requestId?: string(name='RequestId', description='Request ID.', example='04F0F334-1335-436C-A1D7-6C044FE7****'),
+  success?: boolean(name='Success', description='Request result, possible values: 
+- true: request succeeded 
+- false: request failed', example='true'),
 }
 
 model UpdateClusterResponse = {
@@ -2539,9 +2615,9 @@ You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.ht
 *   false', example='true'),
     enableScaleOut?: boolean(name='EnableScaleOut', description='Specifies whether to enable auto scale-out for the queue. Valid values:
 
-*   true
-*   false', example='true'),
-    hostnamePrefix?: string(name='HostnamePrefix', description='The hostname prefix of the compute nodes in the queue.', example='compute'),
+*   true: deletion protection is enabled.
+*   false: disables ASM.', example='true'),
+    hostnamePrefix?: string(name='HostnamePrefix', description='The hostname prefix of the added compute nodes.', example='compute'),
     hostnameSuffix?: string(name='HostnameSuffix', description='The hostname suffix of the compute nodes in the queue.', example='hpc'),
     initialCount?: int32(name='InitialCount', description='The initial number of compute nodes in the queue.', example='0'),
     interConnect?: string(name='InterConnect', description='The type of the network for interconnecting compute nodes in the queue.', example='erdma'),
@@ -2553,6 +2629,7 @@ You can call the [ListClusters](https://help.aliyun.com/document_detail/87116.ht
 
 This parameter is required.', example='comp'),
     ramRole?: string(name='RamRole', description='The Resource Access Management (RAM) role that is assumed by compute nodes in the queue.', example='AliyunECSInstanceForEHPCRole'),
+    reservedNodePoolId?: string(name='ReservedNodePoolId'),
     vSwitchIds?: [ string ](name='VSwitchIds', description='The vSwitches available for use by compute nodes in the queue.'),
   }(name='Queue', description='The information about the queue to be updated.', shrink='json', position='Query'),
 }
