@@ -5950,25 +5950,19 @@ model CreateDiskRequest {
   description?: string(name='Description', description='The description of the disk. The description must be 2 to 256 characters in length and cannot start with `http://` or `https://`.
 
 This parameter is left empty by default.', example='testDescription'),
-  diskCategory?: string(name='DiskCategory', description='The category of the data disk. Valid values for different disk categories:
+  diskCategory?: string(name='DiskCategory', description='The category of the data disk. Valid values:
 
 *   cloud: basic disk
-*   cloud_efficiency: utra disk
+*   cloud_efficiency: ultra disk
 *   cloud_ssd: standard SSD
-*   cloud_essd: ESSD
+*   cloud_essd: Enterprise SSD (ESSD)
 *   cloud_auto: ESSD AutoPL disk
 *   cloud_essd_entry: ESSD Entry disk
 *   cloud_regional_disk_auto: Regional ESSD
 *   elastic_ephemeral_disk_standard: standard elastic ephemeral disk
 *   elastic_ephemeral_disk_premium: premium elastic ephemeral disk
 
-Default value: cloud.
-
-Valid values:
-
-*   cloud_regional_disk_auto
-*   elastic_ephemeral_disk_standard
-*   elastic_ephemeral_disk_premium', example='cloud_ssd'),
+Default value: cloud.', example='cloud_ssd'),
   diskName?: string(name='DiskName', description='The name of the data disk. The name must be 2 to 128 characters in length and can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-). The name must start with a letter.
 
 This parameter is left empty by default.', example='testDiskName'),
@@ -6006,9 +6000,14 @@ Default value: Disabled.
 Default value: PL1.
 
 For information about ESSD performance levels, see [ESSDs](https://help.aliyun.com/document_detail/122389.html).', example='PL1'),
-  provisionedIops?: long(name='ProvisionedIops', description='The provisioned read/write IOPS of the ESSD AutoPL disk. Valid values: 0 to min{50,000, 1,000 × Capacity - Baseline IOPS}.
+  provisionedIops?: long(name='ProvisionedIops', description='The provisioned read/write IOPS per ESSD AutoPL disk. Valid values:
 
-Baseline IOPS = min{1,800 + 50 × Capacity, 50,000}
+*   Capacity (GiB) ≤ 3: not configurable.
+*   Capacity (GiB) ≥ 4: [0, min{(1,000
+
+IOPS/GiB × Capacity - Baseline IOPS), 50,000}].
+
+Baseline IOPS = max{min{1,800 + 50 × Capacity, 50,000}, 3,000}.
 
 >  This parameter is available only if you set `DiskCategory` to `cloud_auto`. For more information, see [ESSD AutoPL disks](https://help.aliyun.com/document_detail/368372.html).', example='40000'),
   regionId?: string(name='RegionId', description='The ID of the region in which to create the disk. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/25609.html) operation to query the most recent region list.
@@ -6017,7 +6016,7 @@ This parameter is required.', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which to add the disk.', example='rg-bp67acfmxazb4p****'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  size?: int32(name='Size', description='The disk size. Unit: GiB. This parameter is required. Valid values for different disk categories:
+  size?: int32(name='Size', description='The disk size. Unit: GiB. You must specify this parameter. Valid values for different disk categories:
 
 *   Valid values when DiskCategory is set to cloud: 5 to 2000.
 
@@ -19507,11 +19506,11 @@ model DescribeDisksRequest {
 *   cloud_essd: Enterprise SSD (ESSD)
 *   cloud_auto: ESSD AutoPL disk
 *   cloud_regional_disk_auto: Regional ESSD
-*   local_ssd_pro: I/O-intensive local disk
-*   local_hdd_pro: throughput-intensive local disk
 *   cloud_essd_entry: ESSD Entry disk
 *   elastic_ephemeral_disk_standard: standard elastic ephemeral disk
 *   elastic_ephemeral_disk_premium: premium elastic ephemeral disk
+*   local_ssd_pro: I/O-intensive local disk
+*   local_hdd_pro: throughput-intensive local disk
 *   ephemeral: retired local disk
 *   ephemeral_ssd: retired local SSD
 
@@ -32267,6 +32266,8 @@ async function describeSnapshotGroups(request: DescribeSnapshotGroupsRequest): D
 model DescribeSnapshotLinksRequest {
   diskIds?: string(name='DiskIds', description='The disk IDs. You can specify a JSON array that contains a maximum of 100 disk IDs. Separate the disk IDs with commas (,).', example='["d-bp1d6tsvznfghy7y****", "d-bp1ippxbaql9zet7****", … "d-bp1ib7bcz07lcxa9****"]'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='i-bp1h6jmbefj2cyqs****'),
+  maxResults?: int32(name='MaxResults'),
+  nextToken?: string(name='NextToken'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from page 1.
@@ -32284,6 +32285,7 @@ This parameter is required.', example='cn-hangzhou'),
 }
 
 model DescribeSnapshotLinksResponseBody = {
+  nextToken?: string(name='NextToken'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
@@ -32346,6 +32348,12 @@ async function describeSnapshotLinksWithOptions(request: DescribeSnapshotLinksRe
   }
   if (!$isNull(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
   }
   if (!$isNull(request.ownerAccount)) {
     query['OwnerAccount'] = request.ownerAccount;
