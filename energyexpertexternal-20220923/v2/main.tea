@@ -38,6 +38,74 @@ model CarbonEmissionElecSummaryItem {
   rawData?: double(name='rawData'),
 }
 
+model ChatDocumentPageNum {
+  num?: int32(name='num'),
+  pos?: [[
+    ChatRefDocPostion
+  ]  ](name='pos'),
+}
+
+model ChatFolderItem {
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  subFolders?: [
+    ChatItem
+  ](name='subFolders'),
+}
+
+model ChatItem {
+  answer?: string(name='answer'),
+  createTime?: long(name='createTime'),
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  question?: string(name='question'),
+  refDocList?: [
+    ChatRefDocItem
+  ](name='refDocList'),
+}
+
+model ChatRefDocInfo {
+  pageListInfo?: [
+    ChatRefDocPageInfo
+  ](name='pageListInfo'),
+  pages?: long(name='pages'),
+}
+
+model ChatRefDocItem {
+  docInfo?: ChatRefDocInfo(name='docInfo'),
+  docName?: string(name='docName'),
+  docUrl?: string(name='docUrl'),
+  originDocName?: string(name='originDocName'),
+  originDocUrl?: string(name='originDocUrl'),
+  pageNum?: [
+    ChatDocumentPageNum
+  ](name='pageNum'),
+  sourceType?: string(name='sourceType'),
+}
+
+model ChatRefDocPageInfo {
+  angle?: double(name='angle'),
+  excelParseResult?: string(name='excelParseResult'),
+  imageHeight?: int32(name='imageHeight'),
+  imageUrl?: string(name='imageUrl'),
+  imageWidth?: int32(name='imageWidth'),
+  pageIdCurDoc?: int32(name='pageIdCurDoc'),
+  pdfParseResult?: string(name='pdfParseResult'),
+  wordParseResult?: string(name='wordParseResult'),
+}
+
+model ChatRefDocPageNum {
+  num?: int32(name='num'),
+  pos?: [[
+    ChatRefDocPostion
+  ]  ](name='pos'),
+}
+
+model ChatRefDocPostion {
+  x?: int32(name='x'),
+  y?: int32(name='y'),
+}
+
 model ConstituteItem {
   carbonEmissionData?: double(name='carbonEmissionData'),
   dataUnit?: string(name='dataUnit'),
@@ -528,6 +596,158 @@ async function batchUpdateSystemRunningPlan(request: BatchUpdateSystemRunningPla
   return batchUpdateSystemRunningPlanWithOptions(request, headers, runtime);
 }
 
+model ChatRequest {
+  question?: string(name='question', description='Q&A content.
+
+This parameter is required.', example='How to access knowledge base Q&A documents.'),
+  sessionId?: string(name='sessionId', description='- Q&A session ID.
+- Historical sessions can be retrieved through GetSessionList.
+- A new session can also be created via CreateChatSession.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646'),
+}
+
+model ChatResponseBody = {
+  data?: ChatItem(name='data', description='Details of the Q&A.', example='true'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+ * @summary Knowledge Base Q\\&A
+ *
+ * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - You can also create a new session via the CreateChatSession interface.
+ *
+ * @param request ChatRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+async function chatWithOptions(request: ChatRequest, headers: map[string]string, runtime: $RuntimeOptions): ChatResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.question)) {
+    body['question'] = request.question;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'Chat',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Knowledge Base Q\\&A
+ *
+ * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - You can also create a new session via the CreateChatSession interface.
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return chatWithOptions(request, headers, runtime);
+}
+
+model CreateChatSessionRequest {
+  folderId?: string(name='folderId', description='Folder ID, to search for Q&A content within the current folder and its subfolders.
+
+This parameter is required.', example='1a851c4a-1d65-11ef-99a7-ssfsfdd'),
+  name?: string(name='name', description='Name of the current session.
+
+This parameter is required.', example='analyzer_1744684195'),
+  userId?: string(name='userId', description='The unique identifier of the user. If not provided, the SDK calling account will be used as the user ID by default.', example='1233333'),
+}
+
+model CreateChatSessionResponseBody = {
+  data?: {
+    sessionId?: string(name='sessionId', description='Q&A session ID, used to record multiple Q&A sessions of the same user.', example='596ac39c-8855-4128-bad7-78aebeff48fc'),
+  }(name='data', description='Returned data structure.'),
+  requestId?: string(name='requestId', description='ID of the request', example='9bc20a5a-b26b-4c28-922a-7cd10b61f96f'),
+}
+
+model CreateChatSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateChatSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Create Q&A Window
+ *
+ * @param request CreateChatSessionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateChatSessionResponse
+ */
+async function createChatSessionWithOptions(request: CreateChatSessionRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateChatSessionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.folderId)) {
+    body['folderId'] = request.folderId;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.userId)) {
+    body['userId'] = request.userId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateChatSession',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/session/create`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Create Q&A Window
+ *
+ * @param request CreateChatSessionRequest
+ * @return CreateChatSessionResponse
+ */
+async function createChatSession(request: CreateChatSessionRequest): CreateChatSessionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createChatSessionWithOptions(request, headers, runtime);
+}
+
 model EditProhibitedDevicesRequest {
   factoryId?: string(name='factoryId', description='This parameter is required.', example='***'),
   hvacDeviceConfigVOList?: [ 
@@ -960,6 +1180,228 @@ async function getCarbonEmissionTrend(request: GetCarbonEmissionTrendRequest): G
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getCarbonEmissionTrendWithOptions(request, headers, runtime);
+}
+
+model GetChatFolderListResponseBody = {
+  data?: [
+    ChatFolderItem
+  ](name='data', description='Returned data'),
+  requestId?: string(name='requestId', description='ID of the request', example='A8AEC6D9-A359-5169-BD1A-BD848BA60D65'),
+}
+
+model GetChatFolderListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatFolderListResponseBody(name='body'),
+}
+
+/**
+ * @summary Get Q&A folder List
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetChatFolderListResponse
+ */
+async function getChatFolderListWithOptions(headers: map[string]string, runtime: $RuntimeOptions): GetChatFolderListResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetChatFolderList',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/folder/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Q&A folder List
+ *
+ * @return GetChatFolderListResponse
+ */
+async function getChatFolderList(): GetChatFolderListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getChatFolderListWithOptions(headers, runtime);
+}
+
+model GetChatListRequest {
+  currentPage?: string(name='currentPage', description='Pagination parameter, page number, starting from 1.', example='1'),
+  pageSize?: string(name='pageSize', description='Page size.', example='10'),
+  sessionId?: string(name='sessionId', description='Q&A session ID, used to record multiple Q&As for the same user.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646'),
+}
+
+model GetChatListResponseBody = {
+  data?: {
+    chatList?: [
+      ChatItem
+    ](name='chatList', description='Q&A list.'),
+    currentPage?: long(name='currentPage', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='Page size.', example='10'),
+    total?: long(name='total', description='Total number of records.', example='21'),
+    totalPage?: long(name='totalPage', description='Total number of pages.', example='3'),
+  }(name='data', description='Returned data structure.'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model GetChatListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatListResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieve the historical documents of a session
+ *
+ * @description - This API retrieves the list of historical documents within a session by passing in the session ID.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - A new session can also be created using the CreateChatSession interface.
+ *
+ * @param request GetChatListRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetChatListResponse
+ */
+async function getChatListWithOptions(request: GetChatListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetChatListResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.currentPage)) {
+    body['currentPage'] = request.currentPage;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetChatList',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieve the historical documents of a session
+ *
+ * @description - This API retrieves the list of historical documents within a session by passing in the session ID.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - A new session can also be created using the CreateChatSession interface.
+ *
+ * @param request GetChatListRequest
+ * @return GetChatListResponse
+ */
+async function getChatList(request: GetChatListRequest): GetChatListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getChatListWithOptions(request, headers, runtime);
+}
+
+model GetChatSessionListRequest {
+  currentPage?: int32(name='currentPage', description='Pagination parameter, page number, default is 1.', example='1'),
+  name?: string(name='name', description='Session name.', example='oklabs'),
+  pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10'),
+  userId?: string(name='userId', description='The unique identifier of the user. If not provided, the SDK calling account will be used as the user ID by default.', example='12222'),
+}
+
+model GetChatSessionListResponseBody = {
+  data?: {
+    currentPage?: long(name='currentPage', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='分页大小。', example='10'),
+    sessionList?: [ 
+      {
+        createTime?: long(name='createTime', description='Report creation timestamp, in milliseconds.', example='2025-01-01T14:45:17Z'),
+        folderId?: string(name='folderId', description='Folder ID, used to specify the scope of documents to be queried.', example='3493370b-4884-47dd-95ed-49038769af53'),
+        name?: string(name='name', description='Session name', example='student_app_spelling'),
+        sessionId?: string(name='sessionId', description='Q&A session ID, used to record multiple Q&As of the same user.', example='5c748ef9-3f23-4b5a-916f-966c0d2c6dcd'),
+        updateTime?: long(name='updateTime', description='Modification time, in milliseconds.', example='2024-12-30T02:05:03Z'),
+        userId?: string(name='userId', description='User ID of the current session.', example='12222'),
+      }
+    ](name='sessionList', description='Session list.'),
+    total?: long(name='total', description='Total number of records.', example='21'),
+    totalPage?: long(name='totalPage', description='Total number of pages', example='3'),
+  }(name='data', description='Returned data'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model GetChatSessionListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatSessionListResponseBody(name='body'),
+}
+
+/**
+ * @summary Get Q&A Session List
+ *
+ * @param request GetChatSessionListRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetChatSessionListResponse
+ */
+async function getChatSessionListWithOptions(request: GetChatSessionListRequest, headers: map[string]string, runtime: $RuntimeOptions): GetChatSessionListResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.currentPage)) {
+    body['currentPage'] = request.currentPage;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.pageSize)) {
+    body['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.userId)) {
+    body['userId'] = request.userId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetChatSessionList',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/session/list`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Get Q&A Session List
+ *
+ * @param request GetChatSessionListRequest
+ * @return GetChatSessionListResponse
+ */
+async function getChatSessionList(request: GetChatSessionListRequest): GetChatSessionListResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getChatSessionListWithOptions(request, headers, runtime);
 }
 
 model GetDataItemListRequest {

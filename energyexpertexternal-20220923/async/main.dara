@@ -38,6 +38,74 @@ model CarbonEmissionElecSummaryItem {
   rawData?: double(name='rawData'),
 }
 
+model ChatDocumentPageNum {
+  num?: int32(name='num'),
+  pos?: [[
+    ChatRefDocPostion
+  ]  ](name='pos'),
+}
+
+model ChatFolderItem {
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  subFolders?: [
+    ChatItem
+  ](name='subFolders'),
+}
+
+model ChatItem {
+  answer?: string(name='answer'),
+  createTime?: long(name='createTime'),
+  folderId?: string(name='folderId'),
+  folderName?: string(name='folderName'),
+  question?: string(name='question'),
+  refDocList?: [
+    ChatRefDocItem
+  ](name='refDocList'),
+}
+
+model ChatRefDocInfo {
+  pageListInfo?: [
+    ChatRefDocPageInfo
+  ](name='pageListInfo'),
+  pages?: long(name='pages'),
+}
+
+model ChatRefDocItem {
+  docInfo?: ChatRefDocInfo(name='docInfo'),
+  docName?: string(name='docName'),
+  docUrl?: string(name='docUrl'),
+  originDocName?: string(name='originDocName'),
+  originDocUrl?: string(name='originDocUrl'),
+  pageNum?: [
+    ChatDocumentPageNum
+  ](name='pageNum'),
+  sourceType?: string(name='sourceType'),
+}
+
+model ChatRefDocPageInfo {
+  angle?: double(name='angle'),
+  excelParseResult?: string(name='excelParseResult'),
+  imageHeight?: int32(name='imageHeight'),
+  imageUrl?: string(name='imageUrl'),
+  imageWidth?: int32(name='imageWidth'),
+  pageIdCurDoc?: int32(name='pageIdCurDoc'),
+  pdfParseResult?: string(name='pdfParseResult'),
+  wordParseResult?: string(name='wordParseResult'),
+}
+
+model ChatRefDocPageNum {
+  num?: int32(name='num'),
+  pos?: [[
+    ChatRefDocPostion
+  ]  ](name='pos'),
+}
+
+model ChatRefDocPostion {
+  x?: int32(name='x'),
+  y?: int32(name='y'),
+}
+
 model ConstituteItem {
   carbonEmissionData?: double(name='carbonEmissionData'),
   dataUnit?: string(name='dataUnit'),
@@ -213,6 +281,72 @@ model BatchUpdateSystemRunningPlanResponse = {
 async function batchUpdateSystemRunningPlan(request: BatchUpdateSystemRunningPlanRequest): BatchUpdateSystemRunningPlanResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'BatchUpdateSystemRunningPlan', 'POST', '/api/v1/carbon/hvac/batchUpdateSystemRunningPlan', 'json', false, 'json', request);
+}
+
+model ChatRequest {
+  question: string(name='question', description='Q&A content.
+
+This parameter is required.', example='How to access knowledge base Q&A documents.', position='Body'),
+  sessionId: string(name='sessionId', description='- Q&A session ID.
+- Historical sessions can be retrieved through GetSessionList.
+- A new session can also be created via CreateChatSession.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646', position='Body'),
+}
+
+model ChatResponseBody = {
+  data?: ChatItem(name='data', description='Details of the Q&A.', example='true'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+  * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+  * - The sessionId information is obtained through GetChatSessionList.
+  * - You can also create a new session via the CreateChatSession interface.
+  * @param request  the request parameters of Chat  ChatRequest
+  * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'Chat', 'POST', '/api/v2/aidoc/document/chat', 'json', false, 'json', request);
+}
+
+model CreateChatSessionRequest {
+  folderId: string(name='folderId', description='Folder ID, to search for Q&A content within the current folder and its subfolders.
+
+This parameter is required.', example='1a851c4a-1d65-11ef-99a7-ssfsfdd', position='Body'),
+  name: string(name='name', description='Name of the current session.
+
+This parameter is required.', example='analyzer_1744684195', position='Body'),
+  userId?: string(name='userId', description='The unique identifier of the user. If not provided, the SDK calling account will be used as the user ID by default.', example='1233333', position='Body'),
+}
+
+model CreateChatSessionResponseBody = {
+  data?: {
+    sessionId?: string(name='sessionId', description='Q&A session ID, used to record multiple Q&A sessions of the same user.', example='596ac39c-8855-4128-bad7-78aebeff48fc'),
+  }(name='data', description='Returned data structure.'),
+  requestId?: string(name='requestId', description='ID of the request', example='9bc20a5a-b26b-4c28-922a-7cd10b61f96f'),
+}
+
+model CreateChatSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateChatSessionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateChatSession  CreateChatSessionRequest
+  * @return CreateChatSessionResponse
+ */
+async function createChatSession(request: CreateChatSessionRequest): CreateChatSessionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateChatSession', 'POST', '/api/v2/aidoc/document/chat/session/create', 'json', false, 'json', request);
 }
 
 model EditProhibitedDevicesRequest {
@@ -431,6 +565,112 @@ model GetCarbonEmissionTrendResponse = {
 async function getCarbonEmissionTrend(request: GetCarbonEmissionTrendRequest): GetCarbonEmissionTrendResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetCarbonEmissionTrend', 'POST', '/api/v1/carbon/emission/analysis/trend', 'json', false, 'json', request);
+}
+
+model GetChatFolderListRequest {
+}
+
+model GetChatFolderListResponseBody = {
+  data?: [
+    ChatFolderItem
+  ](name='data', description='Returned data'),
+  requestId?: string(name='requestId', description='ID of the request', example='A8AEC6D9-A359-5169-BD1A-BD848BA60D65'),
+}
+
+model GetChatFolderListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatFolderListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetChatFolderList  GetChatFolderListRequest
+  * @return GetChatFolderListResponse
+ */
+async function getChatFolderList(request: GetChatFolderListRequest): GetChatFolderListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetChatFolderList', 'POST', '/api/v2/aidoc/document/chat/folder/list', 'json', false, 'json', request);
+}
+
+model GetChatListRequest {
+  currentPage?: string(name='currentPage', description='Pagination parameter, page number, starting from 1.', example='1', position='Body'),
+  pageSize?: string(name='pageSize', description='Page size.', example='10', position='Body'),
+  sessionId: string(name='sessionId', description='Q&A session ID, used to record multiple Q&As for the same user.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646', position='Body'),
+}
+
+model GetChatListResponseBody = {
+  data?: {
+    chatList?: [
+      ChatItem
+    ](name='chatList', description='Q&A list.'),
+    currentPage?: long(name='currentPage', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='Page size.', example='10'),
+    total?: long(name='total', description='Total number of records.', example='21'),
+    totalPage?: long(name='totalPage', description='Total number of pages.', example='3'),
+  }(name='data', description='Returned data structure.'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model GetChatListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatListResponseBody(name='body'),
+}
+
+/**
+  * @description - This API retrieves the list of historical documents within a session by passing in the session ID.
+  * - The sessionId information is obtained through GetChatSessionList.
+  * - A new session can also be created using the CreateChatSession interface.
+  * @param request  the request parameters of GetChatList  GetChatListRequest
+  * @return GetChatListResponse
+ */
+async function getChatList(request: GetChatListRequest): GetChatListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetChatList', 'POST', '/api/v2/aidoc/document/chat/list', 'json', false, 'json', request);
+}
+
+model GetChatSessionListRequest {
+  currentPage?: int32(name='currentPage', description='Pagination parameter, page number, default is 1.', example='1', position='Body'),
+  name?: string(name='name', description='Session name.', example='oklabs', position='Body'),
+  pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10', position='Body'),
+  userId?: string(name='userId', description='The unique identifier of the user. If not provided, the SDK calling account will be used as the user ID by default.', example='12222', position='Body'),
+}
+
+model GetChatSessionListResponseBody = {
+  data?: {
+    currentPage?: long(name='currentPage', description='Current page number.', example='1'),
+    pageSize?: long(name='pageSize', description='分页大小。', example='10'),
+    sessionList?: [ 
+      {
+        createTime?: long(name='createTime', description='Report creation timestamp, in milliseconds.', example='2025-01-01T14:45:17Z'),
+        folderId?: string(name='folderId', description='Folder ID, used to specify the scope of documents to be queried.', example='3493370b-4884-47dd-95ed-49038769af53'),
+        name?: string(name='name', description='Session name', example='student_app_spelling'),
+        sessionId?: string(name='sessionId', description='Q&A session ID, used to record multiple Q&As of the same user.', example='5c748ef9-3f23-4b5a-916f-966c0d2c6dcd'),
+        updateTime?: long(name='updateTime', description='Modification time, in milliseconds.', example='2024-12-30T02:05:03Z'),
+        userId?: string(name='userId', description='User ID of the current session.', example='12222'),
+      }
+    ](name='sessionList', description='Session list.'),
+    total?: long(name='total', description='Total number of records.', example='21'),
+    totalPage?: long(name='totalPage', description='Total number of pages', example='3'),
+  }(name='data', description='Returned data'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model GetChatSessionListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetChatSessionListResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetChatSessionList  GetChatSessionListRequest
+  * @return GetChatSessionListResponse
+ */
+async function getChatSessionList(request: GetChatSessionListRequest): GetChatSessionListResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetChatSessionList', 'POST', '/api/v2/aidoc/document/chat/session/list', 'json', false, 'json', request);
 }
 
 model GetDataItemListRequest {
