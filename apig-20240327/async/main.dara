@@ -197,6 +197,7 @@ model HttpApiApiInfo {
   aiProtocols?: [ string ](name='aiProtocols'),
   authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', example='/v1'),
+  deployCntMap?: map[string]HttpApiApiInfoDeployCntMapValue(name='deployCntMap'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs'),
@@ -239,6 +240,7 @@ model HttpApiApiInfo {
       ](name='subDomains'),
     }
   ](name='environments'),
+  gatewayId?: string(name='gatewayId'),
   httpApiId?: string(name='httpApiId', example='api-xxx'),
   ingressInfo?: {
     environmentInfo?: {
@@ -277,7 +279,17 @@ model HttpApiDeployConfig {
   autoDeploy?: boolean(name='autoDeploy', example='true'),
   backendScene?: string(name='backendScene', example='SingleService'),
   customDomainIds?: [ string ](name='customDomainIds'),
+  customDomainInfos?: [ 
+    {
+      domainId?: string(name='domainId'),
+      name?: string(name='name'),
+      protocol?: string(name='protocol'),
+    }
+  ](name='customDomainInfos'),
   environmentId?: string(name='environmentId', example='env-xxx'),
+  gatewayId?: string(name='gatewayId', example='gw-xx'),
+  gatewayInfo?: GatewayInfo(name='gatewayInfo'),
+  mock?: HttpApiMockContract(name='mock'),
   policyConfigs?: [ 
     {
       aiFallbackConfig?: {
@@ -287,6 +299,7 @@ model HttpApiDeployConfig {
       type?: string(name='type', example='AiFallback'),
     }
   ](name='policyConfigs'),
+  routeBackend?: Backend(name='routeBackend'),
   serviceConfigs?: [ 
     {
       modelName?: string(name='modelName', example='qwen-max'),
@@ -295,6 +308,14 @@ model HttpApiDeployConfig {
       weight?: long(name='weight', example='100'),
     }
   ](name='serviceConfigs'),
+  subDomains?: [ 
+    {
+      domainId?: string(name='domainId'),
+      name?: string(name='name'),
+      networkType?: string(name='networkType'),
+      protocol?: string(name='protocol'),
+    }
+  ](name='subDomains'),
 }
 
 model HttpApiDomainInfo {
@@ -304,6 +325,7 @@ model HttpApiDomainInfo {
 }
 
 model HttpApiInfoByName {
+  gatewayId?: string(name='GatewayId', example='gw-xx'),
   name?: string(name='name', example='test-api'),
   type?: string(name='type', example='Http'),
   versionEnabled?: boolean(name='versionEnabled', example='true'),
@@ -320,6 +342,9 @@ model HttpApiMockContract {
 
 model HttpApiOperation {
   authConfig?: AuthConfig(name='authConfig'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', example='获取用户信息'),
   enableAuth?: boolean(name='enableAuth'),
   method: string(name='method', description='This parameter is required.', example='GET'),
@@ -333,8 +358,11 @@ model HttpApiOperation {
 model HttpApiOperationInfo {
   authConfig?: AuthConfig(name='authConfig'),
   createTimestamp?: long(name='createTimestamp', example='1719386834548'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', example='获取用户信息'),
-  enableAuth?: boolean(name='enableAuth'),
+  enableAuth?: boolean(name='enableAuth', example='true'),
   method?: string(name='method', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name?: string(name='name', example='GetUserInfo'),
@@ -342,6 +370,7 @@ model HttpApiOperationInfo {
   path?: string(name='path', example='/user/123'),
   request?: HttpApiRequestContract(name='request'),
   response?: HttpApiResponseContract(name='response'),
+  status?: string(name='status', example='Deployed'),
 }
 
 model HttpApiParameter {
@@ -533,6 +562,7 @@ model HttpRoute {
       }
     ](name='subDomains'),
   }(name='environmentInfo'),
+  gatewayStatus?: map[string]string(name='gatewayStatus'),
   match?: HttpRouteMatch(name='match'),
   name?: string(name='name'),
   routeId?: string(name='routeId'),
@@ -805,6 +835,7 @@ BQAwE************************************************2VwVOJ2gqX3
 YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
 -----END CERTIFICATE-----', position='Body'),
   forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forcible HTTPS redirection.', example='false', position='Body'),
+  gatewayType?: string(name='gatewayType', position='Body'),
   http2Option?: string(name='http2Option', description='The HTTP/2 configuration.
 
 Valid values:
@@ -906,10 +937,11 @@ model CreateHttpApiRequest {
   description?: string(name='description', description='The API description.', example='API for testing', position='Body'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', position='Body'),
   ingressConfig?: {
+    clusterId?: string(name='clusterId'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
     ingressClass?: string(name='ingressClass', description='The Ingress Class for listening.', example='mse'),
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in Ingress Status.', example='false'),
-    sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***'),
+    sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***', deprecated='true'),
     watchNamespace?: string(name='watchNamespace', description='The namespace for listening.', example='default'),
   }(name='ingressConfig', description='The HTTP Ingress configurations.', position='Body'),
   name: string(name='name', description='The API name.
@@ -1010,6 +1042,9 @@ model CreateHttpApiRouteRequest {
       }
     ](name='services', description='The backend services.'),
   }(name='backendConfig', description='The backend service configurations of the route.', position='Body'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs', position='Body'),
   description?: string(name='description', description='The route description.', example='User logon route', position='Body'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.', position='Body'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubcv***', position='Body'),
@@ -1039,6 +1074,40 @@ model CreateHttpApiRouteResponse = {
 async function createHttpApiRoute(request: CreateHttpApiRouteRequest): CreateHttpApiRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateHttpApiRoute', 'POST', '/v1/http-apis/{httpApiId}/routes', 'json', false, 'json', request);
+}
+
+model CreatePluginAttachmentRequest {
+  attachResourceIds?: [ string ](name='attachResourceIds', position='Body'),
+  attachResourceType?: string(name='attachResourceType', example='HttpApi', position='Body'),
+  enable?: boolean(name='enable', example='false', position='Body'),
+  environmentId?: string(name='environmentId', example='env-xxx', position='Body'),
+  gatewayId?: string(name='gatewayId', example='gw-cq7l5s5lhtg***', position='Body'),
+  pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K', position='Body'),
+  pluginId?: string(name='pluginId', example='pl-cvo8udem1hkob1qd67i0', position='Body'),
+}
+
+model CreatePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cvs7jpmm1hkgihaqv4a0'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='EBCB8485-24F9-54CD-B258-CB15FDB27677'),
+}
+
+model CreatePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePluginAttachment  CreatePluginAttachmentRequest
+  * @return CreatePluginAttachmentResponse
+ */
+async function createPluginAttachment(request: CreatePluginAttachmentRequest): CreatePluginAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePluginAttachment', 'POST', '/v1/plugin-attachments', 'json', false, 'json', request);
 }
 
 model CreatePolicyRequest {
@@ -1371,6 +1440,31 @@ async function deleteHttpApiRoute(request: DeleteHttpApiRouteRequest): DeleteHtt
   return @handler.do('RESTFUL', 'DeleteHttpApiRoute', 'DELETE', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
 }
 
+model DeletePluginAttachmentRequest {
+  pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cvlkefmm1hkkc90m8vq0', position='Path'),
+}
+
+model DeletePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='76BDFFC7-0764-5168-B047-92EE0BC7FDDE'),
+}
+
+model DeletePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeletePluginAttachment  DeletePluginAttachmentRequest
+  * @return DeletePluginAttachmentResponse
+ */
+async function deletePluginAttachment(request: DeletePluginAttachmentRequest): DeletePluginAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeletePluginAttachment', 'DELETE', '/v1/plugin-attachments/{pluginAttachmentId}', 'json', false, 'json', request);
+}
+
 model DeletePolicyRequest {
   policyId: string(name='policyId', description='Policy ID
 
@@ -1427,6 +1521,10 @@ async function deletePolicyAttachment(request: DeletePolicyAttachmentRequest): D
 
 model DeployHttpApiRequest {
   httpApiId?: string(name='httpApiId', description='HTTP API ID.', example='api-cr68g1dlhtgm31fb***', position='Path'),
+  httpApiConfig?: {
+    gatewayId?: string(name='gatewayId'),
+    routeIds?: [ string ](name='routeIds'),
+  }(name='httpApiConfig', position='Body'),
   restApiConfig?: {
     description?: string(name='description', description='Publication description.', example='用户服务API发布。'),
     environment?: {
@@ -1446,6 +1544,8 @@ model DeployHttpApiRequest {
         }
       ](name='serviceConfigs', description='Existing service configurations. Only one entry is allowed in a single-service scenario, while multiple entries are allowed in scenarios such as by ratio or by content.'),
     }(name='environment', description='Publication environment configuration.'),
+    gatewayId?: string(name='gatewayId'),
+    operationIds?: [ string ](name='operationIds'),
     revisionId?: string(name='revisionId', description='Historical version number. If this field is specified, the publication information will be based on the historical version information.', example='apr-xxx'),
   }(name='restApiConfig', description='Rest API deployment configuration. Required when deploying an HTTP API as a Rest API.', position='Body'),
   routeId?: string(name='routeId', description='Route ID. This must be provided when publishing the route of an HTTP API.', example='hr-cr82undlhtgrl***', position='Body'),
@@ -1888,6 +1988,44 @@ async function getHttpApiRoute(request: GetHttpApiRouteRequest): GetHttpApiRoute
   return @handler.do('RESTFUL', 'GetHttpApiRoute', 'GET', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
 }
 
+model GetPluginAttachmentRequest {
+  pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cvl541em1hkk7n8vq810', position='Path'),
+}
+
+model GetPluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    enable?: boolean(name='enable', example='true'),
+    environmentInfo?: EnvironmentInfo(name='environmentInfo'),
+    gatewayInfo?: GatewayInfo(name='gatewayInfo'),
+    parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo'),
+    pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-d05f1tmm1hku195dd8j0'),
+    pluginClassInfo?: PluginClassInfo(name='pluginClassInfo'),
+    pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
+    pluginId?: string(name='pluginId', example='pl-cvo8ub6m1hkvgv03r3k0'),
+    resourceInfos?: [
+      ResourceInfo
+    ](name='resourceInfos'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='C61E30D3-579A-5B43-994E-31E02EDC9129'),
+}
+
+model GetPluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPluginAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPluginAttachment  GetPluginAttachmentRequest
+  * @return GetPluginAttachmentResponse
+ */
+async function getPluginAttachment(request: GetPluginAttachmentRequest): GetPluginAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPluginAttachment', 'GET', '/v1/plugin-attachments/{pluginAttachmentId}', 'json', false, 'json', request);
+}
+
 model GetPolicyRequest {
   policyId: string(name='policyId', description='The policy ID.
 
@@ -1953,6 +2091,7 @@ async function getPolicyAttachment(request: GetPolicyAttachmentRequest): GetPoli
 }
 
 model GetResourceOverviewRequest {
+  gatewayType?: string(name='gatewayType', position='Query'),
 }
 
 model GetResourceOverviewResponseBody = {
@@ -2057,8 +2196,10 @@ async function getTraceConfig(request: GetTraceConfigRequest): GetTraceConfigRes
 }
 
 model ImportHttpApiRequest {
+  deployConfigs?: HttpApiDeployConfig(name='deployConfigs', position='Body'),
   description?: string(name='description', description='The API description, which cannot exceed 255 bytes in length. If you do not specify a description, a description is extracted from the definition file.', example='API for testing', position='Body'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, a dry run is performed without importing the file.', example='false', position='Body'),
+  mcpRouteId?: string(name='mcpRouteId', position='Body'),
   name?: string(name='name', description='The API name. If you do not specify a name, a name is extracted from the definition file. If a name and a versioning configuration already exist, the existing API definition is updated based on the strategy field.', example='import-test', position='Body'),
   resourceGroupId?: string(name='resourceGroupId', description='[The resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-acfm3q4zjh7fkki', position='Body'),
   specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. OAS 2.0 and OAS 3.0 specifications are supported. YAML and JSON formats are supported. This parameter precedes over the specFileUrl parameter. However, if the file size exceeds 10 MB, use the specFileUrl parameter to pass the definition.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo=', position='Body'),
@@ -2142,6 +2283,7 @@ async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiRespon
 
 model ListDomainsRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-xxx', position='Query'),
+  gatewayType?: string(name='gatewayType', position='Query'),
   nameLike?: string(name='nameLike', description='The domain name keyword for fuzzy search.', example='test', position='Query'),
   pageNumber?: int32(name='pageNumber', description='The page number of the page to return. Default value: 1.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 10.', example='10', position='Query'),
@@ -2181,6 +2323,7 @@ model ListEnvironmentsRequest {
   aliasLike?: string(name='aliasLike', description='Environment alias, fuzzy search.', example='测试', position='Query'),
   gatewayId?: string(name='gatewayId', description='Gateway ID, exact search.', example='gw-cptv6ktlhtgnqr73h8d1', position='Query'),
   gatewayNameLike?: string(name='gatewayNameLike', description='Gateway name, fuzzy search.', example='test-gw', position='Query'),
+  gatewayType?: string(name='gatewayType', position='Query'),
   nameLike?: string(name='nameLike', description='Environment name, fuzzy search.', example='test', position='Query'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10', position='Query'),
@@ -2219,6 +2362,7 @@ async function listEnvironments(request: ListEnvironmentsRequest): ListEnvironme
 
 model ListGatewaysRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID. If you specify an ID, an exact search is performed.', example='gw-cpv4sqdl****', position='Query'),
+  gatewayType?: string(name='gatewayType', position='Query'),
   keyword?: string(name='keyword', description='The search keyword. A full match is performed. The search is case-insensitive.', example='dev', position='Query'),
   name?: string(name='name', description='The instance name. If you specify a name, an exact search is performed.', example='itemcenter-gateway', position='Query'),
   pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1', position='Query'),
@@ -2247,6 +2391,8 @@ model ListGatewaysResponseBody = {
         createTimestamp?: long(name='createTimestamp', description='The time when the instance was created. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
         expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='172086834548'),
         gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv54p5***'),
+        gatewayType?: string(name='gatewayType'),
+        legacy?: boolean(name='legacy'),
         loadBalancers?: [ 
           {
             address?: string(name='address', description='The load balancer IP address.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
@@ -2358,6 +2504,8 @@ model ListHttpApiOperationsRequest {
 
 This parameter is required.', example='api-xxx', position='Path'),
   consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filter the operation list based on a specific consumer authorization rule ID, and the interface list in the response only contains authorized operations.', example='cas-xxx', position='Query'),
+  forDeploy?: boolean(name='forDeploy', position='Query'),
+  gatewayId?: string(name='gatewayId', position='Query'),
   method?: string(name='method', description='List interfaces by Method.', example='GET', position='Query'),
   name?: string(name='name', description='Search operations by exact name.', example='getUserInfo', position='Query'),
   nameLike?: string(name='nameLike', description='Search operations by name prefix.', example='GetUser', position='Query'),
@@ -2414,6 +2562,7 @@ Enumerated values:
 *   DeployFailed: The route failed to be deployed.', example='NotDeployed', position='Query'),
   domainId?: string(name='domainId', description='Specifies to filter routes by domain ID.', example='d-xxx', position='Query'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***', position='Query'),
+  forDeploy?: boolean(name='forDeploy', position='Query'),
   gatewayId?: string(name='gatewayId', description='The ID of the Cloud-native API Gateway instance.', example='gw-cpv4sqdl****', position='Query'),
   name?: string(name='name', description='The route name.', example='itemcenter-gateway', position='Query'),
   nameLike?: string(name='nameLike', description='The route name keyword for a fuzzy search.', example='item', position='Query'),
@@ -2456,6 +2605,7 @@ async function listHttpApiRoutes(request: ListHttpApiRoutesRequest): ListHttpApi
 
 model ListHttpApisRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the Cloud-native API Gateway instance.', example='gw-cq2avtllh****', position='Query'),
+  gatewayType?: string(name='gatewayType', position='Query'),
   keyword?: string(name='keyword', description='The search keyword. You can fuzzy-search by API name or exact-search by API ID.', example='test-', position='Query'),
   name?: string(name='name', description='The API name that is used for the search. In this case, exact search is performed.', example='login', position='Query'),
   pageNumber?: int32(name='pageNumber', description='The page number of the page to return. Pages start from page 1. Default value: 1.', example='1', position='Query'),
@@ -2505,6 +2655,67 @@ model ListHttpApisResponse = {
 async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListHttpApis', 'GET', '/v1/http-apis', 'json', false, 'json', request);
+}
+
+model ListPluginsRequest {
+  attachResourceId?: string(name='attachResourceId', example='api-cuip2pum1hksng6oni3g', position='Query'),
+  attachResourceType?: string(name='attachResourceType', example='HttpApi', position='Query'),
+  gatewayId?: string(name='gatewayId', example='gw-csrhgn6m1hkt65qbxxgg', position='Query'),
+  gatewayType?: string(name='gatewayType', example='AI', position='Query'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='10', position='Query'),
+  pluginClassId?: string(name='pluginClassId', example='pls-dn82a9djd8z****', position='Query'),
+  pluginClassName?: string(name='pluginClassName', example='key-auth', position='Query'),
+  withAttachmentInfo?: boolean(name='withAttachmentInfo', example='false', position='Query'),
+}
+
+model ListPluginsResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        attachmentInfo?: {
+          enable?: string(name='enable', example='false'),
+          pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-ct2irn6m1hkreaen0t40'),
+        }(name='attachmentInfo'),
+        gatewayInfo?: {
+          gatewayId?: string(name='gatewayId', example='gw-cq7og15lhtxx6qasrj60'),
+          name?: string(name='name', example='apitest-gw'),
+        }(name='gatewayInfo'),
+        pluginClassInfo?: {
+          alias?: string(name='alias'),
+          executePriority?: string(name='executePriority', example='999'),
+          executeStage?: string(name='executeStage', example='AUTHZ'),
+          name?: string(name='name', example='key-rate-limit'),
+          pluginClassId?: string(name='pluginClassId', example='pls-cqebrgh46ppatmpri'),
+          source?: string(name='source', example='HigressOfficial'),
+          version?: string(name='version', example='2.0.3'),
+          versionDescription?: string(name='versionDescription'),
+        }(name='pluginClassInfo'),
+        pluginId?: string(name='pluginId', example='pl-cvu6r4um1hko3b3ti0a0'),
+      }
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='10'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='168BA42D-F822-569D-A67F-FC59E6ABC2B1'),
+}
+
+model ListPluginsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPluginsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPlugins  ListPluginsRequest
+  * @return ListPluginsResponse
+ */
+async function listPlugins(request: ListPluginsRequest): ListPluginsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPlugins', 'GET', '/v1/plugins', 'json', false, 'json', request);
 }
 
 model ListPolicyClassesRequest {
@@ -2703,6 +2914,8 @@ async function restartGateway(request: RestartGatewayRequest): RestartGatewayRes
 model UndeployHttpApiRequest {
   httpApiId?: string(name='httpApiId', description='HTTP API ID。', example='api-cqu95allhtgii6***', position='Path'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cqsmtellhtgvo***', position='Body'),
+  gatewayId?: string(name='gatewayId', position='Body'),
+  operationId?: string(name='operationId', position='Body'),
   routeId?: string(name='routeId', description='Route ID. This must be provided when publishing the route of an HTTP API.', example='hr-cr82undlhtgrle***', position='Body'),
 }
 
@@ -2969,6 +3182,9 @@ Valid values:
       }
     ](name='services', description='The backend services.'),
   }(name='backendConfig', description='The backend service configurations of the route.', position='Body'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs', position='Body'),
   description?: string(name='description', description='The route description.', example='test route', position='Body'),
   domainIds?: [ string ](name='domainIds', description='The domain IDs.', position='Body'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cquqsollhtgid***', position='Body'),
@@ -2994,6 +3210,34 @@ model UpdateHttpApiRouteResponse = {
 async function updateHttpApiRoute(request: UpdateHttpApiRouteRequest): UpdateHttpApiRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateHttpApiRoute', 'PUT', '/v1/http-apis/{httpApiId}/routes/{routeId}', 'json', false, 'json', request);
+}
+
+model UpdatePluginAttachmentRequest {
+  pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cri2uq5lhtgkq0ldllj0', position='Path'),
+  attachResourceIds?: [ string ](name='attachResourceIds', position='Body'),
+  enable?: boolean(name='enable', example='false', position='Body'),
+  pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K', position='Body'),
+}
+
+model UpdatePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='F330090D-80F8-557B-8610-7EC7E386B4A4'),
+}
+
+model UpdatePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdatePluginAttachment  UpdatePluginAttachmentRequest
+  * @return UpdatePluginAttachmentResponse
+ */
+async function updatePluginAttachment(request: UpdatePluginAttachmentRequest): UpdatePluginAttachmentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePluginAttachment', 'PUT', '/v1/plugin-attachments/{pluginAttachmentId}', 'json', false, 'json', request);
 }
 
 model UpdatePolicyRequest {
@@ -3054,5 +3298,10 @@ model UpgradeGatewayResponse = {
 async function upgradeGateway(request: UpgradeGatewayRequest): UpgradeGatewayResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpgradeGateway', 'POST', '/v1/gateways/{gatewayId}/upgrade', 'json', false, 'json', request);
+}
+
+model HttpApiApiInfoDeployCntMapValue = {
+  deployedCnt?: long(name='deployedCnt'),
+  cnt?: long(name='Cnt'),
 }
 

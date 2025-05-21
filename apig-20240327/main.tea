@@ -195,6 +195,7 @@ model HttpApiApiInfo {
   aiProtocols?: [ string ](name='aiProtocols'),
   authConfig?: AuthConfig(name='authConfig'),
   basePath?: string(name='basePath', example='/v1'),
+  deployCntMap?: map[string]HttpApiApiInfoDeployCntMapValue(name='deployCntMap'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs'),
@@ -237,6 +238,7 @@ model HttpApiApiInfo {
       ](name='subDomains'),
     }
   ](name='environments'),
+  gatewayId?: string(name='gatewayId'),
   httpApiId?: string(name='httpApiId', example='api-xxx'),
   ingressInfo?: {
     environmentInfo?: {
@@ -275,7 +277,17 @@ model HttpApiDeployConfig {
   autoDeploy?: boolean(name='autoDeploy', example='true'),
   backendScene?: string(name='backendScene', example='SingleService'),
   customDomainIds?: [ string ](name='customDomainIds'),
+  customDomainInfos?: [ 
+    {
+      domainId?: string(name='domainId'),
+      name?: string(name='name'),
+      protocol?: string(name='protocol'),
+    }
+  ](name='customDomainInfos'),
   environmentId?: string(name='environmentId', example='env-xxx'),
+  gatewayId?: string(name='gatewayId', example='gw-xx'),
+  gatewayInfo?: GatewayInfo(name='gatewayInfo'),
+  mock?: HttpApiMockContract(name='mock'),
   policyConfigs?: [ 
     {
       aiFallbackConfig?: {
@@ -285,6 +297,7 @@ model HttpApiDeployConfig {
       type?: string(name='type', example='AiFallback'),
     }
   ](name='policyConfigs'),
+  routeBackend?: Backend(name='routeBackend'),
   serviceConfigs?: [ 
     {
       modelName?: string(name='modelName', example='qwen-max'),
@@ -293,6 +306,14 @@ model HttpApiDeployConfig {
       weight?: long(name='weight', example='100'),
     }
   ](name='serviceConfigs'),
+  subDomains?: [ 
+    {
+      domainId?: string(name='domainId'),
+      name?: string(name='name'),
+      networkType?: string(name='networkType'),
+      protocol?: string(name='protocol'),
+    }
+  ](name='subDomains'),
 }
 
 model HttpApiDomainInfo {
@@ -302,6 +323,7 @@ model HttpApiDomainInfo {
 }
 
 model HttpApiInfoByName {
+  gatewayId?: string(name='GatewayId', example='gw-xx'),
   name?: string(name='name', example='test-api'),
   type?: string(name='type', example='Http'),
   versionEnabled?: boolean(name='versionEnabled', example='true'),
@@ -318,6 +340,9 @@ model HttpApiMockContract {
 
 model HttpApiOperation {
   authConfig?: AuthConfig(name='authConfig'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', example='获取用户信息'),
   enableAuth?: boolean(name='enableAuth'),
   method?: string(name='method', description='This parameter is required.', example='GET'),
@@ -331,8 +356,11 @@ model HttpApiOperation {
 model HttpApiOperationInfo {
   authConfig?: AuthConfig(name='authConfig'),
   createTimestamp?: long(name='createTimestamp', example='1719386834548'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', example='获取用户信息'),
-  enableAuth?: boolean(name='enableAuth'),
+  enableAuth?: boolean(name='enableAuth', example='true'),
   method?: string(name='method', example='GET'),
   mock?: HttpApiMockContract(name='mock'),
   name?: string(name='name', example='GetUserInfo'),
@@ -340,6 +368,7 @@ model HttpApiOperationInfo {
   path?: string(name='path', example='/user/123'),
   request?: HttpApiRequestContract(name='request'),
   response?: HttpApiResponseContract(name='response'),
+  status?: string(name='status', example='Deployed'),
 }
 
 model HttpApiParameter {
@@ -531,6 +560,7 @@ model HttpRoute {
       }
     ](name='subDomains'),
   }(name='environmentInfo'),
+  gatewayStatus?: map[string]string(name='gatewayStatus'),
   match?: HttpRouteMatch(name='match'),
   name?: string(name='name'),
   routeId?: string(name='routeId'),
@@ -740,6 +770,11 @@ model TlsCipherSuitesConfig {
   ](name='tlsCipherSuite'),
 }
 
+model HttpApiApiInfoDeployCntMapValue = {
+  deployedCnt?: long(name='deployedCnt'),
+  cnt?: long(name='Cnt'),
+}
+
 model AddGatewaySecurityGroupRuleRequest {
   description?: string(name='description', description='Description of the security group rule.', example='商品中心访问安全组'),
   portRanges?: [ string ](name='portRanges', description='Port ranges.'),
@@ -794,11 +829,7 @@ async function addGatewaySecurityGroupRuleWithOptions(gatewayId: string, request
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -869,11 +900,7 @@ async function changeResourceGroupWithOptions(request: ChangeResourceGroupReques
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -897,6 +924,7 @@ BQAwE************************************************2VwVOJ2gqX3
 YuGaxvIbDy0iQJ1GMerPRyzJTeVEtdIKT29u0PdFRr4KZWom35qX7G4=
 -----END CERTIFICATE-----'),
   forceHttps?: boolean(name='forceHttps', description='Specifies whether to enable forcible HTTPS redirection.', example='false'),
+  gatewayType?: string(name='gatewayType'),
   http2Option?: string(name='http2Option', description='The HTTP/2 configuration.
 
 Valid values:
@@ -960,6 +988,9 @@ async function createDomainWithOptions(request: CreateDomainRequest, headers: ma
   if (!Util.isUnset(request.forceHttps)) {
     body['forceHttps'] = request.forceHttps;
   }
+  if (!Util.isUnset(request.gatewayType)) {
+    body['gatewayType'] = request.gatewayType;
+  }
   if (!Util.isUnset(request.http2Option)) {
     body['http2Option'] = request.http2Option;
   }
@@ -1000,11 +1031,7 @@ async function createDomainWithOptions(request: CreateDomainRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1097,11 +1124,7 @@ async function createEnvironmentWithOptions(request: CreateEnvironmentRequest, h
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1133,10 +1156,11 @@ model CreateHttpApiRequest {
   description?: string(name='description', description='The API description.', example='API for testing'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.'),
   ingressConfig?: {
+    clusterId?: string(name='clusterId'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
     ingressClass?: string(name='ingressClass', description='The Ingress Class for listening.', example='mse'),
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in Ingress Status.', example='false'),
-    sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***'),
+    sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***', deprecated=true),
     watchNamespace?: string(name='watchNamespace', description='The namespace for listening.', example='default'),
   }(name='ingressConfig', description='The HTTP Ingress configurations.'),
   name?: string(name='name', description='The API name.
@@ -1232,11 +1256,7 @@ async function createHttpApiWithOptions(request: CreateHttpApiRequest, headers: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1306,11 +1326,7 @@ async function createHttpApiOperationWithOptions(httpApiId: string, request: Cre
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1346,6 +1362,9 @@ model CreateHttpApiRouteRequest {
       }
     ](name='services', description='The backend services.'),
   }(name='backendConfig', description='The backend service configurations of the route.'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', description='The route description.', example='User logon route'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubcv***'),
@@ -1382,6 +1401,9 @@ async function createHttpApiRouteWithOptions(httpApiId: string, request: CreateH
   if (!Util.isUnset(request.backendConfig)) {
     body['backendConfig'] = request.backendConfig;
   }
+  if (!Util.isUnset(request.deployConfigs)) {
+    body['deployConfigs'] = request.deployConfigs;
+  }
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
   }
@@ -1413,11 +1435,7 @@ async function createHttpApiRouteWithOptions(httpApiId: string, request: CreateH
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1430,6 +1448,94 @@ async function createHttpApiRoute(httpApiId: string, request: CreateHttpApiRoute
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createHttpApiRouteWithOptions(httpApiId, request, headers, runtime);
+}
+
+model CreatePluginAttachmentRequest {
+  attachResourceIds?: [ string ](name='attachResourceIds'),
+  attachResourceType?: string(name='attachResourceType', example='HttpApi'),
+  enable?: boolean(name='enable', example='false'),
+  environmentId?: string(name='environmentId', example='env-xxx'),
+  gatewayId?: string(name='gatewayId', example='gw-cq7l5s5lhtg***'),
+  pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
+  pluginId?: string(name='pluginId', example='pl-cvo8udem1hkob1qd67i0'),
+}
+
+model CreatePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-cvs7jpmm1hkgihaqv4a0'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='EBCB8485-24F9-54CD-B258-CB15FDB27677'),
+}
+
+model CreatePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建API
+ *
+ * @param request CreatePluginAttachmentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreatePluginAttachmentResponse
+ */
+async function createPluginAttachmentWithOptions(request: CreatePluginAttachmentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreatePluginAttachmentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attachResourceIds)) {
+    body['attachResourceIds'] = request.attachResourceIds;
+  }
+  if (!Util.isUnset(request.attachResourceType)) {
+    body['attachResourceType'] = request.attachResourceType;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.environmentId)) {
+    body['environmentId'] = request.environmentId;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    body['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.pluginConfig)) {
+    body['pluginConfig'] = request.pluginConfig;
+  }
+  if (!Util.isUnset(request.pluginId)) {
+    body['pluginId'] = request.pluginId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreatePluginAttachment',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-attachments`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建API
+ *
+ * @param request CreatePluginAttachmentRequest
+ * @return CreatePluginAttachmentResponse
+ */
+async function createPluginAttachment(request: CreatePluginAttachmentRequest): CreatePluginAttachmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createPluginAttachmentWithOptions(request, headers, runtime);
 }
 
 model CreatePolicyRequest {
@@ -1499,11 +1605,7 @@ async function createPolicyWithOptions(request: CreatePolicyRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1593,11 +1695,7 @@ async function createPolicyAttachmentWithOptions(request: CreatePolicyAttachment
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1704,11 +1802,7 @@ async function createServiceWithOptions(request: CreateServiceRequest, headers: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1759,11 +1853,7 @@ async function deleteDomainWithOptions(domainId: string, headers: map[string]str
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1814,11 +1904,7 @@ async function deleteEnvironmentWithOptions(environmentId: string, headers: map[
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1869,11 +1955,7 @@ async function deleteGatewayWithOptions(gatewayId: string, headers: map[string]s
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1933,11 +2015,7 @@ async function deleteGatewaySecurityGroupRuleWithOptions(gatewayId: string, secu
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -1986,11 +2064,7 @@ async function deleteHttpApiWithOptions(httpApiId: string, headers: map[string]s
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2038,11 +2112,7 @@ async function deleteHttpApiOperationWithOptions(httpApiId: string, operationId:
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2090,11 +2160,7 @@ async function deleteHttpApiRouteWithOptions(httpApiId: string, routeId: string,
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2106,6 +2172,54 @@ async function deleteHttpApiRoute(httpApiId: string, routeId: string): DeleteHtt
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
+}
+
+model DeletePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='76BDFFC7-0764-5168-B047-92EE0BC7FDDE'),
+}
+
+model DeletePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除挂载规则API
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeletePluginAttachmentResponse
+ */
+async function deletePluginAttachmentWithOptions(pluginAttachmentId: string, headers: map[string]string, runtime: Util.RuntimeOptions): DeletePluginAttachmentResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeletePluginAttachment',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-attachments/${OpenApiUtil.getEncodeParam(pluginAttachmentId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除挂载规则API
+ *
+ * @return DeletePluginAttachmentResponse
+ */
+async function deletePluginAttachment(pluginAttachmentId: string): DeletePluginAttachmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deletePluginAttachmentWithOptions(pluginAttachmentId, headers, runtime);
 }
 
 model DeletePolicyResponseBody = {
@@ -2142,11 +2256,7 @@ async function deletePolicyWithOptions(policyId: string, headers: map[string]str
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2194,11 +2304,7 @@ async function deletePolicyAttachmentWithOptions(policyAttachmentId: string, hea
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2213,6 +2319,10 @@ async function deletePolicyAttachment(policyAttachmentId: string): DeletePolicyA
 }
 
 model DeployHttpApiRequest {
+  httpApiConfig?: {
+    gatewayId?: string(name='gatewayId'),
+    routeIds?: [ string ](name='routeIds'),
+  }(name='httpApiConfig'),
   restApiConfig?: {
     description?: string(name='description', description='Publication description.', example='用户服务API发布。'),
     environment?: {
@@ -2232,6 +2342,8 @@ model DeployHttpApiRequest {
         }
       ](name='serviceConfigs', description='Existing service configurations. Only one entry is allowed in a single-service scenario, while multiple entries are allowed in scenarios such as by ratio or by content.'),
     }(name='environment', description='Publication environment configuration.'),
+    gatewayId?: string(name='gatewayId'),
+    operationIds?: [ string ](name='operationIds'),
     revisionId?: string(name='revisionId', description='Historical version number. If this field is specified, the publication information will be based on the historical version information.', example='apr-xxx'),
   }(name='restApiConfig', description='Rest API deployment configuration. Required when deploying an HTTP API as a Rest API.'),
   routeId?: string(name='routeId', description='Route ID. This must be provided when publishing the route of an HTTP API.', example='hr-cr82undlhtgrl***'),
@@ -2260,6 +2372,9 @@ model DeployHttpApiResponse = {
 async function deployHttpApiWithOptions(httpApiId: string, request: DeployHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeployHttpApiResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.httpApiConfig)) {
+    body['httpApiConfig'] = request.httpApiConfig;
+  }
   if (!Util.isUnset(request.restApiConfig)) {
     body['restApiConfig'] = request.restApiConfig;
   }
@@ -2282,11 +2397,7 @@ async function deployHttpApiWithOptions(httpApiId: string, request: DeployHttpAp
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2338,11 +2449,7 @@ async function exportHttpApiWithOptions(httpApiId: string, headers: map[string]s
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2466,11 +2573,7 @@ async function getDashboardWithOptions(gatewayId: string, tmpReq: GetDashboardRe
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2588,11 +2691,7 @@ async function getDomainWithOptions(domainId: string, request: GetDomainRequest,
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2680,11 +2779,7 @@ async function getEnvironmentWithOptions(environmentId: string, request: GetEnvi
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2828,11 +2923,7 @@ async function getGatewayWithOptions(gatewayId: string, headers: map[string]stri
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2881,11 +2972,7 @@ async function getHttpApiWithOptions(httpApiId: string, headers: map[string]stri
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2934,11 +3021,7 @@ async function getHttpApiOperationWithOptions(httpApiId: string, operationId: st
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -2987,11 +3070,7 @@ async function getHttpApiRouteWithOptions(httpApiId: string, routeId: string, he
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3003,6 +3082,67 @@ async function getHttpApiRoute(httpApiId: string, routeId: string): GetHttpApiRo
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getHttpApiRouteWithOptions(httpApiId, routeId, headers, runtime);
+}
+
+model GetPluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    enable?: boolean(name='enable', example='true'),
+    environmentInfo?: EnvironmentInfo(name='environmentInfo'),
+    gatewayInfo?: GatewayInfo(name='gatewayInfo'),
+    parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo'),
+    pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-d05f1tmm1hku195dd8j0'),
+    pluginClassInfo?: PluginClassInfo(name='pluginClassInfo'),
+    pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
+    pluginId?: string(name='pluginId', example='pl-cvo8ub6m1hkvgv03r3k0'),
+    resourceInfos?: [
+      ResourceInfo
+    ](name='resourceInfos'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='C61E30D3-579A-5B43-994E-31E02EDC9129'),
+}
+
+model GetPluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPluginAttachmentResponseBody(name='body'),
+}
+
+/**
+ * @summary GetPluginAttachment。
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetPluginAttachmentResponse
+ */
+async function getPluginAttachmentWithOptions(pluginAttachmentId: string, headers: map[string]string, runtime: Util.RuntimeOptions): GetPluginAttachmentResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetPluginAttachment',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-attachments/${OpenApiUtil.getEncodeParam(pluginAttachmentId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary GetPluginAttachment。
+ *
+ * @return GetPluginAttachmentResponse
+ */
+async function getPluginAttachment(pluginAttachmentId: string): GetPluginAttachmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getPluginAttachmentWithOptions(pluginAttachmentId, headers, runtime);
 }
 
 model GetPolicyResponseBody = {
@@ -3040,11 +3180,7 @@ async function getPolicyWithOptions(policyId: string, headers: map[string]string
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3101,11 +3237,7 @@ async function getPolicyAttachmentWithOptions(policyAttachmentId: string, header
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3117,6 +3249,10 @@ async function getPolicyAttachment(policyAttachmentId: string): GetPolicyAttachm
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getPolicyAttachmentWithOptions(policyAttachmentId, headers, runtime);
+}
+
+model GetResourceOverviewRequest {
+  gatewayType?: string(name='gatewayType'),
 }
 
 model GetResourceOverviewResponseBody = {
@@ -3144,13 +3280,21 @@ model GetResourceOverviewResponse = {
 /**
  * @summary Get resource overview information
  *
+ * @param request GetResourceOverviewRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetResourceOverviewResponse
  */
-async function getResourceOverviewWithOptions(headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceOverviewResponse {
+async function getResourceOverviewWithOptions(request: GetResourceOverviewRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetResourceOverviewResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
+
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApi.Params{
     action = 'GetResourceOverview',
@@ -3163,22 +3307,19 @@ async function getResourceOverviewWithOptions(headers: map[string]string, runtim
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
  * @summary Get resource overview information
  *
+ * @param request GetResourceOverviewRequest
  * @return GetResourceOverviewResponse
  */
-async function getResourceOverview(): GetResourceOverviewResponse {
+async function getResourceOverview(request: GetResourceOverviewRequest): GetResourceOverviewResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
-  return getResourceOverviewWithOptions(headers, runtime);
+  return getResourceOverviewWithOptions(request, headers, runtime);
 }
 
 model GetServiceResponseBody = {
@@ -3216,11 +3357,7 @@ async function getServiceWithOptions(serviceId: string, headers: map[string]stri
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3298,11 +3435,7 @@ async function getTraceConfigWithOptions(gatewayId: string, request: GetTraceCon
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3318,8 +3451,10 @@ async function getTraceConfig(gatewayId: string, request: GetTraceConfigRequest)
 }
 
 model ImportHttpApiRequest {
+  deployConfigs?: HttpApiDeployConfig(name='deployConfigs'),
   description?: string(name='description', description='The API description, which cannot exceed 255 bytes in length. If you do not specify a description, a description is extracted from the definition file.', example='API for testing'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, a dry run is performed without importing the file.', example='false'),
+  mcpRouteId?: string(name='mcpRouteId'),
   name?: string(name='name', description='The API name. If you do not specify a name, a name is extracted from the definition file. If a name and a versioning configuration already exist, the existing API definition is updated based on the strategy field.', example='import-test'),
   resourceGroupId?: string(name='resourceGroupId', description='[The resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-acfm3q4zjh7fkki'),
   specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. OAS 2.0 and OAS 3.0 specifications are supported. YAML and JSON formats are supported. This parameter precedes over the specFileUrl parameter. However, if the file size exceeds 10 MB, use the specFileUrl parameter to pass the definition.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
@@ -3403,11 +3538,17 @@ model ImportHttpApiResponse = {
 async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ImportHttpApiResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.deployConfigs)) {
+    body['deployConfigs'] = request.deployConfigs;
+  }
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
   }
   if (!Util.isUnset(request.dryRun)) {
     body['dryRun'] = request.dryRun;
+  }
+  if (!Util.isUnset(request.mcpRouteId)) {
+    body['mcpRouteId'] = request.mcpRouteId;
   }
   if (!Util.isUnset(request.name)) {
     body['name'] = request.name;
@@ -3449,11 +3590,7 @@ async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3470,6 +3607,7 @@ async function importHttpApi(request: ImportHttpApiRequest): ImportHttpApiRespon
 
 model ListDomainsRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-xxx'),
+  gatewayType?: string(name='gatewayType'),
   nameLike?: string(name='nameLike', description='The domain name keyword for fuzzy search.', example='test'),
   pageNumber?: int32(name='pageNumber', description='The page number of the page to return. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 10.', example='10'),
@@ -3510,6 +3648,9 @@ async function listDomainsWithOptions(request: ListDomainsRequest, headers: map[
   if (!Util.isUnset(request.gatewayId)) {
     query['gatewayId'] = request.gatewayId;
   }
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
   if (!Util.isUnset(request.nameLike)) {
     query['nameLike'] = request.nameLike;
   }
@@ -3538,11 +3679,7 @@ async function listDomainsWithOptions(request: ListDomainsRequest, headers: map[
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3561,6 +3698,7 @@ model ListEnvironmentsRequest {
   aliasLike?: string(name='aliasLike', description='Environment alias, fuzzy search.', example='测试'),
   gatewayId?: string(name='gatewayId', description='Gateway ID, exact search.', example='gw-cptv6ktlhtgnqr73h8d1'),
   gatewayNameLike?: string(name='gatewayNameLike', description='Gateway name, fuzzy search.', example='test-gw'),
+  gatewayType?: string(name='gatewayType'),
   nameLike?: string(name='nameLike', description='Environment name, fuzzy search.', example='test'),
   pageNumber?: int32(name='pageNumber', description='Page number, default is 1.', example='1'),
   pageSize?: int32(name='pageSize', description='Page size, default is 10.', example='10'),
@@ -3610,6 +3748,9 @@ async function listEnvironmentsWithOptions(request: ListEnvironmentsRequest, hea
   if (!Util.isUnset(request.gatewayNameLike)) {
     query['gatewayNameLike'] = request.gatewayNameLike;
   }
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
   if (!Util.isUnset(request.nameLike)) {
     query['nameLike'] = request.nameLike;
   }
@@ -3638,11 +3779,7 @@ async function listEnvironmentsWithOptions(request: ListEnvironmentsRequest, hea
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3662,6 +3799,7 @@ async function listEnvironments(request: ListEnvironmentsRequest): ListEnvironme
 
 model ListGatewaysRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID. If you specify an ID, an exact search is performed.', example='gw-cpv4sqdl****'),
+  gatewayType?: string(name='gatewayType'),
   keyword?: string(name='keyword', description='The search keyword. A full match is performed. The search is case-insensitive.', example='dev'),
   name?: string(name='name', description='The instance name. If you specify a name, an exact search is performed.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1'),
@@ -3677,6 +3815,7 @@ model ListGatewaysRequest {
 
 model ListGatewaysShrinkRequest {
   gatewayId?: string(name='gatewayId', description='The instance ID. If you specify an ID, an exact search is performed.', example='gw-cpv4sqdl****'),
+  gatewayType?: string(name='gatewayType'),
   keyword?: string(name='keyword', description='The search keyword. A full match is performed. The search is case-insensitive.', example='dev'),
   name?: string(name='name', description='The instance name. If you specify a name, an exact search is performed.', example='itemcenter-gateway'),
   pageNumber?: int32(name='pageNumber', description='The number of the page to return.', example='1'),
@@ -3700,6 +3839,8 @@ model ListGatewaysResponseBody = {
         createTimestamp?: long(name='createTimestamp', description='The time when the instance was created. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
         expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='172086834548'),
         gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv54p5***'),
+        gatewayType?: string(name='gatewayType'),
+        legacy?: boolean(name='legacy'),
         loadBalancers?: [ 
           {
             address?: string(name='address', description='The load balancer IP address.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
@@ -3816,6 +3957,9 @@ async function listGatewaysWithOptions(tmpReq: ListGatewaysRequest, headers: map
   if (!Util.isUnset(request.gatewayId)) {
     query['gatewayId'] = request.gatewayId;
   }
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
   if (!Util.isUnset(request.keyword)) {
     query['keyword'] = request.keyword;
   }
@@ -3850,11 +3994,7 @@ async function listGatewaysWithOptions(tmpReq: ListGatewaysRequest, headers: map
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3871,6 +4011,8 @@ async function listGateways(request: ListGatewaysRequest): ListGatewaysResponse 
 
 model ListHttpApiOperationsRequest {
   consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filter the operation list based on a specific consumer authorization rule ID, and the interface list in the response only contains authorized operations.', example='cas-xxx'),
+  forDeploy?: boolean(name='forDeploy'),
+  gatewayId?: string(name='gatewayId'),
   method?: string(name='method', description='List interfaces by Method.', example='GET'),
   name?: string(name='name', description='Search operations by exact name.', example='getUserInfo'),
   nameLike?: string(name='nameLike', description='Search operations by name prefix.', example='GetUser'),
@@ -3916,6 +4058,12 @@ async function listHttpApiOperationsWithOptions(httpApiId: string, request: List
   if (!Util.isUnset(request.consumerAuthorizationRuleId)) {
     query['consumerAuthorizationRuleId'] = request.consumerAuthorizationRuleId;
   }
+  if (!Util.isUnset(request.forDeploy)) {
+    query['forDeploy'] = request.forDeploy;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
   if (!Util.isUnset(request.method)) {
     query['method'] = request.method;
   }
@@ -3959,11 +4107,7 @@ async function listHttpApiOperationsWithOptions(httpApiId: string, request: List
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -3993,6 +4137,7 @@ Enumerated values:
 *   DeployFailed: The route failed to be deployed.', example='NotDeployed'),
   domainId?: string(name='domainId', description='Specifies to filter routes by domain ID.', example='d-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
+  forDeploy?: boolean(name='forDeploy'),
   gatewayId?: string(name='gatewayId', description='The ID of the Cloud-native API Gateway instance.', example='gw-cpv4sqdl****'),
   name?: string(name='name', description='The route name.', example='itemcenter-gateway'),
   nameLike?: string(name='nameLike', description='The route name keyword for a fuzzy search.', example='item'),
@@ -4047,6 +4192,9 @@ async function listHttpApiRoutesWithOptions(httpApiId: string, request: ListHttp
   if (!Util.isUnset(request.environmentId)) {
     query['environmentId'] = request.environmentId;
   }
+  if (!Util.isUnset(request.forDeploy)) {
+    query['forDeploy'] = request.forDeploy;
+  }
   if (!Util.isUnset(request.gatewayId)) {
     query['gatewayId'] = request.gatewayId;
   }
@@ -4090,11 +4238,7 @@ async function listHttpApiRoutesWithOptions(httpApiId: string, request: ListHttp
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4111,6 +4255,7 @@ async function listHttpApiRoutes(httpApiId: string, request: ListHttpApiRoutesRe
 
 model ListHttpApisRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the Cloud-native API Gateway instance.', example='gw-cq2avtllh****'),
+  gatewayType?: string(name='gatewayType'),
   keyword?: string(name='keyword', description='The search keyword. You can fuzzy-search by API name or exact-search by API ID.', example='test-'),
   name?: string(name='name', description='The API name that is used for the search. In this case, exact search is performed.', example='login'),
   pageNumber?: int32(name='pageNumber', description='The page number of the page to return. Pages start from page 1. Default value: 1.', example='1'),
@@ -4166,6 +4311,9 @@ async function listHttpApisWithOptions(request: ListHttpApisRequest, headers: ma
   var query : map[string]any = {};
   if (!Util.isUnset(request.gatewayId)) {
     query['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
   }
   if (!Util.isUnset(request.keyword)) {
     query['keyword'] = request.keyword;
@@ -4228,11 +4376,7 @@ async function listHttpApisWithOptions(request: ListHttpApisRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4245,6 +4389,127 @@ async function listHttpApis(request: ListHttpApisRequest): ListHttpApisResponse 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listHttpApisWithOptions(request, headers, runtime);
+}
+
+model ListPluginsRequest {
+  attachResourceId?: string(name='attachResourceId', example='api-cuip2pum1hksng6oni3g'),
+  attachResourceType?: string(name='attachResourceType', example='HttpApi'),
+  gatewayId?: string(name='gatewayId', example='gw-csrhgn6m1hkt65qbxxgg'),
+  gatewayType?: string(name='gatewayType', example='AI'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  pluginClassId?: string(name='pluginClassId', example='pls-dn82a9djd8z****'),
+  pluginClassName?: string(name='pluginClassName', example='key-auth'),
+  withAttachmentInfo?: boolean(name='withAttachmentInfo', example='false'),
+}
+
+model ListPluginsResponseBody = {
+  code?: string(name='code', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        attachmentInfo?: {
+          enable?: string(name='enable', example='false'),
+          pluginAttachmentId?: string(name='pluginAttachmentId', example='pa-ct2irn6m1hkreaen0t40'),
+        }(name='attachmentInfo'),
+        gatewayInfo?: {
+          gatewayId?: string(name='gatewayId', example='gw-cq7og15lhtxx6qasrj60'),
+          name?: string(name='name', example='apitest-gw'),
+        }(name='gatewayInfo'),
+        pluginClassInfo?: {
+          alias?: string(name='alias'),
+          executePriority?: string(name='executePriority', example='999'),
+          executeStage?: string(name='executeStage', example='AUTHZ'),
+          name?: string(name='name', example='key-rate-limit'),
+          pluginClassId?: string(name='pluginClassId', example='pls-cqebrgh46ppatmpri'),
+          source?: string(name='source', example='HigressOfficial'),
+          version?: string(name='version', example='2.0.3'),
+          versionDescription?: string(name='versionDescription'),
+        }(name='pluginClassInfo'),
+        pluginId?: string(name='pluginId', example='pl-cvu6r4um1hko3b3ti0a0'),
+      }
+    ](name='items'),
+    pageNumber?: int32(name='pageNumber', example='1'),
+    pageSize?: int32(name='pageSize', example='10'),
+    totalSize?: int32(name='totalSize', example='10'),
+  }(name='data'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='168BA42D-F822-569D-A67F-FC59E6ABC2B1'),
+}
+
+model ListPluginsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPluginsResponseBody(name='body'),
+}
+
+/**
+ * @summary ListPlugins
+ *
+ * @param request ListPluginsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPluginsResponse
+ */
+async function listPluginsWithOptions(request: ListPluginsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListPluginsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.attachResourceId)) {
+    query['attachResourceId'] = request.attachResourceId;
+  }
+  if (!Util.isUnset(request.attachResourceType)) {
+    query['attachResourceType'] = request.attachResourceType;
+  }
+  if (!Util.isUnset(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.gatewayType)) {
+    query['gatewayType'] = request.gatewayType;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.pluginClassId)) {
+    query['pluginClassId'] = request.pluginClassId;
+  }
+  if (!Util.isUnset(request.pluginClassName)) {
+    query['pluginClassName'] = request.pluginClassName;
+  }
+  if (!Util.isUnset(request.withAttachmentInfo)) {
+    query['withAttachmentInfo'] = request.withAttachmentInfo;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListPlugins',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugins`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListPlugins
+ *
+ * @param request ListPluginsRequest
+ * @return ListPluginsResponse
+ */
+async function listPlugins(request: ListPluginsRequest): ListPluginsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPluginsWithOptions(request, headers, runtime);
 }
 
 model ListPolicyClassesRequest {
@@ -4328,11 +4593,7 @@ async function listPolicyClassesWithOptions(request: ListPolicyClassesRequest, h
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4439,11 +4700,7 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4524,11 +4781,7 @@ async function listSslCertsWithOptions(request: ListSslCertsRequest, headers: ma
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4584,11 +4837,7 @@ async function listZonesWithOptions(headers: map[string]string, runtime: Util.Ru
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4636,11 +4885,7 @@ async function restartGatewayWithOptions(gatewayId: string, headers: map[string]
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4656,6 +4901,8 @@ async function restartGateway(gatewayId: string): RestartGatewayResponse {
 
 model UndeployHttpApiRequest {
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cqsmtellhtgvo***'),
+  gatewayId?: string(name='gatewayId'),
+  operationId?: string(name='operationId'),
   routeId?: string(name='routeId', description='Route ID. This must be provided when publishing the route of an HTTP API.', example='hr-cr82undlhtgrle***'),
 }
 
@@ -4685,6 +4932,12 @@ async function undeployHttpApiWithOptions(httpApiId: string, request: UndeployHt
   if (!Util.isUnset(request.environmentId)) {
     body['environmentId'] = request.environmentId;
   }
+  if (!Util.isUnset(request.gatewayId)) {
+    body['gatewayId'] = request.gatewayId;
+  }
+  if (!Util.isUnset(request.operationId)) {
+    body['operationId'] = request.operationId;
+  }
   if (!Util.isUnset(request.routeId)) {
     body['routeId'] = request.routeId;
   }
@@ -4704,11 +4957,7 @@ async function undeployHttpApiWithOptions(httpApiId: string, request: UndeployHt
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4823,11 +5072,7 @@ async function updateDomainWithOptions(domainId: string, request: UpdateDomainRe
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4897,11 +5142,7 @@ async function updateEnvironmentWithOptions(environmentId: string, request: Upda
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -4965,11 +5206,7 @@ async function updateGatewayFeatureWithOptions(gatewayId: string, name: string, 
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5030,11 +5267,7 @@ async function updateGatewayNameWithOptions(gatewayId: string, request: UpdateGa
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5137,11 +5370,7 @@ async function updateHttpApiWithOptions(httpApiId: string, request: UpdateHttpAp
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5202,11 +5431,7 @@ async function updateHttpApiOperationWithOptions(httpApiId: string, operationId:
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5244,6 +5469,9 @@ Valid values:
       }
     ](name='services', description='The backend services.'),
   }(name='backendConfig', description='The backend service configurations of the route.'),
+  deployConfigs?: [
+    HttpApiDeployConfig
+  ](name='deployConfigs'),
   description?: string(name='description', description='The route description.', example='test route'),
   domainIds?: [ string ](name='domainIds', description='The domain IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cquqsollhtgid***'),
@@ -5276,6 +5504,9 @@ async function updateHttpApiRouteWithOptions(httpApiId: string, routeId: string,
   if (!Util.isUnset(request.backendConfig)) {
     body['backendConfig'] = request.backendConfig;
   }
+  if (!Util.isUnset(request.deployConfigs)) {
+    body['deployConfigs'] = request.deployConfigs;
+  }
   if (!Util.isUnset(request.description)) {
     body['description'] = request.description;
   }
@@ -5304,11 +5535,7 @@ async function updateHttpApiRouteWithOptions(httpApiId: string, routeId: string,
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5321,6 +5548,75 @@ async function updateHttpApiRoute(httpApiId: string, routeId: string, request: U
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateHttpApiRouteWithOptions(httpApiId, routeId, request, headers, runtime);
+}
+
+model UpdatePluginAttachmentRequest {
+  attachResourceIds?: [ string ](name='attachResourceIds'),
+  enable?: boolean(name='enable', example='false'),
+  pluginConfig?: string(name='pluginConfig', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
+}
+
+model UpdatePluginAttachmentResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='F330090D-80F8-557B-8610-7EC7E386B4A4'),
+}
+
+model UpdatePluginAttachmentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePluginAttachmentResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新挂载规则API
+ *
+ * @param request UpdatePluginAttachmentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdatePluginAttachmentResponse
+ */
+async function updatePluginAttachmentWithOptions(pluginAttachmentId: string, request: UpdatePluginAttachmentRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdatePluginAttachmentResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.attachResourceIds)) {
+    body['attachResourceIds'] = request.attachResourceIds;
+  }
+  if (!Util.isUnset(request.enable)) {
+    body['enable'] = request.enable;
+  }
+  if (!Util.isUnset(request.pluginConfig)) {
+    body['pluginConfig'] = request.pluginConfig;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdatePluginAttachment',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/plugin-attachments/${OpenApiUtil.getEncodeParam(pluginAttachmentId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新挂载规则API
+ *
+ * @param request UpdatePluginAttachmentRequest
+ * @return UpdatePluginAttachmentResponse
+ */
+async function updatePluginAttachment(pluginAttachmentId: string, request: UpdatePluginAttachmentRequest): UpdatePluginAttachmentResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updatePluginAttachmentWithOptions(pluginAttachmentId, request, headers, runtime);
 }
 
 model UpdatePolicyRequest {
@@ -5381,11 +5677,7 @@ async function updatePolicyWithOptions(policyId: string, request: UpdatePolicyRe
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
@@ -5446,11 +5738,7 @@ async function upgradeGatewayWithOptions(gatewayId: string, request: UpgradeGate
     reqBodyType = 'json',
     bodyType = 'json',
   };
-  if (Util.isUnset(@signatureVersion) || !Util.equalString(@signatureVersion, 'v4')) {
-    return callApi(params, req, runtime);
-  } else {
-    return execute(params, req, runtime);
-  }
+  return callApi(params, req, runtime);
 }
 
 /**
