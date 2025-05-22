@@ -966,7 +966,11 @@ model PriceEstimateFeature {
   appType?: string(name='AppType', description='This parameter is required.', example='Web/MicroService'),
   cpuCore?: float(name='CpuCore', description='This parameter is required.', example='1'),
   cpuStrategy?: string(name='CpuStrategy', description='This parameter is required.', example='Request/Always'),
+  cpuUtilLevel?: string(name='CpuUtilLevel', example='L1'),
+  cpuUtilMetrics?: [ float ](name='CpuUtilMetrics'),
+  enableCpuIdle?: boolean(name='EnableCpuIdle', example='true'),
   envType?: string(name='EnvType', description='This parameter is required.', example='Test/Production'),
+  ephemeralStorageGiB?: long(name='EphemeralStorageGiB', example='30'),
   highLoadInstanceCount?: long(name='HighLoadInstanceCount', example='3'),
   highLoadQps?: float(name='HighLoadQps', example='5'),
   highLoadSeconds?: long(name='HighLoadSeconds', example='3600'),
@@ -978,9 +982,11 @@ model PriceEstimateFeature {
   maxInstanceCount?: long(name='MaxInstanceCount', example='10'),
   memoryGiB?: float(name='MemoryGiB', description='This parameter is required.', example='1'),
   minInstanceCount?: long(name='MinInstanceCount', example='1'),
+  newSaeVersion?: string(name='NewSaeVersion', example='std'),
   noneLoadInstanceCount?: long(name='NoneLoadInstanceCount', example='0'),
   noneLoadSeconds?: long(name='NoneLoadSeconds', example='79200'),
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou'),
+  resourceType?: string(name='ResourceType', example='haiguang'),
 }
 
 model PriceEstimateOutput {
@@ -2164,6 +2170,7 @@ This parameter is required.', example='test'),
   enableNewArms?: boolean(name='EnableNewArms'),
   enableSidecarResourceIsolated?: boolean(name='EnableSidecarResourceIsolated'),
   envs?: string(name='Envs', description='[{"name":"envtmp","value":"0"}]', example='[{"name":"envtmp","value":"0"}]'),
+  gpuConfig?: string(name='GpuConfig'),
   imagePullSecrets?: string(name='ImagePullSecrets', example='10'),
   imageUrl?: string(name='ImageUrl', description='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1', example='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1'),
   initContainersConfig?: [
@@ -2251,6 +2258,7 @@ This parameter is required.', example='test'),
   enableNewArms?: boolean(name='EnableNewArms'),
   enableSidecarResourceIsolated?: boolean(name='EnableSidecarResourceIsolated'),
   envs?: string(name='Envs', description='[{"name":"envtmp","value":"0"}]', example='[{"name":"envtmp","value":"0"}]'),
+  gpuConfig?: string(name='GpuConfig'),
   imagePullSecrets?: string(name='ImagePullSecrets', example='10'),
   imageUrl?: string(name='ImageUrl', description='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1', example='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1'),
   initContainersConfigShrink?: string(name='InitContainersConfig'),
@@ -2408,6 +2416,9 @@ async function createApplicationWithOptions(tmpReq: CreateApplicationRequest, he
   }
   if (!Util.isUnset(request.envs)) {
     query['Envs'] = request.envs;
+  }
+  if (!Util.isUnset(request.gpuConfig)) {
+    query['GpuConfig'] = request.gpuConfig;
   }
   if (!Util.isUnset(request.imagePullSecrets)) {
     query['ImagePullSecrets'] = request.imagePullSecrets;
@@ -4652,6 +4663,77 @@ async function deleteIngress(request: DeleteIngressRequest): DeleteIngressRespon
   return deleteIngressWithOptions(request, headers, runtime);
 }
 
+model DeleteInstancesRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='017f39b8-dfa4-4e16-a84b-1dcee4b1****'),
+  instanceIds?: string(name='InstanceIds', description='This parameter is required.', example='demo-aaed579c-1f8a-431e-8705-97d18e91c7b4******'),
+}
+
+model DeleteInstancesResponseBody = {
+  code?: string(name='Code', example='200'),
+  data?: {
+    changeOrderId?: string(name='ChangeOrderId', example='01db03d3-3ee9-48b3-b3d0-dfce2d88****'),
+  }(name='Data'),
+  errorCode?: string(name='ErrorCode'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', example='true'),
+  traceId?: string(name='TraceId', example='0a981dd515966966104121683d****'),
+}
+
+model DeleteInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteInstancesResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除实例
+ *
+ * @param request DeleteInstancesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteInstancesResponse
+ */
+async function deleteInstancesWithOptions(request: DeleteInstancesRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteInstancesResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.instanceIds)) {
+    query['InstanceIds'] = request.instanceIds;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteInstances',
+    version = '2019-05-06',
+    protocol = 'HTTPS',
+    pathname = `/pop/v1/sam/app/deleteInstances`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除实例
+ *
+ * @param request DeleteInstancesRequest
+ * @return DeleteInstancesResponse
+ */
+async function deleteInstances(request: DeleteInstancesRequest): DeleteInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteInstancesWithOptions(request, headers, runtime);
+}
+
 model DeleteJobRequest {
   appId?: string(name='AppId', description='The ID of the job template that you want to delete.
 
@@ -5226,6 +5308,7 @@ In the preceding example, the CommandArgs parameter is set to `CommandArgs=["abc
     *   **valueFrom**: the reference of the environment variable. Set the value to `configMapRef`.
     *   **configMapId**: the ConfigMap ID.
     *   **key**: the key. If you want to reference all keys, do not configure this parameter.', example='[{"name":"envtmp","value":"0"}]'),
+  gpuConfig?: string(name='GpuConfig'),
   imagePullSecrets?: string(name='ImagePullSecrets', description='The ID of the corresponding Secret.', example='10'),
   imageUrl?: string(name='ImageUrl', description='The URL of the image. This parameter is returned only if the **PackageType** parameter is set to **Image**.', example='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1'),
   initContainersConfig?: [
@@ -5469,6 +5552,7 @@ In the preceding example, the CommandArgs parameter is set to `CommandArgs=["abc
     *   **valueFrom**: the reference of the environment variable. Set the value to `configMapRef`.
     *   **configMapId**: the ConfigMap ID.
     *   **key**: the key. If you want to reference all keys, do not configure this parameter.', example='[{"name":"envtmp","value":"0"}]'),
+  gpuConfig?: string(name='GpuConfig'),
   imagePullSecrets?: string(name='ImagePullSecrets', description='The ID of the corresponding Secret.', example='10'),
   imageUrl?: string(name='ImageUrl', description='The URL of the image. This parameter is returned only if the **PackageType** parameter is set to **Image**.', example='registry.cn-hangzhou.aliyuncs.com/sae_test/ali_sae_test:0.0.1'),
   initContainersConfigShrink?: string(name='InitContainersConfig'),
@@ -5743,6 +5827,9 @@ async function deployApplicationWithOptions(tmpReq: DeployApplicationRequest, he
   }
   if (!Util.isUnset(request.envs)) {
     query['Envs'] = request.envs;
+  }
+  if (!Util.isUnset(request.gpuConfig)) {
+    query['GpuConfig'] = request.gpuConfig;
   }
   if (!Util.isUnset(request.imagePullSecrets)) {
     query['ImagePullSecrets'] = request.imagePullSecrets;
@@ -14623,6 +14710,8 @@ model QueryResourceStaticsResponseBody = {
       cpu?: float(name='Cpu', description='The CPU usage. Unit: core per minute.', example='3354'),
       cu?: float(name='Cu'),
       ephemeralStorage?: float(name='EphemeralStorage'),
+      gpuA10?: float(name='GpuA10'),
+      gpuPpu810e?: float(name='GpuPpu810e'),
       idleCpu?: float(name='IdleCpu'),
       memory?: float(name='Memory', description='The memory usage. Unit: GiB per minute.', example='6708'),
     }(name='Summary', description='The resource usage of the current month.'),
