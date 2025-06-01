@@ -42,6 +42,20 @@ model DisposalContent {
   prohibitActions?: [ string ](name='ProhibitActions'),
 }
 
+model OpenStructSaseUserSimple {
+  departments?: [ 
+    {
+      departmentId?: string(name='DepartmentId'),
+      name?: string(name='Name'),
+    }
+  ](name='Departments'),
+  email?: string(name='Email'),
+  idpConfigId?: string(name='IdpConfigId'),
+  saseUserId?: string(name='SaseUserId'),
+  telephone?: string(name='Telephone'),
+  username?: string(name='Username'),
+}
+
 model PAL7Config {
   bypassConfig?: {
     appBypassFroms?: [ string ](name='AppBypassFroms'),
@@ -103,6 +117,11 @@ model PAL7ConfigRewriteOp {
 model RecoveryContent {
   authReportInterval?: AuthReportInterval(name='AuthReportInterval'),
   recoveryActions?: [ string ](name='RecoveryActions', description='This parameter is required.'),
+}
+
+model RiskSceneConfig {
+  detectChannel?: [ string ](name='DetectChannel'),
+  officeChannel?: [ string ](name='OfficeChannel'),
 }
 
 model Rule {
@@ -587,6 +606,93 @@ async function createDynamicRoute(request: CreateDynamicRouteRequest): CreateDyn
   return createDynamicRouteWithOptions(request, runtime);
 }
 
+model CreateEnterpriseAcceleratePolicyRequest {
+  accelerationType?: string(name='AccelerationType', example='whitelist'),
+  description?: string(name='Description'),
+  name?: string(name='Name'),
+  priority?: string(name='Priority', example='99'),
+  showInClient?: int32(name='ShowInClient', example='1'),
+  upstreamHost?: string(name='UpstreamHost', example='12.34.56.XX'),
+  upstreamPort?: int32(name='UpstreamPort', example='1000'),
+  upstreamType?: string(name='UpstreamType', example='ga'),
+  userAttributeGroup?: string(name='UserAttributeGroup'),
+}
+
+model CreateEnterpriseAcceleratePolicyResponseBody = {
+  requestId?: string(name='RequestId', example='2CABFEBB-0CE7-575E-833A-266F75D46713'),
+}
+
+model CreateEnterpriseAcceleratePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEnterpriseAcceleratePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建加速策略
+ *
+ * @param request CreateEnterpriseAcceleratePolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEnterpriseAcceleratePolicyResponse
+ */
+async function createEnterpriseAcceleratePolicyWithOptions(request: CreateEnterpriseAcceleratePolicyRequest, runtime: $RuntimeOptions): CreateEnterpriseAcceleratePolicyResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.accelerationType)) {
+    body['AccelerationType'] = request.accelerationType;
+  }
+  if (!$isNull(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.priority)) {
+    body['Priority'] = request.priority;
+  }
+  if (!$isNull(request.showInClient)) {
+    body['ShowInClient'] = request.showInClient;
+  }
+  if (!$isNull(request.upstreamHost)) {
+    body['UpstreamHost'] = request.upstreamHost;
+  }
+  if (!$isNull(request.upstreamPort)) {
+    body['UpstreamPort'] = request.upstreamPort;
+  }
+  if (!$isNull(request.upstreamType)) {
+    body['UpstreamType'] = request.upstreamType;
+  }
+  if (!$isNull(request.userAttributeGroup)) {
+    body['UserAttributeGroup'] = request.userAttributeGroup;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateEnterpriseAcceleratePolicy',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建加速策略
+ *
+ * @param request CreateEnterpriseAcceleratePolicyRequest
+ * @return CreateEnterpriseAcceleratePolicyResponse
+ */
+async function createEnterpriseAcceleratePolicy(request: CreateEnterpriseAcceleratePolicyRequest): CreateEnterpriseAcceleratePolicyResponse {
+  var runtime = new $RuntimeOptions{};
+  return createEnterpriseAcceleratePolicyWithOptions(request, runtime);
+}
+
 model CreateIdpDepartmentRequest {
   departmentName?: string(name='DepartmentName', description='This parameter is required.'),
   idpConfigId?: string(name='IdpConfigId', description='This parameter is required.', example='1222'),
@@ -648,46 +754,94 @@ async function createIdpDepartment(request: CreateIdpDepartmentRequest): CreateI
 }
 
 model CreatePrivateAccessApplicationRequest {
-  addresses?: [ string ](name='Addresses', description='This parameter is required.'),
-  browserAccessStatus?: string(name='BrowserAccessStatus'),
-  description?: string(name='Description'),
-  l7Config?: PAL7Config(name='L7Config'),
-  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix'),
-  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom'),
-  name?: string(name='Name', description='This parameter is required.', example='private_access_application_name'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.
+
+This parameter is required.'),
+  browserAccessStatus?: string(name='BrowserAccessStatus', description='Specifies whether to allow access from a browser. Default value: **Disabled**. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Disabled'),
+  description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.'),
+  l7Config?: PAL7Config(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
+  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app-sample'),
+  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom', description='The browser access mode parameter. The parameter specifies the custom domain name of the proxy gateway. Enter a valid domain name.', example='app1.example.com'),
+  name?: string(name='Name', description='The name of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), and hyphens (-).
+
+This parameter is required.', example='private_access_application_name'),
   portRanges?: [ 
     {
-      begin?: int32(name='Begin', description='This parameter is required.', example='80'),
-      end?: int32(name='End', description='This parameter is required.', example='81'),
+      begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.
+
+This parameter is required.', example='80'),
+      end?: int32(name='End', description='The end port. The end port must be greater than or equal to the start port.
+
+This parameter is required.', example='81'),
     }
-  ](name='PortRanges', description='This parameter is required.'),
-  protocol?: string(name='Protocol', description='This parameter is required.', example='All'),
-  status?: string(name='Status', description='This parameter is required.', example='Enabled'),
-  tagIds?: [ string ](name='TagIds'),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.
+
+This parameter is required.'),
+  protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
+
+*   **All**
+*   **TCP**
+*   **UDP**
+
+This parameter is required.', example='All'),
+  status?: string(name='Status', description='The status of the office application. Valid values:
+
+*   **Enabled**
+*   **Disabled**
+
+This parameter is required.', example='Enabled'),
+  tagIds?: [ string ](name='TagIds', description='The IDs of the tags for the office applications. You can add up to six custom tags to an office application.'),
 }
 
 model CreatePrivateAccessApplicationShrinkRequest {
-  addresses?: [ string ](name='Addresses', description='This parameter is required.'),
-  browserAccessStatus?: string(name='BrowserAccessStatus'),
-  description?: string(name='Description'),
-  l7ConfigShrink?: string(name='L7Config'),
-  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix'),
-  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom'),
-  name?: string(name='Name', description='This parameter is required.', example='private_access_application_name'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.
+
+This parameter is required.'),
+  browserAccessStatus?: string(name='BrowserAccessStatus', description='Specifies whether to allow access from a browser. Default value: **Disabled**. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Disabled'),
+  description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.'),
+  l7ConfigShrink?: string(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
+  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app-sample'),
+  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom', description='The browser access mode parameter. The parameter specifies the custom domain name of the proxy gateway. Enter a valid domain name.', example='app1.example.com'),
+  name?: string(name='Name', description='The name of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), and hyphens (-).
+
+This parameter is required.', example='private_access_application_name'),
   portRanges?: [ 
     {
-      begin?: int32(name='Begin', description='This parameter is required.', example='80'),
-      end?: int32(name='End', description='This parameter is required.', example='81'),
+      begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.
+
+This parameter is required.', example='80'),
+      end?: int32(name='End', description='The end port. The end port must be greater than or equal to the start port.
+
+This parameter is required.', example='81'),
     }
-  ](name='PortRanges', description='This parameter is required.'),
-  protocol?: string(name='Protocol', description='This parameter is required.', example='All'),
-  status?: string(name='Status', description='This parameter is required.', example='Enabled'),
-  tagIds?: [ string ](name='TagIds'),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.
+
+This parameter is required.'),
+  protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
+
+*   **All**
+*   **TCP**
+*   **UDP**
+
+This parameter is required.', example='All'),
+  status?: string(name='Status', description='The status of the office application. Valid values:
+
+*   **Enabled**
+*   **Disabled**
+
+This parameter is required.', example='Enabled'),
+  tagIds?: [ string ](name='TagIds', description='The IDs of the tags for the office applications. You can add up to six custom tags to an office application.'),
 }
 
 model CreatePrivateAccessApplicationResponseBody = {
-  applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-  requestId?: string(name='RequestId', example='BE4FB974-11BC-5453-9BE1-1606A73EACA6'),
+  applicationId?: string(name='ApplicationId', description='The ID of the office application.', example='pa-application-e12860ef6c48****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='BE4FB974-11BC-5453-9BE1-1606A73EACA6'),
 }
 
 model CreatePrivateAccessApplicationResponse = {
@@ -697,7 +851,9 @@ model CreatePrivateAccessApplicationResponse = {
 }
 
 /**
- * @summary 创建内网访问应用
+ * @summary Creates an office application within the current Alibaba Cloud account.
+ *
+ * @description By default, you can create a maximum of 500 office applications.
  *
  * @param tmpReq CreatePrivateAccessApplicationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -768,7 +924,9 @@ async function createPrivateAccessApplicationWithOptions(tmpReq: CreatePrivateAc
 }
 
 /**
- * @summary 创建内网访问应用
+ * @summary Creates an office application within the current Alibaba Cloud account.
+ *
+ * @description By default, you can create a maximum of 500 office applications.
  *
  * @param request CreatePrivateAccessApplicationRequest
  * @return CreatePrivateAccessApplicationResponse
@@ -1440,38 +1598,92 @@ async function createWmEmbedTask(request: CreateWmEmbedTaskRequest): CreateWmEmb
 
 model CreateWmExtractTaskRequest {
   csvControl?: {
-    embedBitsNumberInEachTime?: long(name='EmbedBitsNumberInEachTime'),
-    embedColumn?: long(name='EmbedColumn'),
-    embedPrecision?: long(name='EmbedPrecision'),
-    embedTimePosition?: string(name='EmbedTimePosition'),
-    method?: string(name='Method'),
-    timeFormat?: string(name='TimeFormat'),
-  }(name='CsvControl'),
-  documentIsCapture?: boolean(name='DocumentIsCapture', example='false'),
-  fileUrl?: string(name='FileUrl', description='This parameter is required.', example='https://example.com/test-****.pdf'),
-  filename?: string(name='Filename', description='This parameter is required.', example='test-****.pdf'),
-  videoIsLong?: boolean(name='VideoIsLong', example='false'),
-  videoSpeed?: string(name='VideoSpeed', example='1'),
-  wmInfoSize?: long(name='WmInfoSize', example='32'),
-  wmType?: string(name='WmType', description='This parameter is required.', example='PureDocument'),
+    embedBitsNumberInEachTime?: long(name='EmbedBitsNumberInEachTime', description='The timestamp watermark parameter that specifies how much information a single timestamp holds. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='1'),
+    embedColumn?: long(name='EmbedColumn', description='The lossy embedding control parameter that specifies columns to be modified You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='1'),
+    embedPrecision?: long(name='EmbedPrecision', description='The lossy embedding control parameter that specifies the modification precision. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='0'),
+    embedTimePosition?: string(name='EmbedTimePosition', description='The timestamp watermark parameter that specifies the embedding position of the timestamp watermarks. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='Min'),
+    method?: string(name='Method', description='The CSV watermark embedding method. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='lossless_row_shift_embed'),
+    timeFormat?: string(name='TimeFormat', description='The timestamp watermark parameter that specifies the timestamp format. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.', example='Year-Mon-Day Hour:Min:Sec.MilSec'),
+  }(name='CsvControl', description='The CSV watermark control parameter. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.'),
+  documentIsCapture?: boolean(name='DocumentIsCapture', description='The document watermark parameter that specifies whether the file to be extracted is a screenshot of a document with a background watermark added. The system determines whether to use the extraction logic for document background watermarks based on whether the file to be extracted is an image file. By default, you do not need to configure this parameter. Valid values:
+
+*   **true**
+*   **false**', example='false'),
+  fileUrl?: string(name='FileUrl', description='The URL used to download the file to be extracted. The URL must be accessible over the Internet.
+
+This parameter is required.', example='https://example.com/test-****.pdf'),
+  filename?: string(name='Filename', description='The name of the file to be extracted. The system needs to check the file type based on the file name extension.
+
+This parameter is required.', example='test-****.pdf'),
+  videoIsLong?: boolean(name='VideoIsLong', description='The watermark parameter for videos that specifies whether to use the long video watermark SDK. Default value: false. Valid values:
+
+*   **true**
+*   **false**', example='false'),
+  videoSpeed?: string(name='VideoSpeed', description='The watermark parameter for long videos that specifies the video speed factor. The value can be a floating-point number or a string. Default value: 1. This parameter indicates the speed at which a watermark is added or the time-stretching rate for videos after a watermark is added.', example='1'),
+  wmInfoSize?: long(name='WmInfoSize', description='The watermark information size. Default value: 32. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. For example, if a 40-bit watermark is used for watermark embedding, you must set this parameter to 40 for watermark extraction.', example='32'),
+  wmType?: string(name='WmType', description='The watermark type. Valid values:
+
+*   **PureWebappInvisible**: web page watermark
+*   **PureAppInvisible**: app watermark
+*   **PureScreenInvisible**: screen watermark
+*   **PureDocument**: document watermark
+*   **PureImage**: image watermark
+*   **PureAudio**: audio watermark
+*   **PureVideo**: video watermark
+*   **AigcWebappInvisible**: artificial intelligence generated content (AIGC)-based webpage watermark
+*   **AigcAppInvisible**: AIGC-based app watermark
+*   **AigcScreenInvisible**: AIGC-based screen watermark
+*   **AigcDocument**: AIGC-based document watermark
+*   **AigcImage**: AIGC-based image watermark
+*   **AigcAudio**: AIGC-based audio watermark
+*   **AigcVideo**: AIGC-based video watermark
+
+This parameter is required.', example='PureDocument'),
 }
 
 model CreateWmExtractTaskShrinkRequest {
-  csvControlShrink?: string(name='CsvControl'),
-  documentIsCapture?: boolean(name='DocumentIsCapture', example='false'),
-  fileUrl?: string(name='FileUrl', description='This parameter is required.', example='https://example.com/test-****.pdf'),
-  filename?: string(name='Filename', description='This parameter is required.', example='test-****.pdf'),
-  videoIsLong?: boolean(name='VideoIsLong', example='false'),
-  videoSpeed?: string(name='VideoSpeed', example='1'),
-  wmInfoSize?: long(name='WmInfoSize', example='32'),
-  wmType?: string(name='WmType', description='This parameter is required.', example='PureDocument'),
+  csvControlShrink?: string(name='CsvControl', description='The CSV watermark control parameter. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. Otherwise, the extraction fails.'),
+  documentIsCapture?: boolean(name='DocumentIsCapture', description='The document watermark parameter that specifies whether the file to be extracted is a screenshot of a document with a background watermark added. The system determines whether to use the extraction logic for document background watermarks based on whether the file to be extracted is an image file. By default, you do not need to configure this parameter. Valid values:
+
+*   **true**
+*   **false**', example='false'),
+  fileUrl?: string(name='FileUrl', description='The URL used to download the file to be extracted. The URL must be accessible over the Internet.
+
+This parameter is required.', example='https://example.com/test-****.pdf'),
+  filename?: string(name='Filename', description='The name of the file to be extracted. The system needs to check the file type based on the file name extension.
+
+This parameter is required.', example='test-****.pdf'),
+  videoIsLong?: boolean(name='VideoIsLong', description='The watermark parameter for videos that specifies whether to use the long video watermark SDK. Default value: false. Valid values:
+
+*   **true**
+*   **false**', example='false'),
+  videoSpeed?: string(name='VideoSpeed', description='The watermark parameter for long videos that specifies the video speed factor. The value can be a floating-point number or a string. Default value: 1. This parameter indicates the speed at which a watermark is added or the time-stretching rate for videos after a watermark is added.', example='1'),
+  wmInfoSize?: long(name='WmInfoSize', description='The watermark information size. Default value: 32. You must keep the value of this parameter consistent for watermark embedding and watermark extraction. For example, if a 40-bit watermark is used for watermark embedding, you must set this parameter to 40 for watermark extraction.', example='32'),
+  wmType?: string(name='WmType', description='The watermark type. Valid values:
+
+*   **PureWebappInvisible**: web page watermark
+*   **PureAppInvisible**: app watermark
+*   **PureScreenInvisible**: screen watermark
+*   **PureDocument**: document watermark
+*   **PureImage**: image watermark
+*   **PureAudio**: audio watermark
+*   **PureVideo**: video watermark
+*   **AigcWebappInvisible**: artificial intelligence generated content (AIGC)-based webpage watermark
+*   **AigcAppInvisible**: AIGC-based app watermark
+*   **AigcScreenInvisible**: AIGC-based screen watermark
+*   **AigcDocument**: AIGC-based document watermark
+*   **AigcImage**: AIGC-based image watermark
+*   **AigcAudio**: AIGC-based audio watermark
+*   **AigcVideo**: AIGC-based video watermark
+
+This parameter is required.', example='PureDocument'),
 }
 
 model CreateWmExtractTaskResponseBody = {
   data?: {
-    taskId?: string(name='TaskId', example='wmt-9648c22d2eb2cb57bb855dcae7898464********'),
-  }(name='Data'),
-  requestId?: string(name='RequestId', example='D6707286-A50E-57B1-B2CF-EFAC59E850D8'),
+    taskId?: string(name='TaskId', description='The task ID. You can use task IDs to query task results.', example='wmt-9648c22d2eb2cb57bb855dcae7898464********'),
+  }(name='Data', description='The information about the watermark extraction task.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='D6707286-A50E-57B1-B2CF-EFAC59E850D8'),
 }
 
 model CreateWmExtractTaskResponse = {
@@ -1481,7 +1693,7 @@ model CreateWmExtractTaskResponse = {
 }
 
 /**
- * @summary 创建文件水印提取任务
+ * @summary Creates a digital watermark extraction task.
  *
  * @param tmpReq CreateWmExtractTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1539,7 +1751,7 @@ async function createWmExtractTaskWithOptions(tmpReq: CreateWmExtractTaskRequest
 }
 
 /**
- * @summary 创建文件水印提取任务
+ * @summary Creates a digital watermark extraction task.
  *
  * @param request CreateWmExtractTaskRequest
  * @return CreateWmExtractTaskResponse
@@ -1843,6 +2055,61 @@ async function deleteIdpDepartmentWithOptions(request: DeleteIdpDepartmentReques
 async function deleteIdpDepartment(request: DeleteIdpDepartmentRequest): DeleteIdpDepartmentResponse {
   var runtime = new $RuntimeOptions{};
   return deleteIdpDepartmentWithOptions(request, runtime);
+}
+
+model DeleteOtpConfigRequest {
+  username?: string(name='Username'),
+}
+
+model DeleteOtpConfigResponseBody = {
+  requestId?: string(name='RequestId', example='54A4055A-343D-583E-9EAC-D12231148A68'),
+}
+
+model DeleteOtpConfigResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteOtpConfigResponseBody(name='body'),
+}
+
+/**
+ * @summary DeleteOtpConfig
+ *
+ * @param request DeleteOtpConfigRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteOtpConfigResponse
+ */
+async function deleteOtpConfigWithOptions(request: DeleteOtpConfigRequest, runtime: $RuntimeOptions): DeleteOtpConfigResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.username)) {
+    body['Username'] = request.username;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteOtpConfig',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary DeleteOtpConfig
+ *
+ * @param request DeleteOtpConfigRequest
+ * @return DeleteOtpConfigResponse
+ */
+async function deleteOtpConfig(request: DeleteOtpConfigRequest): DeleteOtpConfigResponse {
+  var runtime = new $RuntimeOptions{};
+  return deleteOtpConfigWithOptions(request, runtime);
 }
 
 model DeletePrivateAccessApplicationRequest {
@@ -3014,33 +3281,48 @@ async function getIdpConfig(request: GetIdpConfigRequest): GetIdpConfigResponse 
 }
 
 model GetPrivateAccessApplicationRequest {
-  applicationId?: string(name='ApplicationId', description='This parameter is required.', example='pa-application-e12860ef6c48****'),
+  applicationId?: string(name='ApplicationId', description='The ID of the office application. You can obtain the value by calling the following operations:
+
+*   [ListPrivateAccessApplications](~~ListPrivateAccessApplications~~): queries office applications.
+*   [CreatePrivateAccessApplication](~~CreatePrivateAccessApplication~~): creates an office application.
+
+This parameter is required.', example='pa-application-e12860ef6c48****'),
 }
 
 model GetPrivateAccessApplicationResponseBody = {
   application?: {
-    addresses?: [ string ](name='Addresses'),
-    applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-    browserAccessStatus?: string(name='BrowserAccessStatus'),
-    connectorIds?: [ string ](name='ConnectorIds'),
-    createTime?: string(name='CreateTime', example='2022-08-30 16:50:32'),
-    description?: string(name='Description'),
-    l7Config?: PAL7Config(name='L7Config'),
-    l7ProxyDomainAutomatic?: string(name='L7ProxyDomainAutomatic'),
-    l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom'),
-    name?: string(name='Name', example='private_access_application_name'),
-    policyIds?: [ string ](name='PolicyIds'),
+    addresses?: [ string ](name='Addresses', description='The addresses of the office applications.'),
+    applicationId?: string(name='ApplicationId', description='The ID of the office application.', example='pa-application-e12860ef6c48****'),
+    browserAccessStatus?: string(name='BrowserAccessStatus', description='The browser access mode. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Enabled'),
+    connectorIds?: [ string ](name='ConnectorIds', description='The IDs of connectors.'),
+    createTime?: string(name='CreateTime', description='The creation time of the office application.', example='2022-08-30 16:50:32'),
+    description?: string(name='Description', description='The description of the office application.'),
+    l7Config?: PAL7Config(name='L7Config', description='The browser access mode parameter. The parameter indicates the configurations of Layer 7 applications.'),
+    l7ProxyDomainAutomatic?: string(name='L7ProxyDomainAutomatic', description='The browser access mode parameter. The parameter indicates the domain name that the proxy gateway uses.', example='app.example.com'),
+    l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom', description='The browser access mode parameter. The parameter indicates the custom domain name of the proxy gateway.', example='app.example.com'),
+    name?: string(name='Name', description='The name of the office application.', example='private_access_application_name'),
+    policyIds?: [ string ](name='PolicyIds', description='The IDs of the private access policies.'),
     portRanges?: [ 
       {
-        begin?: int32(name='Begin', example='80'),
-        end?: int32(name='End', example='81'),
+        begin?: int32(name='Begin', description='The start port.', example='80'),
+        end?: int32(name='End', description='The end port.', example='81'),
       }
-    ](name='PortRanges'),
-    protocol?: string(name='Protocol', example='All'),
-    status?: string(name='Status', example='Enabled'),
-    tagIds?: [ string ](name='TagIds'),
-  }(name='Application'),
-  requestId?: string(name='RequestId', example='3ACC5EDC-2B7D-5032-8C58-D7615D66C1D4'),
+    ](name='PortRanges', description='The port ranges of the office applications. Multiple port ranges cannot be duplicated or overlapped.'),
+    protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
+
+*   **All**
+*   **TCP**
+*   **UDP**', example='All'),
+    status?: string(name='Status', description='The status of the office application. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Enabled'),
+    tagIds?: [ string ](name='TagIds', description='The IDs of the tags for the office applications.'),
+  }(name='Application', description='The office application.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='3ACC5EDC-2B7D-5032-8C58-D7615D66C1D4'),
 }
 
 model GetPrivateAccessApplicationResponse = {
@@ -3050,7 +3332,7 @@ model GetPrivateAccessApplicationResponse = {
 }
 
 /**
- * @summary 查询内网访问应用详情
+ * @summary Queries the details of the office applications that belong to the current Alibaba Cloud account.
  *
  * @param request GetPrivateAccessApplicationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3077,7 +3359,7 @@ async function getPrivateAccessApplicationWithOptions(request: GetPrivateAccessA
 }
 
 /**
- * @summary 查询内网访问应用详情
+ * @summary Queries the details of the office applications that belong to the current Alibaba Cloud account.
  *
  * @param request GetPrivateAccessApplicationRequest
  * @return GetPrivateAccessApplicationResponse
@@ -3266,6 +3548,7 @@ model GetUserDeviceResponseBody = {
     iaStatus?: string(name='IaStatus', example='Disabled'),
     innerIP?: string(name='InnerIP', example='172.16.XX.XX'),
     mac?: string(name='Mac', example='48:9e:XX:XX:02:80'),
+    matchDeviceGroupIds?: [ string ](name='MatchDeviceGroupIds'),
     memory?: string(name='Memory', example='16'),
     nacStatus?: string(name='NacStatus', example='Unprovisioned'),
     netInterfaceInfo?: [ 
@@ -6055,6 +6338,7 @@ model ListUserDevicesRequest {
   currentPage?: long(name='CurrentPage', description='This parameter is required.', example='1'),
   department?: string(name='Department'),
   deviceBelong?: string(name='DeviceBelong', example='Company'),
+  deviceGroupId?: string(name='DeviceGroupId'),
   deviceStatuses?: [ string ](name='DeviceStatuses'),
   deviceTags?: [ string ](name='DeviceTags'),
   deviceTypes?: [ string ](name='DeviceTypes'),
@@ -6094,6 +6378,7 @@ model ListUserDevicesResponseBody = {
       iaStatus?: string(name='IaStatus', example='Enabled'),
       innerIP?: string(name='InnerIP', example='192.168.XX.XX'),
       mac?: string(name='Mac', example='00:16:XX:XX:7c:46'),
+      matchDeviceGroupIds?: [ string ](name='MatchDeviceGroupIds'),
       memory?: string(name='Memory', example='16'),
       nacStatus?: string(name='NacStatus', example='Enabled'),
       netInterfaceInfo?: [ 
@@ -7534,47 +7819,77 @@ async function updateNacUserCertStatus(request: UpdateNacUserCertStatusRequest):
 }
 
 model UpdatePrivateAccessApplicationRequest {
-  addresses?: [ string ](name='Addresses'),
-  applicationId?: string(name='ApplicationId', description='This parameter is required.', example='pa-application-e12860ef6c48****'),
-  description?: string(name='Description', nullable=true),
-  l7Config?: PAL7Config(name='L7Config'),
-  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix'),
-  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom'),
-  l7ProxyDomainPrivate?: string(name='L7ProxyDomainPrivate', deprecated=true),
-  modifyType?: string(name='ModifyType', example='Cover'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
+  applicationId?: string(name='ApplicationId', description='The ID of the office application. You can obtain the value by calling the following operations:
+
+*   [ListPrivateAccessApplications](~~ListPrivateAccessApplications~~): queries office applications.
+*   [CreatePrivateAccessApplication](~~CreatePrivateAccessApplication~~): creates an office application.
+
+This parameter is required.', example='pa-application-e12860ef6c48****'),
+  description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.', nullable=true),
+  l7Config?: PAL7Config(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
+  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app1-xxx'),
+  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom', description='The browser access mode parameter. The parameter specifies the custom domain name of the proxy gateway.', example='app1.example.com'),
+  l7ProxyDomainPrivate?: string(name='L7ProxyDomainPrivate', description='浏览器访问模式参数：私有代理域名。', example='app1.example.com', deprecated=true),
+  modifyType?: string(name='ModifyType', description='The modification type of the office application. Valid values:
+
+*   **Cover**: uses the values of the **Addresses**, **PortRanges**, and **TagIds** parameters to overwrite the original addresses, port ranges, and tag IDs. This is the default value.
+*   **Append**: adds the values of the **Addresses**, **PortRanges**, and **TagIds** parameters respectively to the original addresses, port ranges, and tag IDs.', example='Cover'),
   portRanges?: [ 
     {
-      begin?: int32(name='Begin', example='80'),
-      end?: int32(name='End', example='81'),
+      begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.', example='80'),
+      end?: int32(name='End', description='The end port. The end port must be greater than or equal to the start port.', example='81'),
     }
-  ](name='PortRanges'),
-  protocol?: string(name='Protocol', example='All'),
-  status?: string(name='Status', example='Enabled'),
-  tagIds?: [ string ](name='TagIds', nullable=true),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.'),
+  protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
+
+*   **All**
+*   **TCP**
+*   **UDP**', example='All'),
+  status?: string(name='Status', description='The status of the office application. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Enabled'),
+  tagIds?: [ string ](name='TagIds', description='The IDs of the tags for the office applications. You can add up to six custom tags to an office application.', nullable=true),
 }
 
 model UpdatePrivateAccessApplicationShrinkRequest {
-  addresses?: [ string ](name='Addresses'),
-  applicationId?: string(name='ApplicationId', description='This parameter is required.', example='pa-application-e12860ef6c48****'),
-  description?: string(name='Description', nullable=true),
-  l7ConfigShrink?: string(name='L7Config'),
-  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix'),
-  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom'),
-  l7ProxyDomainPrivate?: string(name='L7ProxyDomainPrivate', deprecated=true),
-  modifyType?: string(name='ModifyType', example='Cover'),
+  addresses?: [ string ](name='Addresses', description='The addresses of the office applications. You can enter up to 1,000 addresses of office applications.'),
+  applicationId?: string(name='ApplicationId', description='The ID of the office application. You can obtain the value by calling the following operations:
+
+*   [ListPrivateAccessApplications](~~ListPrivateAccessApplications~~): queries office applications.
+*   [CreatePrivateAccessApplication](~~CreatePrivateAccessApplication~~): creates an office application.
+
+This parameter is required.', example='pa-application-e12860ef6c48****'),
+  description?: string(name='Description', description='The description of the office application. The value must be 1 to 128 characters in length and can contain letters, digits, periods (.), underscores (_), hyphens (-), and spaces.', nullable=true),
+  l7ConfigShrink?: string(name='L7Config', description='The browser access mode parameter. The parameter specifies the configurations of Layer 7 applications.'),
+  l7ProxyDomainAutomaticPrefix?: string(name='L7ProxyDomainAutomaticPrefix', description='The browser access mode parameter. The parameter specifies the prefix of the domain name that the proxy gateway uses. The prefix must be 3 to 20 characters in length, and can contain lowercase letters, digits, and hyphens (-).', example='app1-xxx'),
+  l7ProxyDomainCustom?: string(name='L7ProxyDomainCustom', description='The browser access mode parameter. The parameter specifies the custom domain name of the proxy gateway.', example='app1.example.com'),
+  l7ProxyDomainPrivate?: string(name='L7ProxyDomainPrivate', description='浏览器访问模式参数：私有代理域名。', example='app1.example.com', deprecated=true),
+  modifyType?: string(name='ModifyType', description='The modification type of the office application. Valid values:
+
+*   **Cover**: uses the values of the **Addresses**, **PortRanges**, and **TagIds** parameters to overwrite the original addresses, port ranges, and tag IDs. This is the default value.
+*   **Append**: adds the values of the **Addresses**, **PortRanges**, and **TagIds** parameters respectively to the original addresses, port ranges, and tag IDs.', example='Cover'),
   portRanges?: [ 
     {
-      begin?: int32(name='Begin', example='80'),
-      end?: int32(name='End', example='81'),
+      begin?: int32(name='Begin', description='The start port. The start port must be less than or equal to the end port.', example='80'),
+      end?: int32(name='End', description='The end port. The end port must be greater than or equal to the start port.', example='81'),
     }
-  ](name='PortRanges'),
-  protocol?: string(name='Protocol', example='All'),
-  status?: string(name='Status', example='Enabled'),
-  tagIds?: [ string ](name='TagIds', nullable=true),
+  ](name='PortRanges', description='The port ranges of the office applications. You can enter up to 65,535 port ranges. Multiple port ranges cannot be duplicated or overlapped.'),
+  protocol?: string(name='Protocol', description='The protocol that is used by the office application. Valid values:
+
+*   **All**
+*   **TCP**
+*   **UDP**', example='All'),
+  status?: string(name='Status', description='The status of the office application. Valid values:
+
+*   **Enabled**
+*   **Disabled**', example='Enabled'),
+  tagIds?: [ string ](name='TagIds', description='The IDs of the tags for the office applications. You can add up to six custom tags to an office application.', nullable=true),
 }
 
 model UpdatePrivateAccessApplicationResponseBody = {
-  requestId?: string(name='RequestId', example='FD724DBC-CD76-5235-BF76-59C51B73296D'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='FD724DBC-CD76-5235-BF76-59C51B73296D'),
 }
 
 model UpdatePrivateAccessApplicationResponse = {
@@ -7584,7 +7899,7 @@ model UpdatePrivateAccessApplicationResponse = {
 }
 
 /**
- * @summary 修改内网访问应用
+ * @summary Modifies the office applications of the current Alibaba Cloud account.
  *
  * @param tmpReq UpdatePrivateAccessApplicationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7658,7 +7973,7 @@ async function updatePrivateAccessApplicationWithOptions(tmpReq: UpdatePrivateAc
 }
 
 /**
- * @summary 修改内网访问应用
+ * @summary Modifies the office applications of the current Alibaba Cloud account.
  *
  * @param request UpdatePrivateAccessApplicationRequest
  * @return UpdatePrivateAccessApplicationResponse
