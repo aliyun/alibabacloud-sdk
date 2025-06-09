@@ -1606,6 +1606,29 @@ model WebWAFConfig {
   enableWAF?: boolean(name='EnableWAF'),
 }
 
+model DataInstancesValue = {
+  dnsName?: string(name='DnsName', description='The domain name.', example='nlb-wb7r6dlwetvt5j****.cn-hangzhou.nlb.aliyuncs.com'),
+  listeners?: map[string]DataInstancesValueListenersValue(name='Listeners', description='The listeners.'),
+  createdBySae?: boolean(name='CreatedBySae', description='Indicates whether the instance is created by SAE.
+
+*   **true**: The instance is created by SAE.
+*   **false**: The existing instance is reused.', example='true'),
+}
+
+model DataInstancesValueListenersValue = {
+  protocol?: string(name='Protocol', description='The listener protocol.', example='TCPSSL'),
+  port?: int32(name='Port', description='The listener port of the NLB instance.', example='80'),
+  status?: string(name='Status', description='The status of the NLB listener.
+
+*   **Creating**: The listener is being created.
+*   **Configuring**: The listener is being configured.
+*   **Bounded**: The listener runs as expected.
+*   **Unbinding**: The listener is being deleted.
+*   **Failed**: The listener is unavailable.', example='Bounded'),
+  targetPort?: int32(name='TargetPort', description='The open ports of the NLB instance.', example='8080'),
+  certIds?: string(name='CertIds', description='The server certificates.', example='123157******'),
+}
+
 model AbortAndRollbackChangeOrderRequest {
   changeOrderId?: string(name='ChangeOrderId', description='The ID of the change order.
 
@@ -1961,6 +1984,115 @@ async function batchStopApplications(request: BatchStopApplicationsRequest): Bat
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return batchStopApplicationsWithOptions(request, headers, runtime);
+}
+
+model BindNlbRequest {
+  addressType?: string(name='AddressType', description='The type of the IP addresses. Valid values:
+
+*   Internet: public endpoint.
+*   Intranet: private endpoint.', example='Internet'),
+  appId?: string(name='AppId', description='The ID of the application to which the NLB instance is bound.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
+  listeners?: string(name='Listeners', description='The listener that you want to manage. The value is a string that consists of JSON arrays. Each listener contains the following fields:
+
+*   **port**: the port number of the NLB listener. This field is required. Data type: integer. Valid values: 0 to 65535.
+*   **TargetPort**: the port number of the container listener. This field is required. Data type: integer. Valid values: 0 to 65535.
+*   **Protocol**: the listener protocol. This field is required. Data type: string. Valid values: TCP, UDP, and TCPSSL.
+*   **CertIds**: the IDs of the server certificates. This field is optional. Data type: string. This field is supported only by TCPSSL listeners.'),
+  nlbId?: string(name='NlbId', description='The ID of the NLB instance.', example='nlb-7z7jjbzz44d82c9***'),
+  zoneMappings?: string(name='ZoneMappings', description='The mappings between zones and vSwitches. The value is a JSON string. You can specify at most 10 zones. If the region supports two or more zones, specify at least two zones. A ZoneMapping contains the following fields:
+
+*   The ID of the vSwitch in the zone. Each zone can contain only one vSwitch and one subnet. Data type: string.
+*   The zone ID of the NLB instance. Data type: string.', example='vsw-sersdf****
+cn-hangzhou-a'),
+}
+
+model BindNlbResponseBody = {
+  code?: string(name='Code', description='The HTTP status code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
+  data?: {
+    changeOrderId?: string(name='ChangeOrderId', description='The ID of the change order. The ID can be used to query the status of the change task.', example='ba386059-69b1-4e65-b1e5-0682d9fa****'),
+  }(name='Data', description='The returned data.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** in this topic.'),
+  message?: string(name='Message', description='The message returned. Valid values:
+
+*   If the request was successful, **success** is returned.
+*   If the request failed, an error code is returned.', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: boolean(name='Success', description='Indicates whether the applications were stopped. Valid values:
+
+*   **true**: The applications were stopped.
+*   **false**: The applications failed to be stopped.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='0a06dfe717389800573793090e0589'),
+}
+
+model BindNlbResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BindNlbResponseBody(name='body'),
+}
+
+/**
+ * @summary Associates a Network Load Balancer (NLB) instance with an application.
+ *
+ * @param request BindNlbRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BindNlbResponse
+ */
+async function bindNlbWithOptions(request: BindNlbRequest, headers: map[string]string, runtime: Util.RuntimeOptions): BindNlbResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.addressType)) {
+    query['AddressType'] = request.addressType;
+  }
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.listeners)) {
+    query['Listeners'] = request.listeners;
+  }
+  if (!Util.isUnset(request.nlbId)) {
+    query['NlbId'] = request.nlbId;
+  }
+  if (!Util.isUnset(request.zoneMappings)) {
+    query['ZoneMappings'] = request.zoneMappings;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'BindNlb',
+    version = '2019-05-06',
+    protocol = 'HTTPS',
+    pathname = `/pop/v1/sam/app/nlb`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Associates a Network Load Balancer (NLB) instance with an application.
+ *
+ * @param request BindNlbRequest
+ * @return BindNlbResponse
+ */
+async function bindNlb(request: BindNlbRequest): BindNlbResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return bindNlbWithOptions(request, headers, runtime);
 }
 
 model BindSlbRequest {
@@ -6973,6 +7105,84 @@ async function describeApplicationInstances(request: DescribeApplicationInstance
   return describeApplicationInstancesWithOptions(request, headers, runtime);
 }
 
+model DescribeApplicationNlbsRequest {
+  appId?: string(name='AppId', description='The ID of the application.', example='7171a6ca-d1cd-4928-8642-7d5cfe69****'),
+}
+
+model DescribeApplicationNlbsResponseBody = {
+  code?: string(name='Code', description='The HTTP status code. Valid values:
+
+*   **2xx**: The request was successful.
+*   **3xx**: The request was redirected.
+*   **4xx**: The request failed.
+*   **5xx**: A server error occurred.', example='200'),
+  data?: {
+    instances?: map[string]DataInstancesValue(name='Instances', description='The details of the instance.'),
+  }(name='Data', description='The returned data.'),
+  errorCode?: string(name='ErrorCode', description='The status code. Value values:
+
+*   If the request was successful, **ErrorCode** is not returned.
+*   If the request failed, **ErrorCode** is returned. For more information, see **Error codes** section in this topic.'),
+  message?: string(name='Message', description='The message returned. Valid values:If the request was successful, success is returned. If the request failed, an error code is returned.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='91F93257-7A4A-4BD3-9A7E-2F6EAE6D****'),
+  success?: string(name='Success', description='Indicates whether the NLB instance was successfully associated with the application. Valid values:
+
+*   **true**: The application was associated.
+*   **false**: The application failed to be associated.', example='true'),
+  traceId?: string(name='TraceId', description='The ID of the trace. The ID is used to query the details of a request.', example='ac1a0b2215622246421415014e****'),
+}
+
+model DescribeApplicationNlbsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeApplicationNlbsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the Network Load Balancer (NLB) instances bound to an application and their listeners.
+ *
+ * @param request DescribeApplicationNlbsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeApplicationNlbsResponse
+ */
+async function describeApplicationNlbsWithOptions(request: DescribeApplicationNlbsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeApplicationNlbsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeApplicationNlbs',
+    version = '2019-05-06',
+    protocol = 'HTTPS',
+    pathname = `/pop/v1/sam/app/nlb`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the Network Load Balancer (NLB) instances bound to an application and their listeners.
+ *
+ * @param request DescribeApplicationNlbsRequest
+ * @return DescribeApplicationNlbsResponse
+ */
+async function describeApplicationNlbs(request: DescribeApplicationNlbsRequest): DescribeApplicationNlbsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeApplicationNlbsWithOptions(request, headers, runtime);
+}
+
 model DescribeApplicationScalingRuleRequest {
   appId?: string(name='AppId', description='a0d2e04c-159d-40a8-b240-d2f2c263\\\\*\\\\*\\\\*\\\\*
 
@@ -7320,6 +7530,7 @@ model DescribeApplicationScalingRulesResponseBody = {
               targetReplicas?: int32(name='TargetReplicas', description='The expected number of instances.', example='3'),
             }
           ](name='Schedules', description='The points in time when the auto scaling policy is triggered within one day.'),
+          timeZone?: string(name='TimeZone'),
         }(name='Timer', description='The details of the scheduled auto scaling policy.'),
         updateTime?: long(name='UpdateTime', description='The time when the auto scaling policy was updated. Unit: milliseconds.', example='1616642248938'),
       }
