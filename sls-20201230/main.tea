@@ -17,6 +17,11 @@ init(config: OpenApi.Config){
   @endpointRule = 'central';
   }
 
+model AgentInstanceConfigGrayConfigs {
+  condition?: string(name='condition'),
+  content?: string(name='content'),
+}
+
 model Alert {
   configuration?: AlertConfiguration(name='configuration', description='This parameter is required.'),
   createTime?: long(name='createTime'),
@@ -1120,10 +1125,12 @@ async function consumerGroupUpdateCheckPoint(project: string, logstore: string, 
 }
 
 model CreateAgentInstanceConfigRequest {
-  attributes?: string(name='attributes', description='This parameter is required.'),
+  attributes?: map[string]string(name='attributes'),
   config?: string(name='config', description='This parameter is required.'),
   configType?: string(name='configType', description='This parameter is required.'),
-  grayConfigs?: string(name='grayConfigs'),
+  grayConfigs?: [
+    AgentInstanceConfigGrayConfigs
+  ](name='grayConfigs'),
 }
 
 model CreateAgentInstanceConfigResponse = {
@@ -3218,7 +3225,7 @@ model CreateTicketRequest {
 *   The validity period of the access token is the smaller value between accessTokenExpirationTime and expirationTime.
 *   If you use a Security Token Service (STS) token to call this operation, the validity period of the access token is the smallest value among accessTokenExpirationTime, expirationTime, and the validity period of the STS token.', example='600'),
   expirationTime?: long(name='expirationTime', description='*   You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the CreateTicket operation. After you obtain the ticket, you can use the ticket regardless of the region.
-*   The validity period for the URL of the console page that you want to embed. Unit: seconds. Default value: 86400, which specifies one day. Valid values: 0 to 2592000. The value 2592000 specifies 30 days.', example='86400'),
+*   The validity period for the URL of the console page that you want to embed. Unit: seconds. Default value: 86400 (one day). Valid values: 0 to 2592000 (30 days).', example='86400'),
 }
 
 model CreateTicketResponseBody = {
@@ -3280,7 +3287,11 @@ async function createTicket(request: CreateTicketRequest): CreateTicketResponse 
 }
 
 model DeleteAgentInstanceConfigRequest {
-  attributes?: string(name='attributes', description='This parameter is required.'),
+  attributes?: map[string]string(name='attributes'),
+}
+
+model DeleteAgentInstanceConfigShrinkRequest {
+  attributesShrink?: string(name='attributes'),
 }
 
 model DeleteAgentInstanceConfigResponse = {
@@ -3291,16 +3302,21 @@ model DeleteAgentInstanceConfigResponse = {
 /**
  * @summary DeleteAgentInstanceConfig
  *
- * @param request DeleteAgentInstanceConfigRequest
+ * @param tmpReq DeleteAgentInstanceConfigRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteAgentInstanceConfigResponse
  */
-async function deleteAgentInstanceConfigWithOptions(configType: string, request: DeleteAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAgentInstanceConfigResponse {
-  Util.validateModel(request);
+async function deleteAgentInstanceConfigWithOptions(configType: string, tmpReq: DeleteAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAgentInstanceConfigResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteAgentInstanceConfigShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributes)) {
+    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'attributes', 'json');
+  }
   var query : map[string]any = {};
-  if (!Util.isUnset(request.attributes)) {
-    query['attributes'] = request.attributes;
+  if (!Util.isUnset(request.attributesShrink)) {
+    query['attributes'] = request.attributesShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -4964,15 +4980,21 @@ async function enableScheduledSQL(project: string, scheduledSQLName: string): En
 }
 
 model GetAgentInstanceConfigRequest {
-  attributes?: string(name='attributes', description='This parameter is required.'),
+  attributes?: map[string]string(name='attributes'),
+}
+
+model GetAgentInstanceConfigShrinkRequest {
+  attributesShrink?: string(name='attributes'),
 }
 
 model GetAgentInstanceConfigResponseBody = {
-  attributes?: string(name='attributes'),
+  attributes?: map[string]string(name='attributes'),
   config?: string(name='config'),
   configType?: string(name='configType'),
   createTime?: long(name='createTime'),
-  grayConfigs?: [ map[string]string ](name='grayConfigs'),
+  grayConfigs?: [
+    AgentInstanceConfigGrayConfigs
+  ](name='grayConfigs'),
   lastModifyTime?: long(name='lastModifyTime'),
 }
 
@@ -4985,16 +5007,21 @@ model GetAgentInstanceConfigResponse = {
 /**
  * @summary GetAgentInstanceConfig
  *
- * @param request GetAgentInstanceConfigRequest
+ * @param tmpReq GetAgentInstanceConfigRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAgentInstanceConfigResponse
  */
-async function getAgentInstanceConfigWithOptions(configType: string, request: GetAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAgentInstanceConfigResponse {
-  Util.validateModel(request);
+async function getAgentInstanceConfigWithOptions(configType: string, tmpReq: GetAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAgentInstanceConfigResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentInstanceConfigShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributes)) {
+    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'attributes', 'json');
+  }
   var query : map[string]any = {};
-  if (!Util.isUnset(request.attributes)) {
-    query['attributes'] = request.attributes;
+  if (!Util.isUnset(request.attributesShrink)) {
+    query['attributes'] = request.attributesShrink;
   }
 
   var req = new OpenApi.OpenApiRequest{ 
@@ -7751,7 +7778,6 @@ async function getStoreViewIndex(project: string, name: string): GetStoreViewInd
 }
 
 model ListAgentInstanceConfigsRequest {
-  attributes?: string(name='attributes'),
   configType?: string(name='configType'),
   offset?: long(name='offset'),
   size?: long(name='size'),
@@ -7785,9 +7811,6 @@ model ListAgentInstanceConfigsResponse = {
 async function listAgentInstanceConfigsWithOptions(request: ListAgentInstanceConfigsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAgentInstanceConfigsResponse {
   Util.validateModel(request);
   var query : map[string]any = {};
-  if (!Util.isUnset(request.attributes)) {
-    query['attributes'] = request.attributes;
-  }
   if (!Util.isUnset(request.configType)) {
     query['configType'] = request.configType;
   }
@@ -8681,11 +8704,11 @@ model ListDownloadJobsResponseBody = {
         logCount?: long(name='logCount', description='下载日志条数', example='123'),
         notice?: string(name='notice'),
         progress?: long(name='progress', description='下载进度', example='100'),
-      }(name='executionDetails', description='任务执行细节'),
+      }(name='executionDetails', description='The execution details.'),
       name?: string(name='name', description='代表资源名称的资源属性字段', example='download-123'),
       status?: string(name='status', description='The task status.', example='running'),
     }
-  ](name='results', description='The log download tasks.'),
+  ](name='results', description='Array, to return a list of log download tasks.'),
   total?: int32(name='total', example='10'),
 }
 
@@ -8696,7 +8719,7 @@ model ListDownloadJobsResponse = {
 }
 
 /**
- * @summary 列举下载任务
+ * @summary Queries a list of log download tasks in a project.
  *
  * @param request ListDownloadJobsRequest
  * @param headers map
@@ -8738,7 +8761,7 @@ async function listDownloadJobsWithOptions(project: string, request: ListDownloa
 }
 
 /**
- * @summary 列举下载任务
+ * @summary Queries a list of log download tasks in a project.
  *
  * @param request ListDownloadJobsRequest
  * @return ListDownloadJobsResponse
@@ -11621,9 +11644,19 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateAgentInstanceConfigRequest {
-  attributes?: string(name='attributes', description='This parameter is required.'),
+  attributes?: map[string]string(name='attributes'),
   config?: string(name='config', description='This parameter is required.'),
-  grayConfigs?: string(name='grayConfigs'),
+  grayConfigs?: [
+    AgentInstanceConfigGrayConfigs
+  ](name='grayConfigs'),
+}
+
+model UpdateAgentInstanceConfigShrinkRequest {
+  attributesShrink?: string(name='attributes'),
+  config?: string(name='config', description='This parameter is required.'),
+  grayConfigs?: [
+    AgentInstanceConfigGrayConfigs
+  ](name='grayConfigs'),
 }
 
 model UpdateAgentInstanceConfigResponse = {
@@ -11634,16 +11667,21 @@ model UpdateAgentInstanceConfigResponse = {
 /**
  * @summary UpdateAgentInstanceConfig
  *
- * @param request UpdateAgentInstanceConfigRequest
+ * @param tmpReq UpdateAgentInstanceConfigRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateAgentInstanceConfigResponse
  */
-async function updateAgentInstanceConfigWithOptions(configType: string, request: UpdateAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAgentInstanceConfigResponse {
-  Util.validateModel(request);
+async function updateAgentInstanceConfigWithOptions(configType: string, tmpReq: UpdateAgentInstanceConfigRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateAgentInstanceConfigResponse {
+  Util.validateModel(tmpReq);
+  var request = new UpdateAgentInstanceConfigShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributes)) {
+    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'attributes', 'json');
+  }
   var query : map[string]any = {};
-  if (!Util.isUnset(request.attributes)) {
-    query['attributes'] = request.attributes;
+  if (!Util.isUnset(request.attributesShrink)) {
+    query['attributes'] = request.attributesShrink;
   }
 
   var body : map[string]any = {};
