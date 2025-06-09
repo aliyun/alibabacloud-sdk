@@ -119,6 +119,7 @@ model CopilotAction {
       type?: string(name='type'),
     }
   ](name='parameters'),
+  queryMaxLength?: long(name='queryMaxLength'),
   queryTemplate?: string(name='queryTemplate'),
   queryTemplateParameters?: [ 
     {
@@ -1118,10 +1119,10 @@ async function consumerGroupUpdateCheckPoint(project: string, logstore: string, 
 }
 
 model CreateAgentInstanceConfigRequest {
+  attributes?: string(name='attributes', description='This parameter is required.'),
   config?: string(name='config', description='This parameter is required.'),
-  configMatcher?: string(name='configMatcher', description='This parameter is required.'),
-  configName?: string(name='configName', description='This parameter is required.'),
-  isGray?: boolean(name='isGray'),
+  configType?: string(name='configType', description='This parameter is required.'),
+  grayConfigs?: string(name='grayConfigs'),
 }
 
 model CreateAgentInstanceConfigResponse = {
@@ -1140,17 +1141,17 @@ model CreateAgentInstanceConfigResponse = {
 async function createAgentInstanceConfigWithOptions(request: CreateAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateAgentInstanceConfigResponse {
   request.validate();
   var body : map[string]any = {};
+  if (!$isNull(request.attributes)) {
+    body['attributes'] = request.attributes;
+  }
   if (!$isNull(request.config)) {
     body['config'] = request.config;
   }
-  if (!$isNull(request.configMatcher)) {
-    body['configMatcher'] = request.configMatcher;
+  if (!$isNull(request.configType)) {
+    body['configType'] = request.configType;
   }
-  if (!$isNull(request.configName)) {
-    body['configName'] = request.configName;
-  }
-  if (!$isNull(request.isGray)) {
-    body['isGray'] = request.isGray;
+  if (!$isNull(request.grayConfigs)) {
+    body['grayConfigs'] = request.grayConfigs;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -1776,10 +1777,16 @@ async function createDownloadJob(project: string, request: CreateDownloadJobRequ
 }
 
 model CreateETLRequest {
-  configuration?: ETLConfiguration(name='configuration', description='This parameter is required.'),
-  description?: string(name='description', example='this is ETL'),
-  displayName?: string(name='displayName', description='This parameter is required.', example='sls-test-etl'),
-  name?: string(name='name', description='This parameter is required.', example='etl-123456'),
+  configuration?: ETLConfiguration(name='configuration', description='The detailed configuration of the job.
+
+This parameter is required.'),
+  description?: string(name='description', description='The description of the job.', example='this is ETL'),
+  displayName?: string(name='displayName', description='The display name of the job.
+
+This parameter is required.', example='sls-test-etl'),
+  name?: string(name='name', description='The name of the job (unique within a project).
+
+This parameter is required.', example='etl-123456'),
 }
 
 model CreateETLResponse = {
@@ -1788,7 +1795,7 @@ model CreateETLResponse = {
 }
 
 /**
- * @summary 创建数据加工任务
+ * @summary Creates a data transformation job in a project.
  *
  * @param request CreateETLRequest
  * @param headers map
@@ -1833,7 +1840,7 @@ async function createETLWithOptions(project: string, request: CreateETLRequest, 
 }
 
 /**
- * @summary 创建数据加工任务
+ * @summary Creates a data transformation job in a project.
  *
  * @param request CreateETLRequest
  * @return CreateETLResponse
@@ -2714,11 +2721,11 @@ async function createOSSHDFSExport(project: string, request: CreateOSSHDFSExport
 }
 
 model CreateOSSIngestionRequest {
-  configuration?: OSSIngestionConfiguration(name='configuration', description='The configurations of the OSS data import job.
+  configuration?: OSSIngestionConfiguration(name='configuration', description='The configuration of the OSS data import job.
 
 This parameter is required.'),
   description?: string(name='description', description='The description of the job.'),
-  displayName?: string(name='displayName', description='The display name.
+  displayName?: string(name='displayName', description='The display name of the job.
 
 This parameter is required.'),
   name?: string(name='name', description='The name of the OSS data import job.
@@ -2790,111 +2797,6 @@ async function createOSSIngestion(project: string, request: CreateOSSIngestionRe
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createOSSIngestionWithOptions(project, request, headers, runtime);
-}
-
-model CreateOssExternalStoreRequest {
-  externalStoreName?: string(name='externalStoreName', description='The name of the external store.
-
-This parameter is required.', example='test_oss_store'),
-  parameter?: {
-    accessid?: string(name='accessid', description='The AccessKey ID.
-
-This parameter is required.', example='LTAI****************'),
-    accesskey?: string(name='accesskey', description='The AccessKey secret.
-
-This parameter is required.', example='yourAccessKeySecret'),
-    bucket?: string(name='bucket', description='The name of the OSS bucket.
-
-This parameter is required.', example='my-bucket'),
-    columns?: [ 
-      {
-        name?: string(name='name', description='The name of the field.
-
-This parameter is required.', example='auto-test'),
-        type?: string(name='type', description='The data type of the field.
-
-This parameter is required.', example='sls'),
-      }
-    ](name='columns', description='The associated fields.
-
-This parameter is required.'),
-    endpoint?: string(name='endpoint', description='The Object Storage Service (OSS) endpoint. For more information, see [Endpoints](https://help.aliyun.com/document_detail/31837.html).
-
-This parameter is required.', example='oss-cn-hangzhou.aliyuncs.com'),
-    objects?: [ string ](name='objects', description='The names of the associated OSS objects. Valid values of n: 1 to 100.
-
-This parameter is required.'),
-  }(name='parameter', description='The parameters that are configured for the external store.
-
-This parameter is required.'),
-  storeType?: string(name='storeType', description='The type of the external store. Set the value to oss.
-
-This parameter is required.', example='oss'),
-}
-
-model CreateOssExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary Creates an Object Storage Service (OSS) external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request CreateOssExternalStoreRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return CreateOssExternalStoreResponse
- */
-async function createOssExternalStoreWithOptions(project: string, request: CreateOssExternalStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateOssExternalStoreResponse {
-  request.validate();
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!$isNull(request.externalStoreName)) {
-    body['externalStoreName'] = request.externalStoreName;
-  }
-  if (!$isNull(request.parameter)) {
-    body['parameter'] = request.parameter;
-  }
-  if (!$isNull(request.storeType)) {
-    body['storeType'] = request.storeType;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'CreateOssExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Creates an Object Storage Service (OSS) external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request CreateOssExternalStoreRequest
- * @return CreateOssExternalStoreResponse
- */
-async function createOssExternalStore(project: string, request: CreateOssExternalStoreRequest): CreateOssExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createOssExternalStoreWithOptions(project, request, headers, runtime);
 }
 
 model CreateProjectRequest {
@@ -2982,103 +2884,6 @@ async function createProject(request: CreateProjectRequest): CreateProjectRespon
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createProjectWithOptions(request, headers, runtime);
-}
-
-model CreateRdsExternalStoreRequest {
-  externalStoreName?: string(name='externalStoreName', description='The name of the external store. The name must be unique in a project and must be different from Logstore names.
-
-This parameter is required.', example='rds_store'),
-  parameter?: {
-    db?: string(name='db', description='The name of the database created on the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='meta'),
-    host?: string(name='host', description='The internal or public endpoint of the ApsaraDB RDS for MySQL instance.', example='192.168.XX.XX'),
-    instanceId?: string(name='instance-id', description='You do not need to specify this parameter.', example='i-bp1b6c719dfa08exf****'),
-    password?: string(name='password', description='The password that is used to log on to the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='sfdsfldsfksfls****'),
-    port?: string(name='port', description='The internal or public port of the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='3306'),
-    region?: string(name='region', description='The region where the ApsaraDB RDS for MySQL instance resides. Valid values: cn-qingdao, cn-beijing, and cn-hangzhou.
-
-This parameter is required.', example='cn-qingdao'),
-    table?: string(name='table', description='The name of the table in the database created on the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='join_meta'),
-    username?: string(name='username', description='The username that is used to log on to the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='root'),
-    vpcId?: string(name='vpc-id', description='The ID of the VPC to which the ApsaraDB RDS for MySQL instance belongs.', example='vpc-bp1aevy8sofi8mh1q****'),
-  }(name='parameter', description='The parameter struct.
-
-This parameter is required.'),
-  storeType?: string(name='storeType', description='The storage type. Set the value to rds-vpc, which indicates a database created on an ApsaraDB RDS for MySQL instance in a virtual private cloud (VPC).
-
-This parameter is required.', example='rds-vpc'),
-}
-
-model CreateRdsExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary Creates an ApsaraDB RDS external store.
- *
- * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request CreateRdsExternalStoreRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return CreateRdsExternalStoreResponse
- */
-async function createRdsExternalStoreWithOptions(project: string, request: CreateRdsExternalStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateRdsExternalStoreResponse {
-  request.validate();
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!$isNull(request.externalStoreName)) {
-    body['externalStoreName'] = request.externalStoreName;
-  }
-  if (!$isNull(request.parameter)) {
-    body['parameter'] = request.parameter;
-  }
-  if (!$isNull(request.storeType)) {
-    body['storeType'] = request.storeType;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'CreateRdsExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores`,
-    method = 'POST',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Creates an ApsaraDB RDS external store.
- *
- * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request CreateRdsExternalStoreRequest
- * @return CreateRdsExternalStoreResponse
- */
-async function createRdsExternalStore(project: string, request: CreateRdsExternalStoreRequest): CreateRdsExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return createRdsExternalStoreWithOptions(project, request, headers, runtime);
 }
 
 model CreateSavedSearchRequest {
@@ -3474,7 +3279,7 @@ async function createTicket(request: CreateTicketRequest): CreateTicketResponse 
 }
 
 model DeleteAgentInstanceConfigRequest {
-  isGray?: boolean(name='isGray'),
+  attributes?: string(name='attributes', description='This parameter is required.'),
 }
 
 model DeleteAgentInstanceConfigResponse = {
@@ -3490,11 +3295,11 @@ model DeleteAgentInstanceConfigResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteAgentInstanceConfigResponse
  */
-async function deleteAgentInstanceConfigWithOptions(configName: string, request: DeleteAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteAgentInstanceConfigResponse {
+async function deleteAgentInstanceConfigWithOptions(configType: string, request: DeleteAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteAgentInstanceConfigResponse {
   request.validate();
   var query : map[string]any = {};
-  if (!$isNull(request.isGray)) {
-    query['isGray'] = request.isGray;
+  if (!$isNull(request.attributes)) {
+    query['attributes'] = request.attributes;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -3505,7 +3310,7 @@ async function deleteAgentInstanceConfigWithOptions(configName: string, request:
     action = 'DeleteAgentInstanceConfig',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/agentinstanceconfigs/${configName}`,
+    pathname = `/agentinstanceconfigs/${configType}`,
     method = 'DELETE',
     authType = 'AK',
     style = 'ROA',
@@ -3521,10 +3326,10 @@ async function deleteAgentInstanceConfigWithOptions(configName: string, request:
  * @param request DeleteAgentInstanceConfigRequest
  * @return DeleteAgentInstanceConfigResponse
  */
-async function deleteAgentInstanceConfig(configName: string, request: DeleteAgentInstanceConfigRequest): DeleteAgentInstanceConfigResponse {
+async function deleteAgentInstanceConfig(configType: string, request: DeleteAgentInstanceConfigRequest): DeleteAgentInstanceConfigResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return deleteAgentInstanceConfigWithOptions(configName, request, headers, runtime);
+  return deleteAgentInstanceConfigWithOptions(configType, request, headers, runtime);
 }
 
 model DeleteAlertResponse = {
@@ -4046,7 +3851,7 @@ model DeleteETLResponse = {
 }
 
 /**
- * @summary 删除数据加工任务
+ * @summary Deletes a data transformation job.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -4074,7 +3879,7 @@ async function deleteETLWithOptions(project: string, etlName: string, headers: m
 }
 
 /**
- * @summary 删除数据加工任务
+ * @summary Deletes a data transformation job.
  *
  * @return DeleteETLResponse
  */
@@ -4082,54 +3887,6 @@ async function deleteETL(project: string, etlName: string): DeleteETLResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteETLWithOptions(project, etlName, headers, runtime);
-}
-
-model DeleteExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary Deletes an external storage configuration.
- *
- * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return DeleteExternalStoreResponse
- */
-async function deleteExternalStoreWithOptions(project: string, externalStoreName: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteExternalStoreResponse {
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'DeleteExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores/${externalStoreName}`,
-    method = 'DELETE',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Deletes an external storage configuration.
- *
- * @description Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @return DeleteExternalStoreResponse
- */
-async function deleteExternalStore(project: string, externalStoreName: string): DeleteExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return deleteExternalStoreWithOptions(project, externalStoreName, headers, runtime);
 }
 
 model DeleteIndexResponse = {
@@ -5205,12 +4962,16 @@ async function enableScheduledSQL(project: string, scheduledSQLName: string): En
   return enableScheduledSQLWithOptions(project, scheduledSQLName, headers, runtime);
 }
 
+model GetAgentInstanceConfigRequest {
+  attributes?: string(name='attributes', description='This parameter is required.'),
+}
+
 model GetAgentInstanceConfigResponseBody = {
+  attributes?: string(name='attributes'),
   config?: string(name='config'),
-  configMatcher?: string(name='configMatcher'),
-  configName?: string(name='configName'),
+  configType?: string(name='configType'),
   createTime?: long(name='createTime'),
-  isGray?: boolean(name='isGray'),
+  grayConfigs?: [ map[string]string ](name='grayConfigs'),
   lastModifyTime?: long(name='lastModifyTime'),
 }
 
@@ -5223,19 +4984,27 @@ model GetAgentInstanceConfigResponse = {
 /**
  * @summary GetAgentInstanceConfig
  *
+ * @param request GetAgentInstanceConfigRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAgentInstanceConfigResponse
  */
-async function getAgentInstanceConfigWithOptions(configName: string, headers: map[string]string, runtime: $RuntimeOptions): GetAgentInstanceConfigResponse {
+async function getAgentInstanceConfigWithOptions(configType: string, request: GetAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): GetAgentInstanceConfigResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.attributes)) {
+    query['attributes'] = request.attributes;
+  }
+
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApiUtil.Params{
     action = 'GetAgentInstanceConfig',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/agentinstanceconfigs/${configName}`,
+    pathname = `/agentinstanceconfigs/${configType}`,
     method = 'GET',
     authType = 'AK',
     style = 'ROA',
@@ -5248,12 +5017,13 @@ async function getAgentInstanceConfigWithOptions(configName: string, headers: ma
 /**
  * @summary GetAgentInstanceConfig
  *
+ * @param request GetAgentInstanceConfigRequest
  * @return GetAgentInstanceConfigResponse
  */
-async function getAgentInstanceConfig(configName: string): GetAgentInstanceConfigResponse {
+async function getAgentInstanceConfig(configType: string, request: GetAgentInstanceConfigRequest): GetAgentInstanceConfigResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getAgentInstanceConfigWithOptions(configName, headers, runtime);
+  return getAgentInstanceConfigWithOptions(configType, request, headers, runtime);
 }
 
 model GetAlertResponse = {
@@ -6163,7 +5933,7 @@ model GetETLResponse = {
 }
 
 /**
- * @summary 获取数据加工任务信息
+ * @summary Queries the configurations of a data transformation job.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -6191,7 +5961,7 @@ async function getETLWithOptions(project: string, etlName: string, headers: map[
 }
 
 /**
- * @summary 获取数据加工任务信息
+ * @summary Queries the configurations of a data transformation job.
  *
  * @return GetETLResponse
  */
@@ -6199,57 +5969,6 @@ async function getETL(project: string, etlName: string): GetETLResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getETLWithOptions(project, etlName, headers, runtime);
-}
-
-model GetExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: ExternalStore  
-}
-
-/**
- * @summary Queries the details of an external store.
- *
- * @description *   The supported data sources of external stores include Object Storage Service (OSS) buckets and ApsaraDB RDS for MySQL databases in a virtual private cloud (VPC).
- * *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return GetExternalStoreResponse
- */
-async function getExternalStoreWithOptions(project: string, externalStoreName: string, headers: map[string]string, runtime: $RuntimeOptions): GetExternalStoreResponse {
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'GetExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores/${externalStoreName}`,
-    method = 'GET',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'json',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Queries the details of an external store.
- *
- * @description *   The supported data sources of external stores include Object Storage Service (OSS) buckets and ApsaraDB RDS for MySQL databases in a virtual private cloud (VPC).
- * *   Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @return GetExternalStoreResponse
- */
-async function getExternalStore(project: string, externalStoreName: string): GetExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return getExternalStoreWithOptions(project, externalStoreName, headers, runtime);
 }
 
 model GetHistogramsRequest {
@@ -8031,12 +7750,19 @@ async function getStoreViewIndex(project: string, name: string): GetStoreViewInd
 }
 
 model ListAgentInstanceConfigsRequest {
+  attributes?: string(name='attributes'),
+  configType?: string(name='configType'),
   offset?: long(name='offset'),
   size?: long(name='size'),
 }
 
 model ListAgentInstanceConfigsResponseBody = {
-  configs?: [ string ](name='configs'),
+  configs?: [ 
+  {
+    attributes?: string(name='attributes'),
+    configType?: string(name='configType'),
+  }
+](name='configs'),
   size?: long(name='size'),
   total?: long(name='total'),
 }
@@ -8058,6 +7784,12 @@ model ListAgentInstanceConfigsResponse = {
 async function listAgentInstanceConfigsWithOptions(request: ListAgentInstanceConfigsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListAgentInstanceConfigsResponse {
   request.validate();
   var query : map[string]any = {};
+  if (!$isNull(request.attributes)) {
+    query['attributes'] = request.attributes;
+  }
+  if (!$isNull(request.configType)) {
+    query['configType'] = request.configType;
+  }
   if (!$isNull(request.offset)) {
     query['offset'] = request.offset;
   }
@@ -8718,14 +8450,31 @@ async function listConsumerGroup(project: string, logstore: string): ListConsume
 }
 
 model ListDashboardRequest {
+  dashboardName?: string(name='dashboardName'),
+  displayName?: string(name='displayName'),
   offset?: int32(name='offset', description='The line from which the query starts. Default value: 0.', example='0'),
   size?: int32(name='size', description='The number of entries per page. Maximum value: 500. Default value: 500.', example='10'),
+  tags?: [ 
+    {
+      key?: string(name='key'),
+      value?: string(name='value'),
+    }
+  ](name='tags'),
+}
+
+model ListDashboardShrinkRequest {
+  dashboardName?: string(name='dashboardName'),
+  displayName?: string(name='displayName'),
+  offset?: int32(name='offset', description='The line from which the query starts. Default value: 0.', example='0'),
+  size?: int32(name='size', description='The number of entries per page. Maximum value: 500. Default value: 500.', example='10'),
+  tagsShrink?: string(name='tags'),
 }
 
 model ListDashboardResponseBody = {
   dashboardItems?: [ 
     {
       dashboardName?: string(name='dashboardName', description='The dashboard ID. The ID must be unique in a project. Fuzzy search is supported. For example, if you enter da, all dashboards whose IDs start with da are queried.', example='dashboard-1609294922657-434834'),
+      description?: string(name='description'),
       displayName?: string(name='displayName', description='The display name of the dashboard.', example='data-ingest'),
     }
   ](name='dashboardItems', description='The details of the dashboard.'),
@@ -8747,21 +8496,35 @@ model ListDashboardResponse = {
  * The AccessKey pair of an Alibaba Cloud account has permissions on all API operations. Using these credentials to perform operations in Simple Log Service is a high-risk operation. We recommend that you use a RAM user to call API operations or perform routine O\\&M. To create a RAM user, log on to the RAM console. Make sure that the RAM user has the management permissions on Simple Log Service resources. For more information, see [Create a RAM user and authorize the RAM user to access Simple Log Service](https://help.aliyun.com/document_detail/47664.html).
  * *   The information that is required to query logs is obtained. The information includes the name of the project to which the logs belong and the region of the project. For more information, see [Manage a project](https://help.aliyun.com/document_detail/48984.html).
  *
- * @param request ListDashboardRequest
+ * @param tmpReq ListDashboardRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDashboardResponse
  */
-async function listDashboardWithOptions(project: string, request: ListDashboardRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDashboardResponse {
-  request.validate();
+async function listDashboardWithOptions(project: string, tmpReq: ListDashboardRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDashboardResponse {
+  tmpReq.validate();
   var hostMap : map[string]string = {};
   hostMap['project'] = project;
+  var request = new ListDashboardShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.tags)) {
+    request.tagsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tags, 'tags', 'json');
+  }
   var query : map[string]any = {};
+  if (!$isNull(request.dashboardName)) {
+    query['dashboardName'] = request.dashboardName;
+  }
+  if (!$isNull(request.displayName)) {
+    query['displayName'] = request.displayName;
+  }
   if (!$isNull(request.offset)) {
     query['offset'] = request.offset;
   }
   if (!$isNull(request.size)) {
     query['size'] = request.size;
+  }
+  if (!$isNull(request.tagsShrink)) {
+    query['tags'] = request.tagsShrink;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -8992,11 +8755,11 @@ model ListETLsRequest {
 }
 
 model ListETLsResponseBody = {
-  count?: int32(name='count'),
+  count?: int32(name='count', description='The number of data transformation jobs that are returned.', example='10'),
   results?: [
     ETL
   ](name='results'),
-  total?: int32(name='total'),
+  total?: int32(name='total', description='The total number of data transformation jobs in the project.', example='80'),
 }
 
 model ListETLsResponse = {
@@ -9006,7 +8769,7 @@ model ListETLsResponse = {
 }
 
 /**
- * @summary 列出数据加工任务
+ * @summary Queries a list of data transformation jobs in a project.
  *
  * @param request ListETLsRequest
  * @param headers map
@@ -9048,7 +8811,7 @@ async function listETLsWithOptions(project: string, request: ListETLsRequest, he
 }
 
 /**
- * @summary 列出数据加工任务
+ * @summary Queries a list of data transformation jobs in a project.
  *
  * @param request ListETLsRequest
  * @return ListETLsResponse
@@ -11189,7 +10952,7 @@ model StartETLResponse = {
 }
 
 /**
- * @summary 启动数据加工任务
+ * @summary Starts a data transformation job.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -11217,7 +10980,7 @@ async function startETLWithOptions(project: string, etlName: string, headers: ma
 }
 
 /**
- * @summary 启动数据加工任务
+ * @summary Starts a data transformation job.
  *
  * @return StartETLResponse
  */
@@ -11419,7 +11182,7 @@ model StopETLResponse = {
 }
 
 /**
- * @summary 停止数据加工任务
+ * @summary Stops a data transformation job.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -11447,7 +11210,7 @@ async function stopETLWithOptions(project: string, etlName: string, headers: map
 }
 
 /**
- * @summary 停止数据加工任务
+ * @summary Stops a data transformation job.
  *
  * @return StopETLResponse
  */
@@ -11857,9 +11620,9 @@ async function untagResources(request: UntagResourcesRequest): UntagResourcesRes
 }
 
 model UpdateAgentInstanceConfigRequest {
+  attributes?: string(name='attributes', description='This parameter is required.'),
   config?: string(name='config', description='This parameter is required.'),
-  configMatcher?: string(name='configMatcher', description='This parameter is required.'),
-  isGray?: boolean(name='isGray'),
+  grayConfigs?: string(name='grayConfigs'),
 }
 
 model UpdateAgentInstanceConfigResponse = {
@@ -11875,28 +11638,31 @@ model UpdateAgentInstanceConfigResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateAgentInstanceConfigResponse
  */
-async function updateAgentInstanceConfigWithOptions(configName: string, request: UpdateAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateAgentInstanceConfigResponse {
+async function updateAgentInstanceConfigWithOptions(configType: string, request: UpdateAgentInstanceConfigRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateAgentInstanceConfigResponse {
   request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.attributes)) {
+    query['attributes'] = request.attributes;
+  }
+
   var body : map[string]any = {};
   if (!$isNull(request.config)) {
     body['config'] = request.config;
   }
-  if (!$isNull(request.configMatcher)) {
-    body['configMatcher'] = request.configMatcher;
-  }
-  if (!$isNull(request.isGray)) {
-    body['isGray'] = request.isGray;
+  if (!$isNull(request.grayConfigs)) {
+    body['grayConfigs'] = request.grayConfigs;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApiUtil.Params{
     action = 'UpdateAgentInstanceConfig',
     version = '2020-12-30',
     protocol = 'HTTPS',
-    pathname = `/agentinstanceconfigs/${configName}`,
+    pathname = `/agentinstanceconfigs/${configType}`,
     method = 'PUT',
     authType = 'AK',
     style = 'ROA',
@@ -11912,10 +11678,10 @@ async function updateAgentInstanceConfigWithOptions(configName: string, request:
  * @param request UpdateAgentInstanceConfigRequest
  * @return UpdateAgentInstanceConfigResponse
  */
-async function updateAgentInstanceConfig(configName: string, request: UpdateAgentInstanceConfigRequest): UpdateAgentInstanceConfigResponse {
+async function updateAgentInstanceConfig(configType: string, request: UpdateAgentInstanceConfigRequest): UpdateAgentInstanceConfigResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return updateAgentInstanceConfigWithOptions(configName, request, headers, runtime);
+  return updateAgentInstanceConfigWithOptions(configType, request, headers, runtime);
 }
 
 model UpdateAlertRequest {
@@ -12348,7 +12114,7 @@ model UpdateETLResponse = {
 }
 
 /**
- * @summary 更新数据加工任务
+ * @summary Updates a data transformation job.
  *
  * @param request UpdateETLRequest
  * @param headers map
@@ -12390,7 +12156,7 @@ async function updateETLWithOptions(project: string, etlName: string, request: U
 }
 
 /**
- * @summary 更新数据加工任务
+ * @summary Updates a data transformation job.
  *
  * @param request UpdateETLRequest
  * @return UpdateETLResponse
@@ -13331,7 +13097,9 @@ async function updateMetricStore(project: string, name: string, request: UpdateM
 }
 
 model UpdateMetricStoreMeteringModeRequest {
-  meteringMode?: string(name='meteringMode', description='This parameter is required.', example='ChargeByFunction'),
+  meteringMode?: string(name='meteringMode', description='The billing mode. Default value: ChargeByFunction. Valid values: ChargeByFunction and ChargeByDataIngest.
+
+This parameter is required.', example='ChargeByFunction'),
 }
 
 model UpdateMetricStoreMeteringModeResponse = {
@@ -13581,10 +13349,10 @@ async function updateOSSHDFSExport(project: string, ossExportName: string, reque
 }
 
 model UpdateOSSIngestionRequest {
-  configuration?: OSSIngestionConfiguration(name='configuration', description='The configurations of the OSS data import job.
+  configuration?: OSSIngestionConfiguration(name='configuration', description='The configuration of the OSS data import job.
 
 This parameter is required.'),
-  description?: string(name='description', description='The description of the OSS data import job.'),
+  description?: string(name='description', description='The description of the Object Storage Service (OSS) data import job.'),
   displayName?: string(name='displayName', description='The display name of the OSS data import job.
 
 This parameter is required.'),
@@ -13653,116 +13421,16 @@ async function updateOSSIngestion(project: string, ossIngestionName: string, req
   return updateOSSIngestionWithOptions(project, ossIngestionName, request, headers, runtime);
 }
 
-model UpdateOssExternalStoreRequest {
-  externalStoreName?: string(name='externalStoreName', description='The name of the external store.
-
-This parameter is required.', example='test-oss-store'),
-  parameter?: {
-    accessid?: string(name='accessid', description='The AccessKey ID.
-
-This parameter is required.', example='LTAI****************'),
-    accesskey?: string(name='accesskey', description='The AccessKey secret.
-
-This parameter is required.', example='yourAccessKeySecret'),
-    bucket?: string(name='bucket', description='The name of the OSS bucket.
-
-This parameter is required.', example='my-bucket'),
-    columns?: [ 
-      {
-        name?: string(name='name', description='The name of the field.
-
-This parameter is required.', example='test'),
-        type?: string(name='type', description='The data type of the field.
-
-This parameter is required.', example='varchar'),
-      }
-    ](name='columns', description='The associated fields.
-
-This parameter is required.'),
-    endpoint?: string(name='endpoint', description='The Object Storage Service (OSS) endpoint.
-
-This parameter is required.', example='oss-cn-hangzhou.aliyuncs.com'),
-    objects?: [ string ](name='objects', description='The names of the associated OSS objects.
-
-This parameter is required.'),
-  }(name='parameter', description='The parameters that are configured for the external store.
-
-This parameter is required.'),
-  storeType?: string(name='storeType', description='The type of the external store. Set the value to oss.
-
-This parameter is required.', example='oss'),
-}
-
-model UpdateOssExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary Updates an Object Storage Service (OSS) external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request UpdateOssExternalStoreRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateOssExternalStoreResponse
- */
-async function updateOssExternalStoreWithOptions(project: string, externalStoreName: string, request: UpdateOssExternalStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateOssExternalStoreResponse {
-  request.validate();
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!$isNull(request.externalStoreName)) {
-    body['externalStoreName'] = request.externalStoreName;
-  }
-  if (!$isNull(request.parameter)) {
-    body['parameter'] = request.parameter;
-  }
-  if (!$isNull(request.storeType)) {
-    body['storeType'] = request.storeType;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'UpdateOssExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores/${externalStoreName}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Updates an Object Storage Service (OSS) external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request UpdateOssExternalStoreRequest
- * @return UpdateOssExternalStoreResponse
- */
-async function updateOssExternalStore(project: string, externalStoreName: string, request: UpdateOssExternalStoreRequest): UpdateOssExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateOssExternalStoreWithOptions(project, externalStoreName, request, headers, runtime);
-}
-
 model UpdateProjectRequest {
   description?: string(name='description', description='The description of the project. The default value is an empty string.
 
 This parameter is required.', example='Description of my-project-test'),
-  recycleBinEnabled?: boolean(name='recycleBinEnabled'),
+  recycleBinEnabled?: boolean(name='recycleBinEnabled', description='Specifies whether to enable the recycle bin feature.
+
+Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model UpdateProjectResponse = {
@@ -13839,105 +13507,6 @@ async function updateProject(project: string, request: UpdateProjectRequest): Up
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateProjectWithOptions(project, request, headers, runtime);
-}
-
-model UpdateRdsExternalStoreRequest {
-  externalStoreName?: string(name='externalStoreName', description='The name of the ExternalStore.
-
-This parameter is required.', example='rds_store'),
-  parameter?: {
-    db?: string(name='db', description='The name of the database in the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='meta'),
-    host?: string(name='host', description='The internal or public endpoint of the ApsaraDB RDS for MySQL instance.', example='192.168.XX.XX'),
-    instanceId?: string(name='instance-id', description='The ID of the ApsaraDB RDS for MySQL instance.', example='i-bp1b6c719dfa08exf****'),
-    password?: string(name='password', description='The password that is used to log on to the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='sfdsfldsfksfls****'),
-    port?: string(name='port', description='The internal or public port of the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='3306'),
-    region?: string(name='region', description='The region where the ApsaraDB RDS for MySQL instance resides. Valid values: cn-qingdao, cn-beijing, and cn-hangzhou.
-
-This parameter is required.', example='cn-qingdao'),
-    table?: string(name='table', description='The name of the database table in the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='join_meta'),
-    username?: string(name='username', description='The username that is used to log on to the ApsaraDB RDS for MySQL instance.
-
-This parameter is required.', example='root'),
-    vpcId?: string(name='vpc-id', description='The ID of the VPC to which the ApsaraDB RDS for MySQL instance belongs.', example='vpc-bp1aevy8sofi8mh1q****'),
-  }(name='parameter', description='The parameter struct.
-
-This parameter is required.'),
-  storeType?: string(name='storeType', description='The storage type. Set the value to rds-vpc, which indicates an ApsaraDB RDS for MySQL database in a virtual private cloud (VPC).
-
-This parameter is required.', example='rds-vpc'),
-}
-
-model UpdateRdsExternalStoreResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-}
-
-/**
- * @summary Updates an ApsaraDB RDS external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request UpdateRdsExternalStoreRequest
- * @param headers map
- * @param runtime runtime options for this request RuntimeOptions
- * @return UpdateRdsExternalStoreResponse
- */
-async function updateRdsExternalStoreWithOptions(project: string, externalStoreName: string, request: UpdateRdsExternalStoreRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateRdsExternalStoreResponse {
-  request.validate();
-  var hostMap : map[string]string = {};
-  hostMap['project'] = project;
-  var body : map[string]any = {};
-  if (!$isNull(request.externalStoreName)) {
-    body['externalStoreName'] = request.externalStoreName;
-  }
-  if (!$isNull(request.parameter)) {
-    body['parameter'] = request.parameter;
-  }
-  if (!$isNull(request.storeType)) {
-    body['storeType'] = request.storeType;
-  }
-
-  var req = new OpenApiUtil.OpenApiRequest{ 
-    hostMap = hostMap,
-    headers = headers,
-    body = OpenApiUtil.parseToMap(body),
-  };
-  var params = new OpenApiUtil.Params{
-    action = 'UpdateRdsExternalStore',
-    version = '2020-12-30',
-    protocol = 'HTTPS',
-    pathname = `/externalstores/${externalStoreName}`,
-    method = 'PUT',
-    authType = 'AK',
-    style = 'ROA',
-    reqBodyType = 'json',
-    bodyType = 'none',
-  };
-  return execute(params, req, runtime);
-}
-
-/**
- * @summary Updates an ApsaraDB RDS external store.
- *
- * @description ### [](#)Usage notes
- * Host consists of a project name and a Simple Log Service endpoint. You must specify a project in Host.
- *
- * @param request UpdateRdsExternalStoreRequest
- * @return UpdateRdsExternalStoreResponse
- */
-async function updateRdsExternalStore(project: string, externalStoreName: string, request: UpdateRdsExternalStoreRequest): UpdateRdsExternalStoreResponse {
-  var runtime = new $RuntimeOptions{};
-  var headers : map[string]string = {};
-  return updateRdsExternalStoreWithOptions(project, externalStoreName, request, headers, runtime);
 }
 
 model UpdateSavedSearchRequest {
