@@ -42,6 +42,35 @@ model Catalog {
   updatedBy?: string(name='updatedBy'),
 }
 
+model CatalogSummary {
+  apiVisitCountMonthly?: long(name='apiVisitCountMonthly'),
+  databaseCount?: MoMValues(name='databaseCount'),
+  generatedDate?: string(name='generatedDate', description='Update date of the statistics'),
+  partitionCount?: MoMValues(name='partitionCount'),
+  tableCount?: MoMValues(name='tableCount'),
+  throughputMonthly?: long(name='throughputMonthly'),
+  totalFileCount?: MoMValues(name='totalFileCount'),
+  totalFileSizeInBytes?: MoMValues(name='totalFileSizeInBytes'),
+}
+
+model CatalogSummaryTrend {
+  apiVisitCount?: [
+    DateSummary
+  ](name='apiVisitCount', description='API visit count trends'),
+  throughput?: [
+    DateSummary
+  ](name='throughput', description='Table count trends'),
+  totalFileCount?: [
+    DateSummary
+  ](name='totalFileCount', description='Historical total file count'),
+  totalFileSizeInBytes?: [
+    DateSummary
+  ](name='totalFileSizeInBytes', description='Database count trends'),
+  totalMetaCount?: [
+    DateSummary
+  ](name='totalMetaCount', description='Latest snapshot file count'),
+}
+
 model DataField {
   description?: string(name='description'),
   id?: int32(name='id'),
@@ -59,6 +88,22 @@ model Database {
   owner?: string(name='owner'),
   updatedAt?: long(name='updatedAt'),
   updatedBy?: string(name='updatedBy'),
+}
+
+model DatabaseSummary {
+  createdAt?: long(name='createdAt', description='Creation timestamp in milliseconds'),
+  databaseName?: string(name='databaseName', description='库名 - Database name'),
+  generatedDate?: string(name='generatedDate', description='Last profile update date in format yyyyMMdd'),
+  location?: string(name='location', description='Storage location URI'),
+  partitionCount?: long(name='partitionCount'),
+  tableCount?: long(name='tableCount', description='Total storage in bytes'),
+  totalFileCount?: long(name='totalFileCount'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Total file count'),
+}
+
+model DateSummary {
+  date?: string(name='date'),
+  value?: long(name='value', description='Metric value at corresponding date'),
 }
 
 model ErrorResponse {
@@ -104,6 +149,12 @@ model Identifier {
   object?: string(name='object'),
 }
 
+model MoMValues {
+  currentValue?: long(name='currentValue', description='total'),
+  lastDayValue?: long(name='lastDayValue', description='daily addition'),
+  lastMonthValue?: long(name='lastMonthValue', description='monthly addition'),
+}
+
 model Move {
   fieldName?: string(name='fieldName'),
   referenceFieldName?: string(name='referenceFieldName'),
@@ -121,6 +172,24 @@ model Partition {
   spec?: map[string]any(name='spec'),
   updatedAt?: long(name='updatedAt'),
   updatedBy?: string(name='updatedBy'),
+}
+
+model PartitionSummaries {
+  nextPageToken?: string(name='nextPageToken'),
+  partitions?: [
+    PartitionSummary
+  ](name='partitions', description='Current page of partition profiles'),
+}
+
+model PartitionSummary {
+  createdAt?: long(name='createdAt', description='Partition creation timestamp in milliseconds'),
+  databaseName?: string(name='databaseName', description='Database name'),
+  lastAccessTime?: long(name='lastAccessTime', description='Total files in partition'),
+  partitionName?: string(name='partitionName', description='Partition identifier'),
+  tableName?: string(name='tableName', description='Table name'),
+  totalFileCount?: long(name='totalFileCount', description='24h access count'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Last data access timestamp in milliseconds'),
+  updatedAt?: long(name='updatedAt'),
 }
 
 model Permission {
@@ -196,6 +265,18 @@ model TableSnapshot {
   lastFileCreationTime?: long(name='lastFileCreationTime'),
   recordCount?: long(name='recordCount'),
   snapshot?: Snapshot(name='snapshot'),
+}
+
+model TableSummary {
+  createdAt?: long(name='createdAt', description='Latest snapshot storage size'),
+  databaseName?: string(name='databaseName', description='Database name'),
+  generatedDate?: string(name='generatedDate'),
+  lastAccessTime?: long(name='lastAccessTime'),
+  partitionCount?: long(name='partitionCount', description='Creation timestamp in milliseconds'),
+  path?: string(name='path'),
+  tableName?: string(name='tableName', description='Table name'),
+  totalFileCount?: long(name='totalFileCount', description='30-day access count'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes'),
 }
 
 model User {
@@ -421,6 +502,90 @@ async function getCatalog(request: GetCatalogRequest): GetCatalogResponse {
   return @handler.do('RESTFUL', 'GetCatalog', 'GET', '/dlf/v1/catalogs/{catalog}', 'json', false, 'json', request);
 }
 
+model GetCatalogSummaryRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxxx', position='Path'),
+}
+
+model GetCatalogSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CatalogSummary  
+}
+
+/**
+  * @param request  the request parameters of GetCatalogSummary  GetCatalogSummaryRequest
+  * @return GetCatalogSummaryResponse
+ */
+async function getCatalogSummary(request: GetCatalogSummaryRequest): GetCatalogSummaryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCatalogSummary', 'GET', '/dlf/v1/storage-summary/{catalogId}', 'json', false, 'json', request);
+}
+
+model GetCatalogSummaryTrendRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxxx', position='Path'),
+  endDate: string(name='endDate', description='This parameter is required.', example='2025-06-01', position='Query'),
+  startDate: string(name='startDate', description='This parameter is required.', example='2025-05-01', position='Query'),
+}
+
+model GetCatalogSummaryTrendResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CatalogSummaryTrend  
+}
+
+/**
+  * @param request  the request parameters of GetCatalogSummaryTrend  GetCatalogSummaryTrendRequest
+  * @return GetCatalogSummaryTrendResponse
+ */
+async function getCatalogSummaryTrend(request: GetCatalogSummaryTrendRequest): GetCatalogSummaryTrendResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCatalogSummaryTrend', 'GET', '/dlf/v1/storage-summary/{catalogId}/trend', 'json', false, 'json', request);
+}
+
+model GetCatalogTokenRequest {
+  catalog: string(name='catalog', description='This parameter is required.', example='catalog_demo', position='Path'),
+}
+
+model GetCatalogTokenResponseBody = {
+  expiresAtMillis?: long(name='expiresAtMillis', example='1749160909000'),
+  token?: map[string]string(name='token'),
+}
+
+model GetCatalogTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCatalogTokenResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetCatalogToken  GetCatalogTokenRequest
+  * @return GetCatalogTokenResponse
+ */
+async function getCatalogToken(request: GetCatalogTokenRequest): GetCatalogTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCatalogToken', 'GET', '/dlf/v1/catalogs/{catalog}/token', 'json', false, 'json', request);
+}
+
+model GetDatabaseSummaryRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxxx', position='Path'),
+  database: string(name='database', description='This parameter is required.', example='default', position='Path'),
+}
+
+model GetDatabaseSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DatabaseSummary  
+}
+
+/**
+  * @param request  the request parameters of GetDatabaseSummary  GetDatabaseSummaryRequest
+  * @return GetDatabaseSummaryResponse
+ */
+async function getDatabaseSummary(request: GetDatabaseSummaryRequest): GetDatabaseSummaryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetDatabaseSummary', 'GET', '/dlf/v1/storage-summary/{catalogId}/databases/{database}', 'json', false, 'json', request);
+}
+
 model GetRegionStatusRequest {
 }
 
@@ -461,6 +626,27 @@ model GetRoleResponse = {
 async function getRole(request: GetRoleRequest): GetRoleResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetRole', 'GET', '/dlf/v1/auth/roles', 'json', false, 'json', request);
+}
+
+model GetTableSummaryRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxxx', position='Path'),
+  database: string(name='database', description='This parameter is required.', example='default', position='Path'),
+  table: string(name='table', description='This parameter is required.', example='table1', position='Path'),
+}
+
+model GetTableSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TableSummary  
+}
+
+/**
+  * @param request  the request parameters of GetTableSummary  GetTableSummaryRequest
+  * @return GetTableSummaryResponse
+ */
+async function getTableSummary(request: GetTableSummaryRequest): GetTableSummaryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetTableSummary', 'GET', '/dlf/v1/storage-summary/{catalogId}/databases/{database}/tables/{table}', 'json', false, 'json', request);
 }
 
 model GetUserRequest {
@@ -527,6 +713,30 @@ model ListCatalogsResponse = {
 async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListCatalogs', 'GET', '/dlf/v1/catalogs', 'json', false, 'json', request);
+}
+
+model ListPartitionSummariesRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxxx', position='Path'),
+  database: string(name='database', description='This parameter is required.', example='default', position='Path'),
+  table: string(name='table', description='This parameter is required.', example='table1', position='Path'),
+  maxResults?: int32(name='maxResults', example='100', position='Query'),
+  pageToken?: string(name='pageToken', example='""', position='Query'),
+  partitionNamePattern?: string(name='partitionNamePattern', example='hh=10', position='Query'),
+}
+
+model ListPartitionSummariesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PartitionSummaries  
+}
+
+/**
+  * @param request  the request parameters of ListPartitionSummaries  ListPartitionSummariesRequest
+  * @return ListPartitionSummariesResponse
+ */
+async function listPartitionSummaries(request: ListPartitionSummariesRequest): ListPartitionSummariesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPartitionSummaries', 'GET', '/dlf/v1/storage-summary/{catalogId}/databases/{database}/tables/{table}/partitions', 'json', false, 'json', request);
 }
 
 model ListPermissionsRequest {

@@ -38,6 +38,35 @@ model Catalog {
   updatedBy?: string(name='updatedBy'),
 }
 
+model CatalogSummary {
+  apiVisitCountMonthly?: long(name='apiVisitCountMonthly'),
+  databaseCount?: MoMValues(name='databaseCount'),
+  generatedDate?: string(name='generatedDate', description='Update date of the statistics'),
+  partitionCount?: MoMValues(name='partitionCount'),
+  tableCount?: MoMValues(name='tableCount'),
+  throughputMonthly?: long(name='throughputMonthly'),
+  totalFileCount?: MoMValues(name='totalFileCount'),
+  totalFileSizeInBytes?: MoMValues(name='totalFileSizeInBytes'),
+}
+
+model CatalogSummaryTrend {
+  apiVisitCount?: [
+    DateSummary
+  ](name='apiVisitCount', description='API visit count trends'),
+  throughput?: [
+    DateSummary
+  ](name='throughput', description='Table count trends'),
+  totalFileCount?: [
+    DateSummary
+  ](name='totalFileCount', description='Historical total file count'),
+  totalFileSizeInBytes?: [
+    DateSummary
+  ](name='totalFileSizeInBytes', description='Database count trends'),
+  totalMetaCount?: [
+    DateSummary
+  ](name='totalMetaCount', description='Latest snapshot file count'),
+}
+
 model DataField {
   description?: string(name='description'),
   id?: int32(name='id'),
@@ -55,6 +84,22 @@ model Database {
   owner?: string(name='owner'),
   updatedAt?: long(name='updatedAt'),
   updatedBy?: string(name='updatedBy'),
+}
+
+model DatabaseSummary {
+  createdAt?: long(name='createdAt', description='Creation timestamp in milliseconds'),
+  databaseName?: string(name='databaseName', description='库名 - Database name'),
+  generatedDate?: string(name='generatedDate', description='Last profile update date in format yyyyMMdd'),
+  location?: string(name='location', description='Storage location URI'),
+  partitionCount?: long(name='partitionCount'),
+  tableCount?: long(name='tableCount', description='Total storage in bytes'),
+  totalFileCount?: long(name='totalFileCount'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Total file count'),
+}
+
+model DateSummary {
+  date?: string(name='date'),
+  value?: long(name='value', description='Metric value at corresponding date'),
 }
 
 model ErrorResponse {
@@ -100,6 +145,12 @@ model Identifier {
   object?: string(name='object'),
 }
 
+model MoMValues {
+  currentValue?: long(name='currentValue', description='total'),
+  lastDayValue?: long(name='lastDayValue', description='daily addition'),
+  lastMonthValue?: long(name='lastMonthValue', description='monthly addition'),
+}
+
 model Move {
   fieldName?: string(name='fieldName'),
   referenceFieldName?: string(name='referenceFieldName'),
@@ -117,6 +168,24 @@ model Partition {
   spec?: map[string]any(name='spec'),
   updatedAt?: long(name='updatedAt'),
   updatedBy?: string(name='updatedBy'),
+}
+
+model PartitionSummaries {
+  nextPageToken?: string(name='nextPageToken'),
+  partitions?: [
+    PartitionSummary
+  ](name='partitions', description='Current page of partition profiles'),
+}
+
+model PartitionSummary {
+  createdAt?: long(name='createdAt', description='Partition creation timestamp in milliseconds'),
+  databaseName?: string(name='databaseName', description='Database name'),
+  lastAccessTime?: long(name='lastAccessTime', description='Total files in partition'),
+  partitionName?: string(name='partitionName', description='Partition identifier'),
+  tableName?: string(name='tableName', description='Table name'),
+  totalFileCount?: long(name='totalFileCount', description='24h access count'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Last data access timestamp in milliseconds'),
+  updatedAt?: long(name='updatedAt'),
 }
 
 model Permission {
@@ -192,6 +261,18 @@ model TableSnapshot {
   lastFileCreationTime?: long(name='lastFileCreationTime'),
   recordCount?: long(name='recordCount'),
   snapshot?: Snapshot(name='snapshot'),
+}
+
+model TableSummary {
+  createdAt?: long(name='createdAt', description='Latest snapshot storage size'),
+  databaseName?: string(name='databaseName', description='Database name'),
+  generatedDate?: string(name='generatedDate'),
+  lastAccessTime?: long(name='lastAccessTime'),
+  partitionCount?: long(name='partitionCount', description='Creation timestamp in milliseconds'),
+  path?: string(name='path'),
+  tableName?: string(name='tableName', description='Table name'),
+  totalFileCount?: long(name='totalFileCount', description='30-day access count'),
+  totalFileSizeInBytes?: long(name='totalFileSizeInBytes'),
 }
 
 model User {
@@ -715,6 +796,196 @@ async function getCatalog(catalog: string): GetCatalogResponse {
   return getCatalogWithOptions(catalog, headers, runtime);
 }
 
+model GetCatalogSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CatalogSummary  
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCatalogSummaryResponse
+ */
+async function getCatalogSummaryWithOptions(catalogId: string, headers: map[string]string, runtime: $RuntimeOptions): GetCatalogSummaryResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetCatalogSummary',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/storage-summary/${$URL.percentEncode(catalogId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看表
+ *
+ * @return GetCatalogSummaryResponse
+ */
+async function getCatalogSummary(catalogId: string): GetCatalogSummaryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCatalogSummaryWithOptions(catalogId, headers, runtime);
+}
+
+model GetCatalogSummaryTrendRequest {
+  endDate?: string(name='endDate', description='This parameter is required.', example='2025-06-01'),
+  startDate?: string(name='startDate', description='This parameter is required.', example='2025-05-01'),
+}
+
+model GetCatalogSummaryTrendResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CatalogSummaryTrend  
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param request GetCatalogSummaryTrendRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCatalogSummaryTrendResponse
+ */
+async function getCatalogSummaryTrendWithOptions(catalogId: string, request: GetCatalogSummaryTrendRequest, headers: map[string]string, runtime: $RuntimeOptions): GetCatalogSummaryTrendResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.endDate)) {
+    query['endDate'] = request.endDate;
+  }
+  if (!$isNull(request.startDate)) {
+    query['startDate'] = request.startDate;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetCatalogSummaryTrend',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/storage-summary/${$URL.percentEncode(catalogId)}/trend`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param request GetCatalogSummaryTrendRequest
+ * @return GetCatalogSummaryTrendResponse
+ */
+async function getCatalogSummaryTrend(catalogId: string, request: GetCatalogSummaryTrendRequest): GetCatalogSummaryTrendResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCatalogSummaryTrendWithOptions(catalogId, request, headers, runtime);
+}
+
+model GetCatalogTokenResponseBody = {
+  expiresAtMillis?: long(name='expiresAtMillis', example='1749160909000'),
+  token?: map[string]string(name='token'),
+}
+
+model GetCatalogTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCatalogTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据湖Catalog的临时访问凭证
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetCatalogTokenResponse
+ */
+async function getCatalogTokenWithOptions(catalog: string, headers: map[string]string, runtime: $RuntimeOptions): GetCatalogTokenResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetCatalogToken',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/catalogs/${$URL.percentEncode(catalog)}/token`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据湖Catalog的临时访问凭证
+ *
+ * @return GetCatalogTokenResponse
+ */
+async function getCatalogToken(catalog: string): GetCatalogTokenResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getCatalogTokenWithOptions(catalog, headers, runtime);
+}
+
+model GetDatabaseSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DatabaseSummary  
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetDatabaseSummaryResponse
+ */
+async function getDatabaseSummaryWithOptions(catalogId: string, database: string, headers: map[string]string, runtime: $RuntimeOptions): GetDatabaseSummaryResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetDatabaseSummary',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/storage-summary/${$URL.percentEncode(catalogId)}/databases/${$URL.percentEncode(database)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看表
+ *
+ * @return GetDatabaseSummaryResponse
+ */
+async function getDatabaseSummary(catalogId: string, database: string): GetDatabaseSummaryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getDatabaseSummaryWithOptions(catalogId, database, headers, runtime);
+}
+
 model GetRegionStatusResponseBody = {
   serviceRoleExists?: boolean(name='serviceRoleExists', example='true'),
   status?: string(name='status', example='READY'),
@@ -815,6 +1086,48 @@ async function getRole(request: GetRoleRequest): GetRoleResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getRoleWithOptions(request, headers, runtime);
+}
+
+model GetTableSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TableSummary  
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTableSummaryResponse
+ */
+async function getTableSummaryWithOptions(catalogId: string, database: string, table: string, headers: map[string]string, runtime: $RuntimeOptions): GetTableSummaryResponse {
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetTableSummary',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/storage-summary/${$URL.percentEncode(catalogId)}/databases/${$URL.percentEncode(database)}/tables/${$URL.percentEncode(table)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看表
+ *
+ * @return GetTableSummaryResponse
+ */
+async function getTableSummary(catalogId: string, database: string, table: string): GetTableSummaryResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTableSummaryWithOptions(catalogId, database, table, headers, runtime);
 }
 
 model GetUserRequest {
@@ -998,6 +1311,69 @@ async function listCatalogs(request: ListCatalogsRequest): ListCatalogsResponse 
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listCatalogsWithOptions(request, headers, runtime);
+}
+
+model ListPartitionSummariesRequest {
+  maxResults?: int32(name='maxResults', example='100'),
+  pageToken?: string(name='pageToken', example='""'),
+  partitionNamePattern?: string(name='partitionNamePattern', example='hh=10'),
+}
+
+model ListPartitionSummariesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PartitionSummaries  
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param request ListPartitionSummariesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPartitionSummariesResponse
+ */
+async function listPartitionSummariesWithOptions(catalogId: string, database: string, table: string, request: ListPartitionSummariesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListPartitionSummariesResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.pageToken)) {
+    query['pageToken'] = request.pageToken;
+  }
+  if (!$isNull(request.partitionNamePattern)) {
+    query['partitionNamePattern'] = request.partitionNamePattern;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListPartitionSummaries',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/storage-summary/${$URL.percentEncode(catalogId)}/databases/${$URL.percentEncode(database)}/tables/${$URL.percentEncode(table)}/partitions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看表
+ *
+ * @param request ListPartitionSummariesRequest
+ * @return ListPartitionSummariesResponse
+ */
+async function listPartitionSummaries(catalogId: string, database: string, table: string, request: ListPartitionSummariesRequest): ListPartitionSummariesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listPartitionSummariesWithOptions(catalogId, database, table, request, headers, runtime);
 }
 
 model ListPermissionsRequest {
