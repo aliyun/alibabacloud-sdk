@@ -30,6 +30,15 @@ function close(): void {
   @handler.close();
 }
 
+model RepoConfiguration {
+  artifactBuildRuleParameters?: {
+    imageIndexOnly: boolean(name='ImageIndexOnly', description='This parameter is required.'),
+    priorityFile?: string(name='PriorityFile'),
+  }(name='ArtifactBuildRuleParameters'),
+  repoType: string(name='RepoType', description='This parameter is required.'),
+  tagImmutability: boolean(name='TagImmutability', description='This parameter is required.'),
+}
+
 model CancelArtifactBuildTaskRequest {
   regionId?: string(name='RegionId', description='The ID of the region.
 
@@ -351,16 +360,26 @@ async function createArtifactSubscriptionTask(request: CreateArtifactSubscriptio
 
 model CreateBuildRecordByRecordRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  buildRecordId: string(name='BuildRecordId', description='This parameter is required.', example='0A311FC5-B8C6-4332-80E4-539EB73****', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='cri-hpdfkc6utbaq****', position='Query'),
-  repoId: string(name='RepoId', description='This parameter is required.', example='crr-hnoq7j93or3k****', position='Query'),
+  buildRecordId: string(name='BuildRecordId', description='The ID of the image building record.
+
+This parameter is required.', example='0A311FC5-B8C6-4332-80E4-539EB73****', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='cri-hpdfkc6utbaq****', position='Query'),
+  repoId: string(name='RepoId', description='The ID of the image repository.
+
+This parameter is required.', example='crr-hnoq7j93or3k****', position='Query'),
 }
 
 model CreateBuildRecordByRecordResponseBody = {
-  buildRecordId?: string(name='BuildRecordId', example='crbr-ly77w5i3t31f****'),
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  requestId?: string(name='RequestId', example='4CE1F661-75DD-4EBD-A4AD-057B26834ABB'),
+  buildRecordId?: string(name='BuildRecordId', description='The ID of the image building record.', example='crbr-ly77w5i3t31f****'),
+  code?: string(name='Code', description='The HTTP status code. The status code 200 indicates that the request is successful.\\
+Other status codes indicate that the request failed.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful. Valid values:
+
+*   `true`: The request is successful.
+*   `false`: The request fails.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='4CE1F661-75DD-4EBD-A4AD-057B26834ABB'),
 }
 
 model CreateBuildRecordByRecordResponse = {
@@ -631,10 +650,11 @@ async function createInstanceVpcEndpointLinkedVpc(request: CreateInstanceVpcEndp
 model CreateNamespaceRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   autoCreateRepo?: boolean(name='AutoCreateRepo', description='Specifies whether to automatically create an image repository in the namespace.', example='true', position='Query'),
-  defaultRepoType?: string(name='DefaultRepoType', description='The default type of the repository that is automatically created. Valid values:
+  defaultRepoConfiguration?: RepoConfiguration(name='DefaultRepoConfiguration', shrink='json', position='Query'),
+  defaultRepoType?: string(name='DefaultRepoType', description='The default type of the repositories that are automatically created in the namespace. Valid values:
 
-*   `PUBLIC`: a public repository
-*   `PRIVATE`: a private repository', example='PUBLIC', position='Query'),
+*   `PUBLIC`: public repositories
+*   `PRIVATE`: private repositories.', example='PUBLIC', deprecated='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.
 
 This parameter is required.', example='cri-xkx6vujuhay0****', position='Query'),
@@ -777,28 +797,52 @@ async function createRepoSourceCodeRepo(request: CreateRepoSourceCodeRepoRequest
 
 model CreateRepoSyncRuleRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='cri-hpdfkc6utbaq****', position='Query'),
-  namespaceName: string(name='NamespaceName', description='This parameter is required.', example='ns1', position='Query'),
-  repoName?: string(name='RepoName', example='repo1', position='Query'),
-  repoNameFilter?: string(name='RepoNameFilter', description='The rule that is used to filter repositories.
+  instanceId: string(name='InstanceId', description='The source instance ID.
+
+This parameter is required.', example='cri-hpdfkc6utbaq****', position='Query'),
+  namespaceName: string(name='NamespaceName', description='The namespace name of the source instance.
+
+This parameter is required.', example='ns1', position='Query'),
+  repoName?: string(name='RepoName', description='The name of the image repository in the source instance.', example='repo1', position='Query'),
+  repoNameFilter?: string(name='RepoNameFilter', description='The regular expression that is used to filter repositories.
 
 >  This parameter is valid only when SyncScope is set to `NAMESPACE`.', example='.*', position='Query'),
-  syncRuleName: string(name='SyncRuleName', description='This parameter is required.', example='rule', position='Query'),
-  syncScope: string(name='SyncScope', description='This parameter is required.', example='REPO', position='Query'),
-  syncTrigger?: string(name='SyncTrigger', example='PASSIVE', position='Query'),
-  tagFilter: string(name='TagFilter', description='This parameter is required.', example='.*', position='Query'),
-  targetInstanceId: string(name='TargetInstanceId', description='This parameter is required.', example='cri-ibxs3piklys3****', position='Query'),
-  targetNamespaceName: string(name='TargetNamespaceName', description='This parameter is required.', example='ns1', position='Query'),
-  targetRegionId: string(name='TargetRegionId', description='This parameter is required.', example='cn-shanghai', position='Query'),
-  targetRepoName?: string(name='TargetRepoName', example='repo1', position='Query'),
-  targetUserId?: string(name='TargetUserId', example='12645940***', position='Query'),
+  syncRuleName: string(name='SyncRuleName', description='The name of the image synchronization rule.
+
+This parameter is required.', example='rule', position='Query'),
+  syncScope: string(name='SyncScope', description='The synchronization scope. Valid values:
+
+*   `REPO`: synchronizes the image tags in an image repository that meet the synchronization rule.
+*   `NAMESPACE`: synchronizes the image tags in a namespace that meet the synchronization rule.
+
+This parameter is required.', example='REPO', position='Query'),
+  syncTrigger?: string(name='SyncTrigger', description='The mode of triggering the synchronization rule. Valid values:
+
+*   `INITIATIVE`: manually triggers the synchronization rule.
+*   `PASSIVE`: automatically triggers the synchronization rule.', example='PASSIVE', position='Query'),
+  tagFilter: string(name='TagFilter', description='The regular expression that is used to filter image tags.
+
+This parameter is required.', example='.*', position='Query'),
+  targetInstanceId: string(name='TargetInstanceId', description='The destination instance ID.
+
+This parameter is required.', example='cri-ibxs3piklys3****', position='Query'),
+  targetNamespaceName: string(name='TargetNamespaceName', description='The namespace name of the destination instance.
+
+This parameter is required.', example='ns1', position='Query'),
+  targetRegionId: string(name='TargetRegionId', description='The region ID of the destination instance.
+
+This parameter is required.', example='cn-shanghai', position='Query'),
+  targetRepoName?: string(name='TargetRepoName', description='The name of the image repository in the destination instance.', example='repo1', position='Query'),
+  targetUserId?: string(name='TargetUserId', description='The user ID (UID) of the account to which the destination instance belongs.
+
+>  If you synchronize images across accounts, you must use the UID.', example='12645940***', position='Query'),
 }
 
 model CreateRepoSyncRuleResponseBody = {
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  requestId?: string(name='RequestId', example='8F8A0BA6-7F06-4BAE-B147-10BD6A25****'),
-  syncRuleId?: string(name='SyncRuleId', example='crsr-gk5p2ns1kzns****'),
+  code?: string(name='Code', description='The HTTP status code.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='8F8A0BA6-7F06-4BAE-B147-10BD6A25****'),
+  syncRuleId?: string(name='SyncRuleId', description='The ID of the synchronization rule.', example='crsr-gk5p2ns1kzns****'),
 }
 
 model CreateRepoSyncRuleResponse = {
@@ -936,7 +980,7 @@ async function createRepoTag(request: CreateRepoTagRequest): CreateRepoTagRespon
 model CreateRepoTagScanTaskRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   digest?: string(name='Digest', description='The digest of the image.', example='sha256:815386ebbe9a3490f38785ab11bda34ec8dacf4634af77b8912832d4f85dca04', position='Query'),
-  instanceId: string(name='InstanceId', description='The ID of the instance.
+  instanceId: string(name='InstanceId', description='The ID of the Container Registry instance.
 
 This parameter is required.', example='cri-xkx6vujuhay0****', position='Query'),
   repoId: string(name='RepoId', description='The ID of the image repository.
@@ -947,18 +991,18 @@ This parameter is required.', example='crr-xwvi3osiy4ff****', position='Query'),
 *   `SAS_SCAN_SERVICE`: Security Center scan engine (paid service)
 *   `ACR_SCAN_SERVICE`: Container Registry scan engine', example='ACR_SCAN_SERVICE', position='Query'),
   scanType?: string(name='ScanType', position='Query'),
-  tag: string(name='Tag', description='The version of the image.
+  tag: string(name='Tag', description='The image version.
 
 This parameter is required.', example='1.24', position='Query'),
 }
 
 model CreateRepoTagScanTaskResponseBody = {
   code?: string(name='Code', description='The return value.', example='success'),
-  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful. Valid values:
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the API request is successful. Valid values:
 
 *   `true`: The request is successful.
 *   `false`: The request fails.', example='true'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='BC648259-91A7-4502-BED3-EDF64361FA83'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BC648259-91A7-4502-BED3-EDF64361FA83'),
 }
 
 model CreateRepoTagScanTaskResponse = {
@@ -2122,21 +2166,35 @@ async function getChartRepository(request: GetChartRepositoryRequest): GetChartR
 
 model GetInstanceRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='cri-xkx6vujuhay0****', position='Query'),
+  instanceId: string(name='InstanceId', description='The ID of the Container Registry instance.
+
+This parameter is required.', example='cri-xkx6vujuhay0****', position='Query'),
 }
 
 model GetInstanceResponseBody = {
   code?: string(name='Code', example='success'),
-  createTime?: long(name='CreateTime', example='1571926439000'),
-  instanceId?: string(name='InstanceId', example='cri-xkx6vujuhay0****'),
+  createTime?: long(name='CreateTime', description='The time when the instance was created.', example='1571926439000'),
+  instanceId?: string(name='InstanceId', description='The ID of the Container Registry instance.', example='cri-xkx6vujuhay0****'),
   instanceIssue?: string(name='InstanceIssue', description='The issue occurs on the instance.', example='The issue occurs on the instance. Valid values: OSS_TOO_MANY_BUCKETS: The number of Object Storage Service (OSS) buckets exceeds the upper limit. OSS_BUCKET_ALREADY_EXISTS: An OSS bucket that has the duplicate name already exists. OSS_SERVICE_ROLE_UNAUTHORIZED: The OSS service-linked role is not granted permissions. USER_NOT_REGISTERED_BY_REAL_NAME: The Alibaba Cloud account has not passed a real name verification.'),
-  instanceName?: string(name='InstanceName', example='shanghai-instance1'),
+  instanceName?: string(name='InstanceName', description='The name of the instance.', example='shanghai-instance1'),
   instanceSpecification?: string(name='InstanceSpecification', description='The edition of the instance. Valid values: Enterprise_Basic: Basic Edition instances Enterprise_Standard: Standard Edition instances Enterprise_Advanced: Advanced Edition instances', example='Enterprise_Basic'),
-  instanceStatus?: string(name='InstanceStatus', example='RUNNING'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  modifiedTime?: long(name='ModifiedTime', example='1571926560000'),
-  requestId?: string(name='RequestId', example='6EF34B18-4228-470C-860C-D28597CF010E'),
-  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmv36i4isx****'),
+  instanceStatus?: string(name='InstanceStatus', description='The status of the instance. Valid values:
+
+*   `PENDING`: The instance is being initialized.
+*   `INIT_ERROR`: The instance failed to be initialized.
+*   `STARTING`: The instance is being started.
+*   `RUNNING`: The instance is running.
+*   `STOPPING`: The instance is being stopped.
+*   `STOPPED`: The instance is stopped.
+*   `DELETING`: The instance is being deleted.
+*   `DELETED`: The instance is deleted.', example='RUNNING'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful. Valid values:
+
+*   `true`: The request is successful.
+*   `false`: The request fails.', example='true'),
+  modifiedTime?: long(name='ModifiedTime', description='The time when the instance was last modified.', example='1571926560000'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6EF34B18-4228-470C-860C-D28597CF010E'),
+  resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the instance belongs.', example='rg-acfmv36i4isx****'),
   tags?: [ 
     {
       tagKey?: string(name='TagKey', description='The tag key.', example='test_key'),
@@ -2350,10 +2408,11 @@ This parameter is required.', example='cri-kmsiwlxxdcva****', position='Query'),
 model GetNamespaceResponseBody = {
   autoCreateRepo?: boolean(name='AutoCreateRepo', description='Indicates whether a repository is automatically created when an image is pushed to the namespace.', example='true'),
   code?: string(name='Code', description='The return value.', example='success'),
-  defaultRepoType?: string(name='DefaultRepoType', description='The default type of repositories. Valid values:
+  defaultRepoConfiguration?: RepoConfiguration(name='DefaultRepoConfiguration'),
+  defaultRepoType?: string(name='DefaultRepoType', description='The default type of repositories in the namespace. Valid values:
 
-*   PUBLIC: The repositories are public repositories.
-*   PRIVATE: The repositories are private repositories.', example='PUBLIC'),
+*   PUBLIC: public repositories.
+*   PRIVATE: private repositories.', example='PUBLIC', deprecated='true'),
   instanceId?: string(name='InstanceId', description='The ID of the Container Registry instance.', example='cri-kmsiwlxxdcva****'),
   isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request was successful.', example='true'),
   namespaceId?: string(name='NamespaceId', description='The ID of the namespace.', example='crn-tiw8t3f8i5lt****'),
@@ -2637,20 +2696,33 @@ async function getRepoTag(request: GetRepoTagRequest): GetRepoTagResponse {
 
 model GetRepoTagScanStatusRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  digest?: string(name='Digest', example='67bfbcc12b67936ec7f867927817cbb071832b873dbcaed312a1930ba5f1d529', position='Query'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='cri-2j88dtld8yel****', position='Query'),
-  repoId?: string(name='RepoId', example='crr-uf082u9dg8do****', position='Query'),
-  scanTaskId?: string(name='ScanTaskId', example='838152F9-F725-5A52-A344-8972D65AC045', position='Query'),
+  digest?: string(name='Digest', description='The image digest.', example='67bfbcc12b67936ec7f867927817cbb071832b873dbcaed312a1930ba5f1d529', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='cri-2j88dtld8yel****', position='Query'),
+  repoId?: string(name='RepoId', description='The ID of the image repository.', example='crr-uf082u9dg8do****', position='Query'),
+  scanTaskId?: string(name='ScanTaskId', description='The ID of the image scan task.', example='838152F9-F725-5A52-A344-8972D65AC045', position='Query'),
   scanType?: string(name='ScanType', position='Query'),
-  tag?: string(name='Tag', example='1', position='Query'),
+  tag?: string(name='Tag', description='The image tag.', example='1', position='Query'),
 }
 
 model GetRepoTagScanStatusResponseBody = {
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  requestId?: string(name='RequestId', example='BC648259-91A7-4502-BED3-EDF64361FA83'),
-  scanService?: string(name='ScanService', example='ACR_SCAN_SERVICE'),
-  status?: string(name='Status', example='COMPLETE'),
+  code?: string(name='Code', description='The HTTP status code.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful. Valid values:
+
+*   `true`: The request is successful.
+*   `false`: The request fails.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='BC648259-91A7-4502-BED3-EDF64361FA83'),
+  scanService?: string(name='ScanService', description='The type of the scanning engine.
+
+*   `ACR_SCAN_SERVICE`: Trivy scan engine provided by Container Registry
+*   `SAS_SCAN_SERVICE`: Security Center scan engine', example='ACR_SCAN_SERVICE'),
+  status?: string(name='Status', description='The scanning status of the image tag. Valid values:
+
+*   `SCANNING`: The image tag is being scanned.
+*   `COMPLETE`: The scanning of the image tag is complete.
+*   `FAILED`: The image tag failed to be scanned.
+*   `RETRYING`: The system is retrying to scan the image tag.', example='COMPLETE'),
 }
 
 model GetRepoTagScanStatusResponse = {
@@ -2815,7 +2887,7 @@ model ListArtifactLifecycleRuleRequest {
 
 This parameter is required.', example='cri-eztul9ucz76q****', position='Query'),
   pageNo?: int32(name='PageNo', description='The page number.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 100. If you specify a value greater than 100 for this parameter, the system reports a parameter error or uses 100 as the maximum value.', example='10', position='Query'),
 }
 
 model ListArtifactLifecycleRuleResponseBody = {
@@ -3510,33 +3582,46 @@ async function listInstanceRegion(request: ListInstanceRegionRequest): ListInsta
 
 model ListNamespaceRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  instanceId: string(name='InstanceId', description='The number of the page to return.
+  instanceId: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='cri-94klsruryslx****', position='Query'),
-  namespaceName?: string(name='NamespaceName', description='The number of entries returned per page.', example='test-namespace', position='Query'),
-  namespaceStatus?: string(name='NamespaceStatus', description='The ID of the namespace.', example='NORMAL', position='Query'),
-  pageNo?: int32(name='PageNo', description='The list of namespaces.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The ID of the request.', example='30', position='Query'),
+  namespaceName?: string(name='NamespaceName', description='The namespace name.', example='test-namespace', position='Query'),
+  namespaceStatus?: string(name='NamespaceStatus', description='The status of the namespace. Valid values:
+
+*   `NORMAL`
+*   `DELETING`', example='NORMAL', position='Query'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
 }
 
 model ListNamespaceResponseBody = {
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
+  code?: string(name='Code', description='The HTTP status code.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful. Valid values:
+
+*   `true`: The request is successful.
+*   `false`: The request fails.', example='true'),
   namespaces?: [ 
     {
-      autoCreateRepo?: boolean(name='AutoCreateRepo', example='true'),
-      defaultRepoType?: string(name='DefaultRepoType', example='PUBLIC'),
-      instanceId?: string(name='InstanceId', example='cri-94klsruryslx****'),
-      namespaceId?: string(name='NamespaceId', example='crn-tiw8t3f8i5lt****'),
-      namespaceName?: string(name='NamespaceName', example='test'),
-      namespaceStatus?: string(name='NamespaceStatus', example='NORMAL'),
-      resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm4n5kzyf2fbi'),
+      autoCreateRepo?: boolean(name='AutoCreateRepo', description='Indicates whether the automatically creating repositories feature is enabled for the namespace.', example='true'),
+      defaultRepoConfiguration?: RepoConfiguration(name='DefaultRepoConfiguration'),
+      defaultRepoType?: string(name='DefaultRepoType', description='The default type of repositories in the namespace. Valid values:
+
+*   `PUBLIC`: public repositories.
+*   `PRIVATE`: private repositories.', example='PUBLIC', deprecated='true'),
+      instanceId?: string(name='InstanceId', description='The instance ID.', example='cri-94klsruryslx****'),
+      namespaceId?: string(name='NamespaceId', description='The namespace ID.', example='crn-tiw8t3f8i5lt****'),
+      namespaceName?: string(name='NamespaceName', description='The namespace name.', example='test'),
+      namespaceStatus?: string(name='NamespaceStatus', description='The status of the namespace. Valid values:
+
+*   `NORMAL`: The namespace is normal.
+*   `DELETING`: The namespace is being deleted.', example='NORMAL'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfm4n5kzyf2fbi'),
     }
-  ](name='Namespaces'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
+  ](name='Namespaces', description='The queried namespaces.'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
   requestId?: string(name='RequestId', description='The request ID.', example='B7E5FCA5-55ED-451C-9649-0BB2B93387D0'),
-  totalCount?: string(name='TotalCount', example='1'),
+  totalCount?: string(name='TotalCount', description='The total number of the queried namespaces.', example='1'),
 }
 
 model ListNamespaceResponse = {
@@ -3781,64 +3866,78 @@ async function listRepoSyncRule(request: ListRepoSyncRuleRequest): ListRepoSyncR
 
 model ListRepoSyncTaskRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  instanceId: string(name='InstanceId', description='This parameter is required.', example='cri-kmsiwlxxdcva****', position='Query'),
-  pageNo?: int32(name='PageNo', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='30', position='Query'),
-  repoName?: string(name='RepoName', example='test', position='Query'),
-  repoNamespaceName?: string(name='RepoNamespaceName', example='ns', position='Query'),
+  instanceId: string(name='InstanceId', description='The instance ID.
+
+This parameter is required.', example='cri-kmsiwlxxdcva****', position='Query'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
+  repoName?: string(name='RepoName', description='The repository name.', example='test', position='Query'),
+  repoNamespaceName?: string(name='RepoNamespaceName', description='The name of the namespace to which the repository belongs.', example='ns', position='Query'),
   syncRecordId?: string(name='SyncRecordId', description='The ID of the synchronization task record, which is the same as SyncBatchTaskId in the response.
 
 >  If an image meets multiple synchronization rules and multiple synchronization tasks are generated for the image, these synchronization tasks use the same SyncBatchTaskId.', example='crsr-7lph66uloi6h****', position='Query'),
-  tag?: string(name='Tag', example='nginx', position='Query'),
+  tag?: string(name='Tag', description='The image tag.', example='nginx', position='Query'),
 }
 
 model ListRepoSyncTaskResponseBody = {
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
-  requestId?: string(name='RequestId', example='7640819A-FB5B-4E25-A227-97717F62****'),
+  code?: string(name='Code', description='The HTTP status code.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful.', example='true'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
+  requestId?: string(name='RequestId', description='The request ID.', example='7640819A-FB5B-4E25-A227-97717F62****'),
   syncTasks?: [ 
     {
-      createTime?: long(name='CreateTime', example='1572839126000'),
-      crossUser?: boolean(name='CrossUser', example='true'),
-      customLink?: boolean(name='CustomLink', example='true'),
+      createTime?: long(name='CreateTime', description='The time when the synchronization task was created.', example='1572839126000'),
+      crossUser?: boolean(name='CrossUser', description='Indicates whether the synchronization task is performed across Alibaba Cloud accounts. Valid values:
+
+*   `true`: The image synchronization task is performed across accounts.
+*   `false`: The image synchronization task is performed within the same account.
+
+Default value: `false`.', example='true'),
+      customLink?: boolean(name='CustomLink', description='Indicates whether a custom synchronization link is used.', example='true'),
       imageFrom?: {
-        imageTag?: string(name='ImageTag', example='v0.1'),
-        instanceId?: string(name='InstanceId', example='cri-kmsiwlxxdcva****'),
-        regionId?: string(name='RegionId', example='cn-shanghai'),
-        repoName?: string(name='RepoName', example='test'),
-        repoNamespaceName?: string(name='RepoNamespaceName', example='test'),
-      }(name='ImageFrom'),
+        imageTag?: string(name='ImageTag', description='The image tag.', example='v0.1'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='cri-kmsiwlxxdcva****'),
+        regionId?: string(name='RegionId', description='The region ID.', example='cn-shanghai'),
+        repoName?: string(name='RepoName', description='The repository name.', example='test'),
+        repoNamespaceName?: string(name='RepoNamespaceName', description='The namespace to which the repository belongs.', example='test'),
+      }(name='ImageFrom', description='The information about the source image.'),
       imageTo?: {
-        imageTag?: string(name='ImageTag', example='v0.1'),
-        instanceId?: string(name='InstanceId', example='cri-k77rd2eo9zttneqo'),
-        regionId?: string(name='RegionId', example='cn-shenzhen'),
-        repoName?: string(name='RepoName', example='test'),
-        repoNamespaceName?: string(name='RepoNamespaceName', example='test'),
-      }(name='ImageTo'),
-      modifedTime?: long(name='ModifedTime', example='1572839133000'),
-      syncBatchTaskId?: string(name='SyncBatchTaskId', example='15DEEB56-9271-4FDD-AC4D-C3A5CC2C****'),
-      syncRuleId?: string(name='SyncRuleId', example='crsr-7lph66uloi6h****'),
-      syncTaskId?: string(name='SyncTaskId', example='rst-4kfd7fk6pohk****'),
-      syncTransAccelerate?: boolean(name='SyncTransAccelerate', example='true'),
+        imageTag?: string(name='ImageTag', description='The image tag.', example='v0.1'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='cri-k77rd2eo9zttneqo'),
+        regionId?: string(name='RegionId', description='The region ID.', example='cn-shenzhen'),
+        repoName?: string(name='RepoName', description='The repository name.', example='test'),
+        repoNamespaceName?: string(name='RepoNamespaceName', description='The namespace to which the repository belongs.', example='test'),
+      }(name='ImageTo', description='The information about the destination image.'),
+      modifedTime?: long(name='ModifedTime', description='The time when the synchronization task was last modified.', example='1572839133000'),
+      syncBatchTaskId?: string(name='SyncBatchTaskId', description='The ID of the image synchronization batch tasks, which is the same as the value of SyncRecordId in the request.
+
+>  If an image meets multiple synchronization rules and multiple synchronization tasks are generated for the image, these synchronization tasks use the same SyncBatchTaskId.', example='15DEEB56-9271-4FDD-AC4D-C3A5CC2C****'),
+      syncRuleId?: string(name='SyncRuleId', description='The ID of the synchronization rule.', example='crsr-7lph66uloi6h****'),
+      syncTaskId?: string(name='SyncTaskId', description='The ID of the synchronization task.', example='rst-4kfd7fk6pohk****'),
+      syncTransAccelerate?: boolean(name='SyncTransAccelerate', description='Indicates whether the synchronization transfer acceleration feature is enabled for the synchronization task.', example='true'),
       taskIssue?: string(name='TaskIssue', description='The error message that is returned if the synchronization task fails.
 
 >  The system uses this parameter to return an error message if the synchronization task fails.
 
-Valid values:
+Valid value:
 
-*   OSS_POLICY_UNAUTHORIZED: Container Registry is not granted permissions to use Object Storage Service (OSS).
+*   OSS_POLICY_UNAUTHORIZED: Container Registry is not granted permissions to access Object Storage Service (OSS).
 *   TAG_CONFLICT: The destination repository contains an image that has the same tag as the source image, and image tag immutability is enabled for the destination repository.
-*   UNSUPPORTED_FORMAT: The manifest and config formats of the image to be synchronized are not supported.
+*   UNSUPPORTED_FORMAT: The manifest or config format of the image to be synchronized is not supported.
 *   INTERNAL_ERROR: The synchronization task failed due to internal issues on the server.
 *   NETWORK_ERROR: The synchronization task failed due to unstable network connection.
 *   DATA_LENGTH_EXCEEDED: The manifest or config of the image is oversized.', example='NETWORK_ERROR'),
       taskStatus?: string(name='TaskStatus', description='The status of the synchronization task.', example='SUCCESS'),
-      taskTrigger?: string(name='TaskTrigger', example='PASSIVE'),
+      taskTrigger?: string(name='TaskTrigger', description='The policy that is configured to trigger the synchronization task. Valid values:
+
+*   `PASSIVE`: automatically triggers the synchronization task.
+*   `INITIATIVE`: manually triggers the synchronization task.
+
+Default value: `PASSIVE`.', example='PASSIVE'),
     }
-  ](name='SyncTasks', description='Details about synchronization tasks.'),
-  totalCount?: string(name='TotalCount', example='1'),
+  ](name='SyncTasks', description='The queried synchronization tasks.'),
+  totalCount?: string(name='TotalCount', description='The total number of the queried synchronization tasks.', example='1'),
 }
 
 model ListRepoSyncTaskResponse = {
@@ -4041,28 +4140,34 @@ This parameter is required.', example='cri-kmsiwlxxdcva****', position='Query'),
 }
 
 model ListRepositoryResponseBody = {
-  code?: string(name='Code', example='success'),
-  isSuccess?: boolean(name='IsSuccess', example='true'),
-  pageNo?: int32(name='PageNo', example='1'),
-  pageSize?: int32(name='PageSize', example='30'),
+  code?: string(name='Code', description='The return value.', example='success'),
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the request is successful.', example='true'),
+  pageNo?: int32(name='PageNo', description='The page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30'),
   repositories?: [ 
     {
-      createTime?: long(name='CreateTime', example='1564153576000'),
-      instanceId?: string(name='InstanceId', example='cri-kmsiwlxxdcv****'),
-      modifiedTime?: long(name='ModifiedTime', example='1564153576000'),
-      repoBuildType?: string(name='RepoBuildType', example='MANUAL'),
-      repoId?: string(name='RepoId', example='crr-03cuozrsqhkw****'),
-      repoName?: string(name='RepoName', example='test'),
-      repoNamespaceName?: string(name='RepoNamespaceName', example='test'),
-      repoStatus?: string(name='RepoStatus', example='NORMAL'),
-      repoType?: string(name='RepoType', example='PRIVATE'),
-      resourceGroupId?: string(name='ResourceGroupId', example='rg-acfm4n5kzyfxxxx'),
-      summary?: string(name='Summary', example='test OK'),
-      tagImmutability?: boolean(name='TagImmutability', example='true'),
+      createTime?: long(name='CreateTime', description='The time when the repository was created.', example='1564153576000'),
+      instanceId?: string(name='InstanceId', description='The ID of the Container Registry instance to which the repository belongs.', example='cri-kmsiwlxxdcv****'),
+      modifiedTime?: long(name='ModifiedTime', description='The time when the repository was last modified.', example='1564153576000'),
+      repoBuildType?: string(name='RepoBuildType', description='The type of the repository building. Valid values:
+
+*   `AUTO`: The repository is automatically built.
+*   `MANUAL`: The repository is manually built.', example='MANUAL'),
+      repoId?: string(name='RepoId', description='The ID of the repository.', example='crr-03cuozrsqhkw****'),
+      repoName?: string(name='RepoName', description='The name of the repository.', example='test'),
+      repoNamespaceName?: string(name='RepoNamespaceName', description='The name of the namespace to which the repository belongs.', example='test'),
+      repoStatus?: string(name='RepoStatus', description='The status of the repository.', example='NORMAL'),
+      repoType?: string(name='RepoType', description='The type of the repository. Valid values:
+
+*   `PUBLIC`
+*   `PRIVATE`', example='PRIVATE'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the repository belongs.', example='rg-acfm4n5kzyfxxxx'),
+      summary?: string(name='Summary', description='The summary of the repository.', example='test OK'),
+      tagImmutability?: boolean(name='TagImmutability', description='Indicates whether the feature of image tag immutability is enabled for the repository.', example='true'),
     }
-  ](name='Repositories'),
-  requestId?: string(name='RequestId', example='5241C090-DA69-4B0F-8E3F-2F24FDE1110E'),
-  totalCount?: string(name='TotalCount', example='1'),
+  ](name='Repositories', description='The information about the repositories.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='5241C090-DA69-4B0F-8E3F-2F24FDE1110E'),
+  totalCount?: string(name='TotalCount', description='The total number of the queried image repositories.', example='1'),
 }
 
 model ListRepositoryResponse = {
@@ -4082,19 +4187,19 @@ async function listRepository(request: ListRepositoryRequest): ListRepositoryRes
 
 model ListScanBaselineByTaskRequest {
   regionId?: string(name='RegionId', position='Host'),
-  digest?: string(name='Digest', description='The image digest.', example='sha256:1c89806cfaf66d2990e2cf1131ebd56ff24b133745a33abf1228*************', position='Query'),
-  instanceId?: string(name='InstanceId', description='The instance ID.', example='cri-***********', position='Query'),
-  level?: string(name='Level', description='The severity of the risk.', example='High', position='Query'),
+  digest?: string(name='Digest', description='The digest value of the image.', example='sha256:1c89806cfaf66d2990e2cf1131ebd56ff24b133745a33abf1228*************', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the Container Registry instance.', example='cri-***********', position='Query'),
+  level?: string(name='Level', description='The level of the baseline risk.', example='High', position='Query'),
   pageNo?: int32(name='PageNo', description='The page number.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='30', position='Query'),
-  repoId?: string(name='RepoId', description='The repository ID.', example='crr-**************', position='Query'),
+  repoId?: string(name='RepoId', description='The ID of the image repository.', example='crr-**************', position='Query'),
   scanTaskId?: string(name='ScanTaskId', description='The ID of the image scan task.', example='3e526d7e-4b45-4703-b046-***********', position='Query'),
-  tag?: string(name='Tag', description='The image tag.', example='1.1.36', position='Query'),
+  tag?: string(name='Tag', description='The image version.', example='1.1.36', position='Query'),
 }
 
 model ListScanBaselineByTaskResponseBody = {
   code?: int32(name='Code', description='The return value.', example='success'),
-  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the API request is successful. Valid values:
+  isSuccess?: boolean(name='IsSuccess', description='Indicates whether the API request was successful. Valid values:
 
 *   `true`: successful
 *   `false`: failed', example='true'),
@@ -4103,23 +4208,23 @@ model ListScanBaselineByTaskResponseBody = {
   requestId?: string(name='RequestId', description='Id of the request', example='5259118F-79E2-57E9-9AEA-551586F4FAED'),
   scanBaselines?: [ 
     {
-      baselineClassAlias?: string(name='BaselineClassAlias', description='The category of the baseline risk.'),
-      baselineDetailAdvice?: string(name='BaselineDetailAdvice', description='The suggestion on handling the baseline risk.'),
+      baselineClassAlias?: string(name='BaselineClassAlias', description='The category to which the baseline risk belongs.'),
+      baselineDetailAdvice?: string(name='BaselineDetailAdvice', description='Suggestions about how to fix the baseline risk.'),
       baselineDetailDescription?: string(name='BaselineDetailDescription', description='The description of the baseline risk.'),
       baselineDetailPrompt?: string(name='BaselineDetailPrompt', description='The path and content of the baseline risk.', example='usr/local/www/project/environments/dev/common/config/paramsxxx'),
       baselineItemCount?: int32(name='BaselineItemCount', description='The number of baseline risks.', example='1'),
       baselineNameAlias?: string(name='BaselineNameAlias', description='The name of the baseline risk.'),
-      baselineNameKey?: string(name='BaselineNameKey', description='The name of the baseline risk.', example='ak_leak'),
+      baselineNameKey?: string(name='BaselineNameKey', description='The key of the baseline name.', example='ak_leak'),
       baselineNameLevel?: string(name='BaselineNameLevel', description='The severity of the baseline risk.', example='high'),
-      createTime?: long(name='CreateTime', description='The time when the image was created.', example='1695090008000'),
-      firstScanTime?: long(name='FirstScanTime', description='The time when the image was first scanned.', example='2024-04-10 15:33:26'),
-      highRiskItemCount?: int32(name='HighRiskItemCount', description='The quantity of baseline risks whose severity is high.', example='1'),
-      lowRiskItemCount?: int32(name='LowRiskItemCount', description='The quantity of baseline risks whose severity is low.', example='1'),
-      middleRiskItemCount?: int32(name='MiddleRiskItemCount', description='The quantity of baseline risks whose severity is medium.', example='1'),
+      createTime?: long(name='CreateTime', description='The creation time.', example='1695090008000'),
+      firstScanTime?: long(name='FirstScanTime', description='The time of the first scan.', example='2024-04-10 15:33:26'),
+      highRiskItemCount?: int32(name='HighRiskItemCount', description='High risk quantity.', example='1'),
+      lowRiskItemCount?: int32(name='LowRiskItemCount', description='Low risk quantity.', example='1'),
+      middleRiskItemCount?: int32(name='MiddleRiskItemCount', description='Medium risk quantity.', example='1'),
       scanTaskId?: string(name='ScanTaskId', description='The ID of the image scan task.', example='2328fcaa-f28a-405d-a357-asdvfrew23'),
-      updateTime?: long(name='UpdateTime', description='The time when the image was updated.', example='1684220824226'),
+      updateTime?: long(name='UpdateTime', description='The update time.', example='1684220824226'),
     }
-  ](name='ScanBaselines', description='The queried baseline risks.'),
+  ](name='ScanBaselines', description='The scanned baseline risks.'),
   totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='2'),
 }
 
@@ -4677,10 +4782,11 @@ model UpdateNamespaceRequest {
 
 This parameter is required.', example='cn-shanghai', position='Host'),
   autoCreateRepo?: boolean(name='AutoCreateRepo', description='Specifies whether to automatically create a repository when an image is pushed to the namespace.', example='true', position='Query'),
+  defaultRepoConfiguration?: RepoConfiguration(name='DefaultRepoConfiguration', shrink='json', position='Query'),
   defaultRepoType?: string(name='DefaultRepoType', description='The default type of the repository. Valid values:
 
 *   `PUBLIC`: The repository is a public repository.
-*   `PRIVATE`: The repository is a private repository.', example='PRIVATE', position='Query'),
+*   `PRIVATE`: The repository is a private repository.', example='PRIVATE', deprecated='true', position='Query'),
   instanceId: string(name='InstanceId', description='The ID of the instance.
 
 This parameter is required.', example='cri-kmsiwlxxdcva****', position='Query'),
