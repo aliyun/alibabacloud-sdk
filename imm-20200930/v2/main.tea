@@ -415,6 +415,7 @@ model File {
   imageHeight?: long(name='ImageHeight'),
   imageScore?: ImageScore(name='ImageScore'),
   imageWidth?: long(name='ImageWidth'),
+  insights?: Insights(name='Insights', nullable=true),
   labels?: [
     Label
   ](name='Labels'),
@@ -513,6 +514,11 @@ model Image {
   ](name='OCRContents'),
 }
 
+model ImageInsight {
+  caption?: string(name='Caption', nullable=true),
+  description?: string(name='Description', nullable=true),
+}
+
 model ImageScore {
   overallQualityScore?: float(name='OverallQualityScore'),
 }
@@ -556,6 +562,11 @@ model InputOSS {
   bucket?: string(name='Bucket', description='This parameter is required.'),
   matchExpressions?: [ string ](name='MatchExpressions'),
   prefix?: string(name='Prefix'),
+}
+
+model Insights {
+  image?: ImageInsight(name='Image', nullable=true),
+  video?: VideoInsight(name='Video', nullable=true),
 }
 
 model KdtreeOption {
@@ -1028,6 +1039,11 @@ model TrimPolicy {
   disableDeleteUnusedShape?: boolean(name='DisableDeleteUnusedShape'),
 }
 
+model VideoInsight {
+  caption?: string(name='Caption', nullable=true),
+  description?: string(name='Description', nullable=true),
+}
+
 model VideoStream {
   averageFrameRate?: string(name='AverageFrameRate'),
   bitDepth?: long(name='BitDepth'),
@@ -1082,6 +1098,11 @@ model WebofficeWatermark {
   type?: long(name='Type'),
   value?: string(name='Value'),
   vertical?: long(name='Vertical'),
+}
+
+model WorkflowParameter {
+  name?: string(name='Name'),
+  value?: string(name='Value'),
 }
 
 model AddImageMosaicRequest {
@@ -2962,6 +2983,30 @@ This parameter is required.', example='dataset001'),
 
 This parameter is required.', example='test-project'),
   templateId?: string(name='TemplateId', description='The ID of the workflow template. For more information, see [Workflow templates and operators](https://help.aliyun.com/document_detail/466304.html).', example='Official:AllFunction'),
+  workflowParameters?: [
+    WorkflowParameter
+  ](name='WorkflowParameters'),
+}
+
+model CreateDatasetShrinkRequest {
+  datasetMaxBindCount?: long(name='DatasetMaxBindCount', description='The maximum number of bindings for the dataset. Valid values: 1 to 10. Default value: 10.', example='10'),
+  datasetMaxEntityCount?: long(name='DatasetMaxEntityCount', description='The maximum number of metadata entities in the dataset. Default value: 10000000000.', example='10000000000'),
+  datasetMaxFileCount?: long(name='DatasetMaxFileCount', description='The maximum number of files in the dataset. Valid values: 1 to 100000000. Default value: 100000000.', example='100000000'),
+  datasetMaxRelationCount?: long(name='DatasetMaxRelationCount', description='The maximum number of metadata relationships in the dataset. Default value: 100000000000.', example='100000000000'),
+  datasetMaxTotalFileSize?: long(name='DatasetMaxTotalFileSize', description='The maximum total file size for the dataset. If the total file size of the dataset exceeds this limit, indexes can no longer be added. Default value: 90000000000000000. Unit: bytes.', example='90000000000000000'),
+  datasetName?: string(name='DatasetName', description='The name of the dataset. The dataset name must be unique in the same project. The name must meet the following requirements:
+
+*   The name must be 1 to 128 characters in length.
+*   The name can contain only letters, digits, hyphens (-), and underscores (_).
+*   The name must start with a letter or underscore (_).
+
+This parameter is required.', example='dataset001'),
+  description?: string(name='Description', description='The description of the dataset. The description must be 1 to 256 characters in length. You can leave this parameter empty.', example='immtest'),
+  projectName?: string(name='ProjectName', description='The name of the project.[](~~478153~~)
+
+This parameter is required.', example='test-project'),
+  templateId?: string(name='TemplateId', description='The ID of the workflow template. For more information, see [Workflow templates and operators](https://help.aliyun.com/document_detail/466304.html).', example='Official:AllFunction'),
+  workflowParametersShrink?: string(name='WorkflowParameters'),
 }
 
 model CreateDatasetResponseBody = {
@@ -2983,12 +3028,17 @@ model CreateDatasetResponse = {
  * *   A project has an upper limit on the number of datasets that can be created in the project. You can call the [GetProjcet](https://help.aliyun.com/document_detail/478155.html) operation to query the dataset limit of the project.
  * *   After creating a dataset, you can call the [IndexFileMeta](https://help.aliyun.com/document_detail/478166.html) operation to index metadata. Metadata indexing enhances [data retrieval efficiency and statistics collection](https://help.aliyun.com/document_detail/478175.html), and enables intelligent data management.
  *
- * @param request CreateDatasetRequest
+ * @param tmpReq CreateDatasetRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDatasetResponse
  */
-async function createDatasetWithOptions(request: CreateDatasetRequest, runtime: $RuntimeOptions): CreateDatasetResponse {
-  request.validate();
+async function createDatasetWithOptions(tmpReq: CreateDatasetRequest, runtime: $RuntimeOptions): CreateDatasetResponse {
+  tmpReq.validate();
+  var request = new CreateDatasetShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.workflowParameters)) {
+    request.workflowParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.workflowParameters, 'WorkflowParameters', 'json');
+  }
   var query = {};
   if (!$isNull(request.datasetMaxBindCount)) {
     query['DatasetMaxBindCount'] = request.datasetMaxBindCount;
@@ -3016,6 +3066,9 @@ async function createDatasetWithOptions(request: CreateDatasetRequest, runtime: 
   }
   if (!$isNull(request.templateId)) {
     query['TemplateId'] = request.templateId;
+  }
+  if (!$isNull(request.workflowParametersShrink)) {
+    query['WorkflowParameters'] = request.workflowParametersShrink;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -12759,6 +12812,22 @@ model UpdateDatasetRequest {
   description?: string(name='Description', example='immtest'),
   projectName?: string(name='ProjectName', description='This parameter is required.', example='test-project'),
   templateId?: string(name='TemplateId', example='Official:AllFunction'),
+  workflowParameters?: [
+    WorkflowParameter
+  ](name='WorkflowParameters'),
+}
+
+model UpdateDatasetShrinkRequest {
+  datasetMaxBindCount?: long(name='DatasetMaxBindCount', example='10'),
+  datasetMaxEntityCount?: long(name='DatasetMaxEntityCount', example='10000000000'),
+  datasetMaxFileCount?: long(name='DatasetMaxFileCount', example='100000000'),
+  datasetMaxRelationCount?: long(name='DatasetMaxRelationCount', example='100000000000'),
+  datasetMaxTotalFileSize?: long(name='DatasetMaxTotalFileSize', example='90000000000000000'),
+  datasetName?: string(name='DatasetName', description='This parameter is required.', example='test-dataset'),
+  description?: string(name='Description', example='immtest'),
+  projectName?: string(name='ProjectName', description='This parameter is required.', example='test-project'),
+  templateId?: string(name='TemplateId', example='Official:AllFunction'),
+  workflowParametersShrink?: string(name='WorkflowParameters'),
 }
 
 model UpdateDatasetResponseBody = {
@@ -12775,12 +12844,17 @@ model UpdateDatasetResponse = {
 /**
  * @summary Updates a dataset.
  *
- * @param request UpdateDatasetRequest
+ * @param tmpReq UpdateDatasetRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDatasetResponse
  */
-async function updateDatasetWithOptions(request: UpdateDatasetRequest, runtime: $RuntimeOptions): UpdateDatasetResponse {
-  request.validate();
+async function updateDatasetWithOptions(tmpReq: UpdateDatasetRequest, runtime: $RuntimeOptions): UpdateDatasetResponse {
+  tmpReq.validate();
+  var request = new UpdateDatasetShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.workflowParameters)) {
+    request.workflowParametersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.workflowParameters, 'WorkflowParameters', 'json');
+  }
   var query = {};
   if (!$isNull(request.datasetMaxBindCount)) {
     query['DatasetMaxBindCount'] = request.datasetMaxBindCount;
@@ -12808,6 +12882,9 @@ async function updateDatasetWithOptions(request: UpdateDatasetRequest, runtime: 
   }
   if (!$isNull(request.templateId)) {
     query['TemplateId'] = request.templateId;
+  }
+  if (!$isNull(request.workflowParametersShrink)) {
+    query['WorkflowParameters'] = request.workflowParametersShrink;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
