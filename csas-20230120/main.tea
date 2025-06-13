@@ -38,6 +38,7 @@ model DisposalContent {
   alertContentEn?: string(name='AlertContentEn'),
   alertTitle?: string(name='AlertTitle', nullable=true),
   alertTitleEn?: string(name='AlertTitleEn'),
+  nacDemotionPolicyIds?: [ string ](name='NacDemotionPolicyIds'),
   noticeContent?: string(name='NoticeContent'),
   noticeContentEn?: string(name='NoticeContentEn'),
   notifyActions?: [ string ](name='NotifyActions', description='This parameter is required.', nullable=true),
@@ -114,6 +115,24 @@ model PAL7ConfigRewriteOp {
   op?: string(name='Op', example='add,set,delete,replace'),
   value?: string(name='Value'),
   valueVariable?: string(name='ValueVariable'),
+}
+
+model ProcessGroup {
+  description?: string(name='Description'),
+  gmtCreate?: string(name='GmtCreate'),
+  gmtModified?: string(name='GmtModified'),
+  name?: string(name='Name'),
+  processGroupId?: string(name='ProcessGroupId'),
+  processes?: [
+    ProcessItem
+  ](name='Processes', nullable=false),
+}
+
+model ProcessItem {
+  bundleId?: string(name='BundleId'),
+  devType?: string(name='DevType'),
+  directory?: string(name='Directory'),
+  process?: string(name='Process'),
 }
 
 model RecoveryContent {
@@ -614,10 +633,10 @@ model CreateEnterpriseAcceleratePolicyRequest {
   name?: string(name='Name'),
   priority?: string(name='Priority', example='99'),
   showInClient?: int32(name='ShowInClient', example='1'),
-  upstreamHost?: string(name='UpstreamHost', example='12.34.56.XX'),
-  upstreamPort?: int32(name='UpstreamPort', example='1000'),
-  upstreamType?: string(name='UpstreamType', example='ga'),
-  userAttributeGroup?: string(name='UserAttributeGroup'),
+  upstreamHost?: string(name='UpstreamHost', description='This parameter is required.', example='12.34.56.XX'),
+  upstreamPort?: int32(name='UpstreamPort', description='This parameter is required.', example='1000'),
+  upstreamType?: string(name='UpstreamType', description='This parameter is required.', example='ga'),
+  userAttributeGroup?: string(name='UserAttributeGroup', description='This parameter is required.'),
 }
 
 model CreateEnterpriseAcceleratePolicyResponseBody = {
@@ -693,6 +712,71 @@ async function createEnterpriseAcceleratePolicyWithOptions(request: CreateEnterp
 async function createEnterpriseAcceleratePolicy(request: CreateEnterpriseAcceleratePolicyRequest): CreateEnterpriseAcceleratePolicyResponse {
   var runtime = new Util.RuntimeOptions{};
   return createEnterpriseAcceleratePolicyWithOptions(request, runtime);
+}
+
+model CreateEnterpriseAccelerateTargetRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-eec34d4b12fcca61'),
+  target?: [ string ](name='Target', description='This parameter is required.'),
+}
+
+model CreateEnterpriseAccelerateTargetResponseBody = {
+  requestId?: string(name='RequestId', example='D1AE33DD-0D46-59CD-8340-92BEA2BDD0F1'),
+}
+
+model CreateEnterpriseAccelerateTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateEnterpriseAccelerateTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建加速对象
+ *
+ * @param request CreateEnterpriseAccelerateTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateEnterpriseAccelerateTargetResponse
+ */
+async function createEnterpriseAccelerateTargetWithOptions(request: CreateEnterpriseAccelerateTargetRequest, runtime: Util.RuntimeOptions): CreateEnterpriseAccelerateTargetResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.target)) {
+    bodyFlat['Target'] = request.target;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateEnterpriseAccelerateTarget',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建加速对象
+ *
+ * @param request CreateEnterpriseAccelerateTargetRequest
+ * @return CreateEnterpriseAccelerateTargetResponse
+ */
+async function createEnterpriseAccelerateTarget(request: CreateEnterpriseAccelerateTargetRequest): CreateEnterpriseAccelerateTargetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createEnterpriseAccelerateTargetWithOptions(request, runtime);
 }
 
 model CreateIdpDepartmentRequest {
@@ -958,6 +1042,9 @@ model CreatePrivateAccessPolicyRequest {
   status?: string(name='Status', description='This parameter is required.', example='Enabled'),
   tagIds?: [ string ](name='TagIds', description='内网访问标签ID集合。最多可输入100个内网访问标签ID。当**ApplicationType**为**Tag时**，必填。和**ApplicationIds**互斥。'),
   triggerTemplateId?: string(name='TriggerTemplateId'),
+  trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
+  trustedProcessStatus?: string(name='TrustedProcessStatus'),
+  trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
   userGroupIds?: [ string ](name='UserGroupIds'),
   userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
 - **Normal**：普通用户组。
@@ -1023,6 +1110,15 @@ async function createPrivateAccessPolicyWithOptions(request: CreatePrivateAccess
   }
   if (!Util.isUnset(request.triggerTemplateId)) {
     body['TriggerTemplateId'] = request.triggerTemplateId;
+  }
+  if (!Util.isUnset(request.trustedProcessGroupIds)) {
+    bodyFlat['TrustedProcessGroupIds'] = request.trustedProcessGroupIds;
+  }
+  if (!Util.isUnset(request.trustedProcessStatus)) {
+    body['TrustedProcessStatus'] = request.trustedProcessStatus;
+  }
+  if (!Util.isUnset(request.trustedSoftwareIds)) {
+    bodyFlat['TrustedSoftwareIds'] = request.trustedSoftwareIds;
   }
   if (!Util.isUnset(request.userGroupIds)) {
     bodyFlat['UserGroupIds'] = request.userGroupIds;
@@ -1617,6 +1713,7 @@ This parameter is required.', example='https://example.com/test-****.pdf'),
   filename?: string(name='Filename', description='The name of the file to be extracted. The system needs to check the file type based on the file name extension.
 
 This parameter is required.', example='test-****.pdf'),
+  isClientEmbed?: boolean(name='IsClientEmbed'),
   videoIsLong?: boolean(name='VideoIsLong', description='The watermark parameter for videos that specifies whether to use the long video watermark SDK. Default value: false. Valid values:
 
 *   **true**
@@ -1655,6 +1752,7 @@ This parameter is required.', example='https://example.com/test-****.pdf'),
   filename?: string(name='Filename', description='The name of the file to be extracted. The system needs to check the file type based on the file name extension.
 
 This parameter is required.', example='test-****.pdf'),
+  isClientEmbed?: boolean(name='IsClientEmbed'),
   videoIsLong?: boolean(name='VideoIsLong', description='The watermark parameter for videos that specifies whether to use the long video watermark SDK. Default value: false. Valid values:
 
 *   **true**
@@ -1711,6 +1809,9 @@ async function createWmExtractTaskWithOptions(tmpReq: CreateWmExtractTaskRequest
   var query = {};
   if (!Util.isUnset(request.csvControlShrink)) {
     query['CsvControl'] = request.csvControlShrink;
+  }
+  if (!Util.isUnset(request.isClientEmbed)) {
+    query['IsClientEmbed'] = request.isClientEmbed;
   }
   var body : map[string]any = {};
   if (!Util.isUnset(request.documentIsCapture)) {
@@ -1998,6 +2099,126 @@ async function deleteDynamicRouteWithOptions(request: DeleteDynamicRouteRequest,
 async function deleteDynamicRoute(request: DeleteDynamicRouteRequest): DeleteDynamicRouteResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteDynamicRouteWithOptions(request, runtime);
+}
+
+model DeleteEnterpriseAcceleratePolicyRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-6edfb9d722ef8429'),
+}
+
+model DeleteEnterpriseAcceleratePolicyResponseBody = {
+  requestId?: string(name='RequestId', example='2CABFEBB-0CE7-575E-833A-266F75D46713'),
+}
+
+model DeleteEnterpriseAcceleratePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEnterpriseAcceleratePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除加速策略
+ *
+ * @param request DeleteEnterpriseAcceleratePolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEnterpriseAcceleratePolicyResponse
+ */
+async function deleteEnterpriseAcceleratePolicyWithOptions(request: DeleteEnterpriseAcceleratePolicyRequest, runtime: Util.RuntimeOptions): DeleteEnterpriseAcceleratePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnterpriseAcceleratePolicy',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除加速策略
+ *
+ * @param request DeleteEnterpriseAcceleratePolicyRequest
+ * @return DeleteEnterpriseAcceleratePolicyResponse
+ */
+async function deleteEnterpriseAcceleratePolicy(request: DeleteEnterpriseAcceleratePolicyRequest): DeleteEnterpriseAcceleratePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnterpriseAcceleratePolicyWithOptions(request, runtime);
+}
+
+model DeleteEnterpriseAccelerateTargetRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-ed1f0e392a28a4e6'),
+  target?: [ string ](name='Target', description='This parameter is required.'),
+}
+
+model DeleteEnterpriseAccelerateTargetResponseBody = {
+  requestId?: string(name='RequestId', example='655CE28F-2C0C-5801-A31E-C16BF54BD225'),
+}
+
+model DeleteEnterpriseAccelerateTargetResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteEnterpriseAccelerateTargetResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除加速对象
+ *
+ * @param request DeleteEnterpriseAccelerateTargetRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteEnterpriseAccelerateTargetResponse
+ */
+async function deleteEnterpriseAccelerateTargetWithOptions(request: DeleteEnterpriseAccelerateTargetRequest, runtime: Util.RuntimeOptions): DeleteEnterpriseAccelerateTargetResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  var bodyFlat : map[string]any = {};
+  if (!Util.isUnset(request.target)) {
+    bodyFlat['Target'] = request.target;
+  }
+  body = {
+    ...body,
+    ...OpenApiUtil.query(bodyFlat),
+  };
+
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteEnterpriseAccelerateTarget',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除加速对象
+ *
+ * @param request DeleteEnterpriseAccelerateTargetRequest
+ * @return DeleteEnterpriseAccelerateTargetResponse
+ */
+async function deleteEnterpriseAccelerateTarget(request: DeleteEnterpriseAccelerateTargetRequest): DeleteEnterpriseAccelerateTargetResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteEnterpriseAccelerateTargetWithOptions(request, runtime);
 }
 
 model DeleteIdpDepartmentRequest {
@@ -2590,6 +2811,116 @@ async function detachPolicy2ApprovalProcessWithOptions(request: DetachPolicy2App
 async function detachPolicy2ApprovalProcess(request: DetachPolicy2ApprovalProcessRequest): DetachPolicy2ApprovalProcessResponse {
   var runtime = new Util.RuntimeOptions{};
   return detachPolicy2ApprovalProcessWithOptions(request, runtime);
+}
+
+model DisableEnterpriseAcceleratePolicyRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-d50b45aa7dc04aef'),
+}
+
+model DisableEnterpriseAcceleratePolicyResponseBody = {
+  requestId?: string(name='RequestId', example='E4C3E4CA-87CC-5EF6-91DD-D400A812EB43'),
+}
+
+model DisableEnterpriseAcceleratePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DisableEnterpriseAcceleratePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 禁用加速策略
+ *
+ * @param request DisableEnterpriseAcceleratePolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DisableEnterpriseAcceleratePolicyResponse
+ */
+async function disableEnterpriseAcceleratePolicyWithOptions(request: DisableEnterpriseAcceleratePolicyRequest, runtime: Util.RuntimeOptions): DisableEnterpriseAcceleratePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DisableEnterpriseAcceleratePolicy',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 禁用加速策略
+ *
+ * @param request DisableEnterpriseAcceleratePolicyRequest
+ * @return DisableEnterpriseAcceleratePolicyResponse
+ */
+async function disableEnterpriseAcceleratePolicy(request: DisableEnterpriseAcceleratePolicyRequest): DisableEnterpriseAcceleratePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return disableEnterpriseAcceleratePolicyWithOptions(request, runtime);
+}
+
+model EnableEnterpriseAcceleratePolicyRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-530da9f7110441fb'),
+}
+
+model EnableEnterpriseAcceleratePolicyResponseBody = {
+  requestId?: string(name='RequestId', example='09D9F396-29C5-5F0F-9C12-83308062CA2F'),
+}
+
+model EnableEnterpriseAcceleratePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: EnableEnterpriseAcceleratePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 启用加速策略
+ *
+ * @param request EnableEnterpriseAcceleratePolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return EnableEnterpriseAcceleratePolicyResponse
+ */
+async function enableEnterpriseAcceleratePolicyWithOptions(request: EnableEnterpriseAcceleratePolicyRequest, runtime: Util.RuntimeOptions): EnableEnterpriseAcceleratePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'EnableEnterpriseAcceleratePolicy',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 启用加速策略
+ *
+ * @param request EnableEnterpriseAcceleratePolicyRequest
+ * @return EnableEnterpriseAcceleratePolicyResponse
+ */
+async function enableEnterpriseAcceleratePolicy(request: EnableEnterpriseAcceleratePolicyRequest): EnableEnterpriseAcceleratePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return enableEnterpriseAcceleratePolicyWithOptions(request, runtime);
 }
 
 model ExportUserDevicesRequest {
@@ -3398,6 +3729,9 @@ model GetPrivateAccessPolicyResponseBody = {
     status?: string(name='Status', example='Enabled'),
     tagIds?: [ string ](name='TagIds'),
     triggerTemplateId?: string(name='TriggerTemplateId'),
+    trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
+    trustedProcessStatus?: string(name='TrustedProcessStatus'),
+    trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
     userGroupIds?: [ string ](name='UserGroupIds'),
     userGroupMode?: string(name='UserGroupMode', example='Normal'),
   }(name='Policy'),
@@ -3801,6 +4135,66 @@ async function getWmExtractTaskWithOptions(request: GetWmExtractTaskRequest, run
 async function getWmExtractTask(request: GetWmExtractTaskRequest): GetWmExtractTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return getWmExtractTaskWithOptions(request, runtime);
+}
+
+model ImportEnterpriseAccelerateTargetsRequest {
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-6457339b546c4cfb'),
+  fileUrl?: string(name='FileUrl', description='This parameter is required.', example='https://filename.xlsx'),
+}
+
+model ImportEnterpriseAccelerateTargetsResponseBody = {
+  data?: string(name='Data', example='1648723859058501'),
+  requestId?: string(name='RequestId', example='305508BD-8A31-5E15-86CE-52D57967C45E'),
+}
+
+model ImportEnterpriseAccelerateTargetsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ImportEnterpriseAccelerateTargetsResponseBody(name='body'),
+}
+
+/**
+ * @summary 批量导入加速对象异步任务
+ *
+ * @param request ImportEnterpriseAccelerateTargetsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ImportEnterpriseAccelerateTargetsResponse
+ */
+async function importEnterpriseAccelerateTargetsWithOptions(request: ImportEnterpriseAccelerateTargetsRequest, runtime: Util.RuntimeOptions): ImportEnterpriseAccelerateTargetsResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    body['FileUrl'] = request.fileUrl;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ImportEnterpriseAccelerateTargets',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 批量导入加速对象异步任务
+ *
+ * @param request ImportEnterpriseAccelerateTargetsRequest
+ * @return ImportEnterpriseAccelerateTargetsResponse
+ */
+async function importEnterpriseAccelerateTargets(request: ImportEnterpriseAccelerateTargetsRequest): ImportEnterpriseAccelerateTargetsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return importEnterpriseAccelerateTargetsWithOptions(request, runtime);
 }
 
 model ListApplicationsForPrivateAccessPolicyRequest {
@@ -4534,55 +4928,84 @@ async function listConnectors(request: ListConnectorsRequest): ListConnectorsRes
 }
 
 model ListDynamicDisposalProcessesRequest {
-  currentPage?: long(name='CurrentPage', description='This parameter is required.', example='1'),
-  devTag?: string(name='DevTag'),
-  disposalAction?: string(name='DisposalAction', example='none'),
-  disposalProcessId?: string(name='DisposalProcessId', example='dp-xxxxxxxx'),
-  endTime?: long(name='EndTime', example='1743143296'),
-  pageSize?: long(name='PageSize', description='This parameter is required.', example='10'),
-  recoveryType?: string(name='RecoveryType', example='auto'),
-  startTime?: long(name='StartTime', example='1743143296'),
-  status?: string(name='Status', example='disposal'),
-  userName?: string(name='UserName', example='xiaoming'),
+  currentPage?: long(name='CurrentPage', description='The page number to display in the paginated query. Range: 1~10000.
+
+This parameter is required.', example='1'),
+  devTag?: string(name='DevTag', description='Terminal device ID.', example='E7798391-2554-FE83-E0B7-045DDED629A8'),
+  disposalAction?: string(name='DisposalAction', description='Disposal action.
+- **ztna_connect**: Prohibit connection to the zero-trust intranet.
+- **nac_connect**: Prohibit connection to the office network access.
+- **none**: No disposal action.', example='none'),
+  disposalProcessId?: string(name='DisposalProcessId', description='Disposal process ID.', example='dp-xxxxxxxx'),
+  endTime?: long(name='EndTime', description='The end time for querying dynamic disposal processes. Format: Unix timestamp (in seconds).', example='1743143296'),
+  pageSize?: long(name='PageSize', description='The number of items per page in the paginated query. Range: 1~1000.
+
+This parameter is required.', example='10'),
+  recoveryType?: string(name='RecoveryType', description='Recovery type.
+- **auto**: Automatic recovery.
+- **console**: Console recovery.
+- **auth**: Recovery by authentication and reporting.', example='auto'),
+  startTime?: long(name='StartTime', description='The start time for querying dynamic disposal processes. Format: Unix timestamp (in seconds).', example='1743143296'),
+  status?: string(name='Status', description='Disposal status. Values:
+- **disposal**: In the disposal state.
+- **finished**: Already automatically recovered.
+- **recovery**: Recovered by authentication and reporting or console recovery.', example='disposal'),
+  userName?: string(name='UserName', description='Username.', example='xiaoming'),
 }
 
 model ListDynamicDisposalProcessesResponseBody = {
   disposalProcesses?: [ 
     {
-      department?: string(name='Department'),
-      devTag?: string(name='DevTag', example='FD7554AD-4CDE-6359-6B49-4FE950606C2C'),
+      department?: string(name='Department', description='User\\\\"s department.', example='IT'),
+      devTag?: string(name='DevTag', description='Device ID.', example='FD7554AD-4CDE-6359-6B49-4FE950606C2C'),
       deviceBasicInfo?: {
-        cpu?: string(name='Cpu'),
-        devTag?: string(name='DevTag'),
-        devType?: string(name='DevType'),
-        disk?: string(name='Disk'),
-        hostname?: string(name='Hostname'),
-        mac?: string(name='Mac'),
-        memory?: string(name='Memory'),
-        osVersion?: string(name='OsVersion'),
-      }(name='DeviceBasicInfo'),
+        cpu?: string(name='Cpu', description='CPU model.', example='Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz'),
+        devTag?: string(name='DevTag', description='Device ID.', example='A84D0AF0-1ACC-02B8-6A07-FC898F71BE09'),
+        devType?: string(name='DevType', description='Device operating system type. Values:
+- **Windows**：Windows system.
+- **macOS**：macOS system.
+- **Linux**：Linux system.
+- **Android**：Android system.
+- **iOS**：iOS system.
+- **Windows_Wuying**：Wuying cloud desktop system.', example='windows'),
+        disk?: string(name='Disk', description='Device disk model.', example='KXG6AZNV512G TOSHIBA'),
+        hostname?: string(name='Hostname', description='Device name.', example='DESKTOP-ERLV3AK'),
+        mac?: string(name='Mac', description='Device MAC address.', example='CE:3B:**:**:FD:FB'),
+        memory?: string(name='Memory', description='Device memory capacity. Unit: GB.', example='2'),
+        osVersion?: string(name='OsVersion', description='Operating system version', example='1'),
+      }(name='DeviceBasicInfo', description='Basic device information.'),
       deviceStatusInfo?: {
-        appVersion?: string(name='AppVersion'),
-        department?: string(name='Department'),
-        dlpStatus?: string(name='DlpStatus'),
-        internetIp?: string(name='InternetIp'),
-        laStatus?: string(name='LaStatus'),
-        loginStatus?: string(name='LoginStatus'),
-        nacStatus?: string(name='NacStatus'),
-        privateIp?: string(name='PrivateIp'),
-        saseUserId?: string(name='SaseUserId'),
-        username?: string(name='Username'),
-        workshop?: string(name='Workshop'),
-        ztnaStatus?: string(name='ZtnaStatus'),
-      }(name='DeviceStatusInfo'),
-      disposalActions?: [ string ](name='DisposalActions'),
-      disposalProcessId?: string(name='DisposalProcessId', example='dp-xxxxxxxx'),
-      disposalTime?: string(name='DisposalTime', example='1743059249'),
-      dynamicPolicyId?: string(name='DynamicPolicyId', example='dynamic-policy-xxxxxxxx'),
-      dynamicPolicyName?: string(name='DynamicPolicyName'),
-      hostname?: string(name='Hostname', example='WANGCHENCHENNBB'),
-      recoveryType?: string(name='RecoveryType', example='auto'),
-      ruleContent?: any(name='RuleContent', example='{
+        appVersion?: string(name='AppVersion', description='Client version.', example='4.5.1'),
+        department?: string(name='Department', description='Department to which the user belongs.', example='IT运维部'),
+        dlpStatus?: string(name='DlpStatus', description='Office data protection status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.
+- **Unprovisioned**: Not configured.
+- **Unauthorized**: Unauthorized.', example='enabled'),
+        internetIp?: string(name='InternetIp', description='Public IP address.', example='120.26.XX.XX'),
+        laStatus?: string(name='LaStatus', description='Internet behavior management enablement status.', example='enabled'),
+        loginStatus?: string(name='LoginStatus', description='Login status.', example='online'),
+        nacStatus?: string(name='NacStatus', description='Network access control status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.
+- **Unprovisioned**: Not configured.', example='enabled'),
+        privateIp?: string(name='PrivateIp', description='Private IP address.', example='172.20.XX.XX'),
+        saseUserId?: string(name='SaseUserId', description='Unique ID of the SASE user.', example='su_dfsdfsdgasgsgag'),
+        username?: string(name='Username', description='Username.', example='test'),
+        workshop?: string(name='Workshop', description='Identified office area name.', example='office'),
+        ztnaStatus?: string(name='ZtnaStatus', description='ZTNA enablement status.', example='enabled'),
+      }(name='DeviceStatusInfo', description='设备状态信息。'),
+      disposalActions?: [ string ](name='DisposalActions', description='List of disposal actions.'),
+      disposalProcessId?: string(name='DisposalProcessId', description='Disposal process ID.', example='dp-xxxxxxxx'),
+      disposalTime?: string(name='DisposalTime', description='Disposal time, in seconds since the epoch.', example='1743059249'),
+      dynamicPolicyId?: string(name='DynamicPolicyId', description='Dynamic policy ID.', example='dynamic-policy-xxxxxxxx'),
+      dynamicPolicyName?: string(name='DynamicPolicyName', description='Dynamic policy name.', example='动态策略1'),
+      hostname?: string(name='Hostname', description='Terminal device name. Length: 1~128 characters, supporting Chinese and uppercase/lowercase English letters, and can include numbers, half-width periods (.), commas (,), semicolons (;), hyphens (-), underscores (_), slashes (/), at (@) symbols, and spaces. Entering an underscore (_) alone will additionally query all terminal devices with 4-byte UTF-8 characters in their names.', example='WANGCHENCHENNBB'),
+      recoveryType?: string(name='RecoveryType', description='Recovery type.
+- **auto**：Automatic recovery.
+- **console**：Console recovery.
+- **auth**：Certification and reporting recovery.', example='auto'),
+      ruleContent?: any(name='RuleContent', description='Rule content.', example='{
   "Combinator": "OR",
   "Rules": [
     {
@@ -4597,13 +5020,16 @@ model ListDynamicDisposalProcessesResponseBody = {
     }
   ]
 }'),
-      saseUserId?: string(name='SaseUserId', example='asdqwedg-xzczvzdaf-asfafs'),
-      status?: string(name='Status', example='disposal'),
-      userName?: string(name='UserName', example='xiaoming'),
+      saseUserId?: string(name='SaseUserId', description='SASE用户ID。', example='asdqwedg-xzczvzdaf-asfafs'),
+      status?: string(name='Status', description='Disposal status. Values:
+- **disposal**: In the disposal state.
+- **finished**: Already automatically recovered.
+- **recovery**: Recovered by authentication and reporting or console recovery.', example='disposal'),
+      userName?: string(name='UserName', description='Username.', example='xiaoming'),
     }
-  ](name='DisposalProcesses'),
-  requestId?: string(name='RequestId', example='BE4FB974-11BC-5453-9BE1-1606A73EACA6'),
-  totalNum?: int32(name='TotalNum', example='1'),
+  ](name='DisposalProcesses', description='List of disposal processes.'),
+  requestId?: string(name='RequestId', description='Request ID.', example='BE4FB974-11BC-5453-9BE1-1606A73EACA6'),
+  totalNum?: int32(name='TotalNum', description='Total number of dynamic disposal processes.', example='1'),
 }
 
 model ListDynamicDisposalProcessesResponse = {
@@ -4613,7 +5039,7 @@ model ListDynamicDisposalProcessesResponse = {
 }
 
 /**
- * @summary 批量查询动态策略处置流程
+ * @summary Batch Query Dynamic Policy Disposal Processes
  *
  * @param request ListDynamicDisposalProcessesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4640,7 +5066,7 @@ async function listDynamicDisposalProcessesWithOptions(request: ListDynamicDispo
 }
 
 /**
- * @summary 批量查询动态策略处置流程
+ * @summary Batch Query Dynamic Policy Disposal Processes
  *
  * @param request ListDynamicDisposalProcessesRequest
  * @return ListDynamicDisposalProcessesResponse
@@ -4770,6 +5196,208 @@ async function listDynamicRoutesWithOptions(request: ListDynamicRoutesRequest, r
 async function listDynamicRoutes(request: ListDynamicRoutesRequest): ListDynamicRoutesResponse {
   var runtime = new Util.RuntimeOptions{};
   return listDynamicRoutesWithOptions(request, runtime);
+}
+
+model ListEnterpriseAccelerateLogsRequest {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  department?: string(name='Department'),
+  dstAddr?: string(name='DstAddr'),
+  endTime?: long(name='EndTime', description='This parameter is required.', example='1748422694'),
+  pageSize?: int32(name='PageSize', example='10'),
+  searchMode?: string(name='SearchMode'),
+  startTime?: long(name='StartTime', description='This parameter is required.', example='1748419094'),
+  username?: string(name='Username'),
+}
+
+model ListEnterpriseAccelerateLogsResponseBody = {
+  logs?: [ 
+    {
+      department?: string(name='Department'),
+      deviceType?: string(name='DeviceType', example='windows'),
+      dstAddr?: string(name='DstAddr', example='www.bing.com:443'),
+      inBytes?: string(name='InBytes', example='12299'),
+      outBytes?: string(name='OutBytes', example='2603'),
+      policyName?: string(name='PolicyName'),
+      proxyAddr?: string(name='ProxyAddr', example='8.222.179.xxx:10015'),
+      unixTime?: string(name='UnixTime', example='1748422797'),
+      username?: string(name='Username'),
+    }
+  ](name='Logs'),
+  requestId?: string(name='RequestId', example='43F07A6A-294D-56FB-85EB-6AD00C5B60FF'),
+  totalNumber?: int32(name='TotalNumber', example='120'),
+}
+
+model ListEnterpriseAccelerateLogsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEnterpriseAccelerateLogsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询加速策略日志列表
+ *
+ * @param request ListEnterpriseAccelerateLogsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEnterpriseAccelerateLogsResponse
+ */
+async function listEnterpriseAccelerateLogsWithOptions(request: ListEnterpriseAccelerateLogsRequest, runtime: Util.RuntimeOptions): ListEnterpriseAccelerateLogsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnterpriseAccelerateLogs',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询加速策略日志列表
+ *
+ * @param request ListEnterpriseAccelerateLogsRequest
+ * @return ListEnterpriseAccelerateLogsResponse
+ */
+async function listEnterpriseAccelerateLogs(request: ListEnterpriseAccelerateLogsRequest): ListEnterpriseAccelerateLogsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnterpriseAccelerateLogsWithOptions(request, runtime);
+}
+
+model ListEnterpriseAcceleratePoliciesRequest {
+  currentPage?: int32(name='CurrentPage', description='This parameter is required.', example='1'),
+  name?: string(name='Name'),
+  pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
+}
+
+model ListEnterpriseAcceleratePoliciesResponseBody = {
+  policies?: [ 
+    {
+      accelerationType?: string(name='AccelerationType', example='whitelist'),
+      description?: string(name='Description'),
+      eapId?: string(name='EapId', example='eap-eec34d4b12fcca61'),
+      enabled?: int32(name='Enabled', example='0'),
+      name?: string(name='Name', example='test'),
+      onTls?: int32(name='OnTls', example='0'),
+      priority?: int32(name='Priority', example='99'),
+      showInClient?: int32(name='ShowInClient', example='1'),
+      upstreamHost?: string(name='UpstreamHost', example='12.34.56.XX'),
+      upstreamPort?: int32(name='UpstreamPort', example='1000'),
+      upstreamType?: string(name='UpstreamType', example='connector'),
+      userAttributeGroup?: string(name='UserAttributeGroup'),
+    }
+  ](name='Policies'),
+  requestId?: string(name='RequestId', example='DB0471D0-C05C-556D-9F40-0325D890036F'),
+  total?: int32(name='Total', example='5'),
+}
+
+model ListEnterpriseAcceleratePoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEnterpriseAcceleratePoliciesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询加速策略列表
+ *
+ * @param request ListEnterpriseAcceleratePoliciesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEnterpriseAcceleratePoliciesResponse
+ */
+async function listEnterpriseAcceleratePoliciesWithOptions(request: ListEnterpriseAcceleratePoliciesRequest, runtime: Util.RuntimeOptions): ListEnterpriseAcceleratePoliciesResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnterpriseAcceleratePolicies',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询加速策略列表
+ *
+ * @param request ListEnterpriseAcceleratePoliciesRequest
+ * @return ListEnterpriseAcceleratePoliciesResponse
+ */
+async function listEnterpriseAcceleratePolicies(request: ListEnterpriseAcceleratePoliciesRequest): ListEnterpriseAcceleratePoliciesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnterpriseAcceleratePoliciesWithOptions(request, runtime);
+}
+
+model ListEnterpriseAccelerateTargetsRequest {
+  currentPage?: long(name='CurrentPage', description='This parameter is required.', example='1'),
+  eapId?: string(name='EapId', description='This parameter is required.', example='eap-424ba3f47660425c'),
+  pageSize?: long(name='PageSize', description='This parameter is required.', example='10'),
+  target?: string(name='Target', example='googleapis.com'),
+}
+
+model ListEnterpriseAccelerateTargetsResponseBody = {
+  eapId?: string(name='EapId', example='eap-7fed37a757a0de24'),
+  requestId?: string(name='RequestId', example='529F755E-2E75-52EC-9C2E-6293FB8BF986'),
+  targets?: [ string ](name='Targets'),
+  total?: int32(name='Total', example='103'),
+}
+
+model ListEnterpriseAccelerateTargetsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListEnterpriseAccelerateTargetsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询加速对象列表
+ *
+ * @param request ListEnterpriseAccelerateTargetsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListEnterpriseAccelerateTargetsResponse
+ */
+async function listEnterpriseAccelerateTargetsWithOptions(request: ListEnterpriseAccelerateTargetsRequest, runtime: Util.RuntimeOptions): ListEnterpriseAccelerateTargetsResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListEnterpriseAccelerateTargets',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询加速对象列表
+ *
+ * @param request ListEnterpriseAccelerateTargetsRequest
+ * @return ListEnterpriseAccelerateTargetsResponse
+ */
+async function listEnterpriseAccelerateTargets(request: ListEnterpriseAccelerateTargetsRequest): ListEnterpriseAccelerateTargetsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listEnterpriseAccelerateTargetsWithOptions(request, runtime);
 }
 
 model ListExcessiveDeviceRegistrationApplicationsRequest {
@@ -5622,6 +6250,9 @@ model ListPrivateAccessPolicesResponseBody = {
 *   **Disabled**', example='Enabled'),
       tagIds?: [ string ](name='TagIds', description='The IDs of the tags that are specified in the private access policy. If the value of ApplicationType is **Tag**, this parameter is returned.'),
       triggerTemplateId?: string(name='TriggerTemplateId', description='The ID of the trigger template.', example='dag-d3f64e8bdd4a****'),
+      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
+      trustedProcessStatus?: string(name='TrustedProcessStatus'),
+      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
       userGroupIds?: [ string ](name='UserGroupIds', description='The IDs of user groups in the private access policy. If the value of UserGroupMode is **Normal**, this parameter is returned.'),
       userGroupMode?: string(name='UserGroupMode', description='The type of the user group in the private access policy. Valid values:
 
@@ -6690,6 +7321,8 @@ model ListUserPrivateAccessPoliciesResponseBody = {
       policyAction?: string(name='PolicyAction', example='Allow'),
       policyId?: string(name='PolicyId', example='pa-policy-1b0d0e8b4bcf****'),
       priority?: long(name='Priority', example='1'),
+      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
+      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
       userGroupMode?: string(name='UserGroupMode', example='Custom'),
     }
   ](name='Polices'),
@@ -6866,6 +7499,101 @@ async function lookupWmInfoMappingWithOptions(request: LookupWmInfoMappingReques
 async function lookupWmInfoMapping(request: LookupWmInfoMappingRequest): LookupWmInfoMappingResponse {
   var runtime = new Util.RuntimeOptions{};
   return lookupWmInfoMappingWithOptions(request, runtime);
+}
+
+model ModifyEnterpriseAcceleratePolicyRequest {
+  accelerationType?: string(name='AccelerationType', example='whiltelist'),
+  description?: string(name='Description'),
+  eapId?: string(name='EapId', example='eap-ce153a7165c8feea'),
+  name?: string(name='Name'),
+  onTls?: int32(name='OnTls', example='0'),
+  priority?: int32(name='Priority', example='999'),
+  showInClient?: int32(name='ShowInClient', example='0'),
+  upstreamHost?: string(name='UpstreamHost', description='This parameter is required.', example='12.34.56.XX'),
+  upstreamPort?: int32(name='UpstreamPort', description='This parameter is required.', example='1000'),
+  upstreamType?: string(name='UpstreamType', description='This parameter is required.', example='ga'),
+  userAttributeGroup?: string(name='UserAttributeGroup', description='This parameter is required.'),
+}
+
+model ModifyEnterpriseAcceleratePolicyResponseBody = {
+  requestId?: string(name='RequestId', example='2CABFEBB-0CE7-575E-833A-266F75D46713'),
+}
+
+model ModifyEnterpriseAcceleratePolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyEnterpriseAcceleratePolicyResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改加速策略
+ *
+ * @param request ModifyEnterpriseAcceleratePolicyRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyEnterpriseAcceleratePolicyResponse
+ */
+async function modifyEnterpriseAcceleratePolicyWithOptions(request: ModifyEnterpriseAcceleratePolicyRequest, runtime: Util.RuntimeOptions): ModifyEnterpriseAcceleratePolicyResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.accelerationType)) {
+    body['AccelerationType'] = request.accelerationType;
+  }
+  if (!Util.isUnset(request.description)) {
+    body['Description'] = request.description;
+  }
+  if (!Util.isUnset(request.eapId)) {
+    body['EapId'] = request.eapId;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.onTls)) {
+    body['OnTls'] = request.onTls;
+  }
+  if (!Util.isUnset(request.priority)) {
+    body['Priority'] = request.priority;
+  }
+  if (!Util.isUnset(request.showInClient)) {
+    body['ShowInClient'] = request.showInClient;
+  }
+  if (!Util.isUnset(request.upstreamHost)) {
+    body['UpstreamHost'] = request.upstreamHost;
+  }
+  if (!Util.isUnset(request.upstreamPort)) {
+    body['UpstreamPort'] = request.upstreamPort;
+  }
+  if (!Util.isUnset(request.upstreamType)) {
+    body['UpstreamType'] = request.upstreamType;
+  }
+  if (!Util.isUnset(request.userAttributeGroup)) {
+    body['UserAttributeGroup'] = request.userAttributeGroup;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyEnterpriseAcceleratePolicy',
+    version = '2023-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改加速策略
+ *
+ * @param request ModifyEnterpriseAcceleratePolicyRequest
+ * @return ModifyEnterpriseAcceleratePolicyResponse
+ */
+async function modifyEnterpriseAcceleratePolicy(request: ModifyEnterpriseAcceleratePolicyRequest): ModifyEnterpriseAcceleratePolicyResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyEnterpriseAcceleratePolicyWithOptions(request, runtime);
 }
 
 model RevokeUserSessionRequest {
@@ -8006,6 +8734,9 @@ model UpdatePrivateAccessPolicyRequest {
   status?: string(name='Status', example='Enabled'),
   tagIds?: [ string ](name='TagIds', description='内网访问标签ID集合。一条策略最多支持100个内网访问标签ID。'),
   triggerTemplateId?: string(name='TriggerTemplateId'),
+  trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', nullable=false),
+  trustedProcessStatus?: string(name='TrustedProcessStatus'),
+  trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', nullable=false),
   userGroupIds?: [ string ](name='UserGroupIds'),
   userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
 - **Normal**：普通用户组。
@@ -8071,6 +8802,15 @@ async function updatePrivateAccessPolicyWithOptions(request: UpdatePrivateAccess
   }
   if (!Util.isUnset(request.triggerTemplateId)) {
     body['TriggerTemplateId'] = request.triggerTemplateId;
+  }
+  if (!Util.isUnset(request.trustedProcessGroupIds)) {
+    bodyFlat['TrustedProcessGroupIds'] = request.trustedProcessGroupIds;
+  }
+  if (!Util.isUnset(request.trustedProcessStatus)) {
+    body['TrustedProcessStatus'] = request.trustedProcessStatus;
+  }
+  if (!Util.isUnset(request.trustedSoftwareIds)) {
+    bodyFlat['TrustedSoftwareIds'] = request.trustedSoftwareIds;
   }
   if (!Util.isUnset(request.userGroupIds)) {
     bodyFlat['UserGroupIds'] = request.userGroupIds;
