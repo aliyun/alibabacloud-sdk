@@ -1449,6 +1449,48 @@ async function createUserGroup(request: CreateUserGroupRequest): CreateUserGroup
 
 model CreateWmBaseImageRequest {
   height?: int32(name='Height', description='This parameter is required.', example='1080'),
+  imageControl?: {
+    logoVisibleControl?: {
+      angle?: long(name='Angle'),
+      logoBase64?: string(name='LogoBase64'),
+      mode?: string(name='Mode'),
+      opacity?: int32(name='Opacity'),
+      posAx?: float(name='PosAx'),
+      posAy?: float(name='PosAy'),
+      posX?: long(name='PosX'),
+      posY?: long(name='PosY'),
+      spaceX?: long(name='SpaceX'),
+      spaceY?: long(name='SpaceY'),
+      visible?: boolean(name='Visible'),
+    }(name='LogoVisibleControl'),
+    textVisibleControl?: {
+      angle?: long(name='Angle'),
+      fontColor?: string(name='FontColor'),
+      fontSize?: long(name='FontSize'),
+      mode?: string(name='Mode'),
+      opacity?: int32(name='Opacity'),
+      posAx?: float(name='PosAx'),
+      posAy?: float(name='PosAy'),
+      posX?: long(name='PosX'),
+      posY?: long(name='PosY'),
+      spaceX?: long(name='SpaceX'),
+      spaceY?: long(name='SpaceY'),
+      visible?: boolean(name='Visible'),
+      visibleText?: string(name='VisibleText'),
+    }(name='TextVisibleControl'),
+  }(name='ImageControl'),
+  opacity?: int32(name='Opacity', description='This parameter is required.', example='255'),
+  scale?: int32(name='Scale', description='This parameter is required.', example='1'),
+  width?: int32(name='Width', description='This parameter is required.', example='1920'),
+  wmInfoBytesB64?: string(name='WmInfoBytesB64', example='aGVsbG8gc2F*****'),
+  wmInfoSize?: long(name='WmInfoSize', example='32'),
+  wmInfoUint?: string(name='WmInfoUint', example='12*****'),
+  wmType?: string(name='WmType', description='This parameter is required.', example='PureWebappInvisible'),
+}
+
+model CreateWmBaseImageShrinkRequest {
+  height?: int32(name='Height', description='This parameter is required.', example='1080'),
+  imageControlShrink?: string(name='ImageControl'),
   opacity?: int32(name='Opacity', description='This parameter is required.', example='255'),
   scale?: int32(name='Scale', description='This parameter is required.', example='1'),
   width?: int32(name='Width', description='This parameter is required.', example='1920'),
@@ -1476,15 +1518,23 @@ model CreateWmBaseImageResponse = {
 /**
  * @summary 创建数字水印暗水印透明底图
  *
- * @param request CreateWmBaseImageRequest
+ * @param tmpReq CreateWmBaseImageRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateWmBaseImageResponse
  */
-async function createWmBaseImageWithOptions(request: CreateWmBaseImageRequest, runtime: $RuntimeOptions): CreateWmBaseImageResponse {
-  request.validate();
+async function createWmBaseImageWithOptions(tmpReq: CreateWmBaseImageRequest, runtime: $RuntimeOptions): CreateWmBaseImageResponse {
+  tmpReq.validate();
+  var request = new CreateWmBaseImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.imageControl)) {
+    request.imageControlShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.imageControl, 'ImageControl', 'json');
+  }
   var body : map[string]any = {};
   if (!$isNull(request.height)) {
     body['Height'] = request.height;
+  }
+  if (!$isNull(request.imageControlShrink)) {
+    body['ImageControl'] = request.imageControlShrink;
   }
   if (!$isNull(request.opacity)) {
     body['Opacity'] = request.opacity;
@@ -3701,39 +3751,64 @@ async function getPrivateAccessApplication(request: GetPrivateAccessApplicationR
 }
 
 model GetPrivateAccessPolicyRequest {
-  policyId?: string(name='PolicyId', description='This parameter is required.', example='pa-policy-63b2f1844b86****'),
+  policyId?: string(name='PolicyId', description='Intranet access policy ID. The value can be obtained from:
+- [ListPrivateAccessPolices](~~ListPrivateAccessPolices~~): Query multiple intranet access policies in bulk.
+- [CreatePrivateAccessPolicy](~~CreatePrivateAccessPolicy~~): Create an intranet access policy.
+
+This parameter is required.', example='pa-policy-63b2f1844b86****'),
 }
 
 model GetPrivateAccessPolicyResponseBody = {
   policy?: {
-    applicationIds?: [ string ](name='ApplicationIds'),
-    applicationType?: string(name='ApplicationType', example='Application'),
-    createTime?: string(name='CreateTime', example='2021-07-29 11:26:02'),
+    applicationIds?: [ string ](name='ApplicationIds', description='A collection of application IDs for the private access policy. This field has a value when the application type is Application.'),
+    applicationType?: string(name='ApplicationType', description='The application type of the private access policy. Possible values:
+- **Application**: Application.
+- **Tag**: Tag.', example='Application'),
+    createTime?: string(name='CreateTime', description='Intranet access policy creation time.', example='2021-07-29 11:26:02'),
     customUserAttributes?: [ 
       {
-        idpId?: int32(name='IdpId', example='12'),
-        relation?: string(name='Relation', example='Equal'),
-        userGroupType?: string(name='UserGroupType', example='department'),
-        value?: string(name='Value'),
+        idpId?: int32(name='IdpId', description='The identity provider ID for the custom user group. This field is required when the custom user group type is **department**.', example='12'),
+        relation?: string(name='Relation', description='Custom user group relationship. Values: - **Equal**: Equal to. - **Unequal**: Not equal to.', example='Equal'),
+        userGroupType?: string(name='UserGroupType', description='Type of the custom user group. Values:
+- **username**: Username.
+- **department**: Department.
+- **email**: Email.
+- **telephone**: Telephone.', example='department'),
+        value?: string(name='Value', description='The value of the custom user group attribute.
+- When the user group type is **username**, it represents the value of the username. The length should be 1 to 128 characters, supporting Chinese and case-sensitive English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).
+- When the user group type is **department**, it represents the value of the department. For example: OU=Department1,OU=SASE DingTalk.
+- When the user group type is **email**, it represents the value of the email. For example: username@example.com.
+- When the user group type is **telephone**, it represents the value of the phone number. For example: 13900001234.', example='OU=部门1,OU=SASE钉钉'),
       }
-    ](name='CustomUserAttributes'),
-    description?: string(name='Description'),
-    deviceAttributeAction?: string(name='DeviceAttributeAction'),
-    deviceAttributeId?: string(name='DeviceAttributeId'),
-    name?: string(name='Name', example='private_access_policy_name'),
-    policyAction?: string(name='PolicyAction', example='Allow'),
-    policyId?: string(name='PolicyId', example='pa-policy-63b2f1844b86****'),
-    priority?: int32(name='Priority', example='1'),
-    status?: string(name='Status', example='Enabled'),
-    tagIds?: [ string ](name='TagIds'),
-    triggerTemplateId?: string(name='TriggerTemplateId'),
-    trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
-    trustedProcessStatus?: string(name='TrustedProcessStatus'),
-    trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
-    userGroupIds?: [ string ](name='UserGroupIds'),
-    userGroupMode?: string(name='UserGroupMode', example='Normal'),
-  }(name='Policy'),
-  requestId?: string(name='RequestId', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
+    ](name='CustomUserAttributes', description='Collection of custom user group attributes. Multiple custom user group attributes are combined with an OR relationship and take effect as a set.'),
+    description?: string(name='Description', description='Intranet access policy description.', example='test'),
+    deviceAttributeAction?: string(name='DeviceAttributeAction', description='The action to take if the security baseline is not met. Possible values:
+
+- **Block**: Block.
+- **Observe**: Observe.', example='Block'),
+    deviceAttributeId?: string(name='DeviceAttributeId', description='The ID of the security baseline policy.', example='dag-d3f64e8bdd4a****'),
+    name?: string(name='Name', description='Intranet access policy name.', example='private_access_policy_name'),
+    policyAction?: string(name='PolicyAction', description='Intranet access policy action. Values:
+- **Block**: Block.
+- **Allow**: Allow.', example='Allow'),
+    policyId?: string(name='PolicyId', description='Intranet access policy ID.', example='pa-policy-63b2f1844b86****'),
+    priority?: int32(name='Priority', description='Intranet access policy priority. A value of 1 indicates the highest priority.', example='1'),
+    status?: string(name='Status', description='Intranet access policy status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
+    tagIds?: [ string ](name='TagIds', description='A collection of tag IDs for the private access policy. This field has a value when the application type is Tag.'),
+    triggerTemplateId?: string(name='TriggerTemplateId', description='The trigger template ID.', example='dag-d3f64e8bdd4a****'),
+    trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', description='A list of trusted process group IDs.'),
+    trustedProcessStatus?: string(name='TrustedProcessStatus', description='The status of the trusted process switch. Possible values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
+    trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', description='A list of trusted software IDs.'),
+    userGroupIds?: [ string ](name='UserGroupIds', description='Collection of user group IDs for the intranet access policy. This field is populated when the user group type is Normal.'),
+    userGroupMode?: string(name='UserGroupMode', description='User group type for the intranet access policy. Values:
+- **Normal**: Normal user group.
+- **Custom**: Custom user group.', example='Normal'),
+  }(name='Policy', description='Intranet access policy.'),
+  requestId?: string(name='RequestId', description='The ID of the current request.', example='7E9D7ACD-53D5-56EF-A913-79D148D06299'),
 }
 
 model GetPrivateAccessPolicyResponse = {
@@ -3743,7 +3818,7 @@ model GetPrivateAccessPolicyResponse = {
 }
 
 /**
- * @summary 查询内网访问策略详情
+ * @summary Query Intranet Access Policy Details
  *
  * @param request GetPrivateAccessPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3770,7 +3845,7 @@ async function getPrivateAccessPolicyWithOptions(request: GetPrivateAccessPolicy
 }
 
 /**
- * @summary 查询内网访问策略详情
+ * @summary Query Intranet Access Policy Details
  *
  * @param request GetPrivateAccessPolicyRequest
  * @return GetPrivateAccessPolicyResponse
@@ -6248,9 +6323,11 @@ model ListPrivateAccessPolicesResponseBody = {
 *   **Disabled**', example='Enabled'),
       tagIds?: [ string ](name='TagIds', description='The IDs of the tags that are specified in the private access policy. If the value of ApplicationType is **Tag**, this parameter is returned.'),
       triggerTemplateId?: string(name='TriggerTemplateId', description='The ID of the trigger template.', example='dag-d3f64e8bdd4a****'),
-      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
-      trustedProcessStatus?: string(name='TrustedProcessStatus'),
-      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
+      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', description='List of trusted process group IDs.'),
+      trustedProcessStatus?: string(name='TrustedProcessStatus', description='Trusted process switch status. Values: 
+- **Enabled**: On.
+- **Disabled**: Off.', example='Enabled'),
+      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', description='List of trusted software IDs.'),
       userGroupIds?: [ string ](name='UserGroupIds', description='The IDs of user groups in the private access policy. If the value of UserGroupMode is **Normal**, this parameter is returned.'),
       userGroupMode?: string(name='UserGroupMode', description='The type of the user group in the private access policy. Valid values:
 
@@ -7296,10 +7373,16 @@ async function listUserGroupsForRegistrationPolicy(request: ListUserGroupsForReg
 }
 
 model ListUserPrivateAccessPoliciesRequest {
-  currentPage?: int32(name='CurrentPage', description='This parameter is required.', example='1'),
-  name?: string(name='Name', example='private_access_policy_name'),
-  pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
-  saseUserId?: string(name='SaseUserId', description='This parameter is required.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
+  currentPage?: int32(name='CurrentPage', description='Current page number.
+
+This parameter is required.', example='1'),
+  name?: string(name='Name', description='Intranet access policy name. Length should be between 1 to 128 characters, supporting Chinese and case-sensitive English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).', example='private_access_policy_name'),
+  pageSize?: int32(name='PageSize', description='Number of items per page for pagination. Range: 1~100.
+
+This parameter is required.', example='10'),
+  saseUserId?: string(name='SaseUserId', description='User ID.
+
+This parameter is required.', example='su_e8f218fb171edd167c2ad917d21f53148bdefc510ca1f3c3cc0249d3643d****'),
 }
 
 model ListUserPrivateAccessPoliciesResponseBody = {
@@ -7307,25 +7390,39 @@ model ListUserPrivateAccessPoliciesResponseBody = {
     {
       customUserAttributes?: [ 
         {
-          idpId?: int32(name='IdpId', example='12'),
-          relation?: string(name='Relation', example='Equal'),
-          userGroupType?: string(name='UserGroupType', example='department'),
-          value?: string(name='Value'),
+          idpId?: int32(name='IdpId', description='The identity provider ID of the user group. This value exists when the custom user group type is **department**.', example='12'),
+          relation?: string(name='Relation', description='Relation of the user group. Values:
+- **Equal**: Equal.
+- **Unequal**: Not equal.', example='Equal'),
+          userGroupType?: string(name='UserGroupType', description='Type of the user group. Values:
+- **username**: Username.
+- **department**: Department.
+- **email**: Email.
+- **telephone**: Telephone.', example='department'),
+          value?: string(name='Value', description='The value of the user group attribute.
+- When the user group type is **username**, it represents the value of the username. The length is 1 to 128 characters, supporting Chinese and case-sensitive English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).
+- When the user group type is **department**, it represents the value of the department. For example: OU=Department1,OU=SASE DingTalk.
+- When the user group type is **email**, it represents the value of the email. For example: username@example.com.
+- When the user group type is **telephone**, it represents the value of the phone number. For example: 13900001234.', example='OU=部门1,OU=SASE钉钉'),
         }
-      ](name='CustomUserAttributes'),
-      deviceAttributeName?: string(name='DeviceAttributeName', example='device_attribute_name'),
-      matchedUserGroup?: string(name='MatchedUserGroup', example='user_group_name'),
-      name?: string(name='Name', example='private_access_policy_name'),
-      policyAction?: string(name='PolicyAction', example='Allow'),
-      policyId?: string(name='PolicyId', example='pa-policy-1b0d0e8b4bcf****'),
-      priority?: long(name='Priority', example='1'),
-      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds'),
-      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds'),
-      userGroupMode?: string(name='UserGroupMode', example='Custom'),
+      ](name='CustomUserAttributes', description='Set of custom user group attributes. Multiple custom user group attributes are in an OR relationship, effective as a union.'),
+      deviceAttributeName?: string(name='DeviceAttributeName', description='Associated security baseline.', example='device_attribute_name'),
+      matchedUserGroup?: string(name='MatchedUserGroup', description='Associated user group.', example='user_group_name'),
+      name?: string(name='Name', description='Intranet access policy name.', example='private_access_policy_name'),
+      policyAction?: string(name='PolicyAction', description='Action of the intranet access policy. Values:
+- **Block**: Block.
+- **Allow**: Allow.', example='Allow'),
+      policyId?: string(name='PolicyId', description='Intranet access policy ID.', example='pa-policy-1b0d0e8b4bcf****'),
+      priority?: long(name='Priority', description='Priority of the intranet access policy. The number 1 indicates the highest priority.', example='1'),
+      trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', description='List of trusted process group IDs.'),
+      trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', description='List of trusted software IDs.'),
+      userGroupMode?: string(name='UserGroupMode', description='Type of the user group for the intranet access policy. Values:
+- **Normal**: Normal user group.
+- **Custom**: Custom user group.', example='Custom'),
     }
-  ](name='Polices'),
-  requestId?: string(name='RequestId', description='Id of the request', example='9D852F87-AFB5-51B8-AACD-F7D0EFB8277D'),
-  totalNum?: int32(name='TotalNum', example='20'),
+  ](name='Polices', description='List of authorized policies.'),
+  requestId?: string(name='RequestId', description='ID of the request.', example='9D852F87-AFB5-51B8-AACD-F7D0EFB8277D'),
+  totalNum?: int32(name='TotalNum', description='Total number of authorized policies.', example='20'),
 }
 
 model ListUserPrivateAccessPoliciesResponse = {
@@ -7335,7 +7432,7 @@ model ListUserPrivateAccessPoliciesResponse = {
 }
 
 /**
- * @summary 列表查询用户零信任策略
+ * @summary List query of user zero trust policies
  *
  * @param request ListUserPrivateAccessPoliciesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -7362,7 +7459,7 @@ async function listUserPrivateAccessPoliciesWithOptions(request: ListUserPrivate
 }
 
 /**
- * @summary 列表查询用户零信任策略
+ * @summary List query of user zero trust policies
  *
  * @param request ListUserPrivateAccessPoliciesRequest
  * @return ListUserPrivateAccessPoliciesResponse
@@ -8712,37 +8809,68 @@ async function updatePrivateAccessApplication(request: UpdatePrivateAccessApplic
 }
 
 model UpdatePrivateAccessPolicyRequest {
-  applicationIds?: [ string ](name='ApplicationIds'),
-  applicationType?: string(name='ApplicationType', example='Application'),
+  applicationIds?: [ string ](name='ApplicationIds', description='Set of application IDs for the private access policy. A single policy supports up to 100 private access application IDs.'),
+  applicationType?: string(name='ApplicationType', description='Application type of the private access policy. Values:
+- **Application**: Application.
+- **Tag**: Tag.', example='Application'),
   customUserAttributes?: [ 
     {
-      idpId?: int32(name='IdpId', example='12'),
-      relation?: string(name='Relation', description='This parameter is required.', example='Equal'),
-      userGroupType?: string(name='UserGroupType', description='This parameter is required.', example='department'),
-      value?: string(name='Value', description='This parameter is required.'),
+      idpId?: int32(name='IdpId', description='The identity source ID of the custom user group. Required when the custom user group type is **department**.', example='12'),
+      relation?: string(name='Relation', description='Relation of the custom user group. Values:
+- **Equal**: Equal.
+- **Unequal**: Not equal.
+
+This parameter is required.', example='Equal'),
+      userGroupType?: string(name='UserGroupType', description='Type of the custom user group. Values:
+- **username**: Username.
+- **department**: Department.
+- **email**: Email.
+- **telephone**: Telephone.
+
+This parameter is required.', example='department'),
+      value?: string(name='Value', description='Custom user group attribute values. - When the user group type is **username**, it represents the value of the username. The length should be 1 to 128 characters, supporting Chinese and case-sensitive English letters, and can include numbers, half-width periods (.), underscores (_), hyphens (-), asterisks (*), at symbols (@), and spaces. - When the user group type is **department**, it represents the value of the department. For example: OU=Department1,OU=SASE DingTalk. - When the user group type is **email**, it represents the value of the email. For example: username@example.com. - When the user group type is **telephone**, it represents the value of the mobile phone. For example: 13900001234.
+
+This parameter is required.', example='OU=部门1,OU=SASE钉钉'),
     }
-  ](name='CustomUserAttributes'),
-  description?: string(name='Description', nullable=true),
-  deviceAttributeAction?: string(name='DeviceAttributeAction'),
-  deviceAttributeId?: string(name='DeviceAttributeId'),
-  modifyType?: string(name='ModifyType', example='Cover'),
-  policyAction?: string(name='PolicyAction', example='Allow'),
-  policyId?: string(name='PolicyId', description='This parameter is required.', example='pa-policy-63b2f1844b86****'),
-  priority?: int32(name='Priority', example='1'),
-  status?: string(name='Status', example='Enabled'),
-  tagIds?: [ string ](name='TagIds', description='内网访问标签ID集合。一条策略最多支持100个内网访问标签ID。'),
-  triggerTemplateId?: string(name='TriggerTemplateId'),
-  trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', nullable=false),
-  trustedProcessStatus?: string(name='TrustedProcessStatus'),
-  trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', nullable=false),
-  userGroupIds?: [ string ](name='UserGroupIds'),
-  userGroupMode?: string(name='UserGroupMode', description='内网访问策略的用户组类型。取值：
-- **Normal**：普通用户组。
-- **Custom**：自定义用户组。', example='Normal'),
+  ](name='CustomUserAttributes', description='Set of custom user attributes for the private access policy, required when the user group type is **Custom**. Mutually exclusive with the user group ID set. The total number of custom user groups is limited to 10.'),
+  description?: string(name='Description', description='Description of the private access policy. Length should be 1 to 128 characters, supporting Chinese and English letters (both uppercase and lowercase), and can include numbers, periods (.), underscores (_), hyphens (-), and spaces.', example='test', nullable=true),
+  deviceAttributeAction?: string(name='DeviceAttributeAction', description='The execution strategy for not meeting the security baseline. Values:
+
+- **Block**: Block.
+- **Observe**: Observe.', example='Block'),
+  deviceAttributeId?: string(name='DeviceAttributeId', description='The ID of the security baseline policy.', example='dag-d3f64e8bdd4a****'),
+  modifyType?: string(name='ModifyType', description='The modification type of the private access policy. Values:
+- **Cover** (default): Use the values of **ApplicationIds**, **UserGroupIds**, and **CustomUserAttributes** to overwrite the original application ID set, user group ID set, and custom user attribute set, respectively.
+- **Append**: Add the values provided in **ApplicationIds**, **UserGroupIds**, and **CustomUserAttributes** to the original application ID set, user group ID set, and custom user attribute set, respectively.', example='Cover'),
+  policyAction?: string(name='PolicyAction', description='Action of the private access policy. Values:
+- **Block**: Block.
+- **Allow**: Allow.', example='Allow'),
+  policyId?: string(name='PolicyId', description='ID of the private access policy. Value sources:
+- [ListPrivateAccessPolicies](~~ListPrivateAccessPolicies~~): Batch query for private access policies.
+- [CreatePrivateAccessPolicy](~~CreatePrivateAccessPolicy~~): Create a private access policy.
+
+This parameter is required.', example='pa-policy-63b2f1844b86****'),
+  priority?: int32(name='Priority', description='The priority of the private access policy. The number 1 indicates the highest priority. Range: 1~1000, with the maximum value being the total number of private access policies minus one.', example='1'),
+  status?: string(name='Status', description='The status of the private access policy. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
+  tagIds?: [ string ](name='TagIds', description='Set of tag IDs for the private access policy. A single policy supports up to 100 private access tag IDs.'),
+  triggerTemplateId?: string(name='TriggerTemplateId', description='The trigger template ID.', example='dag-d3f64e8bdd4a****'),
+  trustedProcessGroupIds?: [ string ](name='TrustedProcessGroupIds', description='Trusted process group ID.', nullable=false),
+  trustedProcessStatus?: string(name='TrustedProcessStatus', description='Trusted process switch status. Values: 
+
+- **Enabled**: On. 
+
+- **Disabled**: Off.', example='Disabled'),
+  trustedSoftwareIds?: [ string ](name='TrustedSoftwareIds', description='Trusted Software ID.', nullable=false),
+  userGroupIds?: [ string ](name='UserGroupIds', description='Set of user group IDs for the private access policy, required when the user group type is **Normal**. Mutually exclusive with the custom user group set. A single policy supports up to 10,000 user groups, and a maximum of 2,000 user group IDs can be modified at once.'),
+  userGroupMode?: string(name='UserGroupMode', description='User group type of the private access policy. Values:
+- **Normal**: Normal user group.
+- **Custom**: Custom user group.', example='Normal'),
 }
 
 model UpdatePrivateAccessPolicyResponseBody = {
-  requestId?: string(name='RequestId', example='5FEF5CFA-14CC-5DE5-BD1F-AFFE0996E71D'),
+  requestId?: string(name='RequestId', description='The ID of this request.', example='5FEF5CFA-14CC-5DE5-BD1F-AFFE0996E71D'),
 }
 
 model UpdatePrivateAccessPolicyResponse = {
@@ -8752,7 +8880,7 @@ model UpdatePrivateAccessPolicyResponse = {
 }
 
 /**
- * @summary 修改内网访问策略
+ * @summary Modify Private Access Policy
  *
  * @param request UpdatePrivateAccessPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -8839,7 +8967,7 @@ async function updatePrivateAccessPolicyWithOptions(request: UpdatePrivateAccess
 }
 
 /**
- * @summary 修改内网访问策略
+ * @summary Modify Private Access Policy
  *
  * @param request UpdatePrivateAccessPolicyRequest
  * @return UpdatePrivateAccessPolicyResponse
