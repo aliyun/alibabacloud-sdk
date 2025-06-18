@@ -225,8 +225,12 @@ The encryption algorithm of the client certificate must be the same with the enc
 }
 
 model CreateClientCertificateWithCsrResponseBody = {
-  certKmcRep1?: string(name='CertKmcRep1'),
-  certSignBufKmc?: string(name='CertSignBufKmc'),
+  certKmcRep1?: string(name='CertKmcRep1', description='CertKmcRep1.', example='userSeal=MHkCIEu94PQAahFWuFk%
+***
+EtFw%2FkMMBjw8i5bFfSkV%2FIUrcOJD'),
+  certSignBufKmc?: string(name='CertSignBufKmc', description='Cert Sign Buf Kmc.', example='userSeal=MHkCIEu94PQAahFWuFk%
+***
+EtFw%2FkMMBjw8i5bFfSkV%2FIUrcOJD'),
   certificateChain?: string(name='CertificateChain', description='The certificate chain of the client certificate.', example='-----BEGIN CERTIFICATE-----\\n......\\n-----END CERTIFICATE-----\\n-----BEGIN CERTIFICATE-----\\n......\\n-----END CERTIFICATE-----\\n'),
   identifier?: string(name='Identifier', description='The unique identifier of the client certificate.', example='200ae6bb538d538c70c01f81dcf2****'),
   requestId?: string(name='RequestId', description='The ID of the request, which is used to locate and troubleshoot issues.', example='31C66C7B-671A-4297-9187-2C4477247A74'),
@@ -919,11 +923,15 @@ async function describeCACertificateCount(request: DescribeCACertificateCountReq
 }
 
 model DescribeCACertificateListRequest {
+  caStatus?: string(name='CaStatus', position='Query'),
+  certType?: string(name='CertType', position='Query'),
   currentPage?: int32(name='CurrentPage', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
   identifier?: string(name='Identifier', description='The unique identifier of the client certificate or server certificate that you want to revoke.
 
 >  You can call the [ListClientCertificate](https://help.aliyun.com/document_detail/330884.html) operation to query the unique identifiers of all client certificates and server certificates.', example='160ae6bb538d538c70c01f81dcf2****', position='Query'),
+  issuerType?: string(name='IssuerType', position='Query'),
   showSize?: int32(name='ShowSize', description='The number of CA certificates to return on each page. Default value: **20**.', example='20', position='Query'),
+  validStatus?: string(name='ValidStatus', position='Query'),
 }
 
 model DescribeCACertificateListResponseBody = {
@@ -1238,6 +1246,65 @@ async function getCAInstanceStatus(request: GetCAInstanceStatusRequest): GetCAIn
   return @handler.do('RPC', 'GetCAInstanceStatus', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ListCertRequest {
+  afterDate?: string(name='AfterDate', example='2024-05-13 12:59:45', position='Query'),
+  beforeDate?: string(name='BeforeDate', example='2025-09-04', position='Query'),
+  currentPage?: int32(name='CurrentPage', example='1', position='Query'),
+  instanceUuid?: string(name='InstanceUuid', example='1ef79512-569b-6a4e-9105-9b91473562f7', position='Query'),
+  maxResults?: int32(name='MaxResults', example='20', position='Query'),
+  nextToken?: string(name='NextToken', example='1d2db86sca4384811e0b5e8707e68181f', position='Query'),
+  showSize?: int32(name='ShowSize', example='50', position='Query'),
+  status?: string(name='Status', example='ISSUE', position='Query'),
+  type?: string(name='Type', example='CLIENT', position='Query'),
+}
+
+model ListCertResponseBody = {
+  currentPage?: int32(name='CurrentPage', example='1'),
+  list?: [ 
+    {
+      afterDate?: string(name='AfterDate', example='2024-05-13 12:59:45'),
+      afterTime?: long(name='AfterTime', example='1728921600000'),
+      algorithm?: string(name='Algorithm', example='RSA'),
+      aliasName?: string(name='AliasName'),
+      beforeDate?: string(name='BeforeDate', example='2026-05-19'),
+      beforeTime?: long(name='BeforeTime', example='1728921600000'),
+      certificateType?: string(name='CertificateType', example='Server'),
+      commonName?: string(name='CommonName', example='www.kfsjn.xyz'),
+      extra?: string(name='Extra', example='{\\"appId\\":\\"APP_PFHMIGUHKDUW6S3N7ZL2\\"}'),
+      id?: string(name='Id', example='1806958'),
+      identifier?: string(name='Identifier', example='1ef539a8-1e1f-6b88-8c11-21cf01a203e9'),
+      keyExportable?: boolean(name='KeyExportable'),
+      organization?: string(name='Organization'),
+      organizationUnit?: string(name='OrganizationUnit', example='IT'),
+      serialNumber?: string(name='SerialNumber', example='3a3ee3c3597d675e'),
+      status?: string(name='Status', example='complete'),
+      subjectDn?: string(name='SubjectDn', example='SubjectDn'),
+      tags?: [ string ](name='Tags'),
+    }
+  ](name='List'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='1d2db86sca4384811e0b5e8707e68181f'),
+  pageCount?: int32(name='PageCount', example='1'),
+  requestId?: string(name='RequestId', example='15C66C7B-671A-4297-9187-2C4477247A74'),
+  showSize?: int32(name='ShowSize', example='50'),
+  totalCount?: long(name='TotalCount', example='10'),
+}
+
+model ListCertResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCertResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListCert  ListCertRequest
+  * @return ListCertResponse
+ */
+async function listCert(request: ListCertRequest): ListCertResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCert', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListClientCertificateRequest {
   currentPage?: int32(name='CurrentPage', description='The number of the page to return. Default value: **1**.', example='1', position='Query'),
   identifier?: string(name='Identifier', description='The unique identifier of the client certificate or the server certificate that you want to query.
@@ -1442,5 +1509,28 @@ model UpdateCACertificateStatusResponse = {
 async function updateCACertificateStatus(request: UpdateCACertificateStatusRequest): UpdateCACertificateStatusResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateCACertificateStatus', 'POST', '/', 'json', false, 'json', request);
+}
+
+model UploadPcaCertToCasRequest {
+  ids: string(name='Ids', description='This parameter is required.', example='59425,59426', position='Query'),
+}
+
+model UploadPcaCertToCasResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='CBF1E9B7-D6A0-4E9E-AD3E-2B47E6C2837D'),
+}
+
+model UploadPcaCertToCasResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UploadPcaCertToCasResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UploadPcaCertToCas  UploadPcaCertToCasRequest
+  * @return UploadPcaCertToCasResponse
+ */
+async function uploadPcaCertToCas(request: UploadPcaCertToCasRequest): UploadPcaCertToCasResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UploadPcaCertToCas', 'POST', '/', 'json', false, 'json', request);
 }
 
