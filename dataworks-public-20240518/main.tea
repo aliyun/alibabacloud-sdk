@@ -10467,6 +10467,65 @@ async function getProjectRole(request: GetProjectRoleRequest): GetProjectRoleRes
   return getProjectRoleWithOptions(request, runtime);
 }
 
+model GetRerunWorkflowInstancesResultRequest {
+  operationId?: string(name='OperationId', description='This parameter is required.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
+}
+
+model GetRerunWorkflowInstancesResultResponseBody = {
+  requestId?: string(name='RequestId', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  result?: {
+    failureMessage?: string(name='FailureMessage'),
+    status?: string(name='Status', example='Success'),
+  }(name='Result'),
+}
+
+model GetRerunWorkflowInstancesResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRerunWorkflowInstancesResultResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询异步重跑工作流实例的结果
+ *
+ * @param request GetRerunWorkflowInstancesResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetRerunWorkflowInstancesResultResponse
+ */
+async function getRerunWorkflowInstancesResultWithOptions(request: GetRerunWorkflowInstancesResultRequest, runtime: Util.RuntimeOptions): GetRerunWorkflowInstancesResultResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.operationId)) {
+    query['OperationId'] = request.operationId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRerunWorkflowInstancesResult',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询异步重跑工作流实例的结果
+ *
+ * @param request GetRerunWorkflowInstancesResultRequest
+ * @return GetRerunWorkflowInstancesResultResponse
+ */
+async function getRerunWorkflowInstancesResult(request: GetRerunWorkflowInstancesResultRequest): GetRerunWorkflowInstancesResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getRerunWorkflowInstancesResultWithOptions(request, runtime);
+}
+
 model GetResourceRequest {
   id?: long(name='Id', description='The ID of the file resource.
 
@@ -10731,11 +10790,11 @@ async function getRoute(request: GetRouteRequest): GetRouteResponse {
 }
 
 model GetSchemaRequest {
-  id?: string(name='Id', description='The schema ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+  id?: string(name='Id', description='The schema ID. You can call the ListSchemas operation to query schema IDs. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
-Configure this parameter in the `${EntityType}:${Instance ID or escaped URL}:${Catalog name}:${Database name}:${Schema name}` format. If a level does not exist, leave the level empty.
+Configure this parameter in the `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}` format. If a level does not exist, leave the level empty.
 
->  If you want to query the information about a MaxCompute schema, set the instance ID to the ID of the Alibaba Cloud account, and the database name to the name of the MaxCompute project.
+>  If you want to query the information about a MaxCompute schema, specify an empty string at the Instance ID level as a placeholder and a MaxCompute project name at the Database name level. Make sure that the schema feature is enabled for the MaxCompute project.
 
 This parameter is required.', example='maxcompute-schema:123456XXX::test_project:default
 holo-schema:h-abc123xxx::test_db:test_schema'),
@@ -11201,6 +11260,8 @@ Note: The value of this parameter is rounded up by hour.', example='1'),
 
 *   Scheduler
 *   Manual', example='Scheduler'),
+    waitingResourceTime?: long(name='WaitingResourceTime'),
+    waitingTriggerTime?: long(name='WaitingTriggerTime'),
     workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
     workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
     workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance. Valid values:
@@ -18158,6 +18219,7 @@ Valid values:
           image?: string(name='Image', description='The ID of the image configured for task running.', example='i-xxxxxx'),
           resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group for scheduling configured for task running.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
         }(name='RuntimeResource', description='The information about the resource group with which the instance is associated.'),
+        scriptParameters?: string(name='ScriptParameters'),
         startedTime?: long(name='StartedTime', description='The time when the instance started to run.', example='1710239005403'),
         status?: string(name='Status', description='The status of the instance.
 
@@ -18191,6 +18253,8 @@ Valid values:
 
 *   Scheduler: scheduling cycle-based trigger
 *   Manual: manual trigger', example='Scheduler'),
+        waitingResourceTime?: long(name='WaitingResourceTime'),
+        waitingTriggerTime?: long(name='WaitingTriggerTime'),
         workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
         workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
         workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance.
@@ -20392,6 +20456,130 @@ async function rerunTaskInstancesWithOptions(tmpReq: RerunTaskInstancesRequest, 
 async function rerunTaskInstances(request: RerunTaskInstancesRequest): RerunTaskInstancesResponse {
   var runtime = new Util.RuntimeOptions{};
   return rerunTaskInstancesWithOptions(request, runtime);
+}
+
+model RerunWorkflowInstancesRequest {
+  bizdate?: long(name='Bizdate', example='1710239005403'),
+  endTriggerTime?: long(name='EndTriggerTime', example='1710239005403'),
+  envType?: string(name='EnvType', example='Prod'),
+  filter?: {
+    rerunDownstreamEnabled?: boolean(name='RerunDownstreamEnabled', example='false'),
+    taskIds?: [ long ](name='TaskIds'),
+    taskInstanceStatuses?: [ string ](name='TaskInstanceStatuses'),
+    taskName?: string(name='TaskName', example='test'),
+    taskTypes?: [ string ](name='TaskTypes'),
+  }(name='Filter'),
+  ids?: [ long ](name='Ids'),
+  name?: string(name='Name', example='test'),
+  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  startTriggerTime?: long(name='StartTriggerTime', example='1710239005403'),
+  status?: string(name='Status', example='Failure'),
+  type?: string(name='Type', description='This parameter is required.', example='ManualWorkflow'),
+  workflowId?: long(name='WorkflowId', description='This parameter is required.', example='123'),
+}
+
+model RerunWorkflowInstancesShrinkRequest {
+  bizdate?: long(name='Bizdate', example='1710239005403'),
+  endTriggerTime?: long(name='EndTriggerTime', example='1710239005403'),
+  envType?: string(name='EnvType', example='Prod'),
+  filterShrink?: string(name='Filter'),
+  idsShrink?: string(name='Ids'),
+  name?: string(name='Name', example='test'),
+  projectId?: long(name='ProjectId', description='This parameter is required.'),
+  startTriggerTime?: long(name='StartTriggerTime', example='1710239005403'),
+  status?: string(name='Status', example='Failure'),
+  type?: string(name='Type', description='This parameter is required.', example='ManualWorkflow'),
+  workflowId?: long(name='WorkflowId', description='This parameter is required.', example='123'),
+}
+
+model RerunWorkflowInstancesResponseBody = {
+  operationId?: string(name='OperationId', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
+  requestId?: string(name='RequestId', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+}
+
+model RerunWorkflowInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RerunWorkflowInstancesResponseBody(name='body'),
+}
+
+/**
+ * @summary 重跑工作流实例
+ *
+ * @param tmpReq RerunWorkflowInstancesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RerunWorkflowInstancesResponse
+ */
+async function rerunWorkflowInstancesWithOptions(tmpReq: RerunWorkflowInstancesRequest, runtime: Util.RuntimeOptions): RerunWorkflowInstancesResponse {
+  Util.validateModel(tmpReq);
+  var request = new RerunWorkflowInstancesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.filter)) {
+    request.filterShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.filter, 'Filter', 'json');
+  }
+  if (!Util.isUnset(tmpReq.ids)) {
+    request.idsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ids, 'Ids', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bizdate)) {
+    body['Bizdate'] = request.bizdate;
+  }
+  if (!Util.isUnset(request.endTriggerTime)) {
+    body['EndTriggerTime'] = request.endTriggerTime;
+  }
+  if (!Util.isUnset(request.envType)) {
+    body['EnvType'] = request.envType;
+  }
+  if (!Util.isUnset(request.filterShrink)) {
+    body['Filter'] = request.filterShrink;
+  }
+  if (!Util.isUnset(request.idsShrink)) {
+    body['Ids'] = request.idsShrink;
+  }
+  if (!Util.isUnset(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.projectId)) {
+    body['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.startTriggerTime)) {
+    body['StartTriggerTime'] = request.startTriggerTime;
+  }
+  if (!Util.isUnset(request.status)) {
+    body['Status'] = request.status;
+  }
+  if (!Util.isUnset(request.type)) {
+    body['Type'] = request.type;
+  }
+  if (!Util.isUnset(request.workflowId)) {
+    body['WorkflowId'] = request.workflowId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'RerunWorkflowInstances',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 重跑工作流实例
+ *
+ * @param request RerunWorkflowInstancesRequest
+ * @return RerunWorkflowInstancesResponse
+ */
+async function rerunWorkflowInstances(request: RerunWorkflowInstancesRequest): RerunWorkflowInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return rerunWorkflowInstancesWithOptions(request, runtime);
 }
 
 model ResumeTaskInstancesRequest {
