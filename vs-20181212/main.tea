@@ -5649,6 +5649,7 @@ model DescribeRenderingSessionResponseBody = {
       internalPort?: string(name='InternalPort', example='49008/49015'),
     }
   ](name='PortMappings'),
+  renderingInstanceId?: string(name='RenderingInstanceId'),
   requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
   sessionId?: string(name='SessionId', example='session-i205217481741918129226'),
   startTime?: string(name='StartTime', example='2025-05-18T02:20:00Z'),
@@ -8329,6 +8330,68 @@ async function forbidVsStream(request: ForbidVsStreamRequest): ForbidVsStreamRes
   return forbidVsStreamWithOptions(request, runtime);
 }
 
+model GetRenderingInstanceCommandsStatusRequest {
+  cmdId?: string(name='CmdId', description='This parameter is required.', example='cmd-81de027b66e442e99c1e0e09a16a0be5'),
+  renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
+}
+
+model GetRenderingInstanceCommandsStatusResponseBody = {
+  message?: string(name='Message', example='conn failed!'),
+  requestId?: string(name='RequestId', description='Id of the request', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  result?: string(name='Result', example='Thu Jun 27 16:06:26 CST 2024'),
+  status?: string(name='Status', example='Success'),
+}
+
+model GetRenderingInstanceCommandsStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRenderingInstanceCommandsStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询命令的执行状态与结果。
+ *
+ * @param request GetRenderingInstanceCommandsStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetRenderingInstanceCommandsStatusResponse
+ */
+async function getRenderingInstanceCommandsStatusWithOptions(request: GetRenderingInstanceCommandsStatusRequest, runtime: Util.RuntimeOptions): GetRenderingInstanceCommandsStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.cmdId)) {
+    query['CmdId'] = request.cmdId;
+  }
+  if (!Util.isUnset(request.renderingInstanceId)) {
+    query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetRenderingInstanceCommandsStatus',
+    version = '2018-12-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询命令的执行状态与结果。
+ *
+ * @param request GetRenderingInstanceCommandsStatusRequest
+ * @return GetRenderingInstanceCommandsStatusResponse
+ */
+async function getRenderingInstanceCommandsStatus(request: GetRenderingInstanceCommandsStatusRequest): GetRenderingInstanceCommandsStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getRenderingInstanceCommandsStatusWithOptions(request, runtime);
+}
+
 model GetRenderingInstanceStreamingInfoRequest {
   renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
 }
@@ -9336,6 +9399,7 @@ model ListRenderingSessionsRequest {
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   projectId?: string(name='ProjectId', description='This parameter is required.', example='project-422bc38dfgh5eb44149f135ef76304f63b'),
+  renderingInstanceId?: string(name='RenderingInstanceId'),
   sessionId?: string(name='SessionId', example='session-i205217481741918129226'),
   state?: string(name='State', example='SessionStarting'),
 }
@@ -9346,6 +9410,7 @@ model ListRenderingSessionsResponseBody = {
     {
       appId?: string(name='AppId', example='cap-4e1a6a425495458ba78693b8ac6600ea'),
       clientId?: string(name='ClientId', example='fd6b2134-7954-4754-8915-5fb8b0469622'),
+      renderingInstanceId?: string(name='RenderingInstanceId'),
       sessionId?: string(name='SessionId', example='session-i205217481741918129226'),
       startTime?: string(name='StartTime', example='2024-07-04T01:23:00Z'),
     }
@@ -9387,6 +9452,9 @@ async function listRenderingSessionsWithOptions(request: ListRenderingSessionsRe
   }
   if (!Util.isUnset(request.projectId)) {
     query['ProjectId'] = request.projectId;
+  }
+  if (!Util.isUnset(request.renderingInstanceId)) {
+    query['RenderingInstanceId'] = request.renderingInstanceId;
   }
   if (!Util.isUnset(request.sessionId)) {
     query['SessionId'] = request.sessionId;
@@ -10948,10 +11016,13 @@ async function resumeVsStream(request: ResumeVsStreamRequest): ResumeVsStreamRes
 
 model SendRenderingInstanceCommandsRequest {
   commands?: string(name='Commands', description='This parameter is required.', example='date;ls -l /tmp'),
+  mode?: string(name='Mode'),
   renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  timeout?: int32(name='Timeout'),
 }
 
 model SendRenderingInstanceCommandsResponseBody = {
+  cmdId?: string(name='CmdId'),
   requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
   result?: string(name='Result', example='Thu Jun 27 16:06:26 CST 2024'),
 }
@@ -10963,7 +11034,7 @@ model SendRenderingInstanceCommandsResponse = {
 }
 
 /**
- * @summary 下发shell命令，同步响应。不适用于耗时命令。
+ * @summary 下发shell命令，支持同步/异步响应命令。
  *
  * @param request SendRenderingInstanceCommandsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10972,8 +11043,14 @@ model SendRenderingInstanceCommandsResponse = {
 async function sendRenderingInstanceCommandsWithOptions(request: SendRenderingInstanceCommandsRequest, runtime: Util.RuntimeOptions): SendRenderingInstanceCommandsResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.mode)) {
+    query['Mode'] = request.mode;
+  }
   if (!Util.isUnset(request.renderingInstanceId)) {
     query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  if (!Util.isUnset(request.timeout)) {
+    query['Timeout'] = request.timeout;
   }
   var body : map[string]any = {};
   if (!Util.isUnset(request.commands)) {
@@ -10998,7 +11075,7 @@ async function sendRenderingInstanceCommandsWithOptions(request: SendRenderingIn
 }
 
 /**
- * @summary 下发shell命令，同步响应。不适用于耗时命令。
+ * @summary 下发shell命令，支持同步/异步响应命令。
  *
  * @param request SendRenderingInstanceCommandsRequest
  * @return SendRenderingInstanceCommandsResponse
@@ -11486,6 +11563,7 @@ model StartRenderingSessionResponseBody = {
       internalPort?: string(name='InternalPort', example='49008/49015'),
     }
   ](name='PortMappings'),
+  renderingInstanceId?: string(name='RenderingInstanceId'),
   requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
   sessionId?: string(name='SessionId', example='session-i205217481741918129226'),
   stateInfo?: {
