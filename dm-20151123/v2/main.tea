@@ -1,6 +1,10 @@
 /**
  *
  */
+import OSS;
+import OpenPlatform;
+import OSSUtil;
+import FileForm;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -3663,6 +3667,85 @@ This parameter is required.', example='test***@example.net'),
 1: Sending address
 
 This parameter is required.', example='1'),
+  attachments?: [ 
+    {
+      attachmentName?: string(name='AttachmentName'),
+      attachmentUrl?: string(name='AttachmentUrl'),
+    }
+  ](name='Attachments'),
+  clickTrace?: string(name='ClickTrace', description='1: Enable data tracking function
+
+0 (default): Disable data tracking function.', example='0'),
+  fromAlias?: string(name='FromAlias', description='Sender nickname, with a maximum length of 15 characters.
+
+For example, if the sender\\\\"s nickname is set to "Xiaohong" and the sending address is test***@example.net, the recipient will see the sending address as "Xiaohong" <test***@example.net>.', example='Xiaohong'),
+  headers?: string(name='Headers', description='Standard fields that can currently be added to the email header include Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite existing values in the email header, while non-standard fields need to start with X-User- and will be appended to the email header.
+Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
+  "Message-ID": "<msg0001@example.com>",
+  "X-User-UID1": "UID-1-000001",
+  "X-User-UID2": "UID-2-000001"
+}'),
+  htmlBody?: string(name='HtmlBody', description='Email HTML body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
+  ipPoolId?: string(name='IpPoolId'),
+  ownerId?: long(name='OwnerId'),
+  replyAddress?: string(name='ReplyAddress', description='Reply-to address', example='test2***@example.net'),
+  replyAddressAlias?: string(name='ReplyAddressAlias', description='Reply-to address nickname', example='Xiaohong'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='Whether to enable the reply-to address configured in the management console (the status must be verified). The value range is the string `true` or `false` (not a boolean value).
+
+This parameter is required.', example='true'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
+  resourceOwnerId?: long(name='ResourceOwnerId'),
+  subject?: string(name='Subject', description='Email subject, with a maximum length of 100 characters.
+
+This parameter is required.', example='Subject'),
+  tagName?: string(name='TagName', description='A tag created in the email push console, used to categorize batches of emails sent. You can use tags to query the sending status of each batch. Additionally, if the email tracking feature is enabled, you must use an email tag when sending emails.', example='test'),
+  textBody?: string(name='TextBody', description='Email text body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
+  toAddress?: string(name='ToAddress', description='Recipient addresses. Multiple email addresses can be separated by commas, with a maximum of 100 addresses (supports mailing lists).
+
+This parameter is required.', example='test1***@example.net'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filtering level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
+
+disabled: No filtering
+
+default: Use the default strategy, bulk addresses use the sending address level filtering
+
+mailfrom: Sending address level filtering
+
+mailfrom_domain: Sending domain level filtering
+
+edm_id: Account level filtering', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='Type of the generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
+
+disabled: Do not generate
+
+default: Use the default strategy: Generate unsubscribe links for bulk-type sending addresses when sending to specific domains, such as those containing keywords like "gmail", "yahoo",
+
+"google", "aol.com", "hotmail",
+
+"outlook", "ymail.com", etc.
+
+zh-cn: Generate, for future content preparation
+
+en-us: Generate, for future content preparation', example='default'),
+}
+
+model SingleSendMailAdvanceRequest {
+  accountName?: string(name='AccountName', description='The sending address configured in the management console.
+
+This parameter is required.', example='test***@example.net'),
+  addressType?: int32(name='AddressType', description='Address type. Values:
+
+0: Random account
+
+1: Sending address
+
+This parameter is required.', example='1'),
+  attachments?: [ 
+    {
+      attachmentName?: string(name='AttachmentName'),
+      attachmentUrlObject?: readable(name='AttachmentUrl'),
+    }
+  ](name='Attachments'),
   clickTrace?: string(name='ClickTrace', description='1: Enable data tracking function
 
 0 (default): Disable data tracking function.', example='0'),
@@ -3746,6 +3829,9 @@ async function singleSendMailWithOptions(request: SingleSendMailRequest, runtime
   if (!$isNull(request.addressType)) {
     query['AddressType'] = request.addressType;
   }
+  if (!$isNull(request.attachments)) {
+    query['Attachments'] = request.attachments;
+  }
   if (!$isNull(request.clickTrace)) {
     query['ClickTrace'] = request.clickTrace;
   }
@@ -3823,6 +3909,88 @@ async function singleSendMailWithOptions(request: SingleSendMailRequest, runtime
 async function singleSendMail(request: SingleSendMailRequest): SingleSendMailResponse {
   var runtime = new $RuntimeOptions{};
   return singleSendMailWithOptions(request, runtime);
+}
+
+async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runtime: $RuntimeOptions): SingleSendMailResponse {
+  // Step 0: init client
+  var accessKeyId = @credential.getAccessKeyId();
+  var accessKeySecret = @credential.getAccessKeySecret();
+  var securityToken = @credential.getSecurityToken();
+  var credentialType = @credential.getType();
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if($isNull(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if($isNull(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApiUtil.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenPlatform(authConfig);
+  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
+    product = 'Dm',
+    regionId = @regionId,
+  };
+  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
+  var ossConfig = new OSS.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    type = 'access_key',
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var ossClient : OSS = new OSS(ossConfig);
+
+  var fileObj = new FileForm.FileField{};
+  var ossHeader = new OSS.PostObjectRequest.header{};
+  var uploadRequest = new OSS.PostObjectRequest{};
+  var ossRuntime = new OSSUtil.RuntimeOptions{};
+  OpenApiUtil.convert(runtime, ossRuntime);
+  var singleSendMailReq = new SingleSendMailRequest{};
+  OpenApiUtil.convert(request, singleSendMailReq);
+
+  if(!$isNull(request.attachments)) {
+    var i0 : integer = 0;
+    for (var item0 : request.attachments) {
+      if(!$isNull(item0.attachmentUrlObject)) {
+        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
+        ossConfig.accessKeyId = authResponse.body.accessKeyId;
+        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
+        ossClient = new OSS(ossConfig);
+
+        fileObj = new FileForm.FileField{
+          filename = authResponse.body.objectKey,
+          content = item0.attachmentUrlObject,
+          contentType = '',
+        };
+        ossHeader = new OSS.PostObjectRequest.header{
+          accessKeyId = authResponse.body.accessKeyId,
+          policy = authResponse.body.encodedPolicy,
+          signature = authResponse.body.signature,
+          key = authResponse.body.objectKey,
+          file = fileObj,
+          successActionStatus = '201',
+        };
+        uploadRequest = new OSS.PostObjectRequest{
+          bucketName = authResponse.body.bucket,
+          header = ossHeader,
+        };
+        ossClient.postObject(uploadRequest, ossRuntime);
+        var tmp : SingleSendMailRequest.attachments = singleSendMailReq.attachments[i0];
+        tmp.attachmentUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        i0++;
+      }
+    }
+  }
+  var singleSendMailResp = singleSendMailWithOptions(singleSendMailReq, runtime);
+  return singleSendMailResp;
 }
 
 model UpdateIpProtectionRequest {
