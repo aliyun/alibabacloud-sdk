@@ -30,6 +30,25 @@ function close(): void {
   @handler.close();
 }
 
+model AgentServiceConfig {
+  address: string(name='address', description='This parameter is required.', example='https://dashscope.aliyuncs.com/api/v1'),
+  dashScopeConfig?: {
+    appCredentials?: [ 
+      {
+        apiKey?: string(name='apiKey'),
+        appId?: string(name='appId'),
+      }
+    ](name='appCredentials'),
+  }(name='dashScopeConfig'),
+  difyConfig?: {
+    apiKey?: string(name='apiKey'),
+    botType?: string(name='botType'),
+  }(name='difyConfig'),
+  enableHealthCheck?: boolean(name='enableHealthCheck'),
+  protocols?: [ string ](name='protocols'),
+  provider: string(name='provider', description='This parameter is required.'),
+}
+
 model AiServiceConfig {
   address?: string(name='address', example='https://dashscope.aliyun.com'),
   apiKeys?: [ string ](name='apiKeys'),
@@ -698,6 +717,7 @@ model ResourceStatistic {
 
 model Service {
   addresses?: [ string ](name='addresses'),
+  agentServiceConfig?: AgentServiceConfig(name='agentServiceConfig'),
   aiServiceConfig?: AiServiceConfig(name='aiServiceConfig'),
   createTimestamp?: long(name='createTimestamp'),
   gatewayId?: string(name='gatewayId', example='gw-xxxx'),
@@ -937,6 +957,7 @@ async function createEnvironment(request: CreateEnvironmentRequest): CreateEnvir
 
 model CreateHttpApiRequest {
   regionId?: string(name='RegionId', position='Host'),
+  agentProtocols?: [ string ](name='agentProtocols', position='Body'),
   aiProtocols?: [ string ](name='aiProtocols', description='The AI API protocols. Valid value:
 
 *   OpenAI/v1', position='Body'),
@@ -1210,6 +1231,7 @@ model CreateServiceRequest {
   serviceConfigs?: [ 
     {
       addresses?: [ string ](name='addresses', description='The list of domain names or fixed addresses.'),
+      agentServiceConfig?: AgentServiceConfig(name='agentServiceConfig'),
       aiServiceConfig?: AiServiceConfig(name='aiServiceConfig', description='The AI service configurations.'),
       dnsServers?: [ string ](name='dnsServers', description='The list of DNS service addresses.'),
       groupName?: string(name='groupName', description='The service group name. This parameter is required if sourceType is set to MSE_NACOS.', example='DEFAULT_GROUP'),
@@ -1534,6 +1556,31 @@ async function deletePolicyAttachment(request: DeletePolicyAttachmentRequest): D
   return @handler.do('RESTFUL', 'DeletePolicyAttachment', 'DELETE', '/v1/policy-attachments/{policyAttachmentId}', 'json', false, 'json', request);
 }
 
+model DeleteServiceRequest {
+  serviceId?: string(name='serviceId', example='svc-cr6pk4tlhtgm***', position='Path'),
+}
+
+model DeleteServiceResponseBody = {
+  code?: string(name='code', example='Ok'),
+  message?: string(name='message', example='success'),
+  requestId?: string(name='requestId', example='3C3B9A12-3868-5EB9-8BEA-F99E03DD125C'),
+}
+
+model DeleteServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteServiceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteService  DeleteServiceRequest
+  * @return DeleteServiceResponse
+ */
+async function deleteService(request: DeleteServiceRequest): DeleteServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteService', 'DELETE', '/v1/services/{serviceId}', 'json', false, 'json', request);
+}
+
 model DeployHttpApiRequest {
   httpApiId?: string(name='httpApiId', description='HTTP API ID.', example='api-cr68g1dlhtgm31fb***', position='Path'),
   httpApiConfig?: {
@@ -1801,106 +1848,118 @@ async function getEnvironment(request: GetEnvironmentRequest): GetEnvironmentRes
 }
 
 model GetGatewayRequest {
-  gatewayId?: string(name='gatewayId', description='Cloud-native API Gateway ID.', example='gw-cpv4sqdl*****', position='Path'),
+  gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cpv4sqdl*****', position='Path'),
 }
 
 model GetGatewayResponseBody = {
-  code?: string(name='code', description='Response status code.', example='Ok'),
+  code?: string(name='code', description='The status code.', example='Ok'),
   data?: {
-    chargeType?: string(name='chargeType', description='Charge type
-- POSTPAY: Postpaid (pay-as-you-go)
-- PREPAY: Prepaid (subscription)', example='POSTPAY'),
-    createFrom?: string(name='createFrom', description='Source of gateway creation:
-- Console: Console.', example='Console'),
-    createTimestamp?: long(name='createTimestamp', description='Creation timestamp. Unit: milliseconds.', example='1719386834548'),
+    chargeType?: string(name='chargeType', description='The billing method. Valid values:
+
+*   POSTPAY: pay-as-you-go
+*   PREPAY: subscription', example='POSTPAY'),
+    createFrom?: string(name='createFrom', description='The creation source of the instance. Valid values:
+
+*   Console', example='Console'),
+    createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1719386834548'),
     environments?: [ 
       {
-        alias?: string(name='alias', description='The environment alias.', example='默认环境'),
-        environmentId?: string(name='environmentId', description='Environment ID.', example='env-cp9uhudlht***'),
-        name?: string(name='name', description='The environment name。', example='default-gw-cp9ugg5***'),
+        alias?: string(name='alias', description='The environment alias.', example='Default environment'),
+        environmentId?: string(name='environmentId', description='The environment ID.', example='env-cp9uhudlht***'),
+        name?: string(name='name', description='The environment name.', example='default-gw-cp9ugg5***'),
       }
-    ](name='environments', description='List of environments associated with the gateway.'),
-    expireTimestamp?: long(name='expireTimestamp', description='Expiration timestamp for subscription. Unit: milliseconds.', example='1719386834548'),
-    gatewayId?: string(name='gatewayId', description='Gateway ID.', example='gw-cq2vundlhtg***'),
-    gatewayType?: string(name='gatewayType'),
+    ](name='environments', description='The list of environments associated with the instance.'),
+    expireTimestamp?: long(name='expireTimestamp', description='The time when the instance expires. This value is a UNIX timestamp. Unit: milliseconds.', example='1719386834548'),
+    gatewayId?: string(name='gatewayId', description='The instance ID.', example='gw-cq2vundlhtg***'),
+    gatewayType?: string(name='gatewayType', description='the gateway type, which is categorized into the following two types:
+- API: indicates an API gateway
+- AI: Indicates an AI gateway', example='API'),
     loadBalancers?: [ 
       {
-        address?: string(name='address', description='The address of the load balancer.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
-        addressIpVersion?: string(name='addressIpVersion', description='The IP version of the protocol:
-- ipv4: IPv4 type.
-- ipv6: IPv6 type.', example='ipv4'),
-        addressType?: string(name='addressType', description='Load balancer address type:
-- Internet: Public.
-- Intranet: Private.', example='Internet'),
-        gatewayDefault?: boolean(name='gatewayDefault', description='Whether it is the default entry address for the gateway.', example='true'),
-        loadBalancerId?: string(name='loadBalancerId', description='Load balancer ID.', example='nlb-xoh3pghru7c***'),
-        mode?: string(name='mode', description='The provision mode of the load balancer for the gateway:
-- Managed: Managed by the Cloud Native API Gateway.', example='Managed'),
+        address?: string(name='address', description='The load balancer IP address.', example='nlb-xoh3pghr***.cn-hangzhou.nlb.aliyuncs.com'),
+        addressIpVersion?: string(name='addressIpVersion', description='The IP version of the address. Valid values:
+
+*   ipv4
+*   ipv6', example='ipv4'),
+        addressType?: string(name='addressType', description='The load balancer address type. Valid values:
+
+*   Internet
+*   Intranet', example='Internet'),
+        gatewayDefault?: boolean(name='gatewayDefault', description='Indicates whether the address is the default ingress address of the instance.', example='true'),
+        loadBalancerId?: string(name='loadBalancerId', description='The load balancer ID.', example='nlb-xoh3pghru7c***'),
+        mode?: string(name='mode', description='The mode in which the load balancer is provided. Valid values:
+
+*   Managed: Cloud-native API Gateway manages and provides the load balancer.', example='Managed'),
         ports?: [ 
           {
-            port?: int32(name='port', description='Port number.', example='443'),
-            protocol?: string(name='protocol', description='Protocol:
-- TCP
-- UDP', example='TCP'),
+            port?: int32(name='port', description='The port number.', example='443'),
+            protocol?: string(name='protocol', description='The protocol. Valid values:
+
+*   TCP
+*   UDP', example='TCP'),
           }
-        ](name='ports', description='List of listening ports.'),
-        status?: string(name='status', description='The status of the load balancer:
-- Ready: Available.
-- NotCreate: Not associated with an instance.', example='Ready'),
-        type?: string(name='type', description='The type of load balancer:
-- NLB: Network Load Balancer.
-- CLB: Classic Load Balancer.', example='NLB'),
+        ](name='ports', description='The list of listened ports.'),
+        status?: string(name='status', description='The load balancer status. Valid values:
+
+*   Ready: The load balancer is available.
+*   NotCreate: The load balancer is not associated with the instance.', example='Ready'),
+        type?: string(name='type', description='The load balancer type. Valid values:
+
+*   NLB: Network Load Balancer
+*   CLB: Classic Load Balancer', example='NLB'),
       }
-    ](name='loadBalancers', description='List of entry addresses for the gateway.'),
-    name?: string(name='name', description='Gateway name.', example='itemcenter-gateway'),
-    replicas?: string(name='replicas', description='Number of gateway instance nodes.', example='2'),
-    resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-aek2s3cvc4jzfxi'),
+    ](name='loadBalancers', description='The ingress addresses of the instance.'),
+    name?: string(name='name', description='The instance name.', example='itemcenter-gateway'),
+    replicas?: string(name='replicas', description='The node quantity of the instance.', example='2'),
+    resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-aek2s3cvc4jzfxi'),
     securityGroup?: {
-      name?: string(name='name', description='Security group name.', example='APIG-sg-gw-cq7ke5ll***'),
-      securityGroupId?: string(name='securityGroupId', description='Security group ID.', example='sg-bp16tafq9***'),
-    }(name='securityGroup', description='The security group of the gateway.'),
-    spec?: string(name='spec', description='Gateway specification:
-- apigw.small.x1: Small specification.', example='apigw.small.x1'),
-    status?: string(name='status', description='Gateway status:
-- Running: Running.
-- Creating: Creating.
-- CreateFailed: Creation failed.
-- Upgrading: Upgrading.
-- UpgradeFailed: Upgrade failed.
-- Restarting: Restarting.
-- RestartFailed: Restart failed.
-- Deleting: Deleting.
-- DeleteFailed: Deletion failed.', example='Running'),
+      name?: string(name='name', description='The security group name.', example='APIG-sg-gw-cq7ke5ll***'),
+      securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp16tafq9***'),
+    }(name='securityGroup', description='The security group of the instance.'),
+    spec?: string(name='spec', description='The instance specification. Valid values:
+
+*   apigw.small.x1', example='apigw.small.x1'),
+    status?: string(name='status', description='The instance state. Valid values:
+
+*   Running: The instance is running.
+*   Creating: The instance is being created.
+*   CreateFailed: The instance failed to be created.
+*   Upgrading: The instance is being upgraded.
+*   UpgradeFailed: The instance failed to be upgraded.
+*   Restarting: The instance is being restarted.
+*   RestartFailed: The instance failed to be restarted.
+*   Deleting: The instance is being released.
+*   DeleteFailed: The instance failed to be released.', example='Running'),
     tags?: [ 
       {
-        key?: string(name='key', description='The tag key of the resource.', example='owner'),
-        value?: string(name='value', description='The tag value of the resource.', example='zhangsan'),
+        key?: string(name='key', description='The tag key.', example='owner'),
+        value?: string(name='value', description='The tag value.', example='zhangsan'),
       }
     ](name='tags', description='The resource tags.'),
-    targetVersion?: string(name='targetVersion', description='Target version of the gateway. When it is inconsistent with the current version, an upgrade can be performed.', example='2.0.2'),
-    updateTimestamp?: long(name='updateTimestamp', description='Update timestamp. Unit: milliseconds.', example='1719386834548'),
+    targetVersion?: string(name='targetVersion', description='The destination version of the instance. If the value is inconsistent with the version value, you can upgrade the instance.', example='2.0.2'),
+    updateTimestamp?: long(name='updateTimestamp', description='The last update timestamp. Unit: milliseconds.', example='1719386834548'),
     vSwitch?: {
-      name?: string(name='name', description='Virtual switch name.', example='杭州VPC虚拟交换机'),
-      vSwitchId?: string(name='vSwitchId', description='Virtual switch ID.', example='vsw-bp1c7ggkj***'),
-    }(name='vSwitch', description='The virtual switch associated with the gateway.'),
-    version?: string(name='version', description='Gateway version.', example='2.0.2'),
+      name?: string(name='name', description='The vSwitch name.', example='HangzhouVPCvSwitch'),
+      vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp1c7ggkj***'),
+    }(name='vSwitch', description='The vSwitch associated with the instance.'),
+    version?: string(name='version', description='The instance version.', example='2.0.2'),
     vpc?: {
-      name?: string(name='name', description='VPC gateway name.', example='杭州VPC'),
-      vpcId?: string(name='vpcId', description='VPC network ID.', example='vpc-bp1llj52lvj6xc***'),
-    }(name='vpc', description='The VPC (Virtual Private Cloud) associated with the gateway.'),
+      name?: string(name='name', description='The VPC name.', example='HangzhouVPC'),
+      vpcId?: string(name='vpcId', description='The VPC ID.', example='vpc-bp1llj52lvj6xc***'),
+    }(name='vpc', description='The VPC associated with the instance.'),
     zones?: [ 
       {
-        name?: string(name='name', description='Availability zone name.', example='杭州可用区E'),
+        name?: string(name='name', description='The zone name.', example='HangzhouZoneE'),
         vSwitch?: {
-          name?: string(name='name', description='Virtual switch name.', example='杭州VPC虚拟交换机'),
-          vSwitchId?: string(name='vSwitchId', description='Virtual switch ID.', example='vsw-bp1c7ggkj***'),
-        }(name='vSwitch', description='Virtual switch.'),
-        zoneId?: string(name='zoneId', description='Availability zone ID.', example='cn-hangzhou-e'),
+          name?: string(name='name', description='The vSwitch name.', example='HangzhouVPCvSwitch'),
+          vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-bp1c7ggkj***'),
+        }(name='vSwitch', description='The vSwitch information.'),
+        zoneId?: string(name='zoneId', description='The zone ID.', example='cn-hangzhou-e'),
       }
-    ](name='zones', description='List of availability zones associated with the gateway.'),
-  }(name='data', description='Response data.'),
-  message?: string(name='message', description='Response message.', example='success'),
-  requestId?: string(name='requestId', description='Request ID.', example='0F138FFC-6E2B-56C1-9BAB-A67462E339D1'),
+    ](name='zones', description='The list of zones associated with the instance.'),
+  }(name='data', description='The returned data.'),
+  message?: string(name='message', description='The response message returned.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='0F138FFC-6E2B-56C1-9BAB-A67462E339D1'),
 }
 
 model GetGatewayResponse = {
@@ -3154,6 +3213,7 @@ model UpdateHttpApiRequest {
   httpApiId: string(name='httpApiId', description='The HTTP API ID.
 
 This parameter is required.', example='api-xxx', position='Path'),
+  agentProtocols?: [ string ](name='agentProtocols', position='Body'),
   aiProtocols?: [ string ](name='aiProtocols', description='The AI protocols.', position='Body'),
   authConfig?: AuthConfig(name='authConfig', description='The authentication configuration.', position='Body'),
   basePath: string(name='basePath', description='The API base path, which must start with a forward slash (/).
