@@ -677,7 +677,10 @@ model CreateSessionClusterRequest {
 
 *   true
 *   false', example='false'),
-  }(name='autoStartConfiguration', description='The automatic startup configuration.'),
+  }(name='autoStartConfiguration', description='The automatic startup configuration.
+
+*
+*'),
   autoStopConfiguration?: {
     enable?: boolean(name='enable', description='Specifies whether to enable automatic termination.
 
@@ -1356,6 +1359,7 @@ model GetSessionClusterResponseBody = {
 *   false', example='false'),
       idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='60'),
     }(name='autoStopConfiguration', description='Indicates whether automatic termination is enabled.'),
+    connectionToken?: string(name='connectionToken'),
     displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-2.2(Java Runtime)'),
     domain?: string(name='domain', description='The domain name to which the Spark UI of the session belongs.', example='your.domain.com'),
     domainInner?: string(name='domainInner', description='The internal endpoint.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
@@ -1675,6 +1679,7 @@ model ListJobRunsRequest {
     endTime?: long(name='endTime', description='The end of the end time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the end time range.', example='1709740800000'),
   }(name='endTime', description='The range of end time.'),
+  isWorkflow?: string(name='isWorkflow'),
   jobRunDeploymentId?: string(name='jobRunDeploymentId', description='The job run ID.', example='jd-b6d003f1930f****'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
@@ -1699,6 +1704,7 @@ model ListJobRunsRequest {
 model ListJobRunsShrinkRequest {
   creator?: string(name='creator', description='The ID of the user who created the job.', example='1509789347011222'),
   endTimeShrink?: string(name='endTime', description='The range of end time.'),
+  isWorkflow?: string(name='isWorkflow'),
   jobRunDeploymentId?: string(name='jobRunDeploymentId', description='The job run ID.', example='jd-b6d003f1930f****'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
@@ -1796,6 +1802,9 @@ async function listJobRunsWithOptions(workspaceId: string, tmpReq: ListJobRunsRe
   if (!Util.isUnset(request.endTimeShrink)) {
     query['endTime'] = request.endTimeShrink;
   }
+  if (!Util.isUnset(request.isWorkflow)) {
+    query['isWorkflow'] = request.isWorkflow;
+  }
   if (!Util.isUnset(request.jobRunDeploymentId)) {
     query['jobRunDeploymentId'] = request.jobRunDeploymentId;
   }
@@ -1860,11 +1869,83 @@ async function listJobRuns(workspaceId: string, request: ListJobRunsRequest): Li
   return listJobRunsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListKyuubiServicesResponseBody = {
+  data?: {
+    kyuubiServices?: [ 
+      {
+        computeInstance?: string(name='computeInstance', example='4C16G'),
+        createTime?: string(name='createTime', example='2025-03-11T08:21:58Z'),
+        creator?: string(name='creator', example='103*******'),
+        innerEndpoint?: string(name='innerEndpoint', example='kyuubi-cn-hangzhou-internal.spark.emr.aliyuncs.com'),
+        kyuubiConfigs?: string(name='kyuubiConfigs', example='kyuubi.conf.key=value1
+kyuubi.conf.key1=value2'),
+        kyuubiServiceId?: string(name='kyuubiServiceId', description='KyuubiServer ID。', example='kb-070104e7631242448d12a1377c309f30'),
+        name?: string(name='name', example='test'),
+        publicEndpoint?: string(name='publicEndpoint', example='emr-spark-kyuubi-gateway-cn-hangzhou.aliyuncs.com'),
+        queue?: string(name='queue', example='dev_queue'),
+        releaseVersion?: string(name='releaseVersion', example='esr-4.2.0 (Spark 3.5.2, Scala 2.12)'),
+        replica?: int32(name='replica', example='3'),
+        sparkConfigs?: string(name='sparkConfigs', example='spark.conf.key=value1
+spark.conf.key1=value2'),
+        startTime?: string(name='startTime', example='2024-11-23 09:22:00'),
+        state?: string(name='state', example='Running'),
+      }
+    ](name='kyuubiServices'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model ListKyuubiServicesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKyuubiServicesResponseBody(name='body'),
+}
+
+/**
+ * @summary ListKyuubiServices
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKyuubiServicesResponse
+ */
+async function listKyuubiServicesWithOptions(workspaceId: string, headers: map[string]string, runtime: Util.RuntimeOptions): ListKyuubiServicesResponse {
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'ListKyuubiServices',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/kyuubi/${OpenApiUtil.getEncodeParam(workspaceId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary ListKyuubiServices
+ *
+ * @return ListKyuubiServicesResponse
+ */
+async function listKyuubiServices(workspaceId: string): ListKyuubiServicesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listKyuubiServicesWithOptions(workspaceId, headers, runtime);
+}
+
 model ListKyuubiSparkApplicationsRequest {
   applicationId?: string(name='applicationId', description='The ID of the application that is submitted by using a Kyuubi gateway.', example='spark-339f844005b6404c95f9f7c7a13b****'),
   applicationName?: string(name='applicationName', description='The name of the Spark application that is submitted by using a Kyuubi gateway.', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
+  minDuration?: long(name='minDuration'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='1'),
+  orderBy?: [ string ](name='orderBy'),
+  resourceQueueId?: string(name='resourceQueueId'),
+  sort?: string(name='sort'),
   startTime?: {
     endTime?: long(name='endTime', description='The end of the start time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the start time range.', example='1709740800000'),
@@ -1875,7 +1956,11 @@ model ListKyuubiSparkApplicationsShrinkRequest {
   applicationId?: string(name='applicationId', description='The ID of the application that is submitted by using a Kyuubi gateway.', example='spark-339f844005b6404c95f9f7c7a13b****'),
   applicationName?: string(name='applicationName', description='The name of the Spark application that is submitted by using a Kyuubi gateway.', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
+  minDuration?: long(name='minDuration'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='1'),
+  orderByShrink?: string(name='orderBy'),
+  resourceQueueId?: string(name='resourceQueueId'),
+  sort?: string(name='sort'),
   startTimeShrink?: string(name='startTime', description='The range of start time.'),
 }
 
@@ -1922,6 +2007,9 @@ async function listKyuubiSparkApplicationsWithOptions(workspaceId: string, kyuub
   Util.validateModel(tmpReq);
   var request = new ListKyuubiSparkApplicationsShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.orderBy)) {
+    request.orderByShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.orderBy, 'orderBy', 'json');
+  }
   if (!Util.isUnset(tmpReq.startTime)) {
     request.startTimeShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.startTime, 'startTime', 'json');
   }
@@ -1935,8 +2023,20 @@ async function listKyuubiSparkApplicationsWithOptions(workspaceId: string, kyuub
   if (!Util.isUnset(request.maxResults)) {
     query['maxResults'] = request.maxResults;
   }
+  if (!Util.isUnset(request.minDuration)) {
+    query['minDuration'] = request.minDuration;
+  }
   if (!Util.isUnset(request.nextToken)) {
     query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.orderByShrink)) {
+    query['orderBy'] = request.orderByShrink;
+  }
+  if (!Util.isUnset(request.resourceQueueId)) {
+    query['resourceQueueId'] = request.resourceQueueId;
+  }
+  if (!Util.isUnset(request.sort)) {
+    query['sort'] = request.sort;
   }
   if (!Util.isUnset(request.startTimeShrink)) {
     query['startTime'] = request.startTimeShrink;
@@ -1970,6 +2070,78 @@ async function listKyuubiSparkApplications(workspaceId: string, kyuubiServiceId:
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listKyuubiSparkApplicationsWithOptions(workspaceId, kyuubiServiceId, request, headers, runtime);
+}
+
+model ListKyuubiTokenRequest {
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+}
+
+model ListKyuubiTokenResponseBody = {
+  data?: {
+    tokens?: [ 
+      {
+        createTime?: long(name='createTime', example='2025-02-11T02:23:02Z'),
+        createdBy?: string(name='createdBy', example='test_user'),
+        expireTime?: long(name='expireTime', example='1740366769165'),
+        lastUsedTime?: long(name='lastUsedTime', example='1740366232121'),
+        name?: string(name='name', example='dev_serveless_spark'),
+        token?: string(name='token', example='f14c1347-dcfd-4082-b101-77aa96b5de36'),
+        tokenId?: string(name='tokenId', description='Token ID。', example='f14c1347-dcfd-4082-b101-77aa96b5de36'),
+      }
+    ](name='tokens'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model ListKyuubiTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKyuubiTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出compute的token
+ *
+ * @param request ListKyuubiTokenRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListKyuubiTokenResponse
+ */
+async function listKyuubiTokenWithOptions(workspaceId: string, kyuubiServiceId: string, request: ListKyuubiTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListKyuubiTokenResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListKyuubiToken',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/kyuubiService/${OpenApiUtil.getEncodeParam(kyuubiServiceId)}/token`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出compute的token
+ *
+ * @param request ListKyuubiTokenRequest
+ * @return ListKyuubiTokenResponse
+ */
+async function listKyuubiToken(workspaceId: string, kyuubiServiceId: string, request: ListKyuubiTokenRequest): ListKyuubiTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listKyuubiTokenWithOptions(workspaceId, kyuubiServiceId, request, headers, runtime);
 }
 
 model ListLogContentsRequest {

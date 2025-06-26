@@ -475,7 +475,10 @@ model CreateSessionClusterRequest {
 
 *   true
 *   false', example='false'),
-  }(name='autoStartConfiguration', description='The automatic startup configuration.', position='Body'),
+  }(name='autoStartConfiguration', description='The automatic startup configuration.
+
+*
+*', position='Body'),
   autoStopConfiguration?: {
     enable?: boolean(name='enable', description='Specifies whether to enable automatic termination.
 
@@ -790,6 +793,7 @@ model GetSessionClusterResponseBody = {
 *   false', example='false'),
       idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='60'),
     }(name='autoStopConfiguration', description='Indicates whether automatic termination is enabled.'),
+    connectionToken?: string(name='connectionToken'),
     displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-2.2(Java Runtime)'),
     domain?: string(name='domain', description='The domain name to which the Spark UI of the session belongs.', example='your.domain.com'),
     domainInner?: string(name='domainInner', description='The internal endpoint.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
@@ -956,6 +960,7 @@ This parameter is required.', example='w-1234abcd', position='Path'),
     endTime?: long(name='endTime', description='The end of the end time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the end time range.', example='1709740800000'),
   }(name='endTime', description='The range of end time.', shrink='json', position='Query'),
+  isWorkflow?: string(name='isWorkflow', position='Query'),
   jobRunDeploymentId?: string(name='jobRunDeploymentId', description='The job run ID.', example='jd-b6d003f1930f****', position='Query'),
   jobRunId?: string(name='jobRunId', description='The job ID.', example='j-xxx', position='Query'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20', position='Query'),
@@ -1039,13 +1044,62 @@ async function listJobRuns(request: ListJobRunsRequest): ListJobRunsResponse {
   return @handler.do('RESTFUL', 'ListJobRuns', 'GET', '/api/v1/workspaces/{workspaceId}/jobRuns', 'json', false, 'json', request);
 }
 
+model ListKyuubiServicesRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155****', position='Path'),
+}
+
+model ListKyuubiServicesResponseBody = {
+  data?: {
+    kyuubiServices?: [ 
+      {
+        computeInstance?: string(name='computeInstance', example='4C16G'),
+        createTime?: string(name='createTime', example='2025-03-11T08:21:58Z'),
+        creator?: string(name='creator', example='103*******'),
+        innerEndpoint?: string(name='innerEndpoint', example='kyuubi-cn-hangzhou-internal.spark.emr.aliyuncs.com'),
+        kyuubiConfigs?: string(name='kyuubiConfigs', example='kyuubi.conf.key=value1
+kyuubi.conf.key1=value2'),
+        kyuubiServiceId?: string(name='kyuubiServiceId', description='KyuubiServer ID。', example='kb-070104e7631242448d12a1377c309f30'),
+        name?: string(name='name', example='test'),
+        publicEndpoint?: string(name='publicEndpoint', example='emr-spark-kyuubi-gateway-cn-hangzhou.aliyuncs.com'),
+        queue?: string(name='queue', example='dev_queue'),
+        releaseVersion?: string(name='releaseVersion', example='esr-4.2.0 (Spark 3.5.2, Scala 2.12)'),
+        replica?: int32(name='replica', example='3'),
+        sparkConfigs?: string(name='sparkConfigs', example='spark.conf.key=value1
+spark.conf.key1=value2'),
+        startTime?: string(name='startTime', example='2024-11-23 09:22:00'),
+        state?: string(name='state', example='Running'),
+      }
+    ](name='kyuubiServices'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model ListKyuubiServicesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKyuubiServicesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKyuubiServices  ListKyuubiServicesRequest
+  * @return ListKyuubiServicesResponse
+ */
+async function listKyuubiServices(request: ListKyuubiServicesRequest): ListKyuubiServicesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListKyuubiServices', 'GET', '/api/v1/kyuubi/{workspaceId}', 'json', false, 'json', request);
+}
+
 model ListKyuubiSparkApplicationsRequest {
   workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-d2d82aa09155****', position='Path'),
   kyuubiServiceId?: string(name='kyuubiServiceId', description='The ID of the Kyuubi service.', example='kb-c7141f10c3f549fc9f8b8ae562b8****', position='Path'),
   applicationId?: string(name='applicationId', description='The ID of the application that is submitted by using a Kyuubi gateway.', example='spark-339f844005b6404c95f9f7c7a13b****', position='Query'),
   applicationName?: string(name='applicationName', description='The name of the Spark application that is submitted by using a Kyuubi gateway.', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****', position='Query'),
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20', position='Query'),
+  minDuration?: long(name='minDuration', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='1', position='Query'),
+  orderBy?: [ string ](name='orderBy', shrink='json', position='Query'),
+  resourceQueueId?: string(name='resourceQueueId', position='Query'),
+  sort?: string(name='sort', position='Query'),
   startTime?: {
     endTime?: long(name='endTime', description='The end of the start time range.', example='1710432000000'),
     startTime?: long(name='startTime', description='The beginning of the start time range.', example='1709740800000'),
@@ -1090,6 +1144,44 @@ model ListKyuubiSparkApplicationsResponse = {
 async function listKyuubiSparkApplications(request: ListKyuubiSparkApplicationsRequest): ListKyuubiSparkApplicationsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListKyuubiSparkApplications', 'GET', '/api/v1/kyuubi/{workspaceId}/{kyuubiServiceId}/applications', 'json', false, 'json', request);
+}
+
+model ListKyuubiTokenRequest {
+  workspaceId?: string(name='workspaceId', example='w-d2d82aa09155****', position='Path'),
+  kyuubiServiceId?: string(name='kyuubiServiceId', example='kb-c7141f10c3f549fc9f8b8ae562b8****', position='Path'),
+  regionId?: string(name='regionId', example='cn-hangzhou', position='Query'),
+}
+
+model ListKyuubiTokenResponseBody = {
+  data?: {
+    tokens?: [ 
+      {
+        createTime?: long(name='createTime', example='2025-02-11T02:23:02Z'),
+        createdBy?: string(name='createdBy', example='test_user'),
+        expireTime?: long(name='expireTime', example='1740366769165'),
+        lastUsedTime?: long(name='lastUsedTime', example='1740366232121'),
+        name?: string(name='name', example='dev_serveless_spark'),
+        token?: string(name='token', example='f14c1347-dcfd-4082-b101-77aa96b5de36'),
+        tokenId?: string(name='tokenId', description='Token ID。', example='f14c1347-dcfd-4082-b101-77aa96b5de36'),
+      }
+    ](name='tokens'),
+  }(name='data'),
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model ListKyuubiTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListKyuubiTokenResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListKyuubiToken  ListKyuubiTokenRequest
+  * @return ListKyuubiTokenResponse
+ */
+async function listKyuubiToken(request: ListKyuubiTokenRequest): ListKyuubiTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListKyuubiToken', 'GET', '/api/v1/workspaces/{workspaceId}/kyuubiService/{kyuubiServiceId}/token', 'json', false, 'json', request);
 }
 
 model ListLogContentsRequest {
