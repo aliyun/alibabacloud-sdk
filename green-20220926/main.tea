@@ -3376,10 +3376,14 @@ model GetScanResultResponseBody = {
         extra?: map[string]any(name='Extra', example='{}'),
         frameCount?: long(name='FrameCount', example='20'),
         gmtCreate?: string(name='GmtCreate', example='2023-08-11 09:00:19'),
+        guardFileUrls?: [ string ](name='GuardFileUrls'),
+        guardImageUrls?: [ string ](name='GuardImageUrls'),
         imageLabels?: [  map[string]any ](name='ImageLabels'),
         imageService?: string(name='ImageService', example='baselineCheck'),
         imageUrl?: string(name='ImageUrl', description='url', example='https://www.aliyuncs.com/xxx.png'),
         labels?: string(name='Labels', example='nonLabel'),
+        maliciousFileLevel?: string(name='MaliciousFileLevel'),
+        maliciousUrlLevel?: string(name='MaliciousUrlLevel'),
         manualOnly?: boolean(name='ManualOnly'),
         noLabels?: [ string ](name='NoLabels'),
         offset?: long(name='Offset', example='1'),
@@ -3524,6 +3528,7 @@ model GetServiceConfResponseBody = {
   requestId?: string(name='RequestId', example='6CF2815C-****-****-B52E-FF6E2****492'),
   resourceType?: string(name='ResourceType', example='image'),
   serviceCode?: string(name='ServiceCode', example='baselineCheck'),
+  serviceType?: string(name='ServiceType'),
   success?: boolean(name='Success', example='True'),
   uid?: string(name='Uid', description='UID。', example='17726*****370735'),
 }
@@ -4909,6 +4914,92 @@ async function listServiceConfigs(request: ListServiceConfigsRequest): ListServi
   return listServiceConfigsWithOptions(request, runtime);
 }
 
+model LlmStreamChatRequest {
+  messages?: any(name='Messages'),
+  temperature?: float(name='Temperature', example='0.5'),
+  topP?: float(name='TopP', example='0.5'),
+}
+
+model LlmStreamChatResponseBody = {
+  choices?: [ 
+    {
+      delta?: {
+        content?: string(name='Content'),
+        role?: string(name='Role', example='assistant'),
+      }(name='Delta'),
+      finishReason?: string(name='FinishReason', example='stop'),
+      index?: long(name='Index', example='0'),
+      logprobs?: string(name='Logprobs', example='null'),
+    }
+  ](name='Choices'),
+  created?: long(name='Created', example='1750990728'),
+  error?: {
+    code?: string(name='Code', example='data_inspection_failed'),
+    message?: string(name='Message', example='Input data may contain inappropriate content.'),
+    param?: string(name='Param', example='null'),
+    type?: string(name='Type', example='data_inspection_failed'),
+  }(name='Error'),
+  id?: string(name='Id', example='chatcmpl-777bce52-93d3-9f8c-89c3-e99884f4f57f'),
+  model?: string(name='Model', example='deepseek-v3'),
+  object?: string(name='Object', example='chat.completion.chunk'),
+  requestId?: string(name='RequestId', example='21d296d6-594e-97de-812f-925ec6e05673'),
+  systemFingerprint?: string(name='SystemFingerprint', example='null'),
+  usage?: string(name='Usage', example='null'),
+}
+
+model LlmStreamChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: LlmStreamChatResponseBody(name='body'),
+}
+
+/**
+ * @summary 使用SSE接口流式调用大模型
+ *
+ * @param request LlmStreamChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return LlmStreamChatResponse
+ */
+async function llmStreamChatWithOptions(request: LlmStreamChatRequest, runtime: Util.RuntimeOptions): LlmStreamChatResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.messages)) {
+    body['Messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.temperature)) {
+    body['Temperature'] = request.temperature;
+  }
+  if (!Util.isUnset(request.topP)) {
+    body['TopP'] = request.topP;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'LlmStreamChat',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 使用SSE接口流式调用大模型
+ *
+ * @param request LlmStreamChatRequest
+ * @return LlmStreamChatResponse
+ */
+async function llmStreamChat(request: LlmStreamChatRequest): LlmStreamChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return llmStreamChatWithOptions(request, runtime);
+}
+
 model ModifyAnswerLibRequest {
   libId?: string(name='LibId', example='custom_xxxx'),
   libName?: string(name='LibName'),
@@ -5847,6 +5938,7 @@ model UpdateServiceConfigRequest {
   scene?: string(name='Scene', example='pornographic'),
   sceneConfig?: string(name='SceneConfig', example='{}'),
   serviceCode?: string(name='ServiceCode', example='baselineCheck'),
+  serviceConfig?: string(name='ServiceConfig'),
   videoConfig?: string(name='VideoConfig', example='{}'),
 }
 
@@ -5902,6 +5994,9 @@ async function updateServiceConfigWithOptions(request: UpdateServiceConfigReques
   }
   if (!Util.isUnset(request.serviceCode)) {
     body['ServiceCode'] = request.serviceCode;
+  }
+  if (!Util.isUnset(request.serviceConfig)) {
+    body['ServiceConfig'] = request.serviceConfig;
   }
   if (!Util.isUnset(request.videoConfig)) {
     body['VideoConfig'] = request.videoConfig;

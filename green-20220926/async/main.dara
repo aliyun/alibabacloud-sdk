@@ -1491,10 +1491,14 @@ model GetScanResultResponseBody = {
         extra?: map[string]any(name='Extra', example='{}'),
         frameCount?: long(name='FrameCount', example='20'),
         gmtCreate?: string(name='GmtCreate', example='2023-08-11 09:00:19'),
+        guardFileUrls?: [ string ](name='GuardFileUrls'),
+        guardImageUrls?: [ string ](name='GuardImageUrls'),
         imageLabels?: [  map[string]any ](name='ImageLabels'),
         imageService?: string(name='ImageService', example='baselineCheck'),
         imageUrl?: string(name='ImageUrl', description='url', example='https://www.aliyuncs.com/xxx.png'),
         labels?: string(name='Labels', example='nonLabel'),
+        maliciousFileLevel?: string(name='MaliciousFileLevel'),
+        maliciousUrlLevel?: string(name='MaliciousUrlLevel'),
         manualOnly?: boolean(name='ManualOnly'),
         noLabels?: [ string ](name='NoLabels'),
         offset?: long(name='Offset', example='1'),
@@ -1576,6 +1580,7 @@ model GetServiceConfResponseBody = {
   requestId?: string(name='RequestId', example='6CF2815C-****-****-B52E-FF6E2****492'),
   resourceType?: string(name='ResourceType', example='image'),
   serviceCode?: string(name='ServiceCode', example='baselineCheck'),
+  serviceType?: string(name='ServiceType'),
   success?: boolean(name='Success', example='True'),
   uid?: string(name='Uid', description='UID。', example='17726*****370735'),
 }
@@ -2235,6 +2240,59 @@ async function listServiceConfigs(request: ListServiceConfigsRequest): ListServi
   return @handler.do('RPC', 'ListServiceConfigs', 'POST', '/', 'json', true, 'form', request);
 }
 
+model LlmStreamChatRequest {
+  messages?: any(name='Messages', position='Body'),
+  temperature?: float(name='Temperature', example='0.5', position='Body'),
+  topP?: float(name='TopP', example='0.5', position='Body'),
+}
+
+model LlmStreamChatResponseBody = {
+  choices?: [ 
+    {
+      delta?: {
+        content?: string(name='Content'),
+        role?: string(name='Role', example='assistant'),
+      }(name='Delta'),
+      finishReason?: string(name='FinishReason', example='stop'),
+      index?: long(name='Index', example='0'),
+      logprobs?: string(name='Logprobs', example='null'),
+    }
+  ](name='Choices'),
+  created?: long(name='Created', example='1750990728'),
+  error?: {
+    code?: string(name='Code', example='data_inspection_failed'),
+    message?: string(name='Message', example='Input data may contain inappropriate content.'),
+    param?: string(name='Param', example='null'),
+    type?: string(name='Type', example='data_inspection_failed'),
+  }(name='Error'),
+  id?: string(name='Id', example='chatcmpl-777bce52-93d3-9f8c-89c3-e99884f4f57f'),
+  model?: string(name='Model', example='deepseek-v3'),
+  object?: string(name='Object', example='chat.completion.chunk'),
+  requestId?: string(name='RequestId', example='21d296d6-594e-97de-812f-925ec6e05673'),
+  systemFingerprint?: string(name='SystemFingerprint', example='null'),
+  usage?: string(name='Usage', example='null'),
+}
+
+model LlmStreamChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: LlmStreamChatResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of LlmStreamChat  LlmStreamChatRequest
+  * @return LlmStreamChatResponse
+ */
+async function llmStreamChat(request: LlmStreamChatRequest): LlmStreamChatResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'LlmStreamChat', 'POST', '/portal/llm/streamChat', 'json', true, 'form', request);
+}
+
+function llmStreamChatWithResponseIterable(request: LlmStreamChatRequest): iterator[LlmStreamChatResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'LlmStreamChat', 'POST', '/portal/llm/streamChat', 'json', true, 'form', request);
+}
+
 model ModifyAnswerLibRequest {
   libId?: string(name='LibId', example='custom_xxxx', position='Query'),
   libName?: string(name='LibName', position='Query'),
@@ -2624,6 +2682,7 @@ model UpdateServiceConfigRequest {
   scene?: string(name='Scene', example='pornographic', position='Body'),
   sceneConfig?: string(name='SceneConfig', example='{}', position='Body'),
   serviceCode?: string(name='ServiceCode', example='baselineCheck', position='Body'),
+  serviceConfig?: string(name='ServiceConfig', position='Body'),
   videoConfig?: string(name='VideoConfig', example='{}', position='Body'),
 }
 
