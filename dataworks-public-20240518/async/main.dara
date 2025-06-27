@@ -454,8 +454,12 @@ async function abolishPipelineRun(request: AbolishPipelineRunRequest): AbolishPi
 
 model AddEntityIntoMetaCollectionRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='maxcompute-table', position='Query'),
-  metaCollectionId: string(name='MetaCollectionId', description='This parameter is required.', example='category.123', position='Query'),
+  id: string(name='Id', description='The entity ID. Currently, entities can only be tables. You can call the ListTables operation to query the ID.
+
+This parameter is required.', example='maxcompute-table', position='Query'),
+  metaCollectionId: string(name='MetaCollectionId', description='The collection ID. You can call the ListMetaCollections operation to query the ID.
+
+This parameter is required.', example='category.123', position='Query'),
   remark?: string(name='Remark', position='Query'),
 }
 
@@ -1945,11 +1949,11 @@ model CreateLineageRelationshipRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   dstEntity?: LineageEntity(name='DstEntity', shrink='json', position='Query'),
   srcEntity?: LineageEntity(name='SrcEntity', shrink='json', position='Query'),
-  task?: LineageTask(name='Task', shrink='json', position='Query'),
+  task?: LineageTask(name='Task', description='The task information.', shrink='json', position='Query'),
 }
 
 model CreateLineageRelationshipResponseBody = {
-  id?: string(name='Id', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001'),
+  id?: string(name='Id', description='The lineage ID.', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001'),
   requestId?: string(name='RequestId', example='C99E2BE6-9DEA-5C2E-8F51-1DDCFEADE490'),
   success?: boolean(name='Success', example='true'),
 }
@@ -1973,12 +1977,12 @@ model CreateMetaCollectionRequest {
   regionId?: string(name='RegionId', position='Host'),
   description?: string(name='Description', example='test comment', position='Query'),
   name: string(name='Name', description='This parameter is required.', example='test_album', position='Query'),
-  parentId?: string(name='ParentId', example='category.123', position='Query'),
+  parentId?: string(name='ParentId', description='The ID of the collection of an ancestor node.', example='category.123', position='Query'),
   type: string(name='Type', description='This parameter is required.', example='Category', position='Query'),
 }
 
 model CreateMetaCollectionResponseBody = {
-  id?: string(name='Id', example='category.123'),
+  id?: string(name='Id', description='The ID of the created collection.', example='category.123'),
   requestId?: string(name='RequestId', description='Id of the request', example='E6F0DBDD-5AD****'),
 }
 
@@ -2531,6 +2535,7 @@ model CreateWorkflowInstancesRequest {
 *   Desc: The tasks are sorted by data timestamp in descending order.', example='Asc'),
     parallelism?: int32(name='Parallelism', description='The number of tasks that can be run in parallel. If you specify a value that ranges from 2 to 10, the value indicates the number of tasks that can be run in parallel. If you set the value to 1, the tasks are run one by one. If you set the Type parameter to SupplementData, this parameter is required.', example='2'),
     priority?: int32(name='Priority'),
+    priorityWeightStrategy?: string(name='PriorityWeightStrategy'),
     rootTaskIds?: [ long ](name='RootTaskIds', description='The root task IDs.
 
 *   If you set the Type parameter to SupplementData and the Mode parameter to a value other than Chain, the RootTaskIds parameter is required.
@@ -3038,7 +3043,9 @@ async function deleteFunction(request: DeleteFunctionRequest): DeleteFunctionRes
 
 model DeleteLineageRelationshipRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001', position='Body'),
+  id: string(name='Id', description='The lineage ID. For more information, see the response returned by the ListLineageRelationships operation.
+
+This parameter is required.', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001', position='Body'),
 }
 
 model DeleteLineageRelationshipResponseBody = {
@@ -3063,7 +3070,9 @@ async function deleteLineageRelationship(request: DeleteLineageRelationshipReque
 
 model DeleteMetaCollectionRequest {
   regionId?: string(name='RegionId', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='category.123', position='Query'),
+  id: string(name='Id', description='The collection ID.
+
+This parameter is required.', example='category.123', position='Query'),
 }
 
 model DeleteMetaCollectionResponseBody = {
@@ -3836,7 +3845,18 @@ async function getBusiness(request: GetBusinessRequest): GetBusinessResponse {
 
 model GetCatalogRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='dlf-catalog:123456XXX:test_catalog
+  id: string(name='Id', description='Data catalog entity ID. Currently, only DLF and StarRocks types are supported. You can refer to the response of the ListCatalogs operation and [the description of metadata entity concepts.](https://help.aliyun.com/document_detail/2880092.html)
+
+*   For the DLF type, the format is `dlf-catalog::catalog_id`.
+*   For the StarRocks type, the format is `starrocks-catalog:(instance_id|encoded_jdbc_url):catalog_name`.
+
+>  Parameter descriptions:\\
+`catalog_id`: The DLF catalog ID.\\
+`instance_id`: The instance ID, required for the data source registered in instance mode.\\
+`encoded_jdbc_url`: The JDBC connection string that has been URL encoded, required for the data source registered via a connection string.\\
+`catalog_name`: The name of the StarRocks catalog.
+
+This parameter is required.', example='dlf-catalog:123456XXX:test_catalog
 starrocks-catalog:c-abc123xxx:default_catalog', position='Query'),
 }
 
@@ -3901,7 +3921,37 @@ async function getCertificate(request: GetCertificateRequest): GetCertificateRes
 
 model GetColumnRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table:test_column', position='Query'),
+  id: string(name='Id', description='The ID. You can refer to the response of the ListColumns operation and the [description of concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html)
+
+The format: `${EntityType}:${Instance ID or escaped URL}:${Catalog name}:${Database name}`. Use empty strings as placeholders for levels that do not exist.
+
+>  For the MaxCompute and DLF types, the instance ID level must be left empty. For the MaxCompute type, the instance ID level is represented by an empty string. The database name is the name of the MaxCompute project with schema enabled.
+
+>  The catalog identifier of the StarRocks is the catalog name, and the catalog identifier of the DLF type is the catalog ID. Other types do not support catalog levels and can use empty strings as placeholders.
+
+Examples of common ID formats
+
+`maxcompute-column:::project_name:[schema_name]:table_name:column_name`
+
+`dlf-column::catalog_id:database_name::table_name:column_name`
+
+`hms-column:instance_id::database_name::table_name:column_name`
+
+`holo-column:instance_id::database_name:schema_name:table_name:column_name`
+
+`mysql-column:(instance_id|encoded_jdbc_url)::database_name::table_name:column_name`
+
+> \\
+`instance_id`: the ID of the instance, which is required when the data source is registered in instance mode.\\
+`encoded_jdbc_url`: the URL-encoded JDBC connection string, which is required when the data source is registered via a connection string.\\
+`catalog_id`: The DLF catalog ID.\\
+`project_name`: The MaxCompute project name.\\
+`database_name`: The database name.\\
+`schema_name`: The schema name. For the MaxCompute type, this is required only if the project has enabled schema; otherwise, use an empty string as a placeholder.\\
+`table_name`: The table name.\\
+`column_name`: The field name.
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table:test_column', position='Query'),
 }
 
 model GetColumnResponseBody = {
@@ -4783,7 +4833,27 @@ async function getDataSource(request: GetDataSourceRequest): GetDataSourceRespon
 
 model GetDatabaseRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='mysql-database:rm-abc123xxx::test_db', position='Query'),
+  id: string(name='Id', description='Database entity ID. You can refer to the response of the ListDatabases operation and [the description of metadata entity concepts.](https://help.aliyun.com/document_detail/2880092.html)
+
+The format is `${EntityType}:${Instance ID or encoded URL}:${Catalog identifier}:${Database name}`. Use empty strings as placeholders for non-existent levels.
+
+>  For StarRocks, the catalog identifier is the catalog name. For DLF, the catalog identifier is the catalog ID. For other types, catalog hierarchy is not supported, and an empty string can be used as a placeholder.
+
+Examples of common ID formats
+
+`dlf-database::catalog_id:database_name`
+
+`holo-database:instance_id::database_name`
+
+`mysql-database:(instance_id|encoded_jdbc_url)::database_name`
+
+>  Parameter descriptions\\
+`catalog_id`: The DLF catalog ID.\\
+`instance_id`: The instance ID, required for a data source registered in instance mode.\\
+`encoded_jdbc_url`: The JDBC connection string that has been URL encoded. This parameter is required for the data source registered via a connection string.\\
+`database_name`: The database name.
+
+This parameter is required.', example='mysql-database:rm-abc123xxx::test_db', position='Query'),
 }
 
 model GetDatabaseResponseBody = {
@@ -5437,7 +5507,9 @@ async function getJobStatus(request: GetJobStatusRequest): GetJobStatusResponse 
 
 model GetLineageRelationshipRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001', position='Query'),
+  id: string(name='Id', description='The lineage ID. For more information, see the response returned by the ListLineageRelationships operation.
+
+This parameter is required.', example='110xxxx:custom-table.xxxxx:maxcompute-table.project.test_big_lineage_080901:custom-sqlxx.00001', position='Query'),
 }
 
 model GetLineageRelationshipResponseBody = {
@@ -5462,7 +5534,9 @@ async function getLineageRelationship(request: GetLineageRelationshipRequest): G
 
 model GetMetaCollectionRequest {
   regionId?: string(name='RegionId', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='category.123', position='Query'),
+  id: string(name='Id', description='The collection ID.
+
+This parameter is required.', example='category.123', position='Query'),
 }
 
 model GetMetaCollectionResponseBody = {
@@ -5471,12 +5545,12 @@ model GetMetaCollectionResponseBody = {
     createTime?: long(name='CreateTime', example='1668568601000'),
     createUser?: string(name='CreateUser', example='456789'),
     description?: string(name='Description'),
-    id?: string(name='Id', example='category.123'),
+    id?: string(name='Id', description='The collection ID.', example='category.123'),
     modifyTime?: long(name='ModifyTime', example='1668568601000'),
     name?: string(name='Name', example='test_category'),
-    parentId?: string(name='ParentId', example='category.12'),
+    parentId?: string(name='ParentId', description='The ID of the collection of the ancestor node. This parameter can be left empty.', example='category.12'),
     type?: string(name='Type', example='Category'),
-  }(name='MetaCollection'),
+  }(name='MetaCollection', description='The information about the collection.'),
   requestId?: string(name='RequestId', description='Id of the request', example='1AFAE64E-D1BE-432B-A9****'),
 }
 
@@ -5664,7 +5738,9 @@ async function getNode(request: GetNodeRequest): GetNodeResponse {
 model GetPartitionRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   name: string(name='Name', description='This parameter is required.', example='ds=20250101', position='Query'),
-  tableId: string(name='TableId', description='This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
+  tableId: string(name='TableId', description='The table ID. For more details, refer to the response of the ListTables operation and [description of concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html)
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
 }
 
 model GetPartitionResponseBody = {
@@ -5945,15 +6021,17 @@ async function getProjectRole(request: GetProjectRoleRequest): GetProjectRoleRes
 
 model GetRerunWorkflowInstancesResultRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  operationId: string(name='OperationId', description='This parameter is required.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx', position='Query'),
+  operationId: string(name='OperationId', description='The operation ID used to asynchronously query the result of the workflow instance rerun. This value is obtained from the RerunWorkflowInstances operation.
+
+This parameter is required.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx', position='Query'),
 }
 
 model GetRerunWorkflowInstancesResultResponseBody = {
-  requestId?: string(name='RequestId', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  requestId?: string(name='RequestId', description='The request ID, used for log tracing and troubleshooting.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
   result?: {
-    failureMessage?: string(name='FailureMessage'),
-    status?: string(name='Status', example='Success'),
-  }(name='Result'),
+    failureMessage?: string(name='FailureMessage', description='The failure message. Returned if the rerun fails.', example='Invalid Param xxx'),
+    status?: string(name='Status', description='The status. NotRun Success Failure', example='Success'),
+  }(name='Result', description='The result of the workflow instance rerun.'),
 }
 
 model GetRerunWorkflowInstancesResultResponse = {
@@ -6146,11 +6224,23 @@ async function getRoute(request: GetRouteRequest): GetRouteResponse {
 
 model GetSchemaRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='The schema ID. You can call the ListSchemas operation to query schema IDs. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+  id: string(name='Id', description='The schema ID. You can call the ListSchemas operation to query the ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
-Configure this parameter in the `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}` format. If a level does not exist, leave the level empty.
+The common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}`. If a level does not exist, specify an empty string as a placeholder.
 
->  If you want to query the information about a MaxCompute schema, specify an empty string at the Instance ID level as a placeholder and a MaxCompute project name at the Database name level. Make sure that the schema feature is enabled for the MaxCompute project.
+>  For MaxCompute tables, specify an empty string at the Instance ID level and a MaxCompute project name at the Database name level. Make sure that the three-layer model is enabled for the MaxCompute project.
+
+You can configure this parameter in one of the following formats based on your data source type:
+
+`maxcompute-schema:::project_name:schema_name` (Three-layer model is enabled for the MaxCompute project.)
+
+`holo-schema:instance_id::database_name:schema_name`
+
+> \\
+`instance_id`: the ID of a Hologres instance\\
+`database_name`: the name of a database\\
+`project_name`: the name of a MaxCompute project\\
+`schema_name`: the name of a schema
 
 This parameter is required.', example='maxcompute-schema:123456XXX::test_project:default
 holo-schema:h-abc123xxx::test_db:test_schema', position='Query'),
@@ -6181,7 +6271,38 @@ async function getSchema(request: GetSchemaRequest): GetSchemaResponse {
 
 model GetTableRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
+  id: string(name='Id', description='The table ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+The common format of this parameter is `${Entity type}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}:${Schema name}:${Table name}`. If a level does not exist, specify an empty string as a placeholder.
+
+>  For MaxCompute and DLF data sources, specify an empty string at the Instance ID level.
+
+>  For StarRocks data sources, specify a catalog name at the Catalog identifier level. For DLF data sources, specify a catalog ID at the Catalog identifier level. Other types of data sources do not support the Catalog identifier level. You can specify an empty string as a placeholder.
+
+>  For MaxCompute data sources, specify a MaxCompute project name at the Database name level. If the three-layer model is enabled for your MaxCompute project, you must specify a schema name at the Schema name level. Otherwise, you can specify an empty string as a placeholder.
+
+You can configure this parameter in one of the following formats based on your data source type:
+
+`maxcompute-table:::project_name:[schema_name]:table_name`
+
+`dlf-table::catalog_id:database_name::table_name`
+
+`hms-table:instance_id::database_name::table_name`
+
+`holo-table:instance_id::database_name:schema_name:table_name`
+
+`mysql-table:(instance_id|encoded_jdbc_url)::database_name::table_name`
+
+> \\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.\\
+`catalog_id`: the ID of a DLF catalog.\\
+`project_name`: the name of a MaxCompute project.\\
+`database_name`: the name of a database.\\
+`schema_name`: the name of a schema. For a MaxCompute table, if the three-layer model is enabled for the MaxCompute project to which the table belongs, you must configure this parameter. Otherwise, you can specify an empty string for schema_name as a placeholder.\\
+`table_name`: the name of a table.
+
+This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl', position='Query'),
@@ -6528,8 +6649,8 @@ Note: The value of this parameter is rounded up by hour.', example='1'),
 
 *   Scheduler
 *   Manual', example='Scheduler'),
-    waitingResourceTime?: long(name='WaitingResourceTime'),
-    waitingTriggerTime?: long(name='WaitingTriggerTime'),
+    waitingResourceTime?: long(name='WaitingResourceTime', example='1710239005403'),
+    waitingTriggerTime?: long(name='WaitingTriggerTime', example='1710239005403'),
     workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
     workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
     workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance. Valid values:
@@ -6541,7 +6662,7 @@ Note: The value of this parameter is rounded up by hour.', example='1'),
 *   Normal
 *   ManualFlow', example='Normal'),
     workflowName?: string(name='WorkflowName', description='The name of the workflow to which the instance belongs.', example='Test workflow'),
-  }(name='TaskInstance', description='The details of the instance.'),
+  }(name='TaskInstance', description='The details of the task instance.'),
 }
 
 model GetTaskInstanceResponse = {
@@ -7278,7 +7399,18 @@ model ListCatalogsRequest {
   order?: string(name='Order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
-  parentMetaEntityId: string(name='ParentMetaEntityId', description='This parameter is required.', example='dlf
+  parentMetaEntityId: string(name='ParentMetaEntityId', description='The parent entity ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+Only DLF and StarRocks data sources support this parameter.
+
+*   For DLF data sources, you can call this API operation to query all catalogs. In this case, you must set the `ParentMetaEntityId` parameter to `dlf`.
+*   For StarRocks data sources, you can call this API operation to query the catalogs in a specific instance. In this case, you can configure the `ParentMetaEntityId` parameter in the `starrocks:(instance_id|encoded_jdbc_url)` format.
+
+> \\
+`instance_id`: the ID of an instance. If the related data source is added to DataWorks in Alibaba Cloud instance mode, you must configure this parameter.\\
+`encoded_jdbc_url`: the JDBC connection string that is URL-encoded. If the related data source is added to DataWorks in connection string mode, you must configure this parameter.
+
+This parameter is required.', example='dlf
 starrocks:c-abc123xxx', position='Query'),
   sortBy?: string(name='SortBy', example='CreateTime', position='Query'),
   types?: [ string ](name='Types', shrink='simple', position='Query'),
@@ -7371,7 +7503,9 @@ model ListColumnsRequest {
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   sortBy?: string(name='SortBy', example='Position', position='Query'),
-  tableId: string(name='TableId', description='This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
+  tableId: string(name='TableId', description='The ID of the table to which the columns belong. You can call the ListTables operation to query the ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
 }
 
 model ListColumnsResponseBody = {
@@ -8726,7 +8860,27 @@ model ListDatabasesRequest {
   order?: string(name='Order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
-  parentMetaEntityId: string(name='ParentMetaEntityId', description='This parameter is required.', example='mysql:rm-abc123xxx
+  parentMetaEntityId: string(name='ParentMetaEntityId', description='The parent entity ID. For more information, see [description of concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html)
+
+The type of the parent entity can be found in the response of the ListCrawlerTypes operation.
+
+*   If the parent entity is a catalog, the format of `ParentMetaEntityId` follows the response of the ListCatalogs API.
+*   If the parent entity is a metadata crawler, the format of `ParentMetaEntityId` is `${CrawlerType}:${Instance ID or encoded URL}.`
+
+ParentMetaEntityId format examples
+
+`dlf-catalog::catalog_id`
+
+`holo:instance_id`
+
+`mysql:(instance_id|encoded_jdbc_url)`
+
+> \\
+`catalog_id`: The DLF catalog ID.\\
+`instance_id`: The instance ID, required for the data source registered in instance mode.\\
+`encoded_jdbc_url`: The JDBC connection string that has been URL encoded, required for the data source registered via a connection string.
+
+This parameter is required.', example='mysql:rm-abc123xxx
 dlf-catalog:123456XXX:test_catalog', position='Query'),
   sortBy?: string(name='SortBy', example='CreateTime', position='Query'),
 }
@@ -9328,7 +9482,9 @@ model ListEntitiesInMetaCollectionRequest {
   entityDescription?: string(name='EntityDescription', position='Query'),
   entityName?: string(name='EntityName', example='test1', position='Query'),
   entityType?: string(name='EntityType', example='dlf-table', position='Query'),
-  id: string(name='Id', description='This parameter is required.', example='category.123', position='Query'),
+  id: string(name='Id', description='The collection ID.
+
+This parameter is required.', example='category.123', position='Query'),
   order?: string(name='Order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='10', position='Query'),
@@ -9342,16 +9498,16 @@ model ListEntitiesInMetaCollectionResponseBody = {
         comment?: string(name='Comment'),
         createTime?: long(name='CreateTime', example='1737078994080'),
         description?: string(name='Description'),
-        id?: string(name='Id', example='dlf-table:123456789:test_catalog:test_database::test_table'),
+        id?: string(name='Id', description='The entity ID. Entities can only be tables. This parameter is left empty if the entity is deleted.', example='dlf-table:123456789:test_catalog:test_database::test_table'),
         modifyTime?: long(name='ModifyTime', example='1737078994080'),
         name?: string(name='Name', example='test_table'),
-        type?: string(name='Type', example='dlf-table'),
+        type?: string(name='Type', description='The type of the entity.', example='dlf-table'),
       }
-    ](name='Entities'),
+    ](name='Entities', description='The entities in the collection.'),
     pageNumber?: int32(name='PageNumber', example='1'),
     pageSize?: int32(name='PageSize', example='1'),
     totalCount?: int32(name='TotalCount', example='100'),
-  }(name='PagingInfo'),
+  }(name='PagingInfo', description='The pagination information.'),
   requestId?: string(name='RequestId', description='Id of the request', example='F05080B0-CCE6-5D22-B284-34A51C5D4E28'),
 }
 
@@ -9651,7 +9807,9 @@ async function listFunctions(request: ListFunctionsRequest): ListFunctionsRespon
 
 model ListLineageRelationshipsRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  dstEntityId: string(name='DstEntityId', description='This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
+  dstEntityId: string(name='DstEntityId', description='The destination entity ID. For more information, see the table ID or field ID in the response returned by the ListTables or ListColumns operation. You can also specify a custom entity ID.
+
+This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl
@@ -9662,7 +9820,9 @@ custom-table:table456', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   sortBy?: string(name='SortBy', example='Name', position='Query'),
-  srcEntityId: string(name='SrcEntityId', description='This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
+  srcEntityId: string(name='SrcEntityId', description='The source entity ID. For more information, see the table ID or field ID in the response returned by the ListTables or ListColumns operation. You can also specify a custom entity ID.
+
+This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl
@@ -9701,7 +9861,7 @@ async function listLineageRelationships(request: ListLineageRelationshipsRequest
 
 model ListLineagesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  dstEntityId?: string(name='DstEntityId', example='maxcompute-table:123456XXX::test_project::test_tbl
+  dstEntityId?: string(name='DstEntityId', description='The destination entity ID. For more information, see the table ID or field ID in the response returned by the ListTables or ListColumns operation. You can also specify a custom entity ID.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl
@@ -9713,7 +9873,7 @@ custom-table:table456', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   sortBy?: string(name='SortBy', example='Name', position='Query'),
-  srcEntityId?: string(name='SrcEntityId', example='maxcompute-table:123456XXX::test_project::test_tbl
+  srcEntityId?: string(name='SrcEntityId', description='The source entity ID. For more information, see the table ID or field ID in the response returned by the ListTables or ListColumns operation. You can also specify a custom entity ID.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl
@@ -9765,9 +9925,15 @@ model ListMetaCollectionsRequest {
   order?: string(name='Order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', position='Query'),
   pageSize?: int32(name='PageSize', example='10', position='Query'),
-  parentId?: string(name='ParentId', example='category.123', position='Query'),
+  parentId?: string(name='ParentId', description='The ID of the collection of an ancestor node.', example='category.123', position='Query'),
   sortBy?: string(name='SortBy', example='Name', position='Query'),
-  type: string(name='Type', description='This parameter is required.', example='Category', position='Query'),
+  type: string(name='Type', description='The type of the collection. Valid values:
+
+*   Category
+*   Album
+*   AlbumCategory
+
+This parameter is required.', example='Category', position='Query'),
 }
 
 model ListMetaCollectionsResponseBody = {
@@ -9775,20 +9941,20 @@ model ListMetaCollectionsResponseBody = {
     metaCollections?: [ 
       {
         administrators?: [ string ](name='Administrators'),
-        createTime?: long(name='CreateTime', example='1668568601000'),
+        createTime?: long(name='CreateTime', description='The time when the collection was created. The value is a UNIX timestamp. Unit: milliseconds.', example='1668568601000'),
         createUser?: string(name='CreateUser', example='456789'),
         description?: string(name='Description'),
-        id?: string(name='Id', example='category.123'),
-        modifyTime?: long(name='ModifyTime', example='1668568601000'),
+        id?: string(name='Id', description='The ID of the collection.', example='category.123'),
+        modifyTime?: long(name='ModifyTime', description='The time when the collection was modified. The value is a UNIX timestamp. Unit: milliseconds.', example='1668568601000'),
         name?: string(name='Name', example='test_category'),
-        parentId?: string(name='ParentId', example='category.1'),
+        parentId?: string(name='ParentId', description='The ID of the collection of the ancestor node. This parameter can be left empty.', example='category.1'),
         type?: string(name='Type', example='Category'),
       }
-    ](name='MetaCollections'),
+    ](name='MetaCollections', description='The collections.'),
     pageNumber?: int32(name='PageNumber', example='1'),
     pageSize?: int32(name='PageSize', example='10'),
     totalCount?: int32(name='TotalCount', example='10'),
-  }(name='Data'),
+  }(name='Data', description='The data.'),
   requestId?: string(name='RequestId', description='Id of the request', example='E25887B7-579C-54A5-9C4F-83A0DE367DDE'),
 }
 
@@ -10236,7 +10402,9 @@ model ListPartitionsRequest {
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
   sortBy?: string(name='SortBy', example='CreateTime', position='Query'),
-  tableId: string(name='TableId', description='This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
+  tableId: string(name='TableId', description='The ID of the table to which the partitions belong. You can call the ListTables operation to query the ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table', position='Query'),
 }
 
 model ListPartitionsResponseBody = {
@@ -10864,28 +11032,42 @@ async function listRoutes(request: ListRoutesRequest): ListRoutesResponse {
 
 model ListSchemasRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  comment?: string(name='Comment', example='test comment', position='Query'),
-  name?: string(name='Name', example='abc', position='Query'),
-  order?: string(name='Order', example='Asc', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
-  parentMetaEntityId: string(name='ParentMetaEntityId', description='This parameter is required.', example='maxcompute-project:123456XXX::test_project
+  comment?: string(name='Comment', description='The comment. Fuzzy match is supported.', example='test comment', position='Query'),
+  name?: string(name='Name', description='The name. Fuzzy match is supported.', example='abc', position='Query'),
+  order?: string(name='Order', description='The order in which schemas are sorted. Default value: Asc. Valid values:
+
+*   Asc: ascending order
+*   Desc: descending order', example='Asc', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10', minimum=1, maximum=100, position='Query'),
+  parentMetaEntityId: string(name='ParentMetaEntityId', description='The parent entity ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html). For the Hologres metadata crawler type, you can call the ListDatabases operation to query the settings of the `ParentMetaEntityId` parameter.
+
+Configure the `ParentMetaEntityId` parameter in the `${EntityType}:${Instance ID or escaped URL}:${Catalog identifier}:${Database name}` format. If a level does not exist, leave the level empty.
+
+>  If you want to query the information about a MaxCompute schema, specify an empty string at the Instance ID level as a placeholder and a MaxCompute project name at the Database name level. Make sure that the schema feature is enabled for the MaxCompute project.
+
+This parameter is required.', example='maxcompute-project:123456XXX::test_project
 holo-database:h-abc123xxx::test_db', position='Query'),
-  sortBy?: string(name='SortBy', example='CreateTime', position='Query'),
-  types?: [ string ](name='Types', shrink='simple', position='Query'),
+  sortBy?: string(name='SortBy', description='The field used for sorting. Default value: CreateTime. Valid values:
+
+*   CreateTime
+*   ModifyTime
+*   Name
+*   Type', example='CreateTime', position='Query'),
+  types?: [ string ](name='Types', description='The types. Exact match is supported. If this parameter is left empty, all types are queried.', shrink='simple', position='Query'),
 }
 
 model ListSchemasResponseBody = {
   pagingInfo?: {
     pageNumber?: int32(name='PageNumber', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
     schemas?: [
       Schema
-    ](name='Schemas'),
+    ](name='Schemas', description='The schemas.'),
     totalCount?: long(name='TotalCount', example='1'),
-  }(name='PagingInfo'),
-  requestId?: string(name='RequestId', example='235BBA5E-3428-XXXXXX'),
-  success?: boolean(name='Success', example='true'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='235BBA5E-3428-XXXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListSchemasResponse = {
@@ -10910,7 +11092,40 @@ model ListTablesRequest {
   order?: string(name='Order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
   pageSize?: int32(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
-  parentMetaEntityId: string(name='ParentMetaEntityId', description='This parameter is required.', example='maxcompute-schema:123456XXX::test_project_with_schema:default
+  parentMetaEntityId: string(name='ParentMetaEntityId', description='The parent metadata entity ID. You can refer to the responses of the ListDatabases or ListSchemas operation and [Description of concepts related to metadata entities.](https://help.aliyun.com/document_detail/2880092.html)
+
+*   The parent metadata entity is a database: The format of `ParentMetaEntityId` is `${EntityType}:${Instance ID or encoded URL}:${Catalog Identifier}:${Database Name}`. Use an empty string (\\`""\\`) as a placeholder for any non-existent level.
+*   The parent metadata entity is a database schema:. The format of `ParentMetaEntityId` is `${EntityType}:${Instance ID or encoded URL}:${Catalog Identifier}:${Database Name}:${Schema Name}`. Use an empty string (\\`""\\`) as a placeholder for any non-existent level.
+
+>  The schema level in `ParentMetaEntityId` is supported only for database types that support schemas, such as MaxCompute (with schema enabled), Hologres, PostgreSQL, SQL Server, HybridDB for PostgreSQL, and Oracle.``
+
+>  For MaxCompute and DLF types, use empty strings as the instance ID. For MaxCompute, the database name is the same as the project name.
+
+>  For the StarRocks type, the catalog identifier is the catalog name. For the DLF type, it refers to the catalog ID. Other types do not support a catalog-level hierarchy and the catalog identifier must be replaced with an empty string as a placeholder.
+
+Examples of common ParentMetaEntityId formats
+
+`maxcompute-project:::project_name`
+
+`maxcompute-schema:::project_name:schema_name` (for MaxCompute projects with schema enabled)
+
+`dlf-database::catalog_id:database_name`
+
+`hms-database:instance_id::database_name`
+
+`holo-schema:instance_id::database_name:schema_name`
+
+`mysql-database:(instance_id|encoded_jdbc_url)::database_name`
+
+> \\
+`instance_id`: The instance ID, required when the data source is registered in instance mode.\\
+`encoded_jdbc_url`: The JDBC connection string that has been URL encoded, required for the data source registered via a connection string.\\
+`catalog_id`: The DLF catalog ID.\\
+`project_name`: The MaxCompute project name.\\
+`database_name`: The database name.\\
+`schema_name`: The schema name.
+
+This parameter is required.', example='maxcompute-schema:123456XXX::test_project_with_schema:default
 maxcompute-project:123456XXX::test_project_without_schema
 dlf-database:123456XXX:test_catalog:test_db
 hms-database:c-abc123xxx::test_db
@@ -11024,7 +11239,7 @@ This parameter is required.', example='100', position='Body'),
 *   `Id (Desc/Asc)`
 
     Default value: `Id Desc`.', example='Id Desc', position='Body'),
-  status?: string(name='Status', position='Body'),
+  status?: string(name='Status', example='Success', position='Body'),
   taskId?: long(name='TaskId', description='The ID of the task for which the instance is generated.', example='1234', position='Body'),
   taskIds?: [ long ](name='TaskIds', description='The IDs of the tasks. You can query multiple instances at a time by task ID.', shrink='json', position='Body'),
   taskName?: string(name='TaskName', description='The name of the task. Fuzzy match is supported.', example='SQL node', position='Body'),
@@ -11094,7 +11309,7 @@ Valid values:
           image?: string(name='Image', description='The ID of the image configured for task running.', example='i-xxxxxx'),
           resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group for scheduling configured for task running.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
         }(name='RuntimeResource', description='The information about the resource group with which the instance is associated.'),
-        scriptParameters?: string(name='ScriptParameters'),
+        scriptParameters?: string(name='ScriptParameters', example='para1=val1 para2=val2'),
         startedTime?: long(name='StartedTime', description='The time when the instance started to run.', example='1710239005403'),
         status?: string(name='Status', description='The status of the instance.
 
@@ -11128,8 +11343,8 @@ Valid values:
 
 *   Scheduler: scheduling cycle-based trigger
 *   Manual: manual trigger', example='Scheduler'),
-        waitingResourceTime?: long(name='WaitingResourceTime'),
-        waitingTriggerTime?: long(name='WaitingTriggerTime'),
+        waitingResourceTime?: long(name='WaitingResourceTime', example='1710239005403'),
+        waitingTriggerTime?: long(name='WaitingTriggerTime', example='1710239005403'),
         workflowId?: long(name='WorkflowId', description='The ID of the workflow to which the instance belongs.', example='1234'),
         workflowInstanceId?: long(name='WorkflowInstanceId', description='The workflow instance ID.', example='1234'),
         workflowInstanceType?: string(name='WorkflowInstanceType', description='The type of the workflow instance.
@@ -11144,9 +11359,9 @@ Valid values:
 *   ManualFlow', example='Normal'),
         workflowName?: string(name='WorkflowName', description='The name of the workflow to which the instance belongs.', example='Test workflow'),
       }
-    ](name='TaskInstances', description='The instances.'),
+    ](name='TaskInstances', description='The list of task instances.'),
     totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='100'),
-  }(name='PagingInfo', description='The pagination information.'),
+  }(name='PagingInfo', description='The pagination details.'),
   requestId?: string(name='RequestId', description='The request ID.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
 }
 
@@ -12135,8 +12350,8 @@ async function moveWorkflowDefinition(request: MoveWorkflowDefinitionRequest): M
 
 model RemoveEntityFromMetaCollectionRequest {
   regionId?: string(name='RegionId', position='Host'),
-  id?: string(name='Id', example='dlf-table:123456789:test_catalog:test_database::test_table', position='Query'),
-  metaCollectionId?: string(name='MetaCollectionId', example='category.123', position='Query'),
+  id?: string(name='Id', description='The entity ID. Currently, entities can only be tables. You can call the ListTables operation to query the ID.', example='dlf-table:123456789:test_catalog:test_database::test_table', position='Query'),
+  metaCollectionId?: string(name='MetaCollectionId', description='The collection ID. You can call the ListMetaCollections operation to query the ID.', example='category.123', position='Query'),
 }
 
 model RemoveEntityFromMetaCollectionResponseBody = {
@@ -12363,28 +12578,43 @@ async function rerunTaskInstances(request: RerunTaskInstancesRequest): RerunTask
 
 model RerunWorkflowInstancesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  bizdate?: long(name='Bizdate', example='1710239005403', position='Body'),
-  endTriggerTime?: long(name='EndTriggerTime', example='1710239005403', position='Body'),
-  envType?: string(name='EnvType', example='Prod', position='Body'),
+  bizdate?: long(name='Bizdate', description='The business date used for matching manual workflow instances.', example='1710239005403', position='Body'),
+  endTriggerTime?: long(name='EndTriggerTime', description='The end trigger time of the manual workflow instance used for matching. This parameter must be used together with the StartTriggerTime.', example='1710239005403', position='Body'),
+  envType?: string(name='EnvType', description='The environment of the workspace. Valid values:
+
+Prod Dev', example='Prod', position='Body'),
   filter?: {
-    rerunDownstreamEnabled?: boolean(name='RerunDownstreamEnabled', example='false'),
-    taskIds?: [ long ](name='TaskIds'),
-    taskInstanceStatuses?: [ string ](name='TaskInstanceStatuses'),
-    taskName?: string(name='TaskName', example='test'),
-    taskTypes?: [ string ](name='TaskTypes'),
-  }(name='Filter', shrink='json', position='Body'),
-  ids?: [ long ](name='Ids', shrink='json', position='Body'),
-  name?: string(name='Name', example='test', position='Body'),
-  projectId: long(name='ProjectId', description='This parameter is required.', position='Body'),
-  startTriggerTime?: long(name='StartTriggerTime', example='1710239005403', position='Body'),
-  status?: string(name='Status', example='Failure', position='Body'),
-  type: string(name='Type', description='This parameter is required.', example='ManualWorkflow', position='Body'),
-  workflowId: long(name='WorkflowId', description='This parameter is required.', example='123', position='Body'),
+    rerunDownstreamEnabled?: boolean(name='RerunDownstreamEnabled', description='Specifies whether to rerun the matched instances and all downstream instances.', example='false'),
+    taskIds?: [ long ](name='TaskIds', description='The internal task IDs used for matching manual workflow instances.'),
+    taskInstanceStatuses?: [ string ](name='TaskInstanceStatuses', description='The statuses of internal tasks used for matching manual workflow instances.'),
+    taskName?: string(name='TaskName', description='The internal task name used for matching the manual workflow instance.', example='test'),
+    taskTypes?: [ string ](name='TaskTypes', description='Match internal tasks within the manual workflow by type.'),
+  }(name='Filter', description='The match conditions for internal instances of manual workflow instances.', shrink='json', position='Body'),
+  ids?: [ long ](name='Ids', description='The instance IDs used for matching manual workflow instances.', shrink='json', position='Body'),
+  name?: string(name='Name', description='The manual workflow name, used for fuzzy matching.', example='test', position='Body'),
+  projectId: long(name='ProjectId', description='The project ID.
+
+This parameter is required.', example='123', position='Body'),
+  startTriggerTime?: long(name='StartTriggerTime', description='The start trigger time (creation time) of the manual workflow instance used for matching. This parameter must be used together with EndTriggerTime.', example='1710239005403', position='Body'),
+  status?: string(name='Status', description='The status used for matching manual workflow instances.
+
+Valid values:
+
+*   Success
+*   Failure', example='Failure', position='Body'),
+  type: string(name='Type', description='The type of the workflow instance. Valid values:
+
+ManualWorkflow.
+
+This parameter is required.', example='ManualWorkflow', position='Body'),
+  workflowId: long(name='WorkflowId', description='The workflow ID.
+
+This parameter is required.', example='123', position='Body'),
 }
 
 model RerunWorkflowInstancesResponseBody = {
-  operationId?: string(name='OperationId', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
-  requestId?: string(name='RequestId', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  operationId?: string(name='OperationId', description='The operation ID. You can use this value to query the creation result via the GetRerunWorkflowInstancesResult operation.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID. Used for troubleshooting and log tracking.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
 }
 
 model RerunWorkflowInstancesResponse = {
@@ -13057,7 +13287,9 @@ async function updateBusiness(request: UpdateBusinessRequest): UpdateBusinessRes
 model UpdateColumnBusinessMetadataRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   description?: string(name='Description', example='test description', position='Body'),
-  id: string(name='Id', description='This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table:test_column', position='Body'),
+  id: string(name='Id', description='The column ID. You can call the ListColumns operation to query the ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+This parameter is required.', example='maxcompute-column:11075xxxx::test_project:test_schema:test_table:test_column', position='Body'),
 }
 
 model UpdateColumnBusinessMetadataResponseBody = {
@@ -14062,9 +14294,11 @@ async function updateIDEEventResult(request: UpdateIDEEventResultRequest): Updat
 
 model UpdateMetaCollectionRequest {
   regionId?: string(name='RegionId', position='Host'),
-  administrators?: [ string ](name='Administrators', shrink='simple', position='Query'),
+  administrators?: [ string ](name='Administrators', description='The collection administrator IDs. This parameter is available only for data albums. The administrator must be an account within the same tenant.', shrink='simple', position='Query'),
   description?: string(name='Description', example='new comment', position='Query'),
-  id: string(name='Id', description='This parameter is required.', example='category.123', position='Query'),
+  id: string(name='Id', description='The collection ID.
+
+This parameter is required.', example='category.123', position='Query'),
   name?: string(name='Name', example='new_name', position='Query'),
 }
 
@@ -14302,7 +14536,9 @@ async function updateRoute(request: UpdateRouteRequest): UpdateRouteResponse {
 
 model UpdateTableBusinessMetadataRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: string(name='Id', description='This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
+  id: string(name='Id', description='The data table ID. You can call the ListTables operation to query the ID.
+
+This parameter is required.', example='maxcompute-table:123456XXX::test_project::test_tbl
 dlf-table:123456XXX:test_catalog:test_db::test_tbl
 hms-table:c-abc123xxx::test_db::test_tbl
 holo-table:h-abc123xxx::test_db:test_schema:test_tbl', position='Body'),
