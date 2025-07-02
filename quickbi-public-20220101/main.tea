@@ -1554,7 +1554,7 @@ model CreateTicket4CopilotRequest {
 
 - 1: Alibaba Cloud Primary Account
 
-- 3: QuickBI Self-built Account
+- 3: Quick BI Self-built Account
 
 - 4: DingTalk
 
@@ -4755,6 +4755,7 @@ async function queryApprovalInfo(request: QueryApprovalInfoRequest): QueryApprov
 }
 
 model QueryAuditLogRequest {
+  accessSourceFlag?: string(name='AccessSourceFlag', nullable=true),
   endDate?: string(name='EndDate', description='End date of the query, format ("yyyyMMdd").
 
 This parameter is required.', example='20240604'),
@@ -4772,6 +4773,7 @@ Refer to the audit log code values, send multiple values separated by English co
   startDate?: string(name='StartDate', description='Start date of the query, format ("yyyyMMdd"), cannot be earlier than 90 days from the current time.
 
 This parameter is required.', example='20240504'),
+  userAccessDevice?: string(name='UserAccessDevice', nullable=true),
   workspaceId?: string(name='WorkspaceId', description='Workspace ID, the ID of the workspace to which the logs to be queried belong.', example='95296e95-ca89-4c7d-8af9-dedf0ad0****'),
 }
 
@@ -4810,6 +4812,9 @@ model QueryAuditLogResponse = {
 async function queryAuditLogWithOptions(request: QueryAuditLogRequest, runtime: Util.RuntimeOptions): QueryAuditLogResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.accessSourceFlag)) {
+    query['AccessSourceFlag'] = request.accessSourceFlag;
+  }
   if (!Util.isUnset(request.endDate)) {
     query['EndDate'] = request.endDate;
   }
@@ -4827,6 +4832,9 @@ async function queryAuditLogWithOptions(request: QueryAuditLogRequest, runtime: 
   }
   if (!Util.isUnset(request.startDate)) {
     query['StartDate'] = request.startDate;
+  }
+  if (!Util.isUnset(request.userAccessDevice)) {
+    query['UserAccessDevice'] = request.userAccessDevice;
   }
   if (!Util.isUnset(request.workspaceId)) {
     query['WorkspaceId'] = request.workspaceId;
@@ -5907,9 +5915,9 @@ model QueryDatasetInfoResponseBody = {
 *   string: character
 *   number: a number
 *   datetime: time', example='example_expression'),
-        expressionV2?: string(name='ExpressionV2', nullable=true),
+        expressionV2?: string(name='ExpressionV2', description='Expression for the flattened calculation dimensions.', example='example_expression', nullable=true),
         factColumn?: string(name='FactColumn', description='Expression for a calculated dimension; valid only for calculated dimensions.', example='city'),
-        fieldDescription?: string(name='FieldDescription', example='hhhh'),
+        fieldDescription?: string(name='FieldDescription', description='The description of the field.', example='hhhh'),
         granularity?: string(name='Granularity', description='The type of the dimension. Valid values:
 
 *   standard_dimension: General Dimension
@@ -5919,7 +5927,7 @@ model QueryDatasetInfoResponseBody = {
         tableUniqueId?: string(name='TableUniqueId', description='The ARN.', example='7a62530***'),
         uid?: string(name='Uid', description='The display name of the dimension.', example='a69774***'),
       }
-    ](name='DimensionList', description='If it is a custom SQL table, this is the specific SQL.'),
+    ](name='DimensionList', description='A list of all dimensions in the dataset.'),
     directory?: {
       id?: string(name='Id', description='Test directory', example='a3eecab7-618d-4f9f-*****'),
       name?: string(name='Name', description='Test directory', example='The name of the directory.'),
@@ -5943,18 +5951,21 @@ model QueryDatasetInfoResponseBody = {
 *   string: character
 *   number: a number
 *   datetime: time', example='example_expression'),
-        expressionV2?: string(name='ExpressionV2', nullable=true),
+        expressionV2?: string(name='ExpressionV2', description='Expression for flattened computation metrics.', example='example_expression', nullable=true),
         factColumn?: string(name='FactColumn', description='The type of the measure. Valid values:
 
 *   standard_measure: General Metrics
 *   calculate_measure: Calculating Measures', example='profit_amt'),
-        fieldDescription?: string(name='FieldDescription', example='hhhh'),
+        fieldDescription?: string(name='FieldDescription', description='The description of the field.', example='asadsda'),
         measureType?: string(name='MeasureType', description='An expression that calculates a measure; valid only for calculated measures.', example='calculate_measure'),
         tableUniqueId?: string(name='TableUniqueId', description='The display name of the metric.', example='7a62530b36'),
         uid?: string(name='Uid', description='The unique ID of the table to which the table belongs, which corresponds to the UniqueId of the CubeTypeList.', example='88b680****'),
       }
-    ](name='MeasureList', description='The unique ID of the table to which the table belongs, which corresponds to the UniqueId of the CubeTypeList.'),
-    openOfflineAcceleration?: boolean(name='OpenOfflineAcceleration'),
+    ](name='MeasureList', description='A list of all measures for the dataset.'),
+    openOfflineAcceleration?: boolean(name='OpenOfflineAcceleration', description='Whether to enable extraction acceleration. Valid values:
+
+*   true
+*   false', example='false'),
     ownerId?: string(name='OwnerId', description='Test Space', example='b8494aab26124*****'),
     ownerName?: string(name='OwnerName', description='The unique ID of the data source.', example='The name of the dataset owner.'),
     rowLevel?: boolean(name='RowLevel', description='The name of the training dataset.', example='false'),
@@ -5963,7 +5974,7 @@ model QueryDatasetInfoResponseBody = {
 *   true: The VIP Netty channel is enabled.
 *   false: The VIP Netty channel is disabled.', example='420abef4-a79b-4289-b12****'),
     workspaceName?: string(name='WorkspaceName', description='Big Baby', example='The name of the workspace in which the dataset resides.'),
-  }(name='Result', description='The ID of the request.'),
+  }(name='Result', description='The dataset information.'),
   success?: boolean(name='Success', description='The unique ID of the dataset.', example='true'),
 }
 
@@ -5975,8 +5986,8 @@ model QueryDatasetInfoResponse = {
 
 /**
  * @summary Indicates whether the table is a custom SQL table. Valid values:
- * *   true: custom SQL table
- * *   false: non-custom SQL table
+ * \\*   true: custom SQL table
+ * \\*   false: non-custom SQL table
  *
  * @param request QueryDatasetInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6007,8 +6018,8 @@ async function queryDatasetInfoWithOptions(request: QueryDatasetInfoRequest, run
 
 /**
  * @summary Indicates whether the table is a custom SQL table. Valid values:
- * *   true: custom SQL table
- * *   false: non-custom SQL table
+ * \\*   true: custom SQL table
+ * \\*   false: non-custom SQL table
  *
  * @param request QueryDatasetInfoRequest
  * @return QueryDatasetInfoResponse
@@ -8986,7 +8997,7 @@ async function smartqAuthTransfer(request: SmartqAuthTransferRequest): SmartqAut
 }
 
 model SmartqAuthorizeRequest {
-  cubeIds?: string(name='CubeIds'),
+  cubeIds?: string(name='CubeIds', description='Array of dataset IDs, separated by English commas. <notice>This parameter will be converted to the corresponding question resource ID for authorization. Therefore, if the input cubeId does not correspond to any question resource, an error indicating that the question resource does not exist will be reported. Please ensure the correctness of the cubeId.</notice>', example='wasdasd*******1235235sd,ASDAS*********ASDAW123'),
   expireDay?: string(name='ExpireDay', description='Expiration time, with a default of seven days.
 Format: 2099-12-31', example='2099-12-31'),
   llmCubeThemes?: string(name='LlmCubeThemes', description='Array of analysis theme IDs, separated by English commas.', example='wasdasd*******1235235sd,ASDAS*********ASDAW123'),
@@ -9025,7 +9036,7 @@ model SmartqAuthorizeResponse = {
 }
 
 /**
- * @summary Batch Management of Smart Q\\&A Authorizations
+ * @summary Batch Management of Smart Q\\\\\\&A Authorizations
  *
  * @description Used for batch management of smart Q&A authorizations. Repeatedly adding an authorization will be treated as a new addition; repeatedly deleting an authorization will be skipped by default and will not be recorded in the audit log.
  *
@@ -9072,7 +9083,7 @@ async function smartqAuthorizeWithOptions(request: SmartqAuthorizeRequest, runti
 }
 
 /**
- * @summary Batch Management of Smart Q\\&A Authorizations
+ * @summary Batch Management of Smart Q\\\\\\&A Authorizations
  *
  * @description Used for batch management of smart Q&A authorizations. Repeatedly adding an authorization will be treated as a new addition; repeatedly deleting an authorization will be skipped by default and will not be recorded in the audit log.
  *
