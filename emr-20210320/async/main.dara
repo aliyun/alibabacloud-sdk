@@ -147,6 +147,11 @@ model AckNodeSelector {
   ](name='Taints', description='污点列表。'),
 }
 
+model AdviseSummary {
+  memoryUtilizationRate?: DoubleMetric(name='MemoryUtilizationRate'),
+  vcoreUtilizationRate?: DoubleMetric(name='VcoreUtilizationRate'),
+}
+
 model ApiTemplate {
   apiName?: string(name='ApiName', description='接口名。', example='CreateCluster'),
   content?: string(name='Content', description='模版接口参数。'),
@@ -482,6 +487,31 @@ model ConvertNodeGroupParam {
   paymentType: string(name='PaymentType', description='This parameter is required.'),
 }
 
+model CostInstanceType {
+  cpu?: int32(name='Cpu', description='CPU核数。'),
+  dataDisks?: [
+    DataDisk
+  ](name='DataDisks', description='数据盘列表。'),
+  instanceType?: string(name='InstanceType', description='实例类型列表。', example='["ecs.g6.4xlarge"]'),
+  memory?: int32(name='Memory', description='内存大小。'),
+  systemDisk?: SystemDisk(name='SystemDisk', description='系统盘信息。'),
+}
+
+model CostNodeGroupConfig {
+  instanceTypes?: [
+    CostInstanceType
+  ](name='InstanceTypes', description='实例类型列表。'),
+  maximalNodeCount?: int32(name='MaximalNodeCount', description='最大节点数限制。', example='100'),
+  minimalNodeCount?: int32(name='MinimalNodeCount', description='最小节点数限制。', example='0'),
+  nodeCount?: int32(name='NodeCount', description='节点数。', example='1'),
+  nodeGroupName?: string(name='NodeGroupName'),
+  nodeGroupType?: string(name='NodeGroupType', description='节点组类型。取值范围：
+- MASTER：管理类型节点组。
+- CORE：存储类型节点组。
+- TASK：计算类型节点组。', example='CORE'),
+  paymentType?: string(name='PaymentType', description='付费类型。'),
+}
+
 model CostOptimizedConfig {
   onDemandBaseCapacity: int32(name='OnDemandBaseCapacity', description='按量实例个数的最小值。节点组所需要按量实例个数的最小值，取值范围：0~1000。当按量实例个数少于该值时，将优先创建按量实例。
 
@@ -581,6 +611,11 @@ This parameter is required.', example='cloud_essd'),
   size?: int32(name='Size', description='单位GB。', example='80'),
 }
 
+model DoubleMetric {
+  unit?: string(name='Unit'),
+  value?: double(name='Value'),
+}
+
 model FailedReason {
   errorCode?: string(name='ErrorCode', description='错误码。', example='MissingParameter.InstanceType'),
   errorMessage?: string(name='ErrorMessage', description='错误信息。', example='The instance type is required.'),
@@ -648,6 +683,11 @@ model InstanceType {
   localStorageAmount?: int32(name='LocalStorageAmount', description='实例挂载的本地盘的数量。', example='8'),
   localStorageCapacity?: long(name='LocalStorageCapacity', description='实例挂载的本地盘的单盘容量。单位：GiB', example='40'),
   optimized?: boolean(name='Optimized', description='是否IO优化类型。', example='true'),
+}
+
+model IntegerMetric {
+  unit?: string(name='Unit'),
+  value?: int32(name='Value'),
 }
 
 model KeyValue {
@@ -1081,6 +1121,13 @@ model ResizeDiskNodeGroupParam {
   rollingRestart?: boolean(name='RollingRestart'),
 }
 
+model ResourceSummary {
+  inefficientTaskRate?: DoubleMetric(name='InefficientTaskRate'),
+  memoryUtilizationRate?: DoubleMetric(name='MemoryUtilizationRate'),
+  originalTotalVcore?: IntegerMetric(name='OriginalTotalVcore'),
+  vcoreUtilizationRate?: DoubleMetric(name='VcoreUtilizationRate'),
+}
+
 model ScalingActivity {
   cause?: string(name='Cause'),
   description?: string(name='Description'),
@@ -1158,6 +1205,19 @@ model ScalingGroupConfig {
   sysDiskCategory?: string(name='SysDiskCategory', description='系统盘类型。', example='cloud_essd'),
   sysDiskSize?: long(name='SysDiskSize', description='系统盘大小,单位GB。', example='80'),
   triggerMode?: string(name='TriggerMode', description='伸缩活动触发模式。', example='ByLoad'),
+}
+
+model ScalingPolicy {
+  clusterId?: string(name='ClusterId'),
+  constraints?: ManagedScalingConstraints(name='Constraints'),
+  disabled?: boolean(name='Disabled'),
+  nodeGroupId?: string(name='NodeGroupId'),
+  nodeGroupName?: string(name='NodeGroupName'),
+  scalingPolicyId?: string(name='ScalingPolicyId'),
+  scalingPolicyType?: string(name='ScalingPolicyType', example='AUTO / MANAGED'),
+  scalingRules?: [
+    ScalingRule
+  ](name='ScalingRules'),
 }
 
 model ScalingRule {
@@ -1459,7 +1519,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-acfmzabjyop****', position='Query'),
   templateName: string(name='TemplateName', description='Cluster template name.
 
-This parameter is required.', example='DATALAKE模板', position='Query'),
+This parameter is required.', example='DATALAKE template', position='Query'),
 }
 
 model CreateApiTemplateResponseBody = {
@@ -1486,7 +1546,7 @@ async function createApiTemplate(request: CreateApiTemplateRequest): CreateApiTe
 model CreateClusterRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='The application configurations. Number of elements in the array: 1 to 1000.', position='Query'),
+  ](name='ApplicationConfigs', description='The service configurations. Number of elements in the array: 1 to 1,000.', position='Query'),
   applications: [
     Application
   ](name='Applications', description='The services. Number of elements in the array: 1 to 100.
@@ -1494,7 +1554,7 @@ model CreateClusterRequest {
 This parameter is required.', position='Query'),
   bootstrapScripts?: [
     Script
-  ](name='BootstrapScripts', description='The bootstrap actions. Number of elements in the array: 1 to 10.', position='Query'),
+  ](name='BootstrapScripts', description='The array of bootstrap scripts. Number of elements in the array: 1 to 10.', position='Query'),
   clientToken?: string(name='ClientToken', description='The idempotent client token. If you call the same ClientToken multiple times, the returned results are the same. Only one cluster can be created with the same ClientToken.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Query'),
   clusterName: string(name='ClusterName', description='The name of the cluster. The name must be 1 to 128 characters in length. It must start with a letter and cannot start with http:// or https://. It can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
@@ -1522,12 +1582,12 @@ Default value: false.', example='false', position='Query'),
 *   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
 *   HA: high availability (HA) mode. A cluster that contains three master nodes is created.', example='HA', position='Query'),
   description?: string(name='Description', description='The cluster description.', example='Emr cluster for ETL', position='Query'),
-  nodeAttributes: NodeAttributes(name='NodeAttributes', description='The attributes of all ECS instances.
+  nodeAttributes: NodeAttributes(name='NodeAttributes', description='The node attributes. The basic attributes of all ECS nodes in the cluster.
 
 This parameter is required.', position='Query'),
   nodeGroups: [
     NodeGroupConfig
-  ](name='NodeGroups', description='The node groups. Number of elements in the array: 1 to 100.
+  ](name='NodeGroups', description='The array of configurations of the node groups. Number of elements in the array: 1 to 100.
 
 This parameter is required.', example='NORMAL', position='Query'),
   paymentType?: string(name='PaymentType', description='The billing cycle of the instance. Valid values:
@@ -1550,7 +1610,7 @@ This parameter is required.', example='EMR-5.8.0', position='Query'),
   subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations. This parameter takes effect only if you set the PaymentType parameter to Subscription.', position='Query'),
   tags?: [
     Tag
-  ](name='Tags', description='The tags. Number of elements in the array: 0 to 20.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Query'),
+  ](name='Tags', description='The tag. Number of elements in the array: 0 to 20.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Query'),
 }
 
 model CreateClusterResponseBody = {
@@ -1622,10 +1682,10 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 This parameter is required.', example='BOOTSTRAP', position='Query'),
   scripts: [
     Script
-  ](name='Scripts', description='The common scripts or bootstrap actions.
+  ](name='Scripts', description='The list of scripts.
 
 This parameter is required.', position='Query'),
-  timeoutSecs?: string(name='TimeoutSecs', description='The timeout period for manually running a common script. You cannot specify the timeout period for a bootstrap action.', position='Query'),
+  timeoutSecs?: string(name='TimeoutSecs', description='The timeout period for a manual execution script. You cannot specify a timeout period for a bootstrap action.', position='Query'),
 }
 
 model CreateScriptResponseBody = {
@@ -1681,6 +1741,7 @@ model CreateUsersResponse = {
 }
 
 /**
+  * @description You can call this operation to create multiple users at a time.
   * @param request  the request parameters of CreateUsers  CreateUsersRequest
   * @return CreateUsersResponse
  */
@@ -1695,7 +1756,7 @@ model DecreaseNodesRequest {
   clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  decreaseNodeCount?: int32(name='DecreaseNodeCount', description='The number of nodes to scale in. The number of nodes to be scaled in. The value should be less than the number of surviving nodes in the current node group.', example='3', position='Query'),
+  decreaseNodeCount?: int32(name='DecreaseNodeCount', description='The number of nodes to scale out. The number of nodes to be scaled out. The value should be less than the number of surviving nodes in the current node group.', example='3', position='Query'),
   nodeGroupId: string(name='NodeGroupId', description='The ID of the node group.
 
 This parameter is required.', example='ng-869471354ecd****', position='Query'),
@@ -1750,7 +1811,6 @@ model DeleteApiTemplateResponse = {
 }
 
 /**
-  * @description 创建集群模板
   * @param request  the request parameters of DeleteApiTemplate  DeleteApiTemplateRequest
   * @return DeleteApiTemplateResponse
  */
@@ -1826,16 +1886,18 @@ async function deleteScript(request: DeleteScriptRequest): DeleteScriptResponse 
 }
 
 model DeleteUsersRequest {
-  clusterId: string(name='ClusterId', description='集群ID。
+  clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Body'),
-  regionId: string(name='RegionId', description='This parameter is required.', example='cn-hangzhou', position='Query'),
-  userNames?: [ string ](name='UserNames', shrink='json', position='Body'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+  userNames?: [ string ](name='UserNames', description='The usernames. Number of elements in the array: 0 to 10.', shrink='json', position='Body'),
 }
 
 model DeleteUsersResponseBody = {
-  data?: boolean(name='Data', example='true'),
-  requestId?: string(name='RequestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  data?: boolean(name='Data', description='Indicates whether the request was successful. Valid values: true and false.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model DeleteUsersResponse = {
@@ -1845,6 +1907,7 @@ model DeleteUsersResponse = {
 }
 
 /**
+  * @description Deletes multiple users at a time.
   * @param request  the request parameters of DeleteUsers  DeleteUsersRequest
   * @return DeleteUsersResponse
  */
@@ -1979,7 +2042,7 @@ model GetAutoScalingActivityResponseBody = {
     nodeGroupId?: string(name='NodeGroupId', description='The ID of the node group.', example='ng-869471354ecd****'),
     nodeGroupName?: string(name='NodeGroupName', description='The name of the node group.', example='task-01'),
     operationId?: string(name='OperationId', description='The operation ID.', example='op-13c37a77c505****'),
-    policyType?: string(name='PolicyType'),
+    policyType?: string(name='PolicyType', description='The policy type.', example='AUTO'),
     ruleDetail?: ScalingRule(name='RuleDetail', description='The description of the scaling rule.'),
     ruleName?: string(name='RuleName', description='The name of the scaling rule.', example='scaling-out-memory'),
     startTime?: long(name='StartTime', description='The time when scaling started.', example='1639714634819'),
@@ -2040,7 +2103,7 @@ model GetAutoScalingPolicyResponseBody = {
 *   METRICS_TRIGGER: load-based scaling', example='TIME_TRIGGER'),
       }
     ](name='ScalingRules', description='The auto scaling rules.'),
-  }(name='ScalingPolicy', description='The information about the auto scaling policy.'),
+  }(name='ScalingPolicy', description='The auto scaling policy.'),
 }
 
 model GetAutoScalingPolicyResponse = {
@@ -2103,10 +2166,10 @@ model GetClusterCloneMetaResponseBody = {
     ](name='ApplicationConfigs', description='The modified configuration items.'),
     applications?: [
       Application
-    ](name='Applications', description='The services.'),
+    ](name='Applications', description='The cluster applications.'),
     bootstrapScripts?: [
       Script
-    ](name='BootstrapScripts', description='The bootstrap actions. Number of elements in the array: 1 to 10.'),
+    ](name='BootstrapScripts', description='An array of bootstrap scripts. The number of elements in the array: 1 to 10.'),
     clusterId?: string(name='ClusterId', description='The cluster ID.', example='c-b933c5aac7f7****'),
     clusterName?: string(name='ClusterName', description='The name of the cluster.', example='emrtest'),
     clusterState?: string(name='ClusterState', description='The status of the cluster. Valid values:
@@ -2141,11 +2204,11 @@ Default value: false.', example='false'),
     existCloneConfig?: boolean(name='ExistCloneConfig', description='Indicates whether the service configurations of a Hadoop cluster that you made during cluster creation can be cloned. Valid values:
 
 *   False
-*   True'),
+*   True', example='True'),
     nodeAttributes?: NodeAttributes(name='NodeAttributes', description='The node attributes.'),
     nodeGroups?: [
       NodeGroup
-    ](name='NodeGroups', description='The node groups. Number of elements in the array: 1 to 100.'),
+    ](name='NodeGroups', description='The node groups. The number of elements in the array: 1 to 100.'),
     paymentType?: string(name='PaymentType', description='The billing method of the cluster. Valid values:
 
 *   PayAsYouGo
@@ -2190,8 +2253,8 @@ Default value: false.', example='false'),
     subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations.'),
     tags?: [
       Tag
-    ](name='Tags', description='The tags.'),
-  }(name='ClusterCloneMeta', description='The metadata of the cluster that you want to clone.'),
+    ](name='Tags', description='The list of cluster tags.'),
+  }(name='ClusterCloneMeta', description='Cluster clone metadata.'),
   requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -2699,12 +2762,12 @@ model GetDoctorHBaseTableResponseBody = {
   data?: {
     analysis?: {
       readRequestHotspotRegionList?: [ string ](name='ReadRequestHotspotRegionList', description='List of read hotspot regions.', example='null'),
-      readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='Description of read imbalance.', example='read request unbalance is <p class=\\"report-detail-topic\\">表分区总数量为14，分区平均读请求数量为5032486，以下分区存在读请求热点访问：</p><ul class=\\"report-detail-ul\\"><li class=\\".report-detail-li\\">RegionServer： emr-worker-4 Region Id： 4ac818a3ab3fd727490a5b4d4dac7667 读请求数量： 15485664</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 021b387ae92959def65041e25eade3aa 读请求数量： 7731980</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： d58f33abfe857e5fd0045eaa31c93df8 读请求数量： 7705237</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 4ca84757a7d0948b8552cfeebefa25a9 读请求数量： 7703492</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-4 Region Id： 1018192dae42995fc75c6d5b5981a9b7 读请求数量： 7695284</li></ul><p style=\\"line-height： 16px; font-size： 16px; margin： 0 auto\\">&nbsp;</p>'),
+      readRequestUnbalanceSuggestion?: string(name='ReadRequestUnbalanceSuggestion', description='Description of read imbalance.'),
       requestHotspotRegionList?: [ string ](name='RequestHotspotRegionList', description='List of read/write hotspot regions.', example='null'),
-      requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='Description of read/write imbalance.', example='read request unbalance is <p class=\\"report-detail-topic\\">表分区总数量为14，分区平均读请求数量为5032486，以下分区存在读请求热点访问：</p><ul class=\\"report-detail-ul\\"><li class=\\".report-detail-li\\">RegionServer： emr-worker-4 Region Id： 4ac818a3ab3fd727490a5b4d4dac7667 读请求数量： 15485664</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 021b387ae92959def65041e25eade3aa 读请求数量： 7731980</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： d58f33abfe857e5fd0045eaa31c93df8 读请求数量： 7705237</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 4ca84757a7d0948b8552cfeebefa25a9 读请求数量： 7703492</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-4 Region Id： 1018192dae42995fc75c6d5b5981a9b7 读请求数量： 7695284</li></ul><p style=\\"line-height： 16px; font-size： 16px; margin： 0 auto\\">&nbsp;</p>'),
+      requestUnbalanceSuggestion?: string(name='RequestUnbalanceSuggestion', description='Description of read/write imbalance.'),
       tableScore?: int32(name='TableScore', description='Table score.', example='85'),
       writeRequestHotspotRegionList?: [ string ](name='WriteRequestHotspotRegionList', description='List of write hotspot regions.', example='null'),
-      writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='Description of write imbalance.', example='write request unbalance is <p class=\\"report-detail-topic\\">表分区总数量为15，分区平均写请求数量为769954，以下分区存在写请求热点访问：</p><ul class=\\"report-detail-ul\\"><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 4a938c08750869c47b7a92edeeec2ccc 写请求数量： 2115051</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： b4d21974df92bdf3589e63e4da1fc923 写请求数量： 1592509</li><li class=\\".report-detail-li\\">RegionServer： emr-worker-2 Region Id： 25eb6717470f4ddbabe9187ff0fc0cb3 写请求数量： 1585420</li></ul><p style=\\"line-height： 16px; font-size： 16px; margin： 0 auto\\">&nbsp;</p>'),
+      writeRequestUnbalanceSuggestion?: string(name='WriteRequestUnbalanceSuggestion', description='Description of write imbalance.'),
     }(name='Analysis', description='Diagnostic results.'),
     metrics?: {
       coldAccessDay?: {
@@ -3401,69 +3464,6 @@ model GetDoctorHDFSDirectoryResponse = {
 async function getDoctorHDFSDirectory(request: GetDoctorHDFSDirectoryRequest): GetDoctorHDFSDirectoryResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetDoctorHDFSDirectory', 'POST', '/', 'json', false, 'json', request);
-}
-
-model GetDoctorHDFSUGIRequest {
-  clusterId: string(name='ClusterId', description='The cluster ID.
-
-This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  dateTime: string(name='DateTime', description='Specify the date in the ISO 8601 standard. For example, 2023-01-01 represents January 1, 2023.
-
-This parameter is required.', example='2023-01-01', position='Query'),
-  name: string(name='Name', description='Set this parameter based on the value of Type.
-
-This parameter is required.', example='DW', position='Query'),
-  regionId: string(name='RegionId', description='The region ID.
-
-This parameter is required.', example='cn-hangzhou', position='Query'),
-  type: string(name='Type', description='The filter condition. Valid values:
-
-*   user
-*   group
-
-This parameter is required.', example='user', position='Query'),
-}
-
-model GetDoctorHDFSUGIResponseBody = {
-  data?: {
-    metrics?: {
-      totalDataSize?: {
-        description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
-        name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
-        unit?: string(name='Unit', description='The unit.', example='MB'),
-        value?: long(name='Value', description='The value of the metric.', example='40440503'),
-      }(name='TotalDataSize', description='The total data size.'),
-      totalDirCount?: {
-        description?: string(name='Description', description='The description of the metric.', example='Number of total dirs'),
-        name?: string(name='Name', description='The name of the metric.', example='totalDirCount'),
-        unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
-        value?: long(name='Value', description='The value of the metric.', example='123'),
-      }(name='TotalDirCount', description='The total number of directories.'),
-      totalFileCount?: {
-        description?: string(name='Description', description='The description of the metric.', example='Number of total files'),
-        name?: string(name='Name', description='The name of the metric.', example='totalFileCount'),
-        unit?: string(name='Unit', description='The unit of the metric.', example='”“'),
-        value?: long(name='Value', description='The value of the metric.', example='34'),
-      }(name='TotalFileCount', description='The total number of files.'),
-    }(name='Metrics', description='The metric information.'),
-  }(name='Data', description='The results of HDFS analysis.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-}
-
-model GetDoctorHDFSUGIResponse = {
-  headers?: map[string]string(name='headers'),
-  statusCode?: int32(name='statusCode'),
-  body?: GetDoctorHDFSUGIResponseBody(name='body'),
-}
-
-/**
-  * @description get Doctor HDFS UGI
-  * @param request  the request parameters of GetDoctorHDFSUGI  GetDoctorHDFSUGIRequest
-  * @return GetDoctorHDFSUGIResponse
- */
-async function getDoctorHDFSUGI(request: GetDoctorHDFSUGIRequest): GetDoctorHDFSUGIResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetDoctorHDFSUGI', 'POST', '/', 'json', false, 'json', request);
 }
 
 model GetDoctorHiveClusterRequest {
@@ -4512,17 +4512,9 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 model GetDoctorReportComponentSummaryResponseBody = {
   data?: {
     score?: int32(name='Score', description='Score.', example='88'),
-    suggestion?: string(name='Suggestion', description='Optimization suggestions.', example='计算健康度分数为 88 ，集群处于健康状态，继续保持 
-计算任务扫描
-对集群中 1518 个计算任务进行了扫描，包含 209 个任务处于不健康状态 ，596 个任务处于亚健康状态 ，713 个任务处于健康状态。 
-其中：
-       Tez 任务 1518 个，加权平均分为 88 ，内存使用量占整体集群的 100.0% ，CPU 使用量占整体集群的 100.0% ，其中 209 个任务处于不健康状态，596 个任务处于亚健康状态；
-可在下面的任务明细列表中点击\\"\\"查看详情\\"\\"，查看存在的具体问题及解决方案。其中\\"\\"低分任务算力内存时 (GB*Sec)Top20 \\"\\"表根据内存时使用量进行排序，由于大任务对集群整体影响可能更大，建议优先关注。
-内存利用率较低
-集群整体内存利用率为 47.8% ，内存利用率较低，计算资源存在浪费，建议优先对内存算力时较大且内存利用率较低的 TOP 任务进行优化
-其中，Tez作业平均内存利用率为 47.8%'),
-    summary?: string(name='Summary', description='Report summary.', example='<h4> [计算检测]  计算健康度分数为 88 ，健康度良好，继续加油 </h4><p style=\\"\\"text-indent：2em\\"\\">集群中大部分任务保持健康状态 </p><p style=\\"\\"text-indent：2em\\"\\">集群内存利用率为： 47.8% 偏低 </p>'),
-  }(name='Data', description='Report content.'),
+    suggestion?: string(name='Suggestion', description='Optimization suggestions.'),
+    summary?: string(name='Summary', description='The summary of the report.'),
+  }(name='Data', description='The content of the report.'),
   requestId?: string(name='RequestId', description='Request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
@@ -4615,7 +4607,7 @@ async function getOperation(request: GetOperationRequest): GetOperationResponse 
 model IncreaseNodesRequest {
   applicationConfigs?: [
     ApplicationConfig
-  ](name='ApplicationConfigs', description='The application configurations. You can specify a maximum of 1,000 items.', example='Month', position='Query'),
+  ](name='ApplicationConfigs', description='The application configurations. Number of elements in the array: 1 to 1,000.', example='Month', position='Query'),
   autoPayOrder?: boolean(name='AutoPayOrder', description='Indicates whether to automatically pay for the orders involved in the scale-out operation. This parameter takes effect only when the PaymentType parameter is set to Subscription. Valid values:
 
 *   true: automatically pays for the order involved in this operation.
@@ -4629,7 +4621,7 @@ Default value: false', example='false', position='Query'),
   clusterId: string(name='ClusterId', description='The ID of the cluster.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  increaseNodeCount: int32(name='IncreaseNodeCount', description='The number of nodes. The number of incremental nodes for this scale-out. Valid values: 1 to 500.
+  increaseNodeCount: int32(name='IncreaseNodeCount', description='The number of nodes to add.Valid values: 1 to 500.
 
 This parameter is required.', example='3', position='Query'),
   minIncreaseNodeCount?: int32(name='MinIncreaseNodeCount', description='The minimum number of nodes that can be added. Valid values: 1 to 500.
@@ -4643,6 +4635,9 @@ This parameter is required.', example='ng-869471354ecd****', position='Query'),
   paymentDurationUnit?: string(name='PaymentDurationUnit', description='The unit of the subscription duration. Valid values:
 
 *   Month', example='Month', position='Query'),
+  promotions?: [
+    Promotion
+  ](name='Promotions', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
@@ -4722,7 +4717,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 model ListApiTemplatesResponseBody = {
   apiTemplates?: [
     ApiTemplate
-  ](name='ApiTemplates', description='The API operation templates.', deprecated='true'),
+  ](name='ApiTemplates', description='The array of API templates.', deprecated='true'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
   nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -4750,7 +4745,7 @@ model ListApplicationConfigsRequest {
 
 This parameter is required.', example='c-e6a9d46e9267****', position='Query'),
   configFileName?: string(name='ConfigFileName', description='The name of the configuration file.', example='hdfs-site.xml', position='Query'),
-  configItemKey?: string(name='ConfigItemKey', description='The name of the configuration item.', example='dfs.replication', position='Query'),
+  configItemKey?: string(name='ConfigItemKey', description='The key of the configuration item.', example='dfs.replication', position='Query'),
   configItemValue?: string(name='ConfigItemValue', description='The value of the configuration item.', example='2', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page.', example='100', position='Query'),
   nextToken?: string(name='NextToken', description='The page number of the next page returned.', example='1', position='Query'),
@@ -4918,48 +4913,20 @@ async function listAutoScalingActivities(request: ListAutoScalingActivitiesReque
 }
 
 model ListClustersRequest {
-  clusterIds?: [ string ](name='ClusterIds', description='The IDs of the clusters. You can specify a maximum of 100 items.', example='rg-acfmzabjyop****', position='Query'),
+  clusterIds?: [ string ](name='ClusterIds', description='The cluster IDs. Number of elements in the array: 1 to 100.', example='rg-acfmzabjyop****', position='Query'),
   clusterName?: string(name='ClusterName', description='The name of the cluster.', example='emrtest', position='Query'),
-  clusterStates?: [ string ](name='ClusterStates', description='The states of clusters. You can specify a maximum of 100 items.', example='["HADOOP"]', position='Query'),
-  clusterTypes?: [ string ](name='ClusterTypes', description='The types of the clusters. You can specify a maximum of 100 items.', example='["c-b933c5aac8fe****"]', position='Query'),
+  clusterStates?: [ string ](name='ClusterStates', description='The states of the clusters. Number of elements in the array: 1 to 100.', example='["HADOOP"]', position='Query'),
+  clusterTypes?: [ string ](name='ClusterTypes', description='The list of cluster types. Number of elements in the array: 1 to 100.', example='["c-b933c5aac8fe****"]', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries to return on each page. Valid values: 1 to 100.', example='20', position='Query'),
   nextToken?: string(name='NextToken', description='The starting point of the current query. If you do not configure this parameter, the query starts from the beginning.', example='eyJlY21OZXh0VG9rZW4iOiIxIiwidGFpaGFvTmV4dFRva2VuIjoiNTYiLCJ0YWloYW9OZXh0VG9rZW5JbnQiOjU2LCJlY21OZXh0VG9rZW5JbnQiOjF9', position='Query'),
   paymentTypes?: [ string ](name='PaymentTypes', description='The billing methods. You can specify a maximum of 2 items.', example='["ECS"]', position='Query'),
   regionId: string(name='RegionId', description='The region ID.
 
-Valid values:
-
-*   cn-qingdao
-*   cn-beijing
-*   cn-zhangjiakou
-*   cn-huhehaote
-*   cn-hangzhou
-*   cn-shanghai
-*   cn-shenzhen
-*   cn-chengdu
-*   cn-hongkong
-*   cn-wulanchabu
-*   cn-heyuan-acdr-1
-*   cn-qingdao-acdr-ut-1
-*   ap-northeast-1
-*   ap-southeast-1
-*   ap-southeast-2
-*   ap-southeast-3
-*   ap-southeast-5
-*   ap-south-1
-*   us-east-1
-*   us-west-1
-*   me-east-1
-*   me-central-1
-*   eu-central-1
-*   eu-west-1
-*   cn-north-2-gov-1
-
 This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group.', example='rg-acfmzabjyop****', position='Query'),
   tags?: [
     Tag
-  ](name='Tags', description='The tags. Number of elements in the array: 1 to 20.', example='["PayAsYouGo"]', position='Query'),
+  ](name='Tags', description='The tag list. Number of elements in the array: 1 to 20.', example='["PayAsYouGo"]', position='Query'),
 }
 
 model ListClustersResponseBody = {
@@ -5001,6 +4968,7 @@ This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
   regionId: string(name='RegionId', description='地域ID。
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
+  zoneId?: string(name='ZoneId', position='Query'),
 }
 
 model ListComponentInstancesResponseBody = {
@@ -5045,6 +5013,7 @@ model ListComponentInstancesResponseBody = {
 - STOP_FAILED：停止失败。', example='STARTED'),
       nodeId?: string(name='NodeId', description='节点ID。', example='i-bp1cudc25w2bfwl5****'),
       nodeName?: string(name='NodeName', description='节点名称。', example='core1-1'),
+      zoneId?: string(name='ZoneId'),
     }
   ](name='ComponentInstances'),
   maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
@@ -5060,7 +5029,6 @@ model ListComponentInstancesResponse = {
 }
 
 /**
-  * @description 查询组件实例列表。
   * @param request  the request parameters of ListComponentInstances  ListComponentInstancesRequest
   * @return ListComponentInstancesResponse
  */
@@ -5498,7 +5466,7 @@ model ListDoctorHBaseTablesResponseBody = {
         coldConfigDay?: {
           description?: string(name='Description', description='The description of the metric.', example='Cold config day'),
           name?: string(name='Name', description='The name of the metric.', example='coldConfigDay'),
-          unit?: string(name='Unit', description='The unit of the metric.', example='dat'),
+          unit?: string(name='Unit', description='The unit of the metric.', example='day'),
           value?: long(name='Value', description='The value of the metric.', example='1'),
         }(name='ColdConfigDay', description='The number of consecutive days without access to data before the data is considered as very cold data.'),
         coldDataSize?: {
@@ -5636,7 +5604,7 @@ model ListDoctorHBaseTablesResponseBody = {
       }(name='Metrics', description='The metric information.'),
       tableName?: string(name='TableName', description='The name of the table.', example='tb_item'),
     }
-  ](name='Data', description='The response parameters.'),
+  ](name='Data', description='The data returned.'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
   nextToken?: string(name='NextToken', description='The page number of the next page returned.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
@@ -6234,7 +6202,7 @@ model ListDoctorHiveDatabasesResponseBody = {
           name?: string(name='Name', description='The name of the metric.', example='totalDataDayGrowthSize'),
           unit?: string(name='Unit', description='The unit of the metric.', example='MB'),
           value?: long(name='Value', description='The value of the metric.', example='1000'),
-        }(name='TotalDataDayGrowthSize', description='The daily incremental of the total data volume.'),
+        }(name='TotalDataDayGrowthSize', description='The daily increment of the total data volume.'),
         totalDataSize?: {
           description?: string(name='Description', description='The description of the metric.', example='Total data size in megabytes (MB)'),
           name?: string(name='Name', description='The name of the metric.', example='totalDataSize'),
@@ -7011,6 +6979,7 @@ This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region in which you want to create the instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
+  zoneId?: string(name='ZoneId', position='Query'),
 }
 
 model ListNodeGroupsResponseBody = {
@@ -7055,7 +7024,7 @@ This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
 This parameter is required.', example='cn-hangzhou', position='Query'),
   tags?: [
     Tag
-  ](name='Tags', description='The list of tags to be bound.', position='Query'),
+  ](name='Tags', description='The tags.', position='Query'),
 }
 
 model ListNodesResponseBody = {
@@ -7063,7 +7032,7 @@ model ListNodesResponseBody = {
   nextToken?: string(name='NextToken', description='The position at which the next read starts. If null is returned, the data has been read.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   nodes?: [
     Node
-  ](name='Nodes', description='Details about nodes.'),
+  ](name='Nodes', description='The node list.'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
   totalCount?: int32(name='TotalCount', description='The total number of records in this request.', example='200'),
 }
@@ -7140,7 +7109,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 - NORMAL: Regular cluster script.
 
 This parameter is required.', example='BOOTSTRAP', position='Query'),
-  statuses?: [ string ](name='Statuses', description='The status of the script. Only common scripts are supported.', position='Query'),
+  statuses?: [ string ](name='Statuses', description='The script status list.', position='Query'),
 }
 
 model ListScriptsResponseBody = {
@@ -7206,7 +7175,7 @@ This parameter is required.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', po
 This parameter is required.', example='cluster', position='Query'),
   tags?: [
     Tag
-  ](name='Tags', description='The array of tags. The number of array elements N. Valid values: 1 to 20.', example='20', position='Query'),
+  ](name='Tags', description='An array of tags. The number of elements in the array. Valid values: 1 to 20.', example='20', position='Query'),
 }
 
 model ListTagResourcesResponseBody = {
@@ -7240,36 +7209,37 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ListUsersRequest {
-  clusterId: string(name='ClusterId', description='集群ID。
+  clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  maxResults?: int32(name='MaxResults', description='一次获取的最大记录数。取值范围：1~100。', example='20', position='Query'),
-  nextToken?: string(name='NextToken', description='标记当前开始读取的位置，置空表示从头开始。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return.', example='20', position='Query'),
+  nextToken?: string(name='NextToken', description='The pagination token that is used in the request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  userName?: string(name='UserName', description='用户名，支持模糊搜索。', example='test', position='Query'),
-  userNames?: [ string ](name='UserNames', position='Query'),
+  userName?: string(name='UserName', description='The username. Fuzzy match is supported.', example='test', position='Query'),
+  userNames?: [ string ](name='UserNames', description='The usernames. Number of elements in the array: 0 to 20.', position='Query'),
 }
 
 model ListUsersResponseBody = {
-  isAdmin?: boolean(name='IsAdmin', example='False', deprecated='true'),
-  maxResults?: int32(name='MaxResults', description='本次请求所返回的最大记录条数。', example='20'),
-  nextToken?: string(name='NextToken', description='返回读取到的数据位置，空代表数据已经读取完毕。', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  totalCount?: int32(name='TotalCount', description='本次请求条件下的数据总量。', example='200'),
+  isAdmin?: boolean(name='IsAdmin', description='Indicates whether the user is an admin user. Valid values:
+
+*   true
+*   false', example='False', deprecated='true'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries returned.', example='20'),
+  nextToken?: string(name='NextToken', description='A pagination token. It can be used in the next request to retrieve a new page of results.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries returned.', example='200'),
   users?: [ 
     {
-      createTime?: long(name='CreateTime', description='创建时间。', example='1509338726362'),
-      description?: string(name='Description', description='备注。', example='添加test用户'),
-      keytabHex?: string(name='KeytabHex', description='Keytab内容Base64编码。', example='DBEDASDF=='),
-      ldapUrl?: string(name='LdapUrl', description='LDAP链接。
-ldap://emr-header-1.cluster-50018****:10389', example='ldap://master-1-1.c-c6ce2d16d118****.cn-hangzhou.emr.aliyuncs.com:10389'),
-      userId?: string(name='UserId', description='用户ID。', example='125046002175****'),
-      userName?: string(name='UserName', description='用户名称。
-test', example='yun****'),
+      createTime?: long(name='CreateTime', description='The creation time.', example='1509338726362'),
+      description?: string(name='Description', description='The remarks.', example='添加test用户'),
+      keytabHex?: string(name='KeytabHex', description='The Base64-encoded content of the keytab file.', example='DBEDASDF=='),
+      ldapUrl?: string(name='LdapUrl', description='The Lightweight Directory Access Protocol (LDAP) link.', example='ldap://master-1-1.c-c6ce2d16d118****.cn-hangzhou.emr.aliyuncs.com:10389'),
+      userId?: string(name='UserId', description='The user ID.', example='125046002175****'),
+      userName?: string(name='UserName', description='The username.', example='yun****'),
     }
-  ](name='Users', description='用户列表。'),
+  ](name='Users', description='The users.'),
 }
 
 model ListUsersResponse = {
@@ -7279,6 +7249,7 @@ model ListUsersResponse = {
 }
 
 /**
+  * @description Queries a user.
   * @param request  the request parameters of ListUsers  ListUsersRequest
   * @return ListUsersResponse
  */
@@ -7288,23 +7259,23 @@ async function listUsers(request: ListUsersRequest): ListUsersResponse {
 }
 
 model PutAutoScalingPolicyRequest {
-  clusterId: string(name='ClusterId', description='集群ID。
+  clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  constraints?: ScalingConstraints(name='Constraints', description='The maximum and minimum numbers of nodes in a node group.', position='Query'),
-  nodeGroupId: string(name='NodeGroupId', description='节点组ID。节点组 Id-针对 ACK 集群，此字段为空。
+  constraints?: ScalingConstraints(name='Constraints', description='The constraints on the maximum and minimum numbers of nodes in a node group.', position='Query'),
+  nodeGroupId: string(name='NodeGroupId', description='The ID of the node group.
 
 This parameter is required.', example='ng-869471354ecd****', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
   scalingRules?: [
     ScalingRule
-  ](name='ScalingRules', description='The auto scaling rules. Number of elements in the array: 0 to 100.', position='Query'),
+  ](name='ScalingRules', description='The description list of auto scaling rules. Number of elements in the array: 0 to 100.', position='Query'),
 }
 
 model PutAutoScalingPolicyResponseBody = {
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model PutAutoScalingPolicyResponse = {
@@ -7321,6 +7292,35 @@ model PutAutoScalingPolicyResponse = {
 async function putAutoScalingPolicy(request: PutAutoScalingPolicyRequest): PutAutoScalingPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'PutAutoScalingPolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
+model PutManagedScalingPolicyRequest {
+  clusterId: string(name='ClusterId', description='The cluster ID.
+
+This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
+  constraints?: ManagedScalingConstraints(name='Constraints', description='The constrains on the maximum and minimum numbers of nodes in a node group.', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+}
+
+model PutManagedScalingPolicyResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+}
+
+model PutManagedScalingPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PutManagedScalingPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of PutManagedScalingPolicy  PutManagedScalingPolicyRequest
+  * @return PutManagedScalingPolicyResponse
+ */
+async function putManagedScalingPolicy(request: PutManagedScalingPolicyRequest): PutManagedScalingPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'PutManagedScalingPolicy', 'POST', '/', 'json', false, 'json', request);
 }
 
 model RemoveAutoScalingPolicyRequest {
@@ -7449,12 +7449,12 @@ model RunClusterRequest {
   ](name='ApplicationConfigs', description='The application configurations. Number of elements in the array: 1 to 1000.', shrink='json', position='Body'),
   applications: [
     Application
-  ](name='Applications', description='The services. Number of elements in the array: 1 to 100.
+  ](name='Applications', description='The list of services. Number of elements in the array: 1 to 100.
 
 This parameter is required.', shrink='json', position='Body'),
   bootstrapScripts?: [
     Script
-  ](name='BootstrapScripts', description='The bootstrap actions. Number of elements in the array: 1 to 10.', shrink='json', position='Body'),
+  ](name='BootstrapScripts', description='The array of bootstrap scripts. Number of elements in the array: 1 to 10.', shrink='json', position='Body'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. The same ClientToken value for multiple calls to the RunCluster operation results in identical responses. Only one cluster can be created by using the same ClientToken value.', example='A7D960FA-6DBA-5E07-8746-A63E3E4D****', position='Body'),
   clusterName: string(name='ClusterName', description='The cluster name. The name must be 1 to 128 characters in length. The name must start with a letter but cannot start with http:// or https://. The name can contain letters, digits, colons (:), underscores (_), periods (.), and hyphens (-).
 
@@ -7482,10 +7482,10 @@ Default value: false.', example='false', position='Body'),
 *   NORMAL: regular mode. This is the default value. A cluster that contains only one master node is created.
 *   HA: high availability mode. A cluster that contains at least three master nodes is created.', example='HA', position='Body'),
   description?: string(name='Description', description='The cluster description.', example='Emr cluster for ETL', position='Body'),
-  nodeAttributes?: NodeAttributes(name='NodeAttributes', description='The attributes of all ECS instances.', shrink='json', position='Body'),
+  nodeAttributes?: NodeAttributes(name='NodeAttributes', description='The node attributes. The basic attributes of all ECS nodes in the cluster.', shrink='json', position='Body'),
   nodeGroups: [
     NodeGroupConfig
-  ](name='NodeGroups', description='The node groups. Number of elements in the array: 1 to 100.
+  ](name='NodeGroups', description='The array of configurations of the node groups. Number of elements in the array: 1 to 100.
 
 This parameter is required.', shrink='json', position='Body'),
   paymentType?: string(name='PaymentType', description='The billing method of the cluster. Valid values:
@@ -7494,6 +7494,9 @@ This parameter is required.', shrink='json', position='Body'),
 *   Subscription
 
 Default value: PayAsYouGo.', example='PayAsYouGo', position='Body'),
+  promotions?: [
+    Promotion
+  ](name='Promotions', shrink='json', position='Query'),
   regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
@@ -7505,10 +7508,10 @@ This parameter is required.', example='EMR-5.16.0', position='Body'),
 
 *   NORMAL: regular mode. Kerberos authentication is disabled. This is the default value.
 *   KERBEROS: Kerberos mode. Kerberos authentication is enabled.', example='NORMAL', position='Body'),
-  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations. This parameter takes effect only if you set the PaymentType parameter to Subscription.', shrink='json', position='Body'),
+  subscriptionConfig?: SubscriptionConfig(name='SubscriptionConfig', description='The subscription configurations. This parameter is required when the PaymentType parameter is set to Subscription.', shrink='json', position='Body'),
   tags?: [
     Tag
-  ](name='Tags', description='The tags. Number of elements in the array: 0 to 20.', shrink='json', position='Body'),
+  ](name='Tags', description='The tag. Number of elements in the array: 0 to 20.', shrink='json', position='Body'),
 }
 
 model RunClusterResponseBody = {
@@ -7616,21 +7619,21 @@ This parameter is required.', example='CreateCluster', position='Query'),
   content: string(name='Content', description='The content of the cluster API operation template. Set the value to JSON strings of the request parameters of the [CreateCluster](https://help.aliyun.com/document_detail/454393.html) API operation for creating a cluster.
 
 This parameter is required.', example='CreateCluster', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  resourceGroupId?: string(name='ResourceGroupId', description='资源组ID。', example='rg-acfmzabjyop****', position='Query'),
-  templateId: string(name='TemplateId', description='集群模板id。
+  resourceGroupId?: string(name='ResourceGroupId', description='Resource group ID.', example='rg-acfmzabjyop****', position='Query'),
+  templateId: string(name='TemplateId', description='Template ID (it is recommended to use the parameter TemplateId).
 
 This parameter is required.', example='AT-****', position='Query'),
-  templateName: string(name='TemplateName', description='集群模板名字。
+  templateName: string(name='TemplateName', description='The name of the template.
 
-This parameter is required.', example='DATALAKE模板', position='Query'),
+This parameter is required.', example='datalakeTest1', position='Query'),
 }
 
 model UpdateApiTemplateResponseBody = {
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
-  success?: boolean(name='Success', example='true', deprecated='true'),
+  requestId?: string(name='RequestId', description='Request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  success?: boolean(name='Success', description='Template ID (to be deprecated).', example='true', deprecated='true'),
 }
 
 model UpdateApiTemplateResponse = {
@@ -7771,21 +7774,21 @@ async function updateScript(request: UpdateScriptRequest): UpdateScriptResponse 
 }
 
 model UpdateUserAttributeRequest {
-  clusterId: string(name='ClusterId', description='集群ID。
+  clusterId: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='c-b933c5aac8fe****', position='Query'),
-  description?: string(name='Description', description='用户备注。', example='test', position='Query'),
-  password?: string(name='Password', description='用户密码。', example='1234', position='Query'),
-  regionId: string(name='RegionId', description='区域ID。
+  description?: string(name='Description', description='The remarks of the user.', example='test', position='Query'),
+  password?: string(name='Password', description='The user password.', example='1234', position='Query'),
+  regionId: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  userId?: string(name='UserId', description='用户ID。', example='125046002175****', deprecated='true', position='Query'),
-  userName?: string(name='UserName', example='yun****', position='Query'),
+  userId?: string(name='UserId', description='The user ID.', example='125046002175****', deprecated='true', position='Query'),
+  userName?: string(name='UserName', description='The username.', example='yun****', position='Query'),
 }
 
 model UpdateUserAttributeResponseBody = {
-  data?: boolean(name='Data', example='true', deprecated='true'),
-  requestId?: string(name='RequestId', description='请求ID。', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  data?: boolean(name='Data', description='Indicates whether the request was successful. Valid values: true and false.', example='true', deprecated='true'),
+  requestId?: string(name='RequestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
 
 model UpdateUserAttributeResponse = {
@@ -7795,6 +7798,7 @@ model UpdateUserAttributeResponse = {
 }
 
 /**
+  * @description Updates the information about a user.
   * @param request  the request parameters of UpdateUserAttribute  UpdateUserAttributeRequest
   * @return UpdateUserAttributeResponse
  */
