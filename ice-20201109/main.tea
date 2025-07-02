@@ -92,6 +92,7 @@ model AIAgentConfig {
     asrHotWords?: [ string ](name='AsrHotWords'),
     asrLanguageId?: string(name='AsrLanguageId'),
     asrMaxSilence?: int32(name='AsrMaxSilence'),
+    customParams?: string(name='CustomParams'),
     vadLevel?: int32(name='VadLevel'),
   }(name='AsrConfig'),
   avatarConfig?: {
@@ -121,14 +122,42 @@ model AIAgentConfig {
   }(name='LlmConfig'),
   maxIdleTime?: int32(name='MaxIdleTime'),
   ttsConfig?: {
+    pronunciationRules?: [ 
+      {
+        pronunciation?: string(name='Pronunciation'),
+        type?: string(name='Type'),
+        word?: string(name='Word'),
+      }
+    ](name='PronunciationRules'),
     voiceId?: string(name='VoiceId'),
     voiceIdList?: [ string ](name='VoiceIdList'),
   }(name='TtsConfig'),
   turnDetectionConfig?: {
+    mode?: string(name='Mode'),
+    semanticWaitDuration?: int32(name='SemanticWaitDuration'),
     turnEndWords?: [ string ](name='TurnEndWords'),
   }(name='TurnDetectionConfig'),
   userOfflineTimeout?: int32(name='UserOfflineTimeout'),
   userOnlineTimeout?: int32(name='UserOnlineTimeout'),
+  vcrConfig?: {
+    equipment?: {
+      enabled?: boolean(name='Enabled'),
+    }(name='Equipment'),
+    headMotion?: {
+      enabled?: boolean(name='Enabled'),
+    }(name='HeadMotion'),
+    invalidFrameMotion?: {
+      callbackDelay?: int32(name='CallbackDelay'),
+      enabled?: boolean(name='Enabled'),
+    }(name='InvalidFrameMotion'),
+    peopleCount?: {
+      enabled?: boolean(name='Enabled'),
+    }(name='PeopleCount'),
+    stillFrameMotion?: {
+      callbackDelay?: int32(name='CallbackDelay'),
+      enabled?: boolean(name='Enabled'),
+    }(name='StillFrameMotion'),
+  }(name='VcrConfig'),
   voiceprintConfig?: {
     useVoiceprint?: boolean(name='UseVoiceprint'),
     voiceprintId?: string(name='VoiceprintId'),
@@ -143,10 +172,12 @@ model AIAgentOutboundCallConfig {
     asrHotWords?: [ string ](name='AsrHotWords'),
     asrLanguageId?: string(name='AsrLanguageId'),
     asrMaxSilence?: int32(name='AsrMaxSilence'),
+    customParams?: string(name='CustomParams'),
     vadLevel?: int32(name='VadLevel'),
   }(name='AsrConfig'),
   enableIntelligentSegment?: boolean(name='EnableIntelligentSegment'),
   greeting?: string(name='Greeting'),
+  greetingDelay?: int32(name='GreetingDelay'),
   interruptConfig?: {
     enableVoiceInterrupt?: boolean(name='EnableVoiceInterrupt'),
     interruptWords?: [ string ](name='InterruptWords'),
@@ -163,10 +194,19 @@ model AIAgentOutboundCallConfig {
     llmSystemPrompt?: string(name='LlmSystemPrompt'),
   }(name='LlmConfig'),
   ttsConfig?: {
+    pronunciationRules?: [ 
+      {
+        pronunciation?: string(name='Pronunciation'),
+        type?: string(name='Type'),
+        word?: string(name='Word'),
+      }
+    ](name='PronunciationRules'),
     voiceId?: string(name='VoiceId'),
     voiceIdList?: [ string ](name='VoiceIdList'),
   }(name='TtsConfig'),
   turnDetectionConfig?: {
+    mode?: string(name='Mode'),
+    semanticWaitDuration?: int32(name='SemanticWaitDuration'),
     turnEndWords?: [ string ](name='TurnEndWords'),
   }(name='TurnDetectionConfig'),
 }
@@ -1928,6 +1968,7 @@ model BatchGetMediaInfosRequest {
 \\\\- FileInfo
 
 \\\\- DynamicMetaData', example='FileInfo,DynamicMetaData'),
+  authTimeout?: long(name='AuthTimeout'),
   mediaIds?: string(name='MediaIds', description='The IDs of the media assets that you want to query. Separate the IDs with commas (,).', example='******b48fb04483915d4f2cd8******,******c48fb37407365d4f2cd8******'),
 }
 
@@ -2008,6 +2049,9 @@ async function batchGetMediaInfosWithOptions(request: BatchGetMediaInfosRequest,
   var query = {};
   if (!Util.isUnset(request.additionType)) {
     query['AdditionType'] = request.additionType;
+  }
+  if (!Util.isUnset(request.authTimeout)) {
+    query['AuthTimeout'] = request.authTimeout;
   }
   if (!Util.isUnset(request.mediaIds)) {
     query['MediaIds'] = request.mediaIds;
@@ -3885,7 +3929,12 @@ This parameter is required.', example='MediaPackage'),
 This parameter is required.'),
   videoSettings?: [ 
     {
-      height?: int32(name='Height', description='The height of the output. Valid values: 0 to 2000. If you set it to 0 or leave it empty, the height automatically adapts to the specified width to maintain the original aspect ratio.', example='720'),
+      height?: int32(name='Height', description='The height of the output. If you set it to 0 or leave it empty, the height automatically adapts to the specified width to maintain the original aspect ratio.
+
+Valid values:
+
+*   For regular transcoding, the larger dimension cannot exceed 3840 px, and the smaller one cannot exceed 2160 px.
+*   For Narrowband HD™ transcoding, the larger dimension cannot exceed 1920 px, and the smaller one cannot exceed 1080 px.', example='720'),
       name?: string(name='Name', description='The name of the video settings. Letters, digits, hyphens (-), and underscores (_) are supported. It can be up to 64 characters in length.
 
 This parameter is required.', example='video1'),
@@ -3912,8 +3961,18 @@ This parameter is required.', example='video1'),
           rateControlMode?: string(name='RateControlMode', description='The bitrate control mode. Valid values: CBR, ABR, and VBR.', example='ABR'),
         }(name='Rate', description='The video encoding rate. If it is not specified, the source specification is used.'),
       }(name='VideoCodecSetting', description='The video encoding settings.'),
-      videoCodecType?: string(name='VideoCodecType'),
-      width?: int32(name='Width', description='The width of the output. Valid values: 0 to 2000. If you set it to 0 or leave it empty, the width automatically adapts to the specified height to maintain the original aspect ratio.', example='1280'),
+      videoCodecType?: string(name='VideoCodecType', description='The video transcoding method. Valid values:
+
+*   NORMAL: regular transcoding
+*   NBHD: Narrowband HD™ transcoding
+
+If not specified, regular transcoding is used by default.', example='NORMAL'),
+      width?: int32(name='Width', description='The width of the output. If you set it to 0 or leave it empty, the width automatically adapts to the specified height to maintain the original aspect ratio.
+
+Valid values:
+
+*   For regular transcoding, the larger dimension cannot exceed 3840 px, and the smaller one cannot exceed 2160 px.
+*   For Narrowband HD™ transcoding, the larger dimension cannot exceed 1920 px, and the smaller one cannot exceed 1080 px.', example='1280'),
     }
   ](name='VideoSettings', description='The video settings.'),
 }
@@ -4019,9 +4078,9 @@ async function createMediaLiveChannel(request: CreateMediaLiveChannelRequest): C
 model CreateMediaLiveInputRequest {
   inputSettings?: [ 
     {
-      flowId?: string(name='FlowId'),
-      flowOutputName?: string(name='FlowOutputName'),
-      sourceUrl?: string(name='SourceUrl', description='The source URL where the stream is pulled from. This parameter is required for PULL inputs.', example='rtmp://domain/app/stream'),
+      flowId?: string(name='FlowId', description='The ID of the flow from MediaConnect. This parameter is required when Type is set to MEDIA_CONNECT.', example='******81-9693-40dc-bbab-db5e49******'),
+      flowOutputName?: string(name='FlowOutputName', description='The output name of the MediaConnect flow. This parameter is required when Type is set to MEDIA_CONNECT.', example='myFlowOutputName'),
+      sourceUrl?: string(name='SourceUrl', description='The source URL from which the stream is pulled. This parameter is required for PULL inputs.', example='rtmp://domain/app/stream'),
       streamName?: string(name='StreamName', description='The name of the pushed stream. This parameter is required for PUSH inputs. It can be up to 255 characters in length.', example='mystream'),
     }
   ](name='InputSettings', description='The input settings. An input can have up to two sources: primary and backup sources.
@@ -4031,7 +4090,7 @@ This parameter is required.'),
 
 This parameter is required.', example='myinput'),
   securityGroupIds?: [ string ](name='SecurityGroupIds', description='The IDs of the security groups to be associated with the input. This parameter is required for PUSH inputs.', example='["G6G4X5T4SZYPSTT5"]'),
-  type?: string(name='Type', description='The input type. Valid values: RTMP_PUSH, RTMP_PULL, SRT_PUSH, and SRT_PULL.
+  type?: string(name='Type', description='The input type. Valid values: RTMP_PUSH, RTMP_PULL, SRT_PUSH, SRT_PULL, and MEDIA_CONNECT.
 
 This parameter is required.', example='RTMP_PUSH'),
 }
@@ -4044,7 +4103,7 @@ This parameter is required.'),
 
 This parameter is required.', example='myinput'),
   securityGroupIdsShrink?: string(name='SecurityGroupIds', description='The IDs of the security groups to be associated with the input. This parameter is required for PUSH inputs.', example='["G6G4X5T4SZYPSTT5"]'),
-  type?: string(name='Type', description='The input type. Valid values: RTMP_PUSH, RTMP_PULL, SRT_PUSH, and SRT_PULL.
+  type?: string(name='Type', description='The input type. Valid values: RTMP_PUSH, RTMP_PULL, SRT_PUSH, SRT_PULL, and MEDIA_CONNECT.
 
 This parameter is required.', example='RTMP_PUSH'),
 }
@@ -12282,6 +12341,7 @@ async function getMediaConvertJob(request: GetMediaConvertJobRequest): GetMediaC
 }
 
 model GetMediaInfoRequest {
+  authTimeout?: long(name='AuthTimeout'),
   inputURL?: string(name='InputURL', description='The input URL of the media asset in another service. The URL must be registered in the IMS content library and bound to the ID of the media asset in IMS.
 
 *   For a media asset from Object Storage Service (OSS), the URL may have one of the following formats:
@@ -12480,6 +12540,9 @@ model GetMediaInfoResponse = {
 async function getMediaInfoWithOptions(request: GetMediaInfoRequest, runtime: Util.RuntimeOptions): GetMediaInfoResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.authTimeout)) {
+    query['AuthTimeout'] = request.authTimeout;
+  }
   if (!Util.isUnset(request.inputURL)) {
     query['InputURL'] = request.inputURL;
   }
@@ -12852,8 +12915,8 @@ model GetMediaLiveInputResponseBody = {
     inputInfos?: [ 
       {
         destHost?: string(name='DestHost', description='The endpoint that the stream is pushed to. This parameter is returned for PUSH inputs.', example='rtmp://domain/app/stream'),
-        flowId?: string(name='FlowId'),
-        flowOutputName?: string(name='FlowOutputName'),
+        flowId?: string(name='FlowId', description='The ID of the flow from MediaConnect.', example='******81-9693-40dc-bbab-db5e49******'),
+        flowOutputName?: string(name='FlowOutputName', description='The output name of the MediaConnect flow.', example='myFlowOutputName'),
         monitorUrl?: string(name='MonitorUrl', description='The URL for input monitoring.', example='rtmp://domain/app/stream_for_monitor'),
         sourceUrl?: string(name='SourceUrl', description='The source URL where the stream is pulled from. This parameter is returned for PULL inputs.', example='rtmp://domain/app/stream'),
         streamName?: string(name='StreamName', description='The name of the pushed stream. This parameter is returned for PUSH inputs.', example='mystream'),
@@ -13325,6 +13388,7 @@ async function getPipeline(request: GetPipelineRequest): GetPipelineResponse {
 }
 
 model GetPlayInfoRequest {
+  authTimeout?: long(name='AuthTimeout'),
   inputURL?: string(name='InputURL', description='The input URL that you specified for the media asset when you registered the media asset. For more information, see [RegisterMediaInfo](https://help.aliyun.com/document_detail/441152.html).
 
 >  You must specify at least one of the MediaId and InputURL parameters.'),
@@ -13457,6 +13521,9 @@ model GetPlayInfoResponse = {
 async function getPlayInfoWithOptions(request: GetPlayInfoRequest, runtime: Util.RuntimeOptions): GetPlayInfoResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.authTimeout)) {
+    query['AuthTimeout'] = request.authTimeout;
+  }
   if (!Util.isUnset(request.inputURL)) {
     query['InputURL'] = request.inputURL;
   }
@@ -13565,6 +13632,7 @@ model GetProjectExportJobResponseBody = {
   projectExportJob?: {
     code?: string(name='Code', example='InvalidParameter'),
     exportResult?: {
+      projectUrl?: string(name='ProjectUrl'),
       timeline?: string(name='Timeline', example='{"VideoTracks":[{"VideoTrackClips":[{"Type":"Video","MediaId":"****4d7cf14dc7b83b0e801c****","MediaURL":"https://test-bucket.oss-cn-shanghai.aliyuncs.com/test.mp4","TimelineIn":0.0,"TimelineOut":5.0,"In":0.0,"Out":5.0,"Speed":1.0,"Duration":5.0,"VirginDuration":13.334,"Height":1.0,"Width":1.0,"X":0.0,"Y":0.0}]}]}'),
     }(name='ExportResult'),
     exportType?: string(name='ExportType', example='BaseTimeline'),
@@ -16080,8 +16148,10 @@ async function listAIAgentInstance(request: ListAIAgentInstanceRequest): ListAIA
 }
 
 model ListAIAgentPhoneNumberRequest {
+  number?: string(name='Number'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='50'),
+  status?: int32(name='Status'),
 }
 
 model ListAIAgentPhoneNumberResponseBody = {
@@ -16113,11 +16183,17 @@ model ListAIAgentPhoneNumberResponse = {
 async function listAIAgentPhoneNumberWithOptions(request: ListAIAgentPhoneNumberRequest, runtime: Util.RuntimeOptions): ListAIAgentPhoneNumberResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.number)) {
+    query['Number'] = request.number;
+  }
   if (!Util.isUnset(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
   if (!Util.isUnset(request.pageSize)) {
     query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.status)) {
+    query['Status'] = request.status;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -18977,6 +19053,7 @@ async function listLiveTranscodeTemplates(request: ListLiveTranscodeTemplatesReq
 }
 
 model ListMediaBasicInfosRequest {
+  authTimeout?: long(name='AuthTimeout'),
   businessType?: string(name='BusinessType', description='The business type of the media asset. Valid values:
 
 \\\\- subtitles
@@ -19111,6 +19188,9 @@ model ListMediaBasicInfosResponse = {
 async function listMediaBasicInfosWithOptions(request: ListMediaBasicInfosRequest, runtime: Util.RuntimeOptions): ListMediaBasicInfosResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.authTimeout)) {
+    query['AuthTimeout'] = request.authTimeout;
+  }
   if (!Util.isUnset(request.businessType)) {
     query['BusinessType'] = request.businessType;
   }
@@ -19754,8 +19834,8 @@ model ListMediaLiveInputsResponseBody = {
       inputInfos?: [ 
         {
           destHost?: string(name='DestHost', description='The endpoint that the stream is pushed to. This parameter is returned for PUSH inputs.', example='rtmp://domain/app/stream'),
-          flowId?: string(name='FlowId'),
-          flowOutputName?: string(name='FlowOutputName'),
+          flowId?: string(name='FlowId', description='The ID of the flow from MediaConnect.', example='******81-9693-40dc-bbab-db5e49******'),
+          flowOutputName?: string(name='FlowOutputName', description='The output name of the MediaConnect flow.', example='myFlowOutputName'),
           monitorUrl?: string(name='MonitorUrl', description='The URL for input monitoring.', example='rtmp://domain/app/stream_for_monitor'),
           sourceUrl?: string(name='SourceUrl', description='The source URL where the stream is pulled from. This parameter is returned for PULL inputs.', example='rtmp://domain/app/stream'),
           streamName?: string(name='StreamName', description='The name of the pushed stream. This parameter is returned for PUSH inputs.', example='mystream'),
@@ -26618,6 +26698,7 @@ model StartAIAgentOutboundCallRequest {
   calledNumber?: string(name='CalledNumber', description='This parameter is required.', example='173*****533'),
   callerNumber?: string(name='CallerNumber', description='This parameter is required.', example='183*****333'),
   config?: AIAgentOutboundCallConfig(name='Config'),
+  imsAIAgentFreeObCall?: string(name='ImsAIAgentFreeObCall'),
   sessionId?: string(name='SessionId', example='f213fbc005e4f309379701645f4****'),
   userData?: string(name='UserData'),
 }
@@ -26627,6 +26708,7 @@ model StartAIAgentOutboundCallShrinkRequest {
   calledNumber?: string(name='CalledNumber', description='This parameter is required.', example='173*****533'),
   callerNumber?: string(name='CallerNumber', description='This parameter is required.', example='183*****333'),
   configShrink?: string(name='Config'),
+  imsAIAgentFreeObCall?: string(name='ImsAIAgentFreeObCall'),
   sessionId?: string(name='SessionId', example='f213fbc005e4f309379701645f4****'),
   userData?: string(name='UserData'),
 }
@@ -26668,6 +26750,9 @@ async function startAIAgentOutboundCallWithOptions(tmpReq: StartAIAgentOutboundC
   }
   if (!Util.isUnset(request.configShrink)) {
     query['Config'] = request.configShrink;
+  }
+  if (!Util.isUnset(request.imsAIAgentFreeObCall)) {
+    query['ImsAIAgentFreeObCall'] = request.imsAIAgentFreeObCall;
   }
   if (!Util.isUnset(request.sessionId)) {
     query['SessionId'] = request.sessionId;
@@ -28548,8 +28633,8 @@ async function submitDynamicImageJob(request: SubmitDynamicImageJobRequest): Sub
 }
 
 model SubmitHighlightExtractionJobRequest {
-  clientToken?: string(name='ClientToken', example='****12e8864746a0a398****'),
-  inputConfig?: string(name='InputConfig', example='{
+  clientToken?: string(name='ClientToken', description='The client token used to ensure the idempotency of the request.', example='****12e8864746a0a398****'),
+  inputConfig?: string(name='InputConfig', description='The input configuration.', example='{
 	"MediaArray": [{
 		"MediaId": "ceb72f00e****1ef8216e7e6c64a6302"
 	}, {
@@ -28566,7 +28651,7 @@ model SubmitHighlightExtractionJobRequest {
 		"ClipDuration": 15
 	}
 }'),
-  outputConfig?: string(name='OutputConfig', example='{
+  outputConfig?: string(name='OutputConfig', description='The output configuration.', example='{
 	"NeedExport": true,
 	"OutputMediaTarget": "oss-object",
 	"Bucket": "test-bucket",
@@ -28575,12 +28660,12 @@ model SubmitHighlightExtractionJobRequest {
 	"Height": 1080,
 	"ExportAsNewMedia": false
 }'),
-  userData?: string(name='UserData'),
+  userData?: string(name='UserData', description='The user-defined data, including the business and callback configurations. For more information, see [UserData](~~357745#section-urj-v3f-0s1~~).'),
 }
 
 model SubmitHighlightExtractionJobResponseBody = {
-  jobId?: string(name='JobId', example='****cdb3e74639973036bc84****'),
-  requestId?: string(name='RequestId', description='Id of the request', example='******3B-0E1A-586A-AC29-742247******'),
+  jobId?: string(name='JobId', description='The ID of the highlight extraction task.', example='****cdb3e74639973036bc84****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='******3B-0E1A-586A-AC29-742247******'),
 }
 
 model SubmitHighlightExtractionJobResponse = {
@@ -28590,7 +28675,7 @@ model SubmitHighlightExtractionJobResponse = {
 }
 
 /**
- * @summary 提交高光提取任务
+ * @summary Submits a highlight extraction task.
  *
  * @param request SubmitHighlightExtractionJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -28631,7 +28716,7 @@ async function submitHighlightExtractionJobWithOptions(request: SubmitHighlightE
 }
 
 /**
- * @summary 提交高光提取任务
+ * @summary Submits a highlight extraction task.
  *
  * @param request SubmitHighlightExtractionJobRequest
  * @return SubmitHighlightExtractionJobResponse
@@ -30218,7 +30303,7 @@ async function submitProjectExportJob(request: SubmitProjectExportJobRequest): S
 }
 
 model SubmitScreenMediaHighlightsJobRequest {
-  editingConfig?: string(name='EditingConfig', example='{
+  editingConfig?: string(name='EditingConfig', description='The editing configuration. For detailed parameters, see [EditingConfig](~~2863940#9b05519d46e0x~~).', example='{
 	"MediaConfig": {
 		"Volume": 1
 	},
@@ -30227,24 +30312,24 @@ model SubmitScreenMediaHighlightsJobRequest {
 		"TransitionList": ["fadecolor"]
 	}
 }'),
-  inputConfig?: string(name='InputConfig', example='{
+  inputConfig?: string(name='InputConfig', description='The input configuration. For detailed parameters, see [InputConfig](~~2863940#dda38bf6ec2pk~~).', example='{
 	"MediaArray": [
 		"****9d46c886b45481030f6e****",
 		"****6c886b4549d481030f6e****"
 	]
 }'),
-  outputConfig?: string(name='OutputConfig', example='{
+  outputConfig?: string(name='OutputConfig', description='The output configuration. For detailed parameters, see [OutputConfig](~~2863940#4111a373d0xbz~~).', example='{
   "MediaURL": "http://xxx.oss-cn-shanghai.aliyuncs.com/xxx_{index}.mp4",
   "Count": 1,
   "Width": 1080,
   "Height": 1920
 }'),
-  userData?: string(name='UserData'),
+  userData?: string(name='UserData', description='The user-defined data, including the business and callback configurations. For more information, see [UserData](https://help.aliyun.com/document_detail/357745.html).'),
 }
 
 model SubmitScreenMediaHighlightsJobResponseBody = {
-  jobId?: string(name='JobId', example='****20b48fb04483915d4f2cd8ac****'),
-  requestId?: string(name='RequestId', example='****36-3C1E-4417-BDB2-1E034F****'),
+  jobId?: string(name='JobId', description='The ID of the task.', example='****20b48fb04483915d4f2cd8ac****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='****36-3C1E-4417-BDB2-1E034F****'),
 }
 
 model SubmitScreenMediaHighlightsJobResponse = {
@@ -30254,7 +30339,7 @@ model SubmitScreenMediaHighlightsJobResponse = {
 }
 
 /**
- * @summary 提交高燃混剪任务
+ * @summary Submits a task to automatically recognize the highlight segments in the video input and compile them into a dramatic and engaging clip.
  *
  * @param request SubmitScreenMediaHighlightsJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -30295,7 +30380,7 @@ async function submitScreenMediaHighlightsJobWithOptions(request: SubmitScreenMe
 }
 
 /**
- * @summary 提交高燃混剪任务
+ * @summary Submits a task to automatically recognize the highlight segments in the video input and compile them into a dramatic and engaging clip.
  *
  * @param request SubmitScreenMediaHighlightsJobRequest
  * @return SubmitScreenMediaHighlightsJobResponse
@@ -34986,7 +35071,12 @@ This parameter is required.', example='MediaPackage'),
 This parameter is required.'),
   videoSettings?: [ 
     {
-      height?: int32(name='Height', description='The height of the output. Valid values: 0 to 2000. If you set it to 0 or leave it empty, the height automatically adapts to the specified width to maintain the original aspect ratio.', example='720'),
+      height?: int32(name='Height', description='The height of the output. If you set it to 0 or leave it empty, the height automatically adapts to the specified width to maintain the original aspect ratio.
+
+Valid values:
+
+*   For regular transcoding, the larger dimension cannot exceed 3840 px, and the smaller one cannot exceed 2160 px.
+*   For Narrowband HD™ transcoding, the larger dimension cannot exceed 1920 px, and the smaller one cannot exceed 1080 px.', example='720'),
       name?: string(name='Name', description='The name of the video settings. Letters, digits, hyphens (-), and underscores (_) are supported. It can be up to 64 characters in length.
 
 This parameter is required.', example='video1'),
@@ -35013,8 +35103,18 @@ This parameter is required.', example='video1'),
           rateControlMode?: string(name='RateControlMode', description='The bitrate control mode. Valid values: CBR, ABR, and VBR.', example='ABR'),
         }(name='Rate', description='The video encoding rate. If it is not specified, the source specification is used.'),
       }(name='VideoCodecSetting', description='The video encoding settings.'),
-      videoCodecType?: string(name='VideoCodecType'),
-      width?: int32(name='Width', description='The width of the output. Valid values: 0 to 2000. If you set it to 0 or leave it empty, the width automatically adapts to the specified height to maintain the original aspect ratio.', example='1280'),
+      videoCodecType?: string(name='VideoCodecType', description='The video transcoding method. Valid values:
+
+*   NORMAL: regular transcoding
+*   NBHD: Narrowband HD™ transcoding
+
+If not specified, regular transcoding is used by default.', example='NORMAL'),
+      width?: int32(name='Width', description='The width of the output. If you set it to 0 or leave it empty, the width automatically adapts to the specified height to maintain the original aspect ratio.
+
+Valid values:
+
+*   For regular transcoding, the larger dimension cannot exceed 3840 px, and the smaller one cannot exceed 2160 px.
+*   For Narrowband HD™ transcoding, the larger dimension cannot exceed 1920 px, and the smaller one cannot exceed 1080 px.', example='1280'),
     }
   ](name='VideoSettings', description='The video settings.'),
 }
@@ -35130,9 +35230,9 @@ model UpdateMediaLiveInputRequest {
 This parameter is required.', example='SEGK5KA6KYKAWQQH'),
   inputSettings?: [ 
     {
-      flowId?: string(name='FlowId'),
-      flowOutputName?: string(name='FlowOutputName'),
-      sourceUrl?: string(name='SourceUrl', description='The source URL where the stream is pulled from. This parameter is required for PULL inputs.', example='rtmp://domain/app/stream'),
+      flowId?: string(name='FlowId', description='The ID of the flow from MediaConnect. This parameter is required when Type is set to MEDIA_CONNECT.', example='******81-9693-40dc-bbab-db5e49******'),
+      flowOutputName?: string(name='FlowOutputName', description='The output name of the MediaConnect flow. This parameter is required when Type is set to MEDIA_CONNECT.', example='myFlowOutputName'),
+      sourceUrl?: string(name='SourceUrl', description='The source URL from which the stream is pulled. This parameter is required for PULL inputs.', example='rtmp://domain/app/stream'),
       streamName?: string(name='StreamName', description='The name of the pushed stream. This parameter is required for PUSH inputs. It can be up to 255 characters in length.', example='mystream'),
     }
   ](name='InputSettings', description='The input settings. An input can have up to two sources: primary and backup sources.
