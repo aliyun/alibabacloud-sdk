@@ -768,13 +768,28 @@ async function getAppVersions(request: GetAppVersionsRequest): GetAppVersionsRes
 }
 
 model GetImageRequest {
+  additionalRegionIds?: [ string ](name='AdditionalRegionIds'),
   imageCategory?: string(name='ImageCategory'),
-  imageId?: string(name='ImageId', description='This parameter is required.', example='m-2ze74g5mvy4pjg*****'),
+  imageId?: string(name='ImageId', example='m-2ze74g5mvy4pjg*****'),
+  imageType?: string(name='ImageType'),
+}
+
+model GetImageShrinkRequest {
+  additionalRegionIdsShrink?: string(name='AdditionalRegionIds'),
+  imageCategory?: string(name='ImageCategory'),
+  imageId?: string(name='ImageId', example='m-2ze74g5mvy4pjg*****'),
   imageType?: string(name='ImageType'),
 }
 
 model GetImageResponseBody = {
   image?: {
+    additionalRegionsInfo?: [ 
+      {
+        imageId?: string(name='ImageId'),
+        regionId?: string(name='RegionId'),
+        status?: string(name='Status'),
+      }
+    ](name='AdditionalRegionsInfo'),
     appId?: string(name='AppId'),
     containerImageSpec?: {
       architecture?: string(name='Architecture'),
@@ -823,13 +838,21 @@ model GetImageResponse = {
 /**
  * @summary 查询托管侧镜像详情。
  *
- * @param request GetImageRequest
+ * @param tmpReq GetImageRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetImageResponse
  */
-async function getImageWithOptions(request: GetImageRequest, runtime: $RuntimeOptions): GetImageResponse {
-  request.validate();
+async function getImageWithOptions(tmpReq: GetImageRequest, runtime: $RuntimeOptions): GetImageResponse {
+  tmpReq.validate();
+  var request = new GetImageShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.additionalRegionIds)) {
+    request.additionalRegionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.additionalRegionIds, 'AdditionalRegionIds', 'json');
+  }
   var query = {};
+  if (!$isNull(request.additionalRegionIdsShrink)) {
+    query['AdditionalRegionIds'] = request.additionalRegionIdsShrink;
+  }
   if (!$isNull(request.imageCategory)) {
     query['ImageCategory'] = request.imageCategory;
   }
