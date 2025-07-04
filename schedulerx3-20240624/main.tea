@@ -114,6 +114,12 @@ model CreateClusterRequest {
   clusterName?: string(name='ClusterName', description='This parameter is required.', example='qianxi-test-0812'),
   clusterSpec?: string(name='ClusterSpec', description='This parameter is required.', example='scx.dev.x1'),
   engineType?: string(name='EngineType', description='This parameter is required.', example='xxljob'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
   vSwitches?: [ 
     {
       vSwitchId?: string(name='VSwitchId', description='This parameter is required.', example='vsw-2ze745n3r2sfqtahhubpl'),
@@ -129,6 +135,12 @@ model CreateClusterShrinkRequest {
   clusterName?: string(name='ClusterName', description='This parameter is required.', example='qianxi-test-0812'),
   clusterSpec?: string(name='ClusterSpec', description='This parameter is required.', example='scx.dev.x1'),
   engineType?: string(name='EngineType', description='This parameter is required.', example='xxljob'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
   vSwitchesShrink?: string(name='VSwitches', description='This parameter is required.'),
   vpcId?: string(name='VpcId', description='VPC id
 
@@ -167,6 +179,10 @@ async function createClusterWithOptions(tmpReq: CreateClusterRequest, runtime: U
   if (!Util.isUnset(tmpReq.vSwitches)) {
     request.vSwitchesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.vSwitches, 'VSwitches', 'json');
   }
+  var query = {};
+  if (!Util.isUnset(request.tag)) {
+    query['Tag'] = request.tag;
+  }
   var body : map[string]any = {};
   if (!Util.isUnset(request.clusterName)) {
     body['ClusterName'] = request.clusterName;
@@ -184,6 +200,7 @@ async function createClusterWithOptions(tmpReq: CreateClusterRequest, runtime: U
     body['VpcId'] = request.vpcId;
   }
   var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
@@ -726,6 +743,7 @@ model GetClusterResponseBody = {
     productType?: int32(name='ProductType', example='2'),
     spm?: int32(name='Spm', example='10'),
     status?: int32(name='Status', example='2'),
+    tags?: map[string]any(name='Tags'),
     vSwitches?: [ 
       {
         vSwitchId?: string(name='VSwitchId', example='vsw-8vbf1n216nshvfjdyff8a'),
@@ -1043,6 +1061,67 @@ async function getJobExecutionProgress(request: GetJobExecutionProgressRequest):
   return getJobExecutionProgressWithOptions(request, runtime);
 }
 
+model GetJobExecutionThreadDumpRequest {
+  appName?: string(name='AppName', example='xxl-job-executor-sample'),
+  clusterId?: string(name='ClusterId', example='xxljob-b6ec1xxxx'),
+  executorAddr?: string(name='ExecutorAddr', example='http://192.168.0.215:9966/'),
+  jobExecutionId?: string(name='JobExecutionId', example='1310630367761285120'),
+}
+
+model GetJobExecutionThreadDumpResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    dump?: string(name='Dump', example='\\\\"Thread-7\\\\" Id=67 TIMED_WAITING\\\\n\\\\tat java.base@17.0.5/java.lang.Thread.sleep(Native Method)\\\\n\\\\tat app//com.xxl.job.executor.service.jobhandler.SampleXxlJob.shardingJobHandler(SampleXxlJob.java:73)\\\\n\\\\tat java.base@17.0.5/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\\\\n\\\\tat java.base@17.0.5/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)\\\\n\\\\tat java.base@17.0.5/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\\\\n\\\\tat java.base@17.0.5/java.lang.reflect.Method.invoke(Method.java:568)\\\\n\\\\tat app//com.xxl.job.core.handler.impl.MethodJobHandler.execute(MethodJobHandler.java:29)\\\\n\\\\tat app//com.xxl.job.core.thread.JobThread.run(JobThread.java:152)\\\\n'),
+  }(name='Data', description='-'),
+  message?: string(name='Message', example='Parameter error: appId is null.'),
+  requestId?: string(name='RequestId', example='3835AA29-2298-5434-BC53-9CC377CDFD2C'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetJobExecutionThreadDumpResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetJobExecutionThreadDumpResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询任务的线程堆栈
+ *
+ * @param request GetJobExecutionThreadDumpRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetJobExecutionThreadDumpResponse
+ */
+async function getJobExecutionThreadDumpWithOptions(request: GetJobExecutionThreadDumpRequest, runtime: Util.RuntimeOptions): GetJobExecutionThreadDumpResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetJobExecutionThreadDump',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询任务的线程堆栈
+ *
+ * @param request GetJobExecutionThreadDumpRequest
+ * @return GetJobExecutionThreadDumpResponse
+ */
+async function getJobExecutionThreadDump(request: GetJobExecutionThreadDumpRequest): GetJobExecutionThreadDumpResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getJobExecutionThreadDumpWithOptions(request, runtime);
+}
+
 model GetLogRequest {
   appName?: string(name='AppName', example='test-app'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
@@ -1107,6 +1186,87 @@ async function getLogWithOptions(request: GetLogRequest, runtime: Util.RuntimeOp
 async function getLog(request: GetLogRequest): GetLogResponse {
   var runtime = new Util.RuntimeOptions{};
   return getLogWithOptions(request, runtime);
+}
+
+model GetLogEventRequest {
+  appName?: string(name='AppName', example='xxl-job-executor-perf-test-241'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-684d02ee5a6'),
+  endTime?: long(name='EndTime', example='1721636220'),
+  event?: string(name='Event', example='INFO'),
+  jobExecutionId?: long(name='JobExecutionId', example='101'),
+  jobName?: string(name='JobName', example='test'),
+  keyword?: string(name='Keyword', example='test_partition_tbl'),
+  pageNum?: int32(name='PageNum', example='1'),
+  pageSize?: int32(name='PageSize', example='10'),
+  reverse?: boolean(name='Reverse', example='false'),
+  startTime?: long(name='StartTime', example='1721268302000'),
+}
+
+model GetLogEventResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    pageNumber?: int32(name='PageNumber', example='1'),
+    pageSize?: int32(name='PageSize', example='10'),
+    records?: [ 
+      {
+        appName?: string(name='AppName', example='portal-dev'),
+        content?: string(name='Content', example='hello word'),
+        event?: string(name='Event', example='info'),
+        jobExecutionId?: string(name='JobExecutionId', example='101'),
+        jobName?: string(name='JobName', example='test'),
+        time?: string(name='Time', example='2024-10-31 16:43:51'),
+        workerAddr?: string(name='WorkerAddr', example='030225016025_9357_60125@127.0.0.1:51363'),
+      }
+    ](name='Records', description='-'),
+    total?: long(name='Total', example='33'),
+  }(name='Data', description='-'),
+  message?: string(name='Message', example='Parameter check error'),
+  requestId?: string(name='RequestId', example='BAC1ADB5-EEB5-5834-93D8-522E067AF8D9'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetLogEventResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetLogEventResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询事件
+ *
+ * @param request GetLogEventRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetLogEventResponse
+ */
+async function getLogEventWithOptions(request: GetLogEventRequest, runtime: Util.RuntimeOptions): GetLogEventResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetLogEvent',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询事件
+ *
+ * @param request GetLogEventRequest
+ * @return GetLogEventResponse
+ */
+async function getLogEvent(request: GetLogEventRequest): GetLogEventResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getLogEventWithOptions(request, runtime);
 }
 
 model ImportCalendarRequest {
@@ -1493,6 +1653,8 @@ model ListAppsResponse = {
 }
 
 /**
+ * @summary 获取应用列表
+ *
  * @param request ListAppsRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListAppsResponse
@@ -1518,6 +1680,8 @@ async function listAppsWithOptions(request: ListAppsRequest, runtime: Util.Runti
 }
 
 /**
+ * @summary 获取应用列表
+ *
  * @param request ListAppsRequest
  * @return ListAppsResponse
  */
@@ -1587,6 +1751,12 @@ model ListClustersRequest {
   clusterName?: string(name='ClusterName', example='cluster-test'),
   pageNum?: int32(name='PageNum', example='5'),
   pageSize?: int32(name='PageSize', example='10'),
+  tag?: [ 
+    {
+      key?: string(name='Key'),
+      value?: string(name='Value'),
+    }
+  ](name='Tag'),
 }
 
 model ListClustersResponseBody = {
@@ -1609,6 +1779,7 @@ model ListClustersResponseBody = {
         productType?: int32(name='ProductType', example='1'),
         spInstanceId?: string(name='SpInstanceId'),
         status?: int32(name='Status', example='1'),
+        tags?: map[string]any(name='Tags'),
         vSwitches?: [ 
           {
             vSwitchId?: string(name='VSwitchId', example='vsw-8vbl54xzux86usy61r5zm'),
