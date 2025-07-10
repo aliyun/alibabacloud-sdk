@@ -2,9 +2,8 @@
  *
  */
 import Util;
-import OSS;
-import OpenPlatform;
-import OSSUtil;
+import XML;
+import Credential;
 import FileForm;
 import OpenApi;
 import OpenApiUtil;
@@ -345,10 +344,18 @@ async function analyzeVlRealtime(request: AnalyzeVlRealtimeRequest): AnalyzeVlRe
 
 async function analyzeVlRealtimeAdvance(request: AnalyzeVlRealtimeAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): AnalyzeVlRealtimeResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -365,54 +372,56 @@ async function analyzeVlRealtimeAdvance(request: AnalyzeVlRealtimeAdvanceRequest
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'energyExpertExternal',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'energyExpertExternal',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var analyzeVlRealtimeReq = new AnalyzeVlRealtimeRequest{};
   OpenApiUtil.convert(request, analyzeVlRealtimeReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    analyzeVlRealtimeReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    analyzeVlRealtimeReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var analyzeVlRealtimeResp = analyzeVlRealtimeWithOptions(analyzeVlRealtimeReq, headers, runtime);
   return analyzeVlRealtimeResp;
@@ -674,6 +683,84 @@ async function chat(request: ChatRequest): ChatResponse {
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return chatWithOptions(request, headers, runtime);
+}
+
+model ChatStreamRequest {
+  question?: string(name='question', description='Q&A content.
+
+This parameter is required.', example='How to access knowledge base Q&A documents.'),
+  sessionId?: string(name='sessionId', description='- Q&A session ID.
+- Historical sessions can be retrieved through GetSessionList.
+- A new session can also be created via CreateChatSession.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646'),
+}
+
+model ChatStreamResponseBody = {
+  data?: ChatItem(name='data', description='Q&A content.'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model ChatStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary Knowledge Base Q&A
+ *
+ * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - You can also create a new session via the CreateChatSession interface.
+ *
+ * @param request ChatStreamRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatStreamResponse
+ */
+async function chatStreamWithOptions(request: ChatStreamRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ChatStreamResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.question)) {
+    body['question'] = request.question;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    body['sessionId'] = request.sessionId;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ChatStream',
+    version = '2022-09-23',
+    protocol = 'HTTPS',
+    pathname = `/api/v2/aidoc/document/chat/stream`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Knowledge Base Q&A
+ *
+ * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+ * - The sessionId information is obtained through GetChatSessionList.
+ * - You can also create a new session via the CreateChatSession interface.
+ *
+ * @param request ChatStreamRequest
+ * @return ChatStreamResponse
+ */
+async function chatStream(request: ChatStreamRequest): ChatStreamResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return chatStreamWithOptions(request, headers, runtime);
 }
 
 model CreateChatSessionRequest {
@@ -4397,10 +4484,18 @@ async function submitDocExtractionTask(request: SubmitDocExtractionTaskRequest):
 
 async function submitDocExtractionTaskAdvance(request: SubmitDocExtractionTaskAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitDocExtractionTaskResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4417,54 +4512,56 @@ async function submitDocExtractionTaskAdvance(request: SubmitDocExtractionTaskAd
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'energyExpertExternal',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'energyExpertExternal',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var submitDocExtractionTaskReq = new SubmitDocExtractionTaskRequest{};
   OpenApiUtil.convert(request, submitDocExtractionTaskReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    submitDocExtractionTaskReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    submitDocExtractionTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocExtractionTaskResp = submitDocExtractionTaskWithOptions(submitDocExtractionTaskReq, headers, runtime);
   return submitDocExtractionTaskResp;
@@ -4585,10 +4682,18 @@ async function submitDocParsingTask(request: SubmitDocParsingTaskRequest): Submi
 
 async function submitDocParsingTaskAdvance(request: SubmitDocParsingTaskAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitDocParsingTaskResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4605,54 +4710,56 @@ async function submitDocParsingTaskAdvance(request: SubmitDocParsingTaskAdvanceR
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'energyExpertExternal',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'energyExpertExternal',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var submitDocParsingTaskReq = new SubmitDocParsingTaskRequest{};
   OpenApiUtil.convert(request, submitDocParsingTaskReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    submitDocParsingTaskReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    submitDocParsingTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocParsingTaskResp = submitDocParsingTaskWithOptions(submitDocParsingTaskReq, headers, runtime);
   return submitDocParsingTaskResp;
@@ -4788,10 +4895,18 @@ async function submitDocumentAnalyzeJob(request: SubmitDocumentAnalyzeJobRequest
 
 async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJobAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitDocumentAnalyzeJobResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4808,54 +4923,56 @@ async function submitDocumentAnalyzeJobAdvance(request: SubmitDocumentAnalyzeJob
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'energyExpertExternal',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'energyExpertExternal',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var submitDocumentAnalyzeJobReq = new SubmitDocumentAnalyzeJobRequest{};
   OpenApiUtil.convert(request, submitDocumentAnalyzeJobReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    submitDocumentAnalyzeJobReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    submitDocumentAnalyzeJobReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitDocumentAnalyzeJobResp = submitDocumentAnalyzeJobWithOptions(submitDocumentAnalyzeJobReq, headers, runtime);
   return submitDocumentAnalyzeJobResp;
@@ -4976,10 +5093,18 @@ async function submitVLExtractionTask(request: SubmitVLExtractionTaskRequest): S
 
 async function submitVLExtractionTaskAdvance(request: SubmitVLExtractionTaskAdvanceRequest, headers: map[string]string, runtime: Util.RuntimeOptions): SubmitVLExtractionTaskResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4996,56 +5121,93 @@ async function submitVLExtractionTaskAdvance(request: SubmitVLExtractionTaskAdva
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'energyExpertExternal',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'energyExpertExternal',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var submitVLExtractionTaskReq = new SubmitVLExtractionTaskRequest{};
   OpenApiUtil.convert(request, submitVLExtractionTaskReq);
 
   if(!Util.isUnset(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    submitVLExtractionTaskReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    submitVLExtractionTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var submitVLExtractionTaskResp = submitVLExtractionTaskWithOptions(submitVLExtractionTaskReq, headers, runtime);
   return submitVLExtractionTaskResp;
 }
 
+api _postOSSObject(bucketName: string, data: object): object {
+  var form = Util.assertAsMap(data);
+  var boundary = FileForm.getBoundary();
+  var host = Util.assertAsString(form.host);
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = host,
+    date = Util.getDateUTCString(),
+    user-agent = Util.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = FileForm.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = Util.readAsString(__response.body);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+    respMap = XML.parseXml(bodyStr, null);
+    var err = Util.assertAsMap(respMap.Error);
+    throw {
+      code = err.Code,
+      message = err.Message,
+      data = {
+        httpCode = __response.statusCode,
+        requestId = err.RequestId,
+        hostId = err.HostId,
+      }
+    };
+  }
+  respMap = XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}

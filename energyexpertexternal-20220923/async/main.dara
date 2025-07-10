@@ -317,6 +317,45 @@ async function chat(request: ChatRequest): ChatResponse {
   return @handler.do('RESTFUL', 'Chat', 'POST', '/api/v2/aidoc/document/chat', 'json', false, 'json', request);
 }
 
+model ChatStreamRequest {
+  question: string(name='question', description='Q&A content.
+
+This parameter is required.', example='How to access knowledge base Q&A documents.', position='Body'),
+  sessionId: string(name='sessionId', description='- Q&A session ID.
+- Historical sessions can be retrieved through GetSessionList.
+- A new session can also be created via CreateChatSession.
+
+This parameter is required.', example='bfce2248-1546-4298-8bcf-70ac26e69646', position='Body'),
+}
+
+model ChatStreamResponseBody = {
+  data?: ChatItem(name='data', description='Q&A content.'),
+  requestId?: string(name='requestId', description='Request ID.', example='83A5A7DD-8974-5769-952E-590A97BEA34E'),
+}
+
+model ChatStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatStreamResponseBody(name='body'),
+}
+
+/**
+  * @description - The interface provides Q&A services within the scope of the selected directory in the session.
+  * - The sessionId information is obtained through GetChatSessionList.
+  * - You can also create a new session via the CreateChatSession interface.
+  * @param request  the request parameters of ChatStream  ChatStreamRequest
+  * @return ChatStreamResponse
+ */
+async function chatStream(request: ChatStreamRequest): ChatStreamResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ChatStream', 'POST', '/api/v2/aidoc/document/chat/stream', 'json', false, 'json', request);
+}
+
+function chatStreamWithResponseIterable(request: ChatStreamRequest): iterator[ChatStreamResponseBody] {
+  @handler.validateRequestModel(request);
+  yield @handler.doSSERequest('SSE', 'ChatStream', 'POST', '/api/v2/aidoc/document/chat/stream', 'json', false, 'json', request);
+}
+
 model CreateChatSessionRequest {
   folderId: string(name='folderId', description='Folder ID, to search for Q&A content within the current folder and its subfolders.
 
