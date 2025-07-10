@@ -2,9 +2,8 @@
  *
  */
 import Util;
-import OSS;
-import OpenPlatform;
-import OSSUtil;
+import XML;
+import Credential;
 import FileForm;
 import OpenApi;
 import OpenApiUtil;
@@ -1047,10 +1046,18 @@ async function batchDeleteKvWithHighCapacity(request: BatchDeleteKvWithHighCapac
 
 async function batchDeleteKvWithHighCapacityAdvance(request: BatchDeleteKvWithHighCapacityAdvanceRequest, runtime: Util.RuntimeOptions): BatchDeleteKvWithHighCapacityResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -1067,54 +1074,56 @@ async function batchDeleteKvWithHighCapacityAdvance(request: BatchDeleteKvWithHi
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ESA',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'ESA',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var batchDeleteKvWithHighCapacityReq = new BatchDeleteKvWithHighCapacityRequest{};
   OpenApiUtil.convert(request, batchDeleteKvWithHighCapacityReq);
 
   if(!Util.isUnset(request.urlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.urlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    batchDeleteKvWithHighCapacityReq.url = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    batchDeleteKvWithHighCapacityReq.url = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var batchDeleteKvWithHighCapacityResp = batchDeleteKvWithHighCapacityWithOptions(batchDeleteKvWithHighCapacityReq, runtime);
   return batchDeleteKvWithHighCapacityResp;
@@ -1463,10 +1472,18 @@ async function batchPutKvWithHighCapacity(request: BatchPutKvWithHighCapacityReq
 
 async function batchPutKvWithHighCapacityAdvance(request: BatchPutKvWithHighCapacityAdvanceRequest, runtime: Util.RuntimeOptions): BatchPutKvWithHighCapacityResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -1483,54 +1500,56 @@ async function batchPutKvWithHighCapacityAdvance(request: BatchPutKvWithHighCapa
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ESA',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'ESA',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var batchPutKvWithHighCapacityReq = new BatchPutKvWithHighCapacityRequest{};
   OpenApiUtil.convert(request, batchPutKvWithHighCapacityReq);
 
   if(!Util.isUnset(request.urlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.urlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    batchPutKvWithHighCapacityReq.url = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    batchPutKvWithHighCapacityReq.url = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var batchPutKvWithHighCapacityResp = batchPutKvWithHighCapacityWithOptions(batchPutKvWithHighCapacityReq, runtime);
   return batchPutKvWithHighCapacityResp;
@@ -5109,6 +5128,7 @@ async function createRoutineRelatedRecord(request: CreateRoutineRelatedRecordReq
 
 model CreateRoutineRouteRequest {
   bypass?: string(name='Bypass', example='on'),
+  fallback?: string(name='Fallback'),
   routeEnable?: string(name='RouteEnable', example='on'),
   routeName?: string(name='RouteName', example='test_route'),
   routineName?: string(name='RoutineName', description='This parameter is required.', example='test-routine1'),
@@ -5140,6 +5160,9 @@ async function createRoutineRouteWithOptions(request: CreateRoutineRouteRequest,
   var query = {};
   if (!Util.isUnset(request.bypass)) {
     query['Bypass'] = request.bypass;
+  }
+  if (!Util.isUnset(request.fallback)) {
+    query['Fallback'] = request.fallback;
   }
   if (!Util.isUnset(request.routeEnable)) {
     query['RouteEnable'] = request.routeEnable;
@@ -11069,6 +11092,96 @@ async function describeSiteTopData(request: DescribeSiteTopDataRequest): Describ
   return describeSiteTopDataWithOptions(request, runtime);
 }
 
+model DescribeUrlObservationDataRequest {
+  clientPlatform?: string(name='ClientPlatform', example='PC'),
+  endTime?: string(name='EndTime', example='2023-04-19T15:59:59Z'),
+  metric?: string(name='Metric', example='TTFB'),
+  siteId?: string(name='SiteId', description='This parameter is required.', example='54362329990032'),
+  startTime?: string(name='StartTime', example='2023-04-08T16:00:00Z'),
+  url?: string(name='Url', example='example.com/test'),
+}
+
+model DescribeUrlObservationDataResponseBody = {
+  endTime?: string(name='EndTime', example='2023-04-19T15:59:59Z'),
+  requestId?: string(name='RequestId', example='0AEDAF20-4DDF-4165-8750-47FF9C1929C9'),
+  startTime?: string(name='StartTime', example='2022-11-06T16:00:00Z'),
+  urlDetailData?: [ 
+    {
+      CLS?: float(name='CLS', example='0.5'),
+      clientPlatform?: string(name='ClientPlatform', example='PC'),
+      country?: string(name='Country', example='CN'),
+      FCP?: float(name='FCP', example='123'),
+      FID?: float(name='FID', example='123'),
+      INP?: float(name='INP', example='123'),
+      LCP?: float(name='LCP', example='123'),
+      TTFB?: float(name='TTFB', example='123'),
+      url?: string(name='Url', example='example.com/test'),
+    }
+  ](name='UrlDetailData'),
+}
+
+model DescribeUrlObservationDataResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeUrlObservationDataResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询网页观测质量数据
+ *
+ * @param request DescribeUrlObservationDataRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeUrlObservationDataResponse
+ */
+async function describeUrlObservationDataWithOptions(request: DescribeUrlObservationDataRequest, runtime: Util.RuntimeOptions): DescribeUrlObservationDataResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientPlatform)) {
+    query['ClientPlatform'] = request.clientPlatform;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.metric)) {
+    query['Metric'] = request.metric;
+  }
+  if (!Util.isUnset(request.siteId)) {
+    query['SiteId'] = request.siteId;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  if (!Util.isUnset(request.url)) {
+    query['Url'] = request.url;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeUrlObservationData',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询网页观测质量数据
+ *
+ * @param request DescribeUrlObservationDataRequest
+ * @return DescribeUrlObservationDataResponse
+ */
+async function describeUrlObservationData(request: DescribeUrlObservationDataRequest): DescribeUrlObservationDataResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUrlObservationDataWithOptions(request, runtime);
+}
+
 model DisableCustomScenePolicyRequest {
   policyId?: long(name='PolicyId', description='The policy ID, which can be obtained by calling the [DescribeCustomScenePolicies](https://help.aliyun.com/document_detail/2850508.html) operation.
 
@@ -12387,6 +12500,8 @@ model GetEdgeContainerAppResourceStatusRequest {
 model GetEdgeContainerAppResourceStatusResponseBody = {
   regions?: [ 
     {
+      isOffline?: boolean(name='IsOffline'),
+      isStaging?: boolean(name='IsStaging'),
       isp?: string(name='Isp', example='unicom'),
       ready?: int32(name='Ready', example='1'),
       region?: string(name='Region', example='huadong'),
@@ -15158,6 +15273,7 @@ model GetRoutineRouteResponseBody = {
   bypass?: string(name='Bypass', example='on'),
   configId?: long(name='ConfigId', example='352816******'),
   configType?: string(name='ConfigType', example='global'),
+  fallback?: string(name='Fallback'),
   mode?: string(name='Mode', example='simple'),
   requestId?: string(name='RequestId', example='36af3fcc-43d0-441c-86b1-428951dc8225'),
   routeEnable?: string(name='RouteEnable', example='on'),
@@ -20749,6 +20865,7 @@ model ListRoutineRoutesResponseBody = {
       bypass?: string(name='Bypass', example='on'),
       configId?: long(name='ConfigId', example='35281609698****'),
       configType?: string(name='ConfigType', example='global'),
+      fallback?: string(name='Fallback'),
       mode?: string(name='Mode', example='simple'),
       routeEnable?: string(name='RouteEnable', example='on'),
       routeName?: string(name='RouteName', example='test_route'),
@@ -21078,6 +21195,7 @@ model ListSiteRoutesResponseBody = {
       bypass?: string(name='Bypass', example='on'),
       configId?: long(name='ConfigId', example='35281609698****'),
       configType?: string(name='ConfigType', example='global'),
+      fallback?: string(name='Fallback'),
       mode?: string(name='Mode', example='simple'),
       routeEnable?: string(name='RouteEnable', example='on'),
       routeName?: string(name='RouteName', example='test_route'),
@@ -23825,10 +23943,18 @@ async function putKvWithHighCapacity(request: PutKvWithHighCapacityRequest): Put
 
 async function putKvWithHighCapacityAdvance(request: PutKvWithHighCapacityAdvanceRequest, runtime: Util.RuntimeOptions): PutKvWithHighCapacityResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -23845,54 +23971,56 @@ async function putKvWithHighCapacityAdvance(request: PutKvWithHighCapacityAdvanc
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ESA',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'ESA',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var putKvWithHighCapacityReq = new PutKvWithHighCapacityRequest{};
   OpenApiUtil.convert(request, putKvWithHighCapacityReq);
 
   if(!Util.isUnset(request.urlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.urlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    putKvWithHighCapacityReq.url = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    putKvWithHighCapacityReq.url = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var putKvWithHighCapacityResp = putKvWithHighCapacityWithOptions(putKvWithHighCapacityReq, runtime);
   return putKvWithHighCapacityResp;
@@ -28083,6 +28211,7 @@ async function updateRewriteUrlRule(request: UpdateRewriteUrlRuleRequest): Updat
 model UpdateRoutineRouteRequest {
   bypass?: string(name='Bypass', example='on'),
   configId?: long(name='ConfigId', description='This parameter is required.', example='35281609698****'),
+  fallback?: string(name='Fallback'),
   routeEnable?: string(name='RouteEnable', example='on'),
   routeName?: string(name='RouteName', example='test_route'),
   routineName?: string(name='RoutineName', example='test-routine1'),
@@ -28116,6 +28245,9 @@ async function updateRoutineRouteWithOptions(request: UpdateRoutineRouteRequest,
   }
   if (!Util.isUnset(request.configId)) {
     query['ConfigId'] = request.configId;
+  }
+  if (!Util.isUnset(request.fallback)) {
+    query['Fallback'] = request.fallback;
   }
   if (!Util.isUnset(request.routeEnable)) {
     query['RouteEnable'] = request.routeEnable;
@@ -30089,10 +30221,18 @@ async function uploadFile(request: UploadFileRequest): UploadFileResponse {
 
 async function uploadFileAdvance(request: UploadFileAdvanceRequest, runtime: Util.RuntimeOptions): UploadFileResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -30109,54 +30249,56 @@ async function uploadFileAdvance(request: UploadFileAdvanceRequest, runtime: Uti
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'ESA',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'ESA',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var uploadFileReq = new UploadFileRequest{};
   OpenApiUtil.convert(request, uploadFileReq);
 
   if(!Util.isUnset(request.urlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.urlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    uploadFileReq.url = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    uploadFileReq.url = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var uploadFileResp = uploadFileWithOptions(uploadFileReq, runtime);
   return uploadFileResp;
@@ -30479,3 +30621,38 @@ async function verifySite(request: VerifySiteRequest): VerifySiteResponse {
   return verifySiteWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, data: object): object {
+  var form = Util.assertAsMap(data);
+  var boundary = FileForm.getBoundary();
+  var host = Util.assertAsString(form.host);
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = host,
+    date = Util.getDateUTCString(),
+    user-agent = Util.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = FileForm.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = Util.readAsString(__response.body);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+    respMap = XML.parseXml(bodyStr, null);
+    var err = Util.assertAsMap(respMap.Error);
+    throw {
+      code = err.Code,
+      message = err.Message,
+      data = {
+        httpCode = __response.statusCode,
+        requestId = err.RequestId,
+        hostId = err.HostId,
+      }
+    };
+  }
+  respMap = XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
