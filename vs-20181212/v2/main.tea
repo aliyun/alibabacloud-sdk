@@ -5392,6 +5392,7 @@ model DescribeRenderingInstanceResponseBody = {
   creationTime?: string(name='CreationTime', example='2024-05-07T02:27:06Z'),
   egressIp?: string(name='EgressIp'),
   hostname?: string(name='Hostname', example='cn-xxx.ecr.aliyuncs.com'),
+  internalIp?: string(name='InternalIp'),
   isp?: string(name='Isp'),
   portMappings?: [ 
     {
@@ -8573,11 +8574,38 @@ async function gotoPreset(request: GotoPresetRequest): GotoPresetResponse {
 
 model InstallCloudAppRequest {
   appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
-  renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  projectId?: string(name='ProjectId'),
+  renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  renderingInstanceIds?: [ string ](name='RenderingInstanceIds'),
+}
+
+model InstallCloudAppShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  projectId?: string(name='ProjectId'),
+  renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  renderingInstanceIdsShrink?: string(name='RenderingInstanceIds'),
 }
 
 model InstallCloudAppResponseBody = {
+  failedInstanceCount?: int32(name='FailedInstanceCount'),
+  failedInstances?: [ 
+    {
+      errCode?: int32(name='ErrCode'),
+      errMessage?: string(name='ErrMessage'),
+      renderingInstanceId?: string(name='RenderingInstanceId'),
+    }
+  ](name='FailedInstances'),
   requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  successInstanceCount?: int32(name='SuccessInstanceCount'),
+  successInstances?: [ 
+    {
+      renderingInstanceId?: string(name='RenderingInstanceId'),
+    }
+  ](name='SuccessInstances'),
 }
 
 model InstallCloudAppResponse = {
@@ -8589,18 +8617,35 @@ model InstallCloudAppResponse = {
 /**
  * @summary 安装云应用
  *
- * @param request InstallCloudAppRequest
+ * @param tmpReq InstallCloudAppRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return InstallCloudAppResponse
  */
-async function installCloudAppWithOptions(request: InstallCloudAppRequest, runtime: $RuntimeOptions): InstallCloudAppResponse {
-  request.validate();
+async function installCloudAppWithOptions(tmpReq: InstallCloudAppRequest, runtime: $RuntimeOptions): InstallCloudAppResponse {
+  tmpReq.validate();
+  var request = new InstallCloudAppShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.renderingInstanceIds)) {
+    request.renderingInstanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.renderingInstanceIds, 'RenderingInstanceIds', 'json');
+  }
   var query = {};
   if (!$isNull(request.appId)) {
     query['AppId'] = request.appId;
   }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
   if (!$isNull(request.renderingInstanceId)) {
     query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  if (!$isNull(request.renderingInstanceIdsShrink)) {
+    query['RenderingInstanceIds'] = request.renderingInstanceIdsShrink;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -8634,9 +8679,12 @@ model ListCloudAppInstallationsRequest {
   appId?: string(name='AppId', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   appName?: string(name='AppName', example='com.aaa.bbb'),
   appVersion?: string(name='AppVersion', example='1.0'),
+  endTime?: string(name='EndTime'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
+  projectId?: string(name='ProjectId'),
   renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListCloudAppInstallationsResponseBody = {
@@ -8706,8 +8754,11 @@ model ListCloudAppsRequest {
   appId?: string(name='AppId', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   appName?: string(name='AppName', example='com.aaa.bbb'),
   appVersion?: string(name='AppVersion', example='1.0'),
+  endTime?: string(name='EndTime'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
+  pkgType?: string(name='PkgType'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListCloudAppsResponseBody = {
@@ -8717,6 +8768,8 @@ model ListCloudAppsResponseBody = {
       appName?: string(name='AppName', example='com.aaa.bbb'),
       appVersion?: string(name='AppVersion', example='1.5.0'),
       description?: string(name='Description', example='demo'),
+      pkgFormat?: string(name='PkgFormat'),
+      pkgType?: string(name='PkgType'),
       status?: string(name='Status', example='Success'),
       statusDescription?: string(name='StatusDescription', example='upload success'),
       updateTime?: string(name='UpdateTime', example='2024-05-28T14:48:34+08:00'),
@@ -8774,11 +8827,13 @@ async function listCloudApps(request: ListCloudAppsRequest): ListCloudAppsRespon
 }
 
 model ListFilePushStatusesRequest {
+  endTime?: string(name='EndTime'),
   fileId?: string(name='FileId', example='f-1671accd4dafdag3er256cvgewt13f7141db2f7'),
   fileName?: string(name='FileName', example='myfile'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
   renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListFilePushStatusesResponseBody = {
@@ -8844,10 +8899,12 @@ async function listFilePushStatuses(request: ListFilePushStatusesRequest): ListF
 }
 
 model ListFilesRequest {
+  endTime?: string(name='EndTime'),
   fileId?: string(name='FileId', example='f-1671accd4dafdag3er256cvgewt13f7141db2f7'),
   fileName?: string(name='FileName', example='myfile'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListFilesResponseBody = {
@@ -8914,11 +8971,13 @@ async function listFiles(request: ListFilesRequest): ListFilesResponse {
 }
 
 model ListPublicKeysRequest {
+  endTime?: string(name='EndTime'),
   keyGroup?: string(name='KeyGroup', example='g-test'),
   keyName?: string(name='KeyName', example='mykey'),
   keyType?: string(name='KeyType'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListPublicKeysResponseBody = {
@@ -8985,9 +9044,11 @@ async function listPublicKeys(request: ListPublicKeysRequest): ListPublicKeysRes
 model ListRenderingDataPackagesRequest {
   category?: string(name='Category'),
   dataPackageId?: string(name='DataPackageId', example='dp-449ea3d16c0841b8bf33ec5bbc86a152'),
+  endTime?: string(name='EndTime'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   size?: int32(name='Size', example='20'),
+  startTime?: string(name='StartTime'),
   status?: string(name='Status', example='available'),
 }
 
@@ -9030,6 +9091,9 @@ async function listRenderingDataPackagesWithOptions(request: ListRenderingDataPa
   if (!$isNull(request.dataPackageId)) {
     query['DataPackageId'] = request.dataPackageId;
   }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
   if (!$isNull(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
@@ -9038,6 +9102,9 @@ async function listRenderingDataPackagesWithOptions(request: ListRenderingDataPa
   }
   if (!$isNull(request.size)) {
     query['Size'] = request.size;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
   }
   if (!$isNull(request.status)) {
     query['Status'] = request.status;
@@ -9071,10 +9138,12 @@ async function listRenderingDataPackages(request: ListRenderingDataPackagesReque
 }
 
 model ListRenderingInstanceGatewayRequest {
+  endTime?: string(name='EndTime'),
   gatewayInstanceId?: string(name='GatewayInstanceId', example='render-xxx'),
   pageNumber?: long(name='PageNumber', example='1'),
   pageSize?: long(name='PageSize', example='10'),
   renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListRenderingInstanceGatewayResponseBody = {
@@ -9109,6 +9178,9 @@ model ListRenderingInstanceGatewayResponse = {
 async function listRenderingInstanceGatewayWithOptions(request: ListRenderingInstanceGatewayRequest, runtime: $RuntimeOptions): ListRenderingInstanceGatewayResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
   if (!$isNull(request.gatewayInstanceId)) {
     query['GatewayInstanceId'] = request.gatewayInstanceId;
   }
@@ -9120,6 +9192,9 @@ async function listRenderingInstanceGatewayWithOptions(request: ListRenderingIns
   }
   if (!$isNull(request.renderingInstanceId)) {
     query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9150,10 +9225,12 @@ async function listRenderingInstanceGateway(request: ListRenderingInstanceGatewa
 }
 
 model ListRenderingInstancesRequest {
+  endTime?: string(name='EndTime'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
   renderingSpec?: string(name='RenderingSpec', example='crs.cp.l1'),
+  startTime?: string(name='StartTime'),
   storageSize?: int32(name='StorageSize'),
 }
 
@@ -9215,10 +9292,12 @@ async function listRenderingInstances(request: ListRenderingInstancesRequest): L
 }
 
 model ListRenderingProjectInstancesRequest {
+  endTime?: string(name='EndTime'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   projectId?: string(name='ProjectId', description='This parameter is required.', example='project-422bc38dfgh5eb44149f135ef76304f63b'),
   renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  startTime?: string(name='StartTime'),
   state?: string(name='State', example='Idle'),
 }
 
@@ -9257,6 +9336,9 @@ model ListRenderingProjectInstancesResponse = {
 async function listRenderingProjectInstancesWithOptions(request: ListRenderingProjectInstancesRequest, runtime: $RuntimeOptions): ListRenderingProjectInstancesResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
   if (!$isNull(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
@@ -9268,6 +9350,9 @@ async function listRenderingProjectInstancesWithOptions(request: ListRenderingPr
   }
   if (!$isNull(request.renderingInstanceId)) {
     query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
   }
   if (!$isNull(request.state)) {
     query['State'] = request.state;
@@ -9304,10 +9389,12 @@ async function listRenderingProjectInstances(request: ListRenderingProjectInstan
 }
 
 model ListRenderingProjectsRequest {
+  endTime?: string(name='EndTime'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   projectId?: string(name='ProjectId', example='project-422bc38dfgh5eb44149f135ef76304f63b'),
   projectName?: string(name='ProjectName', example='idata_content'),
+  startTime?: string(name='StartTime'),
 }
 
 model ListRenderingProjectsResponseBody = {
@@ -9347,6 +9434,9 @@ model ListRenderingProjectsResponse = {
 async function listRenderingProjectsWithOptions(request: ListRenderingProjectsRequest, runtime: $RuntimeOptions): ListRenderingProjectsResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
   if (!$isNull(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
@@ -9358,6 +9448,9 @@ async function listRenderingProjectsWithOptions(request: ListRenderingProjectsRe
   }
   if (!$isNull(request.projectName)) {
     query['ProjectName'] = request.projectName;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -9394,11 +9487,13 @@ async function listRenderingProjects(request: ListRenderingProjectsRequest): Lis
 model ListRenderingSessionsRequest {
   appId?: string(name='AppId', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   clientId?: string(name='ClientId', example='ae7990f4-203d-494b-a5ea-e0babe9fa13d'),
+  endTime?: string(name='EndTime'),
   pageNumber?: int32(name='PageNumber', example='1'),
   pageSize?: int32(name='PageSize', example='10'),
   projectId?: string(name='ProjectId', description='This parameter is required.', example='project-422bc38dfgh5eb44149f135ef76304f63b'),
   renderingInstanceId?: string(name='RenderingInstanceId'),
   sessionId?: string(name='SessionId', example='session-i205217481741918129226'),
+  startTime?: string(name='StartTime'),
   state?: string(name='State', example='SessionStarting'),
 }
 
@@ -9442,6 +9537,9 @@ async function listRenderingSessionsWithOptions(request: ListRenderingSessionsRe
   if (!$isNull(request.clientId)) {
     query['ClientId'] = request.clientId;
   }
+  if (!$isNull(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
   if (!$isNull(request.pageNumber)) {
     query['PageNumber'] = request.pageNumber;
   }
@@ -9456,6 +9554,9 @@ async function listRenderingSessionsWithOptions(request: ListRenderingSessionsRe
   }
   if (!$isNull(request.sessionId)) {
     query['SessionId'] = request.sessionId;
+  }
+  if (!$isNull(request.startTime)) {
+    query['StartTime'] = request.startTime;
   }
   if (!$isNull(request.state)) {
     query['State'] = request.state;
@@ -12568,11 +12669,38 @@ async function unbindTemplate(request: UnbindTemplateRequest): UnbindTemplateRes
 
 model UninstallCloudAppRequest {
   appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
-  renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  projectId?: string(name='ProjectId'),
+  renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  renderingInstanceIds?: [ string ](name='RenderingInstanceIds'),
+}
+
+model UninstallCloudAppShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
+  pageNumber?: int32(name='PageNumber'),
+  pageSize?: int32(name='PageSize'),
+  projectId?: string(name='ProjectId'),
+  renderingInstanceId?: string(name='RenderingInstanceId', example='render-9f8c57355d224ad7beaf95e145f22111'),
+  renderingInstanceIdsShrink?: string(name='RenderingInstanceIds'),
 }
 
 model UninstallCloudAppResponseBody = {
+  failedInstanceCount?: int32(name='FailedInstanceCount'),
+  failedInstances?: [ 
+    {
+      errCode?: int32(name='ErrCode'),
+      errMessage?: string(name='ErrMessage'),
+      renderingInstanceId?: string(name='RenderingInstanceId'),
+    }
+  ](name='FailedInstances'),
   requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  successInstanceCount?: int32(name='SuccessInstanceCount'),
+  successInstances?: [ 
+    {
+      renderingInstanceId?: string(name='RenderingInstanceId'),
+    }
+  ](name='SuccessInstances'),
 }
 
 model UninstallCloudAppResponse = {
@@ -12584,18 +12712,35 @@ model UninstallCloudAppResponse = {
 /**
  * @summary 卸载云应用
  *
- * @param request UninstallCloudAppRequest
+ * @param tmpReq UninstallCloudAppRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return UninstallCloudAppResponse
  */
-async function uninstallCloudAppWithOptions(request: UninstallCloudAppRequest, runtime: $RuntimeOptions): UninstallCloudAppResponse {
-  request.validate();
+async function uninstallCloudAppWithOptions(tmpReq: UninstallCloudAppRequest, runtime: $RuntimeOptions): UninstallCloudAppResponse {
+  tmpReq.validate();
+  var request = new UninstallCloudAppShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.renderingInstanceIds)) {
+    request.renderingInstanceIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.renderingInstanceIds, 'RenderingInstanceIds', 'json');
+  }
   var query = {};
   if (!$isNull(request.appId)) {
     query['AppId'] = request.appId;
   }
+  if (!$isNull(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.projectId)) {
+    query['ProjectId'] = request.projectId;
+  }
   if (!$isNull(request.renderingInstanceId)) {
     query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  if (!$isNull(request.renderingInstanceIdsShrink)) {
+    query['RenderingInstanceIds'] = request.renderingInstanceIdsShrink;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -13120,6 +13265,8 @@ model UploadCloudAppRequest {
   description?: string(name='Description'),
   downloadUrl?: string(name='DownloadUrl', description='This parameter is required.', example='https://xxx.xxx.xxx.apk'),
   md5?: string(name='Md5', description='This parameter is required.', example='0CFBB7BD10CDD7279642ADAB8FEF3DEE'),
+  pkgFormat?: string(name='PkgFormat'),
+  pkgType?: string(name='PkgType'),
 }
 
 model UploadCloudAppResponseBody = {
@@ -13157,6 +13304,12 @@ async function uploadCloudAppWithOptions(request: UploadCloudAppRequest, runtime
   }
   if (!$isNull(request.md5)) {
     query['Md5'] = request.md5;
+  }
+  if (!$isNull(request.pkgFormat)) {
+    query['PkgFormat'] = request.pkgFormat;
+  }
+  if (!$isNull(request.pkgType)) {
+    query['PkgType'] = request.pkgType;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
