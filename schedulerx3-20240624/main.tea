@@ -33,6 +33,7 @@ model CreateAppRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
   enableLog?: boolean(name='EnableLog', example='true'),
+  labelRouteStrategy?: int32(name='LabelRouteStrategy'),
   maxConcurrency?: int32(name='MaxConcurrency', example='10'),
   title?: string(name='Title', description='This parameter is required.'),
 }
@@ -75,6 +76,9 @@ async function createAppWithOptions(request: CreateAppRequest, runtime: Util.Run
   }
   if (!Util.isUnset(request.enableLog)) {
     body['EnableLog'] = request.enableLog;
+  }
+  if (!Util.isUnset(request.labelRouteStrategy)) {
+    body['LabelRouteStrategy'] = request.labelRouteStrategy;
   }
   if (!Util.isUnset(request.maxConcurrency)) {
     body['MaxConcurrency'] = request.maxConcurrency;
@@ -695,6 +699,83 @@ async function exportJobsWithOptions(tmpReq: ExportJobsRequest, runtime: Util.Ru
 async function exportJobs(request: ExportJobsRequest): ExportJobsResponse {
   var runtime = new Util.RuntimeOptions{};
   return exportJobsWithOptions(request, runtime);
+}
+
+model GetAppRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-d6a5243b6fa'),
+}
+
+model GetAppResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    accessToken?: string(name='AccessToken', description='AccessToken。', example='2f4ddeab8e344ed68e0402cf9b8502ffv3'),
+    appName?: string(name='AppName', example='test-app'),
+    creator?: string(name='Creator', example='18582193685027xx'),
+    enableLog?: boolean(name='EnableLog', example='true'),
+    executorNum?: long(name='ExecutorNum', example='2'),
+    id?: long(name='Id', example='3402'),
+    jobNum?: int32(name='JobNum', example='100'),
+    labelRouteStrategy?: int32(name='LabelRouteStrategy'),
+    leader?: string(name='Leader', example='http://28.***.***.3:80'),
+    maxConcurrency?: int32(name='MaxConcurrency', example='100'),
+    maxJobs?: int32(name='MaxJobs', example='1000'),
+    title?: string(name='Title'),
+    updater?: string(name='Updater', example='18582193685027xx'),
+  }(name='Data', description='-'),
+  message?: string(name='Message', example='Not found: appName not found.'),
+  requestId?: string(name='RequestId', example='D0DE9C33-992A-580B-89C4-B609A292748D'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model GetAppResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAppResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取指定应用
+ *
+ * @param request GetAppRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAppResponse
+ */
+async function getAppWithOptions(request: GetAppRequest, runtime: Util.RuntimeOptions): GetAppResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetApp',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取指定应用
+ *
+ * @param request GetAppRequest
+ * @return GetAppResponse
+ */
+async function getApp(request: GetAppRequest): GetAppResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAppWithOptions(request, runtime);
 }
 
 model GetClusterRequest {
@@ -1632,6 +1713,7 @@ model ListAppsResponseBody = {
         executorNum?: long(name='ExecutorNum', example='1'),
         id?: long(name='Id', example='43885'),
         jobNum?: int32(name='JobNum', example='10'),
+        labelRouteStrategy?: int32(name='LabelRouteStrategy'),
         leader?: string(name='Leader', example='http://28.5.128.3:80'),
         maxConcurrency?: int32(name='MaxConcurrency', example='100'),
         maxJobs?: int32(name='MaxJobs', example='1000'),
@@ -2001,6 +2083,93 @@ async function listJobExecutionsWithOptions(request: ListJobExecutionsRequest, r
 async function listJobExecutions(request: ListJobExecutionsRequest): ListJobExecutionsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listJobExecutionsWithOptions(request, runtime);
+}
+
+model ListJobScriptHistoryRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  jobId?: long(name='JobId', description='This parameter is required.', example='74'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  nextToken?: string(name='NextToken', example='eCKqVlS5FKF5EWGGOo8EgQ=='),
+}
+
+model ListJobScriptHistoryResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    nextToken?: string(name='NextToken', example='eCKqVlS5FKF5EWGGOo8EgQ=='),
+    records?: [ 
+      {
+        createTime?: string(name='CreateTime', example='2025-06-29 15:56:36'),
+        creator?: string(name='Creator', example='1963096506470832'),
+        scriptContent?: string(name='ScriptContent'),
+        versionDescription?: string(name='VersionDescription', example='init version'),
+      }
+    ](name='Records', description='-'),
+    total?: string(name='Total', example='21'),
+  }(name='Data', description='-'),
+  maxResults?: int32(name='MaxResults', example='10'),
+  message?: string(name='Message', description='This parameter is required.', example='not support query script history, please upgrade engine version to 2.2.2+'),
+  requestId?: string(name='RequestId', example='5EF879D0-3B43-5AD1-9BF7-52418F9C5E73'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model ListJobScriptHistoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListJobScriptHistoryResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取任务脚本历史列表
+ *
+ * @param request ListJobScriptHistoryRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListJobScriptHistoryResponse
+ */
+async function listJobScriptHistoryWithOptions(request: ListJobScriptHistoryRequest, runtime: Util.RuntimeOptions): ListJobScriptHistoryResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appName)) {
+    query['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    query['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    query['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListJobScriptHistory',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取任务脚本历史列表
+ *
+ * @param request ListJobScriptHistoryRequest
+ * @return ListJobScriptHistoryResponse
+ */
+async function listJobScriptHistory(request: ListJobScriptHistoryRequest): ListJobScriptHistoryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listJobScriptHistoryWithOptions(request, runtime);
 }
 
 model ListJobsRequest {
@@ -2994,6 +3163,7 @@ model UpdateAppRequest {
   appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
   clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
   enableLog?: boolean(name='EnableLog', example='true'),
+  labelRouteStrategy?: int32(name='LabelRouteStrategy'),
   maxConcurrency?: int32(name='MaxConcurrency', example='10'),
   title?: string(name='Title', description='This parameter is required.'),
 }
@@ -3032,6 +3202,9 @@ async function updateAppWithOptions(request: UpdateAppRequest, runtime: Util.Run
   }
   if (!Util.isUnset(request.enableLog)) {
     body['EnableLog'] = request.enableLog;
+  }
+  if (!Util.isUnset(request.labelRouteStrategy)) {
+    body['LabelRouteStrategy'] = request.labelRouteStrategy;
   }
   if (!Util.isUnset(request.maxConcurrency)) {
     body['MaxConcurrency'] = request.maxConcurrency;
@@ -3316,5 +3489,79 @@ async function updateJobWithOptions(tmpReq: UpdateJobRequest, runtime: Util.Runt
 async function updateJob(request: UpdateJobRequest): UpdateJobResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateJobWithOptions(request, runtime);
+}
+
+model UpdateJobScriptRequest {
+  appName?: string(name='AppName', description='This parameter is required.', example='test-app'),
+  clusterId?: string(name='ClusterId', description='This parameter is required.', example='xxljob-b6ec1xxxx'),
+  jobId?: long(name='JobId', description='This parameter is required.', example='74'),
+  scriptContent?: string(name='ScriptContent'),
+  versionDescription?: string(name='VersionDescription', description='This parameter is required.', example='init version'),
+}
+
+model UpdateJobScriptResponseBody = {
+  code?: int32(name='Code', example='200'),
+  message?: string(name='Message', example='not support update script, please upgrade engine version to 2.2.2+'),
+  requestId?: string(name='RequestId', example='29ED6209-5DE6-5E1D-89B0-B7B1D823A1BF'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model UpdateJobScriptResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateJobScriptResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新任务脚本内容
+ *
+ * @param request UpdateJobScriptRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateJobScriptResponse
+ */
+async function updateJobScriptWithOptions(request: UpdateJobScriptRequest, runtime: Util.RuntimeOptions): UpdateJobScriptResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.appName)) {
+    body['AppName'] = request.appName;
+  }
+  if (!Util.isUnset(request.clusterId)) {
+    body['ClusterId'] = request.clusterId;
+  }
+  if (!Util.isUnset(request.jobId)) {
+    body['JobId'] = request.jobId;
+  }
+  if (!Util.isUnset(request.scriptContent)) {
+    body['ScriptContent'] = request.scriptContent;
+  }
+  if (!Util.isUnset(request.versionDescription)) {
+    body['VersionDescription'] = request.versionDescription;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateJobScript',
+    version = '2024-06-24',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新任务脚本内容
+ *
+ * @param request UpdateJobScriptRequest
+ * @return UpdateJobScriptResponse
+ */
+async function updateJobScript(request: UpdateJobScriptRequest): UpdateJobScriptResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return updateJobScriptWithOptions(request, runtime);
 }
 
