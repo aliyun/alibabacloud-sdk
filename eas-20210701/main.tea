@@ -103,10 +103,18 @@ model Instance {
 model Resource {
   clusterId?: string(name='ClusterId'),
   cpuCount?: int32(name='CpuCount'),
+  cpuUsed?: int32(name='CpuUsed'),
   createTime?: string(name='CreateTime'),
   extraData?: map[string]any(name='ExtraData'),
+  features?: [ string ](name='Features'),
   gpuCount?: int32(name='GpuCount'),
+  gpuUsed?: float(name='GpuUsed'),
   instanceCount?: int32(name='InstanceCount'),
+  instanceMaxAllocatableCPU?: int32(name='InstanceMaxAllocatableCPU'),
+  instanceMaxAllocatableGPU?: float(name='InstanceMaxAllocatableGPU'),
+  instanceMaxAllocatableMemory?: int32(name='InstanceMaxAllocatableMemory'),
+  memory?: int32(name='Memory'),
+  memoryUsed?: int32(name='MemoryUsed'),
   message?: string(name='Message'),
   postPaidInstanceCount?: int32(name='PostPaidInstanceCount'),
   prePaidInstanceCount?: int32(name='PrePaidInstanceCount'),
@@ -171,14 +179,23 @@ model Service {
   appSpecName?: string(name='AppSpecName'),
   appType?: string(name='AppType'),
   appVersion?: string(name='AppVersion'),
+  autoscalerEnabled?: boolean(name='AutoscalerEnabled'),
   callerUid?: string(name='CallerUid'),
   cpu?: int32(name='Cpu'),
   createTime?: string(name='CreateTime'),
+  cronscalerEnabled?: boolean(name='CronscalerEnabled'),
   currentVersion?: int32(name='CurrentVersion'),
   extraData?: string(name='ExtraData'),
+  GPUCorePercentage?: int32(name='GPUCorePercentage'),
+  GPUMemory?: int32(name='GPUMemory'),
   gateway?: string(name='Gateway'),
   gpu?: int32(name='Gpu'),
   image?: string(name='Image'),
+  instanceCountInResource?: {
+    dedicated?: int32(name='Dedicated'),
+    public?: int32(name='Public'),
+    quota?: int32(name='Quota'),
+  }(name='InstanceCountInResource'),
   internetEndpoint?: string(name='InternetEndpoint'),
   intranetEndpoint?: string(name='IntranetEndpoint'),
   labels?: [ 
@@ -199,6 +216,7 @@ model Service {
   requestId?: string(name='RequestId'),
   resource?: string(name='Resource'),
   resourceAlias?: string(name='ResourceAlias'),
+  resourceBurstable?: boolean(name='ResourceBurstable'),
   role?: string(name='Role'),
   roleAttrs?: string(name='RoleAttrs'),
   runningInstance?: int32(name='RunningInstance'),
@@ -3465,9 +3483,13 @@ model DescribeResourceResponseBody = {
   cpuUsed?: int32(name='CpuUsed', description='The number of vCPUs that is used.', example='8'),
   createTime?: string(name='CreateTime', description='The time when the resource group was created.', example='2020-05-19T14:19:42Z'),
   extraData?: string(name='ExtraData', description='The additional information, such as the connection status of a virtual private cloud (VPC) and the log status of Log Service.', example='{"vswitch_id":"vsw-bp17uo6xebcusy****","gpu_share":true,"aux_vswitch_id_list":["vsw-bp13b3pvjap3vxn****","vsw-bp1nls8o5hk8mt8*****"],"security_group_id":"sg-bp1j1z7297hcink*****","vpc_id":"vpc-bp1kjr3rfyhx01*****","destination_cidr":"172.16.0.12/28","role_arn":"acs:ram::1157703270*****:role/AliyunServiceRoleForPaiEas","sls_project":"","sls_logstore":"","sls_status":"ResourceReady","sls_message":"","update_time":""}'),
+  features?: [ string ](name='Features'),
   gpuCount?: int32(name='GpuCount', description='The total number of GPUs.', example='1'),
   gpuUsed?: float(name='GpuUsed', description='The number of GPUs that is used.', example='2'),
   instanceCount?: int32(name='InstanceCount', description='The total number of instances in the resource group.', example='4'),
+  instanceMaxAllocatableCPU?: int32(name='InstanceMaxAllocatableCPU'),
+  instanceMaxAllocatableGPU?: float(name='InstanceMaxAllocatableGPU'),
+  instanceMaxAllocatableMemory?: int32(name='InstanceMaxAllocatableMemory'),
   memory?: int32(name='Memory', description='The total memory size. Unit: MB.', example='8192'),
   memoryUsed?: int32(name='MemoryUsed', description='The size of memory that is used. Unit: MB.', example='2048'),
   message?: string(name='Message', description='The returned message.', example='Resource is ready'),
@@ -4377,6 +4399,7 @@ async function describeSpotDiscountHistory(request: DescribeSpotDiscountHistoryR
 model DescribeVirtualResourceResponseBody = {
   createTime?: string(name='CreateTime', description='The time when the virtual resource group was created.', example='2024-10-16T17:52:49Z'),
   disableSpotProtectionPeriod?: boolean(name='DisableSpotProtectionPeriod', description='Indicates whether the retention period of preemptible instances was disabled.', example='true'),
+  features?: [ string ](name='Features'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='40325405-579C-4D82****'),
   resources?: [ 
     {
@@ -6390,6 +6413,8 @@ async function listServiceVersions(ClusterId: string, ServiceName: string, reque
 }
 
 model ListServicesRequest {
+  autoscalerEnabled?: boolean(name='AutoscalerEnabled'),
+  cronscalerEnabled?: boolean(name='CronscalerEnabled'),
   filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo'),
   gateway?: string(name='Gateway', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
   groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](https://help.aliyun.com/document_detail/412109.html).', example='foo'),
@@ -6404,6 +6429,7 @@ model ListServicesRequest {
   parentServiceUid?: string(name='ParentServiceUid', description='The ID of the primary service that corresponds to the Band member service.', example='eas-m-ijafy3c8cxxxx'),
   quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345'),
   resourceAliasName?: string(name='ResourceAliasName'),
+  resourceBurstable?: boolean(name='ResourceBurstable'),
   resourceId?: string(name='ResourceId'),
   resourceName?: string(name='ResourceName', description='The name or ID of the resource group to which the service belongs.', example='eas-r-hd0qwy8cxxxx', deprecated=true),
   resourceType?: string(name='ResourceType'),
@@ -6614,6 +6640,8 @@ Valid values:
 }
 
 model ListServicesShrinkRequest {
+  autoscalerEnabled?: boolean(name='AutoscalerEnabled'),
+  cronscalerEnabled?: boolean(name='CronscalerEnabled'),
   filter?: string(name='Filter', description='The field that is used for fuzzy matches. The system performs fuzzy matches only by service name.', example='foo'),
   gateway?: string(name='Gateway', description='The private gateway ID.', example='gw-1uhcqmsc7x22******'),
   groupName?: string(name='GroupName', description='The name of the service group. For more information about how to query the name of a service group, see [ListServices](https://help.aliyun.com/document_detail/412109.html).', example='foo'),
@@ -6628,6 +6656,7 @@ model ListServicesShrinkRequest {
   parentServiceUid?: string(name='ParentServiceUid', description='The ID of the primary service that corresponds to the Band member service.', example='eas-m-ijafy3c8cxxxx'),
   quotaId?: string(name='QuotaId', description='The quota ID.', example='quota12345'),
   resourceAliasName?: string(name='ResourceAliasName'),
+  resourceBurstable?: boolean(name='ResourceBurstable'),
   resourceId?: string(name='ResourceId'),
   resourceName?: string(name='ResourceName', description='The name or ID of the resource group to which the service belongs.', example='eas-r-hd0qwy8cxxxx', deprecated=true),
   resourceType?: string(name='ResourceType'),
@@ -6869,6 +6898,12 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
     request.labelShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.label, 'Label', 'json');
   }
   var query : map[string]any = {};
+  if (!Util.isUnset(request.autoscalerEnabled)) {
+    query['AutoscalerEnabled'] = request.autoscalerEnabled;
+  }
+  if (!Util.isUnset(request.cronscalerEnabled)) {
+    query['CronscalerEnabled'] = request.cronscalerEnabled;
+  }
   if (!Util.isUnset(request.filter)) {
     query['Filter'] = request.filter;
   }
@@ -6901,6 +6936,9 @@ async function listServicesWithOptions(tmpReq: ListServicesRequest, headers: map
   }
   if (!Util.isUnset(request.resourceAliasName)) {
     query['ResourceAliasName'] = request.resourceAliasName;
+  }
+  if (!Util.isUnset(request.resourceBurstable)) {
+    query['ResourceBurstable'] = request.resourceBurstable;
   }
   if (!Util.isUnset(request.resourceId)) {
     query['ResourceId'] = request.resourceId;
