@@ -1,10 +1,7 @@
 /**
  *
  */
-import OSS;
-import OpenPlatform;
-import OSSUtil;
-import FileForm;
+import Credential;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -252,12 +249,19 @@ async function createDocTranslateTask(request: CreateDocTranslateTaskRequest): C
 
 async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdvanceRequest, runtime: $RuntimeOptions): CreateDocTranslateTaskResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -272,54 +276,55 @@ async function createDocTranslateTaskAdvance(request: CreateDocTranslateTaskAdva
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'alimt',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'alimt',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var createDocTranslateTaskReq = new CreateDocTranslateTaskRequest{};
   OpenApiUtil.convert(request, createDocTranslateTaskReq);
 
   if(!$isNull(request.fileUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.fileUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    createDocTranslateTaskReq.fileUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    createDocTranslateTaskReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var createDocTranslateTaskResp = createDocTranslateTaskWithOptions(createDocTranslateTaskReq, runtime);
   return createDocTranslateTaskResp;
@@ -1591,12 +1596,19 @@ async function translateCertificate(request: TranslateCertificateRequest): Trans
 
 async function translateCertificateAdvance(request: TranslateCertificateAdvanceRequest, runtime: $RuntimeOptions): TranslateCertificateResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -1611,54 +1623,55 @@ async function translateCertificateAdvance(request: TranslateCertificateAdvanceR
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'alimt',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'alimt',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var translateCertificateReq = new TranslateCertificateRequest{};
   OpenApiUtil.convert(request, translateCertificateReq);
 
   if(!$isNull(request.imageUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.imageUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    translateCertificateReq.imageUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    translateCertificateReq.imageUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var translateCertificateResp = translateCertificateWithOptions(translateCertificateReq, runtime);
   return translateCertificateResp;
@@ -2160,3 +2173,36 @@ async function translateSearch(request: TranslateSearchRequest): TranslateSearch
   return translateSearchWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = $Form.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
+      data = {
+        httpCode = __response.statusCode,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
+      }
+    };
+  }
+  respMap = $XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
