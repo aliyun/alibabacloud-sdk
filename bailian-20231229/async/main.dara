@@ -66,18 +66,20 @@ async function addCategory(request: AddCategoryRequest): AddCategoryResponse {
 }
 
 model AddFileRequest {
-  workspaceId: string(name='WorkspaceId', description='The ID of the workspace to which the document is uploaded. On the [homepage](https://bailian.console.alibabacloud.com/#/home) of the console, click the workspace Details icon in the upper-left corner to view the workspace ID.
+  workspaceId: string(name='WorkspaceId', description='The ID of the workspace to which the document is uploaded. On the [homepage](https://modelstudio.console.alibabacloud.com/?tab=playground#/efm/prompt) of the console, click the workspace Details icon in the upper-left corner to view the workspace ID.
 
 This parameter is required.', example='ws_3AXoiweeTyTd03IN', position='Path'),
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  categoryId: string(name='CategoryId', description='The primary key ID of the category to which the document is uploaded. This parameter corresponds to the `CategoryId`<props="china"> returned by the [AddCategory](https://www.alibabacloud.com/help/zh/model-studio/developer-reference/api-bailian-2023-12-29-addcategory) operation. You can also click the ID icon next to the category name on the Unstructured Data tab of the [Data Management](https://bailian.console.alibabacloud.com/#/data-center) page to view the ID. You can set the parameter to default, which specifies the Default Category created by the system.
+  categoryId: string(name='CategoryId', description='The primary key ID of the category to which the document is uploaded. This parameter corresponds to the `CategoryId` returned by the [AddCategory](https://www.alibabacloud.com/help/eh/model-studio/developer-reference/api-bailian-2023-12-29-addcategory) operation. You can also click the ID icon next to the category name on the Unstructured Data tab of the [Application Data](https://modelstudio.console.alibabacloud.com/#/data-center) page to view the ID. You can set the parameter to default, which specifies the Default Category created by the system.
 
 This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee3510024405', position='Body'),
-  categoryType?: string(name='CategoryType', position='Body'),
+  categoryType?: string(name='CategoryType', description='The type of the category. Valid values:
+- UNSTRUCTURED
+- SESSION_FILE', example='UNSTRUCTURED', position='Body'),
   leaseId: string(name='LeaseId', description='The lease ID, which corresponds to the `FileUploadLeaseId` parameter returned by the [ApplyFileUploadLease](https://www.alibabacloud.com/help/en/model-studio/developer-reference/api-bailian-2023-12-29-applyfileuploadlease) operation.
 
 This parameter is required.', example='68abd1dea7b6404d8f7d7b9f7fbd332d.1716698936847', position='Body'),
-  originalFileUrl?: string(name='OriginalFileUrl', position='Body'),
+  originalFileUrl?: string(name='OriginalFileUrl', example='https://thisistest.com/abc.pdf', position='Body'),
   parser: string(name='Parser', description='The parser. Valid value:
 
 *   DASHSCOPE_DOCMIND: Intelligent document parsing by Alibaba Cloud.
@@ -121,6 +123,55 @@ model AddFileResponse = {
 async function addFile(request: AddFileRequest): AddFileResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'AddFile', 'PUT', '/{WorkspaceId}/datacenter/file', 'json', true, 'form', request);
+}
+
+model AddFilesFromAuthorizedOssRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  workspaceId: string(name='WorkspaceId', description='This parameter is required.', example='llm-3z7uw7fwz0vxxxx', position='Path'),
+  categoryId: string(name='CategoryId', description='This parameter is required.', example='cate_cdd11b1b79a74e8bbd675c356a91ee35xxxxxxxx', position='Body'),
+  categoryType: string(name='CategoryType', description='This parameter is required.', example='UNSTRUCTURED', position='Body'),
+  fileDetails: [ 
+    {
+      fileName: string(name='FileName', description='This parameter is required.', example='this_is_temp_xxxx.pdf', minLength=1, maxLength=123),
+      ossKey: string(name='OssKey', description='This parameter is required.', example='root/path/this_is_temp_xxxx.pdf', minLength=1, maxLength=256),
+    }
+  ](name='FileDetails', description='This parameter is required.', shrink='json', position='Body'),
+  ossBucketName: string(name='OssBucketName', description='This parameter is required.', example='bucketNamexxxxx', position='Body'),
+  ossRegionId: string(name='OssRegionId', description='This parameter is required.', example='cn-beijing', position='Body'),
+  tags?: [ string ](name='Tags', shrink='json', position='Body'),
+}
+
+model AddFilesFromAuthorizedOssResponseBody = {
+  code?: string(name='Code', example='success'),
+  data?: {
+    addFileResultList?: [ 
+      {
+        fileId?: string(name='FileId', example='file_809f469a59ac449586ec692576xxxxx_102248XXX'),
+        msg?: string(name='Msg', example='size too large'),
+        ossKey?: string(name='OssKey', example='root/path/this_is_temp_xxxx.pdf'),
+        status?: string(name='Status', example='success'),
+      }
+    ](name='AddFileResultList'),
+  }(name='Data'),
+  message?: string(name='Message', example='Cant find out category for category_id param.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='17204B98-xxxx-4F9A-8464-2446A84821CA'),
+  status?: string(name='Status', example='200'),
+  success?: string(name='Success', example='true'),
+}
+
+model AddFilesFromAuthorizedOssResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddFilesFromAuthorizedOssResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AddFilesFromAuthorizedOss  AddFilesFromAuthorizedOssRequest
+  * @return AddFilesFromAuthorizedOssResponse
+ */
+async function addFilesFromAuthorizedOss(request: AddFilesFromAuthorizedOssRequest): AddFilesFromAuthorizedOssResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'AddFilesFromAuthorizedOss', 'POST', '/{WorkspaceId}/datacenter/file/fromoss', 'json', true, 'form', request);
 }
 
 model ApplyFileUploadLeaseRequest {
