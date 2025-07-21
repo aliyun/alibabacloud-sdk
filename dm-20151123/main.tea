@@ -2,9 +2,8 @@
  *
  */
 import Util;
-import OSS;
-import OpenPlatform;
-import OSSUtil;
+import XML;
+import Credential;
 import FileForm;
 import Number;
 import OpenApi;
@@ -184,14 +183,14 @@ This parameter is required.', example='test@example.com'),
 This parameter is required.', example='1'),
   clickTrace?: string(name='ClickTrace', description='- 1: Enable data tracking function
 - 0 (default): Disable data tracking function', example='0'),
-  headers?: string(name='Headers', description='Currently, the standard fields that can be added to the email header are Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite the existing values in the email header, while non-standard fields need to start with X-User- and will be appended to the email header. Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
+  headers?: string(name='Headers', description='Currently, the standard fields that can be added to the email header are Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite the existing values in the email header, while non-standard fields must start with X-User- and will be appended to the email header. Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
   "Message-ID": "<msg0001@example.com>",
   "X-User-UID1": "UID-1-000001",
   "X-User-UID2": "UID-2-000001"
 }'),
-  ipPoolId?: string(name='IpPoolId'),
+  ipPoolId?: string(name='IpPoolId', description='dedicated IP pool ID. Users who have purchased an dedicated IP can use this parameter to specify the outgoing IP for this send operation.', example='xxx'),
   ownerId?: long(name='OwnerId'),
-  receiversName?: string(name='ReceiversName', description='The name of the recipient list that has been created and uploaded. Note: The recipient list should not be deleted until at least 10 minutes after the task is triggered, otherwise it may cause sending failure.
+  receiversName?: string(name='ReceiversName', description='The name of the recipient list that has been created and uploaded with recipients. Note: The recipient list should not be deleted until at least 10 minutes after the task is triggered, otherwise it may cause sending failure.
 
 This parameter is required.', example='test2'),
   replyAddress?: string(name='ReplyAddress', description='Reply address', example='test2***@example.net'),
@@ -199,26 +198,26 @@ This parameter is required.', example='test2'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   tagName?: string(name='TagName', description='Email tag name.', example='test3'),
-  templateName?: string(name='TemplateName', description='The name of a pre-created and approved template.
+  templateName?: string(name='TemplateName', description='The name of the template that has been created and approved in advance.
 
 This parameter is required.', example='test1'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filter level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filtering level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
 - disabled: No filtering
-- default: Use the default strategy, bulk addresses use sender address level filtering
-- mailfrom: Sender address level filtering
-- mailfrom_domain: Sender domain level filtering
-- edm_id: Account level filtering', example='mailfrom_domain'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='Type of generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-- disabled: Not generated
-- default: Use the default strategy: Generate an unsubscribe link when sending from a bulk email address to specific domains, such as those containing keywords like "gmail", "yahoo",
+- default: Use the default strategy, bulk addresses use sender address-level filtering
+- mailfrom: Sender address-level filtering
+- mailfrom_domain: Sender domain-level filtering
+- edm_id: Account-level filtering', example='mailfrom_domain'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='The type of generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
+- disabled: Do not generate
+- default: Use the default strategy: Generate an unsubscribe link when a bulk-type sending address sends to specific domains, such as those containing keywords like "gmail", "yahoo",
 "google", "aol.com", "hotmail",
 "outlook", "ymail.com", etc.
-- zh-cn: Generated, for future content preparation
-- en-us: Generated, for future content preparation', example='default'),
+- zh-cn: Generate, for future content preparation
+- en-us: Generate, for future content preparation', example='default'),
 }
 
 model BatchSendMailResponseBody = {
-  envId?: string(name='EnvId', description='Event ID', example='600000136562052858'),
+  envId?: string(name='EnvId', description='Event ID', example='xxx'),
   requestId?: string(name='RequestId', description='Request ID', example='12D086F6-8F31-4658-84C1-006DED011A85'),
 }
 
@@ -462,7 +461,7 @@ async function checkDomain(request: CheckDomainRequest): CheckDomainResponse {
 model CheckReplyToMailAddressRequest {
   lang?: string(name='Lang', description='Language.
 
-en is English, and any other value or an empty value defaults to Chinese.', example='无'),
+en is English, and any other value or an empty value defaults to Chinese.', example='en'),
   mailAddressId?: int32(name='MailAddressId', description='Sender Address ID
 
 This parameter is required.', example='126545'),
@@ -922,6 +921,522 @@ async function createUserSuppressionWithOptions(request: CreateUserSuppressionRe
 async function createUserSuppression(request: CreateUserSuppressionRequest): CreateUserSuppressionResponse {
   var runtime = new Util.RuntimeOptions{};
   return createUserSuppressionWithOptions(request, runtime);
+}
+
+model DedicatedIpAutoRenewalRequest {
+  autoRenewal?: string(name='AutoRenewal', description='Whether to enable auto-renewal
+
+This parameter is required.', example='false'),
+  buyResourceIds?: string(name='BuyResourceIds', description='Purchase instance ID, separated by English commas if multiple.
+
+This parameter is required.', example='xxx,xxx'),
+}
+
+model DedicatedIpAutoRenewalResponseBody = {
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+}
+
+model DedicatedIpAutoRenewalResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpAutoRenewalResponseBody(name='body'),
+}
+
+/**
+ * @summary Set Dedicated IP Auto Renewal
+ *
+ * @param request DedicatedIpAutoRenewalRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpAutoRenewalResponse
+ */
+async function dedicatedIpAutoRenewalWithOptions(request: DedicatedIpAutoRenewalRequest, runtime: Util.RuntimeOptions): DedicatedIpAutoRenewalResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.autoRenewal)) {
+    query['AutoRenewal'] = request.autoRenewal;
+  }
+  if (!Util.isUnset(request.buyResourceIds)) {
+    query['BuyResourceIds'] = request.buyResourceIds;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpAutoRenewal',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Set Dedicated IP Auto Renewal
+ *
+ * @param request DedicatedIpAutoRenewalRequest
+ * @return DedicatedIpAutoRenewalResponse
+ */
+async function dedicatedIpAutoRenewal(request: DedicatedIpAutoRenewalRequest): DedicatedIpAutoRenewalResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpAutoRenewalWithOptions(request, runtime);
+}
+
+model DedicatedIpChangeWarmupTypeRequest {
+  id?: string(name='Id', description='Dedicated IP ID', example='xxx'),
+  warmupType?: string(name='WarmupType', description='Warmup method', example='sysCusStream'),
+}
+
+model DedicatedIpChangeWarmupTypeResponseBody = {
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+}
+
+model DedicatedIpChangeWarmupTypeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpChangeWarmupTypeResponseBody(name='body'),
+}
+
+/**
+ * @summary Change the warmup method for a dedicated IP
+ *
+ * @param request DedicatedIpChangeWarmupTypeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpChangeWarmupTypeResponse
+ */
+async function dedicatedIpChangeWarmupTypeWithOptions(request: DedicatedIpChangeWarmupTypeRequest, runtime: Util.RuntimeOptions): DedicatedIpChangeWarmupTypeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.warmupType)) {
+    query['WarmupType'] = request.warmupType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpChangeWarmupType',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Change the warmup method for a dedicated IP
+ *
+ * @param request DedicatedIpChangeWarmupTypeRequest
+ * @return DedicatedIpChangeWarmupTypeResponse
+ */
+async function dedicatedIpChangeWarmupType(request: DedicatedIpChangeWarmupTypeRequest): DedicatedIpChangeWarmupTypeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpChangeWarmupTypeWithOptions(request, runtime);
+}
+
+model DedicatedIpListRequest {
+  keyword?: string(name='Keyword', description='IP search keyword', example='xxx'),
+  pageIndex?: int32(name='PageIndex', description='Pagination index, starting from 1', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size', example='10'),
+}
+
+model DedicatedIpListResponseBody = {
+  currentPage?: int32(name='CurrentPage', description='Current page', example='1'),
+  hasMore?: boolean(name='HasMore', description='Whether there is a next page', example='false'),
+  ips?: [ 
+    {
+      expiredTime?: string(name='ExpiredTime', description='Expiration time', example='2025-06-12T09:19:20Z'),
+      id?: string(name='Id', description='IP ID, consistent with the purchased instance ID', example='xxx'),
+      instanceId?: string(name='InstanceId', description='Purchased instance ID', example='xxx'),
+      ip?: string(name='Ip', description='IP address', example='xxx'),
+      ipExt?: {
+        autoRenewal?: boolean(name='AutoRenewal', description='Whether auto-renewal is enabled', example='false'),
+        hasSendMail?: boolean(name='HasSendMail', description='Whether an email has been sent', example='true'),
+      }(name='IpExt', description='Extended information'),
+      ipPoolName?: string(name='IpPoolName', description='Name of the IP pool', example='xxx'),
+      startTime?: string(name='StartTime', description='Purchase time', example='2025-05-12T09:19:20Z'),
+      status?: string(name='Status', description='IP status', example='sold'),
+      warmupStatus?: string(name='WarmupStatus', description='Warm-up status', example='finish'),
+      warmupType?: string(name='WarmupType', description='Warm-up method', example='cusSelfManager'),
+    }
+  ](name='Ips', description='IP list'),
+  pageSize?: int32(name='PageSize', description='Page size', example='10'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  totalCounts?: int32(name='TotalCounts', description='Total amount of purchased IP data', example='5'),
+}
+
+model DedicatedIpListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpListResponseBody(name='body'),
+}
+
+/**
+ * @summary Dedicated IP User IP List
+ *
+ * @param request DedicatedIpListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpListResponse
+ */
+async function dedicatedIpListWithOptions(request: DedicatedIpListRequest, runtime: Util.RuntimeOptions): DedicatedIpListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.keyword)) {
+    query['Keyword'] = request.keyword;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpList',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Dedicated IP User IP List
+ *
+ * @param request DedicatedIpListRequest
+ * @return DedicatedIpListResponse
+ */
+async function dedicatedIpList(request: DedicatedIpListRequest): DedicatedIpListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpListWithOptions(request, runtime);
+}
+
+model DedicatedIpNonePoolListResponseBody = {
+  ips?: [ 
+    {
+      id?: string(name='Id', description='Purchased instance ID', example='xxx'),
+      ip?: string(name='Ip', description='IP address', example='xxx'),
+    }
+  ](name='Ips', description='Information on IPs not added to the IP pool'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+}
+
+model DedicatedIpNonePoolListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpNonePoolListResponseBody(name='body'),
+}
+
+/**
+ * @summary Purchased Independent IPs Not Added to Pool
+ *
+ * @param request DedicatedIpNonePoolListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpNonePoolListResponse
+ */
+async function dedicatedIpNonePoolListWithOptions(runtime: Util.RuntimeOptions): DedicatedIpNonePoolListResponse {
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpNonePoolList',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Purchased Independent IPs Not Added to Pool
+ *
+ * @return DedicatedIpNonePoolListResponse
+ */
+async function dedicatedIpNonePoolList(): DedicatedIpNonePoolListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpNonePoolListWithOptions(runtime);
+}
+
+model DedicatedIpPoolCreateRequest {
+  buyResourceIds?: string(name='BuyResourceIds', description='Purchased IP instance IDs, separated by commas; derived from the IP purchase instance IDs returned by the DedicatedIpNonePoolList interface.', example='xxx,xxx'),
+  name?: string(name='Name', description='IP pool name;
+Length should be 1-50 characters, allowing English letters, numbers, _, and -. The name cannot be modified after the IP pool is created.', example='xxx'),
+}
+
+model DedicatedIpPoolCreateResponseBody = {
+  id?: string(name='Id', description='IP pool ID', example='xxx'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+}
+
+model DedicatedIpPoolCreateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpPoolCreateResponseBody(name='body'),
+}
+
+/**
+ * @summary Creation of Independent IP Pool
+ *
+ * @param request DedicatedIpPoolCreateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpPoolCreateResponse
+ */
+async function dedicatedIpPoolCreateWithOptions(request: DedicatedIpPoolCreateRequest, runtime: Util.RuntimeOptions): DedicatedIpPoolCreateResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.buyResourceIds)) {
+    query['BuyResourceIds'] = request.buyResourceIds;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpPoolCreate',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creation of Independent IP Pool
+ *
+ * @param request DedicatedIpPoolCreateRequest
+ * @return DedicatedIpPoolCreateResponse
+ */
+async function dedicatedIpPoolCreate(request: DedicatedIpPoolCreateRequest): DedicatedIpPoolCreateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpPoolCreateWithOptions(request, runtime);
+}
+
+model DedicatedIpPoolDeleteRequest {
+  id?: string(name='Id', example='xxx'),
+}
+
+model DedicatedIpPoolDeleteResponseBody = {
+  requestId?: string(name='RequestId', example='xxx'),
+}
+
+model DedicatedIpPoolDeleteResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpPoolDeleteResponseBody(name='body'),
+}
+
+/**
+ * @summary 独立IP池删除
+ *
+ * @param request DedicatedIpPoolDeleteRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpPoolDeleteResponse
+ */
+async function dedicatedIpPoolDeleteWithOptions(request: DedicatedIpPoolDeleteRequest, runtime: Util.RuntimeOptions): DedicatedIpPoolDeleteResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpPoolDelete',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 独立IP池删除
+ *
+ * @param request DedicatedIpPoolDeleteRequest
+ * @return DedicatedIpPoolDeleteResponse
+ */
+async function dedicatedIpPoolDelete(request: DedicatedIpPoolDeleteRequest): DedicatedIpPoolDeleteResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpPoolDeleteWithOptions(request, runtime);
+}
+
+model DedicatedIpPoolListRequest {
+  keyword?: string(name='Keyword', description='Search keyword for the name', example='xxx'),
+  pageIndex?: int32(name='PageIndex', description='Page index, starting from 1', example='1'),
+  pageSize?: int32(name='PageSize', description='Number of items per page', example='10'),
+}
+
+model DedicatedIpPoolListResponseBody = {
+  currentPage?: string(name='CurrentPage', description='Current page', example='1'),
+  hasMore?: boolean(name='HasMore', description='Whether there is a next page', example='false'),
+  ipPools?: [ 
+    {
+      createTime?: string(name='CreateTime', description='Creation time', example='2025-05-23T07:41:43Z'),
+      id?: string(name='Id', description='IP pool ID', example='xxx'),
+      ipCount?: int32(name='IpCount', description='Number of source IP addresses', example='1'),
+      ips?: [ 
+        {
+          id?: string(name='Id', description='Instance purchase ID', example='xxx'),
+          ip?: string(name='Ip', description='IP address', example='xxx'),
+        }
+      ](name='Ips', description='List of IPs'),
+      name?: string(name='Name', description='IP pool name', example='xxx'),
+    }
+  ](name='IpPools', description='List of IP pools'),
+  pageSize?: string(name='PageSize', description='Page size', example='10'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+  totalCounts?: int32(name='TotalCounts', description='Total number of data under the current request conditions', example='5'),
+}
+
+model DedicatedIpPoolListResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpPoolListResponseBody(name='body'),
+}
+
+/**
+ * @summary Dedicated IP Pool List
+ *
+ * @param request DedicatedIpPoolListRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpPoolListResponse
+ */
+async function dedicatedIpPoolListWithOptions(request: DedicatedIpPoolListRequest, runtime: Util.RuntimeOptions): DedicatedIpPoolListResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.keyword)) {
+    query['Keyword'] = request.keyword;
+  }
+  if (!Util.isUnset(request.pageIndex)) {
+    query['PageIndex'] = request.pageIndex;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpPoolList',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Dedicated IP Pool List
+ *
+ * @param request DedicatedIpPoolListRequest
+ * @return DedicatedIpPoolListResponse
+ */
+async function dedicatedIpPoolList(request: DedicatedIpPoolListRequest): DedicatedIpPoolListResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpPoolListWithOptions(request, runtime);
+}
+
+model DedicatedIpPoolUpdateRequest {
+  buyResourceIds?: string(name='BuyResourceIds', description='Purchased IP instance IDs, separated by commas; sourced from the DedicatedIpNonePoolList API\\\\"s returned IP purchase instance IDs', example='xxx,xxx'),
+  id?: string(name='Id', description='IP pool ID', example='xxx'),
+  updateResource?: boolean(name='UpdateResource', description='Whether to change the associated IP, enter true', example='true'),
+}
+
+model DedicatedIpPoolUpdateResponseBody = {
+  id?: string(name='Id', description='IP pool ID', example='xxx'),
+  requestId?: string(name='RequestId', description='Request ID', example='xxx'),
+}
+
+model DedicatedIpPoolUpdateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DedicatedIpPoolUpdateResponseBody(name='body'),
+}
+
+/**
+ * @summary Update of dedicated IP Pool
+ *
+ * @param request DedicatedIpPoolUpdateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DedicatedIpPoolUpdateResponse
+ */
+async function dedicatedIpPoolUpdateWithOptions(request: DedicatedIpPoolUpdateRequest, runtime: Util.RuntimeOptions): DedicatedIpPoolUpdateResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.buyResourceIds)) {
+    query['BuyResourceIds'] = request.buyResourceIds;
+  }
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.updateResource)) {
+    query['UpdateResource'] = request.updateResource;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DedicatedIpPoolUpdate',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Update of dedicated IP Pool
+ *
+ * @param request DedicatedIpPoolUpdateRequest
+ * @return DedicatedIpPoolUpdateResponse
+ */
+async function dedicatedIpPoolUpdate(request: DedicatedIpPoolUpdateRequest): DedicatedIpPoolUpdateResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return dedicatedIpPoolUpdateWithOptions(request, runtime);
 }
 
 model DeleteDomainRequest {
@@ -2693,13 +3208,13 @@ async function queryInvalidAddress(request: QueryInvalidAddressRequest): QueryIn
 }
 
 model QueryMailAddressByParamRequest {
-  keyWord?: string(name='KeyWord', description='Email address, length 1-60, supports numbers, letters, ., -, @.', example='账号+@+域名'),
+  keyWord?: string(name='KeyWord', description='Email address, length 1-60, supports numbers, letters, ., -, @.', example='sender@example.com'),
   ownerId?: long(name='OwnerId'),
   pageNo?: int32(name='PageNo', description='Current page number, default: 1', example='1'),
   pageSize?: int32(name='PageSize', description='Page size, default: 10', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  sendtype?: string(name='Sendtype', description='Type of sending address. Values:
+  sendtype?: string(name='Sendtype', description='Sending address type. Values:
 
 - batch: bulk email
 - trigger: triggered email', example='batch'),
@@ -2713,24 +3228,24 @@ model QueryMailAddressByParamResponseBody = {
   data?: {
     mailAddress?: [ 
     {
-      accountName?: string(name='AccountName', description='Sending address', example='账户+@+域名'),
+      accountName?: string(name='AccountName', description='Sending address', example='sender@example.com'),
       accountStatus?: string(name='AccountStatus', description='Account status, frozen: 1, normal: 0.', example='0'),
       createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
       dailyCount?: string(name='DailyCount', description='Daily quota limit', example='10000'),
       dailyReqCount?: string(name='DailyReqCount', description='Daily quota', example='100'),
       domainStatus?: string(name='DomainStatus', description='Domain status, 0 indicates normal, 1 indicates abnormal.', example='0'),
-      mailAddressId?: string(name='MailAddressId', description='Mail address ID', example='12122'),
+      mailAddressId?: string(name='MailAddressId', description='Sending address ID', example='12122'),
       monthCount?: string(name='MonthCount', description='Monthly quota limit', example='300000'),
       monthReqCount?: string(name='MonthReqCount', description='Monthly quota', example='20000'),
       replyAddress?: string(name='ReplyAddress', description='Reply address', example='test@example.com'),
       replyStatus?: string(name='ReplyStatus', description='Reply address status', example='0'),
-      sendtype?: string(name='Sendtype', description='Type of sending address. Values:
+      sendtype?: string(name='Sendtype', description='Sending address type. Values:
 
 - batch: bulk email
 - trigger: triggered email', example='batch'),
     }
   ](name='mailAddress')
-  }(name='data', description='List of mail addresses'),
+  }(name='data', description='List of sending addresses'),
 }
 
 model QueryMailAddressByParamResponse = {
@@ -2740,7 +3255,7 @@ model QueryMailAddressByParamResponse = {
 }
 
 /**
- * @summary Query the list of mail addresses.
+ * @summary Query the list of sending addresses.
  *
  * @param request QueryMailAddressByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2788,7 +3303,7 @@ async function queryMailAddressByParamWithOptions(request: QueryMailAddressByPar
 }
 
 /**
- * @summary Query the list of mail addresses.
+ * @summary Query the list of sending addresses.
  *
  * @param request QueryMailAddressByParamRequest
  * @return QueryMailAddressByParamResponse
@@ -3084,37 +3599,37 @@ async function queryTagByParam(request: QueryTagByParamRequest): QueryTagByParam
 }
 
 model QueryTaskByParamRequest {
-  keyWord?: string(name='KeyWord', description='Keyword, defaults to all information.', example='mesh-notification-788717'),
+  keyWord?: string(name='KeyWord', description='Keyword, defaults to all information', example='mesh-notification-788717'),
   ownerId?: long(name='OwnerId'),
-  pageNo?: int32(name='PageNo', description='Current page number, default is 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='Page size, default is 10.', example='10'),
+  pageNo?: int32(name='PageNo', description='Current page number, default is 1', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size, default is 10', example='10'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  status?: int32(name='Status', description='Status, defaults to all statuses.', example='0'),
+  status?: int32(name='Status', description='Status, defaults to all statuses', example='0'),
 }
 
 model QueryTaskByParamResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='Current page number.', example='3'),
-  pageSize?: int32(name='PageSize', description='Page size.', example='10'),
-  requestId?: string(name='RequestId', description='Request ID.', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
-  totalCount?: int32(name='TotalCount', description='Total count.', example='15'),
+  pageNumber?: int32(name='PageNumber', description='Current page number', example='3'),
+  pageSize?: int32(name='PageSize', description='Page size', example='10'),
+  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+  totalCount?: int32(name='TotalCount', description='Total count', example='15'),
   data?: {
     task?: [ 
     {
       addressType?: string(name='AddressType', description='Address type, sending address: 1; random address: 0;', example='0'),
-      createTime?: string(name='CreateTime', description='Creation time.', example='2022-04-18T10:36Z'),
-      ipPoolId?: string(name='IpPoolId'),
-      ipPoolName?: string(name='IpPoolName'),
-      receiversName?: string(name='ReceiversName', description='Receiver\\\\"s name.', example='TKP000442-333'),
-      requestCount?: string(name='RequestCount', description='Request count.', example='1'),
-      tagName?: string(name='TagName', description='Tag.', example='202201'),
-      taskId?: string(name='TaskId', description='Task ID.', example='1054296'),
-      taskStatus?: string(name='TaskStatus', description='Task status, sent successfully: 1.', example='1'),
-      templateName?: string(name='TemplateName', description='Template name.', example='Short Simple'),
-      utcCreateTime?: long(name='UtcCreateTime', description='Creation time in UTC format.', example='1569734892'),
+      createTime?: string(name='CreateTime', description='Creation time', example='2022-04-18T10:36Z'),
+      ipPoolId?: string(name='IpPoolId', description='dedicated IP pool ID.', example='xxx'),
+      ipPoolName?: string(name='IpPoolName', description='dedicated IP pool name.', example='test'),
+      receiversName?: string(name='ReceiversName', description='Receiver\\\\"s name', example='TKP000442-333'),
+      requestCount?: string(name='RequestCount', description='Request count', example='1'),
+      tagName?: string(name='TagName', description='Tag', example='202201'),
+      taskId?: string(name='TaskId', description='Task ID', example='1054296'),
+      taskStatus?: string(name='TaskStatus', description='Task status, sent successfully: 1', example='1'),
+      templateName?: string(name='TemplateName', description='Template name', example='Short Simple'),
+      utcCreateTime?: long(name='UtcCreateTime', description='Creation time in UTC format', example='1569734892'),
     }
   ](name='task')
-  }(name='data', description='Returned results.'),
+  }(name='data', description='Returned results'),
 }
 
 model QueryTaskByParamResponse = {
@@ -3124,7 +3639,7 @@ model QueryTaskByParamResponse = {
 }
 
 /**
- * @summary Query task.
+ * @summary Query task list
  *
  * @param request QueryTaskByParamRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3172,7 +3687,7 @@ async function queryTaskByParamWithOptions(request: QueryTaskByParamRequest, run
 }
 
 /**
- * @summary Query task.
+ * @summary Query task list
  *
  * @param request QueryTaskByParamRequest
  * @return QueryTaskByParamResponse
@@ -3736,149 +4251,59 @@ async function setSuppressionListLevel(request: SetSuppressionListLevelRequest):
 }
 
 model SingleSendMailRequest {
-  accountName?: string(name='AccountName', description='The sending address configured in the management console.
-
-This parameter is required.', example='test***@example.net'),
-  addressType?: int32(name='AddressType', description='Address type. Values:
-
-0: Random account
-
-1: Sending address
-
-This parameter is required.', example='1'),
+  accountName?: string(name='AccountName', description='This parameter is required.'),
+  addressType?: int32(name='AddressType', description='This parameter is required.'),
   attachments?: [ 
     {
       attachmentName?: string(name='AttachmentName'),
       attachmentUrl?: string(name='AttachmentUrl'),
     }
   ](name='Attachments'),
-  clickTrace?: string(name='ClickTrace', description='1: Enable data tracking function
-
-0 (default): Disable data tracking function.', example='0'),
-  fromAlias?: string(name='FromAlias', description='Sender nickname, with a maximum length of 15 characters.
-
-For example, if the sender\\\\"s nickname is set to "Xiaohong" and the sending address is test***@example.net, the recipient will see the sending address as "Xiaohong" <test***@example.net>.', example='Xiaohong'),
-  headers?: string(name='Headers', description='Standard fields that can currently be added to the email header include Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite existing values in the email header, while non-standard fields need to start with X-User- and will be appended to the email header.
-Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
-  "Message-ID": "<msg0001@example.com>",
-  "X-User-UID1": "UID-1-000001",
-  "X-User-UID2": "UID-2-000001"
-}'),
-  htmlBody?: string(name='HtmlBody', description='Email HTML body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
+  clickTrace?: string(name='ClickTrace'),
+  fromAlias?: string(name='FromAlias'),
+  headers?: string(name='Headers'),
+  htmlBody?: string(name='HtmlBody'),
   ipPoolId?: string(name='IpPoolId'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress', description='Reply-to address', example='test2***@example.net'),
-  replyAddressAlias?: string(name='ReplyAddressAlias', description='Reply-to address nickname', example='Xiaohong'),
-  replyToAddress?: boolean(name='ReplyToAddress', description='Whether to enable the reply-to address configured in the management console (the status must be verified). The value range is the string `true` or `false` (not a boolean value).
-
-This parameter is required.', example='true'),
+  replyAddress?: string(name='ReplyAddress'),
+  replyAddressAlias?: string(name='ReplyAddressAlias'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='This parameter is required.'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  subject?: string(name='Subject', description='Email subject, with a maximum length of 100 characters.
-
-This parameter is required.', example='Subject'),
-  tagName?: string(name='TagName', description='A tag created in the email push console, used to categorize batches of emails sent. You can use tags to query the sending status of each batch. Additionally, if the email tracking feature is enabled, you must use an email tag when sending emails.', example='test'),
-  textBody?: string(name='TextBody', description='Email text body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
-  toAddress?: string(name='ToAddress', description='Recipient addresses. Multiple email addresses can be separated by commas, with a maximum of 100 addresses (supports mailing lists).
-
-This parameter is required.', example='test1***@example.net'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filtering level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-
-disabled: No filtering
-
-default: Use the default strategy, bulk addresses use the sending address level filtering
-
-mailfrom: Sending address level filtering
-
-mailfrom_domain: Sending domain level filtering
-
-edm_id: Account level filtering', example='mailfrom_domain'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='Type of the generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-
-disabled: Do not generate
-
-default: Use the default strategy: Generate unsubscribe links for bulk-type sending addresses when sending to specific domains, such as those containing keywords like "gmail", "yahoo",
-
-"google", "aol.com", "hotmail",
-
-"outlook", "ymail.com", etc.
-
-zh-cn: Generate, for future content preparation
-
-en-us: Generate, for future content preparation', example='default'),
+  subject?: string(name='Subject', description='This parameter is required.'),
+  tagName?: string(name='TagName'),
+  textBody?: string(name='TextBody'),
+  toAddress?: string(name='ToAddress', description='This parameter is required.'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType'),
 }
 
 model SingleSendMailAdvanceRequest {
-  accountName?: string(name='AccountName', description='The sending address configured in the management console.
-
-This parameter is required.', example='test***@example.net'),
-  addressType?: int32(name='AddressType', description='Address type. Values:
-
-0: Random account
-
-1: Sending address
-
-This parameter is required.', example='1'),
+  accountName?: string(name='AccountName', description='This parameter is required.'),
+  addressType?: int32(name='AddressType', description='This parameter is required.'),
   attachments?: [ 
     {
       attachmentName?: string(name='AttachmentName'),
       attachmentUrlObject?: readable(name='AttachmentUrl'),
     }
   ](name='Attachments'),
-  clickTrace?: string(name='ClickTrace', description='1: Enable data tracking function
-
-0 (default): Disable data tracking function.', example='0'),
-  fromAlias?: string(name='FromAlias', description='Sender nickname, with a maximum length of 15 characters.
-
-For example, if the sender\\\\"s nickname is set to "Xiaohong" and the sending address is test***@example.net, the recipient will see the sending address as "Xiaohong" <test***@example.net>.', example='Xiaohong'),
-  headers?: string(name='Headers', description='Standard fields that can currently be added to the email header include Message-ID, List-Unsubscribe, and List-Unsubscribe-Post. Standard fields will overwrite existing values in the email header, while non-standard fields need to start with X-User- and will be appended to the email header.
-Currently, up to 10 headers can be passed in JSON format, and both standard and non-standard fields must comply with the syntax requirements for headers.', example='{
-  "Message-ID": "<msg0001@example.com>",
-  "X-User-UID1": "UID-1-000001",
-  "X-User-UID2": "UID-2-000001"
-}'),
-  htmlBody?: string(name='HtmlBody', description='Email HTML body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
+  clickTrace?: string(name='ClickTrace'),
+  fromAlias?: string(name='FromAlias'),
+  headers?: string(name='Headers'),
+  htmlBody?: string(name='HtmlBody'),
   ipPoolId?: string(name='IpPoolId'),
   ownerId?: long(name='OwnerId'),
-  replyAddress?: string(name='ReplyAddress', description='Reply-to address', example='test2***@example.net'),
-  replyAddressAlias?: string(name='ReplyAddressAlias', description='Reply-to address nickname', example='Xiaohong'),
-  replyToAddress?: boolean(name='ReplyToAddress', description='Whether to enable the reply-to address configured in the management console (the status must be verified). The value range is the string `true` or `false` (not a boolean value).
-
-This parameter is required.', example='true'),
+  replyAddress?: string(name='ReplyAddress'),
+  replyAddressAlias?: string(name='ReplyAddressAlias'),
+  replyToAddress?: boolean(name='ReplyToAddress', description='This parameter is required.'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  subject?: string(name='Subject', description='Email subject, with a maximum length of 100 characters.
-
-This parameter is required.', example='Subject'),
-  tagName?: string(name='TagName', description='A tag created in the email push console, used to categorize batches of emails sent. You can use tags to query the sending status of each batch. Additionally, if the email tracking feature is enabled, you must use an email tag when sending emails.', example='test'),
-  textBody?: string(name='TextBody', description='Email text body, limited to 80K by the SDK. Note: HtmlBody and TextBody are for different types of email content, and one of them must be provided.', example='body'),
-  toAddress?: string(name='ToAddress', description='Recipient addresses. Multiple email addresses can be separated by commas, with a maximum of 100 addresses (supports mailing lists).
-
-This parameter is required.', example='test1***@example.net'),
-  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel', description='Filtering level. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-
-disabled: No filtering
-
-default: Use the default strategy, bulk addresses use the sending address level filtering
-
-mailfrom: Sending address level filtering
-
-mailfrom_domain: Sending domain level filtering
-
-edm_id: Account level filtering', example='mailfrom_domain'),
-  unSubscribeLinkType?: string(name='UnSubscribeLinkType', description='Type of the generated unsubscribe link. Refer to the [Unsubscribe Function Link Generation and Filtering Mechanism](https://help.aliyun.com/document_detail/2689048.html) document.
-
-disabled: Do not generate
-
-default: Use the default strategy: Generate unsubscribe links for bulk-type sending addresses when sending to specific domains, such as those containing keywords like "gmail", "yahoo",
-
-"google", "aol.com", "hotmail",
-
-"outlook", "ymail.com", etc.
-
-zh-cn: Generate, for future content preparation
-
-en-us: Generate, for future content preparation', example='default'),
+  subject?: string(name='Subject', description='This parameter is required.'),
+  tagName?: string(name='TagName'),
+  textBody?: string(name='TextBody'),
+  toAddress?: string(name='ToAddress', description='This parameter is required.'),
+  unSubscribeFilterLevel?: string(name='UnSubscribeFilterLevel'),
+  unSubscribeLinkType?: string(name='UnSubscribeLinkType'),
 }
 
 model SingleSendMailResponseBody = {
@@ -3902,41 +4327,8 @@ model SingleSendMailResponse = {
 async function singleSendMailWithOptions(request: SingleSendMailRequest, runtime: Util.RuntimeOptions): SingleSendMailResponse {
   Util.validateModel(request);
   var query = {};
-  if (!Util.isUnset(request.accountName)) {
-    query['AccountName'] = request.accountName;
-  }
-  if (!Util.isUnset(request.addressType)) {
-    query['AddressType'] = request.addressType;
-  }
-  if (!Util.isUnset(request.attachments)) {
-    query['Attachments'] = request.attachments;
-  }
-  if (!Util.isUnset(request.clickTrace)) {
-    query['ClickTrace'] = request.clickTrace;
-  }
-  if (!Util.isUnset(request.fromAlias)) {
-    query['FromAlias'] = request.fromAlias;
-  }
-  if (!Util.isUnset(request.headers)) {
-    query['Headers'] = request.headers;
-  }
-  if (!Util.isUnset(request.htmlBody)) {
-    query['HtmlBody'] = request.htmlBody;
-  }
-  if (!Util.isUnset(request.ipPoolId)) {
-    query['IpPoolId'] = request.ipPoolId;
-  }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
-  }
-  if (!Util.isUnset(request.replyAddress)) {
-    query['ReplyAddress'] = request.replyAddress;
-  }
-  if (!Util.isUnset(request.replyAddressAlias)) {
-    query['ReplyAddressAlias'] = request.replyAddressAlias;
-  }
-  if (!Util.isUnset(request.replyToAddress)) {
-    query['ReplyToAddress'] = request.replyToAddress;
   }
   if (!Util.isUnset(request.resourceOwnerAccount)) {
     query['ResourceOwnerAccount'] = request.resourceOwnerAccount;
@@ -3944,26 +4336,61 @@ async function singleSendMailWithOptions(request: SingleSendMailRequest, runtime
   if (!Util.isUnset(request.resourceOwnerId)) {
     query['ResourceOwnerId'] = request.resourceOwnerId;
   }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.accountName)) {
+    body['AccountName'] = request.accountName;
+  }
+  if (!Util.isUnset(request.addressType)) {
+    body['AddressType'] = request.addressType;
+  }
+  if (!Util.isUnset(request.attachments)) {
+    body['Attachments'] = request.attachments;
+  }
+  if (!Util.isUnset(request.clickTrace)) {
+    body['ClickTrace'] = request.clickTrace;
+  }
+  if (!Util.isUnset(request.fromAlias)) {
+    body['FromAlias'] = request.fromAlias;
+  }
+  if (!Util.isUnset(request.headers)) {
+    body['Headers'] = request.headers;
+  }
+  if (!Util.isUnset(request.htmlBody)) {
+    body['HtmlBody'] = request.htmlBody;
+  }
+  if (!Util.isUnset(request.ipPoolId)) {
+    body['IpPoolId'] = request.ipPoolId;
+  }
+  if (!Util.isUnset(request.replyAddress)) {
+    body['ReplyAddress'] = request.replyAddress;
+  }
+  if (!Util.isUnset(request.replyAddressAlias)) {
+    body['ReplyAddressAlias'] = request.replyAddressAlias;
+  }
+  if (!Util.isUnset(request.replyToAddress)) {
+    body['ReplyToAddress'] = request.replyToAddress;
+  }
   if (!Util.isUnset(request.subject)) {
-    query['Subject'] = request.subject;
+    body['Subject'] = request.subject;
   }
   if (!Util.isUnset(request.tagName)) {
-    query['TagName'] = request.tagName;
+    body['TagName'] = request.tagName;
   }
   if (!Util.isUnset(request.textBody)) {
-    query['TextBody'] = request.textBody;
+    body['TextBody'] = request.textBody;
   }
   if (!Util.isUnset(request.toAddress)) {
-    query['ToAddress'] = request.toAddress;
+    body['ToAddress'] = request.toAddress;
   }
   if (!Util.isUnset(request.unSubscribeFilterLevel)) {
-    query['UnSubscribeFilterLevel'] = request.unSubscribeFilterLevel;
+    body['UnSubscribeFilterLevel'] = request.unSubscribeFilterLevel;
   }
   if (!Util.isUnset(request.unSubscribeLinkType)) {
-    query['UnSubscribeLinkType'] = request.unSubscribeLinkType;
+    body['UnSubscribeLinkType'] = request.unSubscribeLinkType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApi.Params{
     action = 'SingleSendMail',
@@ -3992,10 +4419,18 @@ async function singleSendMail(request: SingleSendMailRequest): SingleSendMailRes
 
 async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runtime: Util.RuntimeOptions): SingleSendMailResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -4012,26 +4447,31 @@ async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runt
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Dm',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dm',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var singleSendMailReq = new SingleSendMailRequest{};
   OpenApiUtil.convert(request, singleSendMailReq);
 
@@ -4039,37 +4479,105 @@ async function singleSendMailAdvance(request: SingleSendMailAdvanceRequest, runt
     var i0 : integer = 0;
     for (var item0 : request.attachments) {
       if(!Util.isUnset(item0.attachmentUrlObject)) {
-        authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-        ossConfig.accessKeyId = authResponse.body.accessKeyId;
-        ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-        ossClient = new OSS(ossConfig);
-
+        var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+        authResponse = Util.assertAsMap(tmpResp0);
+        tmpBody = Util.assertAsMap(authResponse['body']);
+        useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+        authResponseBody = Util.stringifyMapValue(tmpBody);
         fileObj = new FileForm.FileField{
-          filename = authResponse.body.objectKey,
+          filename = authResponseBody['ObjectKey'],
           content = item0.attachmentUrlObject,
           contentType = '',
         };
-        ossHeader = new OSS.PostObjectRequest.header{
-          accessKeyId = authResponse.body.accessKeyId,
-          policy = authResponse.body.encodedPolicy,
-          signature = authResponse.body.signature,
-          key = authResponse.body.objectKey,
+        ossHeader = {
+          host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+          OSSAccessKeyId = authResponseBody['AccessKeyId'],
+          policy = authResponseBody['EncodedPolicy'],
+          Signature = authResponseBody['Signature'],
+          key = authResponseBody['ObjectKey'],
           file = fileObj,
-          successActionStatus = '201',
+          success_action_status = '201',
         };
-        uploadRequest = new OSS.PostObjectRequest{
-          bucketName = authResponse.body.bucket,
-          header = ossHeader,
-        };
-        ossClient.postObject(uploadRequest, ossRuntime);
+        _postOSSObject(authResponseBody['Bucket'], ossHeader);
         var tmp : SingleSendMailRequest.attachments = singleSendMailReq.attachments[i0];
-        tmp.attachmentUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+        tmp.attachmentUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
         i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
       }
     }
   }
   var singleSendMailResp = singleSendMailWithOptions(singleSendMailReq, runtime);
   return singleSendMailResp;
+}
+
+model UnblockSendingRequest {
+  blockEmail?: string(name='BlockEmail', description='Blacklisted recipient\\\\"s email address
+
+This parameter is required.', example='recipient@example.com'),
+  blockType?: string(name='BlockType', description='Blacklist type
+- UNSUB: Unsubscribe
+- REPORT: Report
+
+This parameter is required.', example='UNSUB'),
+  senderEmail?: string(name='SenderEmail', description='Sender\\\\"s email address
+
+This parameter is required.', example='sender@example.com'),
+}
+
+model UnblockSendingResponseBody = {
+  requestId?: string(name='RequestId', description='Request ID', example='10A1AD70-E48E-476D-98D9-39BD92193837'),
+}
+
+model UnblockSendingResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnblockSendingResponseBody(name='body'),
+}
+
+/**
+ * @summary Lift sending restrictions due to unsubscription, reporting, etc.
+ *
+ * @param request UnblockSendingRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UnblockSendingResponse
+ */
+async function unblockSendingWithOptions(request: UnblockSendingRequest, runtime: Util.RuntimeOptions): UnblockSendingResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.blockEmail)) {
+    query['BlockEmail'] = request.blockEmail;
+  }
+  if (!Util.isUnset(request.blockType)) {
+    query['BlockType'] = request.blockType;
+  }
+  if (!Util.isUnset(request.senderEmail)) {
+    query['SenderEmail'] = request.senderEmail;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnblockSending',
+    version = '2015-11-23',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Lift sending restrictions due to unsubscription, reporting, etc.
+ *
+ * @param request UnblockSendingRequest
+ * @return UnblockSendingResponse
+ */
+async function unblockSending(request: UnblockSendingRequest): UnblockSendingResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return unblockSendingWithOptions(request, runtime);
 }
 
 model UpdateIpProtectionRequest {
@@ -4205,3 +4713,38 @@ async function updateUser(request: UpdateUserRequest): UpdateUserResponse {
   return updateUserWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, data: object): object {
+  var form = Util.assertAsMap(data);
+  var boundary = FileForm.getBoundary();
+  var host = Util.assertAsString(form.host);
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = host,
+    date = Util.getDateUTCString(),
+    user-agent = Util.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = FileForm.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = Util.readAsString(__response.body);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+    respMap = XML.parseXml(bodyStr, null);
+    var err = Util.assertAsMap(respMap.Error);
+    throw {
+      code = err.Code,
+      message = err.Message,
+      data = {
+        httpCode = __response.statusCode,
+        requestId = err.RequestId,
+        hostId = err.HostId,
+      }
+    };
+  }
+  respMap = XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
