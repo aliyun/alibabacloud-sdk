@@ -205,9 +205,43 @@ model AlertRuleCondition {
       yoyTimeValue?: int32(name='yoyTimeValue'),
     }
   ](name='compareList'),
+  compositeEscalation?: {
+    escalations?: [ 
+      {
+        comparisonOperator?: string(name='comparisonOperator'),
+        metricName?: string(name='metricName'),
+        period?: long(name='period'),
+        statistics?: string(name='statistics'),
+        threshold?: double(name='threshold'),
+      }
+    ](name='escalations'),
+    level?: string(name='level'),
+    relation?: string(name='relation'),
+    times?: int32(name='times'),
+  }(name='compositeEscalation'),
+  escalationType?: string(name='escalationType'),
+  expressEscalation?: {
+    level?: string(name='level'),
+    rawExpression?: string(name='rawExpression'),
+    times?: int32(name='times'),
+  }(name='expressEscalation'),
+  noDataAlertLevel?: string(name='noDataAlertLevel', description='无数据时按什么级别告警，不指定则不对无数据报警'),
   noDataAppendValue?: string(name='noDataAppendValue'),
-  nodataAlertLevel?: string(name='nodataAlertLevel', description='无数据时按什么级别告警，不指定则不对无数据报警'),
+  noDataPolicy?: string(name='noDataPolicy'),
   relation?: string(name='relation'),
+  simpleEscalation?: {
+    escalations?: [ 
+      {
+        comparisonOperator?: string(name='comparisonOperator'),
+        level?: string(name='level'),
+        statistics?: string(name='statistics'),
+        threshold?: double(name='threshold'),
+        times?: int32(name='times'),
+      }
+    ](name='escalations'),
+    metricName?: string(name='metricName'),
+    period?: long(name='period'),
+  }(name='simpleEscalation'),
   type: string(name='type', description='规则条件类型，可选值：SLS_CONDITION
 
 This parameter is required.'),
@@ -260,11 +294,14 @@ model AlertRuleNotificationFilter {
 
 model AlertRuleQuery {
   checkAfterDataComplete?: boolean(name='checkAfterDataComplete'),
+  dimensions?: [ map[string]string ](name='dimensions'),
   duration?: long(name='duration'),
   expr?: string(name='expr'),
   firstJoin?: AlertRuleSlsQueryJoin(name='firstJoin'),
   groupFieldList?: [ string ](name='groupFieldList'),
+  groupId?: string(name='groupId'),
   groupType?: string(name='groupType'),
+  namespace?: string(name='namespace'),
   queries?: [ 
     {
       apmAlertMetricId?: string(name='apmAlertMetricId'),
@@ -284,6 +321,7 @@ model AlertRuleQuery {
       window?: long(name='window', description='整点时间查询区间。  如果指定了window则不指定start、end'),
     }
   ](name='queries'),
+  relationType?: string(name='relationType'),
   secondJoin?: AlertRuleSlsQueryJoin(name='secondJoin'),
   type: string(name='type', description='查询类型
 
@@ -293,6 +331,7 @@ This parameter is required.'),
 model AlertRuleSend {
   action?: AlertRuleAction(name='action'),
   notification?: AlertRuleNotification(name='notification'),
+  sendToArms?: boolean(name='sendToArms'),
 }
 
 model AlertRuleSlsQueryJoin {
@@ -342,6 +381,63 @@ model DataStorageItem {
   regionId?: string(name='regionId'),
   storeName?: string(name='storeName'),
   storeType?: string(name='storeType'),
+}
+
+model EntityDiscoverRule {
+  annotations?: [ 
+    {
+      op?: string(name='op'),
+      tagKey?: string(name='tagKey'),
+      tagValues?: [ string ](name='tagValues'),
+    }
+  ](name='annotations'),
+  entityTypes?: [ string ](name='entityTypes'),
+  fieldRules?: [ 
+    {
+      fieldKey?: string(name='fieldKey'),
+      fieldValues?: [ string ](name='fieldValues'),
+      op?: string(name='op'),
+    }
+  ](name='fieldRules'),
+  instanceIds?: [ string ](name='instanceIds'),
+  ipMatchRule?: [ 
+    {
+      ipCIDR?: string(name='ipCIDR'),
+      ipFieldKey?: string(name='ipFieldKey'),
+    }
+  ](name='ipMatchRule'),
+  labels?: [ 
+    {
+      op?: string(name='op'),
+      tagKey?: string(name='tagKey'),
+      tagValues?: [ string ](name='tagValues'),
+    }
+  ](name='labels'),
+  regionIds?: [ string ](name='regionIds'),
+  resourceGroupId?: string(name='resourceGroupId'),
+  tags?: [ 
+    {
+      op?: string(name='op'),
+      tagKey?: string(name='tagKey'),
+      tagValues?: [ string ](name='tagValues'),
+    }
+  ](name='tags'),
+}
+
+model EntityGroupBase {
+  description?: string(name='description'),
+  entityGroupId?: string(name='entityGroupId'),
+  entityGroupName?: string(name='entityGroupName'),
+  entityQueries?: [ 
+    {
+      entityType?: string(name='entityType'),
+      spl?: string(name='spl'),
+    }
+  ](name='entityQueries'),
+  entityRules?: EntityDiscoverRule(name='entityRules'),
+  regionId?: string(name='regionId'),
+  userId?: string(name='userId'),
+  workspace?: string(name='workspace'),
 }
 
 model FilterSetting {
@@ -977,6 +1073,43 @@ async function getEntityStoreData(request: GetEntityStoreDataRequest): GetEntity
   return @handler.do('RESTFUL', 'GetEntityStoreData', 'POST', '/workspace/{workspace}/entitiesAndRelations', 'json', false, 'json', request);
 }
 
+model GetServiceObservabilityRequest {
+  workspace: string(name='workspace', description='This parameter is required.', example='my-test-ws', position='Path'),
+  type: string(name='type', description='This parameter is required.', example='apm', position='Path'),
+}
+
+model GetServiceObservabilityResponseBody = {
+  entryPointInfo?: {
+    authToken?: string(name='authToken'),
+    privateDomain?: string(name='privateDomain'),
+    project?: string(name='project', description='SLS Project', example='proj-xtrace-xxxxx'),
+    publicDomain?: string(name='publicDomain'),
+  }(name='entryPointInfo'),
+  feeType?: string(name='feeType'),
+  quotas?: map[string]string(name='quotas'),
+  regionId?: string(name='regionId', example='cn-hangzhou'),
+  requestId?: string(name='requestId', example='4852B9B5-345C-5CBC-A15F-786D83ECCBBA'),
+  settings?: map[string]string(name='settings'),
+  status?: string(name='status', example='Running'),
+  type?: string(name='type', example='apm'),
+  workspace?: string(name='workspace'),
+}
+
+model GetServiceObservabilityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetServiceObservabilityResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetServiceObservability  GetServiceObservabilityRequest
+  * @return GetServiceObservabilityResponse
+ */
+async function getServiceObservability(request: GetServiceObservabilityRequest): GetServiceObservabilityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetServiceObservability', 'GET', '/workspace/{workspace}/service-observability/{type}', 'json', false, 'json', request);
+}
+
 model GetUmodelRequest {
   workspace: string(name='workspace', description='This parameter is required.', example='workspace-test', position='Path'),
 }
@@ -1087,54 +1220,65 @@ async function getWorkspace(request: GetWorkspaceRequest): GetWorkspaceResponse 
 model ListAlertActionsRequest {
   regionId?: string(name='RegionId', position='Host'),
   alertActionIds?: [ string ](name='alertActionIds', shrink='json', position='Query'),
-  alertActionName?: string(name='alertActionName', position='Query'),
-  pageNumber?: int32(name='pageNumber', position='Query'),
-  pageSize?: int32(name='pageSize', position='Query'),
-  type?: string(name='type', position='Query'),
+  alertActionName?: string(name='alertActionName', example='testName', position='Query'),
+  pageNumber?: int32(name='pageNumber', example='1', position='Query'),
+  pageSize?: int32(name='pageSize', example='100', position='Query'),
+  type?: string(name='type', example='FC', position='Query'),
 }
 
 model ListAlertActionsResponseBody = {
   alertActions?: [ 
     {
-      alertActionId?: string(name='alertActionId'),
-      alertActionName?: string(name='alertActionName'),
+      alertActionId?: string(name='alertActionId', example='test'),
+      alertActionName?: string(name='alertActionName', example='testName'),
+      ebParam?: {
+        ebSource?: string(name='ebSource', example='test'),
+        eventBusName?: string(name='eventBusName', example='test'),
+        regionId?: string(name='regionId', example='cn-heyuan'),
+        subject?: string(name='subject', example='test'),
+      }(name='ebParam'),
       essParam?: {
-        essGroupId?: string(name='essGroupId'),
-        essRuleId?: string(name='essRuleId'),
-        regionId?: string(name='regionId'),
+        essGroupId?: string(name='essGroupId', example='testId'),
+        essRuleId?: string(name='essRuleId', example='testId'),
+        regionId?: string(name='regionId', example='cn-beijing'),
       }(name='essParam'),
+      fc3Param?: {
+        function?: string(name='function', example='test'),
+        qualifier?: string(name='qualifier', example='test'),
+        regionId?: string(name='regionId', example='cn-qingdao'),
+      }(name='fc3Param'),
       fcParam?: {
-        function?: string(name='function'),
-        regionId?: string(name='regionId'),
-        service?: string(name='service'),
+        function?: string(name='function', example='test'),
+        regionId?: string(name='regionId', example='cn-beijing'),
+        service?: string(name='service', example='test'),
       }(name='fcParam'),
       mnsParam?: {
-        mnsType?: string(name='mnsType'),
-        name?: string(name='name'),
-        regionId?: string(name='regionId'),
+        mnsType?: string(name='mnsType', example='queue'),
+        name?: string(name='name', example='test'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
       }(name='mnsParam'),
       pagerDutyParam?: {
-        key?: string(name='key'),
-        url?: string(name='url'),
+        key?: string(name='key', example='fsfer4543t5t65g4t4'),
+        url?: string(name='url', example='https://events.pagerduty.com/v2/enqueue'),
       }(name='pagerDutyParam'),
       slsParam?: {
-        logstore?: string(name='logstore'),
-        project?: string(name='project'),
-        regionId?: string(name='regionId'),
+        logstore?: string(name='logstore', example='test'),
+        project?: string(name='project', example='test'),
+        regionId?: string(name='regionId', example='cn-hangzhou'),
       }(name='slsParam'),
-      type?: string(name='type'),
+      type?: string(name='type', example='FC'),
       webhookParam?: {
-        contentType?: string(name='contentType'),
+        contentType?: string(name='contentType', example='JSON'),
         headers?: map[string]string(name='headers'),
-        method?: string(name='method'),
-        url?: string(name='url'),
+        method?: string(name='method', example='GET'),
+        url?: string(name='url', example='http://www.test.com'),
       }(name='webhookParam'),
     }
   ](name='alertActions'),
-  pageNumber?: long(name='pageNumber'),
-  pageSize?: long(name='pageSize'),
-  requestId?: string(name='requestId'),
-  total?: int32(name='total'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='100'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  total?: int32(name='total', example='9'),
 }
 
 model ListAlertActionsResponse = {
