@@ -31,11 +31,9 @@ function close(): void {
 }
 
 model AddIpamPoolCidrRequest {
-  cidr: string(name='Cidr', description='The CIDR block that you want to provision.
+  cidr?: string(name='Cidr', description='The CIDR block that you want to provision.
 
->  Only IPv4 CIDR blocks are supported.
-
-This parameter is required.', example='192.168.1.0/24', position='Query'),
+>  Only IPv4 CIDR blocks are supported.', example='192.168.1.0/24', position='Query'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000', position='Query'),
@@ -46,6 +44,7 @@ This parameter is required.', example='192.168.1.0/24', position='Query'),
   ipamPoolId: string(name='IpamPoolId', description='The ID of the IPAM pool.
 
 This parameter is required.', example='ipam-pool-6rcq3tobayc20t****', position='Query'),
+  netmaskLength?: int32(name='NetmaskLength', position='Query'),
   regionId: string(name='RegionId', description='The ID of the region where the IPAM instance is hosted.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -54,6 +53,7 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 }
 
 model AddIpamPoolCidrResponseBody = {
+  cidr?: string(name='Cidr'),
   requestId?: string(name='RequestId', description='The request ID.', example='558BC336-8B88-53B0-B4AD-980EE900AB01'),
 }
 
@@ -263,6 +263,7 @@ It must be 1 to 128 characters in length and cannot start with `http://` or `htt
   ipamScopeId: string(name='IpamScopeId', description='The ID of the IPAM scope.
 
 This parameter is required.', example='ipam-scope-glfmcyldpm8lsy****', position='Query'),
+  ipv6Isp?: string(name='Ipv6Isp', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   poolRegionId?: string(name='PoolRegionId', description='The effective region of the IPAM pool.', example='cn-hangzhou', position='Query'),
@@ -376,7 +377,7 @@ This parameter is required.', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   regionId: string(name='RegionId', description='The request region.
 
->  The request region is the managed region of the resource discovery instance.
+>  The request region is the hosted region of the resource discovery instance.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
   resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-aek2sermdd6****', position='Query'),
@@ -779,7 +780,7 @@ model GetIpamPoolAllocationRequest {
 This parameter is required.', example='ipam-pool-alloc-112za33e4****', position='Query'),
   regionId: string(name='RegionId', description='The region of the IPAM pool.
 
->  If the IPAM pool to which CIDR allocation belongs has the region attribute, this parameter is the region of the IPAM pool. If not, this parameter is the IPAM managed region.
+>  If the IPAM pool to which CIDR allocation belongs has the region attribute, this parameter is the region of the IPAM pool. If not, this parameter is the IPAM hosted region.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
@@ -797,7 +798,7 @@ It must be 1 to 128 characters in length and cannot start with `http://` or `htt
   ipamPoolId?: string(name='IpamPoolId', description='The ID of the IPAM pool.', example='ipam-pool-6rcq3tobayc20t****'),
   regionId?: string(name='RegionId', description='The region of the IPAM pool.
 
->  If the IPAM pool to which the CIDR block allocation belongs has the region attribute, this parameter is the region of the IPAM pool. If not, this parameter is the IPAM managed region.', example='cn-hangzhou'),
+>  If the IPAM pool to which the CIDR block allocation belongs has the region attribute, this parameter is the region of the IPAM pool. If not, this parameter is the IPAM hosted region.', example='cn-hangzhou'),
   requestId?: string(name='RequestId', description='The request ID.', example='3748DEFF-68BE-5EED-9937-7C1D0C21BAB4'),
   resourceId?: string(name='ResourceId', description='The ID of the resource to which the CIDR block is allocated.', example='vpc-bp16qjewdsunr41m1****'),
   resourceOwnerId?: long(name='ResourceOwnerId', description='The ID of the Alibaba Cloud account to which the resource belongs.', example='1616080591216318'),
@@ -844,7 +845,7 @@ model GetIpamPoolNextAvailableCidrRequest {
 This parameter is required.', example='ipam-pool-6rcq3tobayc20t****', position='Query'),
   regionId: string(name='RegionId', description='The region of the IPAM pool.
 
->  If the IPAM pool has the region attribute, this parameter is set to the effective region of the IPAM pool. If not, this is set to the managed region.
+>  If the IPAM pool has the region attribute, this parameter is set to the effective region of the IPAM pool. If not, this is set to the hosted region.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
@@ -916,7 +917,7 @@ This parameter is required.', example='ipam-res-disco-jt5f2af2u6nk2z321****', po
 
 *   You do not need to specify this parameter for the first request.
 *   You must specify the token that is obtained from the previous query as the value of **NextToken**.', example='FFmyTO70tTpLG6I3FmYAXGKPd****', position='Query'),
-  regionId: string(name='RegionId', description='The ID of the managed region of the IPAM pool.
+  regionId: string(name='RegionId', description='The ID of the hosted region of the IPAM pool.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the region list.
 
@@ -1110,11 +1111,13 @@ async function listIpamPoolCidrs(request: ListIpamPoolCidrsRequest): ListIpamPoo
 }
 
 model ListIpamPoolsRequest {
+  ipVersion?: string(name='IpVersion', position='Query'),
   ipamPoolIds?: [ string ](name='IpamPoolIds', description='The IDs of IPAM pools. Valid values of N: 1 to 100. A maximum of 100 IPAM pools can be queried at a time.', position='Query'),
   ipamPoolName?: string(name='IpamPoolName', description='The name of the IPAM pool. You can enter at most 20 names.
 
 It must be 1 to 128 characters in length and cannot start with `http://` or `https://`.', example='test', position='Query'),
   ipamScopeId?: string(name='IpamScopeId', description='The ID of the IPAM scope.', example='ipam-scope-glfmcyldpm8lsy****', position='Query'),
+  ipv6Isp?: string(name='Ipv6Isp', position='Query'),
   isShared?: boolean(name='IsShared', description='Whether it is a shared pool.', example='true', position='Query'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. Valid values:
@@ -1173,6 +1176,7 @@ An IPv4 mask must be **0 to 32** bits in length.', example='8'),
 
 *   **public**
 *   **private**', example='private'),
+      ipv6Isp?: string(name='Ipv6Isp'),
       isShared?: boolean(name='IsShared', description='Whether it is a shared pool.', example='true'),
       ownerId?: long(name='OwnerId', description='The Alibaba Cloud account of the owner for the IPAM pool.', example='1210123456******'),
       poolDepth?: int32(name='PoolDepth', description='The depth of the IPAM pool. Valid values: **0 to 10**.', example='2'),
@@ -2057,7 +2061,7 @@ model UpdateIpamResourceDiscoveryResponse = {
 
 /**
   * @description *   You can add or remove effective regions only for custom resource discovery instances.
-  * *   When removing effective regions from a resource discovery instance, the managed region cannot be included.
+  * *   When removing effective regions from a resource discovery instance, the hosted region cannot be included.
   * @param request  the request parameters of UpdateIpamResourceDiscovery  UpdateIpamResourceDiscoveryRequest
   * @return UpdateIpamResourceDiscoveryResponse
  */
