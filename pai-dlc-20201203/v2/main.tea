@@ -606,7 +606,7 @@ model SecurityContextCapabilities {
 
 model ServiceSpec {
   defaultPort?: int32(name='DefaultPort'),
-  extraPorts?: int32(name='ExtraPorts'),
+  extraPorts?: [ int32 ](name='ExtraPorts'),
   serviceMode?: string(name='ServiceMode'),
 }
 
@@ -730,6 +730,7 @@ model CreateJobRequest {
     {
       dataSourceId?: string(name='DataSourceId', description='The data source ID.', example='d-cn9dl*******'),
       dataSourceVersion?: string(name='DataSourceVersion'),
+      enableCache?: boolean(name='EnableCache'),
       mountAccess?: string(name='MountAccess'),
       mountPath?: string(name='MountPath', description='The path to which the job is mounted. By default, the mount path in the data source configuration is used. This parameter is optional.', example='/root/data'),
       options?: string(name='Options', description='The mount attribute of the custom dataset. Set the value to OSS.', example='{
@@ -752,7 +753,7 @@ This parameter is required.', example='tf-mnist-test'),
   jobMaxRunningTimeMinutes?: long(name='JobMaxRunningTimeMinutes', description='The maximum running duration of the job. Unit: minutes.', example='1024'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs', description='The configurations for job running, such as the image address, startup command, node resource declaration, and number of replicas.****
+  ](name='JobSpecs', description='**JobSpecs** describes the configurations for job running, such as the image address, startup command, node resource declaration, and number of replicas.
 
 A DLC job consists of different types of nodes. If nodes of the same type have exactly the same configuration, the configuration is called JobSpec. **JobSpecs** specifies the configurations of all types of nodes. The value is of the array type.
 
@@ -768,7 +769,7 @@ This parameter is required.'),
 *   SlurmJob
 *   RayJob
 
-Valid values for each job type:
+Valid values and corresponding frameworks:
 
 *   OneFlowJob: OneFlow.
 *   PyTorchJob: PyTorch.
@@ -783,7 +784,7 @@ This parameter is required.', example='TFJob'),
   options?: string(name='Options', description='The additional configuration of the job. You can use this parameter to adjust the behavior of the attached data source. For example, if the attached data source of the job is of the OSS type, you can use this parameter to add the following configurations to override the default parameters of JindoFS: `fs.oss.download.thread.concurrency=4,fs.oss.download.queue.size=16`.', example='key1=value1,key2=value2'),
   priority?: int32(name='Priority', description='The priority of the job. Default value: 1. Valid values: 1 to 9.
 
-*   1: the lowest priority.
+*   1 is the lowest priority.
 *   9: the highest priority.', example='8'),
   resourceId?: string(name='ResourceId', description='The ID of the resource group. This parameter is optional.
 
@@ -803,7 +804,7 @@ This parameter is required.', example='python /root/code/mnist.py'),
     defaultRoute?: string(name='DefaultRoute', description='The default route. Default value: false. Valid values:
 
 *   eth0: The default network interface is used to access the Internet through the public gateway.
-*   eth1: The user\\\\"s Elastic Network Interface is used to access the Internet through the private gateway. For more information about the configuration method, see [Enable Internet access for a DSW instance by using a private Internet NAT gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
+*   eth1: The user\\\\"s elastic network interface (ENI) is used to access the Internet through the private gateway. For more information about the configuration method, see [Enable Internet access for a DSW instance by using a private Internet NAT gateway](https://help.aliyun.com/document_detail/2525343.html).', example='eth0'),
     extendedCIDRs?: [ string ](name='ExtendedCIDRs', description='The extended CIDR block.
 
 *   If you leave the SwitchId and ExtendedCIDRs parameters empty, the system automatically obtains all CIDR blocks in a VPC.
@@ -839,6 +840,7 @@ model CreateJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateJobResponse
  */
+@context("createJobWithContext")
 async function createJobWithOptions(request: CreateJobRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateJobResponse {
   request.validate();
   var body : map[string]any = {};
@@ -939,13 +941,12 @@ async function createJob(request: CreateJobRequest): CreateJobResponse {
 }
 
 model CreateTensorboardRequest {
-  accessibility?: string(name='Accessibility', description='The visibility of the job. Valid values:
+  accessibility?: string(name='Accessibility', description='The job visibility. Valid values:
 
-*   PUBLIC: The configuration is public in the workspace.
-*   PRIVATE: The configuration is visible only to you and the administrator of the workspace.', example='PRIVATE'),
+*   PUBLIC: Visible to all members in the workspace.
+*   PRIVATE: Visible only to you and the administrator of the workspace.', example='PRIVATE'),
   cpu?: long(name='Cpu', description='The number of vCPU cores.', example='1'),
-  dataSourceId?: string(name='DataSourceId', description='The dataset ID. 
-<props="china">Call [ListDatasets](https://help.aliyun.com/document_detail/457222.html) to get the dataset ID.', example='d-xxxxxxxx'),
+  dataSourceId?: string(name='DataSourceId', description='The dataset ID.', example='d-xxxxxxxx'),
   dataSourceType?: string(name='DataSourceType', description='The dataset type. Valid values:
 
 *   OSS
@@ -954,7 +955,7 @@ model CreateTensorboardRequest {
     DataSourceItem
   ](name='DataSources', description='The configurations of the data source.'),
   displayName?: string(name='DisplayName', description='The TensorBoard name', example='tensorboard'),
-  jobId?: string(name='JobId', description='The job ID. Call [ListJobs](https://help.aliyun.com/document_detail/459676.html) to get the job ID.', example='dlc-20210126170216-mtl37ge7gkvdz'),
+  jobId?: string(name='JobId', description='The job ID. For more information about how to query the job ID, see [ListJobs](https://help.aliyun.com/document_detail/459676.html).', example='dlc-20210126170216-mtl37ge7gkvdz'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='The maximum running duration. Unit: minutes.', example='240'),
   memory?: long(name='Memory', description='The memory size. Unit: GB.', example='1000'),
   options?: string(name='Options', description='The extended fields of the dataset are in the JSON format. MountPath: the path to mount the dataset.', example='{"mountpath":"/root/data/"}'),
@@ -962,7 +963,8 @@ model CreateTensorboardRequest {
 
 *   1 is the lowest priority.
 *   9 is the highest priority.', example='1'),
-  quotaId?: string(name='QuotaId', description='The resource quota ID. This parameter is required when you create a TensorBoard job by using a resource quota. <props="china">Call [ListQuotas](https://help.aliyun.com/document_detail/2628071.html) to get the quota ID. 
+  quotaId?: string(name='QuotaId', description='The resource quota ID. This parameter is required when you create a TensorBoard job by using a resource quota.
+
 This feature is currently limited to whitelisted users. If you need to use this feature, contact us.', example='quota12345'),
   sourceId?: string(name='SourceId', description='The source ID.', example='dlc-xxxxxx'),
   sourceType?: string(name='SourceType', description='The source type.', example='job'),
@@ -972,12 +974,11 @@ This feature is currently limited to whitelisted users. If you need to use this 
     TensorboardDataSourceSpec
   ](name='TensorboardDataSources', description='The configurations of datasets mounted with the TensorBoard job.'),
   tensorboardSpec?: TensorboardSpec(name='TensorboardSpec', description='The pay-as-you-go configuration of TensorBoard, which is used to create TensorBoard jobs that use pay-as-you-go resources.'),
-  uri?: string(name='Uri', description='The dataset URI.
+  uri?: string(name='Uri', description='The dataset URI:
 
 *   Value format when DataSourceType is set to OSS: `oss://[oss-bucket].[endpoint]/[path]`.
 *   Value format when DataSourceType is set to NAS:`nas://[nas-filesystem-id].[region]/[path]`.', example='oss://.oss-cn-shanghai-finance-1.aliyuncs.com/'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">Call [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html) to obtain the workspace ID.', example='123***'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='123***'),
 }
 
 model CreateTensorboardResponseBody = {
@@ -1001,6 +1002,7 @@ model CreateTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateTensorboardResponse
  */
+@context("createTensorboardWithContext")
 async function createTensorboardWithOptions(request: CreateTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTensorboardResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1113,6 +1115,7 @@ model DeleteJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteJobResponse
  */
+@context("deleteJobWithContext")
 async function deleteJobWithOptions(JobId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteJobResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1143,8 +1146,7 @@ async function deleteJob(JobId: string): DeleteJobResponse {
 }
 
 model DeleteTensorboardRequest {
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">For more information about how to obtain the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='46099'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='46099'),
 }
 
 model DeleteTensorboardResponseBody = {
@@ -1166,6 +1168,7 @@ model DeleteTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteTensorboardResponse
  */
+@context("deleteTensorboardWithContext")
 async function deleteTensorboardWithOptions(TensorboardId: string, request: DeleteTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteTensorboardResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1242,7 +1245,7 @@ model GetJobResponseBody = {
   jobId?: string(name='JobId', description='The job ID.', example='dlc*******'),
   jobSpecs?: [
     JobSpec
-  ](name='JobSpecs', description='The node configurations of the job, which is **JobSpecs** in the CreateJob operation.'),
+  ](name='JobSpecs', description='The node configuration of the job, which is **JobSpecs** in the CreateJob operation.'),
   jobType?: string(name='JobType', description='The job type. Specified by the JobType parameter of the [CreateJob](https://help.aliyun.com/document_detail/459672.html) operation.', example='TFJob'),
   pods?: [ 
     {
@@ -1292,7 +1295,7 @@ model GetJobResponseBody = {
   resourceLevel?: string(name='ResourceLevel', description='The resource level that the job uses.', example='L0'),
   resourceType?: string(name='ResourceType', description='The resource type. Valid values: ECS, Lingjun, and ACS.', example='ECS'),
   restartTimes?: string(name='RestartTimes', description='The number of retries and the maximum number of retries used by the job.', example='0/10'),
-  settings?: JobSettings(name='Settings', description='The settings of the additional parameters of the job.'),
+  settings?: JobSettings(name='Settings', description='The additional parameter configurations of the job.'),
   status?: string(name='Status', description='The status of the job. Valid values:
 
 *   Creating
@@ -1344,6 +1347,7 @@ model GetJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetJobResponse
  */
+@context("getJobWithContext")
 async function getJobWithOptions(JobId: string, request: GetJobRequest, headers: map[string]string, runtime: $RuntimeOptions): GetJobResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1407,6 +1411,7 @@ model GetJobEventsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetJobEventsResponse
  */
+@context("getJobEventsWithContext")
 async function getJobEventsWithOptions(JobId: string, request: GetJobEventsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetJobEventsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1491,6 +1496,7 @@ model GetJobMetricsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetJobMetricsResponse
  */
+@context("getJobMetricsWithContext")
 async function getJobMetricsWithOptions(JobId: string, request: GetJobMetricsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetJobMetricsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1576,6 +1582,7 @@ model GetJobSanityCheckResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetJobSanityCheckResultResponse
  */
+@context("getJobSanityCheckResultWithContext")
 async function getJobSanityCheckResultWithOptions(JobId: string, request: GetJobSanityCheckResultRequest, headers: map[string]string, runtime: $RuntimeOptions): GetJobSanityCheckResultResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1650,6 +1657,7 @@ model GetPodEventsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetPodEventsResponse
  */
+@context("getPodEventsWithContext")
 async function getPodEventsWithOptions(JobId: string, PodId: string, request: GetPodEventsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPodEventsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1729,6 +1737,7 @@ model GetPodLogsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetPodLogsResponse
  */
+@context("getPodLogsWithContext")
 async function getPodLogsWithOptions(JobId: string, PodId: string, request: GetPodLogsRequest, headers: map[string]string, runtime: $RuntimeOptions): GetPodLogsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1809,6 +1818,7 @@ model GetRayDashboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetRayDashboardResponse
  */
+@context("getRayDashboardWithContext")
 async function getRayDashboardWithOptions(jobId: string, request: GetRayDashboardRequest, headers: map[string]string, runtime: $RuntimeOptions): GetRayDashboardResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1857,8 +1867,7 @@ model GetTensorboardRequest {
 yJleHAiOjE2OTUyODA0NTMsImlhdCI6MTY5NTE5NDA1MywidXNlcl9pZCI6IjExN
 Tc3MDMyNzA5OTQ5MDEiLCJ0YXJnZXRfaWQiOiJ0YjRrOGxjNXhmdTM2b3B0Iiw
 idGFyZ2V0X3R5cGUiOiJ0ZW5zb3Jib2FyZCJ9.6eT68J-KMBwwfN2d7fj7u6vyPcf0erfqYeizd2N****'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='46099'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='46099'),
 }
 
 model GetTensorboardResponse = {
@@ -1875,6 +1884,7 @@ model GetTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTensorboardResponse
  */
+@context("getTensorboardWithContext")
 async function getTensorboardWithOptions(TensorboardId: string, request: GetTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): GetTensorboardResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1941,6 +1951,7 @@ model GetTensorboardSharedUrlResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTensorboardSharedUrlResponse
  */
+@context("getTensorboardSharedUrlWithContext")
 async function getTensorboardSharedUrlWithOptions(TensorboardId: string, request: GetTensorboardSharedUrlRequest, headers: map[string]string, runtime: $RuntimeOptions): GetTensorboardSharedUrlResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2003,6 +2014,7 @@ model GetTokenResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTokenResponse
  */
+@context("getTokenWithContext")
 async function getTokenWithOptions(request: GetTokenRequest, headers: map[string]string, runtime: $RuntimeOptions): GetTokenResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2111,6 +2123,7 @@ model GetWebTerminalResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetWebTerminalResponse
  */
+@context("getWebTerminalWithContext")
 async function getWebTerminalWithOptions(JobId: string, PodId: string, request: GetWebTerminalRequest, headers: map[string]string, runtime: $RuntimeOptions): GetWebTerminalResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2197,6 +2210,7 @@ model ListEcsSpecsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListEcsSpecsResponse
  */
+@context("listEcsSpecsWithContext")
 async function listEcsSpecsWithOptions(request: ListEcsSpecsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListEcsSpecsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2281,6 +2295,7 @@ model ListJobSanityCheckResultsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListJobSanityCheckResultsResponse
  */
+@context("listJobSanityCheckResultsWithContext")
 async function listJobSanityCheckResultsWithOptions(JobId: string, request: ListJobSanityCheckResultsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListJobSanityCheckResultsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2478,6 +2493,7 @@ model ListJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListJobsResponse
  */
+@context("listJobsWithContext")
 async function listJobsWithOptions(tmpReq: ListJobsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListJobsResponse {
   tmpReq.validate();
   var request = new ListJobsShrinkRequest{};
@@ -2639,8 +2655,7 @@ model ListTensorboardsRequest {
 
 *   true
 *   false', example='true'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. Obtain a list of TensorBoard instances based on the workspace ID. 
-<props="china">For more information, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID. Obtain a list of TensorBoard instances based on the workspace ID.', example='380'),
 }
 
 model ListTensorboardsResponseBody = {
@@ -2665,6 +2680,7 @@ model ListTensorboardsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTensorboardsResponse
  */
+@context("listTensorboardsWithContext")
 async function listTensorboardsWithOptions(request: ListTensorboardsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListTensorboardsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2782,6 +2798,7 @@ model StartTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartTensorboardResponse
  */
+@context("startTensorboardWithContext")
 async function startTensorboardWithOptions(TensorboardId: string, request: StartTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): StartTensorboardResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2837,6 +2854,7 @@ model StopJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopJobResponse
  */
+@context("stopJobWithContext")
 async function stopJobWithOptions(JobId: string, headers: map[string]string, runtime: $RuntimeOptions): StopJobResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2867,8 +2885,7 @@ async function stopJob(JobId: string): StopJobResponse {
 }
 
 model StopTensorboardRequest {
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='380'),
 }
 
 model StopTensorboardResponseBody = {
@@ -2890,6 +2907,7 @@ model StopTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopTensorboardResponse
  */
+@context("stopTensorboardWithContext")
 async function stopTensorboardWithOptions(TensorboardId: string, request: StopTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): StopTensorboardResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2957,6 +2975,7 @@ model UpdateJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateJobResponse
  */
+@context("updateJobWithContext")
 async function updateJobWithOptions(JobId: string, request: UpdateJobRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateJobResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3004,8 +3023,7 @@ model UpdateTensorboardRequest {
 *   PRIVATE: The jobs are visible only to you and the administrator of the workspace.', example='PRIVATE'),
   maxRunningTimeMinutes?: long(name='MaxRunningTimeMinutes', description='The maximum running time. Unit: minutes.', example='300'),
   priority?: string(name='Priority'),
-  workspaceId?: string(name='WorkspaceId', description='The workspace ID. 
-<props="china">For more information about how to query the workspace ID, see [ListWorkspaces](https://help.aliyun.com/document_detail/449124.html).', example='380'),
+  workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='380'),
 }
 
 model UpdateTensorboardResponseBody = {
@@ -3027,6 +3045,7 @@ model UpdateTensorboardResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateTensorboardResponse
  */
+@context("updateTensorboardWithContext")
 async function updateTensorboardWithOptions(TensorboardId: string, request: UpdateTensorboardRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateTensorboardResponse {
   request.validate();
   var query : map[string]any = {};
