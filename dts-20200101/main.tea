@@ -2,9 +2,8 @@
  *
  */
 import Util;
-import OSS;
-import OpenPlatform;
-import OSSUtil;
+import XML;
+import Credential;
 import FileForm;
 import OpenApi;
 import OpenApiUtil;
@@ -1014,10 +1013,18 @@ async function configureDtsJob(request: ConfigureDtsJobRequest): ConfigureDtsJob
 
 async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, runtime: Util.RuntimeOptions): ConfigureDtsJobResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -1034,54 +1041,56 @@ async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, ru
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Dts',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var configureDtsJobReq = new ConfigureDtsJobRequest{};
   OpenApiUtil.convert(request, configureDtsJobReq);
 
   if(!Util.isUnset(request.fileOssUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileOssUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    configureDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    configureDtsJobReq.fileOssUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var configureDtsJobResp = configureDtsJobWithOptions(configureDtsJobReq, runtime);
   return configureDtsJobResp;
@@ -3066,6 +3075,177 @@ async function createDedicatedClusterMonitorRuleWithOptions(request: CreateDedic
 async function createDedicatedClusterMonitorRule(request: CreateDedicatedClusterMonitorRuleRequest): CreateDedicatedClusterMonitorRuleResponse {
   var runtime = new Util.RuntimeOptions{};
   return createDedicatedClusterMonitorRuleWithOptions(request, runtime);
+}
+
+model CreateDocParserJobRequest {
+  fileName?: string(name='FileName', example='2.pdf'),
+  fileUrl?: string(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/storage/pdf/40184458-fbb0-44cf-a391-350628ceccdd17375122****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+  resultType?: string(name='ResultType', example='zip'),
+}
+
+model CreateDocParserJobAdvanceRequest {
+  fileName?: string(name='FileName', example='2.pdf'),
+  fileUrlObject?: readable(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/storage/pdf/40184458-fbb0-44cf-a391-350628ceccdd17375122****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+  resultType?: string(name='ResultType', example='zip'),
+}
+
+model CreateDocParserJobResponseBody = {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-boss6pn1w******'),
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='present environment is not support, so skip'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='FDC111B1-ACBF-457D-9656-247FDEE9****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateDocParserJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDocParserJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request CreateDocParserJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDocParserJobResponse
+ */
+async function createDocParserJobWithOptions(request: CreateDocParserJobRequest, runtime: Util.RuntimeOptions): CreateDocParserJobResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!Util.isUnset(request.resultType)) {
+    query['ResultType'] = request.resultType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateDocParserJob',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request CreateDocParserJobRequest
+ * @return CreateDocParserJobResponse
+ */
+async function createDocParserJob(request: CreateDocParserJobRequest): CreateDocParserJobResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createDocParserJobWithOptions(request, runtime);
+}
+
+async function createDocParserJobAdvance(request: CreateDocParserJobAdvanceRequest, runtime: Util.RuntimeOptions): CreateDocParserJobResponse {
+  // Step 0: init client
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if(Util.empty(openPlatformEndpoint)) {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if(Util.isUnset(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApi.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
+  };
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
+  };
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new FileForm.FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
+  var createDocParserJobReq = new CreateDocParserJobRequest{};
+  OpenApiUtil.convert(request, createDocParserJobReq);
+
+  if(!Util.isUnset(request.fileUrlObject)) {
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
+    fileObj = new FileForm.FileField{
+      filename = authResponseBody['ObjectKey'],
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
+      file = fileObj,
+      success_action_status = '201',
+    };
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    createDocParserJobReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+  }
+  var createDocParserJobResp = createDocParserJobWithOptions(createDocParserJobReq, runtime);
+  return createDocParserJobResp;
 }
 
 model CreateDtsInstanceRequest {
@@ -5952,6 +6132,152 @@ async function describeDedicatedClusterMonitorRuleWithOptions(request: DescribeD
 async function describeDedicatedClusterMonitorRule(request: DescribeDedicatedClusterMonitorRuleRequest): DescribeDedicatedClusterMonitorRuleResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeDedicatedClusterMonitorRuleWithOptions(request, runtime);
+}
+
+model DescribeDocParserJobResultRequest {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-y0zz3t13h7d****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+}
+
+model DescribeDocParserJobResultResponseBody = {
+  contentList?: [ 
+    {
+      content?: string(name='Content', example='* Demo * ** Demo title **'),
+      pageNumber?: int32(name='PageNumber', example='1'),
+    }
+  ](name='ContentList'),
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='DtsJobId'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  fileUrl?: string(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/806a_209584525031252870_078f1180f27b4c069c0f271758aa****'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='C166D79D-436B-45F0-B5A5-25E1959F****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeDocParserJobResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDocParserJobResultResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocParserJobResultResponse
+ */
+async function describeDocParserJobResultWithOptions(request: DescribeDocParserJobResultRequest, runtime: Util.RuntimeOptions): DescribeDocParserJobResultResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.dtsJobId)) {
+    query['DtsJobId'] = request.dtsJobId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDocParserJobResult',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobResultRequest
+ * @return DescribeDocParserJobResultResponse
+ */
+async function describeDocParserJobResult(request: DescribeDocParserJobResultRequest): DescribeDocParserJobResultResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDocParserJobResultWithOptions(request, runtime);
+}
+
+model DescribeDocParserJobStatusRequest {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-l3m1213ye7l****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+}
+
+model DescribeDocParserJobStatusResponseBody = {
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='DtsJobId'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='FDC111B1-ACBF-457D-9656-247FDEE9****'),
+  status?: string(name='Status', example='Finished'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeDocParserJobStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDocParserJobStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocParserJobStatusResponse
+ */
+async function describeDocParserJobStatusWithOptions(request: DescribeDocParserJobStatusRequest, runtime: Util.RuntimeOptions): DescribeDocParserJobStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.dtsJobId)) {
+    query['DtsJobId'] = request.dtsJobId;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeDocParserJobStatus',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobStatusRequest
+ * @return DescribeDocParserJobStatusResponse
+ */
+async function describeDocParserJobStatus(request: DescribeDocParserJobStatusRequest): DescribeDocParserJobStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeDocParserJobStatusWithOptions(request, runtime);
 }
 
 model DescribeDtsEtlJobVersionInfoRequest {
@@ -9188,6 +9514,7 @@ async function describeFullProcessList(request: DescribeFullProcessListRequest):
 }
 
 model DescribeGadInstancesRequest {
+  dbEngineTypes?: string(name='DbEngineTypes'),
   instanceName?: string(name='InstanceName', example='test'),
   masterDbInstanceId?: string(name='MasterDbInstanceId'),
   ownerId?: string(name='OwnerId'),
@@ -9218,6 +9545,7 @@ model DescribeGadInstancesResponseBody = {
       masterDbInstanceName?: string(name='MasterDbInstanceName', example='test'),
       masterDbInstanceRegion?: string(name='MasterDbInstanceRegion', example='cn-hangzhou'),
       masterDbInstanceZoneId?: string(name='MasterDbInstanceZoneId', example='cn-hangzhou'),
+      masterEngineArchType?: int32(name='MasterEngineArchType'),
       resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzq276dmnaxqa'),
       status?: string(name='Status', example='running'),
     }
@@ -9246,6 +9574,9 @@ model DescribeGadInstancesResponse = {
 async function describeGadInstancesWithOptions(request: DescribeGadInstancesRequest, runtime: Util.RuntimeOptions): DescribeGadInstancesResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.dbEngineTypes)) {
+    query['DbEngineTypes'] = request.dbEngineTypes;
+  }
   if (!Util.isUnset(request.instanceName)) {
     query['InstanceName'] = request.instanceName;
   }
@@ -13807,10 +14138,18 @@ async function modifyDtsJob(request: ModifyDtsJobRequest): ModifyDtsJobResponse 
 
 async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime: Util.RuntimeOptions): ModifyDtsJobResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  var credentialModel: Credential.CredentialModel = null;
+  if (Util.isUnset(@credential)) {
+    throw {
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
   if(Util.empty(openPlatformEndpoint)) {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
@@ -13827,54 +14166,56 @@ async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime:
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Dts',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApi.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
+  var authParams = new OpenApi.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
   var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var modifyDtsJobReq = new ModifyDtsJobRequest{};
   OpenApiUtil.convert(request, modifyDtsJobReq);
 
   if(!Util.isUnset(request.fileOssUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
+    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
+    authResponse = Util.assertAsMap(tmpResp0);
+    tmpBody = Util.assertAsMap(authResponse['body']);
+    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
+    authResponseBody = Util.stringifyMapValue(tmpBody);
     fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+      filename = authResponseBody['ObjectKey'],
       content = request.fileOssUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    modifyDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    modifyDtsJobReq.fileOssUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var modifyDtsJobResp = modifyDtsJobWithOptions(modifyDtsJobReq, runtime);
   return modifyDtsJobResp;
@@ -14978,11 +15319,17 @@ async function modifySynchronizationObject(request: ModifySynchronizationObjectR
 
 model PreCheckCreateGadOrderRequest {
   instanceId?: string(name='InstanceId', example='gad-bp1i99e8l7913****'),
+  masterDatabaseName?: string(name='MasterDatabaseName'),
+  masterEngineArchType?: string(name='MasterEngineArchType'),
+  masterShardAccountName?: string(name='MasterShardAccountName'),
+  masterShardAccountPassword?: string(name='MasterShardAccountPassword'),
   ownerId?: string(name='OwnerId'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', example='rg-acfntftbiobqyky'),
+  slaveDatabaseName?: string(name='SlaveDatabaseName'),
   slaveDbInstanceId?: string(name='SlaveDbInstanceId', example='rm-bp17562h64****'),
   slaveDbInstanceRegion?: string(name='SlaveDbInstanceRegion', example='cn-hangzhou'),
+  slaveEngineArchType?: string(name='SlaveEngineArchType'),
 }
 
 model PreCheckCreateGadOrderResponseBody = {
@@ -15017,6 +15364,18 @@ async function preCheckCreateGadOrderWithOptions(request: PreCheckCreateGadOrder
   if (!Util.isUnset(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
   }
+  if (!Util.isUnset(request.masterDatabaseName)) {
+    query['MasterDatabaseName'] = request.masterDatabaseName;
+  }
+  if (!Util.isUnset(request.masterEngineArchType)) {
+    query['MasterEngineArchType'] = request.masterEngineArchType;
+  }
+  if (!Util.isUnset(request.masterShardAccountName)) {
+    query['MasterShardAccountName'] = request.masterShardAccountName;
+  }
+  if (!Util.isUnset(request.masterShardAccountPassword)) {
+    query['MasterShardAccountPassword'] = request.masterShardAccountPassword;
+  }
   if (!Util.isUnset(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
   }
@@ -15026,11 +15385,17 @@ async function preCheckCreateGadOrderWithOptions(request: PreCheckCreateGadOrder
   if (!Util.isUnset(request.resourceGroupId)) {
     query['ResourceGroupId'] = request.resourceGroupId;
   }
+  if (!Util.isUnset(request.slaveDatabaseName)) {
+    query['SlaveDatabaseName'] = request.slaveDatabaseName;
+  }
   if (!Util.isUnset(request.slaveDbInstanceId)) {
     query['SlaveDbInstanceId'] = request.slaveDbInstanceId;
   }
   if (!Util.isUnset(request.slaveDbInstanceRegion)) {
     query['SlaveDbInstanceRegion'] = request.slaveDbInstanceRegion;
+  }
+  if (!Util.isUnset(request.slaveEngineArchType)) {
+    query['SlaveEngineArchType'] = request.slaveEngineArchType;
   }
   var req = new OpenApi.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -17919,3 +18284,38 @@ async function whiteIpList(request: WhiteIpListRequest): WhiteIpListResponse {
   return whiteIpListWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, data: object): object {
+  var form = Util.assertAsMap(data);
+  var boundary = FileForm.getBoundary();
+  var host = Util.assertAsString(form.host);
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = host,
+    date = Util.getDateUTCString(),
+    user-agent = Util.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = FileForm.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = Util.readAsString(__response.body);
+  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
+    respMap = XML.parseXml(bodyStr, null);
+    var err = Util.assertAsMap(respMap.Error);
+    throw {
+      code = err.Code,
+      message = err.Message,
+      data = {
+        httpCode = __response.statusCode,
+        requestId = err.RequestId,
+        hostId = err.HostId,
+      }
+    };
+  }
+  respMap = XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}

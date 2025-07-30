@@ -1,10 +1,7 @@
 /**
  *
  */
-import OSS;
-import OpenPlatform;
-import OSSUtil;
-import FileForm;
+import Credential;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -782,6 +779,7 @@ model ConfigureDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureDtsJobResponse
  */
+@context("configureDtsJobWithContext")
 async function configureDtsJobWithOptions(request: ConfigureDtsJobRequest, runtime: $RuntimeOptions): ConfigureDtsJobResponse {
   request.validate();
   var query = {};
@@ -1012,12 +1010,19 @@ async function configureDtsJob(request: ConfigureDtsJobRequest): ConfigureDtsJob
 
 async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, runtime: $RuntimeOptions): ConfigureDtsJobResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -1032,54 +1037,55 @@ async function configureDtsJobAdvance(request: ConfigureDtsJobAdvanceRequest, ru
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Dts',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var configureDtsJobReq = new ConfigureDtsJobRequest{};
   OpenApiUtil.convert(request, configureDtsJobReq);
 
   if(!$isNull(request.fileOssUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.fileOssUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    configureDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    configureDtsJobReq.fileOssUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var configureDtsJobResp = configureDtsJobWithOptions(configureDtsJobReq, runtime);
   return configureDtsJobResp;
@@ -1247,6 +1253,7 @@ model ConfigureMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureMigrationJobResponse
  */
+@context("configureMigrationJobWithContext")
 async function configureMigrationJobWithOptions(request: ConfigureMigrationJobRequest, runtime: $RuntimeOptions): ConfigureMigrationJobResponse {
   request.validate();
   var query = {};
@@ -1380,6 +1387,7 @@ model ConfigureMigrationJobAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureMigrationJobAlertResponse
  */
+@context("configureMigrationJobAlertWithContext")
 async function configureMigrationJobAlertWithOptions(request: ConfigureMigrationJobAlertRequest, runtime: $RuntimeOptions): ConfigureMigrationJobAlertResponse {
   request.validate();
   var query = {};
@@ -1590,6 +1598,7 @@ model ConfigureSubscriptionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSubscriptionResponse
  */
+@context("configureSubscriptionWithContext")
 async function configureSubscriptionWithOptions(request: ConfigureSubscriptionRequest, runtime: $RuntimeOptions): ConfigureSubscriptionResponse {
   request.validate();
   var query = {};
@@ -1843,6 +1852,7 @@ model ConfigureSubscriptionInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSubscriptionInstanceResponse
  */
+@context("configureSubscriptionInstanceWithContext")
 async function configureSubscriptionInstanceWithOptions(request: ConfigureSubscriptionInstanceRequest, runtime: $RuntimeOptions): ConfigureSubscriptionInstanceResponse {
   request.validate();
   var query = {};
@@ -1971,6 +1981,7 @@ model ConfigureSubscriptionInstanceAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSubscriptionInstanceAlertResponse
  */
+@context("configureSubscriptionInstanceAlertWithContext")
 async function configureSubscriptionInstanceAlertWithOptions(request: ConfigureSubscriptionInstanceAlertRequest, runtime: $RuntimeOptions): ConfigureSubscriptionInstanceAlertResponse {
   request.validate();
   var query = {};
@@ -2192,6 +2203,7 @@ model ConfigureSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSynchronizationJobResponse
  */
+@context("configureSynchronizationJobWithContext")
 async function configureSynchronizationJobWithOptions(request: ConfigureSynchronizationJobRequest, runtime: $RuntimeOptions): ConfigureSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -2345,6 +2357,7 @@ model ConfigureSynchronizationJobAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSynchronizationJobAlertResponse
  */
+@context("configureSynchronizationJobAlertWithContext")
 async function configureSynchronizationJobAlertWithOptions(request: ConfigureSynchronizationJobAlertRequest, runtime: $RuntimeOptions): ConfigureSynchronizationJobAlertResponse {
   request.validate();
   var query = {};
@@ -2452,6 +2465,7 @@ model ConfigureSynchronizationJobReplicatorCompareResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConfigureSynchronizationJobReplicatorCompareResponse
  */
+@context("configureSynchronizationJobReplicatorCompareWithContext")
 async function configureSynchronizationJobReplicatorCompareWithOptions(request: ConfigureSynchronizationJobReplicatorCompareRequest, runtime: $RuntimeOptions): ConfigureSynchronizationJobReplicatorCompareResponse {
   request.validate();
   var query = {};
@@ -2543,6 +2557,7 @@ model ConvertInstanceResourceGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConvertInstanceResourceGroupResponse
  */
+@context("convertInstanceResourceGroupWithContext")
 async function convertInstanceResourceGroupWithOptions(request: ConvertInstanceResourceGroupRequest, runtime: $RuntimeOptions): ConvertInstanceResourceGroupResponse {
   request.validate();
   var query = {};
@@ -2696,6 +2711,7 @@ model CountJobByConditionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CountJobByConditionResponse
  */
+@context("countJobByConditionWithContext")
 async function countJobByConditionWithOptions(request: CountJobByConditionRequest, runtime: $RuntimeOptions): CountJobByConditionResponse {
   request.validate();
   var query = {};
@@ -2807,6 +2823,7 @@ model CreateConsumerChannelResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateConsumerChannelResponse
  */
+@context("createConsumerChannelWithContext")
 async function createConsumerChannelWithOptions(request: CreateConsumerChannelRequest, runtime: $RuntimeOptions): CreateConsumerChannelResponse {
   request.validate();
   var query = {};
@@ -2905,6 +2922,7 @@ model CreateConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateConsumerGroupResponse
  */
+@context("createConsumerGroupWithContext")
 async function createConsumerGroupWithOptions(request: CreateConsumerGroupRequest, runtime: $RuntimeOptions): CreateConsumerGroupResponse {
   request.validate();
   var query = {};
@@ -3002,6 +3020,7 @@ model CreateDedicatedClusterMonitorRuleResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDedicatedClusterMonitorRuleResponse
  */
+@context("createDedicatedClusterMonitorRuleWithContext")
 async function createDedicatedClusterMonitorRuleWithOptions(request: CreateDedicatedClusterMonitorRuleRequest, runtime: $RuntimeOptions): CreateDedicatedClusterMonitorRuleResponse {
   request.validate();
   var query = {};
@@ -3064,6 +3083,176 @@ async function createDedicatedClusterMonitorRuleWithOptions(request: CreateDedic
 async function createDedicatedClusterMonitorRule(request: CreateDedicatedClusterMonitorRuleRequest): CreateDedicatedClusterMonitorRuleResponse {
   var runtime = new $RuntimeOptions{};
   return createDedicatedClusterMonitorRuleWithOptions(request, runtime);
+}
+
+model CreateDocParserJobRequest {
+  fileName?: string(name='FileName', example='2.pdf'),
+  fileUrl?: string(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/storage/pdf/40184458-fbb0-44cf-a391-350628ceccdd17375122****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+  resultType?: string(name='ResultType', example='zip'),
+}
+
+model CreateDocParserJobAdvanceRequest {
+  fileName?: string(name='FileName', example='2.pdf'),
+  fileUrlObject?: readable(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/storage/pdf/40184458-fbb0-44cf-a391-350628ceccdd17375122****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+  resultType?: string(name='ResultType', example='zip'),
+}
+
+model CreateDocParserJobResponseBody = {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-boss6pn1w******'),
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='present environment is not support, so skip'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='FDC111B1-ACBF-457D-9656-247FDEE9****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model CreateDocParserJobResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateDocParserJobResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request CreateDocParserJobRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateDocParserJobResponse
+ */
+@context("createDocParserJobWithContext")
+async function createDocParserJobWithOptions(request: CreateDocParserJobRequest, runtime: $RuntimeOptions): CreateDocParserJobResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.fileName)) {
+    query['FileName'] = request.fileName;
+  }
+  if (!$isNull(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  if (!$isNull(request.resultType)) {
+    query['ResultType'] = request.resultType;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateDocParserJob',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request CreateDocParserJobRequest
+ * @return CreateDocParserJobResponse
+ */
+async function createDocParserJob(request: CreateDocParserJobRequest): CreateDocParserJobResponse {
+  var runtime = new $RuntimeOptions{};
+  return createDocParserJobWithOptions(request, runtime);
+}
+
+async function createDocParserJobAdvance(request: CreateDocParserJobAdvanceRequest, runtime: $RuntimeOptions): CreateDocParserJobResponse {
+  // Step 0: init client
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
+  var openPlatformEndpoint = @openPlatformEndpoint;
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
+    openPlatformEndpoint ='openplatform.aliyuncs.com';
+  }
+  if($isNull(credentialType)) {
+    credentialType ='access_key';
+  }
+  var authConfig = new OpenApiUtil.Config{
+    accessKeyId = accessKeyId,
+    accessKeySecret = accessKeySecret,
+    securityToken = securityToken,
+    type = credentialType,
+    endpoint = openPlatformEndpoint,
+    protocol = @protocol,
+    regionId = @regionId,
+  };
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
+  };
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
+  };
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
+  var createDocParserJobReq = new CreateDocParserJobRequest{};
+  OpenApiUtil.convert(request, createDocParserJobReq);
+
+  if(!$isNull(request.fileUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
+      content = request.fileUrlObject,
+      contentType = '',
+    };
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
+      file = fileObj,
+      success_action_status = '201',
+    };
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    createDocParserJobReq.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+  }
+  var createDocParserJobResp = createDocParserJobWithOptions(createDocParserJobReq, runtime);
+  return createDocParserJobResp;
 }
 
 model CreateDtsInstanceRequest {
@@ -3226,6 +3415,7 @@ model CreateDtsInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDtsInstanceResponse
  */
+@context("createDtsInstanceWithContext")
 async function createDtsInstanceWithOptions(request: CreateDtsInstanceRequest, runtime: $RuntimeOptions): CreateDtsInstanceResponse {
   request.validate();
   var query = {};
@@ -3402,6 +3592,7 @@ model CreateJobMonitorRuleResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateJobMonitorRuleResponse
  */
+@context("createJobMonitorRuleWithContext")
 async function createJobMonitorRuleWithOptions(request: CreateJobMonitorRuleRequest, runtime: $RuntimeOptions): CreateJobMonitorRuleResponse {
   request.validate();
   var query = {};
@@ -3507,6 +3698,7 @@ model CreateMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateMigrationJobResponse
  */
+@context("createMigrationJobWithContext")
 async function createMigrationJobWithOptions(request: CreateMigrationJobRequest, runtime: $RuntimeOptions): CreateMigrationJobResponse {
   request.validate();
   var query = {};
@@ -3594,6 +3786,7 @@ model CreateReverseDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateReverseDtsJobResponse
  */
+@context("createReverseDtsJobWithContext")
 async function createReverseDtsJobWithOptions(request: CreateReverseDtsJobRequest, runtime: $RuntimeOptions): CreateReverseDtsJobResponse {
   request.validate();
   var query = {};
@@ -3693,6 +3886,7 @@ model CreateSubscriptionInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateSubscriptionInstanceResponse
  */
+@context("createSubscriptionInstanceWithContext")
 async function createSubscriptionInstanceWithOptions(request: CreateSubscriptionInstanceRequest, runtime: $RuntimeOptions): CreateSubscriptionInstanceResponse {
   request.validate();
   var query = {};
@@ -3848,6 +4042,7 @@ model CreateSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateSynchronizationJobResponse
  */
+@context("createSynchronizationJobWithContext")
 async function createSynchronizationJobWithOptions(request: CreateSynchronizationJobRequest, runtime: $RuntimeOptions): CreateSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -3964,6 +4159,7 @@ model DeleteConsumerChannelResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteConsumerChannelResponse
  */
+@context("deleteConsumerChannelWithContext")
 async function deleteConsumerChannelWithOptions(request: DeleteConsumerChannelRequest, runtime: $RuntimeOptions): DeleteConsumerChannelResponse {
   request.validate();
   var query = {};
@@ -4043,6 +4239,7 @@ model DeleteConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteConsumerGroupResponse
  */
+@context("deleteConsumerGroupWithContext")
 async function deleteConsumerGroupWithOptions(request: DeleteConsumerGroupRequest, runtime: $RuntimeOptions): DeleteConsumerGroupResponse {
   request.validate();
   var query = {};
@@ -4140,6 +4337,7 @@ model DeleteDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDtsJobResponse
  */
+@context("deleteDtsJobWithContext")
 async function deleteDtsJobWithOptions(request: DeleteDtsJobRequest, runtime: $RuntimeOptions): DeleteDtsJobResponse {
   request.validate();
   var query = {};
@@ -4229,6 +4427,7 @@ model DeleteDtsJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDtsJobsResponse
  */
+@context("deleteDtsJobsWithContext")
 async function deleteDtsJobsWithOptions(request: DeleteDtsJobsRequest, runtime: $RuntimeOptions): DeleteDtsJobsResponse {
   request.validate();
   var query = {};
@@ -4302,6 +4501,7 @@ model DeleteMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteMigrationJobResponse
  */
+@context("deleteMigrationJobWithContext")
 async function deleteMigrationJobWithOptions(request: DeleteMigrationJobRequest, runtime: $RuntimeOptions): DeleteMigrationJobResponse {
   request.validate();
   var query = {};
@@ -4378,6 +4578,7 @@ model DeleteSubscriptionInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteSubscriptionInstanceResponse
  */
+@context("deleteSubscriptionInstanceWithContext")
 async function deleteSubscriptionInstanceWithOptions(request: DeleteSubscriptionInstanceRequest, runtime: $RuntimeOptions): DeleteSubscriptionInstanceResponse {
   request.validate();
   var query = {};
@@ -4454,6 +4655,7 @@ model DeleteSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteSynchronizationJobResponse
  */
+@context("deleteSynchronizationJobWithContext")
 async function deleteSynchronizationJobWithOptions(request: DeleteSynchronizationJobRequest, runtime: $RuntimeOptions): DeleteSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -4535,6 +4737,7 @@ model DescribeChannelAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeChannelAccountResponse
  */
+@context("describeChannelAccountWithContext")
 async function describeChannelAccountWithOptions(request: DescribeChannelAccountRequest, runtime: $RuntimeOptions): DescribeChannelAccountResponse {
   request.validate();
   var query = {};
@@ -4645,6 +4848,7 @@ model DescribeCheckJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeCheckJobsResponse
  */
+@context("describeCheckJobsWithContext")
 async function describeCheckJobsWithOptions(request: DescribeCheckJobsRequest, runtime: $RuntimeOptions): DescribeCheckJobsResponse {
   request.validate();
   var query = {};
@@ -4750,6 +4954,7 @@ model DescribeClusterOperateLogsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeClusterOperateLogsResponse
  */
+@context("describeClusterOperateLogsWithContext")
 async function describeClusterOperateLogsWithOptions(request: DescribeClusterOperateLogsRequest, runtime: $RuntimeOptions): DescribeClusterOperateLogsResponse {
   request.validate();
   var query = {};
@@ -4864,6 +5069,7 @@ model DescribeClusterUsedUtilizationResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeClusterUsedUtilizationResponse
  */
+@context("describeClusterUsedUtilizationWithContext")
 async function describeClusterUsedUtilizationWithOptions(request: DescribeClusterUsedUtilizationRequest, runtime: $RuntimeOptions): DescribeClusterUsedUtilizationResponse {
   request.validate();
   var query = {};
@@ -5045,6 +5251,7 @@ model DescribeConnectionStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeConnectionStatusResponse
  */
+@context("describeConnectionStatusWithContext")
 async function describeConnectionStatusWithOptions(request: DescribeConnectionStatusRequest, runtime: $RuntimeOptions): DescribeConnectionStatusResponse {
   request.validate();
   var query = {};
@@ -5204,6 +5411,7 @@ model DescribeConsumerChannelResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeConsumerChannelResponse
  */
+@context("describeConsumerChannelWithContext")
 async function describeConsumerChannelWithOptions(request: DescribeConsumerChannelRequest, runtime: $RuntimeOptions): DescribeConsumerChannelResponse {
   request.validate();
   var query = {};
@@ -5307,6 +5515,7 @@ model DescribeConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeConsumerGroupResponse
  */
+@context("describeConsumerGroupWithContext")
 async function describeConsumerGroupWithOptions(request: DescribeConsumerGroupRequest, runtime: $RuntimeOptions): DescribeConsumerGroupResponse {
   request.validate();
   var query = {};
@@ -5394,6 +5603,7 @@ model DescribeDTSIPResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDTSIPResponse
  */
+@context("describeDTSIPWithContext")
 async function describeDTSIPWithOptions(request: DescribeDTSIPRequest, runtime: $RuntimeOptions): DescribeDTSIPResponse {
   request.validate();
   var query = {};
@@ -5478,6 +5688,7 @@ model DescribeDataCheckReportUrlResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDataCheckReportUrlResponse
  */
+@context("describeDataCheckReportUrlWithContext")
 async function describeDataCheckReportUrlWithOptions(request: DescribeDataCheckReportUrlRequest, runtime: $RuntimeOptions): DescribeDataCheckReportUrlResponse {
   request.validate();
   var query = {};
@@ -5600,6 +5811,7 @@ model DescribeDataCheckTableDetailsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDataCheckTableDetailsResponse
  */
+@context("describeDataCheckTableDetailsWithContext")
 async function describeDataCheckTableDetailsWithOptions(request: DescribeDataCheckTableDetailsRequest, runtime: $RuntimeOptions): DescribeDataCheckTableDetailsResponse {
   request.validate();
   var query = {};
@@ -5716,6 +5928,7 @@ model DescribeDataCheckTableDiffDetailsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDataCheckTableDiffDetailsResponse
  */
+@context("describeDataCheckTableDiffDetailsWithContext")
 async function describeDataCheckTableDiffDetailsWithOptions(request: DescribeDataCheckTableDiffDetailsRequest, runtime: $RuntimeOptions): DescribeDataCheckTableDiffDetailsResponse {
   request.validate();
   var query = {};
@@ -5828,6 +6041,7 @@ model DescribeDedicatedClusterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDedicatedClusterResponse
  */
+@context("describeDedicatedClusterWithContext")
 async function describeDedicatedClusterWithOptions(request: DescribeDedicatedClusterRequest, runtime: $RuntimeOptions): DescribeDedicatedClusterResponse {
   request.validate();
   var query = {};
@@ -5909,6 +6123,7 @@ model DescribeDedicatedClusterMonitorRuleResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDedicatedClusterMonitorRuleResponse
  */
+@context("describeDedicatedClusterMonitorRuleWithContext")
 async function describeDedicatedClusterMonitorRuleWithOptions(request: DescribeDedicatedClusterMonitorRuleRequest, runtime: $RuntimeOptions): DescribeDedicatedClusterMonitorRuleResponse {
   request.validate();
   var query = {};
@@ -5950,6 +6165,154 @@ async function describeDedicatedClusterMonitorRuleWithOptions(request: DescribeD
 async function describeDedicatedClusterMonitorRule(request: DescribeDedicatedClusterMonitorRuleRequest): DescribeDedicatedClusterMonitorRuleResponse {
   var runtime = new $RuntimeOptions{};
   return describeDedicatedClusterMonitorRuleWithOptions(request, runtime);
+}
+
+model DescribeDocParserJobResultRequest {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-y0zz3t13h7d****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+}
+
+model DescribeDocParserJobResultResponseBody = {
+  contentList?: [ 
+    {
+      content?: string(name='Content', example='* Demo * ** Demo title **'),
+      pageNumber?: int32(name='PageNumber', example='1'),
+    }
+  ](name='ContentList'),
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='DtsJobId'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  fileUrl?: string(name='FileUrl', example='https://oss-cn-hangzhou.aliyuncs.com/806a_209584525031252870_078f1180f27b4c069c0f271758aa****'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='C166D79D-436B-45F0-B5A5-25E1959F****'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeDocParserJobResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDocParserJobResultResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocParserJobResultResponse
+ */
+@context("describeDocParserJobResultWithContext")
+async function describeDocParserJobResultWithOptions(request: DescribeDocParserJobResultRequest, runtime: $RuntimeOptions): DescribeDocParserJobResultResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.dtsJobId)) {
+    query['DtsJobId'] = request.dtsJobId;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeDocParserJobResult',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobResultRequest
+ * @return DescribeDocParserJobResultResponse
+ */
+async function describeDocParserJobResult(request: DescribeDocParserJobResultRequest): DescribeDocParserJobResultResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeDocParserJobResultWithOptions(request, runtime);
+}
+
+model DescribeDocParserJobStatusRequest {
+  dtsJobId?: string(name='DtsJobId', example='dts-20250729-l3m1213ye7l****'),
+  regionId?: string(name='RegionId', example='cn-hangzhou'),
+  resourceGroupId?: string(name='ResourceGroupId', example='rg-acfmzawhxxc****'),
+}
+
+model DescribeDocParserJobStatusResponseBody = {
+  dynamicCode?: string(name='DynamicCode', example='403'),
+  dynamicMessage?: string(name='DynamicMessage', example='DtsJobId'),
+  errCode?: string(name='ErrCode', example='InternalError'),
+  errMessage?: string(name='ErrMessage', example='The request processing has failed due to some unknown error.'),
+  httpStatusCode?: int32(name='HttpStatusCode', example='200'),
+  requestId?: string(name='RequestId', example='FDC111B1-ACBF-457D-9656-247FDEE9****'),
+  status?: string(name='Status', example='Finished'),
+  success?: boolean(name='Success', example='true'),
+}
+
+model DescribeDocParserJobStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeDocParserJobStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeDocParserJobStatusResponse
+ */
+@context("describeDocParserJobStatusWithContext")
+async function describeDocParserJobStatusWithOptions(request: DescribeDocParserJobStatusRequest, runtime: $RuntimeOptions): DescribeDocParserJobStatusResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.dtsJobId)) {
+    query['DtsJobId'] = request.dtsJobId;
+  }
+  if (!$isNull(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!$isNull(request.resourceGroupId)) {
+    query['ResourceGroupId'] = request.resourceGroupId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DescribeDocParserJobStatus',
+    version = '2020-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看工作流任务结果
+ *
+ * @param request DescribeDocParserJobStatusRequest
+ * @return DescribeDocParserJobStatusResponse
+ */
+async function describeDocParserJobStatus(request: DescribeDocParserJobStatusRequest): DescribeDocParserJobStatusResponse {
+  var runtime = new $RuntimeOptions{};
+  return describeDocParserJobStatusWithOptions(request, runtime);
 }
 
 model DescribeDtsEtlJobVersionInfoRequest {
@@ -6003,6 +6366,7 @@ model DescribeDtsEtlJobVersionInfoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDtsEtlJobVersionInfoResponse
  */
+@context("describeDtsEtlJobVersionInfoWithContext")
 async function describeDtsEtlJobVersionInfoWithOptions(request: DescribeDtsEtlJobVersionInfoRequest, runtime: $RuntimeOptions): DescribeDtsEtlJobVersionInfoResponse {
   request.validate();
   var query = {};
@@ -6092,6 +6456,7 @@ model DescribeDtsJobConfigResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDtsJobConfigResponse
  */
+@context("describeDtsJobConfigWithContext")
 async function describeDtsJobConfigWithOptions(request: DescribeDtsJobConfigRequest, runtime: $RuntimeOptions): DescribeDtsJobConfigResponse {
   request.validate();
   var query = {};
@@ -7608,6 +7973,7 @@ model DescribeDtsJobDetailResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDtsJobDetailResponse
  */
+@context("describeDtsJobDetailWithContext")
 async function describeDtsJobDetailWithOptions(request: DescribeDtsJobDetailRequest, runtime: $RuntimeOptions): DescribeDtsJobDetailResponse {
   request.validate();
   var query = {};
@@ -8668,6 +9034,7 @@ model DescribeDtsJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDtsJobsResponse
  */
+@context("describeDtsJobsWithContext")
 async function describeDtsJobsWithOptions(request: DescribeDtsJobsRequest, runtime: $RuntimeOptions): DescribeDtsJobsResponse {
   request.validate();
   var query = {};
@@ -8837,6 +9204,7 @@ model DescribeDtsServiceLogResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDtsServiceLogResponse
  */
+@context("describeDtsServiceLogWithContext")
 async function describeDtsServiceLogWithOptions(request: DescribeDtsServiceLogRequest, runtime: $RuntimeOptions): DescribeDtsServiceLogResponse {
   request.validate();
   var query = {};
@@ -8940,6 +9308,7 @@ model DescribeEndpointSwitchStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeEndpointSwitchStatusResponse
  */
+@context("describeEndpointSwitchStatusWithContext")
 async function describeEndpointSwitchStatusWithOptions(request: DescribeEndpointSwitchStatusRequest, runtime: $RuntimeOptions): DescribeEndpointSwitchStatusResponse {
   request.validate();
   var query = {};
@@ -9030,6 +9399,7 @@ model DescribeEtlJobLogsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeEtlJobLogsResponse
  */
+@context("describeEtlJobLogsWithContext")
 async function describeEtlJobLogsWithOptions(request: DescribeEtlJobLogsRequest, runtime: $RuntimeOptions): DescribeEtlJobLogsResponse {
   request.validate();
   var query = {};
@@ -9142,6 +9512,7 @@ model DescribeFullProcessListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeFullProcessListResponse
  */
+@context("describeFullProcessListWithContext")
 async function describeFullProcessListWithOptions(request: DescribeFullProcessListRequest, runtime: $RuntimeOptions): DescribeFullProcessListResponse {
   request.validate();
   var query = {};
@@ -9186,6 +9557,7 @@ async function describeFullProcessList(request: DescribeFullProcessListRequest):
 }
 
 model DescribeGadInstancesRequest {
+  dbEngineTypes?: string(name='DbEngineTypes'),
   instanceName?: string(name='InstanceName', example='test'),
   masterDbInstanceId?: string(name='MasterDbInstanceId'),
   ownerId?: string(name='OwnerId'),
@@ -9216,6 +9588,7 @@ model DescribeGadInstancesResponseBody = {
       masterDbInstanceName?: string(name='MasterDbInstanceName', example='test'),
       masterDbInstanceRegion?: string(name='MasterDbInstanceRegion', example='cn-hangzhou'),
       masterDbInstanceZoneId?: string(name='MasterDbInstanceZoneId', example='cn-hangzhou'),
+      masterEngineArchType?: int32(name='MasterEngineArchType'),
       resourceGroupId?: string(name='ResourceGroupId', example='rg-aekzq276dmnaxqa'),
       status?: string(name='Status', example='running'),
     }
@@ -9241,9 +9614,13 @@ model DescribeGadInstancesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeGadInstancesResponse
  */
+@context("describeGadInstancesWithContext")
 async function describeGadInstancesWithOptions(request: DescribeGadInstancesRequest, runtime: $RuntimeOptions): DescribeGadInstancesResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.dbEngineTypes)) {
+    query['DbEngineTypes'] = request.dbEngineTypes;
+  }
   if (!$isNull(request.instanceName)) {
     query['InstanceName'] = request.instanceName;
   }
@@ -9401,6 +9778,7 @@ model DescribeInitializationStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeInitializationStatusResponse
  */
+@context("describeInitializationStatusWithContext")
 async function describeInitializationStatusWithOptions(request: DescribeInitializationStatusRequest, runtime: $RuntimeOptions): DescribeInitializationStatusResponse {
   request.validate();
   var query = {};
@@ -9514,6 +9892,7 @@ model DescribeJobMonitorRuleResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeJobMonitorRuleResponse
  */
+@context("describeJobMonitorRuleWithContext")
 async function describeJobMonitorRuleWithOptions(request: DescribeJobMonitorRuleRequest, runtime: $RuntimeOptions): DescribeJobMonitorRuleResponse {
   request.validate();
   var query = {};
@@ -9627,6 +10006,7 @@ model DescribeMetricListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeMetricListResponse
  */
+@context("describeMetricListWithContext")
 async function describeMetricListWithOptions(request: DescribeMetricListRequest, runtime: $RuntimeOptions): DescribeMetricListResponse {
   request.validate();
   var query = {};
@@ -9736,6 +10116,7 @@ model DescribeMigrationJobAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeMigrationJobAlertResponse
  */
+@context("describeMigrationJobAlertWithContext")
 async function describeMigrationJobAlertWithOptions(request: DescribeMigrationJobAlertRequest, runtime: $RuntimeOptions): DescribeMigrationJobAlertResponse {
   request.validate();
   var query = {};
@@ -9917,6 +10298,7 @@ model DescribeMigrationJobDetailResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeMigrationJobDetailResponse
  */
+@context("describeMigrationJobDetailWithContext")
 async function describeMigrationJobDetailWithOptions(request: DescribeMigrationJobDetailRequest, runtime: $RuntimeOptions): DescribeMigrationJobDetailResponse {
   request.validate();
   var query = {};
@@ -10128,6 +10510,7 @@ model DescribeMigrationJobStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeMigrationJobStatusResponse
  */
+@context("describeMigrationJobStatusWithContext")
 async function describeMigrationJobStatusWithOptions(request: DescribeMigrationJobStatusRequest, runtime: $RuntimeOptions): DescribeMigrationJobStatusResponse {
   request.validate();
   var query = {};
@@ -10346,6 +10729,7 @@ model DescribeMigrationJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeMigrationJobsResponse
  */
+@context("describeMigrationJobsWithContext")
 async function describeMigrationJobsWithOptions(request: DescribeMigrationJobsRequest, runtime: $RuntimeOptions): DescribeMigrationJobsResponse {
   request.validate();
   var query = {};
@@ -10445,6 +10829,7 @@ model DescribePreCheckCreateGadOrderResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribePreCheckCreateGadOrderResultResponse
  */
+@context("describePreCheckCreateGadOrderResultWithContext")
 async function describePreCheckCreateGadOrderResultWithOptions(request: DescribePreCheckCreateGadOrderResultRequest, runtime: $RuntimeOptions): DescribePreCheckCreateGadOrderResultResponse {
   request.validate();
   var query = {};
@@ -10793,6 +11178,7 @@ model DescribePreCheckStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribePreCheckStatusResponse
  */
+@context("describePreCheckStatusWithContext")
 async function describePreCheckStatusWithOptions(request: DescribePreCheckStatusRequest, runtime: $RuntimeOptions): DescribePreCheckStatusResponse {
   request.validate();
   var query = {};
@@ -10898,6 +11284,7 @@ model DescribeSubscriptionInstanceAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSubscriptionInstanceAlertResponse
  */
+@context("describeSubscriptionInstanceAlertWithContext")
 async function describeSubscriptionInstanceAlertWithOptions(request: DescribeSubscriptionInstanceAlertRequest, runtime: $RuntimeOptions): DescribeSubscriptionInstanceAlertResponse {
   request.validate();
   var query = {};
@@ -11035,6 +11422,7 @@ model DescribeSubscriptionInstanceStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSubscriptionInstanceStatusResponse
  */
+@context("describeSubscriptionInstanceStatusWithContext")
 async function describeSubscriptionInstanceStatusWithOptions(request: DescribeSubscriptionInstanceStatusRequest, runtime: $RuntimeOptions): DescribeSubscriptionInstanceStatusResponse {
   request.validate();
   var query = {};
@@ -11206,6 +11594,7 @@ model DescribeSubscriptionInstancesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSubscriptionInstancesResponse
  */
+@context("describeSubscriptionInstancesWithContext")
 async function describeSubscriptionInstancesWithOptions(request: DescribeSubscriptionInstancesRequest, runtime: $RuntimeOptions): DescribeSubscriptionInstancesResponse {
   request.validate();
   var query = {};
@@ -11329,6 +11718,7 @@ model DescribeSubscriptionMetaResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSubscriptionMetaResponse
  */
+@context("describeSubscriptionMetaWithContext")
 async function describeSubscriptionMetaWithOptions(tmpReq: DescribeSubscriptionMetaRequest, runtime: $RuntimeOptions): DescribeSubscriptionMetaResponse {
   tmpReq.validate();
   var request = new DescribeSubscriptionMetaShrinkRequest{};
@@ -11431,6 +11821,7 @@ model DescribeSyncStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSyncStatusResponse
  */
+@context("describeSyncStatusWithContext")
 async function describeSyncStatusWithOptions(request: DescribeSyncStatusRequest, runtime: $RuntimeOptions): DescribeSyncStatusResponse {
   request.validate();
   var query = {};
@@ -11534,6 +11925,7 @@ model DescribeSynchronizationJobAlertResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationJobAlertResponse
  */
+@context("describeSynchronizationJobAlertWithContext")
 async function describeSynchronizationJobAlertWithOptions(request: DescribeSynchronizationJobAlertRequest, runtime: $RuntimeOptions): DescribeSynchronizationJobAlertResponse {
   request.validate();
   var query = {};
@@ -11629,6 +12021,7 @@ model DescribeSynchronizationJobReplicatorCompareResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationJobReplicatorCompareResponse
  */
+@context("describeSynchronizationJobReplicatorCompareWithContext")
 async function describeSynchronizationJobReplicatorCompareWithOptions(request: DescribeSynchronizationJobReplicatorCompareRequest, runtime: $RuntimeOptions): DescribeSynchronizationJobReplicatorCompareResponse {
   request.validate();
   var query = {};
@@ -11854,6 +12247,7 @@ model DescribeSynchronizationJobStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationJobStatusResponse
  */
+@context("describeSynchronizationJobStatusWithContext")
 async function describeSynchronizationJobStatusWithOptions(request: DescribeSynchronizationJobStatusRequest, runtime: $RuntimeOptions): DescribeSynchronizationJobStatusResponse {
   request.validate();
   var query = {};
@@ -11968,6 +12362,7 @@ model DescribeSynchronizationJobStatusListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationJobStatusListResponse
  */
+@context("describeSynchronizationJobStatusListWithContext")
 async function describeSynchronizationJobStatusListWithOptions(request: DescribeSynchronizationJobStatusListRequest, runtime: $RuntimeOptions): DescribeSynchronizationJobStatusListResponse {
   request.validate();
   var query = {};
@@ -12215,6 +12610,7 @@ model DescribeSynchronizationJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationJobsResponse
  */
+@context("describeSynchronizationJobsWithContext")
 async function describeSynchronizationJobsWithOptions(request: DescribeSynchronizationJobsRequest, runtime: $RuntimeOptions): DescribeSynchronizationJobsResponse {
   request.validate();
   var query = {};
@@ -12367,6 +12763,7 @@ model DescribeSynchronizationObjectModifyStatusResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSynchronizationObjectModifyStatusResponse
  */
+@context("describeSynchronizationObjectModifyStatusWithContext")
 async function describeSynchronizationObjectModifyStatusWithOptions(request: DescribeSynchronizationObjectModifyStatusRequest, runtime: $RuntimeOptions): DescribeSynchronizationObjectModifyStatusResponse {
   request.validate();
   var query = {};
@@ -12453,6 +12850,7 @@ model DescribeTagKeysResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeTagKeysResponse
  */
+@context("describeTagKeysWithContext")
 async function describeTagKeysWithOptions(request: DescribeTagKeysRequest, runtime: $RuntimeOptions): DescribeTagKeysResponse {
   request.validate();
   var query = {};
@@ -12547,6 +12945,7 @@ model DescribeTagValuesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeTagValuesResponse
  */
+@context("describeTagValuesWithContext")
 async function describeTagValuesWithOptions(request: DescribeTagValuesRequest, runtime: $RuntimeOptions): DescribeTagValuesResponse {
   request.validate();
   var query = {};
@@ -12639,6 +13038,7 @@ model DetachGadInstanceDbMemberResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetachGadInstanceDbMemberResponse
  */
+@context("detachGadInstanceDbMemberWithContext")
 async function detachGadInstanceDbMemberWithOptions(request: DetachGadInstanceDbMemberRequest, runtime: $RuntimeOptions): DetachGadInstanceDbMemberResponse {
   request.validate();
   var query = {};
@@ -12732,6 +13132,7 @@ model InitDtsRdsInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return InitDtsRdsInstanceResponse
  */
+@context("initDtsRdsInstanceWithContext")
 async function initDtsRdsInstanceWithOptions(request: InitDtsRdsInstanceRequest, runtime: $RuntimeOptions): InitDtsRdsInstanceResponse {
   request.validate();
   var query = {};
@@ -12882,6 +13283,7 @@ model ListDedicatedClusterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDedicatedClusterResponse
  */
+@context("listDedicatedClusterWithContext")
 async function listDedicatedClusterWithOptions(request: ListDedicatedClusterRequest, runtime: $RuntimeOptions): ListDedicatedClusterResponse {
   request.validate();
   var query = {};
@@ -13006,6 +13408,7 @@ model ListTagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTagResourcesResponse
  */
+@context("listTagResourcesWithContext")
 async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: $RuntimeOptions): ListTagResourcesResponse {
   request.validate();
   var query = {};
@@ -13103,6 +13506,7 @@ model ModifyConsumerChannelResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyConsumerChannelResponse
  */
+@context("modifyConsumerChannelWithContext")
 async function modifyConsumerChannelWithOptions(request: ModifyConsumerChannelRequest, runtime: $RuntimeOptions): ModifyConsumerChannelResponse {
   request.validate();
   var query = {};
@@ -13208,6 +13612,7 @@ model ModifyConsumerGroupPasswordResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyConsumerGroupPasswordResponse
  */
+@context("modifyConsumerGroupPasswordWithContext")
 async function modifyConsumerGroupPasswordWithOptions(request: ModifyConsumerGroupPasswordRequest, runtime: $RuntimeOptions): ModifyConsumerGroupPasswordResponse {
   request.validate();
   var query = {};
@@ -13302,6 +13707,7 @@ model ModifyConsumptionTimestampResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyConsumptionTimestampResponse
  */
+@context("modifyConsumptionTimestampWithContext")
 async function modifyConsumptionTimestampWithOptions(request: ModifyConsumptionTimestampRequest, runtime: $RuntimeOptions): ModifyConsumptionTimestampResponse {
   request.validate();
   var query = {};
@@ -13389,6 +13795,7 @@ model ModifyDedicatedClusterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDedicatedClusterResponse
  */
+@context("modifyDedicatedClusterWithContext")
 async function modifyDedicatedClusterWithOptions(request: ModifyDedicatedClusterRequest, runtime: $RuntimeOptions): ModifyDedicatedClusterResponse {
   request.validate();
   var query = {};
@@ -13715,6 +14122,7 @@ model ModifyDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobResponse
  */
+@context("modifyDtsJobWithContext")
 async function modifyDtsJobWithOptions(tmpReq: ModifyDtsJobRequest, runtime: $RuntimeOptions): ModifyDtsJobResponse {
   tmpReq.validate();
   var request = new ModifyDtsJobShrinkRequest{};
@@ -13805,12 +14213,19 @@ async function modifyDtsJob(request: ModifyDtsJobRequest): ModifyDtsJobResponse 
 
 async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime: $RuntimeOptions): ModifyDtsJobResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -13825,54 +14240,55 @@ async function modifyDtsJobAdvance(request: ModifyDtsJobAdvanceRequest, runtime:
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Dts',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Dts',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var modifyDtsJobReq = new ModifyDtsJobRequest{};
   OpenApiUtil.convert(request, modifyDtsJobReq);
 
   if(!$isNull(request.fileOssUrlObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.fileOssUrlObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    modifyDtsJobReq.fileOssUrl = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    modifyDtsJobReq.fileOssUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var modifyDtsJobResp = modifyDtsJobWithOptions(modifyDtsJobReq, runtime);
   return modifyDtsJobResp;
@@ -13903,6 +14319,7 @@ model ModifyDtsJobConfigResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobConfigResponse
  */
+@context("modifyDtsJobConfigWithContext")
 async function modifyDtsJobConfigWithOptions(request: ModifyDtsJobConfigRequest, runtime: $RuntimeOptions): ModifyDtsJobConfigResponse {
   request.validate();
   var query = {};
@@ -13984,6 +14401,7 @@ model ModifyDtsJobDedicatedClusterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobDedicatedClusterResponse
  */
+@context("modifyDtsJobDedicatedClusterWithContext")
 async function modifyDtsJobDedicatedClusterWithOptions(request: ModifyDtsJobDedicatedClusterRequest, runtime: $RuntimeOptions): ModifyDtsJobDedicatedClusterResponse {
   request.validate();
   var query = {};
@@ -14072,6 +14490,7 @@ model ModifyDtsJobDuLimitResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobDuLimitResponse
  */
+@context("modifyDtsJobDuLimitWithContext")
 async function modifyDtsJobDuLimitWithOptions(request: ModifyDtsJobDuLimitRequest, runtime: $RuntimeOptions): ModifyDtsJobDuLimitResponse {
   request.validate();
   var query = {};
@@ -14217,6 +14636,7 @@ model ModifyDtsJobEndpointResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobEndpointResponse
  */
+@context("modifyDtsJobEndpointWithContext")
 async function modifyDtsJobEndpointWithOptions(request: ModifyDtsJobEndpointRequest, runtime: $RuntimeOptions): ModifyDtsJobEndpointResponse {
   request.validate();
   var query = {};
@@ -14353,6 +14773,7 @@ model ModifyDtsJobNameResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobNameResponse
  */
+@context("modifyDtsJobNameWithContext")
 async function modifyDtsJobNameWithOptions(request: ModifyDtsJobNameRequest, runtime: $RuntimeOptions): ModifyDtsJobNameResponse {
   request.validate();
   var query = {};
@@ -14449,6 +14870,7 @@ model ModifyDtsJobPasswordResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDtsJobPasswordResponse
  */
+@context("modifyDtsJobPasswordWithContext")
 async function modifyDtsJobPasswordWithOptions(request: ModifyDtsJobPasswordRequest, runtime: $RuntimeOptions): ModifyDtsJobPasswordResponse {
   request.validate();
   var query = {};
@@ -14564,6 +14986,7 @@ model ModifyDynamicConfigResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDynamicConfigResponse
  */
+@context("modifyDynamicConfigWithContext")
 async function modifyDynamicConfigWithOptions(request: ModifyDynamicConfigRequest, runtime: $RuntimeOptions): ModifyDynamicConfigResponse {
   request.validate();
   var query = {};
@@ -14649,6 +15072,7 @@ model ModifyGadInstanceNameResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyGadInstanceNameResponse
  */
+@context("modifyGadInstanceNameWithContext")
 async function modifyGadInstanceNameWithOptions(request: ModifyGadInstanceNameRequest, runtime: $RuntimeOptions): ModifyGadInstanceNameResponse {
   request.validate();
   var query = {};
@@ -14738,6 +15162,7 @@ model ModifySubscriptionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifySubscriptionResponse
  */
+@context("modifySubscriptionWithContext")
 async function modifySubscriptionWithOptions(request: ModifySubscriptionRequest, runtime: $RuntimeOptions): ModifySubscriptionResponse {
   request.validate();
   var query = {};
@@ -14831,6 +15256,7 @@ model ModifySubscriptionObjectResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifySubscriptionObjectResponse
  */
+@context("modifySubscriptionObjectWithContext")
 async function modifySubscriptionObjectWithOptions(request: ModifySubscriptionObjectRequest, runtime: $RuntimeOptions): ModifySubscriptionObjectResponse {
   request.validate();
   var query = {};
@@ -14920,6 +15346,7 @@ model ModifySynchronizationObjectResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifySynchronizationObjectResponse
  */
+@context("modifySynchronizationObjectWithContext")
 async function modifySynchronizationObjectWithOptions(request: ModifySynchronizationObjectRequest, runtime: $RuntimeOptions): ModifySynchronizationObjectResponse {
   request.validate();
   var query = {};
@@ -14976,11 +15403,17 @@ async function modifySynchronizationObject(request: ModifySynchronizationObjectR
 
 model PreCheckCreateGadOrderRequest {
   instanceId?: string(name='InstanceId', example='gad-bp1i99e8l7913****'),
+  masterDatabaseName?: string(name='MasterDatabaseName'),
+  masterEngineArchType?: string(name='MasterEngineArchType'),
+  masterShardAccountName?: string(name='MasterShardAccountName'),
+  masterShardAccountPassword?: string(name='MasterShardAccountPassword'),
   ownerId?: string(name='OwnerId'),
   regionId?: string(name='RegionId', example='cn-hangzhou'),
   resourceGroupId?: string(name='ResourceGroupId', example='rg-acfntftbiobqyky'),
+  slaveDatabaseName?: string(name='SlaveDatabaseName'),
   slaveDbInstanceId?: string(name='SlaveDbInstanceId', example='rm-bp17562h64****'),
   slaveDbInstanceRegion?: string(name='SlaveDbInstanceRegion', example='cn-hangzhou'),
+  slaveEngineArchType?: string(name='SlaveEngineArchType'),
 }
 
 model PreCheckCreateGadOrderResponseBody = {
@@ -15009,11 +15442,24 @@ model PreCheckCreateGadOrderResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return PreCheckCreateGadOrderResponse
  */
+@context("preCheckCreateGadOrderWithContext")
 async function preCheckCreateGadOrderWithOptions(request: PreCheckCreateGadOrderRequest, runtime: $RuntimeOptions): PreCheckCreateGadOrderResponse {
   request.validate();
   var query = {};
   if (!$isNull(request.instanceId)) {
     query['InstanceId'] = request.instanceId;
+  }
+  if (!$isNull(request.masterDatabaseName)) {
+    query['MasterDatabaseName'] = request.masterDatabaseName;
+  }
+  if (!$isNull(request.masterEngineArchType)) {
+    query['MasterEngineArchType'] = request.masterEngineArchType;
+  }
+  if (!$isNull(request.masterShardAccountName)) {
+    query['MasterShardAccountName'] = request.masterShardAccountName;
+  }
+  if (!$isNull(request.masterShardAccountPassword)) {
+    query['MasterShardAccountPassword'] = request.masterShardAccountPassword;
   }
   if (!$isNull(request.ownerId)) {
     query['OwnerId'] = request.ownerId;
@@ -15024,11 +15470,17 @@ async function preCheckCreateGadOrderWithOptions(request: PreCheckCreateGadOrder
   if (!$isNull(request.resourceGroupId)) {
     query['ResourceGroupId'] = request.resourceGroupId;
   }
+  if (!$isNull(request.slaveDatabaseName)) {
+    query['SlaveDatabaseName'] = request.slaveDatabaseName;
+  }
   if (!$isNull(request.slaveDbInstanceId)) {
     query['SlaveDbInstanceId'] = request.slaveDbInstanceId;
   }
   if (!$isNull(request.slaveDbInstanceRegion)) {
     query['SlaveDbInstanceRegion'] = request.slaveDbInstanceRegion;
+  }
+  if (!$isNull(request.slaveEngineArchType)) {
+    query['SlaveEngineArchType'] = request.slaveEngineArchType;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -15113,6 +15565,7 @@ model RenewInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RenewInstanceResponse
  */
+@context("renewInstanceWithContext")
 async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: $RuntimeOptions): RenewInstanceResponse {
   request.validate();
   var query = {};
@@ -15204,6 +15657,7 @@ model ResetDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ResetDtsJobResponse
  */
+@context("resetDtsJobWithContext")
 async function resetDtsJobWithOptions(request: ResetDtsJobRequest, runtime: $RuntimeOptions): ResetDtsJobResponse {
   request.validate();
   var query = {};
@@ -15292,6 +15746,7 @@ model ResetSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ResetSynchronizationJobResponse
  */
+@context("resetSynchronizationJobWithContext")
 async function resetSynchronizationJobWithOptions(request: ResetSynchronizationJobRequest, runtime: $RuntimeOptions): ResetSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -15373,6 +15828,7 @@ model ReverseTwoWayDirectionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ReverseTwoWayDirectionResponse
  */
+@context("reverseTwoWayDirectionWithContext")
 async function reverseTwoWayDirectionWithOptions(request: ReverseTwoWayDirectionRequest, runtime: $RuntimeOptions): ReverseTwoWayDirectionResponse {
   request.validate();
   var query = {};
@@ -15461,6 +15917,7 @@ model ShieldPrecheckResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ShieldPrecheckResponse
  */
+@context("shieldPrecheckWithContext")
 async function shieldPrecheckWithOptions(request: ShieldPrecheckRequest, runtime: $RuntimeOptions): ShieldPrecheckResponse {
   request.validate();
   var query = {};
@@ -15535,6 +15992,7 @@ model SkipFullJobTableResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SkipFullJobTableResponse
  */
+@context("skipFullJobTableWithContext")
 async function skipFullJobTableWithOptions(request: SkipFullJobTableRequest, runtime: $RuntimeOptions): SkipFullJobTableResponse {
   request.validate();
   var query = {};
@@ -15645,6 +16103,7 @@ model SkipPreCheckResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SkipPreCheckResponse
  */
+@context("skipPreCheckWithContext")
 async function skipPreCheckWithOptions(request: SkipPreCheckRequest, runtime: $RuntimeOptions): SkipPreCheckResponse {
   request.validate();
   var query = {};
@@ -15740,6 +16199,7 @@ model StartDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartDtsJobResponse
  */
+@context("startDtsJobWithContext")
 async function startDtsJobWithOptions(request: StartDtsJobRequest, runtime: $RuntimeOptions): StartDtsJobResponse {
   request.validate();
   var query = {};
@@ -15828,6 +16288,7 @@ model StartDtsJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartDtsJobsResponse
  */
+@context("startDtsJobsWithContext")
 async function startDtsJobsWithOptions(request: StartDtsJobsRequest, runtime: $RuntimeOptions): StartDtsJobsResponse {
   request.validate();
   var query = {};
@@ -15901,6 +16362,7 @@ model StartMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartMigrationJobResponse
  */
+@context("startMigrationJobWithContext")
 async function startMigrationJobWithOptions(request: StartMigrationJobRequest, runtime: $RuntimeOptions): StartMigrationJobResponse {
   request.validate();
   var query = {};
@@ -15979,6 +16441,7 @@ model StartReverseWriterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartReverseWriterResponse
  */
+@context("startReverseWriterWithContext")
 async function startReverseWriterWithOptions(request: StartReverseWriterRequest, runtime: $RuntimeOptions): StartReverseWriterResponse {
   request.validate();
   var query = {};
@@ -16052,6 +16515,7 @@ model StartSubscriptionInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartSubscriptionInstanceResponse
  */
+@context("startSubscriptionInstanceWithContext")
 async function startSubscriptionInstanceWithOptions(request: StartSubscriptionInstanceRequest, runtime: $RuntimeOptions): StartSubscriptionInstanceResponse {
   request.validate();
   var query = {};
@@ -16141,6 +16605,7 @@ model StartSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartSynchronizationJobResponse
  */
+@context("startSynchronizationJobWithContext")
 async function startSynchronizationJobWithOptions(request: StartSynchronizationJobRequest, runtime: $RuntimeOptions): StartSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -16224,6 +16689,7 @@ model StopDedicatedClusterResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopDedicatedClusterResponse
  */
+@context("stopDedicatedClusterWithContext")
 async function stopDedicatedClusterWithOptions(request: StopDedicatedClusterRequest, runtime: $RuntimeOptions): StopDedicatedClusterResponse {
   request.validate();
   var query = {};
@@ -16315,6 +16781,7 @@ model StopDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopDtsJobResponse
  */
+@context("stopDtsJobWithContext")
 async function stopDtsJobWithOptions(request: StopDtsJobRequest, runtime: $RuntimeOptions): StopDtsJobResponse {
   request.validate();
   var query = {};
@@ -16403,6 +16870,7 @@ model StopDtsJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopDtsJobsResponse
  */
+@context("stopDtsJobsWithContext")
 async function stopDtsJobsWithOptions(request: StopDtsJobsRequest, runtime: $RuntimeOptions): StopDtsJobsResponse {
   request.validate();
   var query = {};
@@ -16477,6 +16945,7 @@ model StopMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopMigrationJobResponse
  */
+@context("stopMigrationJobWithContext")
 async function stopMigrationJobWithOptions(request: StopMigrationJobRequest, runtime: $RuntimeOptions): StopMigrationJobResponse {
   request.validate();
   var query = {};
@@ -16599,6 +17068,7 @@ model SummaryJobDetailResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SummaryJobDetailResponse
  */
+@context("summaryJobDetailWithContext")
 async function summaryJobDetailWithOptions(request: SummaryJobDetailRequest, runtime: $RuntimeOptions): SummaryJobDetailResponse {
   request.validate();
   var query = {};
@@ -16702,6 +17172,7 @@ model SuspendDtsJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SuspendDtsJobResponse
  */
+@context("suspendDtsJobWithContext")
 async function suspendDtsJobWithOptions(request: SuspendDtsJobRequest, runtime: $RuntimeOptions): SuspendDtsJobResponse {
   request.validate();
   var query = {};
@@ -16792,6 +17263,7 @@ model SuspendDtsJobsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SuspendDtsJobsResponse
  */
+@context("suspendDtsJobsWithContext")
 async function suspendDtsJobsWithOptions(request: SuspendDtsJobsRequest, runtime: $RuntimeOptions): SuspendDtsJobsResponse {
   request.validate();
   var query = {};
@@ -16866,6 +17338,7 @@ model SuspendMigrationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SuspendMigrationJobResponse
  */
+@context("suspendMigrationJobWithContext")
 async function suspendMigrationJobWithOptions(request: SuspendMigrationJobRequest, runtime: $RuntimeOptions): SuspendMigrationJobResponse {
   request.validate();
   var query = {};
@@ -16958,6 +17431,7 @@ model SuspendSynchronizationJobResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SuspendSynchronizationJobResponse
  */
+@context("suspendSynchronizationJobWithContext")
 async function suspendSynchronizationJobWithOptions(request: SuspendSynchronizationJobRequest, runtime: $RuntimeOptions): SuspendSynchronizationJobResponse {
   request.validate();
   var query = {};
@@ -17044,6 +17518,7 @@ model SwitchPhysicalDtsJobToCloudResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SwitchPhysicalDtsJobToCloudResponse
  */
+@context("switchPhysicalDtsJobToCloudWithContext")
 async function switchPhysicalDtsJobToCloudWithOptions(request: SwitchPhysicalDtsJobToCloudRequest, runtime: $RuntimeOptions): SwitchPhysicalDtsJobToCloudResponse {
   request.validate();
   var query = {};
@@ -17163,6 +17638,7 @@ model SwitchSynchronizationEndpointResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SwitchSynchronizationEndpointResponse
  */
+@context("switchSynchronizationEndpointWithContext")
 async function switchSynchronizationEndpointWithOptions(request: SwitchSynchronizationEndpointRequest, runtime: $RuntimeOptions): SwitchSynchronizationEndpointResponse {
   request.validate();
   var query = {};
@@ -17282,6 +17758,7 @@ model TagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return TagResourcesResponse
  */
+@context("tagResourcesWithContext")
 async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: $RuntimeOptions): TagResourcesResponse {
   request.validate();
   var query = {};
@@ -17391,6 +17868,7 @@ model TransferInstanceClassResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return TransferInstanceClassResponse
  */
+@context("transferInstanceClassWithContext")
 async function transferInstanceClassWithOptions(request: TransferInstanceClassRequest, runtime: $RuntimeOptions): TransferInstanceClassResponse {
   request.validate();
   var query = {};
@@ -17522,6 +18000,7 @@ model TransferPayTypeResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return TransferPayTypeResponse
  */
+@context("transferPayTypeWithContext")
 async function transferPayTypeWithOptions(request: TransferPayTypeRequest, runtime: $RuntimeOptions): TransferPayTypeResponse {
   request.validate();
   var query = {};
@@ -17629,6 +18108,7 @@ model UntagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UntagResourcesResponse
  */
+@context("untagResourcesWithContext")
 async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime: $RuntimeOptions): UntagResourcesResponse {
   request.validate();
   var query = {};
@@ -17728,6 +18208,7 @@ model UpgradeTwoWayResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpgradeTwoWayResponse
  */
+@context("upgradeTwoWayWithContext")
 async function upgradeTwoWayWithOptions(request: UpgradeTwoWayRequest, runtime: $RuntimeOptions): UpgradeTwoWayResponse {
   request.validate();
   var query = {};
@@ -17835,6 +18316,7 @@ model WhiteIpListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return WhiteIpListResponse
  */
+@context("whiteIpListWithContext")
 async function whiteIpListWithOptions(request: WhiteIpListRequest, runtime: $RuntimeOptions): WhiteIpListResponse {
   request.validate();
   var query = {};
@@ -17917,3 +18399,36 @@ async function whiteIpList(request: WhiteIpListRequest): WhiteIpListResponse {
   return whiteIpListWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = $Form.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
+      data = {
+        httpCode = __response.statusCode,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
+      }
+    };
+  }
+  respMap = $XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
