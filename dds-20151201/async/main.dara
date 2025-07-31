@@ -32,7 +32,7 @@ init(configuration: ClientConfiguration){
     'cn-shanghai' = 'mongodb.aliyuncs.com',
     'cn-shenzhen' = 'mongodb.aliyuncs.com',
     'cn-heyuan' = 'mongodb.aliyuncs.com',
-    'cn-guangzhou' = 'mongodb.aliyuncs.com',
+    'cn-guangzhou' = 'mongodb.cn-guangzhou.aliyuncs.com',
     'cn-chengdu' = 'mongodb.cn-chengdu.aliyuncs.com',
     'cn-hongkong' = 'mongodb.cn-hongkong.aliyuncs.com',
     'ap-northeast-1' = 'mongodb.ap-northeast-1.aliyuncs.com',
@@ -48,7 +48,7 @@ init(configuration: ClientConfiguration){
     'me-east-1' = 'mongodb.me-east-1.aliyuncs.com',
     'cn-hangzhou-finance' = 'mongodb.aliyuncs.com',
     'cn-shanghai-finance-1' = 'mongodb.aliyuncs.com',
-    'cn-shenzhen-finance-1' = 'mongodb.aliyuncs.com',
+    'cn-shenzhen-finance-1' = 'mongodb.cn-shenzhen-finance-1.aliyuncs.com',
     'cn-north-2-gov-1' = 'mongodb.cn-north-2-gov-1.aliyuncs.com',
     'ap-northeast-2-pop' = 'mongodb.aliyuncs.com',
     'cn-beijing-finance-1' = 'mongodb.aliyuncs.com',
@@ -82,6 +82,7 @@ init(configuration: ClientConfiguration){
     'cn-zhengzhou-nebula-1' = 'mongodb.aliyuncs.com',
     'eu-west-1-oxs' = 'mongodb.aliyuncs.com',
     'rus-west-1-pop' = 'mongodb.aliyuncs.com',
+    'na-south-1' = 'mongodb.na-south-1.aliyuncs.com',
   };
 }
 
@@ -374,6 +375,7 @@ model CreateBackupRequest {
 *   **Physical** (default)
 
 > Only replica set instances and sharded cluster instances support this parameter. You do not need to specify this parameter for standalone instances. All standalone instances use snapshot backup.', example='Logical', position='Query'),
+  backupRetentionPeriod?: long(name='BackupRetentionPeriod', position='Query'),
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
 This parameter is required.', example='d-bp2235****', position='Query'),
@@ -1780,18 +1782,15 @@ Valid values:
 *   **cloud**: displays only zones available for instances that use cloud disks.
 *   **local**: only displays zones available for instances that use local disks instances.
 *   **default** or unspecified: displays zones available for instances that use cloud disks and those that use local disks.', example='local', position='Query'),
-  storageType?: string(name='StorageType', description='The disk type. Valid values:
+  storageType?: string(name='StorageType', description='The storage type. Valid values:
 
-*   **cloud_essd**: PL1 Enterprise SSD (ESSD)
-*   **cloud_essd2**: PL2 ESSD
-*   **cloud_essd3**: PL3 ESSD
-*   **dhg_local_ssd**: local SSD
+*   **cloud_essd1**: PL1 Enterprise SSDs (ESSDs)
+*   **cloud_essd2**: PL2 ESSDs
+*   **cloud_essd3**: PL3 ESSDs
+*   **local_ssd**: local SSDs
 
-> 
-
-*   Instances that run MongoDB 4.4 or later only use cloud disks to store data. If you do not specify this parameter, the value **cloud_essd1** is used by default.
-
-*   Instances that run MongoDB 4.2 and earlier only use local disks to store data. If you do not specify this parameter, the value **local_ssd** is used by default.', example='local_ssd', position='Query'),
+> *   Instances that run MongoDB 4.4 or later only use cloud disks to store data. If you do not specify this parameter, the value **cloud_essd1** is used by default.
+> *   Instances that run MongoDB 4.2 and earlier only use local disks to store data. If you do not specify this parameter, the value **local_ssd** is used by default.', example='local_ssd', position='Query'),
   zoneId?: string(name='ZoneId', description='The zone ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/61933.html) operation to query available zones.', example='cn-hangzhou-b', position='Query'),
 }
 
@@ -2106,6 +2105,7 @@ Valid values:
 *   **Sunday**', example='Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'),
   preferredBackupTime?: string(name='PreferredBackupTime', description='The time range during which the backup was created. The time follows the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time is displayed in UTC.', example='09:00Z-10:00Z'),
   preferredNextBackupTime?: string(name='PreferredNextBackupTime', description='The time of next standard backup.', example='2024-06-19T19:11Z'),
+  preserveOneEachHour?: boolean(name='PreserveOneEachHour'),
   requestId?: string(name='RequestId', description='The request ID.', example='5A9464CA-F7DC-5434-90B1-DF7F197C****'),
   snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Valid values:
 
@@ -2259,6 +2259,7 @@ model DescribeBackupsResponseBody = {
       backupDBNames?: string(name='BackupDBNames', description='The name of the database that has been backed up.', example='database'),
       backupDownloadURL?: string(name='BackupDownloadURL', description='The URL that is used to download the backup set over the Internet. If the backup set cannot be downloaded, an empty string is returned.'),
       backupEndTime?: string(name='BackupEndTime', description='The end time of the backup. The time follows the ISO 8601 standard in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time is displayed in UTC.', example='2022-01-14T03:57:34Z'),
+      backupExpireTime?: string(name='BackupExpireTime'),
       backupId?: string(name='BackupId', description='The ID of the backup set.', example='32102****'),
       backupIntranetDownloadURL?: string(name='BackupIntranetDownloadURL', description='The internal download URL of the backup set.
 
@@ -2370,6 +2371,7 @@ model DescribeClusterBackupsResponseBody = {
 *   **Failed**: Log backup failed.
 
 >  If the **ClusterBackupStatus** parameter is set to OK, full backup is successful. If you want to perform point-in-time-restoration on an instance for which log backup is enabled or to implement consistency restoration, make sure that log backup is complete.', example='Ready'),
+      backupExpireTime?: string(name='BackupExpireTime'),
       backups?: [ 
         {
           backupDownloadURL?: string(name='BackupDownloadURL', description='The URL that is used to download the backup set over the Internet. If the backup set cannot be downloaded, an empty string is returned.', example='http://oss.com/xxx'),
@@ -2565,6 +2567,7 @@ model DescribeDBInstanceAttributeResponseBody = {
 *   **replicate**: replica set instance
 *   **sharding**: sharded cluster instance', example='replicate'),
       destroyTime?: string(name='DestroyTime', description='The time when the instance data was destroyed. The time follows the ISO 8601 standard in the yyyy-MM-ddTHH:mm:ssZ format. The time is displayed in UTC.', example='2021-12-10T16:00:00Z'),
+      disasterRecoveryInfo?: string(name='DisasterRecoveryInfo'),
       encrypted?: boolean(name='Encrypted', description='Indicates whether disk encryption is enabled.', example='true'),
       encryptionKey?: string(name='EncryptionKey', description='The Key Management Service (KMS) key used for disk encryption.', example='07609cc3-3109-408f-a35e-c548e776da0b'),
       engine?: string(name='Engine', description='The database engine of the instance.', example='MongoDB'),
@@ -2755,6 +2758,7 @@ model DescribeDBInstanceAttributeResponseBody = {
           nodeStorage?: int32(name='NodeStorage', description='The storage capacity of the shard node. Unit: GB.', example='10'),
           port?: int32(name='Port', description='The port number that is used to connect to the shard node.', example='3717'),
           readonlyReplicas?: int32(name='ReadonlyReplicas', description='The number of read-only nodes in the shard node. Valid values: **0** to **5**. The value must be an integer.', example='0'),
+          replicaSetName?: string(name='ReplicaSetName'),
           status?: string(name='Status', description='The status of the shard node. For more information, see [Instance states](https://help.aliyun.com/document_detail/63870.html).', example='Running'),
         }
       ](name='ShardAttribute')
@@ -4526,6 +4530,7 @@ model DescribePriceResponseBody = {
     showDiscountInfo?: boolean(name='ShowDiscountInfo', description='Indicates whether the discount information is displayed.', example='true'),
     standDiscountPrice?: double(name='StandDiscountPrice', description='The discount.', example='0'),
     standPrice?: double(name='StandPrice', description='The discount.', example='0'),
+    totalCostAmount?: double(name='TotalCostAmount'),
     tradeAmount?: string(name='TradeAmount', description='The final price of the order.', example='0'),
   }(name='Order', description='The order information.'),
   orderParams?: string(name='OrderParams', description='The order parameters.
@@ -6039,6 +6044,7 @@ Valid values: 7 to 730.', example='7', position='Query'),
   preferredBackupTime?: string(name='PreferredBackupTime', description='The start time of the backup. Specify the time in the ISO 8601 standard in the *HH:mm*Z-*HH:mm*Z format. The time must be in UTC.
 
 >  The time range is 1 hour.', example='03:00Z-04:00Z', position='Query'),
+  preserveOneEachHour?: boolean(name='PreserveOneEachHour', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   snapshotBackupType?: string(name='SnapshotBackupType', description='The snapshot backup type. Valid values:
@@ -6072,6 +6078,35 @@ model ModifyBackupPolicyResponse = {
 async function modifyBackupPolicy(request: ModifyBackupPolicyRequest): ModifyBackupPolicyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifyBackupPolicy', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifyDBInstanceAttributeRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='dds-7xv0912d85924194', position='Query'),
+  DBInstanceReleaseProtection?: boolean(name='DBInstanceReleaseProtection', example='false', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ModifyDBInstanceAttributeResponseBody = {
+  requestId?: string(name='RequestId', example='6826DEE3-B374-5DB7-909D-C8978827C534'),
+}
+
+model ModifyDBInstanceAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyDBInstanceAttributeResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyDBInstanceAttribute  ModifyDBInstanceAttributeRequest
+  * @return ModifyDBInstanceAttributeResponse
+ */
+async function modifyDBInstanceAttribute(request: ModifyDBInstanceAttributeRequest): ModifyDBInstanceAttributeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyDBInstanceAttribute', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyDBInstanceConfigRequest {
@@ -6442,6 +6477,7 @@ This parameter is required.', example='dds-bp2235****', position='Query'),
 *   **Update**: updates the SSL certificate.
 
 This parameter is required.', example='Open', position='Query'),
+  switchMode?: string(name='SwitchMode', position='Query'),
 }
 
 model ModifyDBInstanceSSLResponseBody = {
@@ -6576,6 +6612,7 @@ This parameter is required.', example='dds-bpxxxxxxxx', position='Query'),
 > *   `$accountID`: specifies the ID of the Alibaba Cloud account. To view the account ID, log on to the Alibaba Cloud Management Console, move your pointer over your profile picture in the upper-right corner, and then click Security Settings.
 
 > *   `$roleName`: specifies the name of the RAM role. To view the RAM role name, log on to the RAM console. In the left-side navigation pane, choose Identities > Roles. On the Roles page, view the name of the RAM role.', example='acs:ram::123456789012****:role/adminrole', position='Query'),
+  switchMode?: string(name='SwitchMode', position='Query'),
   TDEStatus: string(name='TDEStatus', description='The TDE status. When the value of this parameter is set to **Enabled**, TDE is enabled.
 
 > You cannot disable TDE after it is enabled. Proceed with caution.
@@ -6974,6 +7011,7 @@ This parameter is required.', example='{"operationProfiling.mode":"all","operati
   regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/61933.html) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  switchMode?: string(name='SwitchMode', position='Query'),
 }
 
 model ModifyParametersResponseBody = {
@@ -7357,6 +7395,7 @@ This parameter is required.', example='dds-bpxxxxxxxx', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  switchMode?: string(name='SwitchMode', position='Query'),
 }
 
 model RestartDBInstanceResponseBody = {
@@ -7399,6 +7438,7 @@ This parameter is required.', example='dds-bpxxxxxxxx', position='Query'),
 2.  You can call the [DescribeRoleZoneInfo](https://help.aliyun.com/document_detail/468472.html) operation to query the role ID of a node in a sharded cluster instance.
 
 This parameter is required.', example='6025****', position='Query'),
+  switchMode?: string(name='SwitchMode', position='Query'),
 }
 
 model RestartNodeResponseBody = {
