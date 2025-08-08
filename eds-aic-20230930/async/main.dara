@@ -189,9 +189,13 @@ async function batchGetAcpConnectionTicket(request: BatchGetAcpConnectionTicketR
 }
 
 model ChangeCloudPhoneNodeRequest {
+  autoPay?: boolean(name='AutoPay', position='Query'),
+  downBandwidthLimit?: int32(name='DownBandwidthLimit', position='Query'),
   instanceType?: string(name='InstanceType', example='ac.max', position='Query'),
   nodeId?: string(name='NodeId', example='cpn-0ugbptfu473fy****', position='Query'),
   phoneCount?: int32(name='PhoneCount', example='20', position='Query'),
+  phoneDataVolume?: int32(name='PhoneDataVolume', position='Query'),
+  upBandwidthLimit?: int32(name='UpBandwidthLimit', position='Query'),
 }
 
 model ChangeCloudPhoneNodeResponseBody = {
@@ -200,11 +204,14 @@ model ChangeCloudPhoneNodeResponseBody = {
       instanceInfos?: [ 
         {
           instanceId?: string(name='InstanceId', example='cpn-jewjt8xryuitu****'),
+          phoneDataVolume?: int32(name='PhoneDataVolume'),
         }
       ](name='InstanceInfos'),
       nodeId?: string(name='NodeId', example='cpn-e5kxgjyt8s1mb****'),
+      shareDataVolume?: int32(name='ShareDataVolume'),
     }
   ](name='NodeInfos'),
+  orderId?: string(name='OrderId'),
   requestId?: string(name='RequestId', example='4610632D-D661-5982-B3D7-5D3FD183F****'),
 }
 
@@ -1462,6 +1469,7 @@ model DescribeCloudPhoneNodesResponseBody = {
   nodeModel?: [ 
     {
       bandwidthPackageId?: string(name='BandwidthPackageId'),
+      bandwidthPackageStatus?: string(name='BandwidthPackageStatus'),
       bandwidthPackageType?: string(name='BandwidthPackageType'),
       bizTags?: [ 
         {
@@ -2177,6 +2185,7 @@ model ExpandDataVolumeRequest {
   autoPay?: boolean(name='AutoPay', example='true', position='Query'),
   bizRegionId?: string(name='BizRegionId', example='cn-hangzhou', position='Query'),
   nodeIds?: [ string ](name='NodeIds', position='Query'),
+  phoneDataVolume?: int32(name='PhoneDataVolume', position='Query'),
   shareDataVolume?: int32(name='ShareDataVolume', example='100', position='Query'),
 }
 
@@ -2504,6 +2513,48 @@ model ListPolicyGroupsResponse = {
 async function listPolicyGroups(request: ListPolicyGroupsRequest): ListPolicyGroupsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListPolicyGroups', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListTagResourcesRequest {
+  maxResults?: int32(name='MaxResults', example='10', position='Query'),
+  nextToken?: string(name='NextToken', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****', position='Query'),
+  regionId: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Query'),
+  resourceId?: [ string ](name='ResourceId', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='ALIYUN::ACP::INSTANCE', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='Key', example='department'),
+      value?: string(name='Value', example='design'),
+    }
+  ](name='Tag', position='Query'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='NextToken', example='AAAAAV3MpHK1AP0pfERHZN5pu6l5V9uONHqPtDLM2U8s****'),
+  requestId?: string(name='RequestId', example='20393E53-8FF1-524C-B494-B478A5369733'),
+  tagResources?: [ 
+    {
+      resourceId?: string(name='ResourceId', example='acp-123456abc****'),
+      resourceType?: string(name='ResourceType', example='ALIYUN::ACP::INSTANC'),
+      tagKey?: string(name='TagKey', example='For'),
+      tagValue?: string(name='TagValue', example='TF'),
+    }
+  ](name='TagResources'),
+}
+
+model ListTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTagResources  ListTagResourcesRequest
+  * @return ListTagResourcesResponse
+ */
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListTagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyAndroidInstanceRequest {
@@ -3274,6 +3325,36 @@ async function stopAndroidInstance(request: StopAndroidInstanceRequest): StopAnd
   return @handler.do('RPC', 'StopAndroidInstance', 'POST', '/', 'json', false, 'json', request);
 }
 
+model TagResourcesRequest {
+  resourceId: [ string ](name='ResourceId', description='This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='ALIYUN::ACP::INSTANCE', position='Query'),
+  tag: [ 
+    {
+      key?: string(name='Key', example='department', maxLength=128),
+      value?: string(name='Value', example='design', maxLength=256),
+    }
+  ](name='Tag', description='This parameter is required.', position='Query'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='F07A1DA1-E1EB-5CCA-8EED-12F85D32****'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TagResources  TagResourcesRequest
+  * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TagResources', 'POST', '/', 'json', false, 'json', request);
+}
+
 model UninstallAppRequest {
   appIdList?: [ string ](name='AppIdList', description='The IDs of the apps.', position='Query'),
   instanceGroupIdList?: [ string ](name='InstanceGroupIdList', description='The ID of the instance groups. If you specify this parameter, you cannot specify InstanceIdList.', position='Query'),
@@ -3323,6 +3404,32 @@ model UninstallMonitorAgentResponse = {
 async function uninstallMonitorAgent(request: UninstallMonitorAgentRequest): UninstallMonitorAgentResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UninstallMonitorAgent', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UntagResourcesRequest {
+  all?: boolean(name='All', example='true', position='Query'),
+  resourceId: [ string ](name='ResourceId', description='This parameter is required.', position='Query'),
+  resourceType: string(name='ResourceType', description='This parameter is required.', example='ALIYUN::ACP::INSTANCE', position='Query'),
+  tagKey?: [ string ](name='TagKey', position='Query'),
+}
+
+model UntagResourcesResponseBody = {
+  requestId?: string(name='RequestId', example='1A923337-44D9-5CAD-9A53-95084BD4****'),
+}
+
+model UntagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UntagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UntagResources  UntagResourcesRequest
+  * @return UntagResourcesResponse
+ */
+async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UntagResources', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UpdateCustomImageNameRequest {
