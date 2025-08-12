@@ -5658,6 +5658,7 @@ model LlmStreamChatRequest {
   messages?: any(name='Messages'),
   temperature?: float(name='Temperature', example='0.5'),
   topP?: float(name='TopP', example='0.5'),
+  type?: string(name='Type'),
 }
 
 model LlmStreamChatResponseBody = {
@@ -5700,6 +5701,57 @@ model LlmStreamChatResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return LlmStreamChatResponse
  */
+@sse(true)
+async function llmStreamChatWithSSE(request: LlmStreamChatRequest, runtime: $RuntimeOptions): asyncIterator[LlmStreamChatResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.messages)) {
+    body['Messages'] = request.messages;
+  }
+  if (!$isNull(request.temperature)) {
+    body['Temperature'] = request.temperature;
+  }
+  if (!$isNull(request.topP)) {
+    body['TopP'] = request.topP;
+  }
+  if (!$isNull(request.type)) {
+    body['Type'] = request.type;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'LlmStreamChat',
+    version = '2022-09-26',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary 使用SSE接口流式调用大模型
+ *
+ * @param request LlmStreamChatRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return LlmStreamChatResponse
+ */
 @context("llmStreamChatWithContext")
 async function llmStreamChatWithOptions(request: LlmStreamChatRequest, runtime: $RuntimeOptions): LlmStreamChatResponse {
   request.validate();
@@ -5712,6 +5764,9 @@ async function llmStreamChatWithOptions(request: LlmStreamChatRequest, runtime: 
   }
   if (!$isNull(request.topP)) {
     body['TopP'] = request.topP;
+  }
+  if (!$isNull(request.type)) {
+    body['Type'] = request.type;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
