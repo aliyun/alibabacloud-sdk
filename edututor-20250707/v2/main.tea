@@ -1,0 +1,251 @@
+/**
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('edututor', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AnswerSSERequest {
+  messages?: [ 
+    {
+      content?: [ map[string]string ](name='content'),
+      role?: string(name='role', description='This parameter is required.', example='user'),
+    }
+  ](name='messages'),
+  parameters?: {
+    grade?: int32(name='grade', example='6'),
+    stage?: string(name='stage', example='other'),
+    subject?: string(name='subject', example='other'),
+  }(name='parameters'),
+  workspaceId?: string(name='workspaceId', description='This parameter is required.', example='llm-1ijrzuv3v0ivvls7'),
+}
+
+model AnswerSSEResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  finishReason?: string(name='finish_reason'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  inputTokens?: int32(name='input_tokens'),
+  message?: string(name='message'),
+  outputTokens?: int32(name='output_tokens'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model AnswerSSEResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AnswerSSEResponseBody(name='body'),
+}
+
+/**
+ * @summary AnswerSSE
+ *
+ * @param request AnswerSSERequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AnswerSSEResponse
+ */
+@sse(true)
+async function answerSSEWithSSE(request: AnswerSSERequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[AnswerSSEResponse] {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.workspaceId)) {
+    query['workspaceId'] = request.workspaceId;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.parameters)) {
+    body['parameters'] = request.parameters;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AnswerSSE',
+    version = '2025-07-07',
+    protocol = 'HTTPS',
+    pathname = `/service/answerSSE`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary AnswerSSE
+ *
+ * @param request AnswerSSERequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AnswerSSEResponse
+ */
+@context("answerSSEWithContext")
+async function answerSSEWithOptions(request: AnswerSSERequest, headers: map[string]string, runtime: $RuntimeOptions): AnswerSSEResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.workspaceId)) {
+    query['workspaceId'] = request.workspaceId;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.parameters)) {
+    body['parameters'] = request.parameters;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'AnswerSSE',
+    version = '2025-07-07',
+    protocol = 'HTTPS',
+    pathname = `/service/answerSSE`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary AnswerSSE
+ *
+ * @param request AnswerSSERequest
+ * @return AnswerSSEResponse
+ */
+async function answerSSE(request: AnswerSSERequest): AnswerSSEResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return answerSSEWithOptions(request, headers, runtime);
+}
+
+model CutQuestionsRequest {
+  image?: string(name='image', description='This parameter is required.'),
+  parameters?: {
+    extractImages?: boolean(name='extract_images', description='This parameter is required.', example='true'),
+    struct?: boolean(name='struct', description='This parameter is required.', example='true'),
+  }(name='parameters', description='This parameter is required.'),
+  workspaceId?: string(name='workspaceId', description='This parameter is required.', example='llm-1ijrzuv3v0ivvls7'),
+}
+
+model CutQuestionsResponseBody = {
+  code?: string(name='code'),
+  data?: string(name='data'),
+  httpStatusCode?: int32(name='httpStatusCode'),
+  inputTokens?: int32(name='input_tokens'),
+  message?: string(name='message'),
+  outputTokens?: int32(name='output_tokens'),
+  requestId?: string(name='requestId'),
+  success?: boolean(name='success'),
+}
+
+model CutQuestionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CutQuestionsResponseBody(name='body'),
+}
+
+/**
+ * @summary CutQuestions
+ *
+ * @param request CutQuestionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CutQuestionsResponse
+ */
+@context("cutQuestionsWithContext")
+async function cutQuestionsWithOptions(request: CutQuestionsRequest, headers: map[string]string, runtime: $RuntimeOptions): CutQuestionsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.workspaceId)) {
+    query['workspaceId'] = request.workspaceId;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.image)) {
+    body['image'] = request.image;
+  }
+  if (!$isNull(request.parameters)) {
+    body['parameters'] = request.parameters;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CutQuestions',
+    version = '2025-07-07',
+    protocol = 'HTTPS',
+    pathname = `/service/cutApi`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary CutQuestions
+ *
+ * @param request CutQuestionsRequest
+ * @return CutQuestionsResponse
+ */
+async function cutQuestions(request: CutQuestionsRequest): CutQuestionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return cutQuestionsWithOptions(request, headers, runtime);
+}
+
