@@ -2484,6 +2484,7 @@ model ListKyuubiSparkApplicationsResponseBody = {
       applicationName?: string(name='applicationName', description='The name of the Spark application that is submitted by using a Kyuubi gateway.', example='kyuubi-connection-spark-sql-anonymous-fa9a5e73-b4b1-474a-b****'),
       cuHours?: double(name='cuHours', description='The number of CUs consumed during a specified cycle of a task. The value is an estimated value. Refer to your Alibaba Cloud bill for the actual number of consumed CUs.', example='0.238302'),
       endTime?: string(name='endTime', description='The time when the task ended.', example='2025-02-12 20:02:02'),
+      latestSqlStatementStatus?: string(name='latestSqlStatementStatus'),
       mbSeconds?: long(name='mbSeconds', description='The total amount of memory allocated to the job multiplied by the running duration (seconds).', example='3513900'),
       resourceQueueId?: string(name='resourceQueueId', description='The name of the resource queue on which the Spark jobs run.', example='dev_queue'),
       startTime?: string(name='startTime', description='The time when the task started.', example='2025-02-12 19:59:16'),
@@ -3031,6 +3032,7 @@ model ListSessionClustersResponseBody = {
         enable?: boolean(name='enable', description='Indicates whether automatic termination is enabled.', example='false'),
         idleTimeoutMinutes?: int32(name='idleTimeoutMinutes', description='The idle timeout period. The session is automatically terminated when the idle timeout period is exceeded.', example='45'),
       }(name='autoStopConfiguration', description='The configurations of automatic termination.'),
+      connectionToken?: string(name='connectionToken'),
       displayReleaseVersion?: string(name='displayReleaseVersion', description='The version of the Spark engine.', example='esr-4.0.0 (Spark 3.5.2, Scala 2.12)'),
       domain?: string(name='domain', description='The public endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou.data.aliyun.com'),
       domainInner?: string(name='domainInner', description='The internal endpoint of the Thrift server.', example='emr-spark-gateway-cn-hangzhou-internal.data.aliyuncs.com'),
@@ -3135,6 +3137,79 @@ async function listSessionClusters(workspaceId: string, request: ListSessionClus
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return listSessionClustersWithOptions(workspaceId, request, headers, runtime);
+}
+
+model ListSqlStatementContentsRequest {
+  fileName?: string(name='fileName', example='oss://oss-****.cn-hangzhou.oss-dls.aliyuncs.com/w-86a9a4da*****a1/spark/logs/jr-b737b****6164d/driver/st-afde7******bb3f'),
+  maxResults?: int32(name='maxResults', example='2000'),
+  nextToken?: string(name='nextToken', example='1'),
+}
+
+model ListSqlStatementContentsResponseBody = {
+  requestId?: string(name='requestId', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
+  sqlStatementContents?: {
+    contents?: string(name='contents', example='[{\\\\"values\\\\":[\\\\"wj*****\\\\",\\\\"test\\\\",\\\\"2025-04-15\\\\"]}]'),
+    maxResults?: int32(name='maxResults', example='2000'),
+    nextToken?: string(name='nextToken', example='1'),
+    totalCount?: int32(name='totalCount', example='40000'),
+  }(name='sqlStatementContents'),
+}
+
+model ListSqlStatementContentsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSqlStatementContentsResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取sql statement内容
+ *
+ * @param request ListSqlStatementContentsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSqlStatementContentsResponse
+ */
+async function listSqlStatementContentsWithOptions(workspaceId: string, request: ListSqlStatementContentsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSqlStatementContentsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.fileName)) {
+    query['fileName'] = request.fileName;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSqlStatementContents',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/action/listSqlStatementContents`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取sql statement内容
+ *
+ * @param request ListSqlStatementContentsRequest
+ * @return ListSqlStatementContentsResponse
+ */
+async function listSqlStatementContents(workspaceId: string, request: ListSqlStatementContentsRequest): ListSqlStatementContentsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSqlStatementContentsWithOptions(workspaceId, request, headers, runtime);
 }
 
 model ListWorkspaceQueuesRequest {
