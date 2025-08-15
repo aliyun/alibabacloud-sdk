@@ -76,6 +76,7 @@ model AddDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AddDisasterRecoveryItemResponse
  */
+@context("addDisasterRecoveryItemWithContext")
 async function addDisasterRecoveryItemWithOptions(planId: string, request: AddDisasterRecoveryItemRequest, headers: map[string]string, runtime: $RuntimeOptions): AddDisasterRecoveryItemResponse {
   request.validate();
   var body : map[string]any = {};
@@ -157,6 +158,7 @@ model ChangeResourceGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ChangeResourceGroupResponse
  */
+@context("changeResourceGroupWithContext")
 async function changeResourceGroupWithOptions(request: ChangeResourceGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): ChangeResourceGroupResponse {
   request.validate();
   var query : map[string]any = {};
@@ -208,9 +210,10 @@ model CreateConsumerGroupRequest {
     deadLetterTargetTopic?: string(name='deadLetterTargetTopic', description='The dead-letter topic.
 
 If a message still fails to be consumed after the maximum number of retries specified in the consumption retry policy is reached, the message is delivered to the dead-letter topic for subsequent business recovery or backtracking. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
-    fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime', description='Fixed retry interval, unit: seconds.This option is effective when retryPolicy is FixedRetryPolicy.Value range：
-  - Concurrently:10-600
-  - Orderly:1-60', example='10'),
+    fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime', description='The fixed interval. Unit: seconds. This parameter takes effect only if you set retryPolicy to FixedRetryPolicy. Valid values:
+
+*   Concurrent delivery: 10 to 1800
+*   Ordered delivery: 1 to 600', example='10'),
     maxRetryTimes?: int32(name='maxRetryTimes', description='The maximum number of retries.', example='16'),
     retryPolicy?: string(name='retryPolicy', description='The retry policy. For more information, see [Message retry](https://help.aliyun.com/document_detail/440356.html).
 
@@ -266,6 +269,7 @@ model CreateConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateConsumerGroupResponse
  */
+@context("createConsumerGroupWithContext")
 async function createConsumerGroupWithOptions(instanceId: string, consumerGroupId: string, request: CreateConsumerGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateConsumerGroupResponse {
   request.validate();
   var body : map[string]any = {};
@@ -319,46 +323,69 @@ async function createConsumerGroup(instanceId: string, consumerGroupId: string, 
 }
 
 model CreateDisasterRecoveryPlanRequest {
-  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.
+  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Specifies whether to enable automatic consumer progress synchronization.
 
-> This is effective only when consumption progress synchronization is enabled, i.e., the value of `syncCheckpointEnabled` is true.', example='true'),
+>  This parameter takes effect only when you set `syncCheckpointEnabled` to true.
+
+Valid values:
+
+*   true
+*   false', example='true'),
   instances?: [ 
     {
-      authType?: string(name='authType', description='Authentication method. Not required for instanceType of ALIYUN_ROCKETMQ and version 4.0
-  - NO_AUTH: No authentication required
-  - ACL_AUTH: ACL authentication', example='ACL_AUTH'),
-      consumerGroupId?: string(name='consumerGroupId'),
-      endpointUrl?: string(name='endpointUrl', description='Endpoint URL, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ', example='xxx'),
-      instanceId?: string(name='instanceId', description='Instance ID, not required for instanceType of EXTERNAL_ROCKETMQ, but required for ALIYUN_ROCKETMQ', example='rmq-cn-******'),
-      instanceRole?: string(name='instanceRole', description='Instance role, either primary or secondary
-  - ACTIVE: Primary
-  - PASSIVE: Secondary', example='PASSIVE'),
-      instanceType?: string(name='instanceType', description='Instance type
-  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
-  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+      authType?: string(name='authType', description='The authentication method. If you set instanceType to ALIYUN_ROCKETMQ and the instance is an ApsaraMQ for RocketMQ 4.0 instance, you do not need to specify this parameter.
+
+*   NO_AUTH: no authentication
+*   ACL_AUTH: access control list (ACL)-based authentication
+
+Valid values:
+
+*   NO_AUTH: no authentication
+*   ACL_AUTH: access control list (ACL)-based authentication', example='ACL_AUTH'),
+      consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='GID_DS_XXX_YYY'),
+      endpointUrl?: string(name='endpointUrl', description='The instance endpoint. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='xxx'),
+      instanceId?: string(name='instanceId', description='The instance ID. This parameter is required only if you set instanceType to ALIYUN_ROCKETMQ.', example='rmq-cn-******'),
+      instanceRole?: string(name='instanceRole', description='The instance role. Valid values:
+
+*   ACTIVE: primary instance
+*   Passive: secondary instance', example='PASSIVE'),
+      instanceType?: string(name='instanceType', description='The instance type. Valid values:
+
+*   ALIYUN_ROCKETMQ: ApsaraMQ for RocketMQ instance
+*   EXTERNAL_ROCKETMQ: external RocketMQ instance
+
+Valid values:
+
+*   ALIYUN_ROCKETMQ: ApsaraMQ for RocketMQ instance
+*   EXTERNAL_ROCKETMQ: external RocketMQ instance', example='ALIYUN_ROCKETMQ'),
       messageProperty?: {
-        propertyKey?: string(name='propertyKey', description='Property key', example='aaa'),
-        propertyValue?: string(name='propertyValue', description='Property value', example='bbb'),
-      }(name='messageProperty', description='Message filtering properties. When messages are synchronized to the target cluster, this property will be automatically added for SQL filtering during message consumption.'),
-      networkType?: string(name='networkType', description='Network type, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ
-Parameter values are as follows:
-  - TCP_INTERNET: TCP public network
-  - TCP_VPC: TCP VPC (Virtual Private Cloud)', example='TCP_INTERNET'),
-      password?: string(name='password', description='Authentication password, required when authType is ACL_AUTH. Not required for instanceType of ALIYUN_ROCKETMQ', example='xxx'),
-      regionId?: string(name='regionId', description='Region where the instance is located', example='cn-hangzhou'),
-      securityGroupId?: string(name='securityGroupId', description='Security group ID, required only when the `instanceType` is EXTERNAL_ROCKETMQ and `networkType` is TCP_VPC.', example='sg-bp17hpmgz9******'),
-      username?: string(name='username', description='Authentication username, required when authType is ACL_AUTH', example='xxx'),
-      vSwitchId?: string(name='vSwitchId', description='The ID of the switch associated with the instance, required only when the `instanceType` is EXTERNAL_ROCKETMQ and `networkType` is TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
-      vpcId?: string(name='vpcId', description='The ID of the private network associated with the created instance. The instanceType instance type is only EXTERNAL_ROCKETMQ. It is required when the networkType is TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
+        propertyKey?: string(name='propertyKey', description='The attribute key.', example='aaa'),
+        propertyValue?: string(name='propertyValue', description='The attribute value.', example='bbb'),
+      }(name='messageProperty', description='The message attribute. When you synchronize a message to the destination cluster, the system automatically adds the attribute to the message for SQL-based filtering.'),
+      networkType?: string(name='networkType', description='The network type. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ. Valid values:
+
+*   TCP_INTERNET: Internet over TCP
+*   TCP_VPC: virtual private cloud (VPC) over TCP.', example='TCP_INTERNET'),
+      password?: string(name='password', description='The password used for authentication. This parameter is required only if you set authType to ACL_AUTH. If you set instanceType to ALIYUN_ROCKETMQ, you do not need to specify this parameter.', example='xxx'),
+      regionId?: string(name='regionId', description='The region where the instance resides.', example='cn-hangzhou'),
+      securityGroupId?: string(name='securityGroupId', description='The ID of the security group to which the instance belongs. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='sg-bp17hpmgz9******'),
+      username?: string(name='username', description='The username used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
+      vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
+      vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
     }
-  ](name='instances', description='Instances involved in the backup plan. Required'),
-  planDesc?: string(name='planDesc', description='Plan description', example='xxx'),
-  planName?: string(name='planName', description='Plan name, required', example='xxx'),
-  planType?: string(name='planType', description='Backup plan type, required. Please refer to the [documentation](https://help.aliyun.com/document_detail/2843187.html).
-Parameter values are as follows:
-  - ACTIVE_PASSIVE: One-way backup
-  - ACTIVE_ACTIVE: Two-way backup', example='ACTIVE_ACTIVE'),
-  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
+  ](name='instances', description='The instances involved in the Global Replicator task. You must specify this parameter.'),
+  planDesc?: string(name='planDesc', description='The description of the Global Replicator task.', example='xxx'),
+  planName?: string(name='planName', description='The name of the Global Replicator task. You must specify this parameter.', example='xxx'),
+  planType?: string(name='planType', description='The type of the Global Replicator task. You must specify this parameter. For more information, see [Global Replicator](https://help.aliyun.com/document_detail/2843187.html). Valid values:
+
+*   ACTIVE_PASSIVE: one-way backup
+*   ACTIVE_ACTIVE: two-way backup', example='ACTIVE_ACTIVE'),
+  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Specifies whether to enable consumer progress synchronization.
+
+Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model CreateDisasterRecoveryPlanResponseBody = {
@@ -387,6 +414,7 @@ model CreateDisasterRecoveryPlanResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateDisasterRecoveryPlanResponse
  */
+@context("createDisasterRecoveryPlanWithContext")
 async function createDisasterRecoveryPlanWithOptions(request: CreateDisasterRecoveryPlanRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateDisasterRecoveryPlanResponse {
   request.validate();
   var body : map[string]any = {};
@@ -636,6 +664,7 @@ model CreateInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateInstanceResponse
  */
+@context("createInstanceWithContext")
 async function createInstanceWithOptions(request: CreateInstanceRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateInstanceResponse {
   request.validate();
   var query : map[string]any = {};
@@ -758,6 +787,7 @@ model CreateInstanceAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateInstanceAccountResponse
  */
+@context("createInstanceAccountWithContext")
 async function createInstanceAccountWithOptions(instanceId: string, request: CreateInstanceAccountRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateInstanceAccountResponse {
   request.validate();
   var body : map[string]any = {};
@@ -804,11 +834,11 @@ model CreateInstanceAclRequest {
 The following types of operations are supported based on the resource type:
 
 *   Topic: Pub, Sub, and Pub|Sub
-*   Consumer group: Sub
+*   Group: Sub
 
 Valid values:
 
-*   SUB: subscribe
+*   Sub: subscribe
 *   Pub|Sub: publish and subscribe
 *   Pub: publish
 
@@ -821,7 +851,7 @@ Valid values:
 *   Allow
 
 This parameter is required.', example='Allow'),
-  ipWhitelists?: [ string ](name='ipWhitelists', description='The IP address whitelists.'),
+  ipWhitelists?: [ string ](name='ipWhitelists', description='The IP addresses in the whitelist.'),
   resourceName?: string(name='resourceName', description='The name of the resource on which you want to grant permissions.
 
 This parameter is required.', example='test'),
@@ -861,6 +891,7 @@ model CreateInstanceAclResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateInstanceAclResponse
  */
+@context("createInstanceAclWithContext")
 async function createInstanceAclWithOptions(instanceId: string, username: string, request: CreateInstanceAclRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateInstanceAclResponse {
   request.validate();
   var body : map[string]any = {};
@@ -942,6 +973,7 @@ model CreateInstanceIpWhitelistResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateInstanceIpWhitelistResponse
  */
+@context("createInstanceIpWhitelistWithContext")
 async function createInstanceIpWhitelistWithOptions(instanceId: string, request: CreateInstanceIpWhitelistRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateInstanceIpWhitelistResponse {
   request.validate();
   var body : map[string]any = {};
@@ -990,7 +1022,9 @@ Valid values:
 *   DELAY: scheduled or delayed messages
 *   NORMAL: normal messages
 
->  The type of messages in the topic must be the same as the type of messages that you want to send. For example, if you create a topic whose message type is ordered messages, you can use the topic to send and receive only ordered messages.', example='NORMAL'),
+>  The type of messages in the topic must be the same as the type of messages that you want to send. For example, if you create a topic whose message type is ordered messages, you can use the topic to send and receive only ordered messages.
+
+This parameter is required.', example='NORMAL'),
   remark?: string(name='remark', description='The description of the topic that you want to create.', example='This is the remark for test.'),
 }
 
@@ -1019,6 +1053,7 @@ model CreateTopicResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateTopicResponse
  */
+@context("createTopicWithContext")
 async function createTopicWithOptions(instanceId: string, topicName: string, request: CreateTopicRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateTopicResponse {
   request.validate();
   var body : map[string]any = {};
@@ -1089,6 +1124,7 @@ model DeleteConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteConsumerGroupResponse
  */
+@context("deleteConsumerGroupWithContext")
 async function deleteConsumerGroupWithOptions(instanceId: string, consumerGroupId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteConsumerGroupResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1162,6 +1198,7 @@ model DeleteConsumerGroupSubscriptionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteConsumerGroupSubscriptionResponse
  */
+@context("deleteConsumerGroupSubscriptionWithContext")
 async function deleteConsumerGroupSubscriptionWithOptions(instanceId: string, consumerGroupId: string, request: DeleteConsumerGroupSubscriptionRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteConsumerGroupSubscriptionResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1230,6 +1267,7 @@ model DeleteDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDisasterRecoveryItemResponse
  */
+@context("deleteDisasterRecoveryItemWithContext")
 async function deleteDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteDisasterRecoveryItemResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1284,6 +1322,7 @@ model DeleteDisasterRecoveryPlanResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteDisasterRecoveryPlanResponse
  */
+@context("deleteDisasterRecoveryPlanWithContext")
 async function deleteDisasterRecoveryPlanWithOptions(planId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteDisasterRecoveryPlanResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1341,6 +1380,7 @@ model DeleteInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteInstanceResponse
  */
+@context("deleteInstanceWithContext")
 async function deleteInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteInstanceResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1399,6 +1439,7 @@ model DeleteInstanceAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteInstanceAccountResponse
  */
+@context("deleteInstanceAccountWithContext")
 async function deleteInstanceAccountWithOptions(instanceId: string, username: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteInstanceAccountResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1468,6 +1509,7 @@ model DeleteInstanceAclResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteInstanceAclResponse
  */
+@context("deleteInstanceAclWithContext")
 async function deleteInstanceAclWithOptions(instanceId: string, username: string, request: DeleteInstanceAclRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteInstanceAclResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1544,6 +1586,7 @@ model DeleteInstanceIpWhitelistResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteInstanceIpWhitelistResponse
  */
+@context("deleteInstanceIpWhitelistWithContext")
 async function deleteInstanceIpWhitelistWithOptions(instanceId: string, tmpReq: DeleteInstanceIpWhitelistRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteInstanceIpWhitelistResponse {
   tmpReq.validate();
   var request = new DeleteInstanceIpWhitelistShrinkRequest{};
@@ -1615,6 +1658,7 @@ model DeleteTopicResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteTopicResponse
  */
+@context("deleteTopicWithContext")
 async function deleteTopicWithOptions(instanceId: string, topicName: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteTopicResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1653,104 +1697,35 @@ model GetConsumerGroupResponseBody = {
       deadLetterTargetTopic?: string(name='deadLetterTargetTopic', description='The dead-letter topic.
 
 If a consumer still fails to consume a message after the message is retried for a specified number of times, the message is delivered to a dead-letter topic for subsequent business recovery or troubleshooting. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
-      fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime'),
+      fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime', description='Fixed interval retry time,Value range, unit: seconds
+ - Concurrently:10-1800
+ - Orderly:1-600', example='20'),
       maxRetryTimes?: int32(name='maxRetryTimes', description='The maximum number of retries.', example='16'),
       retryPolicy?: string(name='retryPolicy', description='The retry policy.
 
 Valid values:
 
-*   FixedRetryPolicy
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    Failed messages are retried at a fixed interval
-
-    <!-- -->
-
-    .
-
-*   DefaultRetryPolicy
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    Failed messages are retried at incremental intervals as the number of retries increases
-
-    <!-- -->
-
-    .', example='DefaultRetryPolicy'),
-    }(name='consumeRetryPolicy', description='The consumption retry policy that you want to configure for the consumer group. For more information, see [Consumption retry](https://help.aliyun.com/document_detail/440356.html).'),
+*   FixedRetryPolicy: fixed-interval retry
+*   DefaultRetryPolicy: exponential backoff retry', example='DefaultRetryPolicy'),
+    }(name='consumeRetryPolicy', description='The consumption retry policy of the consumer group. For more information, see [Consumption retry](https://help.aliyun.com/document_detail/440356.html).'),
     consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='CID-TEST'),
     createTime?: string(name='createTime', description='The time when the consumer group was created.', example='2022-08-01 20:05:50'),
-    deliveryOrderType?: string(name='deliveryOrderType', description='The message delivery order of the consumer group.
+    deliveryOrderType?: string(name='deliveryOrderType', description='The message delivery method of the consumer group.
 
 Valid values:
 
-*   Concurrently
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    concurrent delivery
-
-    <!-- -->
-
-*   Orderly
-
-    <!-- -->
-
-    :
-
-    <!-- -->
-
-    ordered delivery
-
-    <!-- -->', example='Concurrently'),
+*   Concurrently: concurrent delivery
+*   Orderly: ordered delivery', example='Concurrently'),
     instanceId?: string(name='instanceId', description='The ID of the instance.', example='rmq-cn-7e22ody****'),
     maxReceiveTps?: long(name='maxReceiveTps', description='Maximum received message tps', example='1000'),
     regionId?: string(name='regionId', description='The ID of the region in which the instance resides.', example='cn-hangzhou'),
     remark?: string(name='remark', description='The remarks on the consumer group.', example='This is the remark for test.'),
-    status?: string(name='status', description='The state of the consumer group.
+    status?: string(name='status', description='The status of the consumer group.
 
 Valid values:
 
 *   RUNNING
-
-    <!-- -->
-
-    : The consumer group is
-
-    <!-- -->
-
-    running
-
-    <!-- -->
-
-    .
-
-*   CREATING
-
-    <!-- -->
-
-    : The consumer group is
-
-    <!-- -->
-
-    being created
-
-    <!-- -->
-
-    .', example='RUNNING'),
+*   CREATING', example='RUNNING'),
     updateTime?: string(name='updateTime', description='The time when the consumer group was last updated.', example='2022-08-01 20:05:50'),
   }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='ConsumerGroupId'),
@@ -1776,6 +1751,7 @@ model GetConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetConsumerGroupResponse
  */
+@context("getConsumerGroupWithContext")
 async function getConsumerGroupWithOptions(instanceId: string, consumerGroupId: string, headers: map[string]string, runtime: $RuntimeOptions): GetConsumerGroupResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -1847,6 +1823,7 @@ model GetConsumerGroupLagResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetConsumerGroupLagResponse
  */
+@context("getConsumerGroupLagWithContext")
 async function getConsumerGroupLagWithOptions(instanceId: string, consumerGroupId: string, request: GetConsumerGroupLagRequest, headers: map[string]string, runtime: $RuntimeOptions): GetConsumerGroupLagResponse {
   request.validate();
   var query : map[string]any = {};
@@ -1939,6 +1916,7 @@ model GetConsumerGroupSubscriptionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetConsumerGroupSubscriptionResponse
  */
+@context("getConsumerGroupSubscriptionWithContext")
 async function getConsumerGroupSubscriptionWithOptions(instanceId: string, consumerGroupId: string, topicName: string, headers: map[string]string, runtime: $RuntimeOptions): GetConsumerGroupSubscriptionResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2009,6 +1987,7 @@ model GetConsumerStackResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetConsumerStackResponse
  */
+@context("getConsumerStackWithContext")
 async function getConsumerStackWithOptions(instanceId: string, consumerGroupId: string, request: GetConsumerStackRequest, headers: map[string]string, runtime: $RuntimeOptions): GetConsumerStackResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2092,6 +2071,7 @@ model GetDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDisasterRecoveryItemResponse
  */
+@context("getDisasterRecoveryItemWithContext")
 async function getDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: $RuntimeOptions): GetDisasterRecoveryItemResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2125,55 +2105,63 @@ model GetDisasterRecoveryPlanResponseBody = {
   accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
   code?: string(name='code', description='The error code.', example='200'),
   data?: {
-    autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.', example='true'),
-    createTime?: string(name='createTime', description='The time when the backup plan was created.', example='2022-08-01 20:05:50'),
-    extInfo?: map[string]string(name='extInfo', description='Additional Information'),
+    autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Indicates whether automatic consumer progress synchronization is enabled.
+
+>  This parameter takes effect only when `syncCheckpointEnabled` is set to true.
+
+Valid values:
+
+*   true
+*   false', example='true'),
+    createTime?: string(name='createTime', description='The time when the query task was created.', example='2022-08-01 20:05:50'),
+    extInfo?: map[string]string(name='extInfo', description='The extended information.'),
     instances?: [ 
       {
-        authType?: string(name='authType', description='Authentication method. Not required for instanceType of ALIYUN_ROCKETMQ and version 4.0
-  - NO_AUTH: No authentication required
-  - ACL_AUTH: ACL authentication', example='ACL_AUTH'),
-        consumerGroupId?: string(name='consumerGroupId'),
-        endpointUrl?: string(name='endpointUrl', description='Endpoint URL, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ', example='xxx'),
+        authType?: string(name='authType', description='The authentication type.', example='ACL_AUTH'),
+        consumerGroupId?: string(name='consumerGroupId', description='The consumer Group ID.', example='GID_DS_XXX_YYY'),
+        endpointUrl?: string(name='endpointUrl', description='The endpoint.', example='xxx'),
         instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-gpz3qtcdxxx'),
-        instanceRole?: string(name='instanceRole', description='Instance role, either primary or secondary 
-  - ACTIVE: Primary
-  - PASSIVE: Secondary', example='ACTIVE'),
-        instanceType?: string(name='instanceType', description='Instance type
-  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
-  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+        instanceRole?: string(name='instanceRole', description='The instance role.', example='ACTIVE'),
+        instanceType?: string(name='instanceType', description='The instance type.', example='ALIYUN_ROCKETMQ'),
         messageProperty?: {
-          propertyKey?: string(name='propertyKey', description='Property key', example='xxx'),
-          propertyValue?: string(name='propertyValue', description='Property value', example='xxx'),
-        }(name='messageProperty', description='Message filtering properties. When messages are synchronized to the target cluster, this property will be automatically added for SQL filtering during message consumption.'),
-        networkType?: string(name='networkType', description='Network type, not required for instanceType of ALIYUN_ROCKETMQ, but required for EXTERNAL_ROCKETMQ Parameter values are as follows:
-  - TCP_INTERNET: TCP public network
-  - TCP_VPC: TCP VPC (Virtual Private Cloud)', example='TCP_INTERNET'),
-        password?: string(name='password', description='Authentication password, required when authType is ACL_AUTH. Not required for instanceType of ALIYUN_ROCKETMQ', example='xxx'),
-        regionId?: string(name='regionId', description='Region ID.', example='cn-shanghai'),
-        securityGroupId?: string(name='securityGroupId', description='Security group ID, required only when the instanceType is EXTERNAL_ROCKETMQ and networkType is TCP_VPC.', example='sg-bp17hpmgz9******'),
-        username?: string(name='username', description='Authentication username, required when authType is ACL_AUTH', example='xxx'),
-        vSwitchId?: string(name='vSwitchId', description='The ID of the switch associated with the instance, required only when the instanceType is EXTERNAL_ROCKETMQ and networkType is TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
-        vpcId?: string(name='vpcId', description='The ID of the private network associated with the created instance. The instanceType instance type is only EXTERNAL_ROCKETMQ. It is required when the networkType is TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
+          propertyKey?: string(name='propertyKey', description='The attribute key.', example='xxx'),
+          propertyValue?: string(name='propertyValue', description='The attribute value.', example='xxx'),
+        }(name='messageProperty', description='The message attribute.'),
+        networkType?: string(name='networkType', description='The network type.', example='TCP_INTERNET'),
+        password?: string(name='password', description='The password used for authentication.', example='xxx'),
+        regionId?: string(name='regionId', description='The ID of the region where the instance resides.', example='cn-shanghai'),
+        securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp17hpmgz9******'),
+        username?: string(name='username', description='The username used for authentication.', example='xxx'),
+        vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-uf6gwtbn6etadpv******'),
+        vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-wz9qt50xhtj9krb******'),
       }
-    ](name='instances', description='Instances involved in the backup plan'),
-    planDesc?: string(name='planDesc', description='The describe of the global message backup plan.', example='xxxx'),
-    planId?: long(name='planId', description='The ID of the global message backup plan.', example='1300000016'),
-    planName?: string(name='planName', description='The name of the global message backup plan.', example='xxx'),
-    planStatus?: string(name='planStatus', description='The status of the global message backup plan.', example='RUNNING'),
-    planType?: string(name='planType', description='The type of the global message backup plan.
-values are as follows:
-  - ACTIVE_PASSIVE: One-way backup
-  - ACTIVE_ACTIVE: Two-way backup', example='ACTIVE_PASSIVE'),
-    syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
-    updateTime?: string(name='updateTime', description='The time when the backup plan was created.', example='2022-08-01 20:05:50'),
-  }(name='data', description='The data returned.'),
+    ](name='instances', description='The instances involved in the Global Replicator task.'),
+    planDesc?: string(name='planDesc', description='The description of the Global Replicator task.', example='xxxx'),
+    planId?: long(name='planId', description='The ID of the Global Replicator task.', example='1300000016'),
+    planName?: string(name='planName', description='The name of the Global Replicator task.', example='xxx'),
+    planStatus?: string(name='planStatus', description='The status of the Global Replicator task. Valid values:
+
+*   CREATED
+*   RUNNING
+*   DELETED', example='RUNNING'),
+    planType?: string(name='planType', description='The type of the Global Replicator task. Valid values:
+
+*   ACTIVE_PASSIVE: one-way backup
+*   ACTIVE_ACTIVE: two-way backup', example='ACTIVE_PASSIVE'),
+    syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Indicates whether consumer progress synchronization is enabled.
+
+Valid values:
+
+*   true
+*   false', example='true'),
+    updateTime?: string(name='updateTime', description='The time when the query task was last modified.', example='2022-08-01 20:05:50'),
+  }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
   dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='200'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
   message?: string(name='message', description='The error message.', example='xxx'),
   requestId?: string(name='requestId', description='The request ID.', example='7358418D-83BD-507A-8079-611C63E0xxx'),
-  success?: boolean(name='success', description='Indicates whether the call was successful.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model GetDisasterRecoveryPlanResponse = {
@@ -2183,12 +2171,13 @@ model GetDisasterRecoveryPlanResponse = {
 }
 
 /**
- * @summary 查询容灾计划详情
+ * @summary Queries the details of a Global Replicator task.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetDisasterRecoveryPlanResponse
  */
+@context("getDisasterRecoveryPlanWithContext")
 async function getDisasterRecoveryPlanWithOptions(planId: string, headers: map[string]string, runtime: $RuntimeOptions): GetDisasterRecoveryPlanResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2208,7 +2197,7 @@ async function getDisasterRecoveryPlanWithOptions(planId: string, headers: map[s
 }
 
 /**
- * @summary 查询容灾计划详情
+ * @summary Queries the details of a Global Replicator task.
  *
  * @return GetDisasterRecoveryPlanResponse
  */
@@ -2484,6 +2473,7 @@ model GetInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInstanceResponse
  */
+@context("getInstanceWithContext")
 async function getInstanceWithOptions(instanceId: string, headers: map[string]string, runtime: $RuntimeOptions): GetInstanceResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2555,6 +2545,7 @@ model GetInstanceAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInstanceAccountResponse
  */
+@context("getInstanceAccountWithContext")
 async function getInstanceAccountWithOptions(instanceId: string, request: GetInstanceAccountRequest, headers: map[string]string, runtime: $RuntimeOptions): GetInstanceAccountResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2646,6 +2637,7 @@ model GetInstanceAclResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInstanceAclResponse
  */
+@context("getInstanceAclWithContext")
 async function getInstanceAclWithOptions(instanceId: string, username: string, request: GetInstanceAclRequest, headers: map[string]string, runtime: $RuntimeOptions): GetInstanceAclResponse {
   request.validate();
   var query : map[string]any = {};
@@ -2723,6 +2715,7 @@ model GetInstanceIpWhitelistResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetInstanceIpWhitelistResponse
  */
+@context("getInstanceIpWhitelistWithContext")
 async function getInstanceIpWhitelistWithOptions(instanceId: string, tmpReq: GetInstanceIpWhitelistRequest, headers: map[string]string, runtime: $RuntimeOptions): GetInstanceIpWhitelistResponse {
   tmpReq.validate();
   var request = new GetInstanceIpWhitelistShrinkRequest{};
@@ -2806,6 +2799,7 @@ model GetMessageDetailResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetMessageDetailResponse
  */
+@context("getMessageDetailWithContext")
 async function getMessageDetailWithOptions(instanceId: string, topicName: string, messageId: string, headers: map[string]string, runtime: $RuntimeOptions): GetMessageDetailResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2888,6 +2882,7 @@ model GetTopicResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTopicResponse
  */
+@context("getTopicWithContext")
 async function getTopicWithOptions(instanceId: string, topicName: string, headers: map[string]string, runtime: $RuntimeOptions): GetTopicResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -2915,6 +2910,11 @@ async function getTopic(instanceId: string, topicName: string): GetTopicResponse
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return getTopicWithOptions(instanceId, topicName, headers, runtime);
+}
+
+model GetTraceRequest {
+  endTime?: string(name='endTime'),
+  startTime?: string(name='startTime'),
 }
 
 model GetTraceResponseBody = {
@@ -3014,13 +3014,25 @@ model GetTraceResponse = {
 /**
  * @summary Queries the trace of a specific message in a specific topic.
  *
+ * @param request GetTraceRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetTraceResponse
  */
-async function getTraceWithOptions(instanceId: string, topicName: string, messageId: string, headers: map[string]string, runtime: $RuntimeOptions): GetTraceResponse {
+@context("getTraceWithContext")
+async function getTraceWithOptions(instanceId: string, topicName: string, messageId: string, request: GetTraceRequest, headers: map[string]string, runtime: $RuntimeOptions): GetTraceResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
+    query = OpenApiUtil.query(query),
   };
   var params = new OpenApiUtil.Params{
     action = 'GetTrace',
@@ -3039,12 +3051,13 @@ async function getTraceWithOptions(instanceId: string, topicName: string, messag
 /**
  * @summary Queries the trace of a specific message in a specific topic.
  *
+ * @param request GetTraceRequest
  * @return GetTraceResponse
  */
-async function getTrace(instanceId: string, topicName: string, messageId: string): GetTraceResponse {
+async function getTrace(instanceId: string, topicName: string, messageId: string, request: GetTraceRequest): GetTraceResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
-  return getTraceWithOptions(instanceId, topicName, messageId, headers, runtime);
+  return getTraceWithOptions(instanceId, topicName, messageId, request, headers, runtime);
 }
 
 model ListAvailableZonesResponseBody = {
@@ -3078,6 +3091,7 @@ model ListAvailableZonesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListAvailableZonesResponse
  */
+@context("listAvailableZonesWithContext")
 async function listAvailableZonesWithOptions(headers: map[string]string, runtime: $RuntimeOptions): ListAvailableZonesResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -3147,6 +3161,7 @@ model ListConsumerConnectionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListConsumerConnectionsResponse
  */
+@context("listConsumerConnectionsWithContext")
 async function listConsumerConnectionsWithOptions(instanceId: string, consumerGroupId: string, headers: map[string]string, runtime: $RuntimeOptions): ListConsumerConnectionsResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -3228,6 +3243,7 @@ model ListConsumerGroupSubscriptionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListConsumerGroupSubscriptionsResponse
  */
+@context("listConsumerGroupSubscriptionsWithContext")
 async function listConsumerGroupSubscriptionsWithOptions(instanceId: string, consumerGroupId: string, request: ListConsumerGroupSubscriptionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListConsumerGroupSubscriptionsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3316,6 +3332,7 @@ model ListConsumerGroupsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListConsumerGroupsResponse
  */
+@context("listConsumerGroupsWithContext")
 async function listConsumerGroupsWithOptions(instanceId: string, request: ListConsumerGroupsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListConsumerGroupsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3433,6 +3450,7 @@ model ListDisasterRecoveryCheckpointsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDisasterRecoveryCheckpointsResponse
  */
+@context("listDisasterRecoveryCheckpointsWithContext")
 async function listDisasterRecoveryCheckpointsWithOptions(planId: string, itemId: string, request: ListDisasterRecoveryCheckpointsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDisasterRecoveryCheckpointsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3480,57 +3498,58 @@ async function listDisasterRecoveryCheckpoints(planId: string, itemId: string, r
 }
 
 model ListDisasterRecoveryItemsRequest {
-  filter?: string(name='filter', description='Filter condition, filter by topicName', example='topic_test'),
-  pageNumber?: int32(name='pageNumber', description='Page number, indicating which page of the results to query.', example='1'),
-  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results displayed per page.', example='10'),
-  topicName?: string(name='topicName'),
+  filter?: string(name='filter', description='The filter condition. Topics are filtered by topic name.', example='topic_test'),
+  pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+  topicName?: string(name='topicName', description='The topic name.', example='topic-test920'),
 }
 
 model ListDisasterRecoveryItemsResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', description='Access denied details, provided only when access is denied due to lack of RAM permissions', example='xxx'),
-  code?: string(name='code', description='Error code', example='200'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='200'),
   data?: {
     list?: [ 
       {
-        createTime?: string(name='createTime', description='Creation time', example='2024-09-20 03:38:28'),
-        extInfo?: map[string]string(name='extInfo', description='Extended information'),
-        itemId?: long(name='itemId', description='Backup plan ID', example='100070284'),
-        itemStatus?: string(name='itemStatus', description='Backup mapping status:
-  - CREATING (Creating)
-  - CHANGING (Changing)
-  - RUNNING (Running)
-  - MANUAL_STOPPED (Manually Stopped)
-  - OVERDUE_STOPPED (Stopped Due to Overdue)', example='RUNNING'),
-        planId?: long(name='planId', description='Mapping ID', example='1300000016'),
+        createTime?: string(name='createTime', description='The time when the query task was created.', example='2024-09-20 03:38:28'),
+        extInfo?: map[string]string(name='extInfo', description='The extended information.'),
+        itemId?: long(name='itemId', description='The ID of the Global Replicator task.', example='100070284'),
+        itemStatus?: string(name='itemStatus', description='The status of the topic mapping. Valid values:
+
+*   CREATING
+*   CHANGING
+*   RUNNING
+*   MANUAL_STOPPED
+*   OVERDUE_STOPPED', example='RUNNING'),
+        planId?: long(name='planId', description='The ID of the topic mapping.', example='1300000016'),
         topics?: [ 
           {
-            consumerGroupId?: string(name='consumerGroupId', description='Consumer group ID', example='group-test', deprecated=true),
-            deliveryOrderType?: string(name='deliveryOrderType', description='The order in which messages are delivered to the target instance.
+            consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='group-test', deprecated=true),
+            deliveryOrderType?: string(name='deliveryOrderType', description='The method used to deliver messages to the destination instance.
 
-Parameter values are as follows:
-- Concurrently: concurrent delivery
-- Orderly: sequential delivery', example='Concurrently'),
-            instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-kh43w0olz0c'),
-            instanceType?: string(name='instanceType', description='Instance type', example='ALIYUN_ROCKETMQ'),
-            regionId?: string(name='regionId', description='Region ID', example='cn-hangzhou'),
+Valid values:
+
+*   Concurrently: concurrent delivery
+*   Orderly: ordered delivery', example='Concurrently'),
+            instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-kh43w0olz0c'),
+            instanceType?: string(name='instanceType', description='The instance type.', example='ALIYUN_ROCKETMQ'),
+            regionId?: string(name='regionId', description='regionId', example='cn-hangzhou'),
             topicName?: string(name='topicName', description='The topic name.', example='topic-test'),
           }
-        ](name='topics', description='Topics included in the backup mapping'),
-        updateTime?: string(name='updateTime', description='Update time', example='2024-10-04 02:19:44'),
+        ](name='topics', description='The topics involved in the topic mapping.'),
+        updateTime?: string(name='updateTime', description='The time when the query task was last modified.', example='2024-10-04 02:19:44'),
       }
-    ](name='list', description='Paged data'),
-    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
-    pageSize?: long(name='pageSize', description='Page size', example='10'),
-    scrollId?: string(name='scrollId', description='Request scroll ID.
-Automatically generated by the system, subsequent pagination requests need to include this return value to continue pagination.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
-    totalCount?: long(name='totalCount', description='Total number of records', example='49'),
-  }(name='data', description='Return result'),
-  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='instanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
-  message?: string(name='message', description='Error message', example='xxx'),
-  requestId?: string(name='requestId', description='Request ID', example='C115601B-8736-5BBF-AC99-7FEAE12xxxx'),
-  success?: boolean(name='success', description='Whether the request was successful', example='true'),
+    ](name='list', description='The Global Replicator tasks.'),
+    pageNumber?: long(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
+    scrollId?: string(name='scrollId', description='The scroll ID of the request. The ID is automatically generated by the system. The result can be paginated only if this parameter is included in the pagination request.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
+    totalCount?: long(name='totalCount', description='The total number of entries returned.', example='49'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The dynamic error message.', example='instanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='xxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='C115601B-8736-5BBF-AC99-7FEAE12xxxx'),
+  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
 }
 
 model ListDisasterRecoveryItemsResponse = {
@@ -3540,13 +3559,14 @@ model ListDisasterRecoveryItemsResponse = {
 }
 
 /**
- * @summary Query Disaster Recovery Plan Entry List
+ * @summary Queries the Global Replicator tasks of an instance.
  *
  * @param request ListDisasterRecoveryItemsRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDisasterRecoveryItemsResponse
  */
+@context("listDisasterRecoveryItemsWithContext")
 async function listDisasterRecoveryItemsWithOptions(planId: string, request: ListDisasterRecoveryItemsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDisasterRecoveryItemsResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3582,7 +3602,7 @@ async function listDisasterRecoveryItemsWithOptions(planId: string, request: Lis
 }
 
 /**
- * @summary Query Disaster Recovery Plan Entry List
+ * @summary Queries the Global Replicator tasks of an instance.
  *
  * @param request ListDisasterRecoveryItemsRequest
  * @return ListDisasterRecoveryItemsResponse
@@ -3594,70 +3614,69 @@ async function listDisasterRecoveryItems(planId: string, request: ListDisasterRe
 }
 
 model ListDisasterRecoveryPlansRequest {
-  filter?: string(name='filter', description='Filter conditions, filter by backup name and description', example='xxx'),
-  instanceId?: string(name='instanceId'),
-  pageNumber?: int32(name='pageNumber', description='Page number, the page of results to be queried.', example='1'),
-  pageSize?: int32(name='pageSize', description='Page size, the maximum number of results displayed per page.', example='10'),
+  filter?: string(name='filter', description='The filter condition. Global Replicator tasks are filtered by task name or description.', example='xxx'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-778xxx'),
+  pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
 }
 
 model ListDisasterRecoveryPlansResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied due to the reason that the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
-  code?: string(name='code', description='Error code', example='200'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details about the access denial. This parameter is returned only if the access is denied because the Resource Access Management (RAM) user does not have the required permissions.', example='xxx'),
+  code?: string(name='code', description='The error code.', example='200'),
   data?: {
     list?: [ 
       {
-        autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.', example='true'),
-        createTime?: string(name='createTime', description='Creation time', example='2022-08-01 20:05:50'),
-        extInfo?: map[string]string(name='extInfo', description='Extended information'),
+        autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Indicates whether automatic consumer progress synchronization is enabled.', example='true'),
+        createTime?: string(name='createTime', description='The time when the query task was created.', example='2022-08-01 20:05:50'),
+        extInfo?: map[string]string(name='extInfo', description='The extended information.'),
         instances?: [ 
           {
-            authType?: string(name='authType', description='Authentication method', example='NO_AUTH'),
-            consumerGroupId?: string(name='consumerGroupId'),
-            endpointUrl?: string(name='endpointUrl', description='Endpoint URL', example='xxx'),
-            instanceId?: string(name='instanceId', description='Instance ID', example='rmq-cn-ot93rbxxx'),
-            instanceRole?: string(name='instanceRole', description='Instance role', example='ACTIVE'),
-            instanceType?: string(name='instanceType', description='Instance type
-  - ALIYUN_ROCKETMQ: Alibaba Cloud instance
-  - EXTERNAL_ROCKETMQ: External instance, open-source instance, open-source cluster', example='ALIYUN_ROCKETMQ'),
+            authType?: string(name='authType', description='The authentication type.', example='NO_AUTH'),
+            consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='GID_ui_xxx'),
+            endpointUrl?: string(name='endpointUrl', description='The endpoint.', example='xxx'),
+            instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-ot93rbxxx'),
+            instanceRole?: string(name='instanceRole', description='The instance role.', example='ACTIVE'),
+            instanceType?: string(name='instanceType', description='The instance type.', example='ALIYUN_ROCKETMQ'),
             messageProperty?: {
-              propertyKey?: string(name='propertyKey', description='Property key', example='aaa'),
-              propertyValue?: string(name='propertyValue', description='Property value', example='bbb'),
-            }(name='messageProperty', description='Message property'),
-            networkType?: string(name='networkType', description='Network type', example='TCP_INTERNET'),
-            password?: string(name='password', description='Authentication password', example='xxx'),
-            regionId?: string(name='regionId', description='The region where the instance is located', example='cn-hangzhou'),
-            securityGroupId?: string(name='securityGroupId', description='Security group ID', example='sg-bp17hpmgz9******'),
-            username?: string(name='username', description='Authentication username', example='xxx'),
-            vSwitchId?: string(name='vSwitchId', description='VSwitch ID', example='vsw-uf6gwtbn6etadpv******'),
-            vpcId?: string(name='vpcId', description='VPC ID', example='vpc-bp13docqysrgxtbxxxx'),
+              propertyKey?: string(name='propertyKey', description='The attribute key.', example='aaa'),
+              propertyValue?: string(name='propertyValue', description='The attribute value.', example='bbb'),
+            }(name='messageProperty', description='The message attribute.'),
+            networkType?: string(name='networkType', description='The network type.', example='TCP_INTERNET'),
+            password?: string(name='password', description='The password used for authentication.', example='xxx'),
+            regionId?: string(name='regionId', description='The ID of the region where the instance resides.', example='cn-hangzhou'),
+            securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp17hpmgz9******'),
+            username?: string(name='username', description='The username used for authentication.', example='xxx'),
+            vSwitchId?: string(name='vSwitchId', description='The vSwitch ID.', example='vsw-uf6gwtbn6etadpv******'),
+            vpcId?: string(name='vpcId', description='The virtual private cloud (VPC) ID.', example='vpc-bp13docqysrgxtbxxxx'),
           }
-        ](name='instances', description='Instances involved in the backup plan'),
-        planDesc?: string(name='planDesc', description='Plan description', example='xxx'),
-        planId?: long(name='planId', description='Plan ID', example='1300000016'),
-        planName?: string(name='planName', description='Plan name', example='xxx'),
-        planStatus?: string(name='planStatus', description='Plan status:
-  - CREATED (Created)
-  - RUNNING (Running)
-  - DELETED (Deleted)', example='RUNNING'),
-        planType?: string(name='planType', description='Plan type:
-  - ACTIVE_PASSIVE (One-way backup)
-  - ACTIVE_ACTIVE (Two-way backup)', example='ACTIVE_PASSIVE'),
-        syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Sync checkpoint switch', example='true'),
-        updateTime?: string(name='updateTime', description='Update time', example='2022-08-01 20:05:50'),
+        ](name='instances', description='The instances involved in the Global Replicator task.'),
+        planDesc?: string(name='planDesc', description='The description of the Global Replicator task.', example='xxx'),
+        planId?: long(name='planId', description='The ID of the Global Replicator task.', example='1300000016'),
+        planName?: string(name='planName', description='The name of the Global Replicator task.', example='xxx'),
+        planStatus?: string(name='planStatus', description='The status of the Global Replicator task. Valid values:
+
+*   CREATED
+*   RUNNING
+*   DELETED', example='RUNNING'),
+        planType?: string(name='planType', description='The type of the Global Replicator task. Valid values:
+
+*   ACTIVE_PASSIVE: one-way backup
+*   ACTIVE_ACTIVE: two-way backup', example='ACTIVE_PASSIVE'),
+        syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Indicates whether consumer progress synchronization is enabled.', example='true'),
+        updateTime?: string(name='updateTime', description='The time when the query task was last modified.', example='2022-08-01 20:05:50'),
       }
-    ](name='list', description='Paged data'),
-    pageNumber?: long(name='pageNumber', description='Current page number', example='1'),
-    pageSize?: long(name='pageSize', description='Page size', example='10'),
-    scrollId?: string(name='scrollId', description='Scroll request ID.
-Automatically generated by the system, subsequent paging requests need to include this result to continue paging.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
-    totalCount?: long(name='totalCount', description='Total number of records', example='28'),
-  }(name='data', description='Return result'),
-  dynamicCode?: string(name='dynamicCode', description='Dynamic error code', example='InstanceId'),
-  dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message', example='InstanceId'),
-  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code', example='200'),
-  message?: string(name='message', description='Error message', example='xxx'),
-  requestId?: string(name='requestId', description='Request ID', example='855EF8E6-9C1D-5DE2-9E84-924E13Exxxx'),
-  success?: boolean(name='success', description='Whether the operation was successful', example='True'),
+    ](name='list', description='The Global Replicator tasks.'),
+    pageNumber?: long(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: long(name='pageSize', description='The number of entries per page.', example='10'),
+    scrollId?: string(name='scrollId', description='The scroll ID of the request. The ID is automatically generated by the system. The result can be paginated only if this parameter is included in the pagination request.', example='B13D0B07-F24B-4790-88D8-D47A38063D00'),
+    totalCount?: long(name='totalCount', description='The total number of entries returned.', example='28'),
+  }(name='data', description='The returned data.'),
+  dynamicCode?: string(name='dynamicCode', description='The dynamic error code.', example='InstanceId'),
+  dynamicMessage?: string(name='dynamicMessage', description='The returned dynamic error message.', example='InstanceId'),
+  httpStatusCode?: int32(name='httpStatusCode', description='The response code.', example='200'),
+  message?: string(name='message', description='The error message.', example='xxx'),
+  requestId?: string(name='requestId', description='The request ID.', example='855EF8E6-9C1D-5DE2-9E84-924E13Exxxx'),
+  success?: boolean(name='success', description='Indicates whether the information about the service was queried.', example='True'),
 }
 
 model ListDisasterRecoveryPlansResponse = {
@@ -3667,13 +3686,14 @@ model ListDisasterRecoveryPlansResponse = {
 }
 
 /**
- * @summary Query Disaster Recovery Plan List
+ * @summary Queries Global Replicator tasks.
  *
  * @param request ListDisasterRecoveryPlansRequest
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListDisasterRecoveryPlansResponse
  */
+@context("listDisasterRecoveryPlansWithContext")
 async function listDisasterRecoveryPlansWithOptions(request: ListDisasterRecoveryPlansRequest, headers: map[string]string, runtime: $RuntimeOptions): ListDisasterRecoveryPlansResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3709,7 +3729,7 @@ async function listDisasterRecoveryPlansWithOptions(request: ListDisasterRecover
 }
 
 /**
- * @summary Query Disaster Recovery Plan List
+ * @summary Queries Global Replicator tasks.
  *
  * @param request ListDisasterRecoveryPlansRequest
  * @return ListDisasterRecoveryPlansResponse
@@ -3779,6 +3799,7 @@ model ListInstanceAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstanceAccountResponse
  */
+@context("listInstanceAccountWithContext")
 async function listInstanceAccountWithOptions(instanceId: string, request: ListInstanceAccountRequest, headers: map[string]string, runtime: $RuntimeOptions): ListInstanceAccountResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3891,6 +3912,7 @@ model ListInstanceAclResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstanceAclResponse
  */
+@context("listInstanceAclWithContext")
 async function listInstanceAclWithOptions(instanceId: string, request: ListInstanceAclRequest, headers: map[string]string, runtime: $RuntimeOptions): ListInstanceAclResponse {
   request.validate();
   var query : map[string]any = {};
@@ -3971,6 +3993,7 @@ model ListInstanceIpWhitelistResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstanceIpWhitelistResponse
  */
+@context("listInstanceIpWhitelistWithContext")
 async function listInstanceIpWhitelistWithOptions(instanceId: string, request: ListInstanceIpWhitelistRequest, headers: map[string]string, runtime: $RuntimeOptions): ListInstanceIpWhitelistResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4154,6 +4177,7 @@ model ListInstancesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListInstancesResponse
  */
+@context("listInstancesWithContext")
 async function listInstancesWithOptions(tmpReq: ListInstancesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListInstancesResponse {
   tmpReq.validate();
   var request = new ListInstancesShrinkRequest{};
@@ -4279,6 +4303,7 @@ model ListMessagesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListMessagesResponse
  */
+@context("listMessagesWithContext")
 async function listMessagesWithOptions(instanceId: string, topicName: string, request: ListMessagesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMessagesResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4379,6 +4404,7 @@ model ListMetricMetaResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListMetricMetaResponse
  */
+@context("listMetricMetaWithContext")
 async function listMetricMetaWithOptions(request: ListMetricMetaRequest, headers: map[string]string, runtime: $RuntimeOptions): ListMetricMetaResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4458,6 +4484,7 @@ model ListRegionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListRegionsResponse
  */
+@context("listRegionsWithContext")
 async function listRegionsWithOptions(headers: map[string]string, runtime: $RuntimeOptions): ListRegionsResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -4539,6 +4566,7 @@ model ListTagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTagResourcesResponse
  */
+@context("listTagResourcesWithContext")
 async function listTagResourcesWithOptions(request: ListTagResourcesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListTagResourcesResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4628,6 +4656,7 @@ model ListTopicSubscriptionsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTopicSubscriptionsResponse
  */
+@context("listTopicSubscriptionsWithContext")
 async function listTopicSubscriptionsWithOptions(instanceId: string, topicName: string, headers: map[string]string, runtime: $RuntimeOptions): ListTopicSubscriptionsResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -4705,7 +4734,7 @@ Valid values:
   }(name='data', description='The returned data.'),
   dynamicCode?: string(name='dynamicCode', description='Dynamic error code.', example='TopicName'),
   dynamicMessage?: string(name='dynamicMessage', description='Dynamic error message.', example='topicName'),
-  httpStatusCode?: int32(name='httpStatusCode', example='400'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP status code.', example='400'),
   message?: string(name='message', description='Error message.', example='The topic cannot be found.'),
   requestId?: string(name='requestId', description='Request ID, each request has a unique ID that can be used for troubleshooting and problem localization.', example='AF9A8B10-C426-530F-A0DD-96320B39****'),
   success?: boolean(name='success', description='Indicates whether the execution was successful.', example='true'),
@@ -4725,6 +4754,7 @@ model ListTopicsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTopicsResponse
  */
+@context("listTopicsWithContext")
 async function listTopicsWithOptions(instanceId: string, tmpReq: ListTopicsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListTopicsResponse {
   tmpReq.validate();
   var request = new ListTopicsShrinkRequest{};
@@ -4846,6 +4876,7 @@ model ListTracesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTracesResponse
  */
+@context("listTracesWithContext")
 async function listTracesWithOptions(instanceId: string, topicName: string, request: ListTracesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListTracesResponse {
   request.validate();
   var query : map[string]any = {};
@@ -4930,6 +4961,7 @@ model ResetConsumeOffsetResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ResetConsumeOffsetResponse
  */
+@context("resetConsumeOffsetWithContext")
 async function resetConsumeOffsetWithOptions(instanceId: string, consumerGroupId: string, topicName: string, request: ResetConsumeOffsetRequest, headers: map[string]string, runtime: $RuntimeOptions): ResetConsumeOffsetResponse {
   request.validate();
   var body : map[string]any = {};
@@ -4995,6 +5027,7 @@ model StartDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StartDisasterRecoveryItemResponse
  */
+@context("startDisasterRecoveryItemWithContext")
 async function startDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: $RuntimeOptions): StartDisasterRecoveryItemResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -5049,6 +5082,7 @@ model StopDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return StopDisasterRecoveryItemResponse
  */
+@context("stopDisasterRecoveryItemWithContext")
 async function stopDisasterRecoveryItemWithOptions(planId: string, itemId: string, headers: map[string]string, runtime: $RuntimeOptions): StopDisasterRecoveryItemResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -5102,6 +5136,7 @@ model SyncDisasterRecoveryCheckpointResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SyncDisasterRecoveryCheckpointResponse
  */
+@context("syncDisasterRecoveryCheckpointWithContext")
 async function syncDisasterRecoveryCheckpointWithOptions(planId: string, itemId: string, checkpointId: string, headers: map[string]string, runtime: $RuntimeOptions): SyncDisasterRecoveryCheckpointResponse {
   var req = new OpenApiUtil.OpenApiRequest{ 
     headers = headers,
@@ -5173,6 +5208,7 @@ model TagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return TagResourcesResponse
  */
+@context("tagResourcesWithContext")
 async function tagResourcesWithOptions(request: TagResourcesRequest, headers: map[string]string, runtime: $RuntimeOptions): TagResourcesResponse {
   request.validate();
   var query : map[string]any = {};
@@ -5260,6 +5296,7 @@ model UntagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UntagResourcesResponse
  */
+@context("untagResourcesWithContext")
 async function untagResourcesWithOptions(request: UntagResourcesRequest, headers: map[string]string, runtime: $RuntimeOptions): UntagResourcesResponse {
   request.validate();
   var query : map[string]any = {};
@@ -5313,8 +5350,10 @@ model UpdateConsumerGroupRequest {
   consumeRetryPolicy?: {
     deadLetterTargetTopic?: string(name='deadLetterTargetTopic', description='The dead-letter topic.
 
-If a consumer still fails to consume a message after the maximum number of retries specified for the message is reached, the message is delivered to the dead-letter topic for subsequent business recovery or troubleshooting. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
-    fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime'),
+If a message still fails to be consumed after the maximum number of retries specified in the consumption retry policy is reached, the message is delivered to the dead-letter topic for subsequent business recovery or backtracking. For more information, see [Consumption retry and dead-letter messages](https://help.aliyun.com/document_detail/440356.html).', example='DLQ_mqtest'),
+    fixedIntervalRetryTime?: int32(name='fixedIntervalRetryTime', description='Fixed retry interval, unit: seconds.This option is effective when retryPolicy is FixedRetryPolicy.Value range：
+  - Concurrently:10-1800
+  - Orderly:1-600', example='10'),
     maxRetryTimes?: int32(name='maxRetryTimes', description='The maximum number of retries.', example='16'),
     retryPolicy?: string(name='retryPolicy', description='The retry policy. For more information, see [Message retry](https://help.aliyun.com/document_detail/440356.html).
 
@@ -5335,7 +5374,7 @@ Valid values:
 *   Orderly: ordered delivery
 
 This parameter is required.', example='Concurrently'),
-  maxReceiveTps?: long(name='maxReceiveTps', description='The maximum TPS for message sending.', example='100'),
+  maxReceiveTps?: long(name='maxReceiveTps', description='The maximum number of messages that can be processed by consumers per second.', example='100'),
   remark?: string(name='remark', description='The new description of the consumer group.', example='This is the remark for test.'),
 }
 
@@ -5366,6 +5405,7 @@ model UpdateConsumerGroupResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateConsumerGroupResponse
  */
+@context("updateConsumerGroupWithContext")
 async function updateConsumerGroupWithOptions(instanceId: string, consumerGroupId: string, request: UpdateConsumerGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateConsumerGroupResponse {
   request.validate();
   var body : map[string]any = {};
@@ -5460,6 +5500,7 @@ model UpdateDisasterRecoveryItemResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDisasterRecoveryItemResponse
  */
+@context("updateDisasterRecoveryItemWithContext")
 async function updateDisasterRecoveryItemWithOptions(planId: string, itemId: string, request: UpdateDisasterRecoveryItemRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateDisasterRecoveryItemResponse {
   request.validate();
   var body : map[string]any = {};
@@ -5498,16 +5539,26 @@ async function updateDisasterRecoveryItem(planId: string, itemId: string, reques
 }
 
 model UpdateDisasterRecoveryPlanRequest {
-  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Whether to enable automatic synchronization of consumption progress.
+  autoSyncCheckpoint?: boolean(name='autoSyncCheckpoint', description='Specifies whether to enable automatic consumer progress synchronization.
 
-> This is effective only when consumption progress synchronization is enabled, i.e., the value of `syncCheckpointEnabled` is true.', example='true'),
+>  This parameter takes effect only when you set `syncCheckpointEnabled` to true.
+
+Valid values:
+
+*   true
+*   false', example='true'),
   instances?: [ 
     {
-      authType?: string(name='authType', description='The authentication type.
+      authType?: string(name='authType', description='The authentication type. Valid values:
 
 *   NO_AUTH: no authentication
-*   ACL_AUTH: access control list (ACL)-based authentication', example='NO_AUTH'),
-      consumerGroupId?: string(name='consumerGroupId'),
+*   ACL_AUTH: access control list (ACL)-based authentication
+
+<!---->
+
+*
+*', example='NO_AUTH'),
+      consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='GID_DS_XXX_YYY'),
       endpointUrl?: string(name='endpointUrl', description='The instance endpoint. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='xxx'),
       instanceId?: string(name='instanceId', description='The instance ID.', example='rmq-cn-83l3r0xxxx'),
       instanceRole?: string(name='instanceRole', description='The instance role. Valid values:
@@ -5526,21 +5577,26 @@ model UpdateDisasterRecoveryPlanRequest {
 
 *   TCP_INTERNET: Internet over TCP
 *   TCP_VPC: virtual private cloud (VPC) over TCP.', example='TCP_INTERNET'),
-      password?: string(name='password', description='The password that is used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
-      regionId?: string(name='regionId', description='The region in which the instance resides.', example='cn-hangzhou'),
-      securityGroupId?: string(name='securityGroupId', description='The ID of the security group to which the instance belongs. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='sg-bp17hpmgz9******'),
-      username?: string(name='username', description='The username that is used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
-      vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated. If you want to specify multiple vSwitches, separate the vSwitches with vertical bars (|).', example='vsw-uf6gwtbn6etadpv******'),
-      vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ.', example='vpc-wz9qt50xhtj9krb******'),
+      password?: string(name='password', description='The password used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
+      regionId?: string(name='regionId', description='The ID of the region where the instance resides.', example='cn-hangzhou'),
+      securityGroupId?: string(name='securityGroupId', description='The ID of the security group to which the instance belongs. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='sg-bp17hpmgz9******'),
+      username?: string(name='username', description='The username used for authentication. This parameter is required only if you set authType to ACL_AUTH.', example='xxx'),
+      vSwitchId?: string(name='vSwitchId', description='The ID of the vSwitch with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='vsw-uf6gwtbn6etadpv******'),
+      vpcId?: string(name='vpcId', description='The ID of the VPC with which the instance is associated. This parameter is required only if you set instanceType to EXTERNAL_ROCKETMQ and networkType to TCP_VPC.', example='vpc-wz9qt50xhtj9krb******'),
     }
-  ](name='instances', description='The instances that are involved in the global message backup plan.'),
-  planDesc?: string(name='planDesc', description='The description of the global message backup plan.', example='xxx'),
-  planName?: string(name='planName', description='The name of the global message backup plan.', example='xxx'),
-  planType?: string(name='planType', description='The type of the global message backup plan. Valid values:
+  ](name='instances', description='The instances involved in the Global Replicator task. After you create a Global Replicator task, you cannot change the instances involved in the task. You can change only the message attribute and authentication type of the task.'),
+  planDesc?: string(name='planDesc', description='The description of the Global Replicator task.', example='xxx'),
+  planName?: string(name='planName', description='The name of the Global Replicator task.', example='xxx'),
+  planType?: string(name='planType', description='The type of the Global Replicator task. After you create a Global Replicator task, you cannot change the type of the task. Valid values:
 
-*   ACTIVE_PASSIVE: geo-disaster recovery
-*   ACTIVE_ACTIVE: active geo-redundancy', example='ACTIVE_PASSIVE'),
-  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Switch for synchronizing consumption progress', example='true'),
+*   ACTIVE_PASSIVE: one-way backup
+*   ACTIVE_ACTIVE: two-way backup', example='ACTIVE_PASSIVE'),
+  syncCheckpointEnabled?: boolean(name='syncCheckpointEnabled', description='Specifies whether to enable consumer progress synchronization.
+
+Valid values:
+
+*   true
+*   false', example='true'),
 }
 
 model UpdateDisasterRecoveryPlanResponseBody = {
@@ -5569,6 +5625,7 @@ model UpdateDisasterRecoveryPlanResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateDisasterRecoveryPlanResponse
  */
+@context("updateDisasterRecoveryPlanWithContext")
 async function updateDisasterRecoveryPlanWithOptions(planId: string, request: UpdateDisasterRecoveryPlanRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateDisasterRecoveryPlanResponse {
   request.validate();
   var body : map[string]any = {};
@@ -5695,6 +5752,7 @@ model UpdateInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateInstanceResponse
  */
+@context("updateInstanceWithContext")
 async function updateInstanceWithOptions(instanceId: string, request: UpdateInstanceRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateInstanceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -5782,6 +5840,7 @@ model UpdateInstanceAccountResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateInstanceAccountResponse
  */
+@context("updateInstanceAccountWithContext")
 async function updateInstanceAccountWithOptions(instanceId: string, username: string, request: UpdateInstanceAccountRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateInstanceAccountResponse {
   request.validate();
   var query : map[string]any = {};
@@ -5823,14 +5882,14 @@ async function updateInstanceAccount(instanceId: string, username: string, reque
 }
 
 model UpdateInstanceAclRequest {
-  actions?: [ string ](name='actions', description='The following items describe the types of permissions that can be granted based on the resource type:
+  actions?: [ string ](name='actions', description='The following types of operations are supported based on the resource type:
 
 *   Topic: Pub, Sub, and Pub|Sub
-*   Consumer group: Sub
+*   Group: Sub
 
 Valid values:
 
-*   SUB: subscribe
+*   Sub: subscribe
 *   Pub|Sub: publish and subscribe
 *   Pub: publish', example='Pub'),
   decision?: string(name='decision', description='The decision result of the authorization.
@@ -5839,7 +5898,7 @@ Valid values:
 
 *   Deny
 *   Allow', example='Allow'),
-  ipWhitelists?: [ string ](name='ipWhitelists', description='The IP address whitelists.'),
+  ipWhitelists?: [ string ](name='ipWhitelists', description='The IP addresses in the whitelist.'),
   resourceName?: string(name='resourceName', description='The name of the resource on which you want to grant permissions.
 
 This parameter is required.', example='test'),
@@ -5879,6 +5938,7 @@ model UpdateInstanceAclResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateInstanceAclResponse
  */
+@context("updateInstanceAclWithContext")
 async function updateInstanceAclWithOptions(instanceId: string, username: string, request: UpdateInstanceAclRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateInstanceAclResponse {
   request.validate();
   var body : map[string]any = {};
@@ -5958,6 +6018,7 @@ model UpdateTopicResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UpdateTopicResponse
  */
+@context("updateTopicWithContext")
 async function updateTopicWithOptions(instanceId: string, topicName: string, request: UpdateTopicRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateTopicResponse {
   request.validate();
   var body : map[string]any = {};
@@ -6032,6 +6093,7 @@ model VerifyConsumeMessageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return VerifyConsumeMessageResponse
  */
+@context("verifyConsumeMessageWithContext")
 async function verifyConsumeMessageWithOptions(instanceId: string, topicName: string, messageId: string, request: VerifyConsumeMessageRequest, headers: map[string]string, runtime: $RuntimeOptions): VerifyConsumeMessageResponse {
   request.validate();
   var query : map[string]any = {};
@@ -6103,6 +6165,7 @@ model VerifySendMessageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return VerifySendMessageResponse
  */
+@context("verifySendMessageWithContext")
 async function verifySendMessageWithOptions(instanceId: string, topicName: string, request: VerifySendMessageRequest, headers: map[string]string, runtime: $RuntimeOptions): VerifySendMessageResponse {
   request.validate();
   var body : map[string]any = {};
