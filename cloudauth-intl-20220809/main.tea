@@ -31,31 +31,124 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
-model AddressVerifyIntlRequest {
-  addressType?: string(name='AddressType', description='This parameter is required.', example='“0”'),
-  defaultCity?: string(name='DefaultCity'),
+model AddressCompareIntlRequest {
   defaultCountry?: string(name='DefaultCountry', description='This parameter is required.'),
-  defaultDistrict?: string(name='DefaultDistrict'),
-  defaultProvince?: string(name='DefaultProvince'),
-  latitude?: string(name='Latitude', example='“31.2304”'),
-  longitude?: string(name='Longitude', example='“121.4737”'),
-  mobile?: string(name='Mobile', description='This parameter is required.', example='1872334****'),
-  productCode?: string(name='ProductCode', description='This parameter is required.', example='ADD_VERIFY_PRO'),
-  text?: string(name='Text'),
-  verifyType?: string(name='VerifyType', description='This parameter is required.', example='HOME'),
+  productCode?: string(name='ProductCode', description='ADD_VERIFY
+
+This parameter is required.'),
+  text1?: string(name='Text1', description='This parameter is required.'),
+  text2?: string(name='Text2', description='This parameter is required.'),
+}
+
+model AddressCompareIntlResponseBody = {
+  code?: string(name='Code', example='Success'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
+  result?: {
+    data?: string(name='Data'),
+  }(name='Result'),
+}
+
+model AddressCompareIntlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddressCompareIntlResponseBody(name='body'),
+}
+
+/**
+ * @summary 地址相似比对
+ *
+ * @param request AddressCompareIntlRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddressCompareIntlResponse
+ */
+async function addressCompareIntlWithOptions(request: AddressCompareIntlRequest, runtime: Util.RuntimeOptions): AddressCompareIntlResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.defaultCountry)) {
+    query['DefaultCountry'] = request.defaultCountry;
+  }
+  if (!Util.isUnset(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  if (!Util.isUnset(request.text1)) {
+    query['Text1'] = request.text1;
+  }
+  if (!Util.isUnset(request.text2)) {
+    query['Text2'] = request.text2;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddressCompareIntl',
+    version = '2022-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 地址相似比对
+ *
+ * @param request AddressCompareIntlRequest
+ * @return AddressCompareIntlResponse
+ */
+async function addressCompareIntl(request: AddressCompareIntlRequest): AddressCompareIntlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addressCompareIntlWithOptions(request, runtime);
+}
+
+model AddressVerifyIntlRequest {
+  addressType?: string(name='AddressType', description='Verification address type:
+- “0”: Text address
+- “1”: Latitude and longitude
+
+This parameter is required.', example='“0”'),
+  defaultCity?: string(name='DefaultCity', description='Default city', example='杭州市'),
+  defaultCountry?: string(name='DefaultCountry', description='Country name, currently only supports: China
+
+This parameter is required.', example='中国'),
+  defaultDistrict?: string(name='DefaultDistrict', description='Default district', example='余杭区'),
+  defaultProvince?: string(name='DefaultProvince', description='Default province', example='浙江省'),
+  latitude?: string(name='Latitude', description='Latitude.', example='“31.2304”'),
+  longitude?: string(name='Longitude', description='Longitude.', example='“121.4737”'),
+  mobile?: string(name='Mobile', description='Supports Chinese mobile phone numbers.
+
+This parameter is required.', example='1872334****'),
+  productCode?: string(name='ProductCode', description='Fixed value: ADD_VERIFY_PRO
+
+This parameter is required.', example='ADD_VERIFY_PRO'),
+  text?: string(name='Text', description='Detailed address text content', example='阿里巴巴西溪园区'),
+  verifyType?: string(name='VerifyType', description='Address verification method:
+- HOME: Home address verification
+- WORK: Work address verification
+
+This parameter is required.', example='HOME'),
 }
 
 model AddressVerifyIntlResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
+  code?: string(name='Code', description='Return code.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
   resultObject?: {
-    addressInfo?: string(name='AddressInfo', example='0-3000'),
-    ispName?: string(name='IspName', example='CMCC'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-    transactionId?: string(name='TransactionId', example='hksb7ba1b28130d24e015d69********'),
-  }(name='ResultObject'),
+    addressInfo?: string(name='AddressInfo', description='Address verification details.', example='0-3000'),
+    ispName?: string(name='IspName', description='Operator name:
+- CMCC: China Mobile
+- CTCC: China Telecom
+- CUCC: China Unicom', example='CMCC'),
+    passed?: string(name='Passed', description='Verification result, values:
+- Y: Yes, the verified address distance is less than or equal to 10KM.
+- N: No, the verified address distance is greater than 10KM.', example='Y'),
+    subCode?: string(name='SubCode', description='Authentication result description.', example='200'),
+    transactionId?: string(name='TransactionId', description='Unique identifier for the authentication request.', example='hksb7ba1b28130d24e015d69********'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model AddressVerifyIntlResponse = {
@@ -65,7 +158,9 @@ model AddressVerifyIntlResponse = {
 }
 
 /**
- * @summary 地址核验
+ * @summary Address Verification
+ *
+ * @description Based on the operator\\"s capabilities, input the phone number and address (or latitude and longitude) to verify whether the provided address is the user\\"s usual residence.
  *
  * @param request AddressVerifyIntlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -125,7 +220,9 @@ async function addressVerifyIntlWithOptions(request: AddressVerifyIntlRequest, r
 }
 
 /**
- * @summary 地址核验
+ * @summary Address Verification
+ *
+ * @description Based on the operator\\"s capabilities, input the phone number and address (or latitude and longitude) to verify whether the provided address is the user\\"s usual residence.
  *
  * @param request AddressVerifyIntlRequest
  * @return AddressVerifyIntlResponse
@@ -133,6 +230,92 @@ async function addressVerifyIntlWithOptions(request: AddressVerifyIntlRequest, r
 async function addressVerifyIntl(request: AddressVerifyIntlRequest): AddressVerifyIntlResponse {
   var runtime = new Util.RuntimeOptions{};
   return addressVerifyIntlWithOptions(request, runtime);
+}
+
+model AddressVerifyV2IntlRequest {
+  deviceToken?: string(name='DeviceToken', description='This parameter is required.', example='Tk9SSUQuMS*****************ZDNmNWY5NzQxOW1o'),
+  mobile?: string(name='Mobile', description='This parameter is required.', example='1872334****'),
+  productCode?: string(name='ProductCode', description='This parameter is required.', example='ADD_VERIFY_PRO'),
+  regCountry?: string(name='RegCountry', description='This parameter is required.'),
+  text?: string(name='Text', description='This parameter is required.'),
+  verifyType?: string(name='VerifyType', description='This parameter is required.', example='HOME'),
+}
+
+model AddressVerifyV2IntlResponseBody = {
+  code?: string(name='Code', example='Success'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='7F971622-38C0-5F56-B2EC-315367979B4F'),
+  result?: {
+    bizCode?: string(name='BizCode', example='1'),
+    detail?: string(name='Detail', example='{
+  "distanceRange": "0-3000",
+  "ispName": "CTCC",
+  "phoneStatus": "1"
+}'),
+    transactionId?: string(name='TransactionId', example='hksb7ba1b28130d24e015d69********'),
+  }(name='Result'),
+}
+
+model AddressVerifyV2IntlResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AddressVerifyV2IntlResponseBody(name='body'),
+}
+
+/**
+ * @summary 地址核验
+ *
+ * @param request AddressVerifyV2IntlRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AddressVerifyV2IntlResponse
+ */
+async function addressVerifyV2IntlWithOptions(request: AddressVerifyV2IntlRequest, runtime: Util.RuntimeOptions): AddressVerifyV2IntlResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.deviceToken)) {
+    query['DeviceToken'] = request.deviceToken;
+  }
+  if (!Util.isUnset(request.mobile)) {
+    query['Mobile'] = request.mobile;
+  }
+  if (!Util.isUnset(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  if (!Util.isUnset(request.regCountry)) {
+    query['RegCountry'] = request.regCountry;
+  }
+  if (!Util.isUnset(request.text)) {
+    query['Text'] = request.text;
+  }
+  if (!Util.isUnset(request.verifyType)) {
+    query['VerifyType'] = request.verifyType;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AddressVerifyV2Intl',
+    version = '2022-08-09',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 地址核验
+ *
+ * @param request AddressVerifyV2IntlRequest
+ * @return AddressVerifyV2IntlResponse
+ */
+async function addressVerifyV2Intl(request: AddressVerifyV2IntlRequest): AddressVerifyV2IntlResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return addressVerifyV2IntlWithOptions(request, runtime);
 }
 
 model BankMetaVerifyIntlRequest {
@@ -310,28 +493,56 @@ async function bankMetaVerifyIntl(request: BankMetaVerifyIntlRequest): BankMetaV
 }
 
 model CardOcrRequest {
-  docType?: string(name='DocType', example='00000006'),
-  idFaceQuality?: string(name='IdFaceQuality', example='F'),
-  idOcrPictureBase64?: string(name='IdOcrPictureBase64'),
-  idOcrPictureUrl?: string(name='IdOcrPictureUrl', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
-  merchantBizId?: string(name='MerchantBizId', example='dso9322***dsjsd22'),
-  merchantUserId?: string(name='MerchantUserId', example='123456789'),
-  ocr?: string(name='Ocr', example='T'),
-  productCode?: string(name='ProductCode', example='ID_OCR_MIN'),
-  spoof?: string(name='Spoof', example='F'),
+  docType?: string(name='DocType', description='Document type.', example='00000006'),
+  idFaceQuality?: string(name='IdFaceQuality', description='Whether to perform face quality detection on the document
+- T: Indicates that detection is needed
+- F: Indicates that detection is not needed (default F)', example='F'),
+  idOcrPictureBase64?: string(name='IdOcrPictureBase64', description='Base64 on the front of the document image', example='base64'),
+  idOcrPictureUrl?: string(name='IdOcrPictureUrl', description='URL of the front side of the document image', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure uniqueness.', example='dso9322***dsjsd22'),
+  merchantUserId?: string(name='MerchantUserId', description='Merchant user ID or other identifiers that can be used to identify specific users, such as phone numbers, email addresses, etc. It is strongly recommended to pre-desensitize the value of the userId field, for example, by hashing the value.', example='123456789'),
+  ocr?: string(name='Ocr', description='Whether to perform document OCR
+- T: Indicates that document OCR is required (default T)
+- F: Indicates that it is not required', example='T'),
+  productCode?: string(name='ProductCode', description='Product code', example='ID_OCR_MIN'),
+  spoof?: string(name='Spoof', description='Whether to enable anti-counterfeiting detection
+- T: Indicates to enable anti-counterfeiting
+- F: Indicates to disable (default F)', example='F'),
 }
 
 model CardOcrResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4EB356FE-BB6A-5DCC-B4C5-E8051787EBA1'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Return message', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='4EB356FE-BB6A-5DCC-B4C5-E8051787EBA1'),
   result?: {
-    extCardInfo?: string(name='ExtCardInfo'),
-    extIdInfo?: string(name='ExtIdInfo'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-    transactionId?: string(name='TransactionId', example='08573be80f944d95ac812e019e3655a8'),
-  }(name='Result'),
+    extCardInfo?: string(name='ExtCardInfo', description='Document recognition result', example='{
+  "idFaceQualityScore": 98.90,
+  "ocrIdInfo": {
+    "expiryDate": "2024-04-20",
+    "placeOfIssue": "广东",
+    "englishName": "ZHENGJIAN,YANGBEN",
+    "originOfIssue": "公安部出入境管理局",
+    "sex": "女",
+    "name": "证件样本",
+    "idNumber": "C00000000",
+    "issueDate": "2014-04-21",
+    "birthDate": "1981-08-03"
+  },
+  "spoofInfo": {
+    "spoofResult": "N",
+    "spoofType": [
+      "SCREEN_REMARK"
+    ]
+  }
+}'),
+    extIdInfo?: string(name='ExtIdInfo', description='Additional result information', example='**'),
+    passed?: string(name='Passed', description='Whether the authentication passed.
+
+- Y: Passed.
+- N: Not passed.', example='Y'),
+    subCode?: string(name='SubCode', description='Sub-result code.', example='200'),
+    transactionId?: string(name='TransactionId', description='Unique identifier for the authentication request', example='08573be80f944d95ac812e019e3655a8'),
+  }(name='Result', description='Return result'),
 }
 
 model CardOcrResponse = {
@@ -343,7 +554,7 @@ model CardOcrResponse = {
 /**
  * @deprecated OpenAPI CardOcr is deprecated, please use Cloudauth-intl::2022-08-09::DocOcr instead.
  *
- * @summary 证件OCR识别纯服务端接口
+ * @summary Pure server-side interface for document OCR recognition
  *
  * @param request CardOcrRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -402,7 +613,7 @@ async function cardOcrWithOptions(request: CardOcrRequest, runtime: Util.Runtime
 /**
  * @deprecated OpenAPI CardOcr is deprecated, please use Cloudauth-intl::2022-08-09::DocOcr instead.
  *
- * @summary 证件OCR识别纯服务端接口
+ * @summary Pure server-side interface for document OCR recognition
  *
  * @param request CardOcrRequest
  * @return CardOcrResponse
@@ -414,27 +625,32 @@ async function cardOcr(request: CardOcrRequest): CardOcrResponse {
 }
 
 model CheckResultRequest {
-  extraImageControlList?: string(name='ExtraImageControlList', example='***'),
-  isReturnImage?: string(name='IsReturnImage', example='N'),
-  merchantBizId?: string(name='MerchantBizId', example='djs20d***9-dsskc'),
-  returnFiveCategorySpoofResult?: string(name='ReturnFiveCategorySpoofResult', example='Y'),
-  transactionId?: string(name='TransactionId', example='4ab0b***cbde97'),
+  extraImageControlList?: string(name='ExtraImageControlList', description='Return additional information.', example='***'),
+  isReturnImage?: string(name='IsReturnImage', description='Whether to return images.
+- Y: Return
+- N: Do not return', example='N'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure its uniqueness.', example='djs20d***9-dsskc'),
+  returnFiveCategorySpoofResult?: string(name='ReturnFiveCategorySpoofResult', description='Whether to return anti-fraud detection results.', example='Y'),
+  transactionId?: string(name='TransactionId', description='Authentication ID.', example='4ab0b***cbde97'),
 }
 
 model CheckResultResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4EB35****87EBA1'),
+  code?: string(name='Code', description='Return code.', example='Success'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='4EB35****87EBA1'),
   result?: {
-    ekycResult?: string(name='EkycResult', example='**'),
-    extBasicInfo?: string(name='ExtBasicInfo', example='**'),
-    extFaceInfo?: string(name='ExtFaceInfo', example='**'),
-    extIdInfo?: string(name='ExtIdInfo', example='**'),
-    extInfo?: string(name='ExtInfo'),
-    extRiskInfo?: string(name='ExtRiskInfo', example='**'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='***'),
-  }(name='Result'),
+    ekycResult?: string(name='EkycResult', description='Authentication result.', example='**'),
+    extBasicInfo?: string(name='ExtBasicInfo', description='Extended basic information.', example='**'),
+    extFaceInfo?: string(name='ExtFaceInfo', description='Face information.', example='**'),
+    extIdInfo?: string(name='ExtIdInfo', description='ID information.', example='**'),
+    extInfo?: string(name='ExtInfo', description='Extended information', example='{}'),
+    extRiskInfo?: string(name='ExtRiskInfo', description='Risk information.', example='**'),
+    passed?: string(name='Passed', description='Whether the authentication is passed.
+
+- Y: Passed
+- N: Not passed', example='Y'),
+    subCode?: string(name='SubCode', description='Sub-result code.', example='***'),
+  }(name='Result', description='Return result.'),
 }
 
 model CheckResultResponse = {
@@ -444,7 +660,7 @@ model CheckResultResponse = {
 }
 
 /**
- * @summary 结果查询
+ * @summary Result Query
  *
  * @param request CheckResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -486,7 +702,7 @@ async function checkResultWithOptions(request: CheckResultRequest, runtime: Util
 }
 
 /**
- * @summary 结果查询
+ * @summary Result Query
  *
  * @param request CheckResultRequest
  * @return CheckResultResponse
@@ -497,19 +713,35 @@ async function checkResult(request: CheckResultRequest): CheckResultResponse {
 }
 
 model CheckVerifyLogRequest {
-  merchantBizId?: string(name='MerchantBizId', example='e0c34a***353888'),
-  transactionId?: string(name='TransactionId', example='hksb7ba1b*********015d694361bee4'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent problem localization and troubleshooting. Supports a combination of letters and numbers, with a maximum length of 32 characters. Ensure uniqueness.', example='e0c34a***353888'),
+  transactionId?: string(name='TransactionId', description='The unique identifier for the entire authentication process. This value needs to be obtained by calling Initialize.', example='hksb7ba1b*********015d694361bee4'),
 }
 
 model CheckVerifyLogResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='4EB35****87EBA1'),
+  code?: string(name='Code', description='Backend error code.', example='Success'),
+  message?: string(name='Message', description='Return message', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='4EB35****87EBA1'),
   result?: {
-    extInfo?: string(name='ExtInfo', example='{}'),
-    interruptPage?: string(name='InterruptPage'),
-    logInfo?: [ string ](name='LogInfo'),
-    logStatisticsInfo?: string(name='LogStatisticsInfo', example='{
+    extInfo?: string(name='ExtInfo', description='Extended information', example='{}'),
+    interruptPage?: string(name='InterruptPage', description='Records the last page where the authentication was interrupted.
+
+- Page not started
+- OCR guide page
+- OCR camera authorization
+- OCR document capture page
+- OCR recognition loading
+- OCR recognition result editing page
+- OCR recognition result editing loading
+- Liveness detection guide page
+- Liveness detection camera authorization page
+- Liveness detection page
+- Liveness detection fallback page
+- Liveness detection retry
+- Liveness detection loading', example='OCR拍摄证件页面'),
+    interruptPageEn?: string(name='InterruptPageEn'),
+    logInfo?: [ string ](name='LogInfo', description='SDK operation log details'),
+    logInfoEn?: [ string ](name='LogInfoEn'),
+    logStatisticsInfo?: string(name='LogStatisticsInfo', description='SDK operation log statistics details', example='{
           "faceOverTimes": 0,
           "hasFaceOverTimes": false,
           "hasFacePermissionRefuse": false,
@@ -527,11 +759,35 @@ model CheckVerifyLogResponseBody = {
             "FACE": "8707"
           }
         }'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-    verifyErrorCode?: string(name='VerifyErrorCode', example='1001'),
-    verifyStatus?: string(name='VerifyStatus', example='1'),
-  }(name='Result'),
+    passed?: string(name='Passed', description='Whether the authentication passed.
+
+- Y: Passed.
+- N: Not passed.', example='Y'),
+    subCode?: string(name='SubCode', description='Sub-result code', example='200'),
+    verifyErrorCode?: string(name='VerifyErrorCode', description='Authentication interruption error codes
+
+- 1000: The user completed the face scanning process, and the suggested authentication result is pass
+- 1001: The user completed the face scanning process, and the suggested authentication result is fail
+- 1002: System error
+- 1003: SDK initialization failed, please check if the client time is correct
+- 1004: Camera permission error
+- 1005: Network error
+- 1006: User exited
+- 1007: Invalid TransactionId
+- 1009: Client timestamp error
+- 1011: Incorrect document type submitted
+- 1012: Missing or format validation failure of key information on the recognized document
+- 1013: Poor image quality
+- 1014: Exceeded the upper limit of errors
+- 1015: Android system version too low
+- 1016: Camera permission not obtained
+- 9999: Suspected authentication process interruption', example='1001'),
+    verifyStatus?: string(name='VerifyStatus', description='Authentication status, values:
+
+- 0: finished (authentication completed)
+- 1: unfinished (authentication interrupted)
+- 2: notstart (authentication not started)', example='1'),
+  }(name='Result', description='Return result.'),
 }
 
 model CheckVerifyLogResponse = {
@@ -541,7 +797,7 @@ model CheckVerifyLogResponse = {
 }
 
 /**
- * @summary 认证日志查询接口
+ * @summary Authentication Log Query Interface
  *
  * @param request CheckVerifyLogRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -574,7 +830,7 @@ async function checkVerifyLogWithOptions(request: CheckVerifyLogRequest, runtime
 }
 
 /**
- * @summary 认证日志查询接口
+ * @summary Authentication Log Query Interface
  *
  * @param request CheckVerifyLogRequest
  * @return CheckVerifyLogResponse
@@ -585,31 +841,89 @@ async function checkVerifyLog(request: CheckVerifyLogRequest): CheckVerifyLogRes
 }
 
 model CredentialVerifyIntlRequest {
-  credName?: string(name='CredName', description='This parameter is required.', example='0101'),
-  credType?: string(name='CredType', description='This parameter is required.', example='01'),
-  imageFile?: string(name='ImageFile'),
-  imageUrl?: string(name='ImageUrl', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
-  productCode?: string(name='ProductCode', description='This parameter is required.'),
+  credName?: string(name='CredName', description='Credential name (numeric code):
+
+- Starting with 03: Enterprise Qualification
+  - 0301: Mainland China Business License
+- Starting with 04, Transaction Voucher
+  - 0401: Bank Statement
+  - 0402: Pay Slip
+  - 0403: Utility Bill
+  - 0405: Credit Card Statement
+  - 0499: Others
+
+This parameter is required.', example='0301'),
+  credType?: string(name='CredType', description='Credential type:
+
+- 03: Enterprise Qualification
+- 04: Transaction Voucher
+
+This parameter is required.', example='03'),
+  imageFile?: string(name='ImageFile', description='Image input stream.
+> Choose either ImageUrl or ImageFile.', example='无'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the image.
+> Choose either ImageUrl or ImageFile.', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+- ANTI_FAKE_CHECK: Image quality and tampering detection.
+
+This parameter is required.', example='取值：ANTI_FAKE_CHECK'),
 }
 
 model CredentialVerifyIntlAdvanceRequest {
-  credName?: string(name='CredName', description='This parameter is required.', example='0101'),
-  credType?: string(name='CredType', description='This parameter is required.', example='01'),
-  imageFileObject?: readable(name='ImageFile'),
-  imageUrl?: string(name='ImageUrl', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
-  productCode?: string(name='ProductCode', description='This parameter is required.'),
+  credName?: string(name='CredName', description='Credential name (numeric code):
+
+- Starting with 03: Enterprise Qualification
+  - 0301: Mainland China Business License
+- Starting with 04, Transaction Voucher
+  - 0401: Bank Statement
+  - 0402: Pay Slip
+  - 0403: Utility Bill
+  - 0405: Credit Card Statement
+  - 0499: Others
+
+This parameter is required.', example='0301'),
+  credType?: string(name='CredType', description='Credential type:
+
+- 03: Enterprise Qualification
+- 04: Transaction Voucher
+
+This parameter is required.', example='03'),
+  imageFileObject?: readable(name='ImageFile', description='Image input stream.
+> Choose either ImageUrl or ImageFile.', example='无'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the image.
+> Choose either ImageUrl or ImageFile.', example='https://oss-bj01.avic.com/eavic-prod-commodity/pic/commodity/94677ee6-1067-4287-8ff4-6e030ef3a5a8.jpg'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+- ANTI_FAKE_CHECK: Image quality and tampering detection.
+
+This parameter is required.', example='取值：ANTI_FAKE_CHECK'),
 }
 
 model CredentialVerifyIntlResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
   resultObject?: {
-    materialInfo?: string(name='MaterialInfo'),
-    result?: string(name='Result', example='1'),
-    riskScore?: map[string]string(name='RiskScore'),
-    riskTag?: string(name='RiskTag', example='PS'),
-  }(name='ResultObject'),
+    materialInfo?: string(name='MaterialInfo', description='Other information in JSON format.', example='{
+ "sameBackgroundDetail": {
+ // 相似背景对于的原始图请求RequestId
+ "originalRequestId": "130A2C10-B9EE-4D84-88E3-5384FF03****";
+ // 相似背景对于的原始图请求商户ID 
+ "originalMerchantId": "xxxxxxxx" 
+ }
+}'),
+    result?: string(name='Result', description='Risk result:
+
+- **0**: Low risk
+- **1**: High risk
+- **2**: Suspicious', example='1'),
+    riskScore?: map[string]string(name='RiskScore', description='Risk score map'),
+    riskTag?: string(name='RiskTag', description='Risk tags, separated by commas (,). Includes:
+
+- PS: Image manipulation (Photoshop)
+- SCREEN_PHOTO: Screen recapture
+- SCREENSHOT: Screenshot
+- ORIGINAL_PHOTO: Not original image', example='PS'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model CredentialVerifyIntlResponse = {
@@ -619,7 +933,9 @@ model CredentialVerifyIntlResponse = {
 }
 
 /**
- * @summary 凭证核验
+ * @summary Credential Verification
+ *
+ * @description Input credential image information, perform image quality, tampering, and forgery detection, and return the detection results.
  *
  * @param request CredentialVerifyIntlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -663,7 +979,9 @@ async function credentialVerifyIntlWithOptions(request: CredentialVerifyIntlRequ
 }
 
 /**
- * @summary 凭证核验
+ * @summary Credential Verification
+ *
+ * @description Input credential image information, perform image quality, tampering, and forgery detection, and return the detection results.
  *
  * @param request CredentialVerifyIntlRequest
  * @return CredentialVerifyIntlResponse
@@ -843,19 +1161,19 @@ async function deepfakeDetectIntl(request: DeepfakeDetectIntlRequest): DeepfakeD
 }
 
 model DeleteVerifyResultRequest {
-  deleteAfterQuery?: string(name='DeleteAfterQuery', example='Y / N'),
-  deleteType?: string(name='DeleteType', example='Img / Text / All'),
-  transactionId?: string(name='TransactionId', example='4ab0b***cbde97'),
+  deleteAfterQuery?: string(name='DeleteAfterQuery', description='Whether to depend on the query interface when deleting data', example='Y / N'),
+  deleteType?: string(name='DeleteType', description='Type of data to be deleted', example='Img / Text / All'),
+  transactionId?: string(name='TransactionId', description='Unique identifier of the authentication request', example='4ab0b***cbde97'),
 }
 
 model DeleteVerifyResultResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='4EB35****87EBA1'),
+  code?: string(name='Code', description='Return code', example='200'),
+  message?: string(name='Message', description='Return message', example='success'),
+  requestId?: string(name='RequestId', description='ID of this request', example='4EB35****87EBA1'),
   result?: {
-    deleteResult?: string(name='DeleteResult', example='Y/N'),
-    transactionId?: string(name='TransactionId', example='4ab0b***cbde97'),
-  }(name='Result'),
+    deleteResult?: string(name='DeleteResult', description='Deletion result. Y indicates successful deletion, N indicates failed deletion', example='Y/N'),
+    transactionId?: string(name='TransactionId', description='Unique identifier of the authentication request', example='4ab0b***cbde97'),
+  }(name='Result', description='Return result'),
 }
 
 model DeleteVerifyResultResponse = {
@@ -865,7 +1183,7 @@ model DeleteVerifyResultResponse = {
 }
 
 /**
- * @summary 删除用户认证记录结果
+ * @summary Delete user authentication record results
  *
  * @param request DeleteVerifyResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -901,7 +1219,7 @@ async function deleteVerifyResultWithOptions(request: DeleteVerifyResultRequest,
 }
 
 /**
- * @summary 删除用户认证记录结果
+ * @summary Delete user authentication record results
  *
  * @param request DeleteVerifyResultRequest
  * @return DeleteVerifyResultResponse
@@ -912,29 +1230,56 @@ async function deleteVerifyResult(request: DeleteVerifyResultRequest): DeleteVer
 }
 
 model DocOcrRequest {
-  cardSide?: string(name='CardSide'),
-  docType?: string(name='DocType', example='00000006'),
-  idFaceQuality?: string(name='IdFaceQuality', example='F'),
-  idOcrPictureBase64?: string(name='IdOcrPictureBase64'),
-  idOcrPictureUrl?: string(name='IdOcrPictureUrl', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
-  idThreshold?: string(name='IdThreshold'),
-  merchantBizId?: string(name='MerchantBizId', example='dso9322***dsjsd22'),
-  merchantUserId?: string(name='MerchantUserId', example='123456789'),
-  ocr?: string(name='Ocr', example='T'),
-  productCode?: string(name='ProductCode'),
-  spoof?: string(name='Spoof', example='F'),
+  cardSide?: string(name='CardSide', description='CardSide', example='0'),
+  docType?: string(name='DocType', description='Document type', example='00000006'),
+  idFaceQuality?: string(name='IdFaceQuality', description='Whether to perform ID face quality detection
+- T: Indicates that detection is required
+- F: Indicates that detection is not required (default F)', example='F'),
+  idOcrPictureBase64?: string(name='IdOcrPictureBase64', description='Base64 of the front side of the document image', example='base64'),
+  idOcrPictureUrl?: string(name='IdOcrPictureUrl', description='URL of the front side of the document image', example='https://digital-cardocr-prod8.oss-cn-hangzhou.aliyuncs.com/1669520556530-expo/default/face/20221127114236530_w3kx2e6t.jpg'),
+  idThreshold?: string(name='IdThreshold', description='IdThreshold', example='0'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier defined by the merchant, used for subsequent troubleshooting. It supports a combination of letters and numbers, with a maximum length of 32 characters. Please ensure uniqueness.', example='dso9322***dsjsd22'),
+  merchantUserId?: string(name='MerchantUserId', description='A custom user ID in the business, please keep it unique.', example='123456789'),
+  ocr?: string(name='Ocr', description='Whether to perform document OCR
+- T: Indicates that document OCR is required
+- F: Indicates that document OCR is not required', example='T'),
+  productCode?: string(name='ProductCode', description='Product code', example='产品方案类型ID_OCR_MIN'),
+  spoof?: string(name='Spoof', description='Whether to enable anti-counterfeiting detection
+- T: Indicates that anti-counterfeiting is enabled
+- F: Indicates that anti-counterfeiting is disabled', example='F'),
 }
 
 model DocOcrResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='86C40EC3-5940-5F47-995C-BFE90B70E540'),
   result?: {
-    extIdInfo?: string(name='ExtIdInfo'),
-    passed?: string(name='Passed', example='Y'),
-    subCode?: string(name='SubCode', example='200'),
-    transactionId?: string(name='TransactionId', example='08573be80f944d95ac812e019e3655a8'),
-  }(name='Result'),
+    extIdInfo?: string(name='ExtIdInfo', description='Card and document recognition result	Only returned when the interface response is successful', example='{
+  "idFaceQualityScore": 98.0
+  "ocrIdInfo": {
+    "expiryDate": "",
+    "originOfIssue": "公安部出入境管理局",
+    "englishName": "LI SI",
+    "sex": "男",
+    "name": "李四",
+    "idNumber": "H11111112",
+    "issueDate": "2013-01-02",
+    "birthDate": "1990-02-21"
+  },
+  "spoofInfo": {
+    "spoofResult": "Y",
+    "spoofType": [
+      "SCREEN_REMARK"
+    ]
+  }
+}'),
+    passed?: string(name='Passed', description='Whether the authentication passed.
+
+- Y: Passed
+- N: Not passed', example='Y'),
+    subCode?: string(name='SubCode', description='Sub-result code', example='200'),
+    transactionId?: string(name='TransactionId', description='Unique identifier of the authentication request', example='08573be80f944d95ac812e019e3655a8'),
+  }(name='Result', description='Return result'),
 }
 
 model DocOcrResponse = {
@@ -944,7 +1289,7 @@ model DocOcrResponse = {
 }
 
 /**
- * @summary 卡证ocr纯服务端
+ * @summary Card and document OCR pure server-side
  *
  * @param request DocOcrRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1006,7 +1351,7 @@ async function docOcrWithOptions(request: DocOcrRequest, runtime: Util.RuntimeOp
 }
 
 /**
- * @summary 卡证ocr纯服务端
+ * @summary Card and document OCR pure server-side
  *
  * @param request DocOcrRequest
  * @return DocOcrResponse
@@ -2140,22 +2485,48 @@ async function mobile2MetaVerifyIntl(request: Mobile2MetaVerifyIntlRequest): Mob
 }
 
 model Mobile3MetaVerifyIntlRequest {
-  identifyNum?: string(name='IdentifyNum', example='429001********8211'),
-  mobile?: string(name='Mobile', example='186****1234'),
-  paramType?: string(name='ParamType', example='normal'),
-  productCode?: string(name='ProductCode', example='MOBILE_3META'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number
+
+- When paramType is set to normal, enter the plaintext
+- When paramType is set to md5, enter a 32-character lowercase md5 string', example='429001********8211'),
+  mobile?: string(name='Mobile', description='Mobile phone number.
+
+- When paramType is set to normal, enter the plaintext
+- When paramType is set to md5, enter a 32-character lowercase md5 string', example='186****1234'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: unencrypted
+- md5: md5 encrypted', example='normal'),
+  productCode?: string(name='ProductCode', description='The product solution to be integrated, with a fixed value: MOBILE_3META', example='MOBILE_3META'),
+  userName?: string(name='UserName', description='Name
+
+- When paramType is set to normal, enter the plaintext
+- When paramType is set to md5, enter a 32-character lowercase md5 string', example='张*'),
 }
 
 model Mobile3MetaVerifyIntlResponseBody = {
-  code?: string(name='Code', example='Success'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='D241532C-4EE9-5A2A-A5A5-C1FD98CE2EDD'),
+  code?: string(name='Code', description='Return code', example='Success'),
+  message?: string(name='Message', description='Return message', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='D241532C-4EE9-5A2A-A5A5-C1FD98CE2EDD'),
   result?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-    subCode?: string(name='SubCode', example='101'),
-  }(name='Result'),
+    bizCode?: string(name='BizCode', description='Verification result code.
+- 1: Verification consistent
+- 2: Verification inconsistent
+- 3: No record found', example='1'),
+    ispName?: string(name='IspName', description='ISP name
+
+- CMCC: China Mobile
+- CUCC: China Unicom
+- CTCC: China Telecom', example='CMCC'),
+    subCode?: string(name='SubCode', description='Detailed verification results
+
+- 101: Verification passed 
+- 201: Mobile number and name do not match, mobile number and ID number do not match 
+- 202: Mobile number and name match, but mobile number and ID number do not match 
+- 203: Mobile number and ID number match, but mobile number and name do not match 
+- 204: Other inconsistencies
+- 301: No record found', example='101'),
+  }(name='Result', description='Return result'),
 }
 
 model Mobile3MetaVerifyIntlResponse = {
@@ -2165,7 +2536,7 @@ model Mobile3MetaVerifyIntlResponse = {
 }
 
 /**
- * @summary 手机号三要素国际版接口
+ * @summary International Version of Mobile Three Elements API
  *
  * @param request Mobile3MetaVerifyIntlRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2207,7 +2578,7 @@ async function mobile3MetaVerifyIntlWithOptions(request: Mobile3MetaVerifyIntlRe
 }
 
 /**
- * @summary 手机号三要素国际版接口
+ * @summary International Version of Mobile Three Elements API
  *
  * @param request Mobile3MetaVerifyIntlRequest
  * @return Mobile3MetaVerifyIntlResponse
