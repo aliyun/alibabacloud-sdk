@@ -1,10 +1,7 @@
 /**
  *
  */
-import OSS;
-import OpenPlatform;
-import OSSUtil;
-import FileForm;
+import Credential;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -31,24 +28,33 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AIGCFaceVerifyRequest {
-  faceContrastPicture?: string(name='FaceContrastPicture', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
-  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
-  ossBucketName?: string(name='OssBucketName', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
-  ossObjectName?: string(name='OssObjectName', example='verify/xxxxx/xxxxxx.jpeg'),
-  outerOrderNo?: string(name='OuterOrderNo', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
-  productCode?: string(name='ProductCode', example='LR_FR_AIGC'),
-  sceneId?: long(name='SceneId', example='100000xxxx'),
+  faceContrastPicture?: string(name='FaceContrastPicture', description='Base64 encoded photo.
+> Choose one of the three ways to input images: FaceContrastPicture, FaceContrastPictureUrl, or OSS.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
+  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl', description='Portrait address, accessible via public HTTP or HTTPS link.
+
+> Choose one of the three ways to input images: FaceContrastPicture, FaceContrastPictureUrl, or OSS.', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
+  ossBucketName?: string(name='OssBucketName', description='Authorized OSS bucket name.
+> Choose one of the three ways to input images: FaceContrastPicture, FaceContrastPictureUrl, or OSS.', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
+  ossObjectName?: string(name='OssObjectName', description='Authorized OSS file name.
+> Choose one of the three ways to input images: FaceContrastPicture, FaceContrastPictureUrl, or OSS.', example='verify/xxxxx/xxxxxx.jpeg'),
+  outerOrderNo?: string(name='OuterOrderNo', description='A unique business identifier defined by the client side, used for subsequent troubleshooting. The value should be a combination of letters and numbers with a maximum length of 32 characters, please ensure its uniqueness.', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
+  productCode?: string(name='ProductCode', description='Product solution', example='LR_FR_AIGC'),
+  sceneId?: long(name='SceneId', description='Authentication scene ID. This ID is automatically generated after creating an authentication scene in the console. For how to create an authentication scene, see Adding an Authentication Scene.', example='100000xxxx'),
 }
 
 model AIGCFaceVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   resultObject?: {
-    certifyId?: string(name='CertifyId'),
-    result?: string(name='Result', example='Y'),
-    score?: string(name='Score', example='1.0000'),
-  }(name='ResultObject'),
+    certifyId?: string(name='CertifyId', description='Unique real-person authentication identifier.', example='91707dc296d469ad38e4c5efa6a0****'),
+    result?: string(name='Result', description='Authentication result. Values:
+
+● Y: AIGC-generated face.
+
+● N: Not detected', example='Y'),
+    score?: string(name='Score', description='Detection score', example='1.0000'),
+  }(name='ResultObject', description='Returned result'),
 }
 
 model AIGCFaceVerifyResponse = {
@@ -58,12 +64,13 @@ model AIGCFaceVerifyResponse = {
 }
 
 /**
- * @summary 新增AIGC人脸检测能力
+ * @summary Add AIGC Face Detection Capability
  *
  * @param request AIGCFaceVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return AIGCFaceVerifyResponse
  */
+@context("aIGCFaceVerifyWithContext")
 async function aIGCFaceVerifyWithOptions(request: AIGCFaceVerifyRequest, runtime: $RuntimeOptions): AIGCFaceVerifyResponse {
   request.validate();
   var query = {};
@@ -108,7 +115,7 @@ async function aIGCFaceVerifyWithOptions(request: AIGCFaceVerifyRequest, runtime
 }
 
 /**
- * @summary 新增AIGC人脸检测能力
+ * @summary Add AIGC Face Detection Capability
  *
  * @param request AIGCFaceVerifyRequest
  * @return AIGCFaceVerifyResponse
@@ -119,24 +126,73 @@ async function aIGCFaceVerify(request: AIGCFaceVerifyRequest): AIGCFaceVerifyRes
 }
 
 model BankMetaVerifyRequest {
-  bankCard?: string(name='BankCard', example='610*************1181'),
-  identifyNum?: string(name='IdentifyNum', example='429001********8211'),
-  identityType?: string(name='IdentityType'),
-  mobile?: string(name='Mobile', example='138******11'),
-  paramType?: string(name='ParamType', example='normal'),
-  productType?: string(name='ProductType', example='BANK_CARD_2_META'),
-  userName?: string(name='UserName'),
-  verifyMode?: string(name='VerifyMode', example='VERIFY_BANK_CARD'),
+  bankCard?: string(name='BankCard', description='Bank card number.
+
+- When `paramType` is `normal`, enter the plain text bank card number.
+- When `paramType` is `md5`, enter the part of the card number except the last 6 digits in plain text + the last 6 digits encrypted with MD5 (32 lowercase).', example='610*************1181'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.
+
+- When `ProductType` is `BANK_CARD_3_META`, this field is required.
+- When `paramType` is `normal`, enter the plain text ID number.
+- When `paramType` is `md5`, enter the first 6 digits of the ID number in plain text + the birth date encrypted with MD5 (32 lowercase MD5) + the last 4 digits of the ID number.', example='429001********8211'),
+  identityType?: string(name='IdentityType', description='Identity type.', example='01'),
+  mobile?: string(name='Mobile', description='Mobile phone number.
+
+- When `ProductType` is `BANK_CARD_4_META`, this field is required.
+- When `paramType` is `normal`, enter the plain text mobile phone number.
+- When `paramType` is `md5`, enter the mobile phone number (32 lowercase MD5).', example='138******11'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: MD5 encrypted.', example='normal'),
+  productType?: string(name='ProductType', description='Product type to call:
+
+- BANK_CARD_2_META: Bank card number + name verification.
+- BANK_CARD_3_META: Bank card number + name + ID number verification.
+- BANK_CARD_4_META: Bank card number + name + ID number + mobile phone number verification.', example='BANK_CARD_2_META'),
+  userName?: string(name='UserName', description='Name.
+
+- When `paramType` is `normal`, enter the plain text name.
+- When `paramType` is `md5`, encrypt the first character of the name with MD5 (32 lowercase MD5) + the rest of the name in plain text.', example='张*'),
+  verifyMode?: string(name='VerifyMode', description='VERIFY_BANK_CARD: Bank card authentication mode. It indicates whether the provided bank card number matches the user\\\\"s real name, ID number, and mobile phone number.', example='VERIFY_BANK_CARD'),
 }
 
 model BankMetaVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='473469C7-A***B-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-A***B-A3DC0DE3C83E'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    subCode?: string(name='SubCode', example='101'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result.
+
+- 1: Consistent (billable)
+- 2: Inconsistent (billable)
+- 3: No record found (non-billable)', example='1'),
+    subCode?: string(name='SubCode', description='Verification details:
+
+- **101**: Verification passed.
+- **201**: Authentication information does not match, cardholder information is incorrect.
+- **202**: Authentication information does not match, bank card has not enabled authentication payment.
+- **203**: Authentication information does not match, bank card has expired.
+- **204**: Authentication information does not match, bank card is a restricted card.
+- **205**: Authentication information does not match, this card has been confiscated.
+- **206**: Authentication information does not match, bank card is invalid.
+- **207**: Authentication information does not match, this card has no corresponding issuing bank.
+- **208**: Authentication information does not match, the card is uninitialized or a dormant card.
+- **209**: Authentication information does not match, this card is a cheating card or swallowed card.
+- **210**: Authentication information does not match, this card has been reported lost.
+- **211**: Authentication information does not match, the number of password errors exceeds the limit.
+- **212**: Authentication information does not match, the issuing bank does not support this transaction.
+- **213**: Authentication information does not match, the card status is abnormal or the card is invalid.
+- **214**: Authentication information does not match, no mobile phone number reserved.
+- **215**: Authentication information does not match, the entered password, expiration date, or CVN2 is incorrect.
+- **216**: Authentication information does not match, other card anomalies.
+- **301**: Unable to verify, the bank card does not support this service.
+- **302**: Unable to verify, verification failed or the bank refused to verify, please contact the issuing bank.
+- **303**: Unable to verify, the bank card does not currently support mobile phone number verification.
+- **304**: Unable to verify, the bank card number is incorrect.
+- **305**: Unable to verify, other reasons.
+- **306**: Unable to verify, the number of verifications exceeds the limit.', example='101'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model BankMetaVerifyResponse = {
@@ -146,12 +202,20 @@ model BankMetaVerifyResponse = {
 }
 
 /**
- * @summary 银行卡要素核验接口
+ * @summary Bank Card Element Verification Interface
+ *
+ * @description Bank card verification, including: two elements (name + bank card number), three elements (name + ID number + bank card number), and four elements (name + ID number + mobile phone number + bank card number) consistency verification.
+ * - Service address:
+ *   - Beijing region: cloudauth.cn-beijing.aliyuncs.com (IPv4) or cloudauth-dualstack.cn-beijing.aliyuncs.com (IPv6).
+ *   - Shanghai region: cloudauth.cn-shanghai.aliyuncs.com (IPv4) or cloudauth-dualstack.cn-shanghai.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request BankMetaVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return BankMetaVerifyResponse
  */
+@context("bankMetaVerifyWithContext")
 async function bankMetaVerifyWithOptions(request: BankMetaVerifyRequest, runtime: $RuntimeOptions): BankMetaVerifyResponse {
   request.validate();
   var query = {};
@@ -197,7 +261,14 @@ async function bankMetaVerifyWithOptions(request: BankMetaVerifyRequest, runtime
 }
 
 /**
- * @summary 银行卡要素核验接口
+ * @summary Bank Card Element Verification Interface
+ *
+ * @description Bank card verification, including: two elements (name + bank card number), three elements (name + ID number + bank card number), and four elements (name + ID number + mobile phone number + bank card number) consistency verification.
+ * - Service address:
+ *   - Beijing region: cloudauth.cn-beijing.aliyuncs.com (IPv4) or cloudauth-dualstack.cn-beijing.aliyuncs.com (IPv6).
+ *   - Shanghai region: cloudauth.cn-shanghai.aliyuncs.com (IPv4) or cloudauth-dualstack.cn-shanghai.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request BankMetaVerifyRequest
  * @return BankMetaVerifyResponse
@@ -208,31 +279,49 @@ async function bankMetaVerify(request: BankMetaVerifyRequest): BankMetaVerifyRes
 }
 
 model CompareFaceVerifyRequest {
-  crop?: string(name='Crop'),
-  outerOrderNo?: string(name='OuterOrderNo', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
-  productCode?: string(name='ProductCode', example='PV_FC'),
-  sceneId?: long(name='SceneId', example='1000000006'),
-  sourceCertifyId?: string(name='SourceCertifyId', example='0bfa7c493f850e5178b9f8613634c9xx'),
-  sourceFaceContrastPicture?: string(name='SourceFaceContrastPicture', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
-  sourceFaceContrastPictureUrl?: string(name='SourceFaceContrastPictureUrl', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
-  sourceOssBucketName?: string(name='SourceOssBucketName', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
-  sourceOssObjectName?: string(name='SourceOssObjectName', example='verify/xxxxx/xxxxxx.jpeg'),
-  targetCertifyId?: string(name='TargetCertifyId', example='0bfa7c493f850e5178b9f8613634c9xx'),
-  targetFaceContrastPicture?: string(name='TargetFaceContrastPicture', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
-  targetFaceContrastPictureUrl?: string(name='TargetFaceContrastPictureUrl', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
-  targetOssBucketName?: string(name='TargetOssBucketName', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
-  targetOssObjectName?: string(name='TargetOssObjectName', example='verify/xxxxx/xxxxxx.jpeg'),
+  crop?: string(name='Crop', description='Whether cropping is allowed. Default is not allowed, T/F.
+
+- T: Indicates that cropping is required
+- F: Indicates that cropping is not required (default F)', example='T'),
+  outerOrderNo?: string(name='OuterOrderNo', description='A unique identifier for the merchant\\\\"s request. The value is a 32-character alphanumeric combination, where the first few characters are a custom abbreviation defined by the merchant, followed by a period, and the latter part can be a random or incrementing sequence.', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
+  productCode?: string(name='ProductCode', description='Fixed value: PV_FC.', example='PV_FC'),
+  sceneId?: long(name='SceneId', description='Authentication scenario ID.', example='1000000006'),
+  sourceCertifyId?: string(name='SourceCertifyId', description='The CertifyId of a previously successful real-person verification, where the photo taken during that verification is used as the face comparison photo.
+> Among the four ways to input facial photos (FaceContrastPicture, FaceContrastPictureUrl, CertifyId, OSS), choose one to provide.', example='0bfa7c493f850e5178b9f8613634c9xx'),
+  sourceFaceContrastPicture?: string(name='SourceFaceContrastPicture', description='Base64 encoding of the photo.
+> Choose one of the four ways to input a face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
+  sourceFaceContrastPictureUrl?: string(name='SourceFaceContrastPictureUrl', description='OSS photo URL, currently only supports authorized OSS photo URLs.
+> Four ways to input face photos: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, and OSS. Choose one of them to input.', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
+  sourceOssBucketName?: string(name='SourceOssBucketName', description='Name of the authorized OSS bucket.
+> Choose one of the four ways to input face photos: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
+  sourceOssObjectName?: string(name='SourceOssObjectName', description='Filename of the authorized OSS space.
+> Choose one of the four ways to input face photos: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='verify/xxxxx/xxxxxx.jpeg'),
+  targetCertifyId?: string(name='TargetCertifyId', description='CertifyId from a previously successful real-person authentication, where the photo taken during the authentication is used for face comparison.
+
+> Choose one of the four methods to provide the reference face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='0bfa7c493f850e5178b9f8613634c9xx'),
+  targetFaceContrastPicture?: string(name='TargetFaceContrastPicture', description='Base64 encoding of the reference photo.
+
+> Choose one of the four methods to provide the reference face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
+  targetFaceContrastPictureUrl?: string(name='TargetFaceContrastPictureUrl', description='OSS address of the reference photo. Currently, only authorized OSS addresses are supported.
+
+> Choose one of the four methods to provide the reference face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
+  targetOssBucketName?: string(name='TargetOssBucketName', description='Name of the authorized OSS bucket.
+
+> Choose one of the four methods to provide the reference face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='cn-shanghai-aliyun-cloudauth-xxxxx'),
+  targetOssObjectName?: string(name='TargetOssObjectName', description='File name in the authorized OSS space.
+
+> Choose one of the four methods to provide the reference face photo: FaceContrastPicture, FaceContrastPictureUrl, CertifyId, or OSS.', example='verify/xxxxx/xxxxxx.jpeg'),
 }
 
 model CompareFaceVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  code?: string(name='Code', description='Return code: 200 for success, other values indicate failure.', example='200'),
+  message?: string(name='Message', description='Error message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
   resultObject?: {
-    certifyId?: string(name='CertifyId'),
-    passed?: string(name='Passed', example='T'),
-    verifyScore?: float(name='VerifyScore', example='99.60875'),
-  }(name='ResultObject'),
+    certifyId?: string(name='CertifyId', description='Unique identifier for the real-person authentication request.', example='08573be80f944d95ac812e019e3655a8'),
+    passed?: string(name='Passed', description='Whether the verification passed, T for pass, F for fail.', example='T'),
+    verifyScore?: float(name='VerifyScore', description='Face comparison score.', example='99.60875'),
+  }(name='ResultObject', description='Face comparison result information.'),
 }
 
 model CompareFaceVerifyResponse = {
@@ -242,10 +331,25 @@ model CompareFaceVerifyResponse = {
 }
 
 /**
+ * @summary Financial-grade Pure Server-Side API for Face Comparison.
+ *
+ * @description - API Name: CompareFaceVerify.
+ * - Service Address: cloudauth.aliyuncs.com.
+ * - Request Method: HTTPS POST and GET.
+ * - API Description: An interface to achieve real-person authentication through server-side integration.
+ * #### Photo Format Requirements
+ * When performing face comparison, please upload 2 facial photos that meet all the following conditions:
+ * - Recent photo/recent database photo, with a complete, clear, unobstructed face, natural expression, and facing the camera directly.
+ * - Clear photo with normal exposure, no overly dark, overly bright, or halo effects on the face, and no significant angle deviation.
+ * - Resolution not exceeding 1920*1080, at least 640*480, recommended to scale the shorter side to 720 pixels, with a compression ratio greater than 0.9.
+ * - Photo size: <1MB.
+ * - Supports 90, 180, and 270-degree photos; in cases of multiple faces, the largest face will be selected.
+ *
  * @param request CompareFaceVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CompareFaceVerifyResponse
  */
+@context("compareFaceVerifyWithContext")
 async function compareFaceVerifyWithOptions(request: CompareFaceVerifyRequest, runtime: $RuntimeOptions): CompareFaceVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -309,6 +413,20 @@ async function compareFaceVerifyWithOptions(request: CompareFaceVerifyRequest, r
 }
 
 /**
+ * @summary Financial-grade Pure Server-Side API for Face Comparison.
+ *
+ * @description - API Name: CompareFaceVerify.
+ * - Service Address: cloudauth.aliyuncs.com.
+ * - Request Method: HTTPS POST and GET.
+ * - API Description: An interface to achieve real-person authentication through server-side integration.
+ * #### Photo Format Requirements
+ * When performing face comparison, please upload 2 facial photos that meet all the following conditions:
+ * - Recent photo/recent database photo, with a complete, clear, unobstructed face, natural expression, and facing the camera directly.
+ * - Clear photo with normal exposure, no overly dark, overly bright, or halo effects on the face, and no significant angle deviation.
+ * - Resolution not exceeding 1920*1080, at least 640*480, recommended to scale the shorter side to 720 pixels, with a compression ratio greater than 0.9.
+ * - Photo size: <1MB.
+ * - Supports 90, 180, and 270-degree photos; in cases of multiple faces, the largest face will be selected.
+ *
  * @param request CompareFaceVerifyRequest
  * @return CompareFaceVerifyResponse
  */
@@ -318,21 +436,38 @@ async function compareFaceVerify(request: CompareFaceVerifyRequest): CompareFace
 }
 
 model CompareFacesRequest {
-  sourceImageType?: string(name='SourceImageType', example='FacePic'),
-  sourceImageValue?: string(name='SourceImageValue', example='http%3A%2F%2Fjiangsu.china.com.cn%2Fuploadfile%2F2015%2F0114%2F1421221304095989.jpg'),
-  targetImageType?: string(name='TargetImageType', example='FacePic'),
-  targetImageValue?: string(name='TargetImageValue', example='http%3A%2F%2Fjiangsu.china.com.cn%2Fuploadfile%2F2015%2F0114%2F1421221304095989.jpg'),
+  sourceImageType?: string(name='SourceImageType', description='Type of Image 1, with values:
+
+- **FacePic**: User\\\\"s face photo
+- **IDPic**: Headshot from the user\\\\"s second-generation ID card chip (typically obtained and decoded by a second-generation ID card reader)', example='FacePic'),
+  sourceImageValue?: string(name='SourceImageValue', description='Address of Image 1. Please refer to the instructions on uploading image addresses.', example='http%3A%2F%2Fjiangsu.china.com.cn%2Fuploadfile%2F2015%2F0114%2F1421221304095989.jpg'),
+  targetImageType?: string(name='TargetImageType', description='Type of Image 2, with values:
+
+- **FacePic**: User\\\\"s face photo
+- **IDPic**: Headshot from the user\\\\"s second-generation ID card chip (typically obtained and decoded by a second-generation ID card reader)', example='FacePic'),
+  targetImageValue?: string(name='TargetImageValue', description='Address of Image 2. Please refer to the instructions on uploading image addresses.', example='http%3A%2F%2Fjiangsu.china.com.cn%2Fuploadfile%2F2015%2F0114%2F1421221304095989.jpg'),
 }
 
 model CompareFacesResponseBody = {
-  code?: string(name='Code', example='200'),
+  code?: string(name='Code', description='HTTP status code.', example='200'),
   data?: {
-    confidenceThresholds?: string(name='ConfidenceThresholds', example='{"0.0001":"90.07","0.001":"80.01","0.01":"70.02"}'),
-    similarityScore?: float(name='SimilarityScore', example='98.7913'),
-  }(name='Data'),
-  message?: string(name='Message', example='Error.InternalError'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  success?: boolean(name='Success', example='true'),
+    confidenceThresholds?: string(name='ConfidenceThresholds', description='Confidence thresholds for face comparison. The returned content is a JSON Object, with the specific structure being `"key":"value"`.
+
+- `key` represents the false acceptance rate, which is the probability of misidentifying someone else as the specified person.
+- `value` is the corresponding threshold.
+
+
+> Regarding the confidence thresholds (confidenceThresholds) in the example:
+- `"0.0001": "90.07"` indicates that the threshold is 90.07 when the false acceptance rate is 0.01%.
+- `"0.001": "80.01"` indicates that the threshold is 80.01 when the false acceptance rate is 0.1%.
+- `"0.01": "70.02"` indicates that the threshold is 70.02 when the false acceptance rate is 1%.
+
+Confidence thresholds are dynamically provided based on different images and algorithms, so do not persist these thresholds.', example='{"0.0001":"90.07","0.001":"80.01","0.01":"70.02"}'),
+    similarityScore?: float(name='SimilarityScore', description='The degree of similarity between the faces in the two images. The value range is [0, 100], with higher values indicating greater similarity.', example='98.7913'),
+  }(name='Data', description='Result of the face comparison.'),
+  message?: string(name='Message', description='Error code.', example='Error.InternalError'),
+  requestId?: string(name='RequestId', description='ID of the current request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  success?: boolean(name='Success', description='Indicates whether the response was successful.', example='true'),
 }
 
 model CompareFacesResponse = {
@@ -342,10 +477,27 @@ model CompareFacesResponse = {
 }
 
 /**
+ * @summary Invoke CompareFaces for face comparison.
+ *
+ * @description Request Method: Only supports sending requests via HTTPS POST.
+ * Interface Description: Compares two face images and outputs the similarity score of the faces in the two images as the result.
+ * - At least one of the specified comparison images should be a face photo (FacePic).
+ * - If an image contains multiple faces, the algorithm will automatically select the largest face in the image.
+ * - If one of the two comparison images does not detect a face, the system will return an error message stating \\"No face detected\\".
+ * When uploading images, you need to provide the HTTP address or base64 encoding of the image.
+ * - HTTP Address: A publicly accessible HTTP address. For example, `http://image-demo.img-cn-hangzhou.aliyuncs.com/example.jpg`.
+ * - Base64 Encoding: An image encoded in base64, formatted as `base64://<base64 string of the image>`.
+ * Image Restrictions
+ * - Does not support relative or absolute paths for local images.
+ * - Please keep the size of a single image within 2MB to avoid timeout during retrieval by the algorithm.
+ * - The body of a single request has a size limit of 8MB; please calculate the total size of all images and other information in the request to ensure it does not exceed this limit.
+ * - When using base64 to transmit images, the request method must be changed to POST; the header description such as `data:image/png;base64,` should be removed from the base64 string of the image.
+ *
  * @param request CompareFacesRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CompareFacesResponse
  */
+@context("compareFacesWithContext")
 async function compareFacesWithOptions(request: CompareFacesRequest, runtime: $RuntimeOptions): CompareFacesResponse {
   request.validate();
   var body : map[string]any = {};
@@ -379,6 +531,22 @@ async function compareFacesWithOptions(request: CompareFacesRequest, runtime: $R
 }
 
 /**
+ * @summary Invoke CompareFaces for face comparison.
+ *
+ * @description Request Method: Only supports sending requests via HTTPS POST.
+ * Interface Description: Compares two face images and outputs the similarity score of the faces in the two images as the result.
+ * - At least one of the specified comparison images should be a face photo (FacePic).
+ * - If an image contains multiple faces, the algorithm will automatically select the largest face in the image.
+ * - If one of the two comparison images does not detect a face, the system will return an error message stating \\"No face detected\\".
+ * When uploading images, you need to provide the HTTP address or base64 encoding of the image.
+ * - HTTP Address: A publicly accessible HTTP address. For example, `http://image-demo.img-cn-hangzhou.aliyuncs.com/example.jpg`.
+ * - Base64 Encoding: An image encoded in base64, formatted as `base64://<base64 string of the image>`.
+ * Image Restrictions
+ * - Does not support relative or absolute paths for local images.
+ * - Please keep the size of a single image within 2MB to avoid timeout during retrieval by the algorithm.
+ * - The body of a single request has a size limit of 8MB; please calculate the total size of all images and other information in the request to ensure it does not exceed this limit.
+ * - When using base64 to transmit images, the request method must be changed to POST; the header description such as `data:image/png;base64,` should be removed from the base64 string of the image.
+ *
  * @param request CompareFacesRequest
  * @return CompareFacesResponse
  */
@@ -455,6 +623,7 @@ model ContrastFaceVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ContrastFaceVerifyResponse
  */
+@context("contrastFaceVerifyWithContext")
 async function contrastFaceVerifyWithOptions(request: ContrastFaceVerifyRequest, runtime: $RuntimeOptions): ContrastFaceVerifyResponse {
   request.validate();
   var query = {};
@@ -545,12 +714,19 @@ async function contrastFaceVerify(request: ContrastFaceVerifyRequest): ContrastF
 
 async function contrastFaceVerifyAdvance(request: ContrastFaceVerifyAdvanceRequest, runtime: $RuntimeOptions): ContrastFaceVerifyResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -565,54 +741,55 @@ async function contrastFaceVerifyAdvance(request: ContrastFaceVerifyAdvanceReque
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Cloudauth',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var contrastFaceVerifyReq = new ContrastFaceVerifyRequest{};
   OpenApiUtil.convert(request, contrastFaceVerifyReq);
 
   if(!$isNull(request.faceContrastFileObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.faceContrastFileObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    contrastFaceVerifyReq.faceContrastFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    contrastFaceVerifyReq.faceContrastFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var contrastFaceVerifyResp = contrastFaceVerifyWithOptions(contrastFaceVerifyReq, runtime);
   return contrastFaceVerifyResp;
@@ -641,6 +818,7 @@ model CreateAuthKeyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateAuthKeyResponse
  */
+@context("createAuthKeyWithContext")
 async function createAuthKeyWithOptions(request: CreateAuthKeyRequest, runtime: $RuntimeOptions): CreateAuthKeyResponse {
   request.validate();
   var query = {};
@@ -710,6 +888,7 @@ model CreateVerifySettingResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateVerifySettingResponse
  */
+@context("createVerifySettingWithContext")
 async function createVerifySettingWithOptions(request: CreateVerifySettingRequest, runtime: $RuntimeOptions): CreateVerifySettingResponse {
   request.validate();
   var query = {};
@@ -758,33 +937,59 @@ async function createVerifySetting(request: CreateVerifySettingRequest): CreateV
 }
 
 model CredentialProductVerifyV2Request {
-  credName?: string(name='CredName', description='This parameter is required.', example='0501'),
-  credType?: string(name='CredType', description='This parameter is required.', example='05'),
-  imageFile?: string(name='ImageFile', example='https://aliyundoc.com/picture*****.jpeg'),
-  imageUrl?: string(name='ImageUrl', example='https://aliyundoc.com/picture*****.jpeg'),
-  merchantId?: string(name='MerchantId'),
-  productCode?: string(name='ProductCode', description='This parameter is required.', example='ANTI_FAKE_CHECK'),
+  credName?: string(name='CredName', description='Credential name: Only supports value 0501 (product image).
+
+This parameter is required.', example='0501'),
+  credType?: string(name='CredType', description='Credential type: Only supports value 05 (product image).
+
+This parameter is required.', example='05'),
+  imageFile?: string(name='ImageFile', description='InputStream object of the image.', example='https://aliyundoc.com/picture*****.jpeg'),
+  imageUrl?: string(name='ImageUrl', description='URL of the image.', example='https://aliyundoc.com/picture*****.jpeg'),
+  merchantId?: string(name='MerchantId', description='Merchant ID.', example='无。'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+Only supports value ANTI_FAKE_CHECK.
+
+This parameter is required.', example='ANTI_FAKE_CHECK'),
 }
 
 model CredentialProductVerifyV2AdvanceRequest {
-  credName?: string(name='CredName', description='This parameter is required.', example='0501'),
-  credType?: string(name='CredType', description='This parameter is required.', example='05'),
-  imageFileObject?: readable(name='ImageFile', example='https://aliyundoc.com/picture*****.jpeg'),
-  imageUrl?: string(name='ImageUrl', example='https://aliyundoc.com/picture*****.jpeg'),
-  merchantId?: string(name='MerchantId'),
-  productCode?: string(name='ProductCode', description='This parameter is required.', example='ANTI_FAKE_CHECK'),
+  credName?: string(name='CredName', description='Credential name: Only supports value 0501 (product image).
+
+This parameter is required.', example='0501'),
+  credType?: string(name='CredType', description='Credential type: Only supports value 05 (product image).
+
+This parameter is required.', example='05'),
+  imageFileObject?: readable(name='ImageFile', description='InputStream object of the image.', example='https://aliyundoc.com/picture*****.jpeg'),
+  imageUrl?: string(name='ImageUrl', description='URL of the image.', example='https://aliyundoc.com/picture*****.jpeg'),
+  merchantId?: string(name='MerchantId', description='Merchant ID.', example='无。'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+Only supports value ANTI_FAKE_CHECK.
+
+This parameter is required.', example='ANTI_FAKE_CHECK'),
 }
 
 model CredentialProductVerifyV2ResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
   resultObject?: {
-    materialInfo?: string(name='MaterialInfo'),
-    result?: string(name='Result', example='1'),
-    riskScore?: map[string]string(name='RiskScore'),
-    riskTag?: string(name='RiskTag', example='PS,LOW_QUALITY_PRODUCT'),
-  }(name='ResultObject'),
+    materialInfo?: string(name='MaterialInfo', description='Additional information in JSON format.', example='{
+ "sameBackgroundDetail": {
+ // 相似背景对于的原始图请求RequestId
+ "originalRequestId": "130A2C10-B9EE-4D84-88E3-5384FF03****";
+ // 相似背景对于的原始图请求商户ID 
+ "originalMerchantId": "xxxxxxxx" 
+ }
+}'),
+    result?: string(name='Result', description='- 0: Low risk
+- 1: High risk
+- 2: Suspicious', example='1'),
+    riskScore?: map[string]string(name='RiskScore', description='Map of risk scores.'),
+    riskTag?: string(name='RiskTag', description='Risk tags, separated by commas, including:
+- PS: Image has been photoshopped
+- LOW_QUALITY_PRODUCT: Low quality (low clarity)
+- SAME_BACKGROUND: Similar background', example='PS,LOW_QUALITY_PRODUCT'),
+  }(name='ResultObject', description='Result object.'),
 }
 
 model CredentialProductVerifyV2Response = {
@@ -794,12 +999,15 @@ model CredentialProductVerifyV2Response = {
 }
 
 /**
- * @summary 商品凭证核验
+ * @summary Product Credential Verification
+ *
+ * @description Upload e-commerce product images to perform tampering, quality (clarity), and similar image detection, returning risk labels and scores.
  *
  * @param request CredentialProductVerifyV2Request
  * @param runtime runtime options for this request RuntimeOptions
  * @return CredentialProductVerifyV2Response
  */
+@context("credentialProductVerifyV2WithContext")
 async function credentialProductVerifyV2WithOptions(request: CredentialProductVerifyV2Request, runtime: $RuntimeOptions): CredentialProductVerifyV2Response {
   request.validate();
   var query = {};
@@ -841,7 +1049,9 @@ async function credentialProductVerifyV2WithOptions(request: CredentialProductVe
 }
 
 /**
- * @summary 商品凭证核验
+ * @summary Product Credential Verification
+ *
+ * @description Upload e-commerce product images to perform tampering, quality (clarity), and similar image detection, returning risk labels and scores.
  *
  * @param request CredentialProductVerifyV2Request
  * @return CredentialProductVerifyV2Response
@@ -853,12 +1063,19 @@ async function credentialProductVerifyV2(request: CredentialProductVerifyV2Reque
 
 async function credentialProductVerifyV2Advance(request: CredentialProductVerifyV2AdvanceRequest, runtime: $RuntimeOptions): CredentialProductVerifyV2Response {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -873,54 +1090,55 @@ async function credentialProductVerifyV2Advance(request: CredentialProductVerify
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Cloudauth',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var credentialProductVerifyV2Req = new CredentialProductVerifyV2Request{};
   OpenApiUtil.convert(request, credentialProductVerifyV2Req);
 
   if(!$isNull(request.imageFileObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.imageFileObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    credentialProductVerifyV2Req.imageFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    credentialProductVerifyV2Req.imageFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var credentialProductVerifyV2Resp = credentialProductVerifyV2WithOptions(credentialProductVerifyV2Req, runtime);
   return credentialProductVerifyV2Resp;
@@ -997,6 +1215,7 @@ model CredentialVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CredentialVerifyResponse
  */
+@context("credentialVerifyWithContext")
 async function credentialVerifyWithOptions(tmpReq: CredentialVerifyRequest, runtime: $RuntimeOptions): CredentialVerifyResponse {
   tmpReq.validate();
   var request = new CredentialVerifyShrinkRequest{};
@@ -1078,86 +1297,262 @@ async function credentialVerify(request: CredentialVerifyRequest): CredentialVer
 }
 
 model CredentialVerifyV2Request {
-  certNum?: string(name='CertNum', example='4601*****'),
-  credName?: string(name='CredName', example='0104'),
-  credType?: string(name='CredType', example='01'),
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  imageContext?: string(name='ImageContext'),
-  imageFile?: string(name='ImageFile'),
-  imageUrl?: string(name='ImageUrl', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
-  isCheck?: string(name='IsCheck', example='0'),
-  isOcr?: string(name='IsOcr', example='0'),
+  certNum?: string(name='CertNum', description='Relevant certificate number.', example='4601*****'),
+  credName?: string(name='CredName', description='- 01: Personal ID cards
+  - 0101: ID card
+  - 0102: Bank card
+  - 0104: Teacher qualification certificate
+  - 0107: Student ID card
+- 02: Business scenario
+  - 0201: Storefront photo
+  - 0202: Counter photo
+  - 0203: Scene photo
+- 03: Corporate qualifications
+  - 0301: Business license', example='0104'),
+  credType?: string(name='CredType', description='Credential type:
+
+- 01: Personal ID cards
+- 02: Business scenario
+- 03: Corporate qualifications', example='01'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.', example='4****************1'),
+  imageContext?: string(name='ImageContext', description='Base64 encoded image, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='base64'),
+  imageFile?: string(name='ImageFile', description='Image input stream, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='none'),
+  imageUrl?: string(name='ImageUrl', description='Image URL, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
+  isCheck?: string(name='IsCheck', description='Whether to enable authoritative authentication
+
+- ****0****: No
+- **1**: Yes', example='0'),
+  isOcr?: string(name='IsOcr', description='Whether to use OCR', example='0'),
   merchantDetail?: [ 
     {
-      key?: string(name='Key', example='MerchantName'),
-      value?: string(name='Value', example='***'),
+      key?: string(name='Key', description='Keyword key.', example='MerchantName'),
+      value?: string(name='Value', description='Keyword value.', example='***'),
     }
-  ](name='MerchantDetail'),
-  merchantId?: string(name='MerchantId'),
-  productCode?: string(name='ProductCode', example='ANTI_FAKE_CHECK'),
-  prompt?: string(name='Prompt'),
-  promptModel?: string(name='PromptModel', example='DEFAULT'),
-  userName?: string(name='UserName'),
+  ](name='MerchantDetail', description='Merchant details:
+
+MerchantName: Merchant name
+
+BusinessType: Industry information
+
+BusinessContent: Business content
+
+This field is required when PromptModel is set to DEFAULT.'),
+  merchantId?: string(name='MerchantId', description='Merchant ID. This field is required when ****CredName**** is set to **02**.', example='none'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+
+- ANTI_FAKE_CHECK: Image anti-forgery check
+
+- ANTI_FAKE_VL: Image anti-forgery check and semantic understanding
+
+- IMAGE_VL_COG: Image semantic understanding
+
+Default value: ANTI_FAKE_CHECK
+
+When CredType is set to 02, ProductCode can only be ANTI_FAKE_VL or IMAGE_VL_COG.', example='ANTI_FAKE_CHECK'),
+  prompt?: string(name='Prompt', description='Customer-defined prompt content for image semantic understanding.
+
+This field is required when PromptModel is set to CUSTOM.', example='none'),
+  promptModel?: string(name='PromptModel', description='Prompt acquisition method for image semantic understanding:
+
+- DEFAULT: System default
+
+- CUSTOM: Customer-defined
+
+Note: When ProductCode is set to ANTI_FAKE_VL or IMAGE_VL_COG, this parameter must be provided.', example='DEFAULT'),
+  userName?: string(name='UserName', description='Name.', example='张三'),
 }
 
 model CredentialVerifyV2AdvanceRequest {
-  certNum?: string(name='CertNum', example='4601*****'),
-  credName?: string(name='CredName', example='0104'),
-  credType?: string(name='CredType', example='01'),
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  imageContext?: string(name='ImageContext'),
-  imageFileObject?: readable(name='ImageFile'),
-  imageUrl?: string(name='ImageUrl', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
-  isCheck?: string(name='IsCheck', example='0'),
-  isOcr?: string(name='IsOcr', example='0'),
+  certNum?: string(name='CertNum', description='Relevant certificate number.', example='4601*****'),
+  credName?: string(name='CredName', description='- 01: Personal ID cards
+  - 0101: ID card
+  - 0102: Bank card
+  - 0104: Teacher qualification certificate
+  - 0107: Student ID card
+- 02: Business scenario
+  - 0201: Storefront photo
+  - 0202: Counter photo
+  - 0203: Scene photo
+- 03: Corporate qualifications
+  - 0301: Business license', example='0104'),
+  credType?: string(name='CredType', description='Credential type:
+
+- 01: Personal ID cards
+- 02: Business scenario
+- 03: Corporate qualifications', example='01'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.', example='4****************1'),
+  imageContext?: string(name='ImageContext', description='Base64 encoded image, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='base64'),
+  imageFileObject?: readable(name='ImageFile', description='Image input stream, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='none'),
+  imageUrl?: string(name='ImageUrl', description='Image URL, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
+  isCheck?: string(name='IsCheck', description='Whether to enable authoritative authentication
+
+- ****0****: No
+- **1**: Yes', example='0'),
+  isOcr?: string(name='IsOcr', description='Whether to use OCR', example='0'),
   merchantDetail?: [ 
     {
-      key?: string(name='Key', example='MerchantName'),
-      value?: string(name='Value', example='***'),
+      key?: string(name='Key', description='Keyword key.', example='MerchantName'),
+      value?: string(name='Value', description='Keyword value.', example='***'),
     }
-  ](name='MerchantDetail'),
-  merchantId?: string(name='MerchantId'),
-  productCode?: string(name='ProductCode', example='ANTI_FAKE_CHECK'),
-  prompt?: string(name='Prompt'),
-  promptModel?: string(name='PromptModel', example='DEFAULT'),
-  userName?: string(name='UserName'),
+  ](name='MerchantDetail', description='Merchant details:
+
+MerchantName: Merchant name
+
+BusinessType: Industry information
+
+BusinessContent: Business content
+
+This field is required when PromptModel is set to DEFAULT.'),
+  merchantId?: string(name='MerchantId', description='Merchant ID. This field is required when ****CredName**** is set to **02**.', example='none'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+
+- ANTI_FAKE_CHECK: Image anti-forgery check
+
+- ANTI_FAKE_VL: Image anti-forgery check and semantic understanding
+
+- IMAGE_VL_COG: Image semantic understanding
+
+Default value: ANTI_FAKE_CHECK
+
+When CredType is set to 02, ProductCode can only be ANTI_FAKE_VL or IMAGE_VL_COG.', example='ANTI_FAKE_CHECK'),
+  prompt?: string(name='Prompt', description='Customer-defined prompt content for image semantic understanding.
+
+This field is required when PromptModel is set to CUSTOM.', example='none'),
+  promptModel?: string(name='PromptModel', description='Prompt acquisition method for image semantic understanding:
+
+- DEFAULT: System default
+
+- CUSTOM: Customer-defined
+
+Note: When ProductCode is set to ANTI_FAKE_VL or IMAGE_VL_COG, this parameter must be provided.', example='DEFAULT'),
+  userName?: string(name='UserName', description='Name.', example='张三'),
 }
 
 model CredentialVerifyV2ShrinkRequest {
-  certNum?: string(name='CertNum', example='4601*****'),
-  credName?: string(name='CredName', example='0104'),
-  credType?: string(name='CredType', example='01'),
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  imageContext?: string(name='ImageContext'),
-  imageFile?: string(name='ImageFile'),
-  imageUrl?: string(name='ImageUrl', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
-  isCheck?: string(name='IsCheck', example='0'),
-  isOcr?: string(name='IsOcr', example='0'),
-  merchantDetailShrink?: string(name='MerchantDetail'),
-  merchantId?: string(name='MerchantId'),
-  productCode?: string(name='ProductCode', example='ANTI_FAKE_CHECK'),
-  prompt?: string(name='Prompt'),
-  promptModel?: string(name='PromptModel', example='DEFAULT'),
-  userName?: string(name='UserName'),
+  certNum?: string(name='CertNum', description='Relevant certificate number.', example='4601*****'),
+  credName?: string(name='CredName', description='- 01: Personal ID cards
+  - 0101: ID card
+  - 0102: Bank card
+  - 0104: Teacher qualification certificate
+  - 0107: Student ID card
+- 02: Business scenario
+  - 0201: Storefront photo
+  - 0202: Counter photo
+  - 0203: Scene photo
+- 03: Corporate qualifications
+  - 0301: Business license', example='0104'),
+  credType?: string(name='CredType', description='Credential type:
+
+- 01: Personal ID cards
+- 02: Business scenario
+- 03: Corporate qualifications', example='01'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.', example='4****************1'),
+  imageContext?: string(name='ImageContext', description='Base64 encoded image, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='base64'),
+  imageFile?: string(name='ImageFile', description='Image input stream, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='none'),
+  imageUrl?: string(name='ImageUrl', description='Image URL, choose one from `imageUrl`, `imageFile`, or `imageContext`.', example='http://marry.momocdn.com/avatar/3B/B6/3BB6527E-7467-926E-1048-B43614F20CC420230803_L.jpg'),
+  isCheck?: string(name='IsCheck', description='Whether to enable authoritative authentication
+
+- ****0****: No
+- **1**: Yes', example='0'),
+  isOcr?: string(name='IsOcr', description='Whether to use OCR', example='0'),
+  merchantDetailShrink?: string(name='MerchantDetail', description='Merchant details:
+
+MerchantName: Merchant name
+
+BusinessType: Industry information
+
+BusinessContent: Business content
+
+This field is required when PromptModel is set to DEFAULT.'),
+  merchantId?: string(name='MerchantId', description='Merchant ID. This field is required when ****CredName**** is set to **02**.', example='none'),
+  productCode?: string(name='ProductCode', description='Invocation mode:
+
+- ANTI_FAKE_CHECK: Image anti-forgery check
+
+- ANTI_FAKE_VL: Image anti-forgery check and semantic understanding
+
+- IMAGE_VL_COG: Image semantic understanding
+
+Default value: ANTI_FAKE_CHECK
+
+When CredType is set to 02, ProductCode can only be ANTI_FAKE_VL or IMAGE_VL_COG.', example='ANTI_FAKE_CHECK'),
+  prompt?: string(name='Prompt', description='Customer-defined prompt content for image semantic understanding.
+
+This field is required when PromptModel is set to CUSTOM.', example='none'),
+  promptModel?: string(name='PromptModel', description='Prompt acquisition method for image semantic understanding:
+
+- DEFAULT: System default
+
+- CUSTOM: Customer-defined
+
+Note: When ProductCode is set to ANTI_FAKE_VL or IMAGE_VL_COG, this parameter must be provided.', example='DEFAULT'),
+  userName?: string(name='UserName', description='Name.', example='张三'),
 }
 
 model CredentialVerifyV2ResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='04F0F334-1335-436C-A1D7-6C044FE73368'),
   resultObject?: {
-    materialInfo?: string(name='MaterialInfo'),
-    ocrInfo?: string(name='OcrInfo'),
-    result?: string(name='Result', example='1'),
-    riskScore?: map[string]string(name='RiskScore'),
-    riskTag?: string(name='RiskTag', example='PS,SCREEN_PHOTO'),
-    verifyDetail?: string(name='VerifyDetail', example='**'),
-    verifyResult?: string(name='VerifyResult', example='*'),
+    materialInfo?: string(name='MaterialInfo', description='Additional information in JSON format.', example='{
+
+"sameBackgroundDetail": {
+
+// 相似背景对于的原始图请求RequestId
+
+"originalRequestId": "130A2C10-B9EE-4D84-88E3-5384FF03****";
+
+// 相似背景对于的原始图请求商户ID
+
+"originalMerchantId": "xxxxxxxx"
+
+}
+
+}'),
+    ocrInfo?: string(name='OcrInfo', description='OCR recognition result.', example='{
+   "certNo":"20216*********",
+  "certType":"小学教师资格",
+   "gender":"男",
+   "subject":"美术",
+    "name":"李**",
+    "ext_info":"{}",
+    "birthDate":"1998-07-28",
+    "idNo":"620************",
+    "certOrg":""
+}'),
+    result?: string(name='Result', description='Risk result
+
+- 0: Low risk
+- 1: High risk
+- 2: Suspicious', example='1'),
+    riskScore?: map[string]string(name='RiskScore', description='Risk score map.'),
+    riskTag?: string(name='RiskTag', description='Risk tags, separated by commas (,), including:
+
+- PS: Image manipulation.
+- SCREEN_PHOTO: Screen recapture.
+- SCREENSHOT: Screenshot.
+- WATERMARK: Watermark.
+- SAME_BACKGROUND: Similar background.
+- ORIGINAL_PHOTO: Not the original image', example='PS,SCREEN_PHOTO'),
+    verifyDetail?: string(name='VerifyDetail', description='Authority verification details.', example='**'),
+    verifyResult?: string(name='VerifyResult', description='Authority verification result', example='*'),
     vlResult?: {
-      success?: boolean(name='Success', example='true'),
-      vlContent?: string(name='VlContent'),
-    }(name='VlResult'),
-  }(name='ResultObject'),
+      success?: boolean(name='Success', description='Qwen interpretation success indicator
+
+true: Success
+
+false: Failure', example='true'),
+      vlContent?: string(name='VlContent', description='Image understanding result:
+
+- When PromptModel is DEFAULT, the output format refers to the example on the right.
+
+- When PromptModel is CUSTOM, the output format follows the agreed format of the Prompt.', example='{
+ "CHK_DOOR_PHOTO":1, -- 是否门头照 1：是 0：否
+ "CHK_INTERIOR_PHOTO":0, -- 是否内景照 1：是 0：否
+ "CHK_COUNTER_PHOTO":0 -- 是否柜台照 1：是 0：否
+}'),
+    }(name='VlResult', description='Qwen interpretation.'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model CredentialVerifyV2Response = {
@@ -1167,12 +1562,15 @@ model CredentialVerifyV2Response = {
 }
 
 /**
- * @summary 凭证核验
+ * @summary Credential Verification
+ *
+ * @description Input credential image information, perform image tampering and forgery detection, and image semantic understanding. Return the risk detection results.
  *
  * @param tmpReq CredentialVerifyV2Request
  * @param runtime runtime options for this request RuntimeOptions
  * @return CredentialVerifyV2Response
  */
+@context("credentialVerifyV2WithContext")
 async function credentialVerifyV2WithOptions(tmpReq: CredentialVerifyV2Request, runtime: $RuntimeOptions): CredentialVerifyV2Response {
   tmpReq.validate();
   var request = new CredentialVerifyV2ShrinkRequest{};
@@ -1246,7 +1644,9 @@ async function credentialVerifyV2WithOptions(tmpReq: CredentialVerifyV2Request, 
 }
 
 /**
- * @summary 凭证核验
+ * @summary Credential Verification
+ *
+ * @description Input credential image information, perform image tampering and forgery detection, and image semantic understanding. Return the risk detection results.
  *
  * @param request CredentialVerifyV2Request
  * @return CredentialVerifyV2Response
@@ -1258,12 +1658,19 @@ async function credentialVerifyV2(request: CredentialVerifyV2Request): Credentia
 
 async function credentialVerifyV2Advance(request: CredentialVerifyV2AdvanceRequest, runtime: $RuntimeOptions): CredentialVerifyV2Response {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -1278,75 +1685,89 @@ async function credentialVerifyV2Advance(request: CredentialVerifyV2AdvanceReque
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Cloudauth',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var credentialVerifyV2Req = new CredentialVerifyV2Request{};
   OpenApiUtil.convert(request, credentialVerifyV2Req);
 
   if(!$isNull(request.imageFileObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.imageFileObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    credentialVerifyV2Req.imageFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    credentialVerifyV2Req.imageFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var credentialVerifyV2Resp = credentialVerifyV2WithOptions(credentialVerifyV2Req, runtime);
   return credentialVerifyV2Resp;
 }
 
 model DeepfakeDetectRequest {
-  faceBase64?: string(name='FaceBase64', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
-  faceInputType?: string(name='FaceInputType', example='IMAGE'),
-  faceUrl?: string(name='FaceUrl', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
-  outerOrderNo?: string(name='OuterOrderNo', example='e0c34a77f5ac40a5aa5e6ed20c******'),
+  faceBase64?: string(name='FaceBase64', description='Enter the Base64 encoded string of the face image.
+> Either FaceUrl or FaceBase64 must be provided.', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
+  faceInputType?: string(name='FaceInputType', description='Input **IMAGE** to indicate an image type.', example='IMAGE'),
+  faceUrl?: string(name='FaceUrl', description='Enter the URL of the face image.
+> Either FaceUrl or FaceBase64 must be provided.', example='https://cn-shanghai-aliyun-cloudauth-xxxxxx.oss-cn-shanghai.aliyuncs.com/verify/xxxxx/xxxxx.jpeg'),
+  outerOrderNo?: string(name='OuterOrderNo', description='A unique identifier for the merchant\\\\"s request, consisting of a 32-character alphanumeric combination. The first few characters can be a custom abbreviation defined by the merchant, the middle part may include a timestamp, and the latter part can use a random or incrementing sequence.', example='e0c34a77f5ac40a5aa5e6ed20c******'),
 }
 
 model DeepfakeDetectResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
+  code?: string(name='Code', description='Return code: 200 indicates success, others indicate failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
   resultObject?: {
-    result?: string(name='Result', example='1'),
-    riskScore?: map[string]string(name='RiskScore'),
-    riskTag?: string(name='RiskTag', example='SuspectDeepForgery,SuspectWarterMark'),
-  }(name='ResultObject'),
+    result?: string(name='Result', description='Risk result:
+
+- **0**: Low risk
+- **1**: High risk
+- **2**: Suspicious', example='1'),
+    riskScore?: map[string]string(name='RiskScore', description='Risk score map.'),
+    riskTag?: string(name='RiskTag', description='Risk tags. Multiple tags are separated by commas (,). Includes:
+
+- Suspected deep forgery  SuspectDeepForgery
+- Suspected synthetic attack  SuspectPSFace
+- Suspected watermark  SuspectWarterMark
+- Suspected black industry attack  SuspectTemple
+- Suspected generated face  SuspectAIGC Face
+- Suspected rephotographed face  SuspectRemake', example='SuspectDeepForgery,SuspectWarterMark'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model DeepfakeDetectResponse = {
@@ -1356,12 +1777,18 @@ model DeepfakeDetectResponse = {
 }
 
 /**
- * @summary 人脸凭证核验服务
+ * @summary Face Credential Verification Service
+ *
+ * @description > The Face Deepfake Detection API is currently in the free public beta stage, which will end on August 30, 2024, at 23:59:59. During the public beta, the QPS (Queries Per Second) cannot exceed 3 times/second.
+ * - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request DeepfakeDetectRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeepfakeDetectResponse
  */
+@context("deepfakeDetectWithContext")
 async function deepfakeDetectWithOptions(request: DeepfakeDetectRequest, runtime: $RuntimeOptions): DeepfakeDetectResponse {
   request.validate();
   var query = {};
@@ -1397,7 +1824,12 @@ async function deepfakeDetectWithOptions(request: DeepfakeDetectRequest, runtime
 }
 
 /**
- * @summary 人脸凭证核验服务
+ * @summary Face Credential Verification Service
+ *
+ * @description > The Face Deepfake Detection API is currently in the free public beta stage, which will end on August 30, 2024, at 23:59:59. During the public beta, the QPS (Queries Per Second) cannot exceed 3 times/second.
+ * - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request DeepfakeDetectRequest
  * @return DeepfakeDetectResponse
@@ -1408,19 +1840,28 @@ async function deepfakeDetect(request: DeepfakeDetectRequest): DeepfakeDetectRes
 }
 
 model DeleteFaceVerifyResultRequest {
-  certifyId?: string(name='CertifyId', example='shae18209d29ce4e8ba252caae98ab15'),
-  deleteAfterQuery?: string(name='DeleteAfterQuery', example='Y'),
+  certifyId?: string(name='CertifyId', description='Unique identifier for real-person authentication.', example='shae18209d29ce4e8ba252caae98ab15'),
+  deleteAfterQuery?: string(name='DeleteAfterQuery', description='Whether deletion depends on having already obtained relevant data from the corresponding authentication process.
+
+- Y: Required. To successfully delete the related data, you must have obtained the processing result through the DescribeFaceVerify interface.
+- N: Not required (default). For pure server-side API integration, you can directly pass N.', example='Y'),
 }
 
 model DeleteFaceVerifyResultResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
   resultObject?: {
-    certifyId?: string(name='CertifyId', example='sha58aeae7ea2f5ed069530f58df4e6d'),
-    deleteResult?: string(name='DeleteResult', example='N'),
-    failReason?: string(name='FailReason', example='NOT_DELETE_REPEATEDLY'),
-  }(name='ResultObject'),
+    certifyId?: string(name='CertifyId', description='Unique identifier for real-person authentication.', example='sha58aeae7ea2f5ed069530f58df4e6d'),
+    deleteResult?: string(name='DeleteResult', description='Deletion result. Possible values are as follows:
+
+- Y: Deletion successful.
+- N: Deletion failed.', example='N'),
+    failReason?: string(name='FailReason', description='Reason for deletion failure
+
+- NOT_DELETE_REPEATEDLY: Cannot be deleted repeatedly
+- NEED_QUERY_VERIFY_RESULT: Need to query the verification result first, then delete', example='NOT_DELETE_REPEATEDLY'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model DeleteFaceVerifyResultResponse = {
@@ -1430,12 +1871,15 @@ model DeleteFaceVerifyResultResponse = {
 }
 
 /**
- * @summary 金融级服务敏感数据删除接口
+ * @summary Financial Level Sensitive Data Deletion Interface
+ *
+ * @description Deletes all personal information fields in the request, including name, ID number, phone number, IP, images, videos, and device information, etc.
  *
  * @param request DeleteFaceVerifyResultRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteFaceVerifyResultResponse
  */
+@context("deleteFaceVerifyResultWithContext")
 async function deleteFaceVerifyResultWithOptions(request: DeleteFaceVerifyResultRequest, runtime: $RuntimeOptions): DeleteFaceVerifyResultResponse {
   request.validate();
   var query = {};
@@ -1463,7 +1907,9 @@ async function deleteFaceVerifyResultWithOptions(request: DeleteFaceVerifyResult
 }
 
 /**
- * @summary 金融级服务敏感数据删除接口
+ * @summary Financial Level Sensitive Data Deletion Interface
+ *
+ * @description Deletes all personal information fields in the request, including name, ID number, phone number, IP, images, videos, and device information, etc.
  *
  * @param request DeleteFaceVerifyResultRequest
  * @return DeleteFaceVerifyResultResponse
@@ -1506,6 +1952,7 @@ model DescribeCardVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeCardVerifyResponse
  */
+@context("describeCardVerifyWithContext")
 async function describeCardVerifyWithOptions(request: DescribeCardVerifyRequest, runtime: $RuntimeOptions): DescribeCardVerifyResponse {
   request.validate();
   var query = {};
@@ -1579,6 +2026,7 @@ model DescribeDeviceInfoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeDeviceInfoResponse
  */
+@context("describeDeviceInfoWithContext")
 async function describeDeviceInfoWithOptions(request: DescribeDeviceInfoRequest, runtime: $RuntimeOptions): DescribeDeviceInfoResponse {
   request.validate();
   var query = {};
@@ -1669,6 +2117,7 @@ model DescribeFaceGuardRiskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeFaceGuardRiskResponse
  */
+@context("describeFaceGuardRiskWithContext")
 async function describeFaceGuardRiskWithOptions(request: DescribeFaceGuardRiskRequest, runtime: $RuntimeOptions): DescribeFaceGuardRiskResponse {
   request.validate();
   var query = {};
@@ -1745,6 +2194,7 @@ model DescribeFaceVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeFaceVerifyResponse
  */
+@context("describeFaceVerifyWithContext")
 async function describeFaceVerifyWithOptions(request: DescribeFaceVerifyRequest, runtime: $RuntimeOptions): DescribeFaceVerifyResponse {
   request.validate();
   var query = {};
@@ -1874,6 +2324,7 @@ model DescribePageFaceVerifyDataResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribePageFaceVerifyDataResponse
  */
+@context("describePageFaceVerifyDataWithContext")
 async function describePageFaceVerifyDataWithOptions(request: DescribePageFaceVerifyDataRequest, runtime: $RuntimeOptions): DescribePageFaceVerifyDataResponse {
   request.validate();
   var query = {};
@@ -1962,6 +2413,7 @@ model DescribeSmartStatisticsPageListResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSmartStatisticsPageListResponse
  */
+@context("describeSmartStatisticsPageListWithContext")
 async function describeSmartStatisticsPageListWithOptions(request: DescribeSmartStatisticsPageListRequest, runtime: $RuntimeOptions): DescribeSmartStatisticsPageListResponse {
   request.validate();
   var query = {};
@@ -2054,6 +2506,7 @@ model DescribeVerifyResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeVerifyResultResponse
  */
+@context("describeVerifyResultWithContext")
 async function describeVerifyResultWithOptions(request: DescribeVerifyResultRequest, runtime: $RuntimeOptions): DescribeVerifyResultResponse {
   request.validate();
   var query = {};
@@ -2109,6 +2562,7 @@ model DescribeVerifySDKResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeVerifySDKResponse
  */
+@context("describeVerifySDKWithContext")
 async function describeVerifySDKWithOptions(request: DescribeVerifySDKRequest, runtime: $RuntimeOptions): DescribeVerifySDKResponse {
   request.validate();
   var query = {};
@@ -2185,6 +2639,7 @@ model DescribeVerifyTokenResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeVerifyTokenResponse
  */
+@context("describeVerifyTokenWithContext")
 async function describeVerifyTokenWithOptions(request: DescribeVerifyTokenRequest, runtime: $RuntimeOptions): DescribeVerifyTokenResponse {
   request.validate();
   var query = {};
@@ -2315,6 +2770,7 @@ model DetectFaceAttributesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectFaceAttributesResponse
  */
+@context("detectFaceAttributesWithContext")
 async function detectFaceAttributesWithOptions(request: DetectFaceAttributesRequest, runtime: $RuntimeOptions): DetectFaceAttributesResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2351,20 +2807,33 @@ async function detectFaceAttributes(request: DetectFaceAttributesRequest): Detec
 }
 
 model Id2MetaPeriodVerifyRequest {
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
-  validityEndDate?: string(name='ValidityEndDate', example='20301001'),
-  validityStartDate?: string(name='ValidityStartDate', example='20201001'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+- When `paramType` is `normal`: Enter the plain text of the ID number.
+- When `paramType` is `md5`:
+The first 6 digits (plain text) + date of birth (encrypted) + last 4 digits (plain text).', example='4****************1'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: MD5 encrypted.', example='normal'),
+  userName?: string(name='UserName', description='Name.
+
+- When `paramType` = `normal`: Enter the plain text of the name.
+- When `paramType` = `md5`: The first character of the name MD5 encrypted (32 lowercase MD5) + the rest of the name in plain text.', example='张*'),
+  validityEndDate?: string(name='ValidityEndDate', description='End date of ID validity, format: YYYYMMDD', example='20301001'),
+  validityStartDate?: string(name='ValidityStartDate', description='Start date of ID validity, format: YYYYMMDD', example='20201001'),
 }
 
 model Id2MetaPeriodVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification consistent.
+- **2**: Verification inconsistent.
+- **3**: No record found.', example='1'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model Id2MetaPeriodVerifyResponse = {
@@ -2374,12 +2843,13 @@ model Id2MetaPeriodVerifyResponse = {
 }
 
 /**
- * @summary 二要素有效期核验接口
+ * @summary Two-Factor Validity Verification API
  *
  * @param request Id2MetaPeriodVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Id2MetaPeriodVerifyResponse
  */
+@context("id2MetaPeriodVerifyWithContext")
 async function id2MetaPeriodVerifyWithOptions(request: Id2MetaPeriodVerifyRequest, runtime: $RuntimeOptions): Id2MetaPeriodVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2416,7 +2886,7 @@ async function id2MetaPeriodVerifyWithOptions(request: Id2MetaPeriodVerifyReques
 }
 
 /**
- * @summary 二要素有效期核验接口
+ * @summary Two-Factor Validity Verification API
  *
  * @param request Id2MetaPeriodVerifyRequest
  * @return Id2MetaPeriodVerifyResponse
@@ -2427,18 +2897,31 @@ async function id2MetaPeriodVerify(request: Id2MetaPeriodVerifyRequest): Id2Meta
 }
 
 model Id2MetaStandardVerifyRequest {
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+- When `paramType` is normal: enter the plain text of the ID number.
+- When `paramType` is md5:
+The first 6 digits (plain text) + date of birth (encrypted) + last 4 digits (plain text).', example='4****************1'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: unencrypted.
+- md5: md5 encrypted.', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When `paramType` is normal: enter the plain text of the name.
+- When `paramType` is md5: the first character of the name (encrypted) + the rest of the name (plain text).', example='张*'),
 }
 
 model Id2MetaStandardVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='D6163397-15C5-419C-9ACC-B7C83E0B4C10'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='D6163397-15C5-419C-9ACC-B7C83E0B4C10'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: verification matches.
+- **2**: verification does not match.
+- **3**: no record found.', example='1'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model Id2MetaStandardVerifyResponse = {
@@ -2448,12 +2931,13 @@ model Id2MetaStandardVerifyResponse = {
 }
 
 /**
- * @summary 身份二要素标准版
+ * @summary Identity Two-Factor Standard
  *
  * @param request Id2MetaStandardVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Id2MetaStandardVerifyResponse
  */
+@context("id2MetaStandardVerifyWithContext")
 async function id2MetaStandardVerifyWithOptions(request: Id2MetaStandardVerifyRequest, runtime: $RuntimeOptions): Id2MetaStandardVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2484,7 +2968,7 @@ async function id2MetaStandardVerifyWithOptions(request: Id2MetaStandardVerifyRe
 }
 
 /**
- * @summary 身份二要素标准版
+ * @summary Identity Two-Factor Standard
  *
  * @param request Id2MetaStandardVerifyRequest
  * @return Id2MetaStandardVerifyResponse
@@ -2495,18 +2979,44 @@ async function id2MetaStandardVerify(request: Id2MetaStandardVerifyRequest): Id2
 }
 
 model Id2MetaVerifyRequest {
-  identifyNum?: string(name='IdentifyNum'),
-  paramType?: string(name='ParamType'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+Note
+Only supports the ID numbers of second-generation resident IDs and Hong Kong, Macao, and Taiwan residence permits.
+
+- When paramType is normal: enter the plaintext ID number.
+
+- When paramType is md5: first 6 digits of the ID number (plaintext) + date of birth (ciphertext) + last 4 digits of the ID number (plaintext).', example='明文：429001********8211
+
+密文：
+
+42900132fa7bcd874161bea8ec8fd98f390ec98211'),
+  paramType?: string(name='ParamType', description='Encryption method:
+
+- normal: plaintext, no encryption
+
+- md5: MD5 encryption', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When paramType is normal: enter the plaintext name.
+
+- When paramType is md5: first character of the name in ciphertext + rest of the name in plaintext.', example='明文：张三
+
+密文：
+
+6499fc7409049355527ef6a2ba5706b8三​'),
 }
 
 model Id2MetaVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='D6163397-15C5-419C-9ACC-B7C83E0B4C10'),
+  code?: string(name='Code', description='Return code, **200** indicates successful API response.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='D6163397-15C5-419C-9ACC-B7C83E0B4C10'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification consistent.
+- **2**: Verification inconsistent.
+- **3**: No record found.', example='1'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model Id2MetaVerifyResponse = {
@@ -2516,12 +3026,17 @@ model Id2MetaVerifyResponse = {
 }
 
 /**
- * @summary 身份二要素接口
+ * @summary Identity Two-Factor Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Id2MetaVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Id2MetaVerifyResponse
  */
+@context("id2MetaVerifyWithContext")
 async function id2MetaVerifyWithOptions(request: Id2MetaVerifyRequest, runtime: $RuntimeOptions): Id2MetaVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2552,7 +3067,11 @@ async function id2MetaVerifyWithOptions(request: Id2MetaVerifyRequest, runtime: 
 }
 
 /**
- * @summary 身份二要素接口
+ * @summary Identity Two-Factor Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Id2MetaVerifyRequest
  * @return Id2MetaVerifyResponse
@@ -2563,27 +3082,47 @@ async function id2MetaVerify(request: Id2MetaVerifyRequest): Id2MetaVerifyRespon
 }
 
 model Id2MetaVerifyWithOCRRequest {
-  certFile?: string(name='CertFile'),
-  certNationalFile?: string(name='CertNationalFile'),
-  certNationalUrl?: string(name='CertNationalUrl', example='https://www.aliyun.com/cert.jpeg'),
-  certUrl?: string(name='CertUrl', example='https://www.aliyun.com/cert.jpeg'),
+  certFile?: string(name='CertFile', description='Input stream for the portrait side of the ID card image.
+Choose one between CertUrl and CertFile.', example='无'),
+  certNationalFile?: string(name='CertNationalFile', description='National emblem side of the ID card image address.
+Choose one between CertNationalUrl and CertNationalFile, or omit both.', example='无'),
+  certNationalUrl?: string(name='CertNationalUrl', description='National emblem side of the ID card image URL. National emblem side
+A publicly accessible HTTP or HTTPS link.
+Choose one between CertNationalUrl and CertNationalFile, or omit both.', example='https://www.aliyun.com/cert.jpeg'),
+  certUrl?: string(name='CertUrl', description='Portrait side of the ID card image.
+A publicly accessible HTTP or HTTPS link.
+Choose one between CertUrl and CertFile.', example='https://www.aliyun.com/cert.jpeg'),
 }
 
 model Id2MetaVerifyWithOCRAdvanceRequest {
-  certFileObject?: readable(name='CertFile'),
-  certNationalFileObject?: readable(name='CertNationalFile'),
-  certNationalUrl?: string(name='CertNationalUrl', example='https://www.aliyun.com/cert.jpeg'),
-  certUrl?: string(name='CertUrl', example='https://www.aliyun.com/cert.jpeg'),
+  certFileObject?: readable(name='CertFile', description='Input stream for the portrait side of the ID card image.
+Choose one between CertUrl and CertFile.', example='无'),
+  certNationalFileObject?: readable(name='CertNationalFile', description='National emblem side of the ID card image address.
+Choose one between CertNationalUrl and CertNationalFile, or omit both.', example='无'),
+  certNationalUrl?: string(name='CertNationalUrl', description='National emblem side of the ID card image URL. National emblem side
+A publicly accessible HTTP or HTTPS link.
+Choose one between CertNationalUrl and CertNationalFile, or omit both.', example='https://www.aliyun.com/cert.jpeg'),
+  certUrl?: string(name='CertUrl', description='Portrait side of the ID card image.
+A publicly accessible HTTP or HTTPS link.
+Choose one between CertUrl and CertFile.', example='https://www.aliyun.com/cert.jpeg'),
 }
 
 model Id2MetaVerifyWithOCRResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF03****'),
+  code?: string(name='Code', description='Return code: 200 indicates success, any other value indicates failure.
+**Important**
+- This parameter indicates whether the API was called correctly. For detailed return code explanations, please refer to the error codes.
+- Check the business verification results through the fields in ResultObject.', example='200'),
+  message?: string(name='Message', description='API call return message.
+**Important**
+This parameter only indicates if there was an exception with the API call.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF03****'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    cardInfo?: string(name='CardInfo'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Identity verification result:
+- 1: Consistent
+- 2: Inconsistent
+- 3: No record found', example='1'),
+    cardInfo?: string(name='CardInfo', description='{"address":"Zhejiang Province, Hangzhou City, Yu*****","birthDate":"19901226","certName":"Zhang San","certNo":"1234561990122*****","nationality":"Han","authority":"xxx Public Security Bureau","startDate":"20201130","endDate":"20301130"}', example='OCR读取的身份证信息。'),
+  }(name='ResultObject', description='Result object'),
 }
 
 model Id2MetaVerifyWithOCRResponse = {
@@ -2593,12 +3132,15 @@ model Id2MetaVerifyWithOCRResponse = {
 }
 
 /**
- * @summary 身份二要素图片核验
+ * @summary ID Two-Factor Image Verification
+ *
+ * @description Upload both sides of the ID card, and get the verification result of the two factors from an authoritative data source.
  *
  * @param request Id2MetaVerifyWithOCRRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Id2MetaVerifyWithOCRResponse
  */
+@context("id2MetaVerifyWithOCRWithContext")
 async function id2MetaVerifyWithOCRWithOptions(request: Id2MetaVerifyWithOCRRequest, runtime: $RuntimeOptions): Id2MetaVerifyWithOCRResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2632,7 +3174,9 @@ async function id2MetaVerifyWithOCRWithOptions(request: Id2MetaVerifyWithOCRRequ
 }
 
 /**
- * @summary 身份二要素图片核验
+ * @summary ID Two-Factor Image Verification
+ *
+ * @description Upload both sides of the ID card, and get the verification result of the two factors from an authoritative data source.
  *
  * @param request Id2MetaVerifyWithOCRRequest
  * @return Id2MetaVerifyWithOCRResponse
@@ -2644,12 +3188,19 @@ async function id2MetaVerifyWithOCR(request: Id2MetaVerifyWithOCRRequest): Id2Me
 
 async function id2MetaVerifyWithOCRAdvance(request: Id2MetaVerifyWithOCRAdvanceRequest, runtime: $RuntimeOptions): Id2MetaVerifyWithOCRResponse {
   // Step 0: init client
-  var accessKeyId = @credential.getAccessKeyId();
-  var accessKeySecret = @credential.getAccessKeySecret();
-  var securityToken = @credential.getSecurityToken();
-  var credentialType = @credential.getType();
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
+      code = 'InvalidCredentials',
+      message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
+    }
+  }
+  var credentialModel = @credential.getCredential();
+  var accessKeyId = credentialModel.accessKeyId;
+  var accessKeySecret = credentialModel.accessKeySecret;
+  var securityToken = credentialModel.securityToken;
+  var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if($isNull(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
   if($isNull(credentialType)) {
@@ -2664,105 +3215,138 @@ async function id2MetaVerifyWithOCRAdvance(request: Id2MetaVerifyWithOCRAdvanceR
     protocol = @protocol,
     regionId = @regionId,
   };
-  var authClient = new OpenPlatform(authConfig);
-  var authRequest = new OpenPlatform.AuthorizeFileUploadRequest{
-    product = 'Cloudauth',
-    regionId = @regionId,
+  var authClient = new OpenApi(authConfig);
+  var authRequest = {
+    Product = 'Cloudauth',
+    RegionId = @regionId,
   };
-  var authResponse = new OpenPlatform.AuthorizeFileUploadResponse{};
-  var ossConfig = new OSS.Config{
-    accessKeyId = accessKeyId,
-    accessKeySecret = accessKeySecret,
-    type = 'access_key',
-    protocol = @protocol,
-    regionId = @regionId,
+  var authReq = new OpenApiUtil.OpenApiRequest{
+    query = OpenApiUtil.query(authRequest),
   };
-  var ossClient : OSS = new OSS(ossConfig);
-
-  var fileObj = new FileForm.FileField{};
-  var ossHeader = new OSS.PostObjectRequest.header{};
-  var uploadRequest = new OSS.PostObjectRequest{};
-  var ossRuntime = new OSSUtil.RuntimeOptions{};
-  OpenApiUtil.convert(runtime, ossRuntime);
+  var authParams = new OpenApiUtil.Params{
+    action = 'AuthorizeFileUpload',
+    version = '2019-12-19',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  var authResponse : object = {};
+  var fileObj = new $FileField{};
+  var ossHeader: object = {};
+  var tmpBody: object = {};
+  var useAccelerate: boolean = false;
+  var authResponseBody: map[string]string = {};
   var id2MetaVerifyWithOCRReq = new Id2MetaVerifyWithOCRRequest{};
   OpenApiUtil.convert(request, id2MetaVerifyWithOCRReq);
 
   if(!$isNull(request.certFileObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.certFileObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    id2MetaVerifyWithOCRReq.certFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    id2MetaVerifyWithOCRReq.certFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   if(!$isNull(request.certNationalFileObject)) {
-    authResponse = authClient.authorizeFileUploadWithOptions(authRequest, runtime);
-    ossConfig.accessKeyId = authResponse.body.accessKeyId;
-    ossConfig.endpoint = OpenApiUtil.getEndpoint(authResponse.body.endpoint, authResponse.body.useAccelerate, @endpointType);
-    ossClient = new OSS(ossConfig);
-
-    fileObj = new FileForm.FileField{
-      filename = authResponse.body.objectKey,
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
+      filename = authResponseBody['ObjectKey'],
       content = request.certNationalFileObject,
       contentType = '',
     };
-    ossHeader = new OSS.PostObjectRequest.header{
-      accessKeyId = authResponse.body.accessKeyId,
-      policy = authResponse.body.encodedPolicy,
-      signature = authResponse.body.signature,
-      key = authResponse.body.objectKey,
+    ossHeader = {
+      host = `${authResponseBody['Bucket']}.${OpenApiUtil.getEndpoint(authResponseBody['Endpoint'], useAccelerate, @endpointType)}`,
+      OSSAccessKeyId = authResponseBody['AccessKeyId'],
+      policy = authResponseBody['EncodedPolicy'],
+      Signature = authResponseBody['Signature'],
+      key = authResponseBody['ObjectKey'],
       file = fileObj,
-      successActionStatus = '201',
+      success_action_status = '201',
     };
-    uploadRequest = new OSS.PostObjectRequest{
-      bucketName = authResponse.body.bucket,
-      header = ossHeader,
-    };
-    ossClient.postObject(uploadRequest, ossRuntime);
-    id2MetaVerifyWithOCRReq.certNationalFile = `http://${authResponse.body.bucket}.${authResponse.body.endpoint}/${authResponse.body.objectKey}`;
+    _postOSSObject(authResponseBody['Bucket'], ossHeader);
+    id2MetaVerifyWithOCRReq.certNationalFile = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
   var id2MetaVerifyWithOCRResp = id2MetaVerifyWithOCRWithOptions(id2MetaVerifyWithOCRReq, runtime);
   return id2MetaVerifyWithOCRResp;
 }
 
 model InitCardVerifyRequest {
-  callbackToken?: string(name='CallbackToken', example='NMjvQanQgplBSaEI0sL86WnQplB'),
-  callbackUrl?: string(name='CallbackUrl', example='https://www.aliyun.com'),
-  cardPageNumber?: string(name='CardPageNumber', description='This parameter is required.', example='1'),
-  cardType?: string(name='CardType', description='This parameter is required.', example='IDENTITY_CARD'),
-  docScanMode?: string(name='DocScanMode', example='shoot'),
-  merchantBizId?: string(name='MerchantBizId', description='This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****'),
-  metaInfo?: string(name='MetaInfo', description='This parameter is required.', example='{"zimVer":"3.0.0","appVersion": "1","bioMetaInfo": "4.1.0:1150****,0","appName": "com.aliyun.antcloudauth","deviceType": "ios","osVersion": "iOS 10.3.2","apdidToken": "","deviceModel": "iPhone9,1"}'),
-  model?: string(name='Model', description='This parameter is required.', example='OCR_VERIFY'),
-  pictureSave?: string(name='PictureSave', description='This parameter is required.', example='T'),
-  verifyMeta?: string(name='VerifyMeta', description='This parameter is required.', example='ID_2_META'),
+  callbackToken?: string(name='CallbackToken', description='Security Token, used for anti-replay and anti-tampering checks. If this parameter is passed, the CallbackToken field will be displayed in the callback address.', example='NMjvQanQgplBSaEI0sL86WnQplB'),
+  callbackUrl?: string(name='CallbackUrl', description='- The callback notification address for the authentication result, which must start with https.
+- The platform will call back this address after completing the authentication and automatically add the certifyId and passed fields, example: https://www.aliyun.com?certifyId=xxxx&passed=T
+- Warning
+The callback is triggered only when the authentication is completed. If the authentication is abandoned, interrupted abnormally, or not performed, no notification will be sent. It is recommended that when you receive the callback notification, if necessary, you can obtain detailed authentication information through the query interface.', example='https://www.aliyun.com'),
+  cardPageNumber?: string(name='CardPageNumber', description='Number of card pages collected by the SDK
+- You can input 1 or 2; input 1 to collect the front side, input 2 to collect both the front and back sides.
+
+- If the verification type is ID period (VerifyMeta value is ID_PERIOD), you must input 2.
+
+This parameter is required.', example='1'),
+  cardType?: string(name='CardType', description='Type of identification
+- Resident Second Generation ID Card: IDENTITY_CARD
+
+This parameter is required.', example='IDENTITY_CARD'),
+  docScanMode?: string(name='DocScanMode', description='Enumeration of photo-taking methods (manual/auto)
+- Take a photo: shoot
+- Scan: scan 
+- Auto switch: auto', example='shoot'),
+  merchantBizId?: string(name='MerchantBizId', description='A unique business identifier you define, used for subsequent troubleshooting.
+Supports a combination of 32 alphanumeric characters, please ensure uniqueness.
+
+This parameter is required.', example='e0c34a77f5ac40a5aa5e6ed20c35****'),
+  metaInfo?: string(name='MetaInfo', description='MetaInfo environment parameter, which needs to be obtained through the client SDK.
+
+This parameter is required.', example='{"zimVer":"3.0.0","appVersion": "1","bioMetaInfo": "4.1.0:1150****,0","appName": "com.aliyun.antcloudauth","deviceType": "ios","osVersion": "iOS 10.3.2","apdidToken": "","deviceModel": "iPhone9,1"}'),
+  model?: string(name='Model', description='Verification method, value:
+- OCR_VERIFY: OCR recognition and verification mode.
+
+This parameter is required.', example='OCR_VERIFY'),
+  pictureSave?: string(name='PictureSave', description='Whether to temporarily store the images collected by the app.
+- Y: Yes
+- N: No
+- If \\\\"Yes\\\\" is selected here, the query interface will support returning the card image information.
+
+This parameter is required.', example='Y'),
+  verifyMeta?: string(name='VerifyMeta', description='Verification type, value:
+- Identity two elements (name + ID number): ID_2_META
+
+This parameter is required.', example='ID_2_META'),
 }
 
 model InitCardVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.
+Important
+- This parameter indicates whether the interface was called correctly. For detailed return code descriptions, see the error codes.
+- Business results should be viewed through the fields in ResultObject.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
   resultObject?: {
-    certifyId?: string(name='CertifyId', example='91707dc296d469ad38e4c5efa6a0****'),
-  }(name='ResultObject'),
+    certifyId?: string(name='CertifyId', description='Verification request ID, a unique identifier for the verification service\\\\"s authentication request.
+- When querying the authentication result, the authentication request ID must be provided.
+
+- The CertifyId field is a billing statistics field. To facilitate subsequent bill reconciliation, please retain this field information locally. The CertifyId returned by the initialization interface is valid for 30 minutes and can only be submitted once for authentication. Please apply it within the validity period to avoid reuse.', example='91707dc296d469ad38e4c5efa6a0****'),
+  }(name='ResultObject', description='Return result.'),
 }
 
 model InitCardVerifyResponse = {
@@ -2772,12 +3356,15 @@ model InitCardVerifyResponse = {
 }
 
 /**
- * @summary 图片核验发起认证请求
+ * @summary Initiate an authentication request for image verification
+ *
+ * @description Before each authentication, use this interface to obtain the CertifyId, which is used to link various interfaces in the authentication request.
  *
  * @param request InitCardVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return InitCardVerifyResponse
  */
+@context("initCardVerifyWithContext")
 async function initCardVerifyWithOptions(request: InitCardVerifyRequest, runtime: $RuntimeOptions): InitCardVerifyResponse {
   request.validate();
   var query = {};
@@ -2829,7 +3416,9 @@ async function initCardVerifyWithOptions(request: InitCardVerifyRequest, runtime
 }
 
 /**
- * @summary 图片核验发起认证请求
+ * @summary Initiate an authentication request for image verification
+ *
+ * @description Before each authentication, use this interface to obtain the CertifyId, which is used to link various interfaces in the authentication request.
  *
  * @param request InitCardVerifyRequest
  * @return InitCardVerifyResponse
@@ -2900,6 +3489,7 @@ model InitFaceVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return InitFaceVerifyResponse
  */
+@context("initFaceVerifyWithContext")
 async function initFaceVerifyWithOptions(request: InitFaceVerifyRequest, runtime: $RuntimeOptions): InitFaceVerifyResponse {
   request.validate();
   var query = {};
@@ -3043,20 +3633,20 @@ async function initFaceVerify(request: InitFaceVerifyRequest): InitFaceVerifyRes
 }
 
 model InsertWhiteListSettingRequest {
-  certNo?: string(name='CertNo', example='330103xxxxxxxxxxxx'),
-  certifyId?: string(name='CertifyId', example='shsf57a4e0d9981c3bd66dc754f3d3cd'),
-  remark?: string(name='Remark', example='xxxxxx'),
-  sceneId?: long(name='SceneId', example='100000xxxx'),
-  serviceCode?: string(name='ServiceCode', example='antcloudauth'),
-  validDay?: int32(name='ValidDay', example='30'),
+  certNo?: string(name='CertNo', description='ID number.', example='330103xxxxxxxxxxxx'),
+  certifyId?: string(name='CertifyId', description='Unique identifier for real person authentication.', example='shsf57a4e0d9981c3bd66dc754f3d3cd'),
+  remark?: string(name='Remark', description='Remark, with a length less than 32 characters.', example='xxxxxx'),
+  sceneId?: long(name='SceneId', description='Authentication scene ID. This ID is automatically generated after creating an authentication scene in the console. For instructions on how to create an authentication scene, see Adding an Authentication Scene.', example='100000xxxx'),
+  serviceCode?: string(name='ServiceCode', description='ServiceCode for the real person cloud product, value: **antcloudauth**.', example='antcloudauth'),
+  validDay?: int32(name='ValidDay', description='Whitelist validity period in days (only supports 3, 7, 30).', example='30'),
 }
 
 model InsertWhiteListSettingResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  resultObject?: boolean(name='ResultObject', example='true'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  resultObject?: boolean(name='ResultObject', description='Returned result', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the response was successful.', example='true'),
 }
 
 model InsertWhiteListSettingResponse = {
@@ -3066,12 +3656,13 @@ model InsertWhiteListSettingResponse = {
 }
 
 /**
- * @summary 新增实人白名单
+ * @summary Add Real Person Whitelist
  *
  * @param request InsertWhiteListSettingRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return InsertWhiteListSettingResponse
  */
+@context("insertWhiteListSettingWithContext")
 async function insertWhiteListSettingWithOptions(request: InsertWhiteListSettingRequest, runtime: $RuntimeOptions): InsertWhiteListSettingResponse {
   request.validate();
   var query = {};
@@ -3111,7 +3702,7 @@ async function insertWhiteListSettingWithOptions(request: InsertWhiteListSetting
 }
 
 /**
- * @summary 新增实人白名单
+ * @summary Add Real Person Whitelist
  *
  * @param request InsertWhiteListSettingRequest
  * @return InsertWhiteListSettingResponse
@@ -3122,31 +3713,31 @@ async function insertWhiteListSetting(request: InsertWhiteListSettingRequest): I
 }
 
 model LivenessFaceVerifyRequest {
-  certifyId?: string(name='CertifyId'),
-  crop?: string(name='Crop'),
-  deviceToken?: string(name='DeviceToken'),
-  faceContrastPicture?: string(name='FaceContrastPicture'),
-  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl'),
-  ip?: string(name='Ip'),
-  mobile?: string(name='Mobile'),
-  model?: string(name='Model'),
-  ossBucketName?: string(name='OssBucketName'),
-  ossObjectName?: string(name='OssObjectName'),
-  outerOrderNo?: string(name='OuterOrderNo'),
-  productCode?: string(name='ProductCode'),
-  sceneId?: long(name='SceneId'),
-  userId?: string(name='UserId'),
+  certifyId?: string(name='CertifyId', example='91707dc296d469ad38e4c5efa6a0f24b'),
+  crop?: string(name='Crop', example='T'),
+  deviceToken?: string(name='DeviceToken', example='McozS1ZWRcRZStlERcZZo_QOytx5jcgZoZJEoRLOxxxxxxx'),
+  faceContrastPicture?: string(name='FaceContrastPicture', example='/9j/4AAQSkZJRgABAQAASxxxxxxx'),
+  faceContrastPictureUrl?: string(name='FaceContrastPictureUrl', example='https://ware.cdeledu.com/upfile/uploadPic/2025/03/21/dd62fbb9c966433ab0ba9a7252816b30.jpg'),
+  ip?: string(name='Ip', example='114.xxx.xxx.xxx'),
+  mobile?: string(name='Mobile', example='130xxxxxxxx'),
+  model?: string(name='Model', example='FRONT_CAMERA_LIVENESS'),
+  ossBucketName?: string(name='OssBucketName', example='cn-shanghai-aliyun-cloudauth-1494517779820665'),
+  ossObjectName?: string(name='OssObjectName', example='facedetect/17483113370916034.jpg'),
+  outerOrderNo?: string(name='OuterOrderNo', example='e0c34a77f5ac40a5aa5e6ed20c353888'),
+  productCode?: string(name='ProductCode', example='LR_FR_MIN'),
+  sceneId?: long(name='SceneId', example='100000****'),
+  userId?: string(name='UserId', example='123456789'),
 }
 
 model LivenessFaceVerifyResponseBody = {
-  code?: string(name='Code'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: string(name='Code', example='200'),
+  message?: string(name='Message', example='success'),
+  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   resultObject?: {
-    certifyId?: string(name='CertifyId'),
-    materialInfo?: string(name='MaterialInfo'),
-    passed?: string(name='Passed'),
-    subCode?: string(name='SubCode'),
+    certifyId?: string(name='CertifyId', example='91707dc296d469ad38e4c5efa6a0f24b'),
+    materialInfo?: string(name='MaterialInfo', example='{"faceAttack": "F","facialPictureFront": {"qualityScore": 88.3615493774414,"verifyScore": 50.28594166529785}}'),
+    passed?: string(name='Passed', example='T'),
+    subCode?: string(name='SubCode', example='200'),
   }(name='ResultObject'),
 }
 
@@ -3161,6 +3752,7 @@ model LivenessFaceVerifyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return LivenessFaceVerifyResponse
  */
+@context("livenessFaceVerifyWithContext")
 async function livenessFaceVerifyWithOptions(request: LivenessFaceVerifyRequest, runtime: $RuntimeOptions): LivenessFaceVerifyResponse {
   request.validate();
   var query = {};
@@ -3235,19 +3827,41 @@ async function livenessFaceVerify(request: LivenessFaceVerifyRequest): LivenessF
 }
 
 model Mobile2MetaVerifyRequest {
-  mobile?: string(name='Mobile', description='This parameter is required.'),
-  paramType?: string(name='ParamType', description='This parameter is required.', example='normal'),
-  userName?: string(name='UserName', description='This parameter is required.'),
+  mobile?: string(name='Mobile', description='Phone number:
+- When paramType is normal: input the plaintext phone number.
+- When paramType is md5: input the encrypted phone number.
+
+This parameter is required.', example='● 明文：186****2055
+● 密文：
+849169cd3b20621c1c78bd61a11a4fc2'),
+  paramType?: string(name='ParamType', description='Encryption method:
+- normal: plaintext without encryption
+- md5: MD5 encryption
+
+This parameter is required.', example='normal'),
+  userName?: string(name='UserName', description='Name:
+- When paramType is normal: input the plaintext name.
+- When paramType is md5: input the encrypted name.
+
+This parameter is required.', example='● 明文：张三
+● 密文：
+32fa7bcd874161bea8ec8fd98f390ec9'),
 }
 
 model Mobile2MetaVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='130A2C10-B9EE-4D84-88E3-5384FF039795'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result:
+- 1: Consistent verification
+- 2: Inconsistent verification
+- 3: No record found', example='1'),
+    ispName?: string(name='IspName', description='Operator name:
+- CMCC: China Mobile
+- CUCC: China Unicom
+- CTCC: China Telecom', example='CMCC'),
+  }(name='ResultObject', description='Result object.'),
 }
 
 model Mobile2MetaVerifyResponse = {
@@ -3257,12 +3871,15 @@ model Mobile2MetaVerifyResponse = {
 }
 
 /**
- * @summary 手机二要素核验
+ * @summary Mobile Two-Factor Verification
+ *
+ * @description Input the phone number and name, verify their authenticity and consistency through authoritative data sources.
  *
  * @param request Mobile2MetaVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Mobile2MetaVerifyResponse
  */
+@context("mobile2MetaVerifyWithContext")
 async function mobile2MetaVerifyWithOptions(request: Mobile2MetaVerifyRequest, runtime: $RuntimeOptions): Mobile2MetaVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3293,7 +3910,9 @@ async function mobile2MetaVerifyWithOptions(request: Mobile2MetaVerifyRequest, r
 }
 
 /**
- * @summary 手机二要素核验
+ * @summary Mobile Two-Factor Verification
+ *
+ * @description Input the phone number and name, verify their authenticity and consistency through authoritative data sources.
  *
  * @param request Mobile2MetaVerifyRequest
  * @return Mobile2MetaVerifyResponse
@@ -3304,21 +3923,48 @@ async function mobile2MetaVerify(request: Mobile2MetaVerifyRequest): Mobile2Meta
 }
 
 model Mobile3MetaDetailStandardVerifyRequest {
-  identifyNum?: string(name='IdentifyNum', example='429001********8211'),
-  mobile?: string(name='Mobile', example='138********'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+- When `paramType` is `normal`: Input the plain text of the ID number.
+- When `paramType` is `md5`: Input the encrypted text of the ID number.', example='429001********8211'),
+  mobile?: string(name='Mobile', description='Phone number:
+
+- When `paramType` is `normal`: Input the plain text of the phone number.
+- When `paramType` is `md5`: Input the encrypted text of the phone number.', example='138********'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: Encrypted with MD5.', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When `paramType` is `normal`: Input the plain text of the name.
+- When `paramType` is `md5`: Input the encrypted text of the name.', example='张*'),
 }
 
 model Mobile3MetaDetailStandardVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
+  code?: string(name='Code', description='Return code, **200** indicates a successful API response.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='8FC3D6AC-9FED-4311-8DA7-C4BF47D9F260'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-    subCode?: string(name='SubCode', example='101'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification matches.
+- **2**: Verification does not match.
+- **3**: No record found.', example='1'),
+    ispName?: string(name='IspName', description='ISP name:
+
+- **CMCC**: China Mobile.
+- **CUCC**: China Unicom.
+- **CTCC**: China Telecom.
+- **CBCC**: China Broadcasting Network.', example='CMCC'),
+    subCode?: string(name='SubCode', description='Detailed verification results:
+
+- 101: Passed, three elements are consistent.
+- 201: The phone number does not match the name and ID number.
+- 202: The phone number matches the name but does not match the ID number.
+- 203: The phone number does not match the name but matches the ID number.
+- 204: Other inconsistencies.
+- 301: No record found.', example='101'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model Mobile3MetaDetailStandardVerifyResponse = {
@@ -3328,12 +3974,15 @@ model Mobile3MetaDetailStandardVerifyResponse = {
 }
 
 /**
- * @summary 手机号三要素详版_标准版
+ * @summary Detailed Three-Element Verification for Phone Number_Standard Version
+ *
+ * @description Input the phone number, name, and ID number to verify their authenticity and consistency through authoritative data sources. If they do not match, the reason for the mismatch is returned.
  *
  * @param request Mobile3MetaDetailStandardVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Mobile3MetaDetailStandardVerifyResponse
  */
+@context("mobile3MetaDetailStandardVerifyWithContext")
 async function mobile3MetaDetailStandardVerifyWithOptions(request: Mobile3MetaDetailStandardVerifyRequest, runtime: $RuntimeOptions): Mobile3MetaDetailStandardVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3367,7 +4016,9 @@ async function mobile3MetaDetailStandardVerifyWithOptions(request: Mobile3MetaDe
 }
 
 /**
- * @summary 手机号三要素详版_标准版
+ * @summary Detailed Three-Element Verification for Phone Number_Standard Version
+ *
+ * @description Input the phone number, name, and ID number to verify their authenticity and consistency through authoritative data sources. If they do not match, the reason for the mismatch is returned.
  *
  * @param request Mobile3MetaDetailStandardVerifyRequest
  * @return Mobile3MetaDetailStandardVerifyResponse
@@ -3378,21 +4029,66 @@ async function mobile3MetaDetailStandardVerify(request: Mobile3MetaDetailStandar
 }
 
 model Mobile3MetaDetailVerifyRequest {
-  identifyNum?: string(name='IdentifyNum'),
-  mobile?: string(name='Mobile'),
-  paramType?: string(name='ParamType'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+Note
+Only supports the ID numbers of second-generation resident IDs and Hong Kong, Macao, and Taiwan residence permits.
+
+- When paramType is normal: enter the plaintext ID number.
+
+- When paramType is md5: enter the encrypted ID number.', example='明文：429001********8211
+
+密文：
+
+32fa7bcd874161bea8ec8fd98f390ec9'),
+  mobile?: string(name='Mobile', description='Mobile phone number:
+
+- When paramType is normal: enter the plaintext mobile phone number.
+
+- When paramType is md5: enter the encrypted mobile phone number.', example='明文：186****2055
+
+密文：
+
+849169cd3b20621c1c78bd61a11a4fc2'),
+  paramType?: string(name='ParamType', description='Encryption method:
+
+- normal: plaintext, unencrypted
+
+- md5: MD5 encryption', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When paramType is normal: enter the plaintext name.
+
+- When paramType is md5: enter the encrypted name.', example='明文：张三
+
+密文：
+
+32fa7bcd874161bea8ec8fd98f390ec9'),
 }
 
 model Mobile3MetaDetailVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
+  code?: string(name='Code', description='Return code, **200** indicates a successful API response.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-    subCode?: string(name='SubCode', example='101'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification consistent.
+- **2**: Verification inconsistent.
+- **3**: No record found.', example='1'),
+    ispName?: string(name='IspName', description='Operator name:
+
+- **CMCC**: China Mobile.
+- **CUCC**: China Unicom.
+- **CTCC**: China Telecom.', example='CMCC'),
+    subCode?: string(name='SubCode', description='Detailed verification results:
+
+- **101**: Verification passed.
+- **201**: Mobile number and name do not match, mobile number and ID number do not match.
+- **202**: Mobile number and name match, but mobile number and ID number do not match.
+- **203**: Mobile number and ID number match, but mobile number and name do not match.
+- **204**: Other inconsistencies.
+- **301**: No record found.', example='101'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model Mobile3MetaDetailVerifyResponse = {
@@ -3402,12 +4098,17 @@ model Mobile3MetaDetailVerifyResponse = {
 }
 
 /**
- * @summary 手机三要素详版接口
+ * @summary Detailed Mobile Three-Element Verification Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Mobile3MetaDetailVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Mobile3MetaDetailVerifyResponse
  */
+@context("mobile3MetaDetailVerifyWithContext")
 async function mobile3MetaDetailVerifyWithOptions(request: Mobile3MetaDetailVerifyRequest, runtime: $RuntimeOptions): Mobile3MetaDetailVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3441,7 +4142,11 @@ async function mobile3MetaDetailVerifyWithOptions(request: Mobile3MetaDetailVeri
 }
 
 /**
- * @summary 手机三要素详版接口
+ * @summary Detailed Mobile Three-Element Verification Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Mobile3MetaDetailVerifyRequest
  * @return Mobile3MetaDetailVerifyResponse
@@ -3452,20 +4157,41 @@ async function mobile3MetaDetailVerify(request: Mobile3MetaDetailVerifyRequest):
 }
 
 model Mobile3MetaSimpleStandardVerifyRequest {
-  identifyNum?: string(name='IdentifyNum', example='429001********8211'),
-  mobile?: string(name='Mobile', example='130********'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+- When `paramType` is `normal`: Input the plain text of the ID number.
+- When `paramType` is `md5`: Input the encrypted ID number.', example='429001********8211'),
+  mobile?: string(name='Mobile', description='Phone number:
+
+- When `paramType` is `normal`: Input the plain text of the phone number.
+- When `paramType` is `md5`: Input the encrypted phone number.', example='130********'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: MD5 encrypted.', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When `paramType` is `normal`: Input the plain text of the name.
+- When `paramType` is `md5`: Input the encrypted name.', example='张*'),
 }
 
 model Mobile3MetaSimpleStandardVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result:
+
+- 1: Consistent (billable)
+- 2: Inconsistent (billable)
+- 3: No record found (non-billable)', example='1'),
+    ispName?: string(name='IspName', description='Operator name:
+
+- **CMCC**: China Mobile.
+- **CUCC**: China Unicom.
+- **CTCC**: China Telecom.
+- **CBCC**: China Broadcasting Network.', example='CMCC'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model Mobile3MetaSimpleStandardVerifyResponse = {
@@ -3475,12 +4201,15 @@ model Mobile3MetaSimpleStandardVerifyResponse = {
 }
 
 /**
- * @summary 手机号三要素简版_标准版
+ * @summary Simplified Three-Element Verification for Phone Number_Standard Version
+ *
+ * @description Input the phone number, name, and ID number to verify their authenticity and consistency through authoritative data sources.
  *
  * @param request Mobile3MetaSimpleStandardVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Mobile3MetaSimpleStandardVerifyResponse
  */
+@context("mobile3MetaSimpleStandardVerifyWithContext")
 async function mobile3MetaSimpleStandardVerifyWithOptions(request: Mobile3MetaSimpleStandardVerifyRequest, runtime: $RuntimeOptions): Mobile3MetaSimpleStandardVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3514,7 +4243,9 @@ async function mobile3MetaSimpleStandardVerifyWithOptions(request: Mobile3MetaSi
 }
 
 /**
- * @summary 手机号三要素简版_标准版
+ * @summary Simplified Three-Element Verification for Phone Number_Standard Version
+ *
+ * @description Input the phone number, name, and ID number to verify their authenticity and consistency through authoritative data sources.
  *
  * @param request Mobile3MetaSimpleStandardVerifyRequest
  * @return Mobile3MetaSimpleStandardVerifyResponse
@@ -3525,20 +4256,58 @@ async function mobile3MetaSimpleStandardVerify(request: Mobile3MetaSimpleStandar
 }
 
 model Mobile3MetaSimpleVerifyRequest {
-  identifyNum?: string(name='IdentifyNum'),
-  mobile?: string(name='Mobile'),
-  paramType?: string(name='ParamType'),
-  userName?: string(name='UserName'),
+  identifyNum?: string(name='IdentifyNum', description='ID number:
+
+Note
+Only supports the ID numbers of second-generation resident IDs and Hong Kong, Macao, and Taiwan residence permits.
+
+- When paramType is normal: enter the plaintext ID number.
+
+- When paramType is md5: enter the encrypted ID number.', example='明文：429001********8211
+
+密文：
+
+32fa7bcd874161bea8ec8fd98f390ec9'),
+  mobile?: string(name='Mobile', description='Mobile phone number:
+
+- When paramType is normal: enter the plaintext mobile phone number.
+
+- When paramType is md5: enter the encrypted mobile phone number.', example='明文：186****2055
+
+密文：
+
+849169cd3b20621c1c78bd61a11a4fc2'),
+  paramType?: string(name='ParamType', description='Encryption method:
+
+- normal: plaintext, not encrypted
+
+- md5: MD5 encryption', example='normal'),
+  userName?: string(name='UserName', description='Name:
+
+- When paramType is normal: enter the plaintext name.
+
+- When paramType is md5: enter the encrypted name.', example='明文：张三
+
+密文：
+
+32fa7bcd874161bea8ec8fd98f390ec9'),
 }
 
 model Mobile3MetaSimpleVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification consistent.
+- **2**: Verification inconsistent.
+- **3**: No record found.', example='1'),
+    ispName?: string(name='IspName', description='ISP name:
+
+- **CMCC**: China Mobile.
+- **CUCC**: China Unicom.
+- **CTCC**: China Telecom.', example='CMCC'),
+  }(name='ResultObject', description='Returned result.'),
 }
 
 model Mobile3MetaSimpleVerifyResponse = {
@@ -3548,12 +4317,17 @@ model Mobile3MetaSimpleVerifyResponse = {
 }
 
 /**
- * @summary 手机号三要素简版接口
+ * @summary Mobile Three Elements Simplified Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Mobile3MetaSimpleVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Mobile3MetaSimpleVerifyResponse
  */
+@context("mobile3MetaSimpleVerifyWithContext")
 async function mobile3MetaSimpleVerifyWithOptions(request: Mobile3MetaSimpleVerifyRequest, runtime: $RuntimeOptions): Mobile3MetaSimpleVerifyResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3587,7 +4361,11 @@ async function mobile3MetaSimpleVerifyWithOptions(request: Mobile3MetaSimpleVeri
 }
 
 /**
- * @summary 手机号三要素简版接口
+ * @summary Mobile Three Elements Simplified Interface
+ *
+ * @description - Service address: cloudauth.aliyuncs.com (IPv4) or cloudauth-dualstack.aliyuncs.com (IPv6).
+ * - Request method: POST and GET.
+ * - Transfer protocol: HTTPS.
  *
  * @param request Mobile3MetaSimpleVerifyRequest
  * @return Mobile3MetaSimpleVerifyResponse
@@ -3598,26 +4376,43 @@ async function mobile3MetaSimpleVerify(request: Mobile3MetaSimpleVerifyRequest):
 }
 
 model MobileDetectRequest {
-  mobiles?: string(name='Mobiles'),
-  paramType?: string(name='ParamType'),
+  mobiles?: string(name='Mobiles', description='List of phone numbers.', example='19833232569'),
+  paramType?: string(name='ParamType', description='Encryption method:
+- normal: plaintext, no encryption
+- md5: MD5 encryption', example='normal'),
 }
 
 model MobileDetectResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='969434DF-926B-4997-9881-4DE94E39F805'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='969434DF-926B-4997-9881-4DE94E39F805'),
   resultObject?: {
-    chargeCount?: string(name='ChargeCount', example='2'),
+    chargeCount?: string(name='ChargeCount', description='Billing count, the total billing count in one request', example='2'),
     items?: [ 
       {
-        area?: string(name='Area'),
-        bizCode?: string(name='BizCode', example='1'),
-        ispName?: string(name='IspName', example='CMCC'),
-        mobile?: string(name='Mobile', example='131********'),
-        subCode?: string(name='SubCode', example='101'),
+        area?: string(name='Area', description='Phone number\\\\"s area (only for plaintext phone numbers)', example='安徽-马**'),
+        bizCode?: string(name='BizCode', description='Verification result
+
+- 1: Available online 
+- 2: Not available online
+- 3: No query result', example='1'),
+        ispName?: string(name='IspName', description='Operator name
+
+- CMCC: China Mobile 
+- CUCC: China Unicom 
+- CTCC: China Telecom', example='CMCC'),
+        mobile?: string(name='Mobile', description='Phone number', example='131********'),
+        subCode?: string(name='SubCode', description='Verification details
+
+- 101: Available number
+- 102: Empty number
+- 103: Suspended 
+- 104: Silent number (inactive small number, new number, non-smartphone user within the last six months) 
+- 105: Risky number (long-term shutdown or no voice service activated and prone to complaints)
+- 301: No record found', example='101'),
       }
-    ](name='Items'),
-  }(name='ResultObject'),
+    ](name='Items', description='Verification results set'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model MobileDetectResponse = {
@@ -3627,12 +4422,13 @@ model MobileDetectResponse = {
 }
 
 /**
- * @summary 号码检测
+ * @summary Number Detection
  *
  * @param request MobileDetectRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return MobileDetectResponse
  */
+@context("mobileDetectWithContext")
 async function mobileDetectWithOptions(request: MobileDetectRequest, runtime: $RuntimeOptions): MobileDetectResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3660,7 +4456,7 @@ async function mobileDetectWithOptions(request: MobileDetectRequest, runtime: $R
 }
 
 /**
- * @summary 号码检测
+ * @summary Number Detection
  *
  * @param request MobileDetectRequest
  * @return MobileDetectResponse
@@ -3671,19 +4467,40 @@ async function mobileDetect(request: MobileDetectRequest): MobileDetectResponse 
 }
 
 model MobileOnlineStatusRequest {
-  mobile?: string(name='Mobile'),
-  paramType?: string(name='ParamType'),
+  mobile?: string(name='Mobile', description='Mobile number:
+
+- When `paramType` is `normal`: provide the plaintext mobile number.
+- When `paramType` is `md5`: provide the encrypted mobile number.', example='13665148158'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: unencrypted.
+- md5: md5 encrypted.', example='normal'),
 }
 
 model MobileOnlineStatusResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='B506328A-D84B-4750-82C7-6A207C585CF1'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='B506328A-D84B-4750-82C7-6A207C585CF1'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-    subCode?: string(name='SubCode', example='101'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result
+
+- 1: Available online 
+- 2: Not available online (see subCode for details)
+- 3: No query result', example='1'),
+    ispName?: string(name='IspName', description='ISP name
+
+- CMCC: China Mobile 
+- CUCC: China Unicom 
+- CTCC: China Telecom', example='CMCC'),
+    subCode?: string(name='SubCode', description='Verification details
+
+- 101: Available online 
+- 201: Suspended 
+- 202: Disconnected 
+- 203: Online but not available 
+- 204: Not online 
+- 301: No record found', example='101'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model MobileOnlineStatusResponse = {
@@ -3693,12 +4510,13 @@ model MobileOnlineStatusResponse = {
 }
 
 /**
- * @summary 查询手机号在网状态
+ * @summary Query the online status of a mobile number
  *
  * @param request MobileOnlineStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return MobileOnlineStatusResponse
  */
+@context("mobileOnlineStatusWithContext")
 async function mobileOnlineStatusWithOptions(request: MobileOnlineStatusRequest, runtime: $RuntimeOptions): MobileOnlineStatusResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3726,7 +4544,7 @@ async function mobileOnlineStatusWithOptions(request: MobileOnlineStatusRequest,
 }
 
 /**
- * @summary 查询手机号在网状态
+ * @summary Query the online status of a mobile number
  *
  * @param request MobileOnlineStatusRequest
  * @return MobileOnlineStatusResponse
@@ -3737,19 +4555,39 @@ async function mobileOnlineStatus(request: MobileOnlineStatusRequest): MobileOnl
 }
 
 model MobileOnlineTimeRequest {
-  mobile?: string(name='Mobile'),
-  paramType?: string(name='ParamType'),
+  mobile?: string(name='Mobile', description='Mobile number:
+- When `paramType` is `normal`: provide the plaintext mobile number.
+- When `paramType` is `md5`: provide the encrypted mobile number.', example='明文：186****2055
+
+密文：
+
+849169cd3b20621c1c78bd61a11a4fc2'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: unencrypted.
+- md5: md5 encrypted.', example='normal'),
 }
 
 model MobileOnlineTimeResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='B506328A-D84B-4750-82C7-6A207C585CF1'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='B506328A-D84B-4750-82C7-6A207C585CF1'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    ispName?: string(name='IspName', example='CMCC'),
-    timeCode?: string(name='TimeCode', example='5'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code.
+- 1: Verification consistent
+- 2: Verification inconsistent
+- 3: No record found', example='1'),
+    ispName?: string(name='IspName', description='Operator name
+
+- CMCC: China Mobile 
+- CUCC: China Unicom 
+- CTCC: China Telecom', example='CMCC'),
+    timeCode?: string(name='TimeCode', description='- 1: [0,3) indicates the online duration is 0~3 months 
+- 2: [3,6) indicates the online duration is 3~6 months 
+- 3: [6,12) indicates the online duration is 6~12 months 
+- 4: [12,24) indicates the online duration is 12~24 months 
+- 5: [24,+) indicates the online duration is more than 24 months', example='5'),
+  }(name='ResultObject', description='Returned result information'),
 }
 
 model MobileOnlineTimeResponse = {
@@ -3759,12 +4597,13 @@ model MobileOnlineTimeResponse = {
 }
 
 /**
- * @summary 查询手机号在网时长
+ * @summary Query the online duration of a mobile number
  *
  * @param request MobileOnlineTimeRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return MobileOnlineTimeResponse
  */
+@context("mobileOnlineTimeWithContext")
 async function mobileOnlineTimeWithOptions(request: MobileOnlineTimeRequest, runtime: $RuntimeOptions): MobileOnlineTimeResponse {
   request.validate();
   var body : map[string]any = {};
@@ -3792,7 +4631,7 @@ async function mobileOnlineTimeWithOptions(request: MobileOnlineTimeRequest, run
 }
 
 /**
- * @summary 查询手机号在网时长
+ * @summary Query the online duration of a mobile number
  *
  * @param request MobileOnlineTimeRequest
  * @return MobileOnlineTimeResponse
@@ -3803,20 +4642,23 @@ async function mobileOnlineTime(request: MobileOnlineTimeRequest): MobileOnlineT
 }
 
 model ModifyDeviceInfoRequest {
-  bizType?: string(name='BizType', example='FACE_TEST'),
-  deviceId?: string(name='DeviceId', description='This parameter is required.', example='wd.6ziUffspAeW5FVYbaqmexR-1qwNjM'),
-  duration?: string(name='Duration', example='1'),
-  expiredDay?: string(name='ExpiredDay', example='20190401'),
-  userDeviceId?: string(name='UserDeviceId', example='3iJ1AY$oHcu7mC69'),
+  bizType?: string(name='BizType', description='The updated business type. It should not exceed 64 characters and is defined by the connected party. It can be used to annotate specific businesses, for example, different face usage scenarios or the customer identifiers to be delivered.', example='FACE_TEST'),
+  deviceId?: string(name='DeviceId', description='A unique ID generated by the real-person authentication server for the connected device, which is only generated after the device is successfully activated. This ID can be obtained through the getLicenseExtraInfo function in the offline facial recognition SDK.
+
+This parameter is required.', example='wd.6ziUffspAeW5FVYbaqmexR-1qwNjM'),
+  duration?: string(name='Duration', description='The extended duration of the device expiration. Unit: years, with a range of [1,100]. A value of 100 indicates permanent use. One year is calculated as 365 days.', example='1'),
+  expiredDay?: string(name='ExpiredDay', description='The current expiration time of the device. If the expiration date is incorrect (differing from the real-person authentication server\\\\"s recorded expiration time by more than one week), an error will be reported.
+> The expiration time can be queried through the DescribeDeviceInfo interface. An incorrect expiration date will result in an error. This check ensures that the business party does not accidentally re-activate a device due to some misoperation, thus consuming the authorization unnecessarily.', example='20190401'),
+  userDeviceId?: string(name='UserDeviceId', description='The updated user device ID. It should not exceed 64 characters and is defined by the connected party. It can be used to identify specific devices, and it is recommended to use the physical number of the device.', example='3iJ1AY$oHcu7mC69'),
 }
 
 model ModifyDeviceInfoResponseBody = {
-  beginDay?: string(name='BeginDay', example='20190401'),
-  bizType?: string(name='BizType', example='FACE_TEST'),
-  deviceId?: string(name='DeviceId', example='wd.6ziUffspAeW5FVYbaqmexR-1qwNjM'),
-  expiredDay?: string(name='ExpiredDay', example='20200330'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  userDeviceId?: string(name='UserDeviceId', example='3iJ1AY$oHcu7mC69'),
+  beginDay?: string(name='BeginDay', description='If the Duration in the request parameters is not empty, this field represents the start time of the authorization after the device validity period has been extended. One year of Duration is calculated as 365 days. Example: 20180101.', example='20190401'),
+  bizType?: string(name='BizType', description='Corresponds to the BizType in the request parameters.', example='FACE_TEST'),
+  deviceId?: string(name='DeviceId', description='Corresponds to the DeviceId in the request parameters.', example='wd.6ziUffspAeW5FVYbaqmexR-1qwNjM'),
+  expiredDay?: string(name='ExpiredDay', description='If the Duration in the request parameters is not empty, this field represents the expiration time of the authorization after the device validity period has been extended. One year of Duration is calculated as 365 days. Example: 20180101.', example='20200330'),
+  requestId?: string(name='RequestId', description='The ID of this request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  userDeviceId?: string(name='UserDeviceId', description='Corresponds to the UserDeviceId in the request parameters.', example='3iJ1AY$oHcu7mC69'),
 }
 
 model ModifyDeviceInfoResponse = {
@@ -3826,10 +4668,15 @@ model ModifyDeviceInfoResponse = {
 }
 
 /**
+ * @summary Call ModifyDeviceInfo to update device-related information, such as extending the device authorization validity period, updating the business party\\"s custom business identifier, and device ID. Suitable for scenarios like renewing the device validity period.
+ *
+ * @description Request Method: Supports sending requests using HTTPS POST and GET methods.
+ *
  * @param request ModifyDeviceInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyDeviceInfoResponse
  */
+@context("modifyDeviceInfoWithContext")
 async function modifyDeviceInfoWithOptions(request: ModifyDeviceInfoRequest, runtime: $RuntimeOptions): ModifyDeviceInfoResponse {
   request.validate();
   var query = {};
@@ -3866,6 +4713,10 @@ async function modifyDeviceInfoWithOptions(request: ModifyDeviceInfoRequest, run
 }
 
 /**
+ * @summary Call ModifyDeviceInfo to update device-related information, such as extending the device authorization validity period, updating the business party\\"s custom business identifier, and device ID. Suitable for scenarios like renewing the device validity period.
+ *
+ * @description Request Method: Supports sending requests using HTTPS POST and GET methods.
+ *
  * @param request ModifyDeviceInfoRequest
  * @return ModifyDeviceInfoResponse
  */
@@ -3875,41 +4726,49 @@ async function modifyDeviceInfo(request: ModifyDeviceInfoRequest): ModifyDeviceI
 }
 
 model PageQueryWhiteListSettingRequest {
-  certNo?: string(name='CertNo', example='330103xxxxxxxxxxxx'),
-  certifyId?: string(name='CertifyId', example='sha75b4e19a1ddda059b920757b0e12b'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  pageSize?: int32(name='PageSize', example='10'),
-  sceneId?: long(name='SceneId', example='1000000xxx'),
-  serviceCode?: string(name='ServiceCode', example='antcloudauth'),
-  status?: string(name='Status', example='VALID'),
-  validEndDate?: string(name='ValidEndDate', example='1725379200000'),
-  validStartDate?: string(name='ValidStartDate', example='1725120000000'),
+  certNo?: string(name='CertNo', description='ID number.', example='330103xxxxxxxxxxxx'),
+  certifyId?: string(name='CertifyId', description='Unique identifier for real person authentication.', example='sha75b4e19a1ddda059b920757b0e12b'),
+  currentPage?: int32(name='CurrentPage', description='Current page number, default is 1.', example='1'),
+  pageSize?: int32(name='PageSize', description='Number of items per page, default is 10', example='10'),
+  sceneId?: long(name='SceneId', description='Authentication scene ID. This ID is automatically generated after creating an authentication scene in the console. For how to create an authentication scene, see Adding an Authentication Scene.', example='1000000xxx'),
+  serviceCode?: string(name='ServiceCode', description='ServiceCode of the real person cloud product, value: **antcloudauth**.', example='antcloudauth'),
+  status?: string(name='Status', description='Status:
+
+- DELETE: Deleted
+- VALID: Not deleted and within the validity period, valid
+- INVALID: Not deleted but outside the validity period, invalid', example='VALID'),
+  validEndDate?: string(name='ValidEndDate', description='End date of validity (timestamp in milliseconds)', example='1725379200000'),
+  validStartDate?: string(name='ValidStartDate', description='Start date of validity (timestamp in milliseconds)', example='1725120000000'),
 }
 
 model PageQueryWhiteListSettingResponseBody = {
-  code?: string(name='Code', example='200'),
-  currentPage?: int32(name='CurrentPage', example='1'),
-  message?: string(name='Message', example='success'),
-  pageSize?: int32(name='PageSize', example='10'),
-  requestId?: string(name='RequestId', description='Id of the request', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
+  code?: string(name='Code', description='Return code, **200** indicates a successful API response.', example='200'),
+  currentPage?: int32(name='CurrentPage', description='Current page number.', example='1'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  pageSize?: int32(name='PageSize', description='Number of items per page.', example='10'),
+  requestId?: string(name='RequestId', description='ID of the request', example='5A6229C0-E156-48E4-B6EC-0F528BDF60D2'),
   resultObject?: [ 
     {
-      certNo?: string(name='CertNo', example='330103xxxxxxxxxxxx'),
-      certifyId?: string(name='CertifyId', example='sha43d9cabd52d370d9f4cca9468f71e'),
-      gmtCreate?: string(name='GmtCreate', example='2024-08-30 14:00:00'),
-      gmtModified?: string(name='GmtModified', example='2024-08-30 14:00:00'),
-      id?: long(name='Id', example='234822'),
-      remark?: string(name='Remark', example='test'),
-      sceneId?: long(name='SceneId', example='1000000332'),
-      serviceCode?: string(name='ServiceCode', example='antcloudauth'),
-      status?: string(name='Status', example='VALID'),
-      validEndDate?: string(name='ValidEndDate', example='2024-09-02 13:57:51'),
-      validStartDate?: string(name='ValidStartDate', example='2024-08-30 13:57:51'),
+      certNo?: string(name='CertNo', description='ID number.', example='330103xxxxxxxxxxxx'),
+      certifyId?: string(name='CertifyId', description='Unique identifier for real person authentication.', example='sha43d9cabd52d370d9f4cca9468f71e'),
+      gmtCreate?: string(name='GmtCreate', description='Creation time.', example='2024-08-30 14:00:00'),
+      gmtModified?: string(name='GmtModified', description='Modification time.', example='2024-08-30 14:00:00'),
+      id?: long(name='Id', description='Whitelist ID.', example='234822'),
+      remark?: string(name='Remark', description='Remark information.', example='test'),
+      sceneId?: long(name='SceneId', description='Authentication scene ID.', example='1000000332'),
+      serviceCode?: string(name='ServiceCode', description='ServiceCode of the real person cloud product', example='antcloudauth'),
+      status?: string(name='Status', description='Status:
+
+- DELETE: Deleted
+- VALID: Not deleted and within the validity period, valid
+- INVALID: Not deleted but outside the validity period, invalid', example='VALID'),
+      validEndDate?: string(name='ValidEndDate', description='End date of validity', example='2024-09-02 13:57:51'),
+      validStartDate?: string(name='ValidStartDate', description='Start date of validity', example='2024-08-30 13:57:51'),
     }
-  ](name='ResultObject'),
-  success?: boolean(name='Success', example='true'),
-  totalItem?: int32(name='TotalItem', example='28'),
-  totalPage?: int32(name='TotalPage', example='3'),
+  ](name='ResultObject', description='Request result'),
+  success?: boolean(name='Success', description='Whether the response was successful.', example='true'),
+  totalItem?: int32(name='TotalItem', description='Total number of items.', example='28'),
+  totalPage?: int32(name='TotalPage', description='Total number of pages.', example='3'),
 }
 
 model PageQueryWhiteListSettingResponse = {
@@ -3919,12 +4778,13 @@ model PageQueryWhiteListSettingResponse = {
 }
 
 /**
- * @summary 分页查询实人白名单配置
+ * @summary Paging Query for Real Person Whitelist Configuration
  *
  * @param request PageQueryWhiteListSettingRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return PageQueryWhiteListSettingResponse
  */
+@context("pageQueryWhiteListSettingWithContext")
 async function pageQueryWhiteListSettingWithOptions(request: PageQueryWhiteListSettingRequest, runtime: $RuntimeOptions): PageQueryWhiteListSettingResponse {
   request.validate();
   var query = {};
@@ -3973,7 +4833,7 @@ async function pageQueryWhiteListSettingWithOptions(request: PageQueryWhiteListS
 }
 
 /**
- * @summary 分页查询实人白名单配置
+ * @summary Paging Query for Real Person Whitelist Configuration
  *
  * @param request PageQueryWhiteListSettingRequest
  * @return PageQueryWhiteListSettingResponse
@@ -3984,21 +4844,21 @@ async function pageQueryWhiteListSetting(request: PageQueryWhiteListSettingReque
 }
 
 model RemoveWhiteListSettingRequest {
-  ids?: [ long ](name='Ids'),
-  serviceCode?: string(name='ServiceCode', example='antcloudauth'),
+  ids?: [ long ](name='Ids', description='IDs of the whitelist to be deleted in bulk.'),
+  serviceCode?: string(name='ServiceCode', description='ServiceCode for the real person cloud product, only value: **antcloudauth**.', example='antcloudauth'),
 }
 
 model RemoveWhiteListSettingShrinkRequest {
-  idsShrink?: string(name='Ids'),
-  serviceCode?: string(name='ServiceCode', example='antcloudauth'),
+  idsShrink?: string(name='Ids', description='IDs of the whitelist to be deleted in bulk.'),
+  serviceCode?: string(name='ServiceCode', description='ServiceCode for the real person cloud product, only value: **antcloudauth**.', example='antcloudauth'),
 }
 
 model RemoveWhiteListSettingResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  resultObject?: boolean(name='ResultObject', example='true'),
-  success?: boolean(name='Success', example='true'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  resultObject?: boolean(name='ResultObject', description='Returned result information.', example='true'),
+  success?: boolean(name='Success', description='Whether the response was successful.', example='true'),
 }
 
 model RemoveWhiteListSettingResponse = {
@@ -4008,12 +4868,13 @@ model RemoveWhiteListSettingResponse = {
 }
 
 /**
- * @summary 删除实人白名单
+ * @summary Delete Real Person Whitelist
  *
  * @param tmpReq RemoveWhiteListSettingRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return RemoveWhiteListSettingResponse
  */
+@context("removeWhiteListSettingWithContext")
 async function removeWhiteListSettingWithOptions(tmpReq: RemoveWhiteListSettingRequest, runtime: $RuntimeOptions): RemoveWhiteListSettingResponse {
   tmpReq.validate();
   var request = new RemoveWhiteListSettingShrinkRequest{};
@@ -4046,7 +4907,7 @@ async function removeWhiteListSettingWithOptions(tmpReq: RemoveWhiteListSettingR
 }
 
 /**
- * @summary 删除实人白名单
+ * @summary Delete Real Person Whitelist
  *
  * @param request RemoveWhiteListSettingRequest
  * @return RemoveWhiteListSettingResponse
@@ -4057,19 +4918,44 @@ async function removeWhiteListSetting(request: RemoveWhiteListSettingRequest): R
 }
 
 model Vehicle5ItemQueryRequest {
-  paramType?: string(name='ParamType', example='normal'),
-  vehicleNum?: string(name='VehicleNum'),
-  vehicleType?: string(name='VehicleType', example='02'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- **normal**: Unencrypted.
+- **md5**: MD5 encrypted.', example='normal'),
+  vehicleNum?: string(name='VehicleNum', description='License plate number
+
+> 
+> - When paramType is set to normal, enter the plain text.
+> - When paramType is set to md5, enter the plain text of all but the last two characters of the license plate + MD5 encryption (32-bit lowercase MD5) of the last two characters.', example='陕A9****'),
+  vehicleType?: string(name='VehicleType', description='Vehicle type
+
+> 
+> - 02: Ordinary passenger car
+> - 52: New energy passenger car', example='02'),
 }
 
 model Vehicle5ItemQueryResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='473469C7-AA6F-4DC5-B3DB-A3DC0D******'),
+  code?: string(name='Code', description='Return code', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0D******'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    vehicleInfo?: string(name='VehicleInfo'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Found (charged)
+- **3**: No record found (not charged)', example='1'),
+    vehicleInfo?: string(name='VehicleInfo', description='Vehicle information', example='{
+        "engineNo": "F0******",
+        "useProperty": 0,
+        "registrationDate": "****-**-** **:**:**",
+        "engineType": "B******",
+        "vin": "A********",
+        "state": "0",
+        "modelNo": "B********",
+        "type": "小型轿车",
+        "brand": "宝马",
+        "usePropertyDesc": "非营运",
+        "stateDesc": "正常"
+    }'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model Vehicle5ItemQueryResponse = {
@@ -4079,12 +4965,15 @@ model Vehicle5ItemQueryResponse = {
 }
 
 /**
- * @summary 车五项信息识别
+ * @summary Five-Item Vehicle Information Recognition
+ *
+ * @description Query basic vehicle information through the license plate number and vehicle type.
  *
  * @param request Vehicle5ItemQueryRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return Vehicle5ItemQueryResponse
  */
+@context("vehicle5ItemQueryWithContext")
 async function vehicle5ItemQueryWithOptions(request: Vehicle5ItemQueryRequest, runtime: $RuntimeOptions): Vehicle5ItemQueryResponse {
   request.validate();
   var query = {};
@@ -4115,7 +5004,9 @@ async function vehicle5ItemQueryWithOptions(request: Vehicle5ItemQueryRequest, r
 }
 
 /**
- * @summary 车五项信息识别
+ * @summary Five-Item Vehicle Information Recognition
+ *
+ * @description Query basic vehicle information through the license plate number and vehicle type.
  *
  * @param request Vehicle5ItemQueryRequest
  * @return Vehicle5ItemQueryResponse
@@ -4126,25 +5017,40 @@ async function vehicle5ItemQuery(request: Vehicle5ItemQueryRequest): Vehicle5Ite
 }
 
 model VehicleInsureQueryRequest {
-  paramType?: string(name='ParamType', example='normal'),
-  vehicleNum?: string(name='VehicleNum'),
-  vehicleType?: string(name='VehicleType', example='02'),
-  vin?: string(name='Vin', example='LB**************'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- **normal**: Unencrypted.
+- **md5**: MD5 encrypted.', example='normal'),
+  vehicleNum?: string(name='VehicleNum', description='License plate number
+> 
+> - When `paramType` is set to `normal`, enter the plain text.
+> - When `paramType` is set to `md5`, enter the plain text of all but the last two characters of the license plate + the MD5 encryption (32 lowercase characters) of the last two characters of the license plate.', example='陕A9****'),
+  vehicleType?: string(name='VehicleType', description='Driver\\\\"s license vehicle type.', example='02'),
+  vin?: string(name='Vin', description='Vehicle identification code, i.e., the vehicle VIN
+
+
+> 
+> - When `paramType` is set to `normal`, enter the plain text.
+> - When `paramType` is set to `md5`, enter the plain text of all but the last four characters of the VIN + the MD5 encryption (32 lowercase characters) of the last four characters of the VIN.', example='LB**************'),
 }
 
 model VehicleInsureQueryResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='5A6229C0-E156-48E4-B6EC-0F52********'),
+  code?: string(name='Code', description='Return code: 200 indicates success, others indicate failure.', example='200'),
+  message?: string(name='Message', description='Response message for the request information.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='5A6229C0-E156-48E4-B6EC-0F52********'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    vehicleInfo?: string(name='VehicleInfo', example='{
+    bizCode?: string(name='BizCode', description='Verification result code:
+
+> 
+> - 1: Found (charged)
+> - 3: No record found (not charged)', example='1'),
+    vehicleInfo?: string(name='VehicleInfo', description='Insurance date information', example='{
     "firstInsuranceDate": "****-**-**",
     "lastInsuranceDate": "****-**",
     "latestInsuranceDate": "****-**",
     "latestInsuranceDateStart": "****-**"
   }'),
-  }(name='ResultObject'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model VehicleInsureQueryResponse = {
@@ -4154,12 +5060,15 @@ model VehicleInsureQueryResponse = {
 }
 
 /**
- * @summary 车辆投保日期查询
+ * @summary Vehicle Insurance Date Inquiry
+ *
+ * @description Query the vehicle insurance date through the license plate number, vehicle type, and vehicle identification number (VIN).
  *
  * @param request VehicleInsureQueryRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return VehicleInsureQueryResponse
  */
+@context("vehicleInsureQueryWithContext")
 async function vehicleInsureQueryWithOptions(request: VehicleInsureQueryRequest, runtime: $RuntimeOptions): VehicleInsureQueryResponse {
   request.validate();
   var query = {};
@@ -4193,7 +5102,9 @@ async function vehicleInsureQueryWithOptions(request: VehicleInsureQueryRequest,
 }
 
 /**
- * @summary 车辆投保日期查询
+ * @summary Vehicle Insurance Date Inquiry
+ *
+ * @description Query the vehicle insurance date through the license plate number, vehicle type, and vehicle identification number (VIN).
  *
  * @param request VehicleInsureQueryRequest
  * @return VehicleInsureQueryResponse
@@ -4204,21 +5115,45 @@ async function vehicleInsureQuery(request: VehicleInsureQueryRequest): VehicleIn
 }
 
 model VehicleMetaVerifyRequest {
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
-  vehicleNum?: string(name='VehicleNum'),
-  vehicleType?: string(name='VehicleType', example='02'),
-  verifyMetaType?: string(name='VerifyMetaType', example='VEHICLE_2_META'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.
+
+This is a required field when VerifyMetaType is set to VEHICLE_3_META.
+> 
+> - When paramType is set to normal, enter the plain text.
+> - When paramType is set to md5, enter the first 6 digits in plain text + the birth date encrypted with MD5 (32 lowercase characters) + the last 4 digits in plain text.', example='4****************1'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: Encrypted with MD5.', example='normal'),
+  userName?: string(name='UserName', description='Name
+
+> This is an explanation
+> - When paramType is set to normal, enter the plain text.
+> - When paramType is set to md5, encrypt the first character of the name with MD5 (32 lowercase characters) + the rest of the name in plain text.', example='张**'),
+  vehicleNum?: string(name='VehicleNum', description='Vehicle license plate
+
+> 
+> - When paramType is set to normal, enter the plain text.
+> - When paramType is set to md5, enter the part of the license plate except for the last two characters in plain text + the last two characters of the license plate encrypted with MD5 (32 lowercase characters).', example='陕A9****'),
+  vehicleType?: string(name='VehicleType', description='Vehicle type', example='02'),
+  verifyMetaType?: string(name='VerifyMetaType', description='Verification type
+
+> 
+> - VEHICLE_2_META: Two-element verification, name + vehicle license plate verification;
+> - VEHICLE_3_META: Three-element verification, name + vehicle license plate + ID number verification;', example='VEHICLE_2_META'),
 }
 
 model VehicleMetaVerifyResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', description='Id of the request', example='8FC3D6AC-9FED-4311-8DA7-C4BF4*****'),
+  code?: string(name='Code', description='Response code, **200** indicates that the API response was successful.', example='200'),
+  message?: string(name='Message', description='Response message.', example='success'),
+  requestId?: string(name='RequestId', description='ID of the request', example='8FC3D6AC-9FED-4311-8DA7-C4BF4*****'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result.
+
+- 1: Consistent (billable)
+- 2: Inconsistent (billable)
+- 3: No record found (non-billable)', example='1'),
+  }(name='ResultObject', description='Returned result information.'),
 }
 
 model VehicleMetaVerifyResponse = {
@@ -4228,12 +5163,15 @@ model VehicleMetaVerifyResponse = {
 }
 
 /**
- * @summary 车辆要素核验
+ * @summary Vehicle Element Verification
+ *
+ * @description Verifies the consistency of name, ID number, vehicle license plate, and vehicle type.
  *
  * @param request VehicleMetaVerifyRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return VehicleMetaVerifyResponse
  */
+@context("vehicleMetaVerifyWithContext")
 async function vehicleMetaVerifyWithOptions(request: VehicleMetaVerifyRequest, runtime: $RuntimeOptions): VehicleMetaVerifyResponse {
   request.validate();
   var query = {};
@@ -4273,7 +5211,9 @@ async function vehicleMetaVerifyWithOptions(request: VehicleMetaVerifyRequest, r
 }
 
 /**
- * @summary 车辆要素核验
+ * @summary Vehicle Element Verification
+ *
+ * @description Verifies the consistency of name, ID number, vehicle license plate, and vehicle type.
  *
  * @param request VehicleMetaVerifyRequest
  * @return VehicleMetaVerifyResponse
@@ -4284,22 +5224,67 @@ async function vehicleMetaVerify(request: VehicleMetaVerifyRequest): VehicleMeta
 }
 
 model VehicleMetaVerifyV2Request {
-  identifyNum?: string(name='IdentifyNum', example='4****************1'),
-  paramType?: string(name='ParamType', example='normal'),
-  userName?: string(name='UserName'),
-  vehicleNum?: string(name='VehicleNum'),
-  vehicleType?: string(name='VehicleType', example='02'),
-  verifyMetaType?: string(name='VerifyMetaType', example='VEHICLE_3_META'),
+  identifyNum?: string(name='IdentifyNum', description='ID number.
+
+This is a required field when VerifyMetaType is VEHICLE_3_META.
+
+> 
+> - When paramType is normal, enter plain text.
+> - When paramType is md5, enter the first 6 digits in plain text + MD5 (32 lowercase) of the birth date + the last 4 digits in plain text.', example='4****************1'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- normal: Unencrypted.
+- md5: Md5 encrypted.', example='normal'),
+  userName?: string(name='UserName', description='Name
+> 
+> - When paramType is normal, enter plain text.
+> - When paramType is md5, enter the first character of the name as MD5 (32 lowercase) + the rest of the name in plain text.', example='张*'),
+  vehicleNum?: string(name='VehicleNum', description='License plate number
+
+> 
+> - When paramType is normal, enter plain text.
+> - When paramType is md5, enter all but the last two characters in plain text + the last two characters as MD5 (32 lowercase).', example='陕A9****'),
+  vehicleType?: string(name='VehicleType', description='Vehicle type', example='02'),
+  verifyMetaType?: string(name='VerifyMetaType', description='Verification type
+
+> 
+> - VEHICLE_2_META: Two-element verification, name + license plate number verification;
+> - VEHICLE_3_META: Three-element verification, name + license plate number + ID number verification;', example='VEHICLE_3_META'),
 }
 
 model VehicleMetaVerifyV2ResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='5A6229C0-E156-48E4-B6EC-0F528B******'),
+  code?: string(name='Code', description='Return code, **200** indicates successful API response.', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='5A6229C0-E156-48E4-B6EC-0F528B******'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    vehicleInfo?: string(name='VehicleInfo'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+- **1**: Verification consistent.
+- **2**: Verification inconsistent.
+- **3**: No record found.', example='1'),
+    vehicleInfo?: string(name='VehicleInfo', description='Detailed vehicle information.', example='{
+	"approvedCount": "7",
+	"approvedLoad": "0",
+	"axleCount": "2",
+	"backWheelDistance": "1585",
+	"brand": "雷克萨斯",
+	"displacement": "4608",
+	"engineNum": "1*********",
+	"engineType": "1**",
+	"frontWheelDistance": "1585",
+	"fuelType": "汽油",
+	"inspectionDate": "****-**-** **:**:**",
+	"modelNum": "UR*****-******",
+	"power": "228",
+	"registrationDate": "****-**-** **:**:**",
+	"retirementDate": "****-**-** **:**:**",
+	"totalMass": "2940",
+	"unladenMass": "2350",
+	"useProperty": "非营运",
+	"vehicleState": "正常",
+	"vin": "JT***************",
+	"wheelBase": "2790"
+}'),
+  }(name='ResultObject', description='Returned result'),
 }
 
 model VehicleMetaVerifyV2Response = {
@@ -4309,12 +5294,15 @@ model VehicleMetaVerifyV2Response = {
 }
 
 /**
- * @summary 车辆要素核验增强版
+ * @summary Enhanced Vehicle Element Verification
+ *
+ * @description Verifies the consistency of name, ID number, license plate number, and vehicle type, and supports returning detailed vehicle information.
  *
  * @param request VehicleMetaVerifyV2Request
  * @param runtime runtime options for this request RuntimeOptions
  * @return VehicleMetaVerifyV2Response
  */
+@context("vehicleMetaVerifyV2WithContext")
 async function vehicleMetaVerifyV2WithOptions(request: VehicleMetaVerifyV2Request, runtime: $RuntimeOptions): VehicleMetaVerifyV2Response {
   request.validate();
   var query = {};
@@ -4354,7 +5342,9 @@ async function vehicleMetaVerifyV2WithOptions(request: VehicleMetaVerifyV2Reques
 }
 
 /**
- * @summary 车辆要素核验增强版
+ * @summary Enhanced Vehicle Element Verification
+ *
+ * @description Verifies the consistency of name, ID number, license plate number, and vehicle type, and supports returning detailed vehicle information.
  *
  * @param request VehicleMetaVerifyV2Request
  * @return VehicleMetaVerifyV2Response
@@ -4365,19 +5355,58 @@ async function vehicleMetaVerifyV2(request: VehicleMetaVerifyV2Request): Vehicle
 }
 
 model VehicleQueryRequest {
-  paramType?: string(name='ParamType', example='normal'),
-  vehicleNum?: string(name='VehicleNum'),
-  vehicleType?: string(name='VehicleType', example='02'),
+  paramType?: string(name='ParamType', description='Parameter type:
+
+- **normal**: Unencrypted.
+- **md5**: MD5 encrypted.', example='normal'),
+  vehicleNum?: string(name='VehicleNum', description='License plate number
+
+> 
+> - When paramType is set to normal, enter the plain text.
+> - When paramType is set to md5, enter the unencrypted part of the license plate number except for the last two characters + the MD5 (32 lowercase) encryption of the last two characters of the license plate.', example='陕A9****'),
+  vehicleType?: string(name='VehicleType', description='Vehicle type', example='02'),
 }
 
 model VehicleQueryResponseBody = {
-  code?: string(name='Code', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='D6163397-15C5-419C-9ACC-B7C83*******'),
+  code?: string(name='Code', description='Return code: 200 for success, others for failure', example='200'),
+  message?: string(name='Message', description='Return message.', example='success'),
+  requestId?: string(name='RequestId', description='Request ID', example='D6163397-15C5-419C-9ACC-B7C83*******'),
   resultObject?: {
-    bizCode?: string(name='BizCode', example='1'),
-    vehicleInfo?: string(name='VehicleInfo'),
-  }(name='ResultObject'),
+    bizCode?: string(name='BizCode', description='Verification result code:
+
+> 
+> - 1: Found (charged)
+> - 3: No record found (not charged)', example='1'),
+    vehicleInfo?: string(name='VehicleInfo', description='Vehicle information.', example='{
+	"approvedCount": 7,
+	"approvedLoad": 0,
+	"axleCount": 2,
+	"backWheelDistance": 1585,
+	"brand": "雷克萨斯",
+	"compulsoryScrapTo": "****-**-** **:**:**",
+	"displacement": 4608,
+	"engineNo": "1UR0******",
+	"engineType": "1**",
+	"frontWheelDistance": 1585,
+	"fuelType": "汽油",
+	"high": 1860,
+	"inspectionResultEffectiveTo": "****-**-** **:**:**",
+	"modelNo": "UR*****-******",
+	"power": 228,
+	"registrationDate": "****-**-** **:**:**",
+	"releaseDate": "",
+	"state": "0",
+	"stateDesc": "正常",
+	"totalMass": 2940,
+	"unladenMass": 2350,
+	"useProperty": 0,
+	"usePropertyDesc": "非营运",
+	"long": 4890,
+	"vin": "A***********",
+	"wheelBase": 2790,
+	"wide": 1910
+}'),
+  }(name='ResultObject', description='Request result'),
 }
 
 model VehicleQueryResponse = {
@@ -4387,12 +5416,15 @@ model VehicleQueryResponse = {
 }
 
 /**
- * @summary 车辆信息识别
+ * @summary Vehicle Information Recognition
+ *
+ * @description Query detailed vehicle information through the license plate number and vehicle type.
  *
  * @param request VehicleQueryRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return VehicleQueryResponse
  */
+@context("vehicleQueryWithContext")
 async function vehicleQueryWithOptions(request: VehicleQueryRequest, runtime: $RuntimeOptions): VehicleQueryResponse {
   request.validate();
   var query = {};
@@ -4423,7 +5455,9 @@ async function vehicleQueryWithOptions(request: VehicleQueryRequest, runtime: $R
 }
 
 /**
- * @summary 车辆信息识别
+ * @summary Vehicle Information Recognition
+ *
+ * @description Query detailed vehicle information through the license plate number and vehicle type.
  *
  * @param request VehicleQueryRequest
  * @return VehicleQueryResponse
@@ -4483,6 +5517,7 @@ model VerifyMaterialResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return VerifyMaterialResponse
  */
+@context("verifyMaterialWithContext")
 async function verifyMaterialWithOptions(request: VerifyMaterialRequest, runtime: $RuntimeOptions): VerifyMaterialResponse {
   request.validate();
   var query = {};
@@ -4536,3 +5571,36 @@ async function verifyMaterial(request: VerifyMaterialRequest): VerifyMaterialRes
   return verifyMaterialWithOptions(request, runtime);
 }
 
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
+  __request.protocol = 'HTTPS';
+  __request.method = 'POST';
+  __request.pathname = `/`;
+  __request.headers = {
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
+  };
+  __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
+  __request.body = $Form.toFileForm(form, boundary);
+} returns {
+  var respMap : object = null;
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
+      data = {
+        httpCode = __response.statusCode,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
+      }
+    };
+  }
+  respMap = $XML.parseXml(bodyStr, null);
+  return {
+    ...respMap,
+  };
+}
