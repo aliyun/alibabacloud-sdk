@@ -1,18 +1,14 @@
 /**
  *
  */
-import Util;
-import XML;
 import Credential;
-import FileForm;
 import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import OpenApi.OpenApiUtil;
 
 extends OpenApi;
 
 
-init(config: OpenApi.Config){
+init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
   
@@ -21,14 +17,14 @@ init(config: OpenApi.Config){
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
+  if (!$isNull(endpoint)) {
     return endpoint;
   }
   
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
 model ChangeSkyRequest {
@@ -59,19 +55,20 @@ model ChangeSkyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ChangeSkyResponse
  */
-async function changeSkyWithOptions(request: ChangeSkyRequest, runtime: Util.RuntimeOptions): ChangeSkyResponse {
-  Util.validateModel(request);
+@context("changeSkyWithContext")
+async function changeSkyWithOptions(request: ChangeSkyRequest, runtime: $RuntimeOptions): ChangeSkyResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.replaceImageURL)) {
+  if (!$isNull(request.replaceImageURL)) {
     query['ReplaceImageURL'] = request.replaceImageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ChangeSky',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -90,32 +87,31 @@ async function changeSkyWithOptions(request: ChangeSkyRequest, runtime: Util.Run
  * @return ChangeSkyResponse
  */
 async function changeSky(request: ChangeSkyRequest): ChangeSkyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return changeSkyWithOptions(request, runtime);
 }
 
-async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.RuntimeOptions): ChangeSkyResponse {
+async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: $RuntimeOptions): ChangeSkyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -129,10 +125,10 @@ async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -144,7 +140,7 @@ async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -152,13 +148,12 @@ async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.
   var changeSkyReq = new ChangeSkyRequest{};
   OpenApiUtil.convert(request, changeSkyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -175,13 +170,12 @@ async function changeSkyAdvance(request: ChangeSkyAdvanceRequest, runtime: Util.
     _postOSSObject(authResponseBody['Bucket'], ossHeader);
     changeSkyReq.imageURL = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
-  if(!Util.isUnset(request.replaceImageURLObject)) {
-    var tmpResp1: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp1);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.replaceImageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.replaceImageURLObject,
       contentType = '',
@@ -228,16 +222,17 @@ model GetAsyncJobResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAsyncJobResultResponse
  */
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
+@context("getAsyncJobResultWithContext")
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: $RuntimeOptions): GetAsyncJobResultResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.jobId)) {
+  if (!$isNull(request.jobId)) {
     body['JobId'] = request.jobId;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'GetAsyncJobResult',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -256,7 +251,7 @@ async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, r
  * @return GetAsyncJobResultResponse
  */
 async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return getAsyncJobResultWithOptions(request, runtime);
 }
 
@@ -292,16 +287,17 @@ model ParseFaceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ParseFaceResponse
  */
-async function parseFaceWithOptions(request: ParseFaceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
-  Util.validateModel(request);
+@context("parseFaceWithContext")
+async function parseFaceWithOptions(request: ParseFaceRequest, runtime: $RuntimeOptions): ParseFaceResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ParseFace',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -320,32 +316,31 @@ async function parseFaceWithOptions(request: ParseFaceRequest, runtime: Util.Run
  * @return ParseFaceResponse
  */
 async function parseFace(request: ParseFaceRequest): ParseFaceResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return parseFaceWithOptions(request, runtime);
 }
 
-async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.RuntimeOptions): ParseFaceResponse {
+async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: $RuntimeOptions): ParseFaceResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -359,10 +354,10 @@ async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -374,7 +369,7 @@ async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -382,13 +377,12 @@ async function parseFaceAdvance(request: ParseFaceAdvanceRequest, runtime: Util.
   var parseFaceReq = new ParseFaceRequest{};
   OpenApiUtil.convert(request, parseFaceReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -441,19 +435,20 @@ model RefineMaskResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RefineMaskResponse
  */
-async function refineMaskWithOptions(request: RefineMaskRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
-  Util.validateModel(request);
+@context("refineMaskWithContext")
+async function refineMaskWithOptions(request: RefineMaskRequest, runtime: $RuntimeOptions): RefineMaskResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.maskImageURL)) {
+  if (!$isNull(request.maskImageURL)) {
     body['MaskImageURL'] = request.maskImageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'RefineMask',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -472,32 +467,31 @@ async function refineMaskWithOptions(request: RefineMaskRequest, runtime: Util.R
  * @return RefineMaskResponse
  */
 async function refineMask(request: RefineMaskRequest): RefineMaskResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return refineMaskWithOptions(request, runtime);
 }
 
-async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Util.RuntimeOptions): RefineMaskResponse {
+async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: $RuntimeOptions): RefineMaskResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -511,10 +505,10 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -526,7 +520,7 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -534,13 +528,12 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
   var refineMaskReq = new RefineMaskRequest{};
   OpenApiUtil.convert(request, refineMaskReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -557,13 +550,12 @@ async function refineMaskAdvance(request: RefineMaskAdvanceRequest, runtime: Uti
     _postOSSObject(authResponseBody['Bucket'], ossHeader);
     refineMaskReq.imageURL = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
-  if(!Util.isUnset(request.maskImageURLObject)) {
-    var tmpResp1: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp1);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.maskImageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.maskImageURLObject,
       contentType = '',
@@ -612,19 +604,20 @@ model SegmentBodyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentBodyResponse
  */
-async function segmentBodyWithOptions(request: SegmentBodyRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
-  Util.validateModel(request);
+@context("segmentBodyWithContext")
+async function segmentBodyWithOptions(request: SegmentBodyRequest, runtime: $RuntimeOptions): SegmentBodyResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentBody',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -643,32 +636,31 @@ async function segmentBodyWithOptions(request: SegmentBodyRequest, runtime: Util
  * @return SegmentBodyResponse
  */
 async function segmentBody(request: SegmentBodyRequest): SegmentBodyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentBodyWithOptions(request, runtime);
 }
 
-async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentBodyResponse {
+async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: $RuntimeOptions): SegmentBodyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -682,10 +674,10 @@ async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: U
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -697,7 +689,7 @@ async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: U
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -705,13 +697,12 @@ async function segmentBodyAdvance(request: SegmentBodyAdvanceRequest, runtime: U
   var segmentBodyReq = new SegmentBodyRequest{};
   OpenApiUtil.convert(request, segmentBodyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -769,25 +760,26 @@ model SegmentClothResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentClothResponse
  */
-async function segmentClothWithOptions(request: SegmentClothRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
-  Util.validateModel(request);
+@context("segmentClothWithContext")
+async function segmentClothWithOptions(request: SegmentClothRequest, runtime: $RuntimeOptions): SegmentClothResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.clothClass)) {
+  if (!$isNull(request.clothClass)) {
     query['ClothClass'] = request.clothClass;
   }
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.outMode)) {
+  if (!$isNull(request.outMode)) {
     query['OutMode'] = request.outMode;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentCloth',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -806,32 +798,31 @@ async function segmentClothWithOptions(request: SegmentClothRequest, runtime: Ut
  * @return SegmentClothResponse
  */
 async function segmentCloth(request: SegmentClothRequest): SegmentClothResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentClothWithOptions(request, runtime);
 }
 
-async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime: Util.RuntimeOptions): SegmentClothResponse {
+async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime: $RuntimeOptions): SegmentClothResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -845,10 +836,10 @@ async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime:
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -860,7 +851,7 @@ async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime:
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -868,13 +859,12 @@ async function segmentClothAdvance(request: SegmentClothAdvanceRequest, runtime:
   var segmentClothReq = new SegmentClothRequest{};
   OpenApiUtil.convert(request, segmentClothReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -923,19 +913,20 @@ model SegmentCommodityResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentCommodityResponse
  */
-async function segmentCommodityWithOptions(request: SegmentCommodityRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
-  Util.validateModel(request);
+@context("segmentCommodityWithContext")
+async function segmentCommodityWithOptions(request: SegmentCommodityRequest, runtime: $RuntimeOptions): SegmentCommodityResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentCommodity',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -954,32 +945,31 @@ async function segmentCommodityWithOptions(request: SegmentCommodityRequest, run
  * @return SegmentCommodityResponse
  */
 async function segmentCommodity(request: SegmentCommodityRequest): SegmentCommodityResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentCommodityWithOptions(request, runtime);
 }
 
-async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, runtime: Util.RuntimeOptions): SegmentCommodityResponse {
+async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, runtime: $RuntimeOptions): SegmentCommodityResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -993,10 +983,10 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1008,7 +998,7 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1016,13 +1006,12 @@ async function segmentCommodityAdvance(request: SegmentCommodityAdvanceRequest, 
   var segmentCommodityReq = new SegmentCommodityRequest{};
   OpenApiUtil.convert(request, segmentCommodityReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1071,19 +1060,20 @@ model SegmentCommonImageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentCommonImageResponse
  */
-async function segmentCommonImageWithOptions(request: SegmentCommonImageRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
-  Util.validateModel(request);
+@context("segmentCommonImageWithContext")
+async function segmentCommonImageWithOptions(request: SegmentCommonImageRequest, runtime: $RuntimeOptions): SegmentCommonImageResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentCommonImage',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1102,32 +1092,31 @@ async function segmentCommonImageWithOptions(request: SegmentCommonImageRequest,
  * @return SegmentCommonImageResponse
  */
 async function segmentCommonImage(request: SegmentCommonImageRequest): SegmentCommonImageResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentCommonImageWithOptions(request, runtime);
 }
 
-async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceRequest, runtime: Util.RuntimeOptions): SegmentCommonImageResponse {
+async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceRequest, runtime: $RuntimeOptions): SegmentCommonImageResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1141,10 +1130,10 @@ async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceReque
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1156,7 +1145,7 @@ async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceReque
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1164,13 +1153,12 @@ async function segmentCommonImageAdvance(request: SegmentCommonImageAdvanceReque
   var segmentCommonImageReq = new SegmentCommonImageRequest{};
   OpenApiUtil.convert(request, segmentCommonImageReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1219,19 +1207,20 @@ model SegmentFoodResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentFoodResponse
  */
-async function segmentFoodWithOptions(request: SegmentFoodRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
-  Util.validateModel(request);
+@context("segmentFoodWithContext")
+async function segmentFoodWithOptions(request: SegmentFoodRequest, runtime: $RuntimeOptions): SegmentFoodResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentFood',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1250,32 +1239,31 @@ async function segmentFoodWithOptions(request: SegmentFoodRequest, runtime: Util
  * @return SegmentFoodResponse
  */
 async function segmentFood(request: SegmentFoodRequest): SegmentFoodResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentFoodWithOptions(request, runtime);
 }
 
-async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: Util.RuntimeOptions): SegmentFoodResponse {
+async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: $RuntimeOptions): SegmentFoodResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1289,10 +1277,10 @@ async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: U
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1304,7 +1292,7 @@ async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: U
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1312,13 +1300,12 @@ async function segmentFoodAdvance(request: SegmentFoodAdvanceRequest, runtime: U
   var segmentFoodReq = new SegmentFoodRequest{};
   OpenApiUtil.convert(request, segmentFoodReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1365,16 +1352,17 @@ model SegmentHDBodyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentHDBodyResponse
  */
-async function segmentHDBodyWithOptions(request: SegmentHDBodyRequest, runtime: Util.RuntimeOptions): SegmentHDBodyResponse {
-  Util.validateModel(request);
+@context("segmentHDBodyWithContext")
+async function segmentHDBodyWithOptions(request: SegmentHDBodyRequest, runtime: $RuntimeOptions): SegmentHDBodyResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentHDBody',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1393,32 +1381,31 @@ async function segmentHDBodyWithOptions(request: SegmentHDBodyRequest, runtime: 
  * @return SegmentHDBodyResponse
  */
 async function segmentHDBody(request: SegmentHDBodyRequest): SegmentHDBodyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentHDBodyWithOptions(request, runtime);
 }
 
-async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHDBodyResponse {
+async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtime: $RuntimeOptions): SegmentHDBodyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1432,10 +1419,10 @@ async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtim
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1447,7 +1434,7 @@ async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtim
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1455,13 +1442,12 @@ async function segmentHDBodyAdvance(request: SegmentHDBodyAdvanceRequest, runtim
   var segmentHDBodyReq = new SegmentHDBodyRequest{};
   OpenApiUtil.convert(request, segmentHDBodyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1509,16 +1495,17 @@ model SegmentHDCommonImageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentHDCommonImageResponse
  */
-async function segmentHDCommonImageWithOptions(request: SegmentHDCommonImageRequest, runtime: Util.RuntimeOptions): SegmentHDCommonImageResponse {
-  Util.validateModel(request);
+@context("segmentHDCommonImageWithContext")
+async function segmentHDCommonImageWithOptions(request: SegmentHDCommonImageRequest, runtime: $RuntimeOptions): SegmentHDCommonImageResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageUrl)) {
+  if (!$isNull(request.imageUrl)) {
     body['ImageUrl'] = request.imageUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentHDCommonImage',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1537,32 +1524,31 @@ async function segmentHDCommonImageWithOptions(request: SegmentHDCommonImageRequ
  * @return SegmentHDCommonImageResponse
  */
 async function segmentHDCommonImage(request: SegmentHDCommonImageRequest): SegmentHDCommonImageResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentHDCommonImageWithOptions(request, runtime);
 }
 
-async function segmentHDCommonImageAdvance(request: SegmentHDCommonImageAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHDCommonImageResponse {
+async function segmentHDCommonImageAdvance(request: SegmentHDCommonImageAdvanceRequest, runtime: $RuntimeOptions): SegmentHDCommonImageResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1576,10 +1562,10 @@ async function segmentHDCommonImageAdvance(request: SegmentHDCommonImageAdvanceR
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1591,7 +1577,7 @@ async function segmentHDCommonImageAdvance(request: SegmentHDCommonImageAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1599,13 +1585,12 @@ async function segmentHDCommonImageAdvance(request: SegmentHDCommonImageAdvanceR
   var segmentHDCommonImageReq = new SegmentHDCommonImageRequest{};
   OpenApiUtil.convert(request, segmentHDCommonImageReq);
 
-  if(!Util.isUnset(request.imageUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageUrlObject,
       contentType = '',
@@ -1652,16 +1637,17 @@ model SegmentHDSkyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentHDSkyResponse
  */
-async function segmentHDSkyWithOptions(request: SegmentHDSkyRequest, runtime: Util.RuntimeOptions): SegmentHDSkyResponse {
-  Util.validateModel(request);
+@context("segmentHDSkyWithContext")
+async function segmentHDSkyWithOptions(request: SegmentHDSkyRequest, runtime: $RuntimeOptions): SegmentHDSkyResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentHDSky',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1680,32 +1666,31 @@ async function segmentHDSkyWithOptions(request: SegmentHDSkyRequest, runtime: Ut
  * @return SegmentHDSkyResponse
  */
 async function segmentHDSky(request: SegmentHDSkyRequest): SegmentHDSkyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentHDSkyWithOptions(request, runtime);
 }
 
-async function segmentHDSkyAdvance(request: SegmentHDSkyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHDSkyResponse {
+async function segmentHDSkyAdvance(request: SegmentHDSkyAdvanceRequest, runtime: $RuntimeOptions): SegmentHDSkyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1719,10 +1704,10 @@ async function segmentHDSkyAdvance(request: SegmentHDSkyAdvanceRequest, runtime:
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1734,7 +1719,7 @@ async function segmentHDSkyAdvance(request: SegmentHDSkyAdvanceRequest, runtime:
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1742,13 +1727,12 @@ async function segmentHDSkyAdvance(request: SegmentHDSkyAdvanceRequest, runtime:
   var segmentHDSkyReq = new SegmentHDSkyRequest{};
   OpenApiUtil.convert(request, segmentHDSkyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1803,16 +1787,17 @@ model SegmentHairResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentHairResponse
  */
-async function segmentHairWithOptions(request: SegmentHairRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
-  Util.validateModel(request);
+@context("segmentHairWithContext")
+async function segmentHairWithOptions(request: SegmentHairRequest, runtime: $RuntimeOptions): SegmentHairResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentHair',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1831,32 +1816,31 @@ async function segmentHairWithOptions(request: SegmentHairRequest, runtime: Util
  * @return SegmentHairResponse
  */
 async function segmentHair(request: SegmentHairRequest): SegmentHairResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentHairWithOptions(request, runtime);
 }
 
-async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHairResponse {
+async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: $RuntimeOptions): SegmentHairResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1870,10 +1854,10 @@ async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: U
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1885,7 +1869,7 @@ async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: U
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1893,13 +1877,12 @@ async function segmentHairAdvance(request: SegmentHairAdvanceRequest, runtime: U
   var segmentHairReq = new SegmentHairRequest{};
   OpenApiUtil.convert(request, segmentHairReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1956,19 +1939,20 @@ model SegmentHeadResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentHeadResponse
  */
-async function segmentHeadWithOptions(request: SegmentHeadRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
-  Util.validateModel(request);
+@context("segmentHeadWithContext")
+async function segmentHeadWithOptions(request: SegmentHeadRequest, runtime: $RuntimeOptions): SegmentHeadResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.returnForm)) {
+  if (!$isNull(request.returnForm)) {
     query['ReturnForm'] = request.returnForm;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentHead',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1987,32 +1971,31 @@ async function segmentHeadWithOptions(request: SegmentHeadRequest, runtime: Util
  * @return SegmentHeadResponse
  */
 async function segmentHead(request: SegmentHeadRequest): SegmentHeadResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentHeadWithOptions(request, runtime);
 }
 
-async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: Util.RuntimeOptions): SegmentHeadResponse {
+async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: $RuntimeOptions): SegmentHeadResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2026,10 +2009,10 @@ async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: U
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2041,7 +2024,7 @@ async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: U
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2049,13 +2032,12 @@ async function segmentHeadAdvance(request: SegmentHeadAdvanceRequest, runtime: U
   var segmentHeadReq = new SegmentHeadRequest{};
   OpenApiUtil.convert(request, segmentHeadReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -2104,16 +2086,17 @@ model SegmentSkinResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentSkinResponse
  */
-async function segmentSkinWithOptions(request: SegmentSkinRequest, runtime: Util.RuntimeOptions): SegmentSkinResponse {
-  Util.validateModel(request);
+@context("segmentSkinWithContext")
+async function segmentSkinWithOptions(request: SegmentSkinRequest, runtime: $RuntimeOptions): SegmentSkinResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.URL)) {
+  if (!$isNull(request.URL)) {
     body['URL'] = request.URL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentSkin',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -2134,32 +2117,31 @@ async function segmentSkinWithOptions(request: SegmentSkinRequest, runtime: Util
  * @return SegmentSkinResponse
  */
 async function segmentSkin(request: SegmentSkinRequest): SegmentSkinResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentSkinWithOptions(request, runtime);
 }
 
-async function segmentSkinAdvance(request: SegmentSkinAdvanceRequest, runtime: Util.RuntimeOptions): SegmentSkinResponse {
+async function segmentSkinAdvance(request: SegmentSkinAdvanceRequest, runtime: $RuntimeOptions): SegmentSkinResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2173,10 +2155,10 @@ async function segmentSkinAdvance(request: SegmentSkinAdvanceRequest, runtime: U
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2188,7 +2170,7 @@ async function segmentSkinAdvance(request: SegmentSkinAdvanceRequest, runtime: U
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2196,13 +2178,12 @@ async function segmentSkinAdvance(request: SegmentSkinAdvanceRequest, runtime: U
   var segmentSkinReq = new SegmentSkinRequest{};
   OpenApiUtil.convert(request, segmentSkinReq);
 
-  if(!Util.isUnset(request.URLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.URLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.URLObject,
       contentType = '',
@@ -2249,16 +2230,17 @@ model SegmentSkyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SegmentSkyResponse
  */
-async function segmentSkyWithOptions(request: SegmentSkyRequest, runtime: Util.RuntimeOptions): SegmentSkyResponse {
-  Util.validateModel(request);
+@context("segmentSkyWithContext")
+async function segmentSkyWithOptions(request: SegmentSkyRequest, runtime: $RuntimeOptions): SegmentSkyResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SegmentSky',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -2277,32 +2259,31 @@ async function segmentSkyWithOptions(request: SegmentSkyRequest, runtime: Util.R
  * @return SegmentSkyResponse
  */
 async function segmentSky(request: SegmentSkyRequest): SegmentSkyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return segmentSkyWithOptions(request, runtime);
 }
 
-async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Util.RuntimeOptions): SegmentSkyResponse {
+async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: $RuntimeOptions): SegmentSkyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2316,10 +2297,10 @@ async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Uti
     Product = 'imageseg',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2331,7 +2312,7 @@ async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Uti
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2339,13 +2320,12 @@ async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Uti
   var segmentSkyReq = new SegmentSkyRequest{};
   OpenApiUtil.convert(request, segmentSkyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -2366,37 +2346,35 @@ async function segmentSkyAdvance(request: SegmentSkyAdvanceRequest, runtime: Uti
   return segmentSkyResp;
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
-  var form = Util.assertAsMap(data);
-  var boundary = FileForm.getBoundary();
-  var host = Util.assertAsString(form.host);
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
   __request.headers = {
-    host = host,
-    date = Util.getDateUTCString(),
-    user-agent = Util.getUserAgent(''),
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
   };
   __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
-  __request.body = FileForm.toFileForm(form, boundary);
+  __request.body = $Form.toFileForm(form, boundary);
 } returns {
   var respMap : object = null;
-  var bodyStr = Util.readAsString(__response.body);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-    respMap = XML.parseXml(bodyStr, null);
-    var err = Util.assertAsMap(respMap.Error);
-    throw {
-      code = err.Code,
-      message = err.Message,
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
       data = {
         httpCode = __response.statusCode,
-        requestId = err.RequestId,
-        hostId = err.HostId,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
       }
     };
   }
-  respMap = XML.parseXml(bodyStr, null);
+  respMap = $XML.parseXml(bodyStr, null);
   return {
     ...respMap,
   };
