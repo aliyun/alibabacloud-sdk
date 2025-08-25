@@ -1,19 +1,14 @@
 /**
  *
  */
-import Util;
-import XML;
 import Credential;
-import FileForm;
-import Number;
 import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import OpenApi.OpenApiUtil;
 
 extends OpenApi;
 
 
-init(config: OpenApi.Config){
+init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
   
@@ -22,14 +17,14 @@ init(config: OpenApi.Config){
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
+  if (!$isNull(endpoint)) {
     return endpoint;
   }
   
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
 model ScanImageRequest {
@@ -145,19 +140,20 @@ model ScanImageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ScanImageResponse
  */
-async function scanImageWithOptions(request: ScanImageRequest, runtime: Util.RuntimeOptions): ScanImageResponse {
-  Util.validateModel(request);
+@context("scanImageWithContext")
+async function scanImageWithOptions(request: ScanImageRequest, runtime: $RuntimeOptions): ScanImageResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.scene)) {
+  if (!$isNull(request.scene)) {
     body['Scene'] = request.scene;
   }
-  if (!Util.isUnset(request.task)) {
+  if (!$isNull(request.task)) {
     body['Task'] = request.task;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ScanImage',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -178,32 +174,31 @@ async function scanImageWithOptions(request: ScanImageRequest, runtime: Util.Run
  * @return ScanImageResponse
  */
 async function scanImage(request: ScanImageRequest): ScanImageResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return scanImageWithOptions(request, runtime);
 }
 
-async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: Util.RuntimeOptions): ScanImageResponse {
+async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: $RuntimeOptions): ScanImageResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -217,10 +212,10 @@ async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: Util.
     Product = 'imageaudit',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -232,7 +227,7 @@ async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: Util.
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -240,16 +235,15 @@ async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: Util.
   var scanImageReq = new ScanImageRequest{};
   OpenApiUtil.convert(request, scanImageReq);
 
-  if(!Util.isUnset(request.task)) {
+  if(!$isNull(request.task)) {
     var i0 : integer = 0;
     for (var item0 : request.task) {
-      if(!Util.isUnset(item0.imageURLObject)) {
-        var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-        authResponse = Util.assertAsMap(tmpResp0);
-        tmpBody = Util.assertAsMap(authResponse['body']);
-        useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-        authResponseBody = Util.stringifyMapValue(tmpBody);
-        fileObj = new FileForm.FileField{
+      if(!$isNull(item0.imageURLObject)) {
+        authResponse = authClient.callApi(authParams, authReq, runtime);
+        tmpBody = $object(authResponse['body']);
+        useAccelerate = $boolean(tmpBody['UseAccelerate']);
+        authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+        fileObj = new $FileField{
           filename = authResponseBody['ObjectKey'],
           content = item0.imageURLObject,
           contentType = '',
@@ -264,9 +258,9 @@ async function scanImageAdvance(request: ScanImageAdvanceRequest, runtime: Util.
           success_action_status = '201',
         };
         _postOSSObject(authResponseBody['Bucket'], ossHeader);
-        var tmp : ScanImageRequest.task = scanImageReq.task[i0];
-        tmp.imageURL = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
-        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+        var tmpObj : ScanImageRequest.task = scanImageReq.task[i0];
+        tmpObj.imageURL = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+        i0++;
       }
     }
   }
@@ -330,19 +324,20 @@ model ScanTextResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ScanTextResponse
  */
-async function scanTextWithOptions(request: ScanTextRequest, runtime: Util.RuntimeOptions): ScanTextResponse {
-  Util.validateModel(request);
+@context("scanTextWithContext")
+async function scanTextWithOptions(request: ScanTextRequest, runtime: $RuntimeOptions): ScanTextResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.labels)) {
+  if (!$isNull(request.labels)) {
     body['Labels'] = request.labels;
   }
-  if (!Util.isUnset(request.tasks)) {
+  if (!$isNull(request.tasks)) {
     body['Tasks'] = request.tasks;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ScanText',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -361,41 +356,39 @@ async function scanTextWithOptions(request: ScanTextRequest, runtime: Util.Runti
  * @return ScanTextResponse
  */
 async function scanText(request: ScanTextRequest): ScanTextResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return scanTextWithOptions(request, runtime);
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
-  var form = Util.assertAsMap(data);
-  var boundary = FileForm.getBoundary();
-  var host = Util.assertAsString(form.host);
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
   __request.headers = {
-    host = host,
-    date = Util.getDateUTCString(),
-    user-agent = Util.getUserAgent(''),
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
   };
   __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
-  __request.body = FileForm.toFileForm(form, boundary);
+  __request.body = $Form.toFileForm(form, boundary);
 } returns {
   var respMap : object = null;
-  var bodyStr = Util.readAsString(__response.body);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-    respMap = XML.parseXml(bodyStr, null);
-    var err = Util.assertAsMap(respMap.Error);
-    throw {
-      code = err.Code,
-      message = err.Message,
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
       data = {
         httpCode = __response.statusCode,
-        requestId = err.RequestId,
-        hostId = err.HostId,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
       }
     };
   }
-  respMap = XML.parseXml(bodyStr, null);
+  respMap = $XML.parseXml(bodyStr, null);
   return {
     ...respMap,
   };
