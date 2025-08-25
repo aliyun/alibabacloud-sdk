@@ -1,19 +1,14 @@
 /**
  *
  */
-import Util;
-import XML;
 import Credential;
-import FileForm;
-import Number;
 import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import OpenApi.OpenApiUtil;
 
 extends OpenApi;
 
 
-init(config: OpenApi.Config){
+init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
   
@@ -22,14 +17,14 @@ init(config: OpenApi.Config){
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
+  if (!$isNull(endpoint)) {
     return endpoint;
   }
   
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
 model AbstractEcommerceVideoRequest {
@@ -66,25 +61,26 @@ model AbstractEcommerceVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AbstractEcommerceVideoResponse
  */
-async function abstractEcommerceVideoWithOptions(request: AbstractEcommerceVideoRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
-  Util.validateModel(request);
+@context("abstractEcommerceVideoWithContext")
+async function abstractEcommerceVideoWithOptions(request: AbstractEcommerceVideoRequest, runtime: $RuntimeOptions): AbstractEcommerceVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.duration)) {
+  if (!$isNull(request.duration)) {
     body['Duration'] = request.duration;
   }
-  if (!Util.isUnset(request.height)) {
+  if (!$isNull(request.height)) {
     body['Height'] = request.height;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  if (!Util.isUnset(request.width)) {
+  if (!$isNull(request.width)) {
     body['Width'] = request.width;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'AbstractEcommerceVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -103,32 +99,31 @@ async function abstractEcommerceVideoWithOptions(request: AbstractEcommerceVideo
  * @return AbstractEcommerceVideoResponse
  */
 async function abstractEcommerceVideo(request: AbstractEcommerceVideoRequest): AbstractEcommerceVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return abstractEcommerceVideoWithOptions(request, runtime);
 }
 
-async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractEcommerceVideoResponse {
+async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdvanceRequest, runtime: $RuntimeOptions): AbstractEcommerceVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -142,10 +137,10 @@ async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdva
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -157,7 +152,7 @@ async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdva
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -165,13 +160,12 @@ async function abstractEcommerceVideoAdvance(request: AbstractEcommerceVideoAdva
   var abstractEcommerceVideoReq = new AbstractEcommerceVideoRequest{};
   OpenApiUtil.convert(request, abstractEcommerceVideoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -221,19 +215,20 @@ model AbstractFilmVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AbstractFilmVideoResponse
  */
-async function abstractFilmVideoWithOptions(request: AbstractFilmVideoRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
-  Util.validateModel(request);
+@context("abstractFilmVideoWithContext")
+async function abstractFilmVideoWithOptions(request: AbstractFilmVideoRequest, runtime: $RuntimeOptions): AbstractFilmVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.length)) {
+  if (!$isNull(request.length)) {
     body['Length'] = request.length;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'AbstractFilmVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -252,32 +247,31 @@ async function abstractFilmVideoWithOptions(request: AbstractFilmVideoRequest, r
  * @return AbstractFilmVideoResponse
  */
 async function abstractFilmVideo(request: AbstractFilmVideoRequest): AbstractFilmVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return abstractFilmVideoWithOptions(request, runtime);
 }
 
-async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest, runtime: Util.RuntimeOptions): AbstractFilmVideoResponse {
+async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest, runtime: $RuntimeOptions): AbstractFilmVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -291,10 +285,10 @@ async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -306,7 +300,7 @@ async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -314,13 +308,12 @@ async function abstractFilmVideoAdvance(request: AbstractFilmVideoAdvanceRequest
   var abstractFilmVideoReq = new AbstractFilmVideoRequest{};
   OpenApiUtil.convert(request, abstractFilmVideoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -379,19 +372,20 @@ model AddFaceVideoTemplateResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AddFaceVideoTemplateResponse
  */
-async function addFaceVideoTemplateWithOptions(request: AddFaceVideoTemplateRequest, runtime: Util.RuntimeOptions): AddFaceVideoTemplateResponse {
-  Util.validateModel(request);
+@context("addFaceVideoTemplateWithContext")
+async function addFaceVideoTemplateWithOptions(request: AddFaceVideoTemplateRequest, runtime: $RuntimeOptions): AddFaceVideoTemplateResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.videoScene)) {
+  if (!$isNull(request.videoScene)) {
     body['VideoScene'] = request.videoScene;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'AddFaceVideoTemplate',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -412,32 +406,31 @@ async function addFaceVideoTemplateWithOptions(request: AddFaceVideoTemplateRequ
  * @return AddFaceVideoTemplateResponse
  */
 async function addFaceVideoTemplate(request: AddFaceVideoTemplateRequest): AddFaceVideoTemplateResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return addFaceVideoTemplateWithOptions(request, runtime);
 }
 
-async function addFaceVideoTemplateAdvance(request: AddFaceVideoTemplateAdvanceRequest, runtime: Util.RuntimeOptions): AddFaceVideoTemplateResponse {
+async function addFaceVideoTemplateAdvance(request: AddFaceVideoTemplateAdvanceRequest, runtime: $RuntimeOptions): AddFaceVideoTemplateResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -451,10 +444,10 @@ async function addFaceVideoTemplateAdvance(request: AddFaceVideoTemplateAdvanceR
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -466,7 +459,7 @@ async function addFaceVideoTemplateAdvance(request: AddFaceVideoTemplateAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -474,13 +467,12 @@ async function addFaceVideoTemplateAdvance(request: AddFaceVideoTemplateAdvanceR
   var addFaceVideoTemplateReq = new AddFaceVideoTemplateRequest{};
   OpenApiUtil.convert(request, addFaceVideoTemplateReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -536,28 +528,29 @@ model AdjustVideoColorResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return AdjustVideoColorResponse
  */
-async function adjustVideoColorWithOptions(request: AdjustVideoColorRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
-  Util.validateModel(request);
+@context("adjustVideoColorWithContext")
+async function adjustVideoColorWithOptions(request: AdjustVideoColorRequest, runtime: $RuntimeOptions): AdjustVideoColorResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.mode)) {
+  if (!$isNull(request.mode)) {
     body['Mode'] = request.mode;
   }
-  if (!Util.isUnset(request.videoBitrate)) {
+  if (!$isNull(request.videoBitrate)) {
     body['VideoBitrate'] = request.videoBitrate;
   }
-  if (!Util.isUnset(request.videoCodec)) {
+  if (!$isNull(request.videoCodec)) {
     body['VideoCodec'] = request.videoCodec;
   }
-  if (!Util.isUnset(request.videoFormat)) {
+  if (!$isNull(request.videoFormat)) {
     body['VideoFormat'] = request.videoFormat;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'AdjustVideoColor',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -576,32 +569,31 @@ async function adjustVideoColorWithOptions(request: AdjustVideoColorRequest, run
  * @return AdjustVideoColorResponse
  */
 async function adjustVideoColor(request: AdjustVideoColorRequest): AdjustVideoColorResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return adjustVideoColorWithOptions(request, runtime);
 }
 
-async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, runtime: Util.RuntimeOptions): AdjustVideoColorResponse {
+async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, runtime: $RuntimeOptions): AdjustVideoColorResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -615,10 +607,10 @@ async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, 
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -630,7 +622,7 @@ async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, 
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -638,13 +630,12 @@ async function adjustVideoColorAdvance(request: AdjustVideoColorAdvanceRequest, 
   var adjustVideoColorReq = new AdjustVideoColorRequest{};
   OpenApiUtil.convert(request, adjustVideoColorReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -709,40 +700,41 @@ model ChangeVideoSizeResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ChangeVideoSizeResponse
  */
-async function changeVideoSizeWithOptions(request: ChangeVideoSizeRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
-  Util.validateModel(request);
+@context("changeVideoSizeWithContext")
+async function changeVideoSizeWithOptions(request: ChangeVideoSizeRequest, runtime: $RuntimeOptions): ChangeVideoSizeResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.b)) {
+  if (!$isNull(request.b)) {
     body['B'] = request.b;
   }
-  if (!Util.isUnset(request.cropType)) {
+  if (!$isNull(request.cropType)) {
     body['CropType'] = request.cropType;
   }
-  if (!Util.isUnset(request.fillType)) {
+  if (!$isNull(request.fillType)) {
     body['FillType'] = request.fillType;
   }
-  if (!Util.isUnset(request.g)) {
+  if (!$isNull(request.g)) {
     body['G'] = request.g;
   }
-  if (!Util.isUnset(request.height)) {
+  if (!$isNull(request.height)) {
     body['Height'] = request.height;
   }
-  if (!Util.isUnset(request.r)) {
+  if (!$isNull(request.r)) {
     body['R'] = request.r;
   }
-  if (!Util.isUnset(request.tightness)) {
+  if (!$isNull(request.tightness)) {
     body['Tightness'] = request.tightness;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  if (!Util.isUnset(request.width)) {
+  if (!$isNull(request.width)) {
     body['Width'] = request.width;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ChangeVideoSize',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -761,32 +753,31 @@ async function changeVideoSizeWithOptions(request: ChangeVideoSizeRequest, runti
  * @return ChangeVideoSizeResponse
  */
 async function changeVideoSize(request: ChangeVideoSizeRequest): ChangeVideoSizeResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return changeVideoSizeWithOptions(request, runtime);
 }
 
-async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, runtime: Util.RuntimeOptions): ChangeVideoSizeResponse {
+async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, runtime: $RuntimeOptions): ChangeVideoSizeResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -800,10 +791,10 @@ async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, ru
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -815,7 +806,7 @@ async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, ru
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -823,13 +814,12 @@ async function changeVideoSizeAdvance(request: ChangeVideoSizeAdvanceRequest, ru
   var changeVideoSizeReq = new ChangeVideoSizeRequest{};
   OpenApiUtil.convert(request, changeVideoSizeReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -883,25 +873,26 @@ model ConvertHdrVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConvertHdrVideoResponse
  */
-async function convertHdrVideoWithOptions(request: ConvertHdrVideoRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
-  Util.validateModel(request);
+@context("convertHdrVideoWithContext")
+async function convertHdrVideoWithOptions(request: ConvertHdrVideoRequest, runtime: $RuntimeOptions): ConvertHdrVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.bitrate)) {
+  if (!$isNull(request.bitrate)) {
     body['Bitrate'] = request.bitrate;
   }
-  if (!Util.isUnset(request.HDRFormat)) {
+  if (!$isNull(request.HDRFormat)) {
     body['HDRFormat'] = request.HDRFormat;
   }
-  if (!Util.isUnset(request.maxIlluminance)) {
+  if (!$isNull(request.maxIlluminance)) {
     body['MaxIlluminance'] = request.maxIlluminance;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ConvertHdrVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -920,32 +911,31 @@ async function convertHdrVideoWithOptions(request: ConvertHdrVideoRequest, runti
  * @return ConvertHdrVideoResponse
  */
 async function convertHdrVideo(request: ConvertHdrVideoRequest): ConvertHdrVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return convertHdrVideoWithOptions(request, runtime);
 }
 
-async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ConvertHdrVideoResponse {
+async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, runtime: $RuntimeOptions): ConvertHdrVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -959,10 +949,10 @@ async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, ru
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -974,7 +964,7 @@ async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, ru
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -982,13 +972,12 @@ async function convertHdrVideoAdvance(request: ConvertHdrVideoAdvanceRequest, ru
   var convertHdrVideoReq = new ConvertHdrVideoRequest{};
   OpenApiUtil.convert(request, convertHdrVideoReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -1030,16 +1019,17 @@ model DeleteFaceVideoTemplateResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteFaceVideoTemplateResponse
  */
-async function deleteFaceVideoTemplateWithOptions(request: DeleteFaceVideoTemplateRequest, runtime: Util.RuntimeOptions): DeleteFaceVideoTemplateResponse {
-  Util.validateModel(request);
+@context("deleteFaceVideoTemplateWithContext")
+async function deleteFaceVideoTemplateWithOptions(request: DeleteFaceVideoTemplateRequest, runtime: $RuntimeOptions): DeleteFaceVideoTemplateResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.templateId)) {
+  if (!$isNull(request.templateId)) {
     body['TemplateId'] = request.templateId;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DeleteFaceVideoTemplate',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1060,7 +1050,7 @@ async function deleteFaceVideoTemplateWithOptions(request: DeleteFaceVideoTempla
  * @return DeleteFaceVideoTemplateResponse
  */
 async function deleteFaceVideoTemplate(request: DeleteFaceVideoTemplateRequest): DeleteFaceVideoTemplateResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return deleteFaceVideoTemplateWithOptions(request, runtime);
 }
 
@@ -1093,16 +1083,17 @@ model EnhancePortraitVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EnhancePortraitVideoResponse
  */
-async function enhancePortraitVideoWithOptions(request: EnhancePortraitVideoRequest, runtime: Util.RuntimeOptions): EnhancePortraitVideoResponse {
-  Util.validateModel(request);
+@context("enhancePortraitVideoWithContext")
+async function enhancePortraitVideoWithOptions(request: EnhancePortraitVideoRequest, runtime: $RuntimeOptions): EnhancePortraitVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'EnhancePortraitVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1123,32 +1114,31 @@ async function enhancePortraitVideoWithOptions(request: EnhancePortraitVideoRequ
  * @return EnhancePortraitVideoResponse
  */
 async function enhancePortraitVideo(request: EnhancePortraitVideoRequest): EnhancePortraitVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return enhancePortraitVideoWithOptions(request, runtime);
 }
 
-async function enhancePortraitVideoAdvance(request: EnhancePortraitVideoAdvanceRequest, runtime: Util.RuntimeOptions): EnhancePortraitVideoResponse {
+async function enhancePortraitVideoAdvance(request: EnhancePortraitVideoAdvanceRequest, runtime: $RuntimeOptions): EnhancePortraitVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1162,10 +1152,10 @@ async function enhancePortraitVideoAdvance(request: EnhancePortraitVideoAdvanceR
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1177,7 +1167,7 @@ async function enhancePortraitVideoAdvance(request: EnhancePortraitVideoAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1185,13 +1175,12 @@ async function enhancePortraitVideoAdvance(request: EnhancePortraitVideoAdvanceR
   var enhancePortraitVideoReq = new EnhancePortraitVideoRequest{};
   OpenApiUtil.convert(request, enhancePortraitVideoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -1251,34 +1240,35 @@ model EnhanceVideoQualityResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EnhanceVideoQualityResponse
  */
-async function enhanceVideoQualityWithOptions(request: EnhanceVideoQualityRequest, runtime: Util.RuntimeOptions): EnhanceVideoQualityResponse {
-  Util.validateModel(request);
+@context("enhanceVideoQualityWithContext")
+async function enhanceVideoQualityWithOptions(request: EnhanceVideoQualityRequest, runtime: $RuntimeOptions): EnhanceVideoQualityResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.bitrate)) {
+  if (!$isNull(request.bitrate)) {
     body['Bitrate'] = request.bitrate;
   }
-  if (!Util.isUnset(request.frameRate)) {
+  if (!$isNull(request.frameRate)) {
     body['FrameRate'] = request.frameRate;
   }
-  if (!Util.isUnset(request.HDRFormat)) {
+  if (!$isNull(request.HDRFormat)) {
     body['HDRFormat'] = request.HDRFormat;
   }
-  if (!Util.isUnset(request.maxIlluminance)) {
+  if (!$isNull(request.maxIlluminance)) {
     body['MaxIlluminance'] = request.maxIlluminance;
   }
-  if (!Util.isUnset(request.outPutHeight)) {
+  if (!$isNull(request.outPutHeight)) {
     body['OutPutHeight'] = request.outPutHeight;
   }
-  if (!Util.isUnset(request.outPutWidth)) {
+  if (!$isNull(request.outPutWidth)) {
     body['OutPutWidth'] = request.outPutWidth;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'EnhanceVideoQuality',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1297,32 +1287,31 @@ async function enhanceVideoQualityWithOptions(request: EnhanceVideoQualityReques
  * @return EnhanceVideoQualityResponse
  */
 async function enhanceVideoQuality(request: EnhanceVideoQualityRequest): EnhanceVideoQualityResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return enhanceVideoQualityWithOptions(request, runtime);
 }
 
-async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceRequest, runtime: Util.RuntimeOptions): EnhanceVideoQualityResponse {
+async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceRequest, runtime: $RuntimeOptions): EnhanceVideoQualityResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1336,10 +1325,10 @@ async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceReq
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1351,7 +1340,7 @@ async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceReq
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1359,13 +1348,12 @@ async function enhanceVideoQualityAdvance(request: EnhanceVideoQualityAdvanceReq
   var enhanceVideoQualityReq = new EnhanceVideoQualityRequest{};
   OpenApiUtil.convert(request, enhanceVideoQualityReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -1429,19 +1417,20 @@ model EraseVideoLogoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EraseVideoLogoResponse
  */
-async function eraseVideoLogoWithOptions(request: EraseVideoLogoRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
-  Util.validateModel(request);
+@context("eraseVideoLogoWithContext")
+async function eraseVideoLogoWithOptions(request: EraseVideoLogoRequest, runtime: $RuntimeOptions): EraseVideoLogoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.boxes)) {
+  if (!$isNull(request.boxes)) {
     body['Boxes'] = request.boxes;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'EraseVideoLogo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1460,32 +1449,31 @@ async function eraseVideoLogoWithOptions(request: EraseVideoLogoRequest, runtime
  * @return EraseVideoLogoResponse
  */
 async function eraseVideoLogo(request: EraseVideoLogoRequest): EraseVideoLogoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return eraseVideoLogoWithOptions(request, runtime);
 }
 
-async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoLogoResponse {
+async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runtime: $RuntimeOptions): EraseVideoLogoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1499,10 +1487,10 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1514,7 +1502,7 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1522,13 +1510,12 @@ async function eraseVideoLogoAdvance(request: EraseVideoLogoAdvanceRequest, runt
   var eraseVideoLogoReq = new EraseVideoLogoRequest{};
   OpenApiUtil.convert(request, eraseVideoLogoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -1584,28 +1571,29 @@ model EraseVideoSubtitlesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return EraseVideoSubtitlesResponse
  */
-async function eraseVideoSubtitlesWithOptions(request: EraseVideoSubtitlesRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
-  Util.validateModel(request);
+@context("eraseVideoSubtitlesWithContext")
+async function eraseVideoSubtitlesWithOptions(request: EraseVideoSubtitlesRequest, runtime: $RuntimeOptions): EraseVideoSubtitlesResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.BH)) {
+  if (!$isNull(request.BH)) {
     body['BH'] = request.BH;
   }
-  if (!Util.isUnset(request.BW)) {
+  if (!$isNull(request.BW)) {
     body['BW'] = request.BW;
   }
-  if (!Util.isUnset(request.BX)) {
+  if (!$isNull(request.BX)) {
     body['BX'] = request.BX;
   }
-  if (!Util.isUnset(request.BY)) {
+  if (!$isNull(request.BY)) {
     body['BY'] = request.BY;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'EraseVideoSubtitles',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1624,32 +1612,31 @@ async function eraseVideoSubtitlesWithOptions(request: EraseVideoSubtitlesReques
  * @return EraseVideoSubtitlesResponse
  */
 async function eraseVideoSubtitles(request: EraseVideoSubtitlesRequest): EraseVideoSubtitlesResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return eraseVideoSubtitlesWithOptions(request, runtime);
 }
 
-async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceRequest, runtime: Util.RuntimeOptions): EraseVideoSubtitlesResponse {
+async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceRequest, runtime: $RuntimeOptions): EraseVideoSubtitlesResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1663,10 +1650,10 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1678,7 +1665,7 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1686,13 +1673,12 @@ async function eraseVideoSubtitlesAdvance(request: EraseVideoSubtitlesAdvanceReq
   var eraseVideoSubtitlesReq = new EraseVideoSubtitlesRequest{};
   OpenApiUtil.convert(request, eraseVideoSubtitlesReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -1744,19 +1730,20 @@ model GenerateHumanAnimeStyleVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GenerateHumanAnimeStyleVideoResponse
  */
-async function generateHumanAnimeStyleVideoWithOptions(request: GenerateHumanAnimeStyleVideoRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
-  Util.validateModel(request);
+@context("generateHumanAnimeStyleVideoWithContext")
+async function generateHumanAnimeStyleVideoWithOptions(request: GenerateHumanAnimeStyleVideoRequest, runtime: $RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.cartoonStyle)) {
+  if (!$isNull(request.cartoonStyle)) {
     body['CartoonStyle'] = request.cartoonStyle;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'GenerateHumanAnimeStyleVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1777,32 +1764,31 @@ async function generateHumanAnimeStyleVideoWithOptions(request: GenerateHumanAni
  * @return GenerateHumanAnimeStyleVideoResponse
  */
 async function generateHumanAnimeStyleVideo(request: GenerateHumanAnimeStyleVideoRequest): GenerateHumanAnimeStyleVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return generateHumanAnimeStyleVideoWithOptions(request, runtime);
 }
 
-async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeStyleVideoAdvanceRequest, runtime: Util.RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
+async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeStyleVideoAdvanceRequest, runtime: $RuntimeOptions): GenerateHumanAnimeStyleVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1816,10 +1802,10 @@ async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeSt
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1831,7 +1817,7 @@ async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeSt
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1839,13 +1825,12 @@ async function generateHumanAnimeStyleVideoAdvance(request: GenerateHumanAnimeSt
   var generateHumanAnimeStyleVideoReq = new GenerateHumanAnimeStyleVideoRequest{};
   OpenApiUtil.convert(request, generateHumanAnimeStyleVideoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -1930,46 +1915,47 @@ model GenerateVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GenerateVideoResponse
  */
-async function generateVideoWithOptions(request: GenerateVideoRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
-  Util.validateModel(request);
+@context("generateVideoWithContext")
+async function generateVideoWithOptions(request: GenerateVideoRequest, runtime: $RuntimeOptions): GenerateVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.duration)) {
+  if (!$isNull(request.duration)) {
     body['Duration'] = request.duration;
   }
-  if (!Util.isUnset(request.durationAdaption)) {
+  if (!$isNull(request.durationAdaption)) {
     body['DurationAdaption'] = request.durationAdaption;
   }
-  if (!Util.isUnset(request.fileList)) {
+  if (!$isNull(request.fileList)) {
     body['FileList'] = request.fileList;
   }
-  if (!Util.isUnset(request.height)) {
+  if (!$isNull(request.height)) {
     body['Height'] = request.height;
   }
-  if (!Util.isUnset(request.mute)) {
+  if (!$isNull(request.mute)) {
     body['Mute'] = request.mute;
   }
-  if (!Util.isUnset(request.puzzleEffect)) {
+  if (!$isNull(request.puzzleEffect)) {
     body['PuzzleEffect'] = request.puzzleEffect;
   }
-  if (!Util.isUnset(request.scene)) {
+  if (!$isNull(request.scene)) {
     body['Scene'] = request.scene;
   }
-  if (!Util.isUnset(request.smartEffect)) {
+  if (!$isNull(request.smartEffect)) {
     body['SmartEffect'] = request.smartEffect;
   }
-  if (!Util.isUnset(request.style)) {
+  if (!$isNull(request.style)) {
     body['Style'] = request.style;
   }
-  if (!Util.isUnset(request.transitionStyle)) {
+  if (!$isNull(request.transitionStyle)) {
     body['TransitionStyle'] = request.transitionStyle;
   }
-  if (!Util.isUnset(request.width)) {
+  if (!$isNull(request.width)) {
     body['Width'] = request.width;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'GenerateVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -1988,32 +1974,31 @@ async function generateVideoWithOptions(request: GenerateVideoRequest, runtime: 
  * @return GenerateVideoResponse
  */
 async function generateVideo(request: GenerateVideoRequest): GenerateVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return generateVideoWithOptions(request, runtime);
 }
 
-async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtime: Util.RuntimeOptions): GenerateVideoResponse {
+async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtime: $RuntimeOptions): GenerateVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2027,10 +2012,10 @@ async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtim
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2042,7 +2027,7 @@ async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtim
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2050,16 +2035,15 @@ async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtim
   var generateVideoReq = new GenerateVideoRequest{};
   OpenApiUtil.convert(request, generateVideoReq);
 
-  if(!Util.isUnset(request.fileList)) {
+  if(!$isNull(request.fileList)) {
     var i0 : integer = 0;
     for (var item0 : request.fileList) {
-      if(!Util.isUnset(item0.fileUrlObject)) {
-        var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-        authResponse = Util.assertAsMap(tmpResp0);
-        tmpBody = Util.assertAsMap(authResponse['body']);
-        useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-        authResponseBody = Util.stringifyMapValue(tmpBody);
-        fileObj = new FileForm.FileField{
+      if(!$isNull(item0.fileUrlObject)) {
+        authResponse = authClient.callApi(authParams, authReq, runtime);
+        tmpBody = $object(authResponse['body']);
+        useAccelerate = $boolean(tmpBody['UseAccelerate']);
+        authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+        fileObj = new $FileField{
           filename = authResponseBody['ObjectKey'],
           content = item0.fileUrlObject,
           contentType = '',
@@ -2074,9 +2058,9 @@ async function generateVideoAdvance(request: GenerateVideoAdvanceRequest, runtim
           success_action_status = '201',
         };
         _postOSSObject(authResponseBody['Bucket'], ossHeader);
-        var tmp : GenerateVideoRequest.fileList = generateVideoReq.fileList[i0];
-        tmp.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
-        i0 = Number.ltoi(Number.add(Number.itol(i0), Number.itol(1)));
+        var tmpObj : GenerateVideoRequest.fileList = generateVideoReq.fileList[i0];
+        tmpObj.fileUrl = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
+        i0++;
       }
     }
   }
@@ -2110,16 +2094,17 @@ model GetAsyncJobResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAsyncJobResultResponse
  */
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
+@context("getAsyncJobResultWithContext")
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: $RuntimeOptions): GetAsyncJobResultResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.jobId)) {
+  if (!$isNull(request.jobId)) {
     body['JobId'] = request.jobId;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'GetAsyncJobResult',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2138,7 +2123,7 @@ async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, r
  * @return GetAsyncJobResultResponse
  */
 async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return getAsyncJobResultWithOptions(request, runtime);
 }
 
@@ -2173,22 +2158,23 @@ model InterpolateVideoFrameResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return InterpolateVideoFrameResponse
  */
-async function interpolateVideoFrameWithOptions(request: InterpolateVideoFrameRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
-  Util.validateModel(request);
+@context("interpolateVideoFrameWithContext")
+async function interpolateVideoFrameWithOptions(request: InterpolateVideoFrameRequest, runtime: $RuntimeOptions): InterpolateVideoFrameResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.bitrate)) {
+  if (!$isNull(request.bitrate)) {
     body['Bitrate'] = request.bitrate;
   }
-  if (!Util.isUnset(request.frameRate)) {
+  if (!$isNull(request.frameRate)) {
     body['FrameRate'] = request.frameRate;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'InterpolateVideoFrame',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2207,32 +2193,31 @@ async function interpolateVideoFrameWithOptions(request: InterpolateVideoFrameRe
  * @return InterpolateVideoFrameResponse
  */
 async function interpolateVideoFrame(request: InterpolateVideoFrameRequest): InterpolateVideoFrameResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return interpolateVideoFrameWithOptions(request, runtime);
 }
 
-async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanceRequest, runtime: Util.RuntimeOptions): InterpolateVideoFrameResponse {
+async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanceRequest, runtime: $RuntimeOptions): InterpolateVideoFrameResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2246,10 +2231,10 @@ async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanc
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2261,7 +2246,7 @@ async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanc
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2269,13 +2254,12 @@ async function interpolateVideoFrameAdvance(request: InterpolateVideoFrameAdvanc
   var interpolateVideoFrameReq = new InterpolateVideoFrameRequest{};
   OpenApiUtil.convert(request, interpolateVideoFrameReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -2331,28 +2315,29 @@ model MergeVideoFaceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return MergeVideoFaceResponse
  */
-async function mergeVideoFaceWithOptions(request: MergeVideoFaceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
-  Util.validateModel(request);
+@context("mergeVideoFaceWithContext")
+async function mergeVideoFaceWithOptions(request: MergeVideoFaceRequest, runtime: $RuntimeOptions): MergeVideoFaceResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.addWatermark)) {
+  if (!$isNull(request.addWatermark)) {
     body['AddWatermark'] = request.addWatermark;
   }
-  if (!Util.isUnset(request.enhance)) {
+  if (!$isNull(request.enhance)) {
     body['Enhance'] = request.enhance;
   }
-  if (!Util.isUnset(request.referenceURL)) {
+  if (!$isNull(request.referenceURL)) {
     body['ReferenceURL'] = request.referenceURL;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  if (!Util.isUnset(request.watermarkType)) {
+  if (!$isNull(request.watermarkType)) {
     body['WatermarkType'] = request.watermarkType;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'MergeVideoFace',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2371,32 +2356,31 @@ async function mergeVideoFaceWithOptions(request: MergeVideoFaceRequest, runtime
  * @return MergeVideoFaceResponse
  */
 async function mergeVideoFace(request: MergeVideoFaceRequest): MergeVideoFaceResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return mergeVideoFaceWithOptions(request, runtime);
 }
 
-async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runtime: Util.RuntimeOptions): MergeVideoFaceResponse {
+async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runtime: $RuntimeOptions): MergeVideoFaceResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2410,10 +2394,10 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2425,7 +2409,7 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2433,13 +2417,12 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
   var mergeVideoFaceReq = new MergeVideoFaceRequest{};
   OpenApiUtil.convert(request, mergeVideoFaceReq);
 
-  if(!Util.isUnset(request.referenceURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.referenceURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.referenceURLObject,
       contentType = '',
@@ -2456,13 +2439,12 @@ async function mergeVideoFaceAdvance(request: MergeVideoFaceAdvanceRequest, runt
     _postOSSObject(authResponseBody['Bucket'], ossHeader);
     mergeVideoFaceReq.referenceURL = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp1: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp1);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -2534,31 +2516,32 @@ model MergeVideoModelFaceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return MergeVideoModelFaceResponse
  */
-async function mergeVideoModelFaceWithOptions(request: MergeVideoModelFaceRequest, runtime: Util.RuntimeOptions): MergeVideoModelFaceResponse {
-  Util.validateModel(request);
+@context("mergeVideoModelFaceWithContext")
+async function mergeVideoModelFaceWithOptions(request: MergeVideoModelFaceRequest, runtime: $RuntimeOptions): MergeVideoModelFaceResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.addWatermark)) {
+  if (!$isNull(request.addWatermark)) {
     body['AddWatermark'] = request.addWatermark;
   }
-  if (!Util.isUnset(request.enhance)) {
+  if (!$isNull(request.enhance)) {
     body['Enhance'] = request.enhance;
   }
-  if (!Util.isUnset(request.faceImageURL)) {
+  if (!$isNull(request.faceImageURL)) {
     body['FaceImageURL'] = request.faceImageURL;
   }
-  if (!Util.isUnset(request.mergeInfos)) {
+  if (!$isNull(request.mergeInfos)) {
     body['MergeInfos'] = request.mergeInfos;
   }
-  if (!Util.isUnset(request.templateId)) {
+  if (!$isNull(request.templateId)) {
     body['TemplateId'] = request.templateId;
   }
-  if (!Util.isUnset(request.watermarkType)) {
+  if (!$isNull(request.watermarkType)) {
     body['WatermarkType'] = request.watermarkType;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'MergeVideoModelFace',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2579,32 +2562,31 @@ async function mergeVideoModelFaceWithOptions(request: MergeVideoModelFaceReques
  * @return MergeVideoModelFaceResponse
  */
 async function mergeVideoModelFace(request: MergeVideoModelFaceRequest): MergeVideoModelFaceResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return mergeVideoModelFaceWithOptions(request, runtime);
 }
 
-async function mergeVideoModelFaceAdvance(request: MergeVideoModelFaceAdvanceRequest, runtime: Util.RuntimeOptions): MergeVideoModelFaceResponse {
+async function mergeVideoModelFaceAdvance(request: MergeVideoModelFaceAdvanceRequest, runtime: $RuntimeOptions): MergeVideoModelFaceResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2618,10 +2600,10 @@ async function mergeVideoModelFaceAdvance(request: MergeVideoModelFaceAdvanceReq
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2633,7 +2615,7 @@ async function mergeVideoModelFaceAdvance(request: MergeVideoModelFaceAdvanceReq
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2641,13 +2623,12 @@ async function mergeVideoModelFaceAdvance(request: MergeVideoModelFaceAdvanceReq
   var mergeVideoModelFaceReq = new MergeVideoModelFaceRequest{};
   OpenApiUtil.convert(request, mergeVideoModelFaceReq);
 
-  if(!Util.isUnset(request.faceImageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.faceImageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.faceImageURLObject,
       contentType = '',
@@ -2709,22 +2690,23 @@ model QueryFaceVideoTemplateResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryFaceVideoTemplateResponse
  */
-async function queryFaceVideoTemplateWithOptions(request: QueryFaceVideoTemplateRequest, runtime: Util.RuntimeOptions): QueryFaceVideoTemplateResponse {
-  Util.validateModel(request);
+@context("queryFaceVideoTemplateWithContext")
+async function queryFaceVideoTemplateWithOptions(request: QueryFaceVideoTemplateRequest, runtime: $RuntimeOptions): QueryFaceVideoTemplateResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.pageNo)) {
+  if (!$isNull(request.pageNo)) {
     query['PageNo'] = request.pageNo;
   }
-  if (!Util.isUnset(request.pageSize)) {
+  if (!$isNull(request.pageSize)) {
     query['PageSize'] = request.pageSize;
   }
-  if (!Util.isUnset(request.templateId)) {
+  if (!$isNull(request.templateId)) {
     query['TemplateId'] = request.templateId;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'QueryFaceVideoTemplate',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2745,7 +2727,7 @@ async function queryFaceVideoTemplateWithOptions(request: QueryFaceVideoTemplate
  * @return QueryFaceVideoTemplateResponse
  */
 async function queryFaceVideoTemplate(request: QueryFaceVideoTemplateRequest): QueryFaceVideoTemplateResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return queryFaceVideoTemplateWithOptions(request, runtime);
 }
 
@@ -2778,16 +2760,17 @@ model ReduceVideoNoiseResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ReduceVideoNoiseResponse
  */
-async function reduceVideoNoiseWithOptions(request: ReduceVideoNoiseRequest, runtime: Util.RuntimeOptions): ReduceVideoNoiseResponse {
-  Util.validateModel(request);
+@context("reduceVideoNoiseWithContext")
+async function reduceVideoNoiseWithOptions(request: ReduceVideoNoiseRequest, runtime: $RuntimeOptions): ReduceVideoNoiseResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ReduceVideoNoise',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2808,32 +2791,31 @@ async function reduceVideoNoiseWithOptions(request: ReduceVideoNoiseRequest, run
  * @return ReduceVideoNoiseResponse
  */
 async function reduceVideoNoise(request: ReduceVideoNoiseRequest): ReduceVideoNoiseResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return reduceVideoNoiseWithOptions(request, runtime);
 }
 
-async function reduceVideoNoiseAdvance(request: ReduceVideoNoiseAdvanceRequest, runtime: Util.RuntimeOptions): ReduceVideoNoiseResponse {
+async function reduceVideoNoiseAdvance(request: ReduceVideoNoiseAdvanceRequest, runtime: $RuntimeOptions): ReduceVideoNoiseResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2847,10 +2829,10 @@ async function reduceVideoNoiseAdvance(request: ReduceVideoNoiseAdvanceRequest, 
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -2862,7 +2844,7 @@ async function reduceVideoNoiseAdvance(request: ReduceVideoNoiseAdvanceRequest, 
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -2870,13 +2852,12 @@ async function reduceVideoNoiseAdvance(request: ReduceVideoNoiseAdvanceRequest, 
   var reduceVideoNoiseReq = new ReduceVideoNoiseRequest{};
   OpenApiUtil.convert(request, reduceVideoNoiseReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -2926,19 +2907,20 @@ model SuperResolveVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return SuperResolveVideoResponse
  */
-async function superResolveVideoWithOptions(request: SuperResolveVideoRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
-  Util.validateModel(request);
+@context("superResolveVideoWithContext")
+async function superResolveVideoWithOptions(request: SuperResolveVideoRequest, runtime: $RuntimeOptions): SuperResolveVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.bitRate)) {
+  if (!$isNull(request.bitRate)) {
     body['BitRate'] = request.bitRate;
   }
-  if (!Util.isUnset(request.videoUrl)) {
+  if (!$isNull(request.videoUrl)) {
     body['VideoUrl'] = request.videoUrl;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'SuperResolveVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -2957,32 +2939,31 @@ async function superResolveVideoWithOptions(request: SuperResolveVideoRequest, r
  * @return SuperResolveVideoResponse
  */
 async function superResolveVideo(request: SuperResolveVideoRequest): SuperResolveVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return superResolveVideoWithOptions(request, runtime);
 }
 
-async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest, runtime: Util.RuntimeOptions): SuperResolveVideoResponse {
+async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest, runtime: $RuntimeOptions): SuperResolveVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -2996,10 +2977,10 @@ async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -3011,7 +2992,7 @@ async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -3019,13 +3000,12 @@ async function superResolveVideoAdvance(request: SuperResolveVideoAdvanceRequest
   var superResolveVideoReq = new SuperResolveVideoRequest{};
   OpenApiUtil.convert(request, superResolveVideoReq);
 
-  if(!Util.isUnset(request.videoUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoUrlObject,
       contentType = '',
@@ -3077,22 +3057,23 @@ model ToneSdrVideoResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ToneSdrVideoResponse
  */
-async function toneSdrVideoWithOptions(request: ToneSdrVideoRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
-  Util.validateModel(request);
+@context("toneSdrVideoWithContext")
+async function toneSdrVideoWithOptions(request: ToneSdrVideoRequest, runtime: $RuntimeOptions): ToneSdrVideoResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.bitrate)) {
+  if (!$isNull(request.bitrate)) {
     body['Bitrate'] = request.bitrate;
   }
-  if (!Util.isUnset(request.recolorModel)) {
+  if (!$isNull(request.recolorModel)) {
     body['RecolorModel'] = request.recolorModel;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'ToneSdrVideo',
     version = '2020-03-20',
     protocol = 'HTTPS',
@@ -3111,32 +3092,31 @@ async function toneSdrVideoWithOptions(request: ToneSdrVideoRequest, runtime: Ut
  * @return ToneSdrVideoResponse
  */
 async function toneSdrVideo(request: ToneSdrVideoRequest): ToneSdrVideoResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return toneSdrVideoWithOptions(request, runtime);
 }
 
-async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime: Util.RuntimeOptions): ToneSdrVideoResponse {
+async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime: $RuntimeOptions): ToneSdrVideoResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -3150,10 +3130,10 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
     Product = 'videoenhan',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -3165,7 +3145,7 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -3173,13 +3153,12 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
   var toneSdrVideoReq = new ToneSdrVideoRequest{};
   OpenApiUtil.convert(request, toneSdrVideoReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -3200,37 +3179,35 @@ async function toneSdrVideoAdvance(request: ToneSdrVideoAdvanceRequest, runtime:
   return toneSdrVideoResp;
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
-  var form = Util.assertAsMap(data);
-  var boundary = FileForm.getBoundary();
-  var host = Util.assertAsString(form.host);
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
   __request.headers = {
-    host = host,
-    date = Util.getDateUTCString(),
-    user-agent = Util.getUserAgent(''),
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
   };
   __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
-  __request.body = FileForm.toFileForm(form, boundary);
+  __request.body = $Form.toFileForm(form, boundary);
 } returns {
   var respMap : object = null;
-  var bodyStr = Util.readAsString(__response.body);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-    respMap = XML.parseXml(bodyStr, null);
-    var err = Util.assertAsMap(respMap.Error);
-    throw {
-      code = err.Code,
-      message = err.Message,
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
       data = {
         httpCode = __response.statusCode,
-        requestId = err.RequestId,
-        hostId = err.HostId,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
       }
     };
   }
-  respMap = XML.parseXml(bodyStr, null);
+  respMap = $XML.parseXml(bodyStr, null);
   return {
     ...respMap,
   };
