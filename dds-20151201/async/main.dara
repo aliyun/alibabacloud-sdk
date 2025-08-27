@@ -47,7 +47,7 @@ init(configuration: ClientConfiguration){
     'ap-south-1' = 'mongodb.ap-south-1.aliyuncs.com',
     'me-east-1' = 'mongodb.me-east-1.aliyuncs.com',
     'cn-hangzhou-finance' = 'mongodb.aliyuncs.com',
-    'cn-shanghai-finance-1' = 'mongodb.aliyuncs.com',
+    'cn-shanghai-finance-1' = 'mongodb.cn-shanghai-finance-1.aliyuncs.com',
     'cn-shenzhen-finance-1' = 'mongodb.cn-shenzhen-finance-1.aliyuncs.com',
     'cn-north-2-gov-1' = 'mongodb.cn-north-2-gov-1.aliyuncs.com',
     'ap-northeast-2-pop' = 'mongodb.aliyuncs.com',
@@ -82,12 +82,41 @@ init(configuration: ClientConfiguration){
     'cn-zhengzhou-nebula-1' = 'mongodb.aliyuncs.com',
     'eu-west-1-oxs' = 'mongodb.aliyuncs.com',
     'rus-west-1-pop' = 'mongodb.aliyuncs.com',
-    'na-south-1' = 'mongodb.na-south-1.aliyuncs.com',
   };
 }
 
 function close(): void {
   @handler.close();
+}
+
+model AllocateDBInstanceSrvNetworkAddressRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='dds-2ze5eb9514e31364', position='Query'),
+  nodeId?: string(name='NodeId', example='d-bp1b7bb3bbe****', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  srvConnectionType?: string(name='SrvConnectionType', example='vpc', position='Query'),
+}
+
+model AllocateDBInstanceSrvNetworkAddressResponseBody = {
+  requestId?: string(name='RequestId', example='6B82A9EF-9961-5A31-A19F-009B7098ACCA'),
+}
+
+model AllocateDBInstanceSrvNetworkAddressResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AllocateDBInstanceSrvNetworkAddressResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of AllocateDBInstanceSrvNetworkAddress  AllocateDBInstanceSrvNetworkAddressRequest
+  * @return AllocateDBInstanceSrvNetworkAddressResponse
+ */
+async function allocateDBInstanceSrvNetworkAddress(request: AllocateDBInstanceSrvNetworkAddressRequest): AllocateDBInstanceSrvNetworkAddressResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AllocateDBInstanceSrvNetworkAddress', 'POST', '/', 'json', false, 'json', request);
 }
 
 model AllocateNodePrivateNetworkAddressRequest {
@@ -1543,6 +1572,7 @@ model DescribeActiveOperationTasksResponseBody = {
       status?: int32(name='Status', description='N/A', example='***'),
       subInsNames?: [ string ](name='SubInsNames', description='The subinstances.'),
       switchTime?: string(name='SwitchTime', description='The switchover point in time in which disconnection may occur. The time follows the ISO 8601 standard in the *yyyy-mm-dd*T*hh:mm:ss*Z format. The time is displayed in UTC.', example='2022-11-24T11:20:00Z'),
+      taskParams?: string(name='TaskParams'),
       taskType?: string(name='TaskType', description='The task type.', example='***'),
       taskTypeEn?: string(name='TaskTypeEn', description='N/A', example='***'),
       taskTypeZh?: string(name='TaskTypeZh', description='The task type in Chinese.', example='***'),
@@ -2450,10 +2480,12 @@ model DescribeClusterRecoverTimeRequest {
   DBInstanceId: string(name='DBInstanceId', description='The ID of the instance.
 
 This parameter is required.', example='dds-bp18f7d6b6a7****', position='Query'),
+  destRegion?: string(name='DestRegion', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
 }
 
 model DescribeClusterRecoverTimeResponseBody = {
@@ -4052,11 +4084,13 @@ model DescribeInstanceRecoverTimeRequest {
   DBInstanceId: string(name='DBInstanceId', description='The instance ID.
 
 This parameter is required.', example='dds-bpxxxxxxxx', position='Query'),
+  destRegion?: string(name='DestRegion', position='Query'),
   ownerAccount?: string(name='OwnerAccount', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   securityToken?: string(name='SecurityToken', position='Query'),
+  srcRegion?: string(name='SrcRegion', position='Query'),
 }
 
 model DescribeInstanceRecoverTimeResponseBody = {
@@ -4629,6 +4663,7 @@ model DescribePriceResponseBody = {
           standDiscountPrice?: double(name='StandDiscountPrice', description='The discounted price.', example='451.00'),
           standPrice?: double(name='StandPrice', description='The discount.', example='0'),
           totalProductFee?: double(name='TotalProductFee', description='The original price of the product.', example='0.0'),
+          unitPriceUnit4Buy?: string(name='UnitPriceUnit4Buy'),
           priceType?: string(name='priceType', description='The price type.', example='monthPrice'),
           priceUnit?: string(name='priceUnit', description='The unit of the price.', example='xxxx'),
         }
@@ -5417,6 +5452,7 @@ This parameter is required.', example='dds-bpxxxxxxxx', position='Query'),
   ownerId?: long(name='OwnerId', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  roleARN?: string(name='RoleARN', position='Query'),
   targetRegionId?: string(name='TargetRegionId', description='The zone ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/61933.html) operation to query the most recent zone list.', example='cn-shanghai', position='Query'),
 }
 
@@ -6570,6 +6606,10 @@ If your instance has only **Classic Network** and **VPC** endpoints, you must ap
 >  This parameter is not required for a serverless instance which is only available on the China site (aliyun.com).', example='3', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  targetHiddenZoneId?: string(name='TargetHiddenZoneId', position='Query'),
+  targetSecondaryZoneId?: string(name='TargetSecondaryZoneId', position='Query'),
+  targetVswitchId?: string(name='TargetVswitchId', position='Query'),
+  targetZoneId?: string(name='TargetZoneId', position='Query'),
 }
 
 model ModifyDBInstanceSpecResponseBody = {
@@ -6899,6 +6939,10 @@ Valid values: **0** to **5**. The value must be an integer. Default value: **0**
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
   switchTime?: string(name='SwitchTime', description='The execution time. Specify the time in the *yyyy-MM-dd*T*HH:mm:ss*Z format. The time must be in UTC.', example='2022-01-05T03:18:53Z', position='Query'),
+  targetHiddenZoneId?: string(name='TargetHiddenZoneId', position='Query'),
+  targetSecondaryZoneId?: string(name='TargetSecondaryZoneId', position='Query'),
+  targetVswitchId?: string(name='TargetVswitchId', position='Query'),
+  targetZoneId?: string(name='TargetZoneId', position='Query'),
 }
 
 model ModifyNodeSpecResponseBody = {
@@ -6962,6 +7006,10 @@ This parameter is required.', example='{"Shards":[{"DBInstanceClass":"dds.shard.
   regionId?: string(name='RegionId', description='The region ID of the instance. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/61933.html) operation to query the most recent region list.', example='cn-hangzhou', position='Query'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
   resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+  targetHiddenZoneId?: string(name='TargetHiddenZoneId', position='Query'),
+  targetSecondaryZoneId?: string(name='TargetSecondaryZoneId', position='Query'),
+  targetVswitchId?: string(name='TargetVswitchId', position='Query'),
+  targetZoneId?: string(name='TargetZoneId', position='Query'),
 }
 
 model ModifyNodeSpecBatchResponseBody = {
@@ -7151,6 +7199,36 @@ model ModifySecurityIpsResponse = {
 async function modifySecurityIps(request: ModifySecurityIpsRequest): ModifySecurityIpsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ModifySecurityIps', 'POST', '/', 'json', false, 'json', request);
+}
+
+model ModifySrvNetworkAddressRequest {
+  regionId?: string(name='RegionId', position='Host'),
+  connectionType: string(name='ConnectionType', description='This parameter is required.', example='VPC', position='Query'),
+  DBInstanceId: string(name='DBInstanceId', description='This parameter is required.', example='dds-bp1fd530f271****', position='Query'),
+  newConnectionString: string(name='NewConnectionString', description='This parameter is required.', example='aliyuntest111', position='Query'),
+  ownerAccount?: string(name='OwnerAccount', position='Query'),
+  ownerId?: long(name='OwnerId', position='Query'),
+  resourceOwnerAccount?: string(name='ResourceOwnerAccount', position='Query'),
+  resourceOwnerId?: long(name='ResourceOwnerId', position='Query'),
+}
+
+model ModifySrvNetworkAddressResponseBody = {
+  requestId?: string(name='RequestId', example='45D2B592-DEBA-4347-BBF3-xxxxxC97DBBC'),
+}
+
+model ModifySrvNetworkAddressResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifySrvNetworkAddressResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifySrvNetworkAddress  ModifySrvNetworkAddressRequest
+  * @return ModifySrvNetworkAddressResponse
+ */
+async function modifySrvNetworkAddress(request: ModifySrvNetworkAddressRequest): ModifySrvNetworkAddressResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifySrvNetworkAddress', 'POST', '/', 'json', false, 'json', request);
 }
 
 model ModifyTaskInfoRequest {
