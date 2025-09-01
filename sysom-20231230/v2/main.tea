@@ -263,6 +263,51 @@ model GenerateCopilotStreamResponseResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GenerateCopilotStreamResponseResponse
  */
+@sse(true)
+async function generateCopilotStreamResponseWithSSE(request: GenerateCopilotStreamResponseRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[GenerateCopilotStreamResponseResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.llmParamString)) {
+    body['llmParamString'] = request.llmParamString;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GenerateCopilotStreamResponse',
+    version = '2023-12-30',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/copilot/generate_copilot_stream_response`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for(var resp : sseResp) {
+    var data = $object($JSON.parseJSON(resp.event.data));
+    yield {
+      statusCode = resp.statusCode,
+      headers = resp.headers,
+      body = {
+        ...data,
+        RequestId = resp.event.id,
+        Message = resp.event.event,
+      },
+    };
+  }
+}
+/**
+ * @summary 流式copilot服务接口
+ *
+ * @param request GenerateCopilotStreamResponseRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GenerateCopilotStreamResponseResponse
+ */
 @context("generateCopilotStreamResponseWithContext")
 async function generateCopilotStreamResponseWithOptions(request: GenerateCopilotStreamResponseRequest, headers: map[string]string, runtime: $RuntimeOptions): GenerateCopilotStreamResponseResponse {
   request.validate();
@@ -1762,6 +1807,7 @@ async function getInstantScore(request: GetInstantScoreRequest): GetInstantScore
 model GetListRecordRequest {
   current?: long(name='current', example='5'),
   pageSize?: long(name='pageSize', example='10'),
+  region?: string(name='region'),
 }
 
 model GetListRecordResponseBody = {
@@ -1803,6 +1849,9 @@ async function getListRecordWithOptions(request: GetListRecordRequest, headers: 
   }
   if (!$isNull(request.pageSize)) {
     query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.region)) {
+    query['region'] = request.region;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
