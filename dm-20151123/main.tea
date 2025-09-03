@@ -1298,6 +1298,7 @@ async function dedicatedIpPoolDelete(request: DedicatedIpPoolDeleteRequest): Ded
 }
 
 model DedicatedIpPoolListRequest {
+  all?: boolean(name='All'),
   keyword?: string(name='Keyword', description='Search keyword for the name', example='xxx'),
   pageIndex?: int32(name='PageIndex', description='Page index, starting from 1', example='1'),
   pageSize?: int32(name='PageSize', description='Number of items per page', example='10'),
@@ -1342,6 +1343,9 @@ model DedicatedIpPoolListResponse = {
 async function dedicatedIpPoolListWithOptions(request: DedicatedIpPoolListRequest, runtime: Util.RuntimeOptions): DedicatedIpPoolListResponse {
   Util.validateModel(request);
   var query = {};
+  if (!Util.isUnset(request.all)) {
+    query['All'] = request.all;
+  }
   if (!Util.isUnset(request.keyword)) {
     query['Keyword'] = request.keyword;
   }
@@ -2467,6 +2471,7 @@ model GetTrackListRequest {
   accountName?: string(name='AccountName', description='Sender address.
 
 > If not filled, it represents all addresses; if TagName is provided, this parameter must not be empty.', example='test@example.com'),
+  configSetId?: string(name='ConfigSetId'),
   dedicatedIp?: string(name='DedicatedIp'),
   dedicatedIpPoolId?: string(name='DedicatedIpPoolId'),
   endTime?: string(name='EndTime', description='End time, the span between start and end time cannot exceed 7 days. Format: yyyy-MM-dd.
@@ -2532,6 +2537,9 @@ async function getTrackListWithOptions(request: GetTrackListRequest, runtime: Ut
   var query = {};
   if (!Util.isUnset(request.accountName)) {
     query['AccountName'] = request.accountName;
+  }
+  if (!Util.isUnset(request.configSetId)) {
+    query['ConfigSetId'] = request.configSetId;
   }
   if (!Util.isUnset(request.dedicatedIp)) {
     query['DedicatedIp'] = request.dedicatedIp;
@@ -2610,6 +2618,7 @@ model GetTrackListByMailFromAndTagNameRequest {
   accountName?: string(name='AccountName', description='Sender address.
 
 > If not filled, it represents all addresses; if there is a TagName, this parameter must not be empty.', example='e-service@amegroups.cn'),
+  configSetId?: string(name='ConfigSetId'),
   dedicatedIp?: string(name='DedicatedIp'),
   dedicatedIpPoolId?: string(name='DedicatedIpPoolId'),
   endTime?: string(name='EndTime', description='End time, with a span from the start time that cannot exceed 15 days. Format: yyyy-MM-dd.
@@ -2675,6 +2684,9 @@ async function getTrackListByMailFromAndTagNameWithOptions(request: GetTrackList
   var query = {};
   if (!Util.isUnset(request.accountName)) {
     query['AccountName'] = request.accountName;
+  }
+  if (!Util.isUnset(request.configSetId)) {
+    query['ConfigSetId'] = request.configSetId;
   }
   if (!Util.isUnset(request.dedicatedIp)) {
     query['DedicatedIp'] = request.dedicatedIp;
@@ -3461,6 +3473,8 @@ model QueryMailAddressByParamResponseBody = {
     {
       accountName?: string(name='AccountName', description='Sending address', example='sender@example.com'),
       accountStatus?: string(name='AccountStatus', description='Account status, frozen: 1, normal: 0.', example='0'),
+      configSetId?: string(name='ConfigSetId'),
+      configSetName?: string(name='ConfigSetName'),
       createTime?: string(name='CreateTime', description='Creation time', example='2019-09-29T13:28Z'),
       dailyCount?: string(name='DailyCount', description='Daily quota limit', example='10000'),
       dailyReqCount?: string(name='DailyReqCount', description='Daily quota', example='100'),
@@ -3848,6 +3862,8 @@ model QueryTaskByParamResponseBody = {
     task?: [ 
     {
       addressType?: string(name='AddressType', description='Address type, sending address: 1; random address: 0;', example='0'),
+      configSetId?: string(name='ConfigSetId'),
+      configSetName?: string(name='ConfigSetName'),
       createTime?: string(name='CreateTime', description='Creation time', example='2022-04-18T10:36Z'),
       ipPoolId?: string(name='IpPoolId', description='dedicated IP pool ID.', example='xxx'),
       ipPoolName?: string(name='IpPoolName', description='dedicated IP pool name.', example='test'),
@@ -4299,7 +4315,9 @@ model SenderStatisticsDetailByParamRequest {
   accountName?: string(name='AccountName', description='Sending address. If not filled, it represents all addresses.
 
 > **AccountName**, **TagName**, and **ToAddress** can all be left unfilled. If any are filled, only one of these parameters can be passed; you cannot pass a combination of two or more.', example='s***@example.net'),
+  configSetId?: string(name='ConfigSetId', nullable=true),
   endTime?: string(name='EndTime', description='End time. The span between start and end times cannot exceed 30 days, format: yyyy-MM-dd HH:mm.', example='2021-04-29 00:00'),
+  ipPoolId?: string(name='IpPoolId', nullable=true),
   length?: int32(name='Length', description='Specifies the number of results to return in this request. Range is 1~100.', example='5'),
   nextStart?: string(name='NextStart', description='Used for pagination. Specifies the offset for this request. If there are more results, set this returned value to the NextStart in the next request.', example='90f0243616#203#a***@example.net-1658817837#a***@example.net.247475288187'),
   ownerId?: long(name='OwnerId'),
@@ -4323,8 +4341,12 @@ model SenderStatisticsDetailByParamResponseBody = {
     mailDetail?: [ 
     {
       accountName?: string(name='AccountName', description='Sending address', example='s***@example.net'),
+      configSetId?: string(name='ConfigSetId', nullable=true),
+      configSetName?: string(name='ConfigSetName', nullable=true),
       errorClassification?: string(name='ErrorClassification', description='Detailed classification of error reasons: - SendOk - SmtpNxBox
 etc.', example='SendOk'),
+      ipPoolId?: string(name='IpPoolId', nullable=true),
+      ipPoolName?: string(name='IpPoolName', nullable=true),
       lastUpdateTime?: string(name='LastUpdateTime', description='Update time', example='2021-04-28T17:11Z'),
       message?: string(name='Message', description='Delivery detail information', example='250 Send Mail OK'),
       status?: int32(name='Status', description='Delivery status: 0 Success, 2 Invalid Address, 3 Spam, 4 Other Failures', example='0'),
@@ -4355,8 +4377,14 @@ async function senderStatisticsDetailByParamWithOptions(request: SenderStatistic
   if (!Util.isUnset(request.accountName)) {
     query['AccountName'] = request.accountName;
   }
+  if (!Util.isUnset(request.configSetId)) {
+    query['ConfigSetId'] = request.configSetId;
+  }
   if (!Util.isUnset(request.endTime)) {
     query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.ipPoolId)) {
+    query['IpPoolId'] = request.ipPoolId;
   }
   if (!Util.isUnset(request.length)) {
     query['Length'] = request.length;
