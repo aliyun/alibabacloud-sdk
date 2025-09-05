@@ -1,18 +1,14 @@
 /**
  *
  */
-import Util;
-import XML;
 import Credential;
-import FileForm;
 import OpenApi;
-import OpenApiUtil;
-import EndpointUtil;
+import OpenApi.OpenApiUtil;
 
 extends OpenApi;
 
 
-init(config: OpenApi.Config){
+init(config: OpenApiUtil.Config){
   super(config);
   @endpointRule = 'regional';
   
@@ -21,14 +17,14 @@ init(config: OpenApi.Config){
 }
 
 function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
-  if (!Util.empty(endpoint)) {
+  if (!$isNull(endpoint)) {
     return endpoint;
   }
   
-  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
     return endpointMap[regionId];
   }
-  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
 model DetectObjectElement {
@@ -84,16 +80,17 @@ model DetectIPCObjectResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectIPCObjectResponse
  */
-async function detectIPCObjectWithOptions(request: DetectIPCObjectRequest, runtime: Util.RuntimeOptions): DetectIPCObjectResponse {
-  Util.validateModel(request);
+@context("detectIPCObjectWithContext")
+async function detectIPCObjectWithOptions(request: DetectIPCObjectRequest, runtime: $RuntimeOptions): DetectIPCObjectResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectIPCObject',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -114,32 +111,31 @@ async function detectIPCObjectWithOptions(request: DetectIPCObjectRequest, runti
  * @return DetectIPCObjectResponse
  */
 async function detectIPCObject(request: DetectIPCObjectRequest): DetectIPCObjectResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectIPCObjectWithOptions(request, runtime);
 }
 
-async function detectIPCObjectAdvance(request: DetectIPCObjectAdvanceRequest, runtime: Util.RuntimeOptions): DetectIPCObjectResponse {
+async function detectIPCObjectAdvance(request: DetectIPCObjectAdvanceRequest, runtime: $RuntimeOptions): DetectIPCObjectResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -153,10 +149,10 @@ async function detectIPCObjectAdvance(request: DetectIPCObjectAdvanceRequest, ru
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -168,7 +164,7 @@ async function detectIPCObjectAdvance(request: DetectIPCObjectAdvanceRequest, ru
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -176,13 +172,12 @@ async function detectIPCObjectAdvance(request: DetectIPCObjectAdvanceRequest, ru
   var detectIPCObjectReq = new DetectIPCObjectRequest{};
   OpenApiUtil.convert(request, detectIPCObjectReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -244,19 +239,20 @@ model DetectKitchenAnimalsResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectKitchenAnimalsResponse
  */
-async function detectKitchenAnimalsWithOptions(request: DetectKitchenAnimalsRequest, runtime: Util.RuntimeOptions): DetectKitchenAnimalsResponse {
-  Util.validateModel(request);
+@context("detectKitchenAnimalsWithContext")
+async function detectKitchenAnimalsWithOptions(request: DetectKitchenAnimalsRequest, runtime: $RuntimeOptions): DetectKitchenAnimalsResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURLA)) {
+  if (!$isNull(request.imageURLA)) {
     body['ImageURLA'] = request.imageURLA;
   }
-  if (!Util.isUnset(request.imageURLB)) {
+  if (!$isNull(request.imageURLB)) {
     body['ImageURLB'] = request.imageURLB;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectKitchenAnimals',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -277,32 +273,31 @@ async function detectKitchenAnimalsWithOptions(request: DetectKitchenAnimalsRequ
  * @return DetectKitchenAnimalsResponse
  */
 async function detectKitchenAnimals(request: DetectKitchenAnimalsRequest): DetectKitchenAnimalsResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectKitchenAnimalsWithOptions(request, runtime);
 }
 
-async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceRequest, runtime: Util.RuntimeOptions): DetectKitchenAnimalsResponse {
+async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceRequest, runtime: $RuntimeOptions): DetectKitchenAnimalsResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -316,10 +311,10 @@ async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceR
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -331,7 +326,7 @@ async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -339,13 +334,12 @@ async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceR
   var detectKitchenAnimalsReq = new DetectKitchenAnimalsRequest{};
   OpenApiUtil.convert(request, detectKitchenAnimalsReq);
 
-  if(!Util.isUnset(request.imageURLAObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLAObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLAObject,
       contentType = '',
@@ -362,13 +356,12 @@ async function detectKitchenAnimalsAdvance(request: DetectKitchenAnimalsAdvanceR
     _postOSSObject(authResponseBody['Bucket'], ossHeader);
     detectKitchenAnimalsReq.imageURLA = `http://${authResponseBody['Bucket']}.${authResponseBody['Endpoint']}/${authResponseBody['ObjectKey']}`;
   }
-  if(!Util.isUnset(request.imageURLBObject)) {
-    var tmpResp1: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp1);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLBObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLBObject,
       contentType = '',
@@ -420,16 +413,17 @@ model DetectMainBodyResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectMainBodyResponse
  */
-async function detectMainBodyWithOptions(request: DetectMainBodyRequest, runtime: Util.RuntimeOptions): DetectMainBodyResponse {
-  Util.validateModel(request);
+@context("detectMainBodyWithContext")
+async function detectMainBodyWithOptions(request: DetectMainBodyRequest, runtime: $RuntimeOptions): DetectMainBodyResponse {
+  request.validate();
   var query = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     query['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectMainBody',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -448,32 +442,31 @@ async function detectMainBodyWithOptions(request: DetectMainBodyRequest, runtime
  * @return DetectMainBodyResponse
  */
 async function detectMainBody(request: DetectMainBodyRequest): DetectMainBodyResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectMainBodyWithOptions(request, runtime);
 }
 
-async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runtime: Util.RuntimeOptions): DetectMainBodyResponse {
+async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runtime: $RuntimeOptions): DetectMainBodyResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -487,10 +480,10 @@ async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runt
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -502,7 +495,7 @@ async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runt
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -510,13 +503,12 @@ async function detectMainBodyAdvance(request: DetectMainBodyAdvanceRequest, runt
   var detectMainBodyReq = new DetectMainBodyRequest{};
   OpenApiUtil.convert(request, detectMainBodyReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -571,16 +563,17 @@ model DetectObjectResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectObjectResponse
  */
-async function detectObjectWithOptions(request: DetectObjectRequest, runtime: Util.RuntimeOptions): DetectObjectResponse {
-  Util.validateModel(request);
+@context("detectObjectWithContext")
+async function detectObjectWithOptions(request: DetectObjectRequest, runtime: $RuntimeOptions): DetectObjectResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectObject',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -599,32 +592,31 @@ async function detectObjectWithOptions(request: DetectObjectRequest, runtime: Ut
  * @return DetectObjectResponse
  */
 async function detectObject(request: DetectObjectRequest): DetectObjectResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectObjectWithOptions(request, runtime);
 }
 
-async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime: Util.RuntimeOptions): DetectObjectResponse {
+async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime: $RuntimeOptions): DetectObjectResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -638,10 +630,10 @@ async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime:
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -653,7 +645,7 @@ async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime:
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -661,13 +653,12 @@ async function detectObjectAdvance(request: DetectObjectAdvanceRequest, runtime:
   var detectObjectReq = new DetectObjectRequest{};
   OpenApiUtil.convert(request, detectObjectReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -785,30 +776,31 @@ model DetectVehicleICongestionResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectVehicleICongestionResponse
  */
-async function detectVehicleICongestionWithOptions(tmpReq: DetectVehicleICongestionRequest, runtime: Util.RuntimeOptions): DetectVehicleICongestionResponse {
-  Util.validateModel(tmpReq);
+@context("detectVehicleICongestionWithContext")
+async function detectVehicleICongestionWithOptions(tmpReq: DetectVehicleICongestionRequest, runtime: $RuntimeOptions): DetectVehicleICongestionResponse {
+  tmpReq.validate();
   var request = new DetectVehicleICongestionShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.preRegionIntersectFeatures)) {
+  if (!$isNull(tmpReq.preRegionIntersectFeatures)) {
     request.preRegionIntersectFeaturesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.preRegionIntersectFeatures, 'PreRegionIntersectFeatures', 'json');
   }
-  if (!Util.isUnset(tmpReq.roadRegions)) {
+  if (!$isNull(tmpReq.roadRegions)) {
     request.roadRegionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.roadRegions, 'RoadRegions', 'json');
   }
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.preRegionIntersectFeaturesShrink)) {
+  if (!$isNull(request.preRegionIntersectFeaturesShrink)) {
     body['PreRegionIntersectFeatures'] = request.preRegionIntersectFeaturesShrink;
   }
-  if (!Util.isUnset(request.roadRegionsShrink)) {
+  if (!$isNull(request.roadRegionsShrink)) {
     body['RoadRegions'] = request.roadRegionsShrink;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectVehicleICongestion',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -829,32 +821,31 @@ async function detectVehicleICongestionWithOptions(tmpReq: DetectVehicleICongest
  * @return DetectVehicleICongestionResponse
  */
 async function detectVehicleICongestion(request: DetectVehicleICongestionRequest): DetectVehicleICongestionResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectVehicleICongestionWithOptions(request, runtime);
 }
 
-async function detectVehicleICongestionAdvance(request: DetectVehicleICongestionAdvanceRequest, runtime: Util.RuntimeOptions): DetectVehicleICongestionResponse {
+async function detectVehicleICongestionAdvance(request: DetectVehicleICongestionAdvanceRequest, runtime: $RuntimeOptions): DetectVehicleICongestionResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -868,10 +859,10 @@ async function detectVehicleICongestionAdvance(request: DetectVehicleICongestion
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -883,7 +874,7 @@ async function detectVehicleICongestionAdvance(request: DetectVehicleICongestion
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -891,13 +882,12 @@ async function detectVehicleICongestionAdvance(request: DetectVehicleICongestion
   var detectVehicleICongestionReq = new DetectVehicleICongestionRequest{};
   OpenApiUtil.convert(request, detectVehicleICongestionReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -994,24 +984,25 @@ model DetectVehicleIllegalParkingResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectVehicleIllegalParkingResponse
  */
-async function detectVehicleIllegalParkingWithOptions(tmpReq: DetectVehicleIllegalParkingRequest, runtime: Util.RuntimeOptions): DetectVehicleIllegalParkingResponse {
-  Util.validateModel(tmpReq);
+@context("detectVehicleIllegalParkingWithContext")
+async function detectVehicleIllegalParkingWithOptions(tmpReq: DetectVehicleIllegalParkingRequest, runtime: $RuntimeOptions): DetectVehicleIllegalParkingResponse {
+  tmpReq.validate();
   var request = new DetectVehicleIllegalParkingShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.roadRegions)) {
+  if (!$isNull(tmpReq.roadRegions)) {
     request.roadRegionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.roadRegions, 'RoadRegions', 'json');
   }
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  if (!Util.isUnset(request.roadRegionsShrink)) {
+  if (!$isNull(request.roadRegionsShrink)) {
     body['RoadRegions'] = request.roadRegionsShrink;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectVehicleIllegalParking',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1032,32 +1023,31 @@ async function detectVehicleIllegalParkingWithOptions(tmpReq: DetectVehicleIlleg
  * @return DetectVehicleIllegalParkingResponse
  */
 async function detectVehicleIllegalParking(request: DetectVehicleIllegalParkingRequest): DetectVehicleIllegalParkingResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectVehicleIllegalParkingWithOptions(request, runtime);
 }
 
-async function detectVehicleIllegalParkingAdvance(request: DetectVehicleIllegalParkingAdvanceRequest, runtime: Util.RuntimeOptions): DetectVehicleIllegalParkingResponse {
+async function detectVehicleIllegalParkingAdvance(request: DetectVehicleIllegalParkingAdvanceRequest, runtime: $RuntimeOptions): DetectVehicleIllegalParkingResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1071,10 +1061,10 @@ async function detectVehicleIllegalParkingAdvance(request: DetectVehicleIllegalP
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1086,7 +1076,7 @@ async function detectVehicleIllegalParkingAdvance(request: DetectVehicleIllegalP
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1094,13 +1084,12 @@ async function detectVehicleIllegalParkingAdvance(request: DetectVehicleIllegalP
   var detectVehicleIllegalParkingReq = new DetectVehicleIllegalParkingRequest{};
   OpenApiUtil.convert(request, detectVehicleIllegalParkingReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1171,22 +1160,23 @@ model DetectVideoIPCObjectResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectVideoIPCObjectResponse
  */
-async function detectVideoIPCObjectWithOptions(request: DetectVideoIPCObjectRequest, runtime: Util.RuntimeOptions): DetectVideoIPCObjectResponse {
-  Util.validateModel(request);
+@context("detectVideoIPCObjectWithContext")
+async function detectVideoIPCObjectWithOptions(request: DetectVideoIPCObjectRequest, runtime: $RuntimeOptions): DetectVideoIPCObjectResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.callbackOnlyHasObject)) {
+  if (!$isNull(request.callbackOnlyHasObject)) {
     body['CallbackOnlyHasObject'] = request.callbackOnlyHasObject;
   }
-  if (!Util.isUnset(request.startTimestamp)) {
+  if (!$isNull(request.startTimestamp)) {
     body['StartTimestamp'] = request.startTimestamp;
   }
-  if (!Util.isUnset(request.videoURL)) {
+  if (!$isNull(request.videoURL)) {
     body['VideoURL'] = request.videoURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectVideoIPCObject',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1207,32 +1197,31 @@ async function detectVideoIPCObjectWithOptions(request: DetectVideoIPCObjectRequ
  * @return DetectVideoIPCObjectResponse
  */
 async function detectVideoIPCObject(request: DetectVideoIPCObjectRequest): DetectVideoIPCObjectResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectVideoIPCObjectWithOptions(request, runtime);
 }
 
-async function detectVideoIPCObjectAdvance(request: DetectVideoIPCObjectAdvanceRequest, runtime: Util.RuntimeOptions): DetectVideoIPCObjectResponse {
+async function detectVideoIPCObjectAdvance(request: DetectVideoIPCObjectAdvanceRequest, runtime: $RuntimeOptions): DetectVideoIPCObjectResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1246,10 +1235,10 @@ async function detectVideoIPCObjectAdvance(request: DetectVideoIPCObjectAdvanceR
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1261,7 +1250,7 @@ async function detectVideoIPCObjectAdvance(request: DetectVideoIPCObjectAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1269,13 +1258,12 @@ async function detectVideoIPCObjectAdvance(request: DetectVideoIPCObjectAdvanceR
   var detectVideoIPCObjectReq = new DetectVideoIPCObjectRequest{};
   OpenApiUtil.convert(request, detectVideoIPCObjectReq);
 
-  if(!Util.isUnset(request.videoURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.videoURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.videoURLObject,
       contentType = '',
@@ -1326,16 +1314,17 @@ model DetectWhiteBaseImageResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectWhiteBaseImageResponse
  */
-async function detectWhiteBaseImageWithOptions(request: DetectWhiteBaseImageRequest, runtime: Util.RuntimeOptions): DetectWhiteBaseImageResponse {
-  Util.validateModel(request);
+@context("detectWhiteBaseImageWithContext")
+async function detectWhiteBaseImageWithOptions(request: DetectWhiteBaseImageRequest, runtime: $RuntimeOptions): DetectWhiteBaseImageResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.imageURL)) {
+  if (!$isNull(request.imageURL)) {
     body['ImageURL'] = request.imageURL;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectWhiteBaseImage',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1354,32 +1343,31 @@ async function detectWhiteBaseImageWithOptions(request: DetectWhiteBaseImageRequ
  * @return DetectWhiteBaseImageResponse
  */
 async function detectWhiteBaseImage(request: DetectWhiteBaseImageRequest): DetectWhiteBaseImageResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectWhiteBaseImageWithOptions(request, runtime);
 }
 
-async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceRequest, runtime: Util.RuntimeOptions): DetectWhiteBaseImageResponse {
+async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceRequest, runtime: $RuntimeOptions): DetectWhiteBaseImageResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1393,10 +1381,10 @@ async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceR
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1408,7 +1396,7 @@ async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceR
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1416,13 +1404,12 @@ async function detectWhiteBaseImageAdvance(request: DetectWhiteBaseImageAdvanceR
   var detectWhiteBaseImageReq = new DetectWhiteBaseImageRequest{};
   OpenApiUtil.convert(request, detectWhiteBaseImageReq);
 
-  if(!Util.isUnset(request.imageURLObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageURLObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageURLObject,
       contentType = '',
@@ -1509,27 +1496,28 @@ model DetectWorkwearResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectWorkwearResponse
  */
-async function detectWorkwearWithOptions(tmpReq: DetectWorkwearRequest, runtime: Util.RuntimeOptions): DetectWorkwearResponse {
-  Util.validateModel(tmpReq);
+@context("detectWorkwearWithContext")
+async function detectWorkwearWithOptions(tmpReq: DetectWorkwearRequest, runtime: $RuntimeOptions): DetectWorkwearResponse {
+  tmpReq.validate();
   var request = new DetectWorkwearShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.clothes)) {
+  if (!$isNull(tmpReq.clothes)) {
     request.clothesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clothes, 'Clothes', 'json');
   }
   var body : map[string]any = {};
-  if (!Util.isUnset(request.clothesShrink)) {
+  if (!$isNull(request.clothesShrink)) {
     body['Clothes'] = request.clothesShrink;
   }
-  if (!Util.isUnset(request.imageUrl)) {
+  if (!$isNull(request.imageUrl)) {
     body['ImageUrl'] = request.imageUrl;
   }
-  if (!Util.isUnset(request.labels)) {
+  if (!$isNull(request.labels)) {
     body['Labels'] = request.labels;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'DetectWorkwear',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1550,32 +1538,31 @@ async function detectWorkwearWithOptions(tmpReq: DetectWorkwearRequest, runtime:
  * @return DetectWorkwearResponse
  */
 async function detectWorkwear(request: DetectWorkwearRequest): DetectWorkwearResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return detectWorkwearWithOptions(request, runtime);
 }
 
-async function detectWorkwearAdvance(request: DetectWorkwearAdvanceRequest, runtime: Util.RuntimeOptions): DetectWorkwearResponse {
+async function detectWorkwearAdvance(request: DetectWorkwearAdvanceRequest, runtime: $RuntimeOptions): DetectWorkwearResponse {
   // Step 0: init client
-  var credentialModel: Credential.CredentialModel = null;
-  if (Util.isUnset(@credential)) {
-    throw {
+  if ($isNull(@credential)) {
+    throw new OpenApi.Client{
       code = 'InvalidCredentials',
       message = 'Please set up the credentials correctly. If you are setting them through environment variables, please ensure that ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set correctly. See https://help.aliyun.com/zh/sdk/developer-reference/configure-the-alibaba-cloud-accesskey-environment-variable-on-linux-macos-and-windows-systems for more details.'
     }
   }
-  credentialModel = @credential.getCredential();
+  var credentialModel = @credential.getCredential();
   var accessKeyId = credentialModel.accessKeyId;
   var accessKeySecret = credentialModel.accessKeySecret;
   var securityToken = credentialModel.securityToken;
   var credentialType = credentialModel.type;
   var openPlatformEndpoint = @openPlatformEndpoint;
-  if(Util.empty(openPlatformEndpoint)) {
+  if($isNull(openPlatformEndpoint) || openPlatformEndpoint == "") {
     openPlatformEndpoint ='openplatform.aliyuncs.com';
   }
-  if(Util.isUnset(credentialType)) {
+  if($isNull(credentialType)) {
     credentialType ='access_key';
   }
-  var authConfig = new OpenApi.Config{
+  var authConfig = new OpenApiUtil.Config{
     accessKeyId = accessKeyId,
     accessKeySecret = accessKeySecret,
     securityToken = securityToken,
@@ -1589,10 +1576,10 @@ async function detectWorkwearAdvance(request: DetectWorkwearAdvanceRequest, runt
     Product = 'objectdet',
     RegionId = @regionId,
   };
-  var authReq = new OpenApi.OpenApiRequest{
+  var authReq = new OpenApiUtil.OpenApiRequest{
     query = OpenApiUtil.query(authRequest),
   };
-  var authParams = new OpenApi.Params{
+  var authParams = new OpenApiUtil.Params{
     action = 'AuthorizeFileUpload',
     version = '2019-12-19',
     protocol = 'HTTPS',
@@ -1604,7 +1591,7 @@ async function detectWorkwearAdvance(request: DetectWorkwearAdvanceRequest, runt
     bodyType = 'json',
   };
   var authResponse : object = {};
-  var fileObj = new FileForm.FileField{};
+  var fileObj = new $FileField{};
   var ossHeader: object = {};
   var tmpBody: object = {};
   var useAccelerate: boolean = false;
@@ -1612,13 +1599,12 @@ async function detectWorkwearAdvance(request: DetectWorkwearAdvanceRequest, runt
   var detectWorkwearReq = new DetectWorkwearRequest{};
   OpenApiUtil.convert(request, detectWorkwearReq);
 
-  if(!Util.isUnset(request.imageUrlObject)) {
-    var tmpResp0: any = authClient.callApi(authParams, authReq, runtime);
-    authResponse = Util.assertAsMap(tmpResp0);
-    tmpBody = Util.assertAsMap(authResponse['body']);
-    useAccelerate = Util.assertAsBoolean(tmpBody['UseAccelerate']);
-    authResponseBody = Util.stringifyMapValue(tmpBody);
-    fileObj = new FileForm.FileField{
+  if(!$isNull(request.imageUrlObject)) {
+    authResponse = authClient.callApi(authParams, authReq, runtime);
+    tmpBody = $object(authResponse['body']);
+    useAccelerate = $boolean(tmpBody['UseAccelerate']);
+    authResponseBody = OpenApiUtil.stringifyMapValue(tmpBody);
+    fileObj = new $FileField{
       filename = authResponseBody['ObjectKey'],
       content = request.imageUrlObject,
       contentType = '',
@@ -1667,16 +1653,17 @@ model GetAsyncJobResultResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return GetAsyncJobResultResponse
  */
-async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: Util.RuntimeOptions): GetAsyncJobResultResponse {
-  Util.validateModel(request);
+@context("getAsyncJobResultWithContext")
+async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, runtime: $RuntimeOptions): GetAsyncJobResultResponse {
+  request.validate();
   var body : map[string]any = {};
-  if (!Util.isUnset(request.jobId)) {
+  if (!$isNull(request.jobId)) {
     body['JobId'] = request.jobId;
   }
-  var req = new OpenApi.OpenApiRequest{ 
+  var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
   };
-  var params = new OpenApi.Params{
+  var params = new OpenApiUtil.Params{
     action = 'GetAsyncJobResult',
     version = '2019-12-30',
     protocol = 'HTTPS',
@@ -1697,41 +1684,39 @@ async function getAsyncJobResultWithOptions(request: GetAsyncJobResultRequest, r
  * @return GetAsyncJobResultResponse
  */
 async function getAsyncJobResult(request: GetAsyncJobResultRequest): GetAsyncJobResultResponse {
-  var runtime = new Util.RuntimeOptions{};
+  var runtime = new $RuntimeOptions{};
   return getAsyncJobResultWithOptions(request, runtime);
 }
 
-api _postOSSObject(bucketName: string, data: object): object {
-  var form = Util.assertAsMap(data);
-  var boundary = FileForm.getBoundary();
-  var host = Util.assertAsString(form.host);
+api _postOSSObject(bucketName: string, form: object): object {
+  var boundary = $Form.getBoundary();
   __request.protocol = 'HTTPS';
   __request.method = 'POST';
   __request.pathname = `/`;
   __request.headers = {
-    host = host,
-    date = Util.getDateUTCString(),
-    user-agent = Util.getUserAgent(''),
+    host = $string(form.host),
+    date = OpenApiUtil.getDateUTCString(),
+    user-agent = OpenApiUtil.getUserAgent(''),
   };
   __request.headers.content-type = `multipart/form-data; boundary=${boundary}`;
-  __request.body = FileForm.toFileForm(form, boundary);
+  __request.body = $Form.toFileForm(form, boundary);
 } returns {
   var respMap : object = null;
-  var bodyStr = Util.readAsString(__response.body);
-  if (Util.is4xx(__response.statusCode) || Util.is5xx(__response.statusCode)) {
-    respMap = XML.parseXml(bodyStr, null);
-    var err = Util.assertAsMap(respMap.Error);
-    throw {
-      code = err.Code,
-      message = err.Message,
+  var bodyStr = $Stream.readAsString(__response.body);
+  if ((__response.statusCode >= 400) && (__response.statusCode < 600)) {
+    respMap = $XML.parseXml(bodyStr, null);
+    var err = $object(respMap.Error);
+    throw new OpenApi.Client{
+      code = $string(err.Code),
+      message = $string(err.Message),
       data = {
         httpCode = __response.statusCode,
-        requestId = err.RequestId,
-        hostId = err.HostId,
+        requestId = $string(err.RequestId),
+        hostId = $string(err.HostId),
       }
     };
   }
-  respMap = XML.parseXml(bodyStr, null);
+  respMap = $XML.parseXml(bodyStr, null);
   return {
     ...respMap,
   };
