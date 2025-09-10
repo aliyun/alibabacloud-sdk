@@ -151,6 +151,16 @@ model CopilotAction {
   scene?: string(name='scene'),
 }
 
+model DeleteLogStoreLogsTask {
+  errorCode?: int32(name='errorCode'),
+  errorMessage?: string(name='errorMessage'),
+  from?: int32(name='from'),
+  progress?: int32(name='progress'),
+  query?: string(name='query'),
+  taskId?: string(name='taskId'),
+  to?: int32(name='to'),
+}
+
 model ETL {
   configuration: ETLConfiguration(name='configuration', description='This parameter is required.'),
   createTime?: long(name='createTime', example='1714274900'),
@@ -312,6 +322,7 @@ model LogtailPipelineConfig {
   lastModifyTime?: long(name='lastModifyTime', example='1655176807'),
   logSample?: string(name='logSample', example='127.0.0.1 - - [10/Jun/2022:12:36:49 +0800] "GET /index.html HTTP/1.1" 200'),
   processors?: [  map[string]any ](name='processors'),
+  task?: map[string]any(name='task', example='{"Type": "task_example"}'),
 }
 
 model MLDataParam {
@@ -1425,6 +1436,7 @@ This parameter is required.', position='Body'),
 
     *   You must add one of the following Logtail plug-ins for data processing as the first plug-in: Data Parsing (Regex Mode), Data Parsing (Delimiter Mode), Data Parsing (JSON Mode), Data Parsing (NGINX Mode), Data Parsing (Apache Mode), and Data Parsing (IIS Mode).
     *   After you add the first plug-in, you can add one Time Parsing plug-in, one Data Filtering plug-in, and multiple Data Masking plug-ins.', position='Body'),
+  task?: map[string]any(name='task', position='Body'),
 }
 
 model CreateLogtailPipelineConfigResponse = {
@@ -1995,6 +2007,25 @@ model DeleteConfigResponse = {
 async function deleteConfig(request: DeleteConfigRequest): DeleteConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteConfig', 'DELETE', '/configs/{configName}', 'none', false, 'json', request);
+}
+
+model DeleteConsumeProcessorRequest {
+  project?: string(name='project', description='This parameter is required.', position='Host'),
+  processorName: string(name='processorName', description='This parameter is required.', example='consume-processor-1', position='Path'),
+}
+
+model DeleteConsumeProcessorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @param request  the request parameters of DeleteConsumeProcessor  DeleteConsumeProcessorRequest
+  * @return DeleteConsumeProcessorResponse
+ */
+async function deleteConsumeProcessor(request: DeleteConsumeProcessorRequest): DeleteConsumeProcessorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteConsumeProcessor', 'DELETE', '/consumeprocessors/{processorName}', 'none', false, 'json', request);
 }
 
 model DeleteConsumerGroupRequest {
@@ -2943,6 +2974,28 @@ async function getConfig(request: GetConfigRequest): GetConfigResponse {
   return @handler.do('RESTFUL', 'GetConfig', 'GET', '/configs/{configName}', 'json', false, 'json', request);
 }
 
+model GetConsumeProcessorRequest {
+  project?: string(name='project', description='This parameter is required.', position='Host'),
+  processorName: string(name='processorName', description='The identifier of the consumer processor.
+
+This parameter is required.', example='consume-processor-1', position='Path'),
+}
+
+model GetConsumeProcessorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ConsumeProcessor  
+}
+
+/**
+  * @param request  the request parameters of GetConsumeProcessor  GetConsumeProcessorRequest
+  * @return GetConsumeProcessorResponse
+ */
+async function getConsumeProcessor(request: GetConsumeProcessorRequest): GetConsumeProcessorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetConsumeProcessor', 'GET', '/consumeprocessors/{processorName}', 'json', false, 'json', request);
+}
+
 model GetContextLogsRequest {
   project?: string(name='project', description='The name of the project.
 
@@ -3546,7 +3599,7 @@ model GetLogsV2ResponseBody = {
       scanAll?: boolean(name='scanAll', example='true'),
     }(name='phraseQueryInfo'),
     processedBytes?: long(name='processedBytes', description='The number of logs that are processed in the request.', example='10000'),
-    processedRows?: long(name='processedRows', description='The number of rows that are processed in the request.', example='10000'),
+    processedRows?: long(name='processedRows', description='The number of rows that are processed in the query.', example='10000'),
     progress?: string(name='progress', description='Indicates whether the query result is complete. Valid values:
 
 *   Complete: The query was successful, and the complete result is returned.
@@ -3565,9 +3618,14 @@ model GetLogsV2Response = {
 }
 
 /**
-  * @description *   You can call this operation by using Alibaba Cloud SDK for Go, Java, TypeScript, or Python.
-  * *   You can call this operation by using Simple Log Service SDK for Go or Java.
-  * *   For more information, see [GetLogs](https://help.aliyun.com/document_detail/29029.html).
+  * @description * You can call this operation by using Simple Log Service SDK for Go, Java, or Python. You can call this operation by using Alibaba Cloud SDK for all programming languages.
+  * * When you call this operation, take note of the compression method that you use. The supported compression algorithms vary based on the programming language. For more information, see the description of the Accept-Encoding parameter in this topic.
+  * * For more information, see [GetLogs](https://help.aliyun.com/document_detail/2771313.html).
+  * ### Authentication resources
+  * The following table describes the authorization information that is required for this operation. You can add the information to the Action element of a Resource Access Management (RAM) policy statement to grant a RAM user or a RAM role the permissions to call this operation.
+  * |Action|Resource|
+  * |:---|:---|
+  * |`log:GetLogStoreLogs`|`acs:log:{#regionId}:{#accountId}:project/{#ProjectName}`|
   * @param request  the request parameters of GetLogsV2  GetLogsV2Request
   * @return GetLogsV2Response
  */
@@ -4415,6 +4473,37 @@ async function listConfig(request: ListConfigRequest): ListConfigResponse {
   return @handler.do('RESTFUL', 'ListConfig', 'GET', '/configs', 'json', false, 'json', request);
 }
 
+model ListConsumeProcessorsRequest {
+  project?: string(name='project', description='This parameter is required.', position='Host'),
+  displayName?: string(name='displayName', description='The display name of the consumption processor.', example='filter-get-request', position='Query'),
+  offset?: string(name='offset', description='The offset. Default value: 0.', example='0', position='Query'),
+  processorName?: string(name='processorName', description='The identifier of the consumption processor.', example='consume-processor-1', position='Query'),
+  size?: string(name='size', description='The number of entries. Default value: 200.', example='100', position='Query'),
+}
+
+model ListConsumeProcessorsResponseBody = {
+  count?: int32(name='count', description='The number of consumption processors for offset.', example='10'),
+  processors?: [
+    ConsumeProcessor
+  ](name='processors', description='The list of consumption processor information.'),
+  total?: int32(name='total', description='The total number of consumption processors that meet the query conditions.', example='20'),
+}
+
+model ListConsumeProcessorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConsumeProcessorsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListConsumeProcessors  ListConsumeProcessorsRequest
+  * @return ListConsumeProcessorsResponse
+ */
+async function listConsumeProcessors(request: ListConsumeProcessorsRequest): ListConsumeProcessorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListConsumeProcessors', 'GET', '/consumeprocessors', 'json', false, 'json', request);
+}
+
 model ListConsumerGroupRequest {
   project?: string(name='project', description='The name of the project.
 
@@ -4710,6 +4799,7 @@ model ListLogtailPipelineConfigRequest {
 
 This parameter is required.', example='test-project', position='Host'),
   configName?: string(name='configName', description='The name of the Logtail pipeline configuration.', example='logtail-config-sample', position='Query'),
+  configType?: string(name='configType', position='Query'),
   logstoreName?: string(name='logstoreName', description='The name of the Logstore.', example='test-logstore', position='Query'),
   offset?: long(name='offset', description='The line from which the query starts.', example='0', minimum=0, position='Query'),
   size?: long(name='size', description='The number of Logtail pipeline configurations per page.', example='20', minimum=0, maximum=500, position='Query'),
@@ -5296,6 +5386,34 @@ async function putAnnotationData(request: PutAnnotationDataRequest): PutAnnotati
   return @handler.do('RESTFUL', 'PutAnnotationData', 'PUT', '/ml/annotationdataset/{datasetId}/annotationdata', 'none', false, 'json', request);
 }
 
+model PutConsumeProcessorRequest {
+  project?: string(name='project', description='This parameter is required.', position='Host'),
+  processorName: string(name='processorName', description='The identifier of the consumption processor.
+
+This parameter is required.', example='consume-processor-1', position='Path'),
+  configuration: ConsumeProcessorConfiguration(name='configuration', description='Consumption processor configuration.
+
+This parameter is required.', position='Body'),
+  description?: string(name='description', description='The description.', position='Body'),
+  displayName: string(name='displayName', description='The display name.
+
+This parameter is required.', example='filter-get-request', position='Body'),
+}
+
+model PutConsumeProcessorResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @param request  the request parameters of PutConsumeProcessor  PutConsumeProcessorRequest
+  * @return PutConsumeProcessorResponse
+ */
+async function putConsumeProcessor(request: PutConsumeProcessorRequest): PutConsumeProcessorResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PutConsumeProcessor', 'PUT', '/consumeprocessors/{processorName}', 'none', false, 'json', request);
+}
+
 model PutIngestProcessorRequest {
   project?: string(name='project', description='The name of the project.
 
@@ -5389,7 +5507,9 @@ async function putProjectPolicy(request: PutProjectPolicyRequest): PutProjectPol
 
 model PutProjectTransferAccelerationRequest {
   project?: string(name='project', description='This parameter is required.', position='Host'),
-  enabled: boolean(name='enabled', description='This parameter is required.', position='Body'),
+  enabled: boolean(name='enabled', description='Whether to enable transfer acceleration.
+
+This parameter is required.', example='true', position='Body'),
 }
 
 model PutProjectTransferAccelerationResponse = {
@@ -6341,6 +6461,7 @@ This parameter is required.', position='Body'),
 
     *   You must add one of the following Logtail plug-ins for data processing as the first plug-in: Data Parsing (Regex Mode), Data Parsing (Delimiter Mode), Data Parsing (JSON Mode), Data Parsing (NGINX Mode), Data Parsing (Apache Mode), and Data Parsing (IIS Mode).
     *   After you add the first plug-in, you can add one Time Parsing plug-in, one Data Filtering plug-in, and multiple Data Masking plug-ins.', position='Body'),
+  task?: map[string]any(name='task', position='Body'),
 }
 
 model UpdateLogtailPipelineConfigResponse = {
@@ -6854,6 +6975,7 @@ model UpsertCollectionPolicyResponse = {
 }
 
 /**
+  * @description You must use the Simple Log Service endpoint for the China (Shanghai) or Singapore region to call the operation.
   * @param request  the request parameters of UpsertCollectionPolicy  UpsertCollectionPolicyRequest
   * @return UpsertCollectionPolicyResponse
  */
