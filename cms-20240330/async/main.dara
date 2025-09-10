@@ -228,6 +228,7 @@ model AlertRuleCondition {
   noDataAlertLevel?: string(name='noDataAlertLevel', description='无数据时按什么级别告警，不指定则不对无数据报警'),
   noDataAppendValue?: string(name='noDataAppendValue'),
   noDataPolicy?: string(name='noDataPolicy'),
+  oper?: string(name='oper'),
   relation?: string(name='relation'),
   simpleEscalation?: {
     escalations?: [ 
@@ -245,6 +246,7 @@ model AlertRuleCondition {
   type: string(name='type', description='规则条件类型，可选值：SLS_CONDITION
 
 This parameter is required.'),
+  value?: double(name='value'),
 }
 
 model AlertRuleDataSource {
@@ -323,6 +325,7 @@ model AlertRuleQuery {
   ](name='queries'),
   relationType?: string(name='relationType'),
   secondJoin?: AlertRuleSlsQueryJoin(name='secondJoin'),
+  serviceIds?: [ string ](name='serviceIds'),
   type: string(name='type', description='查询类型
 
 This parameter is required.'),
@@ -885,6 +888,130 @@ model TransformerForView {
   workspace?: string(name='workspace'),
 }
 
+model CreateAddonReleaseRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-yyyyyyyyyy', position='Path'),
+  addonName: string(name='addonName', description='This parameter is required.', example='cs-gpu', position='Body'),
+  aliyunLang?: string(name='aliyunLang', example='zh', position='Body'),
+  dryRun?: boolean(name='dryRun', example='false', position='Body'),
+  entityRules?: EntityDiscoverRule(name='entityRules', position='Body'),
+  envType?: string(name='envType', example='CS', position='Body'),
+  parentAddonReleaseId?: string(name='parentAddonReleaseId', example='policy-xxxxxxxxxxx', position='Body'),
+  releaseName?: string(name='releaseName', example='test-gpu-integration-name', position='Body'),
+  values?: string(name='values', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}', position='Body'),
+  version: string(name='version', description='This parameter is required.', example='0.0.2', position='Body'),
+  workspace?: string(name='workspace', example='default', position='Body'),
+}
+
+model CreateAddonReleaseResponseBody = {
+  release?: {
+    addonName?: string(name='addonName', example='cs-gpu'),
+    alertRuleCount?: long(name='alertRuleCount', example='6'),
+    conditions?: [ 
+      {
+        firstTransitionTime?: string(name='firstTransitionTime', example='2024-11-04T16:10:22+08:00'),
+        lastTransitionTime?: string(name='lastTransitionTime', example='2024-11-04T16:10:22+08:00'),
+        message?: string(name='message', example='The addon loaded successfully'),
+        status?: string(name='status', example='{\\"phase\\": \\"Created\\", \\"executionDetails\\": [], \\"invocations\\": [], \\"latestExecError\\": {\\"message\\": \\"\\", \\"code\\": \\"\\", \\"requestId\\": \\"\\", \\"extraInfo\\": \\"\\", \\"title\\": \\"\\"}}'),
+        type?: string(name='type', example='Loaded'),
+      }
+    ](name='conditions'),
+    config?: string(name='config', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}'),
+    createTime?: string(name='createTime', example='2024-11-05T15:21:30+08:00'),
+    dashboardCount?: long(name='dashboardCount', example='3'),
+    entityRules?: EntityGroupBase(name='entityRules'),
+    envType?: string(name='envType', example='CS'),
+    environmentId?: string(name='environmentId', example='policy-xxxxxxxxxxx'),
+    exporterCount?: long(name='exporterCount', example='2'),
+    haveConfig?: boolean(name='haveConfig', example='true'),
+    installUserId?: string(name='installUserId', example='1654218965xxxxxx'),
+    language?: string(name='language', example='zh'),
+    managed?: boolean(name='managed', example='true'),
+    parentAddonReleaseId?: string(name='parentAddonReleaseId', example='policy-xxxxxxxxxxx'),
+    policyId?: string(name='policyId', example='policy-xxxxxxxxxx'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    releaseId?: string(name='releaseId', example='2e898e60-5e6a-46d1-a994-xxxxxxxxxx'),
+    releaseName?: string(name='releaseName', example='test-gpu-integration-name'),
+    scene?: string(name='scene', example='1'),
+    status?: string(name='status', example='200'),
+    updateTime?: string(name='updateTime', example='2024-09-13T02:21:02Z'),
+    userId?: string(name='userId', example='165421896xxxxxx'),
+    version?: string(name='version', example='1.0.0'),
+    workspace?: string(name='workspace', example='default'),
+  }(name='release'),
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+}
+
+model CreateAddonReleaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAddonReleaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateAddonRelease  CreateAddonReleaseRequest
+  * @return CreateAddonReleaseResponse
+ */
+async function createAddonRelease(request: CreateAddonReleaseRequest): CreateAddonReleaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAddonRelease', 'POST', '/integration-policies/{policyId}/addon-releases', 'json', false, 'json', request);
+}
+
+model CreateAggTaskGroupRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='pq4apob9jm', position='Path'),
+  aggTaskGroupConfig: string(name='aggTaskGroupConfig', description='This parameter is required.', example='groups:
+- name: "node.rules"
+  interval: "60s"
+  rules:
+  - record: "node_namespace_pod:kube_pod_info:"
+    expr: "max(label_replace(kube_pod_info{job=\\"kubernetes-pods-kube-state-metrics\\"\\
+      }, \\"pod\\", \\"$1\\", \\"pod\\", \\"(.*)\\")) by (node, namespace, pod, cluster)"', position='Body'),
+  aggTaskGroupConfigType?: string(name='aggTaskGroupConfigType', example='RecordingRuleYaml', position='Body'),
+  aggTaskGroupName: string(name='aggTaskGroupName', description='This parameter is required.', example='test-group', position='Body'),
+  cronExpr?: string(name='cronExpr', example='0/1 * * * *', position='Body'),
+  delay?: int32(name='delay', example='30', minimum=0, maximum=120, position='Body'),
+  description?: string(name='description', example='desc', position='Body'),
+  fromTime?: long(name='fromTime', example='1724996015', position='Body'),
+  maxRetries?: int32(name='maxRetries', example='20', position='Body'),
+  maxRunTimeInSeconds?: int32(name='maxRunTimeInSeconds', example='600', position='Body'),
+  precheckString?: string(name='precheckString', example='{"policy":"skip","prometheusId":"xxx","query":"scalar(sum(count_over_time(up{job=\\"_arms/kubelet/cadvisor\\"}[15s])) / 21)","threshold":0.5,"timeout":15,"type":"promql"}', position='Body'),
+  scheduleMode?: string(name='scheduleMode', example='FixedRate', position='Body'),
+  scheduleTimeExpr?: string(name='scheduleTimeExpr', example='@m', position='Body'),
+  status?: string(name='status', example='Running', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='key1'),
+      value?: string(name='value', example='value1'),
+    }
+  ](name='tags', position='Body'),
+  targetPrometheusId: string(name='targetPrometheusId', description='This parameter is required.', example='rw-pq4apob9jm', position='Body'),
+  toTime?: long(name='toTime', example='0', position='Body'),
+  overrideIfExists?: boolean(name='overrideIfExists', example='true', position='Query'),
+}
+
+model CreateAggTaskGroupResponseBody = {
+  aggTaskGroupConfigHash?: string(name='aggTaskGroupConfigHash', example='a54136014dc386a92c83a6ef1e97ff22'),
+  aggTaskGroupId?: string(name='aggTaskGroupId', example='aggTaskGroup-f4b8e50525cf41c894488c0c71ec483f'),
+  aggTaskGroupName?: string(name='aggTaskGroupName', example='pipeline-aggtask-group'),
+  requestId?: string(name='requestId', example='16C0A6D6-C3E7-511D-A60B-A87FD85F5BA7'),
+  sourcePrometheusId?: string(name='sourcePrometheusId', example='rw-ecc04af14729b1a16e40a0d10068'),
+  status?: string(name='status', example='Pending2Running'),
+}
+
+model CreateAggTaskGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAggTaskGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateAggTaskGroup  CreateAggTaskGroupRequest
+  * @return CreateAggTaskGroupResponse
+ */
+async function createAggTaskGroup(request: CreateAggTaskGroupRequest): CreateAggTaskGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateAggTaskGroup', 'POST', '/prometheus-instances/{instanceId}/agg-task-groups', 'json', false, 'json', request);
+}
+
 model CreateEntityStoreRequest {
   workspaceName: string(name='workspaceName', description='This parameter is required.', example='workspace-test-001', position='Path'),
 }
@@ -907,6 +1034,54 @@ model CreateEntityStoreResponse = {
 async function createEntityStore(request: CreateEntityStoreRequest): CreateEntityStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateEntityStore', 'POST', '/workspace/{workspaceName}/entitystore', 'json', false, 'json', request);
+}
+
+model CreateIntegrationPolicyRequest {
+  entityGroup?: {
+    clusterEntityType?: string(name='clusterEntityType', example='acs.ack.cluster'),
+    clusterId?: string(name='clusterId', example='na61prod3-na61cloudhdfsssd'),
+    entityGroupId?: string(name='entityGroupId', example='eg-b79f65d11fb94e779867cf937c3a3002'),
+    vpcId?: string(name='vpcId', example='vpc-bp18fgg3ffxa9czna40xt'),
+  }(name='entityGroup', position='Body'),
+  policyName?: string(name='policyName', example='prod-database', position='Body'),
+  policyType: string(name='policyType', description='This parameter is required.', example='CS', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aekz2km4kmhtbii', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='use'),
+      value?: string(name='value', example='database'),
+    }
+  ](name='tags', position='Body'),
+  workspace?: string(name='workspace', example='prometheus', position='Body'),
+}
+
+model CreateIntegrationPolicyResponseBody = {
+  created?: boolean(name='created', example='true'),
+  policy?: {
+    entityGroupId?: string(name='entityGroupId', example='eg-b79f65d11fb94e779867cf937c3a3002'),
+    policyId?: string(name='policyId', example='policy-14c8e9a29b0a46da843f8781471062ff'),
+    policyName?: string(name='policyName', example='metrics-inner-manage'),
+    policyType?: string(name='policyType', example='CS'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+    userId?: string(name='userId', example='u1234567'),
+    workspace?: string(name='workspace'),
+  }(name='policy'),
+  requestId?: string(name='requestId', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+}
+
+model CreateIntegrationPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateIntegrationPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateIntegrationPolicy  CreateIntegrationPolicyRequest
+  * @return CreateIntegrationPolicyResponse
+ */
+async function createIntegrationPolicy(request: CreateIntegrationPolicyRequest): CreateIntegrationPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateIntegrationPolicy', 'POST', '/integration-policies', 'json', false, 'json', request);
 }
 
 model CreatePrometheusInstanceRequest {
@@ -947,6 +1122,82 @@ model CreatePrometheusInstanceResponse = {
 async function createPrometheusInstance(request: CreatePrometheusInstanceRequest): CreatePrometheusInstanceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreatePrometheusInstance', 'POST', '/prometheus-instances', 'json', false, 'json', request);
+}
+
+model CreatePrometheusViewRequest {
+  authFreeReadPolicy?: string(name='authFreeReadPolicy', example='null', position='Body'),
+  enableAuthFreeRead?: boolean(name='enableAuthFreeRead', example='true', position='Body'),
+  enableAuthToken?: boolean(name='enableAuthToken', example='true', position='Body'),
+  prometheusInstances: [ 
+    {
+      prometheusInstanceId?: string(name='prometheusInstanceId', example='arms-1d581fac20a462dcde743d9628'),
+      regionId?: string(name='regionId', example='cn-wulanchabu'),
+      userId?: string(name='userId', example='167271234567890'),
+    }
+  ](name='prometheusInstances', description='This parameter is required.', position='Body'),
+  prometheusViewName: string(name='prometheusViewName', description='This parameter is required.', example='test-prom-view-name', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi', position='Body'),
+  status?: string(name='status', example='null', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='test-key'),
+      value?: string(name='value', example='test-value'),
+    }
+  ](name='tags', position='Body'),
+  version: string(name='version', description='This parameter is required.', example='V2', position='Body'),
+  workspace?: string(name='workspace', example='cms-monitor-test-aysls-pub-cn-zhangjiakou-spe-monitor', position='Body'),
+}
+
+model CreatePrometheusViewResponseBody = {
+  prometheusViewId?: string(name='prometheusViewId', example='cd5237f7dbd574cf9bbd648ff9efb16cd'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreatePrometheusViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePrometheusViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePrometheusView  CreatePrometheusViewRequest
+  * @return CreatePrometheusViewResponse
+ */
+async function createPrometheusView(request: CreatePrometheusViewRequest): CreatePrometheusViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePrometheusView', 'POST', '/prometheus-views', 'json', false, 'json', request);
+}
+
+model CreatePrometheusVirtualInstanceRequest {
+  regionId?: string(name='regionId', position='Host'),
+  namespace: string(name='namespace', description='This parameter is required.', example='cms_prometheus', position='Body'),
+}
+
+model CreatePrometheusVirtualInstanceResponseBody = {
+  instance?: {
+    createdAt?: string(name='createdAt', example='1751520976660'),
+    httpApiUrl?: string(name='httpApiUrl', example='http://xxxxxxx'),
+    instanceId?: string(name='instanceId', example='rw-e815960b4c9ebc5c3d89790c7e82'),
+    namespace?: string(name='namespace', example='ack-csi-fuse'),
+    regionId?: string(name='regionId', example='cn-zhengzhou-jva'),
+    userId?: string(name='userId', example='167212345678'),
+  }(name='instance'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-************'),
+}
+
+model CreatePrometheusVirtualInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreatePrometheusVirtualInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreatePrometheusVirtualInstance  CreatePrometheusVirtualInstanceRequest
+  * @return CreatePrometheusVirtualInstanceResponse
+ */
+async function createPrometheusVirtualInstance(request: CreatePrometheusVirtualInstanceRequest): CreatePrometheusVirtualInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreatePrometheusVirtualInstance', 'POST', '/virtual-instances', 'json', false, 'json', request);
 }
 
 model CreateServiceRequest {
@@ -1031,6 +1282,56 @@ async function createUmodel(request: CreateUmodelRequest): CreateUmodelResponse 
   return @handler.do('RESTFUL', 'CreateUmodel', 'POST', '/workspace/{workspace}/umodel', 'json', false, 'json', request);
 }
 
+model DeleteAddonReleaseRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-xxxxxxxxxxxxx', position='Path'),
+  addonName?: string(name='addonName', example='cs-gpu', position='Query'),
+  force?: boolean(name='force', example='false', position='Query'),
+  releaseName?: string(name='releaseName', example='test-gpu-integration-name', position='Query'),
+}
+
+model DeleteAddonReleaseResponseBody = {
+  requestId?: string(name='requestId', example='264C3E89-BE6E-5F82-A484-CE9C2196C7DC'),
+}
+
+model DeleteAddonReleaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAddonReleaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteAddonRelease  DeleteAddonReleaseRequest
+  * @return DeleteAddonReleaseResponse
+ */
+async function deleteAddonRelease(request: DeleteAddonReleaseRequest): DeleteAddonReleaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteAddonRelease', 'DELETE', '/integration-policies/{policyId}/addon-releases', 'json', false, 'json', request);
+}
+
+model DeleteAggTaskGroupRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rw-pq4apob9jm', position='Path'),
+  groupId: string(name='groupId', description='This parameter is required.', example='aggTaskGroup-xxx', position='Path'),
+}
+
+model DeleteAggTaskGroupResponseBody = {
+  requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model DeleteAggTaskGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAggTaskGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteAggTaskGroup  DeleteAggTaskGroupRequest
+  * @return DeleteAggTaskGroupResponse
+ */
+async function deleteAggTaskGroup(request: DeleteAggTaskGroupRequest): DeleteAggTaskGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteAggTaskGroup', 'DELETE', '/prometheus-instances/{instanceId}/agg-task-groups/{groupId}', 'json', false, 'json', request);
+}
+
 model DeleteEntityStoreRequest {
   workspaceName: string(name='workspaceName', description='This parameter is required.', example='workspace-test-001', position='Path'),
 }
@@ -1052,6 +1353,76 @@ model DeleteEntityStoreResponse = {
 async function deleteEntityStore(request: DeleteEntityStoreRequest): DeleteEntityStoreResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteEntityStore', 'DELETE', '/workspace/{workspaceName}/entitystore', 'json', false, 'json', request);
+}
+
+model DeleteIntegrationPolicyRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-273c360bed1948818c5fb861886bc405', position='Path'),
+  force?: boolean(name='force', example='false', position='Query'),
+}
+
+model DeleteIntegrationPolicyResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+}
+
+model DeleteIntegrationPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteIntegrationPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteIntegrationPolicy  DeleteIntegrationPolicyRequest
+  * @return DeleteIntegrationPolicyResponse
+ */
+async function deleteIntegrationPolicy(request: DeleteIntegrationPolicyRequest): DeleteIntegrationPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteIntegrationPolicy', 'DELETE', '/integration-policies/{policyId}', 'json', false, 'json', request);
+}
+
+model DeletePrometheusInstanceRequest {
+  prometheusInstanceId: string(name='prometheusInstanceId', description='This parameter is required.', example='rw-abc123', position='Path'),
+}
+
+model DeletePrometheusInstanceResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeletePrometheusInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePrometheusInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeletePrometheusInstance  DeletePrometheusInstanceRequest
+  * @return DeletePrometheusInstanceResponse
+ */
+async function deletePrometheusInstance(request: DeletePrometheusInstanceRequest): DeletePrometheusInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeletePrometheusInstance', 'DELETE', '/prometheus-instances/{prometheusInstanceId}', 'json', false, 'json', request);
+}
+
+model DeletePrometheusViewRequest {
+  prometheusViewId: string(name='prometheusViewId', description='This parameter is required.', example='rw-xxxxxx', position='Path'),
+}
+
+model DeletePrometheusViewResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+}
+
+model DeletePrometheusViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeletePrometheusViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeletePrometheusView  DeletePrometheusViewRequest
+  * @return DeletePrometheusViewResponse
+ */
+async function deletePrometheusView(request: DeletePrometheusViewRequest): DeletePrometheusViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeletePrometheusView', 'DELETE', '/prometheus-views/{prometheusViewId}', 'json', false, 'json', request);
 }
 
 model DeleteServiceRequest {
@@ -1152,6 +1523,125 @@ async function deleteWorkspace(request: DeleteWorkspaceRequest): DeleteWorkspace
   return @handler.do('RESTFUL', 'DeleteWorkspace', 'DELETE', '/workspace/{workspaceName}', 'json', false, 'json', request);
 }
 
+model GetAddonReleaseRequest {
+  releaseName: string(name='releaseName', description='This parameter is required.', example='test-gpu-integration-name', position='Path'),
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-xxxxxxxxxxxx', position='Path'),
+}
+
+model GetAddonReleaseResponseBody = {
+  config?: string(name='config', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}'),
+  release?: {
+    addonName?: string(name='addonName', example='cs-gpu'),
+    alertRuleCount?: long(name='alertRuleCount', example='6'),
+    conditions?: [ 
+      {
+        firstTransitionTime?: string(name='firstTransitionTime', example='2024-11-04T16:10:22+08:00'),
+        lastTransitionTime?: string(name='lastTransitionTime', example='2024-11-04T16:10:22+08:00'),
+        message?: string(name='message', example='The addon loaded successfully'),
+        status?: string(name='status', example='True'),
+        type?: string(name='type', example='Loaded'),
+      }
+    ](name='conditions'),
+    config?: string(name='config', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}'),
+    createTime?: string(name='createTime', example='2024-11-04T16:10:12+08:00'),
+    dashboardCount?: long(name='dashboardCount', example='3'),
+    entityRules?: EntityGroupBase(name='entityRules'),
+    envType?: string(name='envType', example='CS'),
+    environmentId?: string(name='environmentId', example='policy-xxxxxxxxxxx'),
+    exporterCount?: long(name='exporterCount', example='2'),
+    haveConfig?: boolean(name='haveConfig', example='true'),
+    installUserId?: string(name='installUserId', example='1707xxxxxxxxxxxx'),
+    language?: string(name='language', example='zh'),
+    managed?: boolean(name='managed', example='true'),
+    parentAddonReleaseId?: string(name='parentAddonReleaseId', example='policy-xxxxxxxxxxxxx'),
+    policyId?: string(name='policyId', example='policy-xxxxxxxxxxxxx'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    releaseId?: string(name='releaseId', description='Release ID。', example='7339d808-66f9-4d40-83fa-xxxxxxxxxxx'),
+    releaseName?: string(name='releaseName', example='test-gpu-integration-name'),
+    scene?: string(name='scene', example='container'),
+    status?: string(name='status', example='running'),
+    updateTime?: string(name='updateTime', example='2024-11-04T16:10:12+08:00'),
+    userId?: string(name='userId', example='1707xxxxxxxxxxxx'),
+    version?: string(name='version', example='0.0.2'),
+    workspace?: string(name='workspace', example='default'),
+  }(name='release'),
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetAddonReleaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAddonReleaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetAddonRelease  GetAddonReleaseRequest
+  * @return GetAddonReleaseResponse
+ */
+async function getAddonRelease(request: GetAddonReleaseRequest): GetAddonReleaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAddonRelease', 'GET', '/integration-policies/{policyId}/addon-releases/{releaseName}', 'json', false, 'json', request);
+}
+
+model GetAggTaskGroupRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rw-xxx', position='Path'),
+  groupId: string(name='groupId', description='This parameter is required.', example='aggTaskGroup-xxx', position='Path'),
+}
+
+model GetAggTaskGroupResponseBody = {
+  aggTaskGroup?: {
+    aggTaskGroupConfig?: string(name='aggTaskGroupConfig', example='groups:
+- name: "node.rules"
+  interval: "60s"
+  rules:
+  - record: "node_namespace_pod:kube_pod_info:"
+    expr: "max(label_replace(kube_pod_info{job=\\"kubernetes-pods-kube-state-metrics\\"\\
+      }, \\"pod\\", \\"$1\\", \\"pod\\", \\"(.*)\\")) by (node, namespace, pod, cluster)"'),
+    aggTaskGroupConfigHash?: string(name='aggTaskGroupConfigHash', example='a54136xxx'),
+    aggTaskGroupId?: string(name='aggTaskGroupId', example='aggTaskGroup-xx'),
+    aggTaskGroupName?: string(name='aggTaskGroupName', example='pipeline-aggtask-group'),
+    cronExpr?: string(name='cronExpr', example='0 1 3 * * ? *'),
+    delay?: int32(name='delay', example='2'),
+    description?: string(name='description', example='test'),
+    fromTime?: long(name='fromTime', example='1757409495'),
+    maxRetries?: int32(name='maxRetries', example='2'),
+    maxRunTimeInSeconds?: int32(name='maxRunTimeInSeconds', example='50'),
+    precheckString?: string(name='precheckString', example='{"policy":"skip","prometheusId":"rw-xx","query":"noPrecheck","threshold":0.5,"timeout":15,"type":"none"}'),
+    regionId?: string(name='regionId', example='cn-zhangjiakou'),
+    scheduleMode?: string(name='scheduleMode', example='FixedRate'),
+    scheduleTimeExpr?: string(name='scheduleTimeExpr', example='@m'),
+    sourcePrometheusId?: string(name='sourcePrometheusId', example='rw-xxx'),
+    status?: string(name='status', example='Running'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='key1'),
+        value?: string(name='value', example='value1'),
+      }
+    ](name='tags'),
+    targetPrometheusId?: string(name='targetPrometheusId', example='rw-xxx'),
+    toTime?: long(name='toTime', example='1757409495'),
+    updateTime?: string(name='updateTime', example='1757409499000'),
+    userId?: string(name='userId', example='123xxx'),
+  }(name='aggTaskGroup'),
+  requestId?: string(name='requestId', example='68DAF543-35DF-5762-BE90-F5C00B5DC036'),
+  success?: boolean(name='success', example='True'),
+}
+
+model GetAggTaskGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAggTaskGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetAggTaskGroup  GetAggTaskGroupRequest
+  * @return GetAggTaskGroupResponse
+ */
+async function getAggTaskGroup(request: GetAggTaskGroupRequest): GetAggTaskGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAggTaskGroup', 'GET', '/prometheus-instances/{instanceId}/agg-task-groups/{groupId}', 'json', false, 'json', request);
+}
+
 model GetEntityStoreRequest {
   workspaceName: string(name='workspaceName', description='This parameter is required.', example='workspace-test-001', position='Path'),
 }
@@ -1190,6 +1680,20 @@ model GetEntityStoreDataResponseBody = {
   data?: [[ string ]  ](name='data'),
   header?: [ string ](name='header'),
   requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  responseStatus?: {
+    executionStates?: string(name='executionStates'),
+    level?: string(name='level'),
+    result?: string(name='result'),
+    retryPolicy?: string(name='retryPolicy'),
+    statusItem?: [ 
+      {
+        code?: string(name='code'),
+        level?: string(name='level'),
+        message?: string(name='message'),
+        suggestion?: string(name='suggestion'),
+      }
+    ](name='statusItem'),
+  }(name='responseStatus'),
 }
 
 model GetEntityStoreDataResponse = {
@@ -1205,6 +1709,235 @@ model GetEntityStoreDataResponse = {
 async function getEntityStoreData(request: GetEntityStoreDataRequest): GetEntityStoreDataResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetEntityStoreData', 'POST', '/workspace/{workspace}/entitiesAndRelations', 'json', false, 'json', request);
+}
+
+model GetIntegrationPolicyRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-ac38a7cb02d14ff48bc9f97d0a75063e', position='Path'),
+}
+
+model GetIntegrationPolicyResponseBody = {
+  policy?: {
+    bindResource?: {
+      clusterId?: string(name='clusterId', example='00b1630f02814f95a9bce717d8d56bb2'),
+      clusterType?: string(name='clusterType', example='ManagedKubernetes'),
+      vpcCidr?: string(name='vpcCidr', example='10.12.0.1/16'),
+      vpcId?: string(name='vpcId', example='vpc-2zegqpeyxplhtmdg70xnr'),
+    }(name='bindResource'),
+    entityGroup?: {
+      description?: string(name='description', example='xxxxxx'),
+      entityGroupId?: string(name='entityGroupId', example='eg-b79f65d11fb94e779867cf937c3a3002'),
+      entityGroupName?: string(name='entityGroupName', example='prod-database'),
+      entityRules?: {
+        annotations?: [ 
+          {
+            op?: string(name='op', example='add'),
+            tagKey?: string(name='tagKey', example='use'),
+            tagValues?: [ string ](name='tagValues'),
+          }
+        ](name='annotations'),
+        entityTypes?: [ string ](name='entityTypes'),
+        fieldRules?: [ 
+          {
+            fieldKey?: string(name='fieldKey', example='test'),
+            fieldValues?: [ string ](name='fieldValues'),
+            op?: string(name='op', example='add'),
+          }
+        ](name='fieldRules'),
+        instanceIds?: [ string ](name='instanceIds'),
+        ipMatchRule?: {
+          ipCidr?: string(name='ipCidr', example='10.10.0.1/16'),
+          ipFieldKey?: string(name='ipFieldKey', example='test-key'),
+        }(name='ipMatchRule'),
+        labels?: [ 
+          {
+            op?: string(name='op', example='add'),
+            tagKey?: string(name='tagKey', example='key1'),
+            tagValues?: [ string ](name='tagValues'),
+          }
+        ](name='labels'),
+        regionIds?: [ string ](name='regionIds'),
+        resourceGroupId?: string(name='resourceGroupId', example='rg-aek3aqsuvlv3yyq'),
+        tags?: [ 
+          {
+            op?: string(name='op', example='add'),
+            tagKey?: string(name='tagKey', example='key2'),
+            tagValues?: [ string ](name='tagValues'),
+          }
+        ](name='tags'),
+      }(name='entityRules'),
+      query?: string(name='query', example='status: 200 AND totalTime > 0.5'),
+      regionId?: string(name='regionId', example='cn-heyuan'),
+      userId?: string(name='userId', example='u123456'),
+      workspace?: string(name='workspace', example='test-api'),
+    }(name='entityGroup'),
+    managedInfo?: {
+      securityGroupId?: string(name='securityGroupId', example='sg-xxxxxx'),
+      vswitchId?: string(name='vswitchId', example='vsw-xxxxxxxxx'),
+    }(name='managedInfo'),
+    policyId?: string(name='policyId', example='policy-c9efed2b99c348d49e589c5f780fc074'),
+    policyName?: string(name='policyName', example='ControlPolicy4DetailVportInfo'),
+    policyType?: string(name='policyType', example='CS'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+    resourceGroupId?: string(name='resourceGroupId', example='rg-xxxxx'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='use'),
+        value?: string(name='value', example='db'),
+      }
+    ](name='tags'),
+    userId?: string(name='userId', example='u123456'),
+    workspace?: string(name='workspace', example='prometheus'),
+  }(name='policy'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetIntegrationPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetIntegrationPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetIntegrationPolicy  GetIntegrationPolicyRequest
+  * @return GetIntegrationPolicyResponse
+ */
+async function getIntegrationPolicy(request: GetIntegrationPolicyRequest): GetIntegrationPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetIntegrationPolicy', 'GET', '/integration-policies/{policyId}', 'json', false, 'json', request);
+}
+
+model GetPrometheusInstanceRequest {
+  prometheusInstanceId: string(name='prometheusInstanceId', description='This parameter is required.', example='rw-abc123', position='Path'),
+  aliyunLang?: string(name='aliyunLang', example='zh', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aek2bhocin5e2na', position='Query'),
+}
+
+model GetPrometheusInstanceResponseBody = {
+  prometheusInstance?: {
+    accessType?: string(name='accessType', example='readOnly'),
+    archiveDuration?: int32(name='archiveDuration', example='165'),
+    authFreeReadPolicy?: string(name='authFreeReadPolicy', example='0.0.0.0/0'),
+    authFreeWritePolicy?: string(name='authFreeWritePolicy', example='0.0.0.0/0'),
+    authToken?: string(name='authToken', example='eJwixxxxx'),
+    createTime?: string(name='createTime', example='2025-08-10T02:07:53Z'),
+    enableAuthFreeRead?: boolean(name='enableAuthFreeRead', example='true'),
+    enableAuthFreeWrite?: boolean(name='enableAuthFreeWrite', example='true'),
+    enableAuthToken?: boolean(name='enableAuthToken', example='true'),
+    extraInfo?: map[string]string(name='extraInfo'),
+    folderUrl?: string(name='folderUrl', example='https://gnew.console.aliyun.com/dashboards/f/c49a80d2a551d4a20a8c4b996b0be4e52/xxxxxxx'),
+    grafanaInstanceId?: string(name='grafanaInstanceId', example='SHARED'),
+    grafanaInstanceName?: string(name='grafanaInstanceName'),
+    httpApiInterUrl?: string(name='httpApiInterUrl', example='http://workspace-default-cms-xxxxxxx'),
+    httpApiIntraUrl?: string(name='httpApiIntraUrl', example='http://workspace-default-cms-xxxxxxx'),
+    instanceType?: string(name='instanceType', description='remote-write（Prometheus for Remote Write）', example='e1'),
+    paymentType?: string(name='paymentType', example='prepaid'),
+    paymentTypeUpdateTime?: string(name='paymentTypeUpdateTime', example='null'),
+    product?: string(name='product', example='NAS'),
+    prometheusInstanceId?: string(name='prometheusInstanceId', example='rw-524ada714221af267c73122af2e1'),
+    prometheusInstanceName?: string(name='prometheusInstanceName', example='test-prom-name'),
+    pushGatewayInterUrl?: string(name='pushGatewayInterUrl', example='http://workspace-default-cms-xxxxxxx'),
+    pushGatewayIntraUrl?: string(name='pushGatewayIntraUrl', example='http://workspace-default-cms-xxxxxxx'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+    remoteReadInterUrl?: string(name='remoteReadInterUrl', example='http://workspace-default-cms-xxxxxxx'),
+    remoteReadIntraUrl?: string(name='remoteReadIntraUrl', example='https://workspace-default-cms-1xxxxxxxxxx'),
+    remoteWriteInterUrl?: string(name='remoteWriteInterUrl', example='https://workspace-default-cms-xxxxxxxxxx'),
+    remoteWriteIntraUrl?: string(name='remoteWriteIntraUrl', example='https://workspace-default-cms-xxxxxxxxxx'),
+    resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi'),
+    resourceType?: string(name='resourceType', example='Prometheus'),
+    status?: string(name='status', example='Running'),
+    storageDuration?: int32(name='storageDuration', example='90'),
+    supportAuthTypes?: [ string ](name='supportAuthTypes'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='openStorage'),
+        value?: string(name='value', example='130303196111114281'),
+      }
+    ](name='tags'),
+    userId?: string(name='userId', example='170731234567'),
+    version?: string(name='version', example='*'),
+    workspace?: string(name='workspace', example='rum-monitor-test-aysls-pub-cn-qingdao-monitor'),
+  }(name='prometheusInstance'),
+  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model GetPrometheusInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPrometheusInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPrometheusInstance  GetPrometheusInstanceRequest
+  * @return GetPrometheusInstanceResponse
+ */
+async function getPrometheusInstance(request: GetPrometheusInstanceRequest): GetPrometheusInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPrometheusInstance', 'GET', '/prometheus-instances/{prometheusInstanceId}', 'json', false, 'json', request);
+}
+
+model GetPrometheusViewRequest {
+  prometheusViewId: string(name='prometheusViewId', description='This parameter is required.', example='rw-xxxxxx', position='Path'),
+  aliyunLang?: string(name='aliyunLang', example='zh', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aek2bhocin5e2na', position='Query'),
+}
+
+model GetPrometheusViewResponseBody = {
+  prometheusView?: {
+    authFreeReadPolicy?: string(name='authFreeReadPolicy', example='0.0.0.0/0'),
+    authToken?: string(name='authToken', example='eJxxxxxx'),
+    createTime?: string(name='createTime', example='2025-08-10T02:07:53Z'),
+    enableAuthFreeRead?: boolean(name='enableAuthFreeRead', example='true'),
+    enableAuthToken?: boolean(name='enableAuthToken', example='true'),
+    folderUrl?: string(name='folderUrl', example='https://xxxx'),
+    grafanaInstanceId?: string(name='grafanaInstanceId', example='g-xxx'),
+    grafanaInstanceName?: string(name='grafanaInstanceName', example='gxxx'),
+    httpApiInterUrl?: string(name='httpApiInterUrl', example='http://xxxxxxxx'),
+    httpApiIntraUrl?: string(name='httpApiIntraUrl', example='http://xxxxxxxx'),
+    instanceType?: string(name='instanceType', example='prom-view'),
+    paymentType?: string(name='paymentType', example='FREE'),
+    product?: string(name='product', example='cms'),
+    prometheusInstances?: [ 
+      {
+        prometheusInstanceId?: string(name='prometheusInstanceId', example='rw-63549e054ff596a4149927961dff'),
+        regionId?: string(name='regionId', example='cn-north-2-gov-1'),
+        userId?: string(name='userId', example='122xxxxx'),
+      }
+    ](name='prometheusInstances'),
+    prometheusViewId?: string(name='prometheusViewId', example='view-xxx'),
+    prometheusViewName?: string(name='prometheusViewName', example='view1'),
+    regionId?: string(name='regionId', example='cn-shanghai'),
+    remoteReadInterUrl?: string(name='remoteReadInterUrl', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
+    remoteReadIntraUrl?: string(name='remoteReadIntraUrl', example='http://workspace-default-cms-xxx-cn-hangzhou.cn-hangzhou-intranet.log.aliyuncs.com/prometheus/workspace-default-cms-xxx-cn-hangzhou/xxx/api/v1/read'),
+    resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi'),
+    resourceType?: string(name='resourceType', example='RegistryModule'),
+    status?: string(name='status', example='Pending2Running'),
+    supportAuthTypes?: [ string ](name='supportAuthTypes'),
+    tags?: [ 
+      {
+        key?: string(name='key', example='global_score_series'),
+        value?: string(name='value', example='371293199010092839'),
+      }
+    ](name='tags'),
+    userId?: string(name='userId', example='11222'),
+    version?: string(name='version', example='V1'),
+    workspace?: string(name='workspace', example='cms-monitor-test-aysls-pub-cn-fuzhou-monitor'),
+  }(name='prometheusView'),
+  requestId?: string(name='requestId', description='Id of the request', example='0B9377D9-C56B-5C2E-A8A4-A01D6CC3F4B8'),
+}
+
+model GetPrometheusViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetPrometheusViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetPrometheusView  GetPrometheusViewRequest
+  * @return GetPrometheusViewResponse
+ */
+async function getPrometheusView(request: GetPrometheusViewRequest): GetPrometheusViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetPrometheusView', 'GET', '/prometheus-views/{prometheusViewId}', 'json', false, 'json', request);
 }
 
 model GetServiceRequest {
@@ -1388,6 +2121,142 @@ async function getWorkspace(request: GetWorkspaceRequest): GetWorkspaceResponse 
   return @handler.do('RESTFUL', 'GetWorkspace', 'GET', '/workspace/{workspaceName}', 'json', false, 'json', request);
 }
 
+model ListAddonReleasesRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-xxxxxxxxxxxx', position='Path'),
+  addonName?: string(name='addonName', example='cs-gpu', position='Query'),
+  parentAddonReleaseId?: string(name='parentAddonReleaseId', example='policy-xxxxxxxxxxxxx', position='Query'),
+}
+
+model ListAddonReleasesResponseBody = {
+  releases?: [ 
+    {
+      addonName?: string(name='addonName', example='cs-gpu'),
+      alertRuleCount?: long(name='alertRuleCount', example='6'),
+      apiVersion?: string(name='apiVersion'),
+      conditions?: [ 
+        {
+          firstTransitionTime?: string(name='firstTransitionTime', example='2024-11-04T16:10:22+08:00'),
+          lastTransitionTime?: string(name='lastTransitionTime', example='2024-11-04T16:10:22+08:00'),
+          message?: string(name='message', example='The addon loaded successfully'),
+          status?: string(name='status', example='True'),
+          type?: string(name='type', example='Loaded'),
+        }
+      ](name='conditions'),
+      config?: string(name='config', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}'),
+      createTime?: string(name='createTime', example='2024-11-04T16:10:12+08:00'),
+      dashboardCount?: long(name='dashboardCount', example='3'),
+      entityRules?: EntityGroupBase(name='entityRules'),
+      envType?: string(name='envType', example='CS'),
+      environmentId?: string(name='environmentId', example='policy-xxxxxxxxxxxx'),
+      exporterCount?: long(name='exporterCount', example='2'),
+      haveConfig?: boolean(name='haveConfig', example='true'),
+      installUserId?: string(name='installUserId', example='175xxxxxxxxx'),
+      language?: string(name='language', example='zh'),
+      managed?: boolean(name='managed', example='true'),
+      nextVersion?: string(name='nextVersion'),
+      parentAddonReleaseId?: string(name='parentAddonReleaseId', example='policy-xxxxxxxxxxxxxx'),
+      policyId?: string(name='policyId', example='policy-xxxxxxxxxxxxxx'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+      releaseId?: string(name='releaseId', description='Release ID。', example='7339d808-66f9-4d40-83fa-xxxxxxxxxxx'),
+      releaseName?: string(name='releaseName', example='test-gpu-integration-name'),
+      scene?: string(name='scene', example='container'),
+      status?: string(name='status', example='running'),
+      subAddonRelease?: {
+        ready?: int32(name='ready'),
+        total?: int32(name='total'),
+      }(name='subAddonRelease'),
+      updateTime?: string(name='updateTime', example='2024-11-04T16:10:23+08:00'),
+      userId?: string(name='userId', example='175xxxxxxxxxxxxx'),
+      version?: string(name='version', example='0.0.2'),
+      workspace?: string(name='workspace', example='default'),
+    }
+  ](name='releases'),
+  requestId?: string(name='requestId', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+  total?: long(name='total', example='1'),
+}
+
+model ListAddonReleasesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAddonReleasesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListAddonReleases  ListAddonReleasesRequest
+  * @return ListAddonReleasesResponse
+ */
+async function listAddonReleases(request: ListAddonReleasesRequest): ListAddonReleasesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListAddonReleases', 'GET', '/integration-policies/{policyId}/addon-releases', 'json', false, 'json', request);
+}
+
+model ListAggTaskGroupsRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rw-pq4apob9jm', position='Path'),
+  filterAggTaskGroupIds?: string(name='filterAggTaskGroupIds', example='["aggTaskGroup-xxx"]', position='Query'),
+  filterAggTaskGroupNames?: string(name='filterAggTaskGroupNames', example='["apiserver_request_total"]', position='Query'),
+  maxResults?: int32(name='maxResults', example='20', minimum=0, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', example='28036394xxx', maxLength=128, position='Query'),
+  query?: string(name='query', example='test', position='Query'),
+  status?: string(name='status', example='Running', position='Query'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='key1'),
+      value?: string(name='value', example='value1'),
+    }
+  ](name='tags', shrink='json', position='Query'),
+  targetPrometheusId?: string(name='targetPrometheusId', example='rw-pq4apob9jm', position='Query'),
+}
+
+model ListAggTaskGroupsResponseBody = {
+  aggTaskGroups?: [ 
+    {
+      aggTaskGroupConfigHash?: string(name='aggTaskGroupConfigHash', example='a54136014xxx'),
+      aggTaskGroupId?: string(name='aggTaskGroupId', example='aggTaskGroup-xxxx'),
+      aggTaskGroupName?: string(name='aggTaskGroupName', example='pipeline-aggtask-group'),
+      cronExpr?: string(name='cronExpr', example='0 10 8 1 * ? *'),
+      delay?: int32(name='delay', example='30'),
+      description?: string(name='description', example='workspace api monitor update test'),
+      fromTime?: long(name='fromTime', example='1757409499000'),
+      interval?: string(name='interval', example='2025-04-24 00:00:00,2025-04-24 00:00:00'),
+      maxRetries?: int32(name='maxRetries', example='2'),
+      maxRunTimeInSeconds?: int32(name='maxRunTimeInSeconds', example='200'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+      scheduleMode?: string(name='scheduleMode', example='FixedRate'),
+      scheduleTimeExpr?: string(name='scheduleTimeExpr', example='@m'),
+      sourcePrometheusId?: string(name='sourcePrometheusId', example='rw-xxx'),
+      status?: string(name='status', example='Running'),
+      tags?: [ 
+        {
+          key?: string(name='key', example='key1'),
+          value?: string(name='value', example='value1'),
+        }
+      ](name='tags'),
+      targetPrometheusId?: string(name='targetPrometheusId', example='rw-xxx'),
+      toTime?: long(name='toTime', example='0'),
+      updateTime?: string(name='updateTime', example='1757409499000'),
+    }
+  ](name='aggTaskGroups'),
+  maxResults?: int32(name='maxResults', example='100'),
+  nextToken?: string(name='nextToken', example='aa9d0e569b880xxx', maxLength=128),
+  requestId?: string(name='requestId', example='7BF1F4D6-B9A8-5F0B-8C1D-4347FFCB798E'),
+  totalCount?: int32(name='totalCount', example='5'),
+}
+
+model ListAggTaskGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAggTaskGroupsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListAggTaskGroups  ListAggTaskGroupsRequest
+  * @return ListAggTaskGroupsResponse
+ */
+async function listAggTaskGroups(request: ListAggTaskGroupsRequest): ListAggTaskGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListAggTaskGroups', 'GET', '/prometheus-instances/{instanceId}/agg-task-groups', 'json', false, 'json', request);
+}
+
 model ListAlertActionsRequest {
   regionId?: string(name='RegionId', position='Host'),
   alertActionIds?: [ string ](name='alertActionIds', shrink='json', position='Query'),
@@ -1465,6 +2334,371 @@ model ListAlertActionsResponse = {
 async function listAlertActions(request: ListAlertActionsRequest): ListAlertActionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListAlertActions', 'GET', '/alertActions', 'json', false, 'json', request);
+}
+
+model ListIntegrationPolicyCustomScrapeJobRulesRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-d95435164593aece55f9999ce45c', position='Path'),
+  addonReleaseName?: string(name='addonReleaseName', example='release12345678', position='Query'),
+  encryptYaml?: boolean(name='encryptYaml', example='true', position='Query'),
+  namespace?: string(name='namespace', position='Query'),
+}
+
+model ListIntegrationPolicyCustomScrapeJobRulesResponseBody = {
+  clusterId?: string(name='clusterId', example='et15prod-et15storage'),
+  customScrapeJobRules?: [ 
+    {
+      addonName?: string(name='addonName', example='cloud-ecs'),
+      addonReleaseName?: string(name='addonReleaseName', example='release-12345678'),
+      addonVersion?: string(name='addonVersion', example='0.0.1'),
+      configYaml?: string(name='configYaml', example='scrape_cofnigs:
+- jobxxxxxx'),
+      enableStatus?: string(name='enableStatus', example='mini'),
+      encryptYaml?: boolean(name='encryptYaml', example='true'),
+      matchedPodCount?: long(name='matchedPodCount', example='1'),
+      message?: string(name='message', example='ok'),
+      name?: string(name='name', example='dlab1'),
+      namespace?: string(name='namespace', example='prod-data'),
+      scrapeConfigs?: [ 
+        {
+          jobName?: string(name='jobName', example='mysql-exporter'),
+          message?: string(name='message', example='successful'),
+          metricsPath?: string(name='metricsPath', example='/metrics'),
+          scheme?: string(name='scheme', example='http'),
+          scrapeInterval?: string(name='scrapeInterval', example='30s'),
+          scrapeTimeout?: string(name='scrapeTimeout', example='60s'),
+          serviceDiscoveryConfigs?: [ string ](name='serviceDiscoveryConfigs'),
+        }
+      ](name='scrapeConfigs'),
+    }
+  ](name='customScrapeJobRules'),
+  policyId?: string(name='policyId', example='policy-15abcc24c06f4797832b5954198e1ed1'),
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+}
+
+model ListIntegrationPolicyCustomScrapeJobRulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIntegrationPolicyCustomScrapeJobRulesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListIntegrationPolicyCustomScrapeJobRules  ListIntegrationPolicyCustomScrapeJobRulesRequest
+  * @return ListIntegrationPolicyCustomScrapeJobRulesResponse
+ */
+async function listIntegrationPolicyCustomScrapeJobRules(request: ListIntegrationPolicyCustomScrapeJobRulesRequest): ListIntegrationPolicyCustomScrapeJobRulesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListIntegrationPolicyCustomScrapeJobRules', 'GET', '/integration-policies/{policyId}/custom-scrape-job-rules', 'json', false, 'json', request);
+}
+
+model ListIntegrationPolicyPodMonitorsRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-1d4634924c8ba599822c601fcee3', position='Path'),
+  addonReleaseName?: string(name='addonReleaseName', example='release-123456789', position='Query'),
+  encryptYaml?: boolean(name='encryptYaml', example='true', position='Query'),
+  namespace?: string(name='namespace', example='default', position='Query'),
+}
+
+model ListIntegrationPolicyPodMonitorsResponseBody = {
+  clusterId?: string(name='clusterId'),
+  podMonitors?: [ 
+    {
+      addonName?: string(name='addonName', example='cloud-ecs'),
+      addonReleaseName?: string(name='addonReleaseName', example='release-2345678'),
+      addonVersion?: string(name='addonVersion', example='0.0.1'),
+      configYaml?: string(name='configYaml', example='apiVersion: xxxxx'),
+      enableStatus?: string(name='enableStatus', example='run'),
+      encryptYaml?: boolean(name='encryptYaml', example='YXBpVmVyc2lvbjogeHh4eHgK'),
+      endpoints?: [ 
+        {
+          interval?: string(name='interval', example='30s'),
+          matchedTargetCount?: long(name='matchedTargetCount', example='1'),
+          path?: string(name='path', example='/metrics'),
+          port?: string(name='port', example='9100'),
+          targetPort?: string(name='targetPort', example='https'),
+        }
+      ](name='endpoints'),
+      matchedPodCount?: long(name='matchedPodCount', example='3'),
+      name?: string(name='name', example='znzmo_entity_test'),
+      namespace?: string(name='namespace', example='sla-ns-d5aeb2b4f91b47'),
+    }
+  ](name='podMonitors'),
+  policyId?: string(name='policyId', example='policy-c9efed2b99c348d49e589c5f780fc074'),
+  requestId?: string(name='requestId', description='Id of the request', example='CD8BA7D6-995D-578D-9941-78B0FECD14B5'),
+}
+
+model ListIntegrationPolicyPodMonitorsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIntegrationPolicyPodMonitorsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListIntegrationPolicyPodMonitors  ListIntegrationPolicyPodMonitorsRequest
+  * @return ListIntegrationPolicyPodMonitorsResponse
+ */
+async function listIntegrationPolicyPodMonitors(request: ListIntegrationPolicyPodMonitorsRequest): ListIntegrationPolicyPodMonitorsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListIntegrationPolicyPodMonitors', 'GET', '/integration-policies/{policyId}/pod-monitors', 'json', false, 'json', request);
+}
+
+model ListIntegrationPolicyStorageRequirementsRequest {
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-ac38a7cb02d14ff48bc9f97d0a75063e', position='Path'),
+  addonName?: string(name='addonName', example='release-1234357', position='Query'),
+  addonReleaseName?: string(name='addonReleaseName', position='Query'),
+  storageType?: string(name='storageType', example='LogStore', position='Query'),
+}
+
+model ListIntegrationPolicyStorageRequirementsResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+  storageRequirements?: [ 
+    {
+      addonReleaseNames?: [ string ](name='addonReleaseNames'),
+      apiVersion?: string(name='apiVersion', example='v1'),
+      kind?: string(name='kind', example='Pod'),
+      metadata?: {
+        annotations?: map[string]string(name='annotations'),
+        labels?: map[string]string(name='labels'),
+        name?: string(name='name', example='pod-1234567'),
+        namespace?: string(name='namespace', example='arms-prom'),
+      }(name='metadata'),
+      spec?: {
+        entityId?: string(name='entityId', example='es-xxxxx'),
+        instance?: string(name='instance', example='i-bp122p85gthbniw8rsu9'),
+        instanceName?: string(name='instanceName', example='category_predict'),
+        project?: string(name='project', example='datagrid_cdm'),
+        region?: string(name='region', example='cn-shenzhen'),
+        shareScope?: string(name='shareScope', example='Region'),
+        storageType?: string(name='storageType', example='Prometheus'),
+        systemTags?: map[string]string(name='systemTags'),
+        tags?: map[string]string(name='tags'),
+        userId?: string(name='userId', example='12345678'),
+        workspace?: string(name='workspace', example='test-api'),
+      }(name='spec'),
+      status?: {
+        instanceId?: string(name='instanceId', example='rmq-cn-uqm3ket1t0u'),
+        interUrl?: string(name='interUrl', example='http://192.168.xxxxxx'),
+        intraUrl?: string(name='intraUrl', example='http://100.100.xxxxxx'),
+        name?: string(name='name', example='sr-xxxx'),
+        project?: string(name='project', example='jiuwu_algo'),
+        promMetricStore?: string(name='promMetricStore', example='xxxx'),
+        region?: string(name='region', example='cn-hangzhou'),
+        storageType?: string(name='storageType', example='Prometheus'),
+        workspace?: string(name='workspace', example='default'),
+      }(name='status'),
+    }
+  ](name='storageRequirements'),
+}
+
+model ListIntegrationPolicyStorageRequirementsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListIntegrationPolicyStorageRequirementsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListIntegrationPolicyStorageRequirements  ListIntegrationPolicyStorageRequirementsRequest
+  * @return ListIntegrationPolicyStorageRequirementsResponse
+ */
+async function listIntegrationPolicyStorageRequirements(request: ListIntegrationPolicyStorageRequirementsRequest): ListIntegrationPolicyStorageRequirementsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListIntegrationPolicyStorageRequirements', 'GET', '/integration-policies/{policyId}/storage-requirements', 'json', false, 'json', request);
+}
+
+model ListPrometheusDashboardsRequest {
+  prometheusInstanceId: string(name='prometheusInstanceId', description='This parameter is required.', example='rw-abc123', position='Path'),
+  aliyunLang?: string(name='aliyunLang', example='zh', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi', position='Query'),
+}
+
+model ListPrometheusDashboardsResponseBody = {
+  prometheusDashboards?: [ 
+    {
+      id?: string(name='id', example='1'),
+      name?: string(name='name', example='pod'),
+      tags?: [ string ](name='tags'),
+      title?: string(name='title', example='ceshi'),
+      uid?: string(name='uid', example='1987395500251724'),
+      url?: string(name='url', example='https://gnew.console.aliyun.com/d/xxx-17460385-807-7-6/cs-cost-application'),
+    }
+  ](name='prometheusDashboards'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+  totalCount?: int32(name='totalCount', example='66'),
+}
+
+model ListPrometheusDashboardsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPrometheusDashboardsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPrometheusDashboards  ListPrometheusDashboardsRequest
+  * @return ListPrometheusDashboardsResponse
+ */
+async function listPrometheusDashboards(request: ListPrometheusDashboardsRequest): ListPrometheusDashboardsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPrometheusDashboards', 'GET', '/prometheus-instances/{prometheusInstanceId}/dashboards', 'json', false, 'json', request);
+}
+
+model ListPrometheusInstancesRequest {
+  filterRegionIds?: string(name='filterRegionIds', example='cn-shenzhen', position='Query'),
+  maxResults?: int32(name='maxResults', example='10', minimum=0, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', example='xxxxxxxxxx', maxLength=128, position='Query'),
+  prometheusInstanceIds?: string(name='prometheusInstanceIds', example='rw-00001,rw-00002,rw-00003', position='Query'),
+  prometheusInstanceName?: string(name='prometheusInstanceName', example='test', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aek2bhocin5e2na', position='Query'),
+  resourceType?: string(name='resourceType', example='Prometheus', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='key', example='testKey'),
+      value?: string(name='value', example='testValue'),
+    }
+  ](name='tag', shrink='json', position='Query'),
+  version?: string(name='version', example='V2', position='Query'),
+}
+
+model ListPrometheusInstancesResponseBody = {
+  maxResults?: int32(name='maxResults', example='10', minimum=0, maximum=100),
+  nextToken?: string(name='nextToken', example='xxxxxxxxxx', maxLength=128),
+  prometheusInstances?: [ 
+    {
+      accessType?: string(name='accessType', example='readWrite'),
+      createTime?: string(name='createTime', example='2025-08-10T02:07:53Z'),
+      instanceType?: string(name='instanceType', example='remote-write'),
+      paymentType?: string(name='paymentType', example='POSTPAY_GB'),
+      product?: string(name='product', example='arms'),
+      prometheusInstanceId?: string(name='prometheusInstanceId', example='rw-63549e054ff596a4149927961dff'),
+      prometheusInstanceName?: string(name='prometheusInstanceName', example='test-prom-name'),
+      regionId?: string(name='regionId', example='cn-nanjing'),
+      resourceGroupId?: string(name='resourceGroupId', example='rg-aek2bhocin5e2na'),
+      resourceType?: string(name='resourceType', example='Prometheus'),
+      status?: string(name='status', example='Pending2Running'),
+      supportAuthTypes?: [ string ](name='supportAuthTypes'),
+      tags?: [ 
+        {
+          key?: string(name='key', example='testKey'),
+          value?: string(name='value', example='testValue'),
+        }
+      ](name='tags'),
+      userId?: string(name='userId', example='17073812345'),
+      version?: string(name='version', example='*'),
+      workspace?: string(name='workspace', example='default-cms-115214006-cn-hangzhou'),
+    }
+  ](name='prometheusInstances'),
+  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+  totalCount?: int32(name='totalCount', example='66'),
+}
+
+model ListPrometheusInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPrometheusInstancesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPrometheusInstances  ListPrometheusInstancesRequest
+  * @return ListPrometheusInstancesResponse
+ */
+async function listPrometheusInstances(request: ListPrometheusInstancesRequest): ListPrometheusInstancesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPrometheusInstances', 'GET', '/prometheus-instances', 'json', false, 'json', request);
+}
+
+model ListPrometheusViewsRequest {
+  filterRegionIds?: string(name='filterRegionIds', example='cn-zhangjiakou,cn-beijing', position='Query'),
+  maxResults?: int32(name='maxResults', example='100', minimum=0, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', example='44ANBjKZmQeKnaB1fXRq06w7sFYK3MUcCALMD9qQbmEiE', maxLength=128, position='Query'),
+  prometheusViewIds?: string(name='prometheusViewIds', example='view-xxx', position='Query'),
+  prometheusViewName?: string(name='prometheusViewName', example='view1', position='Query'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi', position='Query'),
+  resourceType?: string(name='resourceType', example='PROMETHEUSVIEW', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='key', example='key1'),
+      value?: string(name='value', example='value1'),
+    }
+  ](name='tag', shrink='json', position='Query'),
+  version?: string(name='version', example='V2', position='Query'),
+  workspace?: string(name='workspace', example='workspace-test', position='Query'),
+}
+
+model ListPrometheusViewsResponseBody = {
+  maxResults?: int32(name='maxResults', example='10', minimum=0, maximum=100),
+  nextToken?: string(name='nextToken', example='2-ba4d-4b9f-aa24-dcb067a30f1c', maxLength=128),
+  prometheusViews?: [ 
+    {
+      createTime?: string(name='createTime', example='2025-07-12T02:18:36Z'),
+      instanceType?: string(name='instanceType', example='prom-view'),
+      paymentType?: string(name='paymentType', example='FREE'),
+      product?: string(name='product', example='cms'),
+      prometheusInstanceCount?: int32(name='prometheusInstanceCount', example='2'),
+      prometheusViewId?: string(name='prometheusViewId', example='view-xxx'),
+      prometheusViewName?: string(name='prometheusViewName', example='view1'),
+      regionId?: string(name='regionId', example='cn-zhangjiakou'),
+      resourceGroupId?: string(name='resourceGroupId', example='rg-acfm3gn5i6bigbi'),
+      resourceType?: string(name='resourceType', example='PrometheusView'),
+      status?: string(name='status', example='Running'),
+      tags?: [ 
+        {
+          key?: string(name='key', example='key1'),
+          value?: string(name='value', example='value1'),
+        }
+      ](name='tags'),
+      userId?: string(name='userId', example='123xxx'),
+      version?: string(name='version', example='V2'),
+      workspace?: string(name='workspace', example='default-cms-1490404746278495-cn-hangzhou'),
+    }
+  ](name='prometheusViews'),
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+  totalCount?: int32(name='totalCount', example='66'),
+}
+
+model ListPrometheusViewsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPrometheusViewsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPrometheusViews  ListPrometheusViewsRequest
+  * @return ListPrometheusViewsResponse
+ */
+async function listPrometheusViews(request: ListPrometheusViewsRequest): ListPrometheusViewsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPrometheusViews', 'GET', '/prometheus-views', 'json', false, 'json', request);
+}
+
+model ListPrometheusVirtualInstancesRequest {
+  regionId?: string(name='regionId', position='Host'),
+  namespace?: string(name='namespace', example='ack-csi-fuse', position='Query'),
+}
+
+model ListPrometheusVirtualInstancesResponseBody = {
+  instances?: [ 
+    {
+      createdAt?: string(name='createdAt', example='1750315319946'),
+      httpApiUrl?: string(name='httpApiUrl', example='http://xxxxxxxx'),
+      instanceId?: string(name='instanceId', example='rw-b8cfbbe94194ac37fe83f3d2d16a'),
+      namespace?: string(name='namespace', example='arms-prom'),
+      regionId?: string(name='regionId', example='cn-shanghai-cloudspe'),
+      userId?: string(name='userId', example='17073812345'),
+    }
+  ](name='instances'),
+  requestId?: string(name='requestId', description='Id of the request', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model ListPrometheusVirtualInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPrometheusVirtualInstancesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListPrometheusVirtualInstances  ListPrometheusVirtualInstancesRequest
+  * @return ListPrometheusVirtualInstancesResponse
+ */
+async function listPrometheusVirtualInstances(request: ListPrometheusVirtualInstancesRequest): ListPrometheusVirtualInstancesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListPrometheusVirtualInstances', 'GET', '/virtual-instances', 'json', false, 'json', request);
 }
 
 model ListServicesRequest {
@@ -1580,6 +2814,224 @@ model PutWorkspaceResponse = {
 async function putWorkspace(request: PutWorkspaceRequest): PutWorkspaceResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'PutWorkspace', 'POST', '/workspace/{workspaceName}', 'json', false, 'json', request);
+}
+
+model UpdateAddonReleaseRequest {
+  releaseName: string(name='releaseName', description='This parameter is required.', example='test-gpu-integration-name', position='Path'),
+  policyId: string(name='policyId', description='This parameter is required.', example='policy-xxxxxxxxxxxx', position='Path'),
+  addonVersion?: string(name='addonVersion', example='0.0.2', position='Body'),
+  dryRun?: boolean(name='dryRun', example='true', position='Body'),
+  entityRules?: EntityDiscoverRule(name='entityRules', position='Body'),
+  values?: string(name='values', example='{"install":{"mode":"auto-install","listenPort":"9400"},"discoverMode":"instances","discover":{"instances":"worker-k8s-for-cs-c126d87c76218487e83ab322017f11b44"},"scrapeInterval":"15","enableSecuritecs-nodeyGroupInjection":"true","metricTags":""}', position='Body'),
+}
+
+model UpdateAddonReleaseResponseBody = {
+  requestId?: string(name='requestId', example='9F00A7AF-2728-5424-B321-79D39C00A1EC'),
+}
+
+model UpdateAddonReleaseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAddonReleaseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateAddonRelease  UpdateAddonReleaseRequest
+  * @return UpdateAddonReleaseResponse
+ */
+async function updateAddonRelease(request: UpdateAddonReleaseRequest): UpdateAddonReleaseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAddonRelease', 'PUT', '/integration-policies/{policyId}/addon-releases/{releaseName}', 'json', false, 'json', request);
+}
+
+model UpdateAggTaskGroupRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rw-pq4apob9jm', position='Path'),
+  groupId: string(name='groupId', description='This parameter is required.', example='aggTaskGroup-xxxx', position='Path'),
+  aggTaskGroupConfig: string(name='aggTaskGroupConfig', description='This parameter is required.', example='groups:
+- name: "node.rules"
+  interval: "60s"
+  rules:
+  - record: "node_namespace_pod:kube_pod_info:"
+    expr: "max(label_replace(kube_pod_info{job=\\"kubernetes-pods-kube-state-metrics\\"\\
+      }, \\"pod\\", \\"$1\\", \\"pod\\", \\"(.*)\\")) by (node, namespace, pod, cluster)"', position='Body'),
+  aggTaskGroupConfigType?: string(name='aggTaskGroupConfigType', example='RecordingRuleYaml', position='Body'),
+  aggTaskGroupName?: string(name='aggTaskGroupName', example='test-group', position='Body'),
+  cronExpr?: string(name='cronExpr', example='0/1 * * * *', position='Body'),
+  delay?: int32(name='delay', example='30', minimum=0, maximum=120, position='Body'),
+  description?: string(name='description', example='desc', position='Body'),
+  fromTime?: long(name='fromTime', example='1724996015', position='Body'),
+  maxRetries?: int32(name='maxRetries', example='20', position='Body'),
+  maxRunTimeInSeconds?: int32(name='maxRunTimeInSeconds', example='600', position='Body'),
+  precheckString?: string(name='precheckString', example='{"policy":"skip","prometheusId":"xxx","query":"scalar(sum(count_over_time(up{job=\\"_arms/kubelet/cadvisor\\"}[15s])) / 21)","threshold":0.5,"timeout":15,"type":"promql"}', position='Body'),
+  scheduleMode?: string(name='scheduleMode', example='FixedRate', position='Body'),
+  scheduleTimeExpr?: string(name='scheduleTimeExpr', example='@m', position='Body'),
+  status?: string(name='status', example='Running', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='key1'),
+      value?: string(name='value', example='value1'),
+    }
+  ](name='tags', position='Body'),
+  targetPrometheusId: string(name='targetPrometheusId', description='This parameter is required.', example='rw-pq4apob9jm', position='Body'),
+  toTime?: long(name='toTime', example='0', position='Body'),
+}
+
+model UpdateAggTaskGroupResponseBody = {
+  aggTaskGroupConfigHash?: string(name='aggTaskGroupConfigHash', example='a54136014dc386a92c83a6ef1e97ff22'),
+  aggTaskGroupId?: string(name='aggTaskGroupId', example='aggTaskGroup-5fb2c3ade63a4709bcb059d13493b7b8'),
+  aggTaskGroupName?: string(name='aggTaskGroupName', example='pipeline-aggtask-group'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  sourcePrometheusId?: string(name='sourcePrometheusId', example='rw-083e17834e279f8c627fe91a2d72'),
+  status?: string(name='status', example='Running'),
+}
+
+model UpdateAggTaskGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAggTaskGroupResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateAggTaskGroup  UpdateAggTaskGroupRequest
+  * @return UpdateAggTaskGroupResponse
+ */
+async function updateAggTaskGroup(request: UpdateAggTaskGroupRequest): UpdateAggTaskGroupResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAggTaskGroup', 'PUT', '/prometheus-instances/{instanceId}/agg-task-groups/{groupId}', 'json', false, 'json', request);
+}
+
+model UpdateAggTaskGroupStatusRequest {
+  instanceId: string(name='instanceId', description='This parameter is required.', example='rw-pq4apob9jm', position='Path'),
+  groupId: string(name='groupId', description='This parameter is required.', example='aggTaskGroup-xxx', position='Path'),
+  status: string(name='status', description='This parameter is required.', example='Running', position='Body'),
+}
+
+model UpdateAggTaskGroupStatusResponseBody = {
+  aggTaskGroupConfigHash?: string(name='aggTaskGroupConfigHash', example='a54136014dc386a92c83a6ef1e97ff22'),
+  aggTaskGroupId?: string(name='aggTaskGroupId', example='aggTaskGroup-xxx'),
+  aggTaskGroupName?: string(name='aggTaskGroupName', example='pipeline-aggtask-group'),
+  requestId?: string(name='requestId', example='0CEC5375-C554-562B-A65F-***'),
+  sourcePrometheusId?: string(name='sourcePrometheusId', example='rw-xxx'),
+  status?: string(name='status', example='Running'),
+}
+
+model UpdateAggTaskGroupStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAggTaskGroupStatusResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateAggTaskGroupStatus  UpdateAggTaskGroupStatusRequest
+  * @return UpdateAggTaskGroupStatusResponse
+ */
+async function updateAggTaskGroupStatus(request: UpdateAggTaskGroupStatusRequest): UpdateAggTaskGroupStatusResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateAggTaskGroupStatus', 'PUT', '/prometheus-instances/{instanceId}/agg-task-groups/{groupId}/status', 'json', false, 'json', request);
+}
+
+model UpdateIntegrationPolicyRequest {
+  integrationPolicyId: string(name='integrationPolicyId', description='This parameter is required.', example='polixy-xxxxxxxxx', position='Path'),
+  feePackage?: string(name='feePackage', example='CS_Pro', position='Body'),
+  policyName?: string(name='policyName', example='metrics-inner-manage', position='Body'),
+  resourceGroupId?: string(name='resourceGroupId', example='rg-aekzoiafjtr7zyq', position='Body'),
+  tags?: [ 
+    {
+      key?: string(name='key', example='algo_bhv_expose_in_airec_exposure'),
+      value?: string(name='value', example='[{\\"Id\\": \\"kgqie6hm\\", \\"Name\\": \\"Sheet1\\"}]'),
+    }
+  ](name='tags', position='Body'),
+}
+
+model UpdateIntegrationPolicyResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='0CEC5375-C554-562B-A65F-9A629907C1F0'),
+}
+
+model UpdateIntegrationPolicyResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateIntegrationPolicyResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateIntegrationPolicy  UpdateIntegrationPolicyRequest
+  * @return UpdateIntegrationPolicyResponse
+ */
+async function updateIntegrationPolicy(request: UpdateIntegrationPolicyRequest): UpdateIntegrationPolicyResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateIntegrationPolicy', 'PUT', '/integration-policies/{integrationPolicyId}', 'json', false, 'json', request);
+}
+
+model UpdatePrometheusInstanceRequest {
+  prometheusInstanceId: string(name='prometheusInstanceId', description='This parameter is required.', example='rw-xxxxxxx', position='Path'),
+  archiveDuration?: integer(name='archiveDuration', example='365', position='Body'),
+  authFreeReadPolicy?: string(name='authFreeReadPolicy', example='0.0.0.0/0', position='Body'),
+  authFreeWritePolicy?: string(name='authFreeWritePolicy', example='true', position='Body'),
+  enableAuthFreeRead?: boolean(name='enableAuthFreeRead', example='true', position='Body'),
+  enableAuthFreeWrite?: boolean(name='enableAuthFreeWrite', example='true', position='Body'),
+  enableAuthToken?: boolean(name='enableAuthToken', example='true', position='Body'),
+  paymentType?: string(name='paymentType', example='POSTPAY_GB', position='Body'),
+  prometheusInstanceName?: string(name='prometheusInstanceName', example='test-prom-name', position='Body'),
+  status?: string(name='status', example='RUNNING', position='Body'),
+  storageDuration?: integer(name='storageDuration', example='90', position='Body'),
+  workspace?: string(name='workspace', example='default-cms-1500199863951574-cn-shanghai', position='Body'),
+}
+
+model UpdatePrometheusInstanceResponseBody = {
+  prometheusInstanceId?: string(name='prometheusInstanceId', example='rw-abc123'),
+  requestId?: string(name='requestId', description='Id of the request', example='1E92F783-E057-58F1-BD5C-92DED088E7A5'),
+}
+
+model UpdatePrometheusInstanceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePrometheusInstanceResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdatePrometheusInstance  UpdatePrometheusInstanceRequest
+  * @return UpdatePrometheusInstanceResponse
+ */
+async function updatePrometheusInstance(request: UpdatePrometheusInstanceRequest): UpdatePrometheusInstanceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePrometheusInstance', 'PUT', '/prometheus-instances/{prometheusInstanceId}', 'json', false, 'json', request);
+}
+
+model UpdatePrometheusViewRequest {
+  prometheusViewId: string(name='prometheusViewId', description='This parameter is required.', example='rw-xxxxxxxx', position='Path'),
+  authFreeReadPolicy?: string(name='authFreeReadPolicy', example='0.0.0.0/0', position='Body'),
+  enableAuthFreeRead?: boolean(name='enableAuthFreeRead', example='true', position='Body'),
+  enableAuthToken?: boolean(name='enableAuthToken', example='false', position='Body'),
+  prometheusInstances?: [ 
+    {
+      prometheusInstanceId?: string(name='prometheusInstanceId', example='c7ba84651c71e442c8d0653085d862164'),
+      regionId?: string(name='regionId', example='cn-north-2-gov-1'),
+      userId?: string(name='userId', example='16727123456789'),
+    }
+  ](name='prometheusInstances', position='Body'),
+  prometheusViewName?: string(name='prometheusViewName', example='test-prom-view-name', position='Body'),
+  status?: string(name='status', example='Running', position='Body'),
+  workspace?: string(name='workspace', example='default-cms-108490012345-cn-heyuan', position='Body'),
+}
+
+model UpdatePrometheusViewResponseBody = {
+  prometheusViewId?: string(name='prometheusViewId', example='rw-xxxxxx'),
+  requestId?: string(name='requestId', description='Id of the request', example='64D964F5-76C7-19A2-9399-457744AB3619'),
+}
+
+model UpdatePrometheusViewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdatePrometheusViewResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdatePrometheusView  UpdatePrometheusViewRequest
+  * @return UpdatePrometheusViewResponse
+ */
+async function updatePrometheusView(request: UpdatePrometheusViewRequest): UpdatePrometheusViewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdatePrometheusView', 'PUT', '/prometheus-views/{prometheusViewId}', 'json', false, 'json', request);
 }
 
 model UpdateServiceRequest {
