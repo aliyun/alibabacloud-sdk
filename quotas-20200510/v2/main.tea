@@ -1,50 +1,46 @@
 /**
-  *
-  */
-import BaseClientBuilder;
-import TeaAsyncHandler;
-import TeaRequest;
-import AsyncRequestBody;
-import RequestBody;
-import AsyncResponseHandler;
-import ClientConfiguration;
-import ClientExecutionParams;
-extends BaseClientBuilder;
-type @product = string
-type @version = string
-type @endpointRule = string
-type @endpointMap = map[string]string
-type @REQUEST = TeaRequest
-type @handler = TeaAsyncHandler
+ *
+ */
+import OpenApi;
+import OpenApi.OpenApiUtil;
 
-init(configuration: ClientConfiguration){
-  @handler = new TeaAsyncHandler(configuration);
-  @product = 'quotas';
-  @version = '2020-05-10';
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
   @endpointRule = 'central';
-  @endpointMap = {
-  };
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('quotas', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
 
-function close(): void {
-  @handler.close();
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
 model CreateQuotaAlarmRequest {
-  alarmName: string(name='AlarmName', description='Quota alarm name
+  alarmName?: string(name='AlarmName', description='Quota alarm name
 
-This parameter is required.', example='q_344t4 alarm', position='Body'),
-  originalContext?: string(name='OriginalContext', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+This parameter is required.', example='q_344t4 alarm'),
+  originalContext?: string(name='OriginalContext'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, check the `ProductCode` parameter that is described in [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html).
 
-This parameter is required.', example='config', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='config'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 >  To obtain the quota ID of an Alibaba Cloud service, call the [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `QuotaActionCode` in the response.
 
-This parameter is required.', example='q_hvnoqv', position='Body'),
+This parameter is required.', example='q_hvnoqv'),
   quotaDimensions?: [ 
     {
       key?: string(name='Key', description='The key of the dimension.
@@ -56,20 +52,20 @@ This parameter is required.', example='q_hvnoqv', position='Body'),
     }
   ](name='QuotaDimensions', description='The quota dimensions. A quota item is uniquely identified by the values of `Dimensions` and `QuotaActionCode`.
 
->  This parameter is required for specific Alibaba Cloud services. You can call the [ListProductQuotaDimensions](https://help.aliyun.com/document_detail/440553.html) operation to query the quota dimensions that are supported by an Alibaba Cloud service. The value of `Requisite` in the response indicates whether a dimension is required.', position='Body'),
+>  This parameter is required for specific Alibaba Cloud services. You can call the [ListProductQuotaDimensions](https://help.aliyun.com/document_detail/440553.html) operation to query the quota dimensions that are supported by an Alibaba Cloud service. The value of `Requisite` in the response indicates whether a dimension is required.'),
   threshold?: float(name='Threshold', description='The numerical value of the quota alarm threshold. Value settings:
 - When `ThresholdType` is set to `used`, an alarm notification will be sent if the used amount of the quota is greater than or equal to the preset value. The quota alarm threshold must be greater than the used amount of the quota.
 - When `ThresholdType` is set to `usable`, an alarm notification will be sent if the remaining available amount of the quota is less than or equal to the preset value. The quota alarm threshold must be less than the remaining available amount of the quota.
-> One of this parameter and ThresholdPercent must be set.', example='150', minimum=1, position='Body'),
+> One of this parameter and ThresholdPercent must be set.', example='150'),
   thresholdPercent?: float(name='ThresholdPercent', description='The percentage of the quota alert threshold. Values:
 - When `ThresholdType` is set to `used`, you will receive an alert notification if the used amount of the quota is greater than or equal to the preset percentage. The value range is (50%, 100%].
 - When `ThresholdType` is set to `usable`, you will receive an alert notification if the remaining available amount of the quota is less than or equal to the preset percentage. The value range is (0%, 50%].
-> One of this parameter and Threshold must be set.', example='50', minimum=50, maximum=100, position='Body'),
+> One of this parameter and Threshold must be set.', example='50'),
   thresholdType?: string(name='ThresholdType', description='The type of the quota alert. Valid values:
 
 *   used (default): The alert is created for the used quota.
-*   usable: The alert is created for the available quota.', example='used', position='Body'),
-  webHook?: string(name='WebHook', description='The quota center sends alert information to the specified public URL address via a POST request using the HTTP protocol.', example='https://alert.aliyun.com/callback', position='Body'),
+*   usable: The alert is created for the available quota.', example='used'),
+  webHook?: string(name='WebHook', description='The quota center sends alert information to the specified public URL address via a POST request using the HTTP protocol.', example='https://alert.aliyun.com/callback'),
 }
 
 model CreateQuotaAlarmResponseBody = {
@@ -84,13 +80,73 @@ model CreateQuotaAlarmResponse = {
 }
 
 /**
-  * @description The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to create a quota alert of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
-  * @param request  the request parameters of CreateQuotaAlarm  CreateQuotaAlarmRequest
-  * @return CreateQuotaAlarmResponse
+ * @summary Creates a quota alert.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to create a quota alert of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request CreateQuotaAlarmRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateQuotaAlarmResponse
+ */
+@context("createQuotaAlarmWithContext")
+async function createQuotaAlarmWithOptions(request: CreateQuotaAlarmRequest, runtime: $RuntimeOptions): CreateQuotaAlarmResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmName)) {
+    body['AlarmName'] = request.alarmName;
+  }
+  if (!$isNull(request.originalContext)) {
+    body['OriginalContext'] = request.originalContext;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaDimensions)) {
+    body['QuotaDimensions'] = request.quotaDimensions;
+  }
+  if (!$isNull(request.threshold)) {
+    body['Threshold'] = request.threshold;
+  }
+  if (!$isNull(request.thresholdPercent)) {
+    body['ThresholdPercent'] = request.thresholdPercent;
+  }
+  if (!$isNull(request.thresholdType)) {
+    body['ThresholdType'] = request.thresholdType;
+  }
+  if (!$isNull(request.webHook)) {
+    body['WebHook'] = request.webHook;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateQuotaAlarm',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a quota alert.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to create a quota alert of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request CreateQuotaAlarmRequest
+ * @return CreateQuotaAlarmResponse
  */
 async function createQuotaAlarm(request: CreateQuotaAlarmRequest): CreateQuotaAlarmResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateQuotaAlarm', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createQuotaAlarmWithOptions(request, runtime);
 }
 
 model CreateQuotaApplicationRequest {
@@ -100,8 +156,8 @@ The mode in which you want the application to be reviewed.
 
 Valid values: 
 *   Async
-*   Sync', example='Sync', position='Body'),
-  desireValue: float(name='DesireValue', description='The requested value of the quota.
+*   Sync', example='Sync'),
+  desireValue?: float(name='DesireValue', description='The requested value of the quota.
 
 > 
 
@@ -109,7 +165,7 @@ Valid values:
 
 *   Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, you must specify a reasonable quota value and detailed reasons when you submit an application to increase the value of the quota.
 
-This parameter is required.', example='804', position='Body'),
+This parameter is required.', example='804'),
   dimensions?: [ 
     {
       key?: string(name='Key', description='The key of the dimension.
@@ -121,33 +177,33 @@ This parameter is required.', example='804', position='Body'),
     }
   ](name='Dimensions', description='The quota dimensions. A quota item is uniquely determined by the values of Dimensions and QuotaActionCode.
 
->  Some dimensions are required. You can call the [ListProductQuotaDimensions](~~ListProductQuotaDimensions~~) operation to query the quota dimensions that are supported by an Alibaba Cloud service. The value of `Requisite` in the response indicates whether a dimension is required.', position='Body'),
+>  Some dimensions are required. You can call the [ListProductQuotaDimensions](~~ListProductQuotaDimensions~~) operation to query the quota dimensions that are supported by an Alibaba Cloud service. The value of `Requisite` in the response indicates whether a dimension is required.'),
   effectiveTime?: string(name='EffectiveTime', description='The end time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
->  If you do not specify an end time, the default end time is 99 years after the quota application is submitted.', example='2021-01-19T09:25:56Z', position='Body'),
+>  If you do not specify an end time, the default end time is 99 years after the quota application is submitted.', example='2021-01-19T09:25:56Z'),
   envLanguage?: string(name='EnvLanguage', description='The language of the quota alert notification.
 
 Valid values:
 
 *   en: English
-*   zh: Chinese', example='zh', position='Body'),
+*   zh: Chinese', example='zh'),
   expireTime?: string(name='ExpireTime', description='The start time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
->  If you do not specify a start time, the default start time is the time when the quota application is submitted.', example='2021-01-20T09:25:56Z', position='Body'),
+>  If you do not specify a start time, the default start time is the time when the quota application is submitted.', example='2021-01-20T09:25:56Z'),
   noticeType?: int32(name='NoticeType', description='Specifies whether to send a notification about the application result. Valid values:
 
 *   0 (default): no
-*   3: sends a notification.', example='0', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+*   3: sends a notification.', example='0'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, check the `ProductCode` parameter that is described in [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html).
 
-This parameter is required.', example='ecs', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 >  To query the quota ID of an Alibaba Cloud service, check the `QuotaActionCode` parameter that is described in [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html).
 
-This parameter is required.', example='q_security-groups', position='Body'),
+This parameter is required.', example='q_security-groups'),
   quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 Default value: CommonQuota.
@@ -156,12 +212,12 @@ Valid values:
 
 *   FlowControl: API rate limit
 *   WhiteListLabel: whitelist quota
-*   CommonQuota: general quota', example='CommonQuota', position='Body'),
-  reason: string(name='Reason', description='The reason for the application.
+*   CommonQuota: general quota', example='CommonQuota'),
+  reason?: string(name='Reason', description='The reason for the application.
 
 > Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, you must specify a reasonable quota value and detailed reasons when you submit an application to increase the value of the quota.
 
-This parameter is required.', example='Scale Out', position='Body'),
+This parameter is required.', example='Scale Out'),
 }
 
 model CreateQuotaApplicationResponseBody = {
@@ -202,22 +258,88 @@ model CreateQuotaApplicationResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to submit an application to increase the value of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. The quota belongs to Elastic Compute Service (ECS). The expected value of the quota is `804`, the application reason is `Scale Out`, and the ID of the region to which the quota belongs is `cn-hangzhou`.
-  * @param request  the request parameters of CreateQuotaApplication  CreateQuotaApplicationRequest
-  * @return CreateQuotaApplicationResponse
+ * @summary Submits an application to increase a quota.
+ *
+ * @description In this example, the operation is called to submit an application to increase the value of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. The quota belongs to Elastic Compute Service (ECS). The expected value of the quota is `804`, the application reason is `Scale Out`, and the ID of the region to which the quota belongs is `cn-hangzhou`.
+ *
+ * @param request CreateQuotaApplicationRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateQuotaApplicationResponse
+ */
+@context("createQuotaApplicationWithContext")
+async function createQuotaApplicationWithOptions(request: CreateQuotaApplicationRequest, runtime: $RuntimeOptions): CreateQuotaApplicationResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.auditMode)) {
+    body['AuditMode'] = request.auditMode;
+  }
+  if (!$isNull(request.desireValue)) {
+    body['DesireValue'] = request.desireValue;
+  }
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['EffectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.envLanguage)) {
+    body['EnvLanguage'] = request.envLanguage;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['ExpireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.noticeType)) {
+    body['NoticeType'] = request.noticeType;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  if (!$isNull(request.reason)) {
+    body['Reason'] = request.reason;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateQuotaApplication',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits an application to increase a quota.
+ *
+ * @description In this example, the operation is called to submit an application to increase the value of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. The quota belongs to Elastic Compute Service (ECS). The expected value of the quota is `804`, the application reason is `Scale Out`, and the ID of the region to which the quota belongs is `cn-hangzhou`.
+ *
+ * @param request CreateQuotaApplicationRequest
+ * @return CreateQuotaApplicationResponse
  */
 async function createQuotaApplication(request: CreateQuotaApplicationRequest): CreateQuotaApplicationResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateQuotaApplication', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createQuotaApplicationWithOptions(request, runtime);
 }
 
 model CreateQuotaApplicationsForTemplateRequest {
-  aliyunUids: [ string ](name='AliyunUids', description='The Alibaba Cloud accounts that correspond to the resource directory members for which the quotas are applied.
+  aliyunUids?: [ string ](name='AliyunUids', description='The Alibaba Cloud accounts that correspond to the resource directory members for which the quotas are applied.
 
 >  You can submit a quota increase application for a maximum of 50 members at a time. For more information about the members of a resource directory, see [ListAccounts](https://help.aliyun.com/document_detail/604207.html).
 
-This parameter is required.', position='Body'),
-  desireValue: double(name='DesireValue', description='The requested value of the quota.
+This parameter is required.'),
+  desireValue?: double(name='DesireValue', description='The requested value of the quota.
 
 > 
 
@@ -225,7 +347,7 @@ This parameter is required.', position='Body'),
 
 *   Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, specify a reasonable quota value and a detailed reason.
 
-This parameter is required.', example='12', position='Body'),
+This parameter is required.', example='12'),
   dimensions?: [ 
     {
       key?: string(name='Key', description='The key of the dimension.
@@ -243,43 +365,43 @@ This parameter is required.', example='12', position='Body'),
 
 *   This parameter is required if you set the `ProductCode` parameter to `ecs`, `ecs-spec`, `actiontrail`, or `ess`.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', position='Body'),
+  ](name='Dimensions', description='The quota dimensions.'),
   effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
->  If you do not specify a start time, the value is the time when the quota application is submitted.', example='2021-01-19T09:25:56Z', position='Body'),
+>  If you do not specify a start time, the value is the time when the quota application is submitted.', example='2021-01-19T09:25:56Z'),
   envLanguage?: string(name='EnvLanguage', description='The language of the notification about the application result. Valid values:
 
 *   zh (default): Chinese
-*   en: English', example='zh', position='Body'),
+*   en: English', example='zh'),
   expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
->  If you do not specify an end time, the value is 99 years after the start time of the validity period.', example='2021-01-20T09:25:56Z', position='Body'),
+>  If you do not specify an end time, the value is 99 years after the start time of the validity period.', example='2021-01-20T09:25:56Z'),
   noticeType?: int32(name='NoticeType', description='Specifies whether to send a notification about the application result. Valid values:
 
 *   0 (default): no
-*   3: yes', example='0', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+*   3: yes', example='0'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.
 
-This parameter is required.', example='ecs-spec', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='ecs-spec'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 >  To query the quota ID of an Alibaba Cloud service, call the [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html) and check the value of `QuotaActionCode` in the response.
 
-This parameter is required.', example='ecs.g5.2xlarge', position='Body'),
-  quotaCategory: string(name='QuotaCategory', description='The quota type. Valid values:
+This parameter is required.', example='ecs.g5.2xlarge'),
+  quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
 
 *   CommonQuota: general quota
 *   FlowControl: API rate limit
 *   WhiteListLabel: privilege
 
-This parameter is required.', example='CommonQuota', position='Body'),
-  reason: string(name='Reason', description='The reason for the quota application.
+This parameter is required.', example='CommonQuota'),
+  reason?: string(name='Reason', description='The reason for the quota application.
 
 >  Applications are reviewed by the technical support team of each Alibaba Cloud service. To increase the success rate of your application, you must specify a reasonable quota value and detailed reasons when you submit the application.
 
-This parameter is required.', example='Scale Out', position='Body'),
+This parameter is required.', example='Scale Out'),
 }
 
 model CreateQuotaApplicationsForTemplateResponseBody = {
@@ -301,18 +423,85 @@ model CreateQuotaApplicationsForTemplateResponse = {
 }
 
 /**
-  * @description ### [](#)QPS limit
-  * You can add a maximum of 10 quota items to a quota template at a time.
-  * @param request  the request parameters of CreateQuotaApplicationsForTemplate  CreateQuotaApplicationsForTemplateRequest
-  * @return CreateQuotaApplicationsForTemplateResponse
+ * @summary Submits a quota increase application. After you add a quota item to a quota template, the system automatically submits quota applications only for new members of the resource directory. The quota values for existing members remain unchanged. If you want to increase the quota values of existing members, you can submit a quota application for the members by applying quota templates to the members. Only the management account of a resource directory can create multiple quota applications at a time.
+ *
+ * @description ### [](#)QPS limit
+ * You can add a maximum of 10 quota items to a quota template at a time.
+ *
+ * @param request CreateQuotaApplicationsForTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateQuotaApplicationsForTemplateResponse
+ */
+@context("createQuotaApplicationsForTemplateWithContext")
+async function createQuotaApplicationsForTemplateWithOptions(request: CreateQuotaApplicationsForTemplateRequest, runtime: $RuntimeOptions): CreateQuotaApplicationsForTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.aliyunUids)) {
+    body['AliyunUids'] = request.aliyunUids;
+  }
+  if (!$isNull(request.desireValue)) {
+    body['DesireValue'] = request.desireValue;
+  }
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['EffectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.envLanguage)) {
+    body['EnvLanguage'] = request.envLanguage;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['ExpireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.noticeType)) {
+    body['NoticeType'] = request.noticeType;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  if (!$isNull(request.reason)) {
+    body['Reason'] = request.reason;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateQuotaApplicationsForTemplate',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits a quota increase application. After you add a quota item to a quota template, the system automatically submits quota applications only for new members of the resource directory. The quota values for existing members remain unchanged. If you want to increase the quota values of existing members, you can submit a quota application for the members by applying quota templates to the members. Only the management account of a resource directory can create multiple quota applications at a time.
+ *
+ * @description ### [](#)QPS limit
+ * You can add a maximum of 10 quota items to a quota template at a time.
+ *
+ * @param request CreateQuotaApplicationsForTemplateRequest
+ * @return CreateQuotaApplicationsForTemplateResponse
  */
 async function createQuotaApplicationsForTemplate(request: CreateQuotaApplicationsForTemplateRequest): CreateQuotaApplicationsForTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateQuotaApplicationsForTemplate', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createQuotaApplicationsForTemplateWithOptions(request, runtime);
 }
 
 model CreateTemplateQuotaItemRequest {
-  desireValue: float(name='DesireValue', description='The requested value of the quota.
+  desireValue?: float(name='DesireValue', description='The requested value of the quota.
 
 > 
 
@@ -320,7 +509,7 @@ model CreateTemplateQuotaItemRequest {
 
 *   Applications are reviewed by the technical support team for each cloud service. To increase the success rate of your application, specify a reasonable quota value and a detailed reason.
 
-This parameter is required.', example='804', position='Body'),
+This parameter is required.', example='804'),
   dimensions?: [ 
     {
       key?: string(name='Key', description='The key of the dimension.
@@ -338,36 +527,36 @@ This parameter is required.', example='804', position='Body'),
 
 *   This parameter is required if you set the `ProductCode` parameter to `ecs`, `ecs-spec`, `actiontrail`, or `ess`.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', position='Body'),
+  ](name='Dimensions', description='The quota dimensions.'),
   effectiveTime?: string(name='EffectiveTime', description='The start time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
-> If you leave this parameter empty, the quota takes effect immediately.', example='2021-01-19T09:25:56Z', position='Body'),
+> If you leave this parameter empty, the quota takes effect immediately.', example='2021-01-19T09:25:56Z'),
   envLanguage?: string(name='EnvLanguage', description='The language of the quota alert notification. Valid values:
 
 *   zh (default value): Chinese
-*   en: English', example='zh', position='Body'),
+*   en: English', example='zh'),
   expireTime?: string(name='ExpireTime', description='The end time of the validity period of the quota. Specify the value in UTC. This parameter is valid only if you set the QuotaCategory parameter to WhiteListLabel.
 
-> If you leave this parameter empty, no end time is specified.', example='2021-01-20T09:25:56Z', position='Body'),
+> If you leave this parameter empty, no end time is specified.', example='2021-01-20T09:25:56Z'),
   noticeType?: long(name='NoticeType', description='Specifies whether to send a notification about the application result. Valid values:
 
 *   0 (default value): no
-*   3: yes', example='0', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+*   3: yes', example='0'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.
 
-This parameter is required.', example='ecs', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 >  To obtain the quota ID of an Alibaba Cloud service, call the [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `QuotaActionCode` in the response.
 
-This parameter is required.', example='q_security-groups', position='Body'),
+This parameter is required.', example='q_security-groups'),
   quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
 
 *   CommonQuota: general quota
 *   WhiteListLabel: privilege
-*   FlowControl: API rate limit', example='CommonQuota', position='Body'),
+*   FlowControl: API rate limit', example='CommonQuota'),
 }
 
 model CreateTemplateQuotaItemResponseBody = {
@@ -382,25 +571,89 @@ model CreateTemplateQuotaItemResponse = {
 }
 
 /**
-  * @description ### [](#)Usage notes
-  * You must set the `ServiceStatus` parameter to `1`. This ensures that the quota template is enabled.
-  * You can call the [GetQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450407.html) operation to query the status of a quota template. If the value of the `ServiceStatus` parameter in the response is `0` or `-1`, you must call the [ModifyQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450406.html) operation to modify the value to `1`. A value of 0 indicates that the quota template is not configured. A value of -1 indicates that the quota template is disabled. A value of 1 indicates that the quota template is enabled.
-  * ### [](#)
-  * After you create a quota template, you can call the [ListQuotaApplicationsForTemplate](https://help.aliyun.com/document_detail/2584864.html) operation to view the approval result. If the value of the `Status` parameter in the response is `Agree`, the quota template is approved.
-  * @param request  the request parameters of CreateTemplateQuotaItem  CreateTemplateQuotaItemRequest
-  * @return CreateTemplateQuotaItemResponse
+ * @summary Creates a quota template by using the management account of a resource directory. After you create a quota template, if a member is added to the resource directory, the quota template automatically submits a quota increase request for the member. The quota values for existing members remain unchanged. You can use a quota template to apply for increases on multiple quotas at the same time. This automated approach improves the efficiency of quota management across your organization. Only the management account of a resource directory can create quota templates.
+ *
+ * @description ### [](#)Usage notes
+ * You must set the `ServiceStatus` parameter to `1`. This ensures that the quota template is enabled.
+ * You can call the [GetQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450407.html) operation to query the status of a quota template. If the value of the `ServiceStatus` parameter in the response is `0` or `-1`, you must call the [ModifyQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450406.html) operation to modify the value to `1`. A value of 0 indicates that the quota template is not configured. A value of -1 indicates that the quota template is disabled. A value of 1 indicates that the quota template is enabled.
+ * ### [](#)
+ * After you create a quota template, you can call the [ListQuotaApplicationsForTemplate](https://help.aliyun.com/document_detail/2584864.html) operation to view the approval result. If the value of the `Status` parameter in the response is `Agree`, the quota template is approved.
+ *
+ * @param request CreateTemplateQuotaItemRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTemplateQuotaItemResponse
+ */
+@context("createTemplateQuotaItemWithContext")
+async function createTemplateQuotaItemWithOptions(request: CreateTemplateQuotaItemRequest, runtime: $RuntimeOptions): CreateTemplateQuotaItemResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.desireValue)) {
+    body['DesireValue'] = request.desireValue;
+  }
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['EffectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.envLanguage)) {
+    body['EnvLanguage'] = request.envLanguage;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['ExpireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.noticeType)) {
+    body['NoticeType'] = request.noticeType;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTemplateQuotaItem',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a quota template by using the management account of a resource directory. After you create a quota template, if a member is added to the resource directory, the quota template automatically submits a quota increase request for the member. The quota values for existing members remain unchanged. You can use a quota template to apply for increases on multiple quotas at the same time. This automated approach improves the efficiency of quota management across your organization. Only the management account of a resource directory can create quota templates.
+ *
+ * @description ### [](#)Usage notes
+ * You must set the `ServiceStatus` parameter to `1`. This ensures that the quota template is enabled.
+ * You can call the [GetQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450407.html) operation to query the status of a quota template. If the value of the `ServiceStatus` parameter in the response is `0` or `-1`, you must call the [ModifyQuotaTemplateServiceStatus](https://help.aliyun.com/document_detail/450406.html) operation to modify the value to `1`. A value of 0 indicates that the quota template is not configured. A value of -1 indicates that the quota template is disabled. A value of 1 indicates that the quota template is enabled.
+ * ### [](#)
+ * After you create a quota template, you can call the [ListQuotaApplicationsForTemplate](https://help.aliyun.com/document_detail/2584864.html) operation to view the approval result. If the value of the `Status` parameter in the response is `Agree`, the quota template is approved.
+ *
+ * @param request CreateTemplateQuotaItemRequest
+ * @return CreateTemplateQuotaItemResponse
  */
 async function createTemplateQuotaItem(request: CreateTemplateQuotaItemRequest): CreateTemplateQuotaItemResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'CreateTemplateQuotaItem', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return createTemplateQuotaItemWithOptions(request, runtime);
 }
 
 model DeleteQuotaAlarmRequest {
-  alarmId: string(name='AlarmId', description='The ID of the quota alert.
+  alarmId?: string(name='AlarmId', description='The ID of the quota alert.
 
 >  You can call the [ListQuotaAlarms](https://help.aliyun.com/document_detail/440561.html) operation to obtain the ID of a quota alert.
 
-This parameter is required.', example='6b512ab7-da3a-4142-b529-2b2a9294****', position='Body'),
+This parameter is required.', example='6b512ab7-da3a-4142-b529-2b2a9294****'),
 }
 
 model DeleteQuotaAlarmResponseBody = {
@@ -414,22 +667,59 @@ model DeleteQuotaAlarmResponse = {
 }
 
 /**
-  * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to delete a quota alert rule of the old version. If you want to delete a quota alert rule of the new version, call the CloudMonitor API operation [DeleteMetricRules](https://help.aliyun.com/document_detail/2513295.html) or [DeleteMetricRuleTargets](https://help.aliyun.com/document_detail/2513294.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
-  * *   In this example, the API operation is called to delete a quota alert rule whose ID is `6b512ab7-da3a-4142-b529-2b2a9294****`.
-  * @param request  the request parameters of DeleteQuotaAlarm  DeleteQuotaAlarmRequest
-  * @return DeleteQuotaAlarmResponse
+ * @summary Deletes a quota alert.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to delete a quota alert rule of the old version. If you want to delete a quota alert rule of the new version, call the CloudMonitor API operation [DeleteMetricRules](https://help.aliyun.com/document_detail/2513295.html) or [DeleteMetricRuleTargets](https://help.aliyun.com/document_detail/2513294.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the API operation is called to delete a quota alert rule whose ID is `6b512ab7-da3a-4142-b529-2b2a9294****`.
+ *
+ * @param request DeleteQuotaAlarmRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteQuotaAlarmResponse
+ */
+@context("deleteQuotaAlarmWithContext")
+async function deleteQuotaAlarmWithOptions(request: DeleteQuotaAlarmRequest, runtime: $RuntimeOptions): DeleteQuotaAlarmResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmId)) {
+    body['AlarmId'] = request.alarmId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteQuotaAlarm',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a quota alert.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to delete a quota alert rule of the old version. If you want to delete a quota alert rule of the new version, call the CloudMonitor API operation [DeleteMetricRules](https://help.aliyun.com/document_detail/2513295.html) or [DeleteMetricRuleTargets](https://help.aliyun.com/document_detail/2513294.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the API operation is called to delete a quota alert rule whose ID is `6b512ab7-da3a-4142-b529-2b2a9294****`.
+ *
+ * @param request DeleteQuotaAlarmRequest
+ * @return DeleteQuotaAlarmResponse
  */
 async function deleteQuotaAlarm(request: DeleteQuotaAlarmRequest): DeleteQuotaAlarmResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteQuotaAlarm', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return deleteQuotaAlarmWithOptions(request, runtime);
 }
 
 model DeleteTemplateQuotaItemRequest {
-  id: string(name='Id', description='The ID of the quota template.
+  id?: string(name='Id', description='The ID of the quota template.
 
 You can call the [ListQuotaApplicationTemplates](https://help.aliyun.com/document_detail/450403.html) operation to obtain the ID of a quota template.
 
-This parameter is required.', example='1****', position='Body'),
+This parameter is required.', example='1****'),
 }
 
 model DeleteTemplateQuotaItemResponseBody = {
@@ -444,12 +734,45 @@ model DeleteTemplateQuotaItemResponse = {
 }
 
 /**
-  * @param request  the request parameters of DeleteTemplateQuotaItem  DeleteTemplateQuotaItemRequest
-  * @return DeleteTemplateQuotaItemResponse
+ * @summary Deletes a quota template by using the management account of a resource directory. After you delete a quota template, if a member is added to the resource directory, the quota template no longer automatically submits a quota increase request for the member. Only the management account of a resource directory can delete quota templates.
+ *
+ * @param request DeleteTemplateQuotaItemRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteTemplateQuotaItemResponse
+ */
+@context("deleteTemplateQuotaItemWithContext")
+async function deleteTemplateQuotaItemWithOptions(request: DeleteTemplateQuotaItemRequest, runtime: $RuntimeOptions): DeleteTemplateQuotaItemResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteTemplateQuotaItem',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a quota template by using the management account of a resource directory. After you delete a quota template, if a member is added to the resource directory, the quota template no longer automatically submits a quota increase request for the member. Only the management account of a resource directory can delete quota templates.
+ *
+ * @param request DeleteTemplateQuotaItemRequest
+ * @return DeleteTemplateQuotaItemResponse
  */
 async function deleteTemplateQuotaItem(request: DeleteTemplateQuotaItemRequest): DeleteTemplateQuotaItemResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'DeleteTemplateQuotaItem', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return deleteTemplateQuotaItemWithOptions(request, runtime);
 }
 
 model GetProductQuotaRequest {
@@ -462,17 +785,17 @@ model GetProductQuotaRequest {
 
 >  This parameter is required for cloud services that support dimensions. You must specify both `Dimensions.N.Key` and `Dimensions.N.Value`. The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service. The following cloud services support dimensions: ECS whose service code is ecs, EDAS whose service code is edas, ECS Quotas by Instance Type whose service code is ecs-spec, and Auto Scaling whose service code is ess.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', example='{\\"regionId\\":\\"cn-beijing\\"}', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+  ](name='Dimensions', description='The quota dimensions.', example='{\\\\"regionId\\\\":\\\\"cn-beijing\\\\"}'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.
 
-This parameter is required.', example='ecs', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 >  To query a quota ID of an Alibaba Cloud service, call the [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `QuotaActionCode` in the response.
 
-This parameter is required.', example='q_security-groups', position='Body'),
+This parameter is required.', example='q_security-groups'),
 }
 
 model GetProductQuotaResponseBody = {
@@ -567,13 +890,55 @@ model GetProductQuotaResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the details of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. This quota belongs to Elastic Compute Service (ECS). The query result shows the details of the quota. The details include the name, ID, description, quota value, used quota, unit, and dimension of the quota. In this example, the quota name is `Maximum Number of Security Groups`. The quota ID is `q_security-groups`. The description is `The maximum number of security groups that can be created for the current account`. The quota value is `801`. The used quota is `26`. The quota unit is `Number of security groups`. The quota dimension is `{"regionId":"cn-hangzhou"}`.
-  * @param request  the request parameters of GetProductQuota  GetProductQuotaRequest
-  * @return GetProductQuotaResponse
+ * @summary Queries the details of a quota of a cloud service.
+ *
+ * @description In this example, the operation is called to query the details of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. This quota belongs to Elastic Compute Service (ECS). The query result shows the details of the quota. The details include the name, ID, description, quota value, used quota, unit, and dimension of the quota. In this example, the quota name is `Maximum Number of Security Groups`. The quota ID is `q_security-groups`. The description is `The maximum number of security groups that can be created for the current account`. The quota value is `801`. The used quota is `26`. The quota unit is `Number of security groups`. The quota dimension is `{"regionId":"cn-hangzhou"}`.
+ *
+ * @param request GetProductQuotaRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetProductQuotaResponse
+ */
+@context("getProductQuotaWithContext")
+async function getProductQuotaWithOptions(request: GetProductQuotaRequest, runtime: $RuntimeOptions): GetProductQuotaResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetProductQuota',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a quota of a cloud service.
+ *
+ * @description In this example, the operation is called to query the details of a quota whose ID is `q_security-groups` and whose name is Maximum Number of Security Groups. This quota belongs to Elastic Compute Service (ECS). The query result shows the details of the quota. The details include the name, ID, description, quota value, used quota, unit, and dimension of the quota. In this example, the quota name is `Maximum Number of Security Groups`. The quota ID is `q_security-groups`. The description is `The maximum number of security groups that can be created for the current account`. The quota value is `801`. The used quota is `26`. The quota unit is `Number of security groups`. The quota dimension is `{"regionId":"cn-hangzhou"}`.
+ *
+ * @param request GetProductQuotaRequest
+ * @return GetProductQuotaResponse
  */
 async function getProductQuota(request: GetProductQuotaRequest): GetProductQuotaResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetProductQuota', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getProductQuotaWithOptions(request, runtime);
 }
 
 model GetProductQuotaDimensionRequest {
@@ -586,13 +951,13 @@ model GetProductQuotaDimensionRequest {
 
 > The value range of N varies based on the number of quota dimensions that are supported by the specified Alibaba Cloud service.', example='cn-hangzhou'),
     }
-  ](name='DependentDimensions', description='The information about quota dimensions.', position='Body'),
-  dimensionKey?: string(name='DimensionKey', description='The key of the quota dimension.', example='regionId', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+  ](name='DependentDimensions', description='The information about quota dimensions.'),
+  dimensionKey?: string(name='DimensionKey', description='The key of the quota dimension.', example='regionId'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 > For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
 
-This parameter is required.', example='ecs-spec', position='Body'),
+This parameter is required.', example='ecs-spec'),
 }
 
 model GetProductQuotaDimensionResponseBody = {
@@ -623,21 +988,65 @@ model GetProductQuotaDimensionResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the details of a quota dimension whose key is `regionId`. The quota dimension belongs to Elastic Compute Service (ECS) Quotas by Instance Type whose service code is ecs-spec. The following query results are returned:
-  * *   The values of the quota dimension include `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
-  * *   The name of the quota dimension is `region`.
-  * @param request  the request parameters of GetProductQuotaDimension  GetProductQuotaDimensionRequest
-  * @return GetProductQuotaDimensionResponse
+ * @summary Queries the details of a quota dimension that is supported by an Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the details of a quota dimension whose key is `regionId`. The quota dimension belongs to Elastic Compute Service (ECS) Quotas by Instance Type whose service code is ecs-spec. The following query results are returned:
+ * *   The values of the quota dimension include `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
+ * *   The name of the quota dimension is `region`.
+ *
+ * @param request GetProductQuotaDimensionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetProductQuotaDimensionResponse
+ */
+@context("getProductQuotaDimensionWithContext")
+async function getProductQuotaDimensionWithOptions(request: GetProductQuotaDimensionRequest, runtime: $RuntimeOptions): GetProductQuotaDimensionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.dependentDimensions)) {
+    body['DependentDimensions'] = request.dependentDimensions;
+  }
+  if (!$isNull(request.dimensionKey)) {
+    body['DimensionKey'] = request.dimensionKey;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetProductQuotaDimension',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a quota dimension that is supported by an Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the details of a quota dimension whose key is `regionId`. The quota dimension belongs to Elastic Compute Service (ECS) Quotas by Instance Type whose service code is ecs-spec. The following query results are returned:
+ * *   The values of the quota dimension include `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
+ * *   The name of the quota dimension is `region`.
+ *
+ * @param request GetProductQuotaDimensionRequest
+ * @return GetProductQuotaDimensionResponse
  */
 async function getProductQuotaDimension(request: GetProductQuotaDimensionRequest): GetProductQuotaDimensionResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetProductQuotaDimension', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getProductQuotaDimensionWithOptions(request, runtime);
 }
 
 model GetQuotaAlarmRequest {
   alarmId?: string(name='AlarmId', description='The ID of the quota alert.
 
-For more information about how to query the ID of a quota alert, see [ListQuotaAlarms](https://help.aliyun.com/document_detail/184348.html).', example='78d7e436-4b25-4897-84b5-d7b656bb****', position='Body'),
+For more information about how to query the ID of a quota alert, see [ListQuotaAlarms](https://help.aliyun.com/document_detail/184348.html).', example='78d7e436-4b25-4897-84b5-d7b656bb****'),
 }
 
 model GetQuotaAlarmResponseBody = {
@@ -670,18 +1079,55 @@ model GetQuotaAlarmResponse = {
 }
 
 /**
-  * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the details about the quota alert rules of the old version. If you want to query the details about the quota alert rules of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
-  * *   In this example, the operation is called to query the details of a quota alert rule whose ID is `78d7e436-4b25-4897-84b5-d7b656bb****`. The details of the alert rule are returned. The query result includes the alert ID, alert name, alert contact, and the time when the quota alert rule was created.
-  * @param request  the request parameters of GetQuotaAlarm  GetQuotaAlarmRequest
-  * @return GetQuotaAlarmResponse
+ * @summary In this example, the operation is called to query the details of a quota alert. The details of the alert are returned. The query results include the alert ID, alert name, alert contact, and time when the quota alert was created.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the details about the quota alert rules of the old version. If you want to query the details about the quota alert rules of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the operation is called to query the details of a quota alert rule whose ID is `78d7e436-4b25-4897-84b5-d7b656bb****`. The details of the alert rule are returned. The query result includes the alert ID, alert name, alert contact, and the time when the quota alert rule was created.
+ *
+ * @param request GetQuotaAlarmRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQuotaAlarmResponse
+ */
+@context("getQuotaAlarmWithContext")
+async function getQuotaAlarmWithOptions(request: GetQuotaAlarmRequest, runtime: $RuntimeOptions): GetQuotaAlarmResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmId)) {
+    body['AlarmId'] = request.alarmId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetQuotaAlarm',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary In this example, the operation is called to query the details of a quota alert. The details of the alert are returned. The query results include the alert ID, alert name, alert contact, and time when the quota alert was created.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the details about the quota alert rules of the old version. If you want to query the details about the quota alert rules of the new version, call CloudMonitor API operations. For more information, see [Use API operations to manage new quota alert rules](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the operation is called to query the details of a quota alert rule whose ID is `78d7e436-4b25-4897-84b5-d7b656bb****`. The details of the alert rule are returned. The query result includes the alert ID, alert name, alert contact, and the time when the quota alert rule was created.
+ *
+ * @param request GetQuotaAlarmRequest
+ * @return GetQuotaAlarmResponse
  */
 async function getQuotaAlarm(request: GetQuotaAlarmRequest): GetQuotaAlarmResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetQuotaAlarm', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getQuotaAlarmWithOptions(request, runtime);
 }
 
 model GetQuotaApplicationRequest {
-  applicationId?: string(name='ApplicationId', description='The ID of the application.', example='d314d6ae-867d-484c-9009-3d421a80****', position='Body'),
+  applicationId?: string(name='ApplicationId', description='The ID of the application.', example='d314d6ae-867d-484c-9009-3d421a80****'),
 }
 
 model GetQuotaApplicationResponseBody = {
@@ -730,19 +1176,55 @@ model GetQuotaApplicationResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the details about an application whose ID is `d314d6ae-867d-484c-9009-3d421a80****`. The query result shows the details about the application. The details include the application ID, application time, expected quota value, and application result.
-  * @param request  the request parameters of GetQuotaApplication  GetQuotaApplicationRequest
-  * @return GetQuotaApplicationResponse
+ * @summary Queries the details about a specified application that is submitted to increase a quota.
+ *
+ * @description In this example, the operation is called to query the details about an application whose ID is `d314d6ae-867d-484c-9009-3d421a80****`. The query result shows the details about the application. The details include the application ID, application time, expected quota value, and application result.
+ *
+ * @param request GetQuotaApplicationRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQuotaApplicationResponse
+ */
+@context("getQuotaApplicationWithContext")
+async function getQuotaApplicationWithOptions(request: GetQuotaApplicationRequest, runtime: $RuntimeOptions): GetQuotaApplicationResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.applicationId)) {
+    body['ApplicationId'] = request.applicationId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetQuotaApplication',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details about a specified application that is submitted to increase a quota.
+ *
+ * @description In this example, the operation is called to query the details about an application whose ID is `d314d6ae-867d-484c-9009-3d421a80****`. The query result shows the details about the application. The details include the application ID, application time, expected quota value, and application result.
+ *
+ * @param request GetQuotaApplicationRequest
+ * @return GetQuotaApplicationResponse
  */
 async function getQuotaApplication(request: GetQuotaApplicationRequest): GetQuotaApplicationResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetQuotaApplication', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getQuotaApplicationWithOptions(request, runtime);
 }
 
 model GetQuotaApplicationApprovalRequest {
   applicationId?: string(name='ApplicationId', description='The quota application ID.
 
-For more information about how to obtain the ID of a quota application, see [ListQuotaApplications](https://help.aliyun.com/document_detail/440568.html).', example='d314d6ae-867d-484c-9009-3d42****', position='Body'),
+For more information about how to obtain the ID of a quota application, see [ListQuotaApplications](https://help.aliyun.com/document_detail/440568.html).', example='d314d6ae-867d-484c-9009-3d42****'),
 }
 
 model GetQuotaApplicationApprovalResponseBody = {
@@ -779,18 +1261,55 @@ model GetQuotaApplicationApprovalResponse = {
 }
 
 /**
-  * @description ### [](#)Prerequisites
-  * Make sure that you have created an application for quota increase. For more information, see [CreateQuotaApplication](https://help.aliyun.com/document_detail/440566.html).
-  * @param request  the request parameters of GetQuotaApplicationApproval  GetQuotaApplicationApprovalRequest
-  * @return GetQuotaApplicationApprovalResponse
+ * @summary Queries the information about quota application approval, such as the average amount of time required for approval, whether approval reminders are supported, and the interval between two consecutive approval reminders.
+ *
+ * @description ### [](#)Prerequisites
+ * Make sure that you have created an application for quota increase. For more information, see [CreateQuotaApplication](https://help.aliyun.com/document_detail/440566.html).
+ *
+ * @param request GetQuotaApplicationApprovalRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQuotaApplicationApprovalResponse
+ */
+@context("getQuotaApplicationApprovalWithContext")
+async function getQuotaApplicationApprovalWithOptions(request: GetQuotaApplicationApprovalRequest, runtime: $RuntimeOptions): GetQuotaApplicationApprovalResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.applicationId)) {
+    body['ApplicationId'] = request.applicationId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetQuotaApplicationApproval',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the information about quota application approval, such as the average amount of time required for approval, whether approval reminders are supported, and the interval between two consecutive approval reminders.
+ *
+ * @description ### [](#)Prerequisites
+ * Make sure that you have created an application for quota increase. For more information, see [CreateQuotaApplication](https://help.aliyun.com/document_detail/440566.html).
+ *
+ * @param request GetQuotaApplicationApprovalRequest
+ * @return GetQuotaApplicationApprovalResponse
  */
 async function getQuotaApplicationApproval(request: GetQuotaApplicationApprovalRequest): GetQuotaApplicationApprovalResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetQuotaApplicationApproval', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getQuotaApplicationApprovalWithOptions(request, runtime);
 }
 
 model GetQuotaTemplateServiceStatusRequest {
-  resourceDirectoryId?: string(name='ResourceDirectoryId', description='The ID of the resource directory.', example='rd-pG****', position='Body'),
+  resourceDirectoryId?: string(name='ResourceDirectoryId', description='The ID of the resource directory.', example='rd-pG****'),
 }
 
 model GetQuotaTemplateServiceStatusResponseBody = {
@@ -799,7 +1318,7 @@ model GetQuotaTemplateServiceStatusResponseBody = {
     resourceDirectoryId?: string(name='ResourceDirectoryId', description='The ID of the resource directory.', example='rd-pG****'),
     serviceStatus?: int32(name='ServiceStatus', description='The status of the quota template. Valid values:
 
-*   \\-1: The quota template is disabled.
+*   \\\\-1: The quota template is disabled.
 *   1: The quota template is enabled.
 *   0: No quota template is specified.', example='1'),
   }(name='TemplateServiceStatus', description='The status of the quota template.'),
@@ -812,27 +1331,63 @@ model GetQuotaTemplateServiceStatusResponse = {
 }
 
 /**
-  * @description By default, the value of `ServiceStatus` is `0`, which indicates that no quota template is specified. If you want to use a quota template, make sure that the quota template is enabled. In this case, the value of `ServiceStatus` is `1`.
-  * @param request  the request parameters of GetQuotaTemplateServiceStatus  GetQuotaTemplateServiceStatusRequest
-  * @return GetQuotaTemplateServiceStatusResponse
+ * @summary Queries the status of a quota template.
+ *
+ * @description By default, the value of `ServiceStatus` is `0`, which indicates that no quota template is specified. If you want to use a quota template, make sure that the quota template is enabled. In this case, the value of `ServiceStatus` is `1`.
+ *
+ * @param request GetQuotaTemplateServiceStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetQuotaTemplateServiceStatusResponse
+ */
+@context("getQuotaTemplateServiceStatusWithContext")
+async function getQuotaTemplateServiceStatusWithOptions(request: GetQuotaTemplateServiceStatusRequest, runtime: $RuntimeOptions): GetQuotaTemplateServiceStatusResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.resourceDirectoryId)) {
+    body['ResourceDirectoryId'] = request.resourceDirectoryId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetQuotaTemplateServiceStatus',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the status of a quota template.
+ *
+ * @description By default, the value of `ServiceStatus` is `0`, which indicates that no quota template is specified. If you want to use a quota template, make sure that the quota template is enabled. In this case, the value of `ServiceStatus` is `1`.
+ *
+ * @param request GetQuotaTemplateServiceStatusRequest
+ * @return GetQuotaTemplateServiceStatusResponse
  */
 async function getQuotaTemplateServiceStatus(request: GetQuotaTemplateServiceStatusRequest): GetQuotaTemplateServiceStatusResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'GetQuotaTemplateServiceStatus', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return getQuotaTemplateServiceStatusWithOptions(request, runtime);
 }
 
 model ListAlarmHistoriesRequest {
-  alarmId?: string(name='AlarmId', description='The ID of the alert.', example='18b3be23-b7b0-4d45-91bc-d0c331aa****', position='Body'),
-  endTime?: long(name='EndTime', description='The end of the time range to query.', example='20201024', position='Body'),
-  keyword?: string(name='Keyword', description='The keyword that is used for the query.', example='Quantity', position='Body'),
+  alarmId?: string(name='AlarmId', description='The ID of the alert.', example='18b3be23-b7b0-4d45-91bc-d0c331aa****'),
+  endTime?: long(name='EndTime', description='The end of the time range to query.', example='20201024'),
+  keyword?: string(name='Keyword', description='The keyword that is used for the query.', example='Quantity'),
   maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
 
-Valid values: 1 to 200. Default value: 30.', example='30', position='Body'),
-  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1', position='Body'),
+Valid values: 1 to 200. Default value: 30.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
-> For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).', example='ecs', position='Body'),
-  startTime?: long(name='StartTime', description='The beginning of the time range to query.', example='20201020', position='Body'),
+> For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).', example='ecs'),
+  startTime?: long(name='StartTime', description='The beginning of the time range to query.', example='20201020'),
 }
 
 model ListAlarmHistoriesResponseBody = {
@@ -862,24 +1417,78 @@ model ListAlarmHistoriesResponse = {
 }
 
 /**
-  * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the historical records of quota alert rules of the old version. If you want to query the historical records of quota alert rules of the new version, call the CloudMonitor API operation [DescribeAlertLogCount](https://help.aliyun.com/document_detail/2513275.html) or [DescribeAlertLogList](https://help.aliyun.com/document_detail/2513276.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
-  * @param request  the request parameters of ListAlarmHistories  ListAlarmHistoriesRequest
-  * @return ListAlarmHistoriesResponse
+ * @summary Queries the alert records.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the historical records of quota alert rules of the old version. If you want to query the historical records of quota alert rules of the new version, call the CloudMonitor API operation [DescribeAlertLogCount](https://help.aliyun.com/document_detail/2513275.html) or [DescribeAlertLogList](https://help.aliyun.com/document_detail/2513276.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request ListAlarmHistoriesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAlarmHistoriesResponse
+ */
+@context("listAlarmHistoriesWithContext")
+async function listAlarmHistoriesWithOptions(request: ListAlarmHistoriesRequest, runtime: $RuntimeOptions): ListAlarmHistoriesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmId)) {
+    body['AlarmId'] = request.alarmId;
+  }
+  if (!$isNull(request.endTime)) {
+    body['EndTime'] = request.endTime;
+  }
+  if (!$isNull(request.keyword)) {
+    body['Keyword'] = request.keyword;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.startTime)) {
+    body['StartTime'] = request.startTime;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAlarmHistories',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the alert records.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query the historical records of quota alert rules of the old version. If you want to query the historical records of quota alert rules of the new version, call the CloudMonitor API operation [DescribeAlertLogCount](https://help.aliyun.com/document_detail/2513275.html) or [DescribeAlertLogList](https://help.aliyun.com/document_detail/2513276.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request ListAlarmHistoriesRequest
+ * @return ListAlarmHistoriesResponse
  */
 async function listAlarmHistories(request: ListAlarmHistoriesRequest): ListAlarmHistoriesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListAlarmHistories', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listAlarmHistoriesWithOptions(request, runtime);
 }
 
 model ListDependentQuotasRequest {
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 > For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
 
-This parameter is required.', example='csk', position='Body'),
-  quotaActionCode: string(name='QuotaActionCode', description='The quota ID.
+This parameter is required.', example='csk'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
-This parameter is required.', example='q_i5uzm3', position='Body'),
+This parameter is required.', example='q_i5uzm3'),
 }
 
 model ListDependentQuotasResponseBody = {
@@ -907,26 +1516,68 @@ model ListDependentQuotasResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the quotas on which a Container Service for Kubernetes (ACK) quota whose ID is `q_i5uzm3` depends. This quota is the maximum number of nodes that can be created in an ACK cluster. The query result indicates that the specified quota depends on the following three quotas:
-  * *   An Elastic Compute Service (ECS) quota whose ID is `q_elastic-network-interfaces`. This quota is the maximum number of ENIs (Secondary ENIs) that can be owned by an Alibaba Cloud account. The quota is available in the following regions: `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
-  * *   A Server Load Balancer (SLB) quota whose ID is `q_fh20b0`. This quota is the number of servers that can be attached to the backend of an SLB instance.
-  * *   An SLB quota whose ID is `q_3mmbsp`. This quota is the number of SLB instances that can be owned by an Alibaba Cloud account.
-  * @param request  the request parameters of ListDependentQuotas  ListDependentQuotasRequest
-  * @return ListDependentQuotasResponse
+ * @summary Queries the quotas on which a specified quota depends.
+ *
+ * @description In this example, the operation is called to query the quotas on which a Container Service for Kubernetes (ACK) quota whose ID is `q_i5uzm3` depends. This quota is the maximum number of nodes that can be created in an ACK cluster. The query result indicates that the specified quota depends on the following three quotas:
+ * *   An Elastic Compute Service (ECS) quota whose ID is `q_elastic-network-interfaces`. This quota is the maximum number of ENIs (Secondary ENIs) that can be owned by an Alibaba Cloud account. The quota is available in the following regions: `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
+ * *   A Server Load Balancer (SLB) quota whose ID is `q_fh20b0`. This quota is the number of servers that can be attached to the backend of an SLB instance.
+ * *   An SLB quota whose ID is `q_3mmbsp`. This quota is the number of SLB instances that can be owned by an Alibaba Cloud account.
+ *
+ * @param request ListDependentQuotasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListDependentQuotasResponse
+ */
+@context("listDependentQuotasWithContext")
+async function listDependentQuotasWithOptions(request: ListDependentQuotasRequest, runtime: $RuntimeOptions): ListDependentQuotasResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListDependentQuotas',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the quotas on which a specified quota depends.
+ *
+ * @description In this example, the operation is called to query the quotas on which a Container Service for Kubernetes (ACK) quota whose ID is `q_i5uzm3` depends. This quota is the maximum number of nodes that can be created in an ACK cluster. The query result indicates that the specified quota depends on the following three quotas:
+ * *   An Elastic Compute Service (ECS) quota whose ID is `q_elastic-network-interfaces`. This quota is the maximum number of ENIs (Secondary ENIs) that can be owned by an Alibaba Cloud account. The quota is available in the following regions: `cn-shenzhen`, `cn-beijing`, and `cn-hangzhou`.
+ * *   A Server Load Balancer (SLB) quota whose ID is `q_fh20b0`. This quota is the number of servers that can be attached to the backend of an SLB instance.
+ * *   An SLB quota whose ID is `q_3mmbsp`. This quota is the number of SLB instances that can be owned by an Alibaba Cloud account.
+ *
+ * @param request ListDependentQuotasRequest
+ * @return ListDependentQuotasResponse
  */
 async function listDependentQuotas(request: ListDependentQuotasRequest): ListDependentQuotasResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListDependentQuotas', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listDependentQuotasWithOptions(request, runtime);
 }
 
 model ListProductDimensionGroupsRequest {
-  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query. Valid values: 1 to 200. Default value: 30.', example='30', maximum=200, position='Query'),
-  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1', position='Query'),
-  productCode: string(name='ProductCode', description='The service code.
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query. Valid values: 1 to 200. Default value: 30.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1'),
+  productCode?: string(name='ProductCode', description='The service code.
 
 > For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
 
-This parameter is required.', example='oss', position='Query'),
+This parameter is required.', example='oss'),
 }
 
 model ListProductDimensionGroupsResponseBody = {
@@ -951,29 +1602,71 @@ model ListProductDimensionGroupsResponse = {
 }
 
 /**
-  * @description This topic provides an example on how to call the ListProductDimensionGroups operation to query the dimension groups of Object Storage Service (OSS). In this example, a dimension group is returned. The group name is `OSS_Group`, the group code is `oss_wf1ngqmd7q`, and the group key is `chargeType`.
-  * @param request  the request parameters of ListProductDimensionGroups  ListProductDimensionGroupsRequest
-  * @return ListProductDimensionGroupsResponse
+ * @summary Queries the dimension groups of an Alibaba Cloud service.
+ *
+ * @description This topic provides an example on how to call the ListProductDimensionGroups operation to query the dimension groups of Object Storage Service (OSS). In this example, a dimension group is returned. The group name is `OSS_Group`, the group code is `oss_wf1ngqmd7q`, and the group key is `chargeType`.
+ *
+ * @param request ListProductDimensionGroupsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListProductDimensionGroupsResponse
+ */
+@context("listProductDimensionGroupsWithContext")
+async function listProductDimensionGroupsWithOptions(request: ListProductDimensionGroupsRequest, runtime: $RuntimeOptions): ListProductDimensionGroupsResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    query['ProductCode'] = request.productCode;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListProductDimensionGroups',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the dimension groups of an Alibaba Cloud service.
+ *
+ * @description This topic provides an example on how to call the ListProductDimensionGroups operation to query the dimension groups of Object Storage Service (OSS). In this example, a dimension group is returned. The group name is `OSS_Group`, the group code is `oss_wf1ngqmd7q`, and the group key is `chargeType`.
+ *
+ * @param request ListProductDimensionGroupsRequest
+ * @return ListProductDimensionGroupsResponse
  */
 async function listProductDimensionGroups(request: ListProductDimensionGroupsRequest): ListProductDimensionGroupsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListProductDimensionGroups', 'POST', '/', 'json', false, 'json', request);
+  var runtime = new $RuntimeOptions{};
+  return listProductDimensionGroupsWithOptions(request, runtime);
 }
 
 model ListProductQuotaDimensionsRequest {
   maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
 
-Valid values: 1 to 200. Default value: 30.', example='30', maximum=200, position='Body'),
-  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='0', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+Valid values: 1 to 200. Default value: 30.', example='30'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='0'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 > For more information, see [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
 
-This parameter is required.', example='ecs', position='Body'),
+This parameter is required.', example='ecs'),
   quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 *   FlowControl: API rate limit.
-*   CommonQuota: general quota. This is the default value.', example='CommonQuota', position='Body'),
+*   CommonQuota: general quota. This is the default value.', example='CommonQuota'),
 }
 
 model ListProductQuotaDimensionsResponseBody = {
@@ -1019,13 +1712,58 @@ model ListProductQuotaDimensionsResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the quota dimensions that are supported by Elastic Compute Service (ECS). The query results show all the quota dimensions that are supported by ECS.
-  * @param request  the request parameters of ListProductQuotaDimensions  ListProductQuotaDimensionsRequest
-  * @return ListProductQuotaDimensionsResponse
+ * @summary Queries the quota dimensions that are supported by the specified Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the quota dimensions that are supported by Elastic Compute Service (ECS). The query results show all the quota dimensions that are supported by ECS.
+ *
+ * @param request ListProductQuotaDimensionsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListProductQuotaDimensionsResponse
+ */
+@context("listProductQuotaDimensionsWithContext")
+async function listProductQuotaDimensionsWithOptions(request: ListProductQuotaDimensionsRequest, runtime: $RuntimeOptions): ListProductQuotaDimensionsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListProductQuotaDimensions',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the quota dimensions that are supported by the specified Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the quota dimensions that are supported by Elastic Compute Service (ECS). The query results show all the quota dimensions that are supported by ECS.
+ *
+ * @param request ListProductQuotaDimensionsRequest
+ * @return ListProductQuotaDimensionsResponse
  */
 async function listProductQuotaDimensions(request: ListProductQuotaDimensionsRequest): ListProductQuotaDimensionsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListProductQuotaDimensions', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listProductQuotaDimensionsWithOptions(request, runtime);
 }
 
 model ListProductQuotasRequest {
@@ -1038,24 +1776,24 @@ model ListProductQuotasRequest {
 
 >  The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', position='Body'),
-  groupCode?: string(name='GroupCode', description='The code of the dimension group.', example='entconsole_w1j3msbo2g', position='Body'),
+  ](name='Dimensions', description='The quota dimensions.'),
+  groupCode?: string(name='GroupCode', description='The code of the dimension group.', example='entconsole_w1j3msbo2g'),
   keyWord?: string(name='KeyWord', description='The keyword that you want to use to search for the quotas.
 
->  This parameter is available only for quotas that belong to ECS Quotas by Instance Type. The keyword is used to match the values of `QuotaName` and `QuotaActionCode`.', example='ecs-spec', position='Body'),
+>  This parameter is available only for quotas that belong to ECS Quotas by Instance Type. The keyword is used to match the values of `QuotaName` and `QuotaActionCode`.', example='ecs-spec'),
   maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
 
-Valid values: 1 to 100. Default value: 30.', example='30', position='Body'),
+Valid values: 1 to 100. Default value: 30.', example='30'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.
 
 *   You do not need to specify this parameter for the first and last requests.
-*   You must specify the token that is obtained from the previous query as the value of NextToken.', example='1', position='Body'),
-  productCode: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
+*   You must specify the token that is obtained from the previous query as the value of NextToken.', example='1'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
 >  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of the `ProductCode` parameter.
 
-This parameter is required.', example='ecs-spec', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge', position='Body'),
+This parameter is required.', example='ecs-spec'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge'),
   quotaCategory?: string(name='QuotaCategory', description='The type of the quota.
 
 Default value: CommonQuota.
@@ -1064,7 +1802,7 @@ Valid values:
 
 *   FlowControl: API rate limit
 *   WhiteListLabel: privilege
-*   CommonQuota: general quota', example='FlowControl', position='Body'),
+*   CommonQuota: general quota', example='FlowControl'),
   sortField?: string(name='SortField', description='The field based on which you want to sort the returned records.
 
 >  This parameter is available only for quotas that belong to ECS Quotas by Instance Type. You can leave this parameter empty.
@@ -1073,7 +1811,7 @@ Valid values:
 
 *   TOTAL: sorts the returned records based on the total quota.
 *   TIME: sorts the returned records based on the time when the quota was last modified.
-*   RESERVED: sorts the returned records based on the reserved quota.', example='TIME', position='Body'),
+*   RESERVED: sorts the returned records based on the reserved quota.', example='TIME'),
   sortOrder?: string(name='SortOrder', description='The order in which you want to sort the returned records.
 
 >  This parameter is available only for quotas that belong to ECS Quotas by Instance Type. You can leave this parameter empty.
@@ -1081,7 +1819,7 @@ Valid values:
 Valid values:
 
 *   Descending
-*   Ascending', example='Ascending', position='Body'),
+*   Ascending', example='Ascending'),
 }
 
 model ListProductQuotasResponseBody = {
@@ -1197,20 +1935,83 @@ model ListProductQuotasResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the quotas whose instance type is `ecs.g5.2xlarge`. The quotas belong to Elastic Compute Service (ECS) Quotas by Instance Type. The query result includes the name, ID, unit, dimensions, and cycle of each quota.
-  * @param request  the request parameters of ListProductQuotas  ListProductQuotasRequest
-  * @return ListProductQuotasResponse
+ * @summary Queries the quotas of a specific Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the quotas whose instance type is `ecs.g5.2xlarge`. The quotas belong to Elastic Compute Service (ECS) Quotas by Instance Type. The query result includes the name, ID, unit, dimensions, and cycle of each quota.
+ *
+ * @param request ListProductQuotasRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListProductQuotasResponse
+ */
+@context("listProductQuotasWithContext")
+async function listProductQuotasWithOptions(request: ListProductQuotasRequest, runtime: $RuntimeOptions): ListProductQuotasResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.groupCode)) {
+    body['GroupCode'] = request.groupCode;
+  }
+  if (!$isNull(request.keyWord)) {
+    body['KeyWord'] = request.keyWord;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  if (!$isNull(request.sortField)) {
+    body['SortField'] = request.sortField;
+  }
+  if (!$isNull(request.sortOrder)) {
+    body['SortOrder'] = request.sortOrder;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListProductQuotas',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the quotas of a specific Alibaba Cloud service.
+ *
+ * @description In this example, the operation is called to query the quotas whose instance type is `ecs.g5.2xlarge`. The quotas belong to Elastic Compute Service (ECS) Quotas by Instance Type. The query result includes the name, ID, unit, dimensions, and cycle of each quota.
+ *
+ * @param request ListProductQuotasRequest
+ * @return ListProductQuotasResponse
  */
 async function listProductQuotas(request: ListProductQuotasRequest): ListProductQuotasResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListProductQuotas', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listProductQuotasWithOptions(request, runtime);
 }
 
 model ListProductsRequest {
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return.
 
-Valid values: 1 to 200. Default value: 30.', example='4', maximum=200, position='Body'),
-  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='4', position='Body'),
+Valid values: 1 to 200. Default value: 30.', example='4'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='4'),
 }
 
 model ListProductsResponseBody = {
@@ -1255,33 +2056,72 @@ model ListProductsResponse = {
 }
 
 /**
-  * @description The services in the query result are the same as the services listed in [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
-  * @param request  the request parameters of ListProducts  ListProductsRequest
-  * @return ListProductsResponse
+ * @summary Queries the Alibaba Cloud services that support Quota Center.
+ *
+ * @description The services in the query result are the same as the services listed in [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
+ *
+ * @param request ListProductsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListProductsResponse
+ */
+@context("listProductsWithContext")
+async function listProductsWithOptions(request: ListProductsRequest, runtime: $RuntimeOptions): ListProductsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListProducts',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the Alibaba Cloud services that support Quota Center.
+ *
+ * @description The services in the query result are the same as the services listed in [Alibaba Cloud services that support Quota Center](https://help.aliyun.com/document_detail/182368.html).
+ *
+ * @param request ListProductsRequest
+ * @return ListProductsResponse
  */
 async function listProducts(request: ListProductsRequest): ListProductsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListProducts', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listProductsWithOptions(request, runtime);
 }
 
 model ListQuotaAlarmsRequest {
-  alarmName?: string(name='AlarmName', description='The name of the alert.', example='rules', position='Body'),
+  alarmName?: string(name='AlarmName', description='The name of the alert.', example='rules'),
   maxResults?: int32(name='MaxResults', description='The maximum number of records that you want to return for the query.
 
-Valid values: 1 to 200. Default value: 30.', example='20', maximum=200, position='Body'),
+Valid values: 1 to 200. Default value: 30.', example='20'),
   nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
 
-> An empty value indicates that the query starts from the beginning.', example='1', position='Body'),
+> An empty value indicates that the query starts from the beginning.', example='1'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
->  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `ProductCode` in the response.', example='ecs', position='Body'),
+>  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `ProductCode` in the response.', example='ecs'),
   quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.
 
 > 
 
 *   To obtain the quota ID of a cloud service, call the [ListProductQuotas](https://help.aliyun.com/document_detail/440554.html) operation and check the value of `QuotaActionCode` in the response.
 
-*   If you specify this parameter, you must specify `ProductCode`.', example='q_hvnoqv', position='Body'),
+*   If you specify this parameter, you must specify `ProductCode`.', example='q_hvnoqv'),
   quotaDimensions?: [ 
     {
       key?: string(name='Key', description='The key of the dimension.
@@ -1299,7 +2139,7 @@ Valid values: 1 to 200. Default value: 30.', example='20', maximum=200, position
 
 *   This parameter is required if you set the `ProductCode` parameter to `ecs`, `ecs-spec`, `actiontrail`, or `ess`.', example='cn-hangzhou'),
     }
-  ](name='QuotaDimensions', description='The quota dimensions.', position='Body'),
+  ](name='QuotaDimensions', description='The quota dimensions.'),
 }
 
 model ListQuotaAlarmsResponseBody = {
@@ -1345,13 +2185,64 @@ model ListQuotaAlarmsResponse = {
 }
 
 /**
-  * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query quota alert rules of the old version. If you want to query quota alert rules of the new version, call the CloudMonitor API operation [DescribeMetricRuleList](https://help.aliyun.com/document_detail/2513291.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
-  * @param request  the request parameters of ListQuotaAlarms  ListQuotaAlarmsRequest
-  * @return ListQuotaAlarmsResponse
+ * @summary Queries quota alerts.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query quota alert rules of the old version. If you want to query quota alert rules of the new version, call the CloudMonitor API operation [DescribeMetricRuleList](https://help.aliyun.com/document_detail/2513291.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request ListQuotaAlarmsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQuotaAlarmsResponse
+ */
+@context("listQuotaAlarmsWithContext")
+async function listQuotaAlarmsWithOptions(request: ListQuotaAlarmsRequest, runtime: $RuntimeOptions): ListQuotaAlarmsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmName)) {
+    body['AlarmName'] = request.alarmName;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaDimensions)) {
+    body['QuotaDimensions'] = request.quotaDimensions;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListQuotaAlarms',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries quota alerts.
+ *
+ * @description The quota alerting feature has been upgraded and this API operation will be deprecated. You can call this operation only to query quota alert rules of the old version. If you want to query quota alert rules of the new version, call the CloudMonitor API operation [DescribeMetricRuleList](https://help.aliyun.com/document_detail/2513291.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ *
+ * @param request ListQuotaAlarmsRequest
+ * @return ListQuotaAlarmsResponse
  */
 async function listQuotaAlarms(request: ListQuotaAlarmsRequest): ListQuotaAlarmsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListQuotaAlarms', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listQuotaAlarmsWithOptions(request, runtime);
 }
 
 model ListQuotaApplicationTemplatesRequest {
@@ -1372,21 +2263,21 @@ model ListQuotaApplicationTemplatesRequest {
 
 *   You must specify both Key and Value for each quota dimension.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', position='Body'),
-  id?: string(name='Id', description='The ID of the quota item.', example='1****', position='Body'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query. Valid values: 1 to 100. Default value: 30.', example='30', position='Body'),
+  ](name='Dimensions', description='The quota dimensions.'),
+  id?: string(name='Id', description='The ID of the quota item.', example='1****'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query. Valid values: 1 to 100. Default value: 30.', example='30'),
   nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
 
-> If you leave this parameter empty, the query starts from the beginning.', example='1', position='Query'),
+> If you leave this parameter empty, the query starts from the beginning.', example='1'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
->  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_security-groups', position='Body'),
+>  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_security-groups'),
   quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
 
 *   CommonQuota: general quota.
 *   WhiteListLabel: whitelist quota.
-*   FlowControl: API rate limit.', example='CommonQuota', position='Body'),
+*   FlowControl: API rate limit.', example='CommonQuota'),
 }
 
 model ListQuotaApplicationTemplatesResponseBody = {
@@ -1448,12 +2339,65 @@ model ListQuotaApplicationTemplatesResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListQuotaApplicationTemplates  ListQuotaApplicationTemplatesRequest
-  * @return ListQuotaApplicationTemplatesResponse
+ * @summary Queries quota templates by using the management account of a resource directory.
+ *
+ * @param request ListQuotaApplicationTemplatesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQuotaApplicationTemplatesResponse
+ */
+@context("listQuotaApplicationTemplatesWithContext")
+async function listQuotaApplicationTemplatesWithOptions(request: ListQuotaApplicationTemplatesRequest, runtime: $RuntimeOptions): ListQuotaApplicationTemplatesResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListQuotaApplicationTemplates',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries quota templates by using the management account of a resource directory.
+ *
+ * @param request ListQuotaApplicationTemplatesRequest
+ * @return ListQuotaApplicationTemplatesResponse
  */
 async function listQuotaApplicationTemplates(request: ListQuotaApplicationTemplatesRequest): ListQuotaApplicationTemplatesResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListQuotaApplicationTemplates', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listQuotaApplicationTemplatesWithOptions(request, runtime);
 }
 
 model ListQuotaApplicationsRequest {
@@ -1466,25 +2410,25 @@ model ListQuotaApplicationsRequest {
 
 >  The value range of N varies based on the number of dimensions that are supported by the related Alibaba Cloud service.', example='cn-hangzhou'),
     }
-  ](name='Dimensions', description='The quota dimensions.', position='Body'),
-  keyWord?: string(name='KeyWord', description='The keyword that you want to use to search for the application.', example='Cluster', position='Body'),
+  ](name='Dimensions', description='The quota dimensions.'),
+  keyWord?: string(name='KeyWord', description='The keyword that you want to use to search for the application.', example='Cluster'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return.
 
-Valid values: 1 to 200. Default value: 30.', example='1', maximum=200, position='Body'),
-  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1', position='Body'),
-  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='csk', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_i5uzm3', position='Body'),
+Valid values: 1 to 200. Default value: 30.', example='1'),
+  nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query. If you leave this parameter empty, the query starts from the beginning.', example='1'),
+  productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.', example='csk'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The ID of the quota.', example='q_i5uzm3'),
   quotaCategory?: string(name='QuotaCategory', description='The quota type. Valid values:
 
 *   CommonQuota: general quota
 *   FlowControl: API rate limit
-*   WhiteListLabel: whitelist quota', example='CommonQuota', position='Body'),
+*   WhiteListLabel: whitelist quota', example='CommonQuota'),
   status?: string(name='Status', description='The approval state of the quota increase application. Valid values:
 
 *   Disagree: The application is rejected.
 *   Agree: The application is approved.
 *   Process: The application is in review.
-*   Cancel: The application is canceled.', example='Agree', position='Body'),
+*   Cancel: The application is canceled.', example='Agree'),
 }
 
 model ListQuotaApplicationsResponseBody = {
@@ -1546,39 +2490,96 @@ model ListQuotaApplicationsResponse = {
 }
 
 /**
-  * @description In this example, the operation is called to query the details of an application that is submitted to increase a quota whose ID is `q_i5uzm3` and whose name is Maximum Number of Nodes. This quota belongs to Container Service for Kubernetes (ACK). The query result shows the details of the application. The details include the application ID, application time, requested quota, and application result. In this example, the application ID is `b926571d-cc09-4711-b547-58a615f0****`. The application time is `2021-01-15T09:13:53Z`. The expected quota value is `101`. The application result is `Agree`.
-  * @param request  the request parameters of ListQuotaApplications  ListQuotaApplicationsRequest
-  * @return ListQuotaApplicationsResponse
+ * @summary Queries the details of an application that is submitted to increase a quota.
+ *
+ * @description In this example, the operation is called to query the details of an application that is submitted to increase a quota whose ID is `q_i5uzm3` and whose name is Maximum Number of Nodes. This quota belongs to Container Service for Kubernetes (ACK). The query result shows the details of the application. The details include the application ID, application time, requested quota, and application result. In this example, the application ID is `b926571d-cc09-4711-b547-58a615f0****`. The application time is `2021-01-15T09:13:53Z`. The expected quota value is `101`. The application result is `Agree`.
+ *
+ * @param request ListQuotaApplicationsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQuotaApplicationsResponse
+ */
+@context("listQuotaApplicationsWithContext")
+async function listQuotaApplicationsWithOptions(request: ListQuotaApplicationsRequest, runtime: $RuntimeOptions): ListQuotaApplicationsResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.keyWord)) {
+    body['KeyWord'] = request.keyWord;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  if (!$isNull(request.status)) {
+    body['Status'] = request.status;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListQuotaApplications',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of an application that is submitted to increase a quota.
+ *
+ * @description In this example, the operation is called to query the details of an application that is submitted to increase a quota whose ID is `q_i5uzm3` and whose name is Maximum Number of Nodes. This quota belongs to Container Service for Kubernetes (ACK). The query result shows the details of the application. The details include the application ID, application time, requested quota, and application result. In this example, the application ID is `b926571d-cc09-4711-b547-58a615f0****`. The application time is `2021-01-15T09:13:53Z`. The expected quota value is `101`. The application result is `Agree`.
+ *
+ * @param request ListQuotaApplicationsRequest
+ * @return ListQuotaApplicationsResponse
  */
 async function listQuotaApplications(request: ListQuotaApplicationsRequest): ListQuotaApplicationsResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListQuotaApplications', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listQuotaApplicationsWithOptions(request, runtime);
 }
 
 model ListQuotaApplicationsDetailForTemplateRequest {
-  aliyunUid?: string(name='AliyunUid', description='The Alibaba Cloud account that is used to submit the quota increase application.', example='135048337611****', position='Body'),
-  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****', position='Body'),
+  aliyunUid?: string(name='AliyunUid', description='The Alibaba Cloud account that is used to submit the quota increase application.', example='135048337611****'),
+  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
   maxResults?: int32(name='MaxResults', description='The maximum number of records that can be returned for the query.
 
-Valid values: 1 to 100. Default value: 30.', example='30', position='Body'),
+Valid values: 1 to 100. Default value: 30.', example='30'),
   nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
 
->  An empty value indicates that the query starts from the beginning.', example='4', position='Body'),
+>  An empty value indicates that the query starts from the beginning.', example='4'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
->  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.c5.large', position='Body'),
+>  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.c5.large'),
   quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 *   CommonQuota: general quota
 *   FlowControl: API rate limit
-*   WhiteListLabel: privilege', example='CommonQuota', position='Body'),
+*   WhiteListLabel: privilege', example='CommonQuota'),
   status?: string(name='Status', description='The approval state of the quota increase application. Valid values:
 
 *   Disagree: The application is rejected.
 *   Agree: The application is approved.
 *   Process: The application is in review.
-*   Cancel: The application is canceled.', example='Agree', position='Body'),
+*   Cancel: The application is canceled.', example='Agree'),
 }
 
 model ListQuotaApplicationsDetailForTemplateResponseBody = {
@@ -1639,33 +2640,87 @@ model ListQuotaApplicationsDetailForTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListQuotaApplicationsDetailForTemplate  ListQuotaApplicationsDetailForTemplateRequest
-  * @return ListQuotaApplicationsDetailForTemplateResponse
+ * @summary Queries the details of a quota increase application for member accounts in a resource directory.
+ *
+ * @param request ListQuotaApplicationsDetailForTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQuotaApplicationsDetailForTemplateResponse
+ */
+@context("listQuotaApplicationsDetailForTemplateWithContext")
+async function listQuotaApplicationsDetailForTemplateWithOptions(request: ListQuotaApplicationsDetailForTemplateRequest, runtime: $RuntimeOptions): ListQuotaApplicationsDetailForTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.aliyunUid)) {
+    body['AliyunUid'] = request.aliyunUid;
+  }
+  if (!$isNull(request.batchQuotaApplicationId)) {
+    body['BatchQuotaApplicationId'] = request.batchQuotaApplicationId;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  if (!$isNull(request.status)) {
+    body['Status'] = request.status;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListQuotaApplicationsDetailForTemplate',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the details of a quota increase application for member accounts in a resource directory.
+ *
+ * @param request ListQuotaApplicationsDetailForTemplateRequest
+ * @return ListQuotaApplicationsDetailForTemplateResponse
  */
 async function listQuotaApplicationsDetailForTemplate(request: ListQuotaApplicationsDetailForTemplateRequest): ListQuotaApplicationsDetailForTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListQuotaApplicationsDetailForTemplate', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listQuotaApplicationsDetailForTemplateWithOptions(request, runtime);
 }
 
 model ListQuotaApplicationsForTemplateRequest {
-  applyEndTime?: string(name='ApplyEndTime', description='The UTC time when the quota application ends.', example='2023-05-22T16:00:00Z', position='Body'),
-  applyStartTime?: string(name='ApplyStartTime', description='The UTC time when the quota application starts.', example='2023-05-22T16:00:00Z', position='Body'),
-  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****', position='Body'),
+  applyEndTime?: string(name='ApplyEndTime', description='The UTC time when the quota application ends.', example='2023-05-22T16:00:00Z'),
+  applyStartTime?: string(name='ApplyStartTime', description='The UTC time when the quota application starts.', example='2023-05-22T16:00:00Z'),
+  batchQuotaApplicationId?: string(name='BatchQuotaApplicationId', description='The ID of the quota application batch.', example='d314d6ae-867d-484c-9009-3d421a80****'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request.
 
-Valid values: 1 to 100. Default value: 30.', example='30', position='Body'),
+Valid values: 1 to 100. Default value: 30.', example='30'),
   nextToken?: string(name='NextToken', description='The token that marks the position from which you want to start the query.
 
->  An empty value indicates that the query starts from the beginning.', example='4', position='Body'),
+>  An empty value indicates that the query starts from the beginning.', example='4'),
   productCode?: string(name='ProductCode', description='The abbreviation of the Alibaba Cloud service name.
 
->  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs-spec', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge', position='Body'),
+>  To query the abbreviation of an Alibaba Cloud service name, call the [ListProducts](https://help.aliyun.com/document_detail/440555.html) operation and check the value of `ProductCode` in the response.', example='ecs-spec'),
+  quotaActionCode?: string(name='QuotaActionCode', description='The quota ID.', example='ecs.g5.2xlarge'),
   quotaCategory?: string(name='QuotaCategory', description='The type of the quota. Valid values:
 
 *   CommonQuota: general quota
 *   FlowControl: API rate limit
-*   WhiteListLabel: privilege', example='CommonQuota', position='Body'),
+*   WhiteListLabel: privilege', example='CommonQuota'),
 }
 
 model ListQuotaApplicationsForTemplateResponseBody = {
@@ -1714,21 +2769,75 @@ model ListQuotaApplicationsForTemplateResponse = {
 }
 
 /**
-  * @param request  the request parameters of ListQuotaApplicationsForTemplate  ListQuotaApplicationsForTemplateRequest
-  * @return ListQuotaApplicationsForTemplateResponse
+ * @summary Queries the application records of a quota template that is used to apply for quotas for member accounts.
+ *
+ * @param request ListQuotaApplicationsForTemplateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListQuotaApplicationsForTemplateResponse
+ */
+@context("listQuotaApplicationsForTemplateWithContext")
+async function listQuotaApplicationsForTemplateWithOptions(request: ListQuotaApplicationsForTemplateRequest, runtime: $RuntimeOptions): ListQuotaApplicationsForTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.applyEndTime)) {
+    body['ApplyEndTime'] = request.applyEndTime;
+  }
+  if (!$isNull(request.applyStartTime)) {
+    body['ApplyStartTime'] = request.applyStartTime;
+  }
+  if (!$isNull(request.batchQuotaApplicationId)) {
+    body['BatchQuotaApplicationId'] = request.batchQuotaApplicationId;
+  }
+  if (!$isNull(request.maxResults)) {
+    body['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    body['NextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  if (!$isNull(request.quotaCategory)) {
+    body['QuotaCategory'] = request.quotaCategory;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListQuotaApplicationsForTemplate',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the application records of a quota template that is used to apply for quotas for member accounts.
+ *
+ * @param request ListQuotaApplicationsForTemplateRequest
+ * @return ListQuotaApplicationsForTemplateResponse
  */
 async function listQuotaApplicationsForTemplate(request: ListQuotaApplicationsForTemplateRequest): ListQuotaApplicationsForTemplateResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ListQuotaApplicationsForTemplate', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return listQuotaApplicationsForTemplateWithOptions(request, runtime);
 }
 
 model ModifyQuotaTemplateServiceStatusRequest {
-  serviceStatus: int32(name='ServiceStatus', description='The status of the quota template. Valid values:
+  serviceStatus?: int32(name='ServiceStatus', description='The status of the quota template. Valid values:
 
-*   \\-1: The quota template is disabled.
+*   \\\\-1: The quota template is disabled.
 *   1: The quota template is enabled.
 
-This parameter is required.', example='1', position='Body'),
+This parameter is required.', example='1'),
 }
 
 model ModifyQuotaTemplateServiceStatusResponseBody = {
@@ -1737,7 +2846,7 @@ model ModifyQuotaTemplateServiceStatusResponseBody = {
     resourceDirectoryId?: string(name='ResourceDirectoryId', description='The ID of the resource directory.', example='rd-pG****'),
     serviceStatus?: int32(name='ServiceStatus', description='The status of the quota template. Valid values:
 
-*   \\-1: The quota template is disabled.
+*   \\\\-1: The quota template is disabled.
 *   1: The quota template is enabled.', example='1'),
   }(name='TemplateServiceStatus', description='The status of the quota template.'),
 }
@@ -1749,34 +2858,73 @@ model ModifyQuotaTemplateServiceStatusResponse = {
 }
 
 /**
-  * @description ### [](#)Prerequisites
-  * A resource directory is enabled. For more information, see [EnableResourceDirectory](https://help.aliyun.com/document_detail/604185.html).
-  * ### [](#)Usage notes
-  * If the `ServiceStatus` parameter is set to `0` or `-1`, you can call this operation to set the parameter to `1`. Then, you can call the [CreateTemplateQuotaItem](https://help.aliyun.com/document_detail/450615.html) operation to create a quota template.
-  * @param request  the request parameters of ModifyQuotaTemplateServiceStatus  ModifyQuotaTemplateServiceStatusRequest
-  * @return ModifyQuotaTemplateServiceStatusResponse
+ * @summary Changes the status of a quota template. By default, the quota template is not configured. If the management account of a resource directory uses a quota template for the first time, you must enable the quota template. Only the management account of a resource directory can change the status of quota templates.
+ *
+ * @description ### [](#)Prerequisites
+ * A resource directory is enabled. For more information, see [EnableResourceDirectory](https://help.aliyun.com/document_detail/604185.html).
+ * ### [](#)Usage notes
+ * If the `ServiceStatus` parameter is set to `0` or `-1`, you can call this operation to set the parameter to `1`. Then, you can call the [CreateTemplateQuotaItem](https://help.aliyun.com/document_detail/450615.html) operation to create a quota template.
+ *
+ * @param request ModifyQuotaTemplateServiceStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyQuotaTemplateServiceStatusResponse
+ */
+@context("modifyQuotaTemplateServiceStatusWithContext")
+async function modifyQuotaTemplateServiceStatusWithOptions(request: ModifyQuotaTemplateServiceStatusRequest, runtime: $RuntimeOptions): ModifyQuotaTemplateServiceStatusResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.serviceStatus)) {
+    body['ServiceStatus'] = request.serviceStatus;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModifyQuotaTemplateServiceStatus',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Changes the status of a quota template. By default, the quota template is not configured. If the management account of a resource directory uses a quota template for the first time, you must enable the quota template. Only the management account of a resource directory can change the status of quota templates.
+ *
+ * @description ### [](#)Prerequisites
+ * A resource directory is enabled. For more information, see [EnableResourceDirectory](https://help.aliyun.com/document_detail/604185.html).
+ * ### [](#)Usage notes
+ * If the `ServiceStatus` parameter is set to `0` or `-1`, you can call this operation to set the parameter to `1`. Then, you can call the [CreateTemplateQuotaItem](https://help.aliyun.com/document_detail/450615.html) operation to create a quota template.
+ *
+ * @param request ModifyQuotaTemplateServiceStatusRequest
+ * @return ModifyQuotaTemplateServiceStatusResponse
  */
 async function modifyQuotaTemplateServiceStatus(request: ModifyQuotaTemplateServiceStatusRequest): ModifyQuotaTemplateServiceStatusResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ModifyQuotaTemplateServiceStatus', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return modifyQuotaTemplateServiceStatusWithOptions(request, runtime);
 }
 
 model ModifyTemplateQuotaItemRequest {
-  desireValue?: float(name='DesireValue', example='804', position='Body'),
+  desireValue?: float(name='DesireValue', example='804'),
   dimensions?: [ 
     {
       key?: string(name='Key', example='regionId'),
       value?: string(name='Value', example='cn-hangzhou'),
     }
-  ](name='Dimensions', position='Body'),
-  effectiveTime?: string(name='EffectiveTime', example='2021-01-19T09:25:56Z', position='Body'),
-  envLanguage?: string(name='EnvLanguage', example='zh', position='Body'),
-  expireTime?: string(name='ExpireTime', example='2021-01-20T09:25:56Z', position='Body'),
-  id: string(name='Id', description='This parameter is required.', example='1****', position='Body'),
-  noticeType?: long(name='NoticeType', example='0', position='Body'),
-  productCode?: string(name='ProductCode', example='ecs', position='Body'),
-  quotaActionCode?: string(name='QuotaActionCode', example='q_security-groups', position='Body'),
-  quotaCategory?: string(name='QuotaCategory', example='CommonQuota', position='Query'),
+  ](name='Dimensions'),
+  effectiveTime?: string(name='EffectiveTime', example='2021-01-19T09:25:56Z'),
+  envLanguage?: string(name='EnvLanguage', example='zh'),
+  expireTime?: string(name='ExpireTime', example='2021-01-20T09:25:56Z'),
+  id?: string(name='Id', description='This parameter is required.', example='1****'),
+  noticeType?: long(name='NoticeType', example='0'),
+  productCode?: string(name='ProductCode', example='ecs'),
+  quotaActionCode?: string(name='QuotaActionCode', example='q_security-groups'),
+  quotaCategory?: string(name='QuotaCategory', example='CommonQuota'),
 }
 
 model ModifyTemplateQuotaItemResponseBody = {
@@ -1791,18 +2939,80 @@ model ModifyTemplateQuotaItemResponse = {
 }
 
 /**
-  * @param request  the request parameters of ModifyTemplateQuotaItem  ModifyTemplateQuotaItemRequest
-  * @return ModifyTemplateQuotaItemResponse
+ * @summary The ID of the quota template.
+ *
+ * @param request ModifyTemplateQuotaItemRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyTemplateQuotaItemResponse
+ */
+@context("modifyTemplateQuotaItemWithContext")
+async function modifyTemplateQuotaItemWithOptions(request: ModifyTemplateQuotaItemRequest, runtime: $RuntimeOptions): ModifyTemplateQuotaItemResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.quotaCategory)) {
+    query['QuotaCategory'] = request.quotaCategory;
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.desireValue)) {
+    body['DesireValue'] = request.desireValue;
+  }
+  if (!$isNull(request.dimensions)) {
+    body['Dimensions'] = request.dimensions;
+  }
+  if (!$isNull(request.effectiveTime)) {
+    body['EffectiveTime'] = request.effectiveTime;
+  }
+  if (!$isNull(request.envLanguage)) {
+    body['EnvLanguage'] = request.envLanguage;
+  }
+  if (!$isNull(request.expireTime)) {
+    body['ExpireTime'] = request.expireTime;
+  }
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.noticeType)) {
+    body['NoticeType'] = request.noticeType;
+  }
+  if (!$isNull(request.productCode)) {
+    body['ProductCode'] = request.productCode;
+  }
+  if (!$isNull(request.quotaActionCode)) {
+    body['QuotaActionCode'] = request.quotaActionCode;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ModifyTemplateQuotaItem',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary The ID of the quota template.
+ *
+ * @param request ModifyTemplateQuotaItemRequest
+ * @return ModifyTemplateQuotaItemResponse
  */
 async function modifyTemplateQuotaItem(request: ModifyTemplateQuotaItemRequest): ModifyTemplateQuotaItemResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'ModifyTemplateQuotaItem', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return modifyTemplateQuotaItemWithOptions(request, runtime);
 }
 
 model RemindQuotaApplicationApprovalRequest {
   applicationId?: string(name='ApplicationId', description='The quota application ID.
 
-For more information about how to obtain the ID of a quota application, see [ListQuotaApplications](https://help.aliyun.com/document_detail/440568.html).', example='219f1ff6-6205-495f-bda7-90d2fe945e****', position='Body'),
+For more information about how to obtain the ID of a quota application, see [ListQuotaApplications](https://help.aliyun.com/document_detail/440568.html).', example='219f1ff6-6205-495f-bda7-90d2fe945e****'),
 }
 
 model RemindQuotaApplicationApprovalResponseBody = {
@@ -1831,43 +3041,79 @@ model RemindQuotaApplicationApprovalResponse = {
 }
 
 /**
-  * @description >  You can call this operation to enable the approval reminder feature for quota applications that support this feature. To check whether this feature is supported, you can view the value of `SupportReminder` in the GetQuotaApplicationApproval operation. If the value of SupportReminder is `true`, this feature is supported.
-  * @param request  the request parameters of RemindQuotaApplicationApproval  RemindQuotaApplicationApprovalRequest
-  * @return RemindQuotaApplicationApprovalResponse
+ * @summary Reminds the approver of a quota application to review the application. This operation is applicable to quota applications that support the approval reminding feature.
+ *
+ * @description >  You can call this operation to enable the approval reminder feature for quota applications that support this feature. To check whether this feature is supported, you can view the value of `SupportReminder` in the GetQuotaApplicationApproval operation. If the value of SupportReminder is `true`, this feature is supported.
+ *
+ * @param request RemindQuotaApplicationApprovalRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemindQuotaApplicationApprovalResponse
+ */
+@context("remindQuotaApplicationApprovalWithContext")
+async function remindQuotaApplicationApprovalWithOptions(request: RemindQuotaApplicationApprovalRequest, runtime: $RuntimeOptions): RemindQuotaApplicationApprovalResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.applicationId)) {
+    body['ApplicationId'] = request.applicationId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RemindQuotaApplicationApproval',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Reminds the approver of a quota application to review the application. This operation is applicable to quota applications that support the approval reminding feature.
+ *
+ * @description >  You can call this operation to enable the approval reminder feature for quota applications that support this feature. To check whether this feature is supported, you can view the value of `SupportReminder` in the GetQuotaApplicationApproval operation. If the value of SupportReminder is `true`, this feature is supported.
+ *
+ * @param request RemindQuotaApplicationApprovalRequest
+ * @return RemindQuotaApplicationApprovalResponse
  */
 async function remindQuotaApplicationApproval(request: RemindQuotaApplicationApprovalRequest): RemindQuotaApplicationApprovalResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'RemindQuotaApplicationApproval', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return remindQuotaApplicationApprovalWithOptions(request, runtime);
 }
 
 model UpdateQuotaAlarmRequest {
-  alarmId: string(name='AlarmId', description='The ID of the quota alert.
+  alarmId?: string(name='AlarmId', description='The ID of the quota alert.
 
 >  You can call the [ListQuotaAlarms](https://help.aliyun.com/document_detail/440561.html) operation to obtain the ID of a quota alert.
 
-This parameter is required.', example='a2efa7fc-832f-47bb-8054-39e28012****', position='Body'),
-  alarmName: string(name='AlarmName', description='The name of the quota alert.
+This parameter is required.', example='a2efa7fc-832f-47bb-8054-39e28012****'),
+  alarmName?: string(name='AlarmName', description='The name of the quota alert.
 
 >  You can call the [ListQuotaAlarms](https://help.aliyun.com/document_detail/440561.html) operation to obtain the name of a quota alert.
 
-This parameter is required.', example='rules', position='Body'),
+This parameter is required.', example='rules'),
   threshold?: float(name='Threshold', description='The numeric value of the alert threshold. Valid values:
 
 *   If you set the `ThresholdType` parameter to `used`, you will receive an alert notification when the used quota is greater than or equal to the preset alert threshold. The alert threshold must be greater than the current used quota.
 *   If you set the `ThresholdType` parameter to `usable`, you will receive an alert notification when the available quota is less than or equal to the preset alert threshold. The alert threshold must be less than the current available quota.
 
-> You must set one of the Threshold and ThresholdPercent parameters.', example='160', minimum=1, position='Body'),
+> You must set one of the Threshold and ThresholdPercent parameters.', example='160'),
   thresholdPercent?: float(name='ThresholdPercent', description='The percentage of the alert threshold. Valid values:
 
 *   If you set `ThresholdType` to `used`, you receive an alert notification when the used quota is greater than or equal to the preset percentage of the alert threshold. Value range: (50%, 100%].
 *   If you set `ThresholdType` to `usable`, you receive an alert notification when the available quota is less than or equal to the preset percentage of the alert threshold. Value range: (0%, 50%].
 
->  You must set one of Threshold and ThresholdPercent.', example='51', minimum=50, maximum=100, position='Body'),
+>  You must set one of Threshold and ThresholdPercent.', example='51'),
   thresholdType?: string(name='ThresholdType', description='The type of the quota alert. Valid values:
 
 *   used (default): The alert is created for the used quota.
-*   usable: The alert is created for the available quota.', example='usable', position='Body'),
-  webHook?: string(name='WebHook', description='The webhook URL. Quota Center sends alert notifications to the specified URL by using HTTP POST requests.', example='https://alert.aliyun.com/callback', position='Body'),
+*   usable: The alert is created for the available quota.', example='usable'),
+  webHook?: string(name='WebHook', description='The webhook URL. Quota Center sends alert notifications to the specified URL by using HTTP POST requests.', example='https://alert.aliyun.com/callback'),
 }
 
 model UpdateQuotaAlarmResponseBody = {
@@ -1881,13 +3127,65 @@ model UpdateQuotaAlarmResponse = {
 }
 
 /**
-  * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to modify the information about a specific quota alert rule of the new version, call the CloudMonitor API operation [PutResourceMetricRules](https://help.aliyun.com/document_detail/2513316.html) or [PutMetricRuleTargets](https://help.aliyun.com/document_detail/2513302.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
-  * *   In this example, the API operation is called to modify the information about a quota alert rule whose ID is `a2efa7fc-832f-47bb-8054-39e28012****` and whose name is `rules`. The alert threshold is changed from `150` to `160`.
-  * @param request  the request parameters of UpdateQuotaAlarm  UpdateQuotaAlarmRequest
-  * @return UpdateQuotaAlarmResponse
+ * @summary Modifies a quota alert rule.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to modify the information about a specific quota alert rule of the new version, call the CloudMonitor API operation [PutResourceMetricRules](https://help.aliyun.com/document_detail/2513316.html) or [PutMetricRuleTargets](https://help.aliyun.com/document_detail/2513302.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the API operation is called to modify the information about a quota alert rule whose ID is `a2efa7fc-832f-47bb-8054-39e28012****` and whose name is `rules`. The alert threshold is changed from `150` to `160`.
+ *
+ * @param request UpdateQuotaAlarmRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateQuotaAlarmResponse
+ */
+@context("updateQuotaAlarmWithContext")
+async function updateQuotaAlarmWithOptions(request: UpdateQuotaAlarmRequest, runtime: $RuntimeOptions): UpdateQuotaAlarmResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alarmId)) {
+    body['AlarmId'] = request.alarmId;
+  }
+  if (!$isNull(request.alarmName)) {
+    body['AlarmName'] = request.alarmName;
+  }
+  if (!$isNull(request.threshold)) {
+    body['Threshold'] = request.threshold;
+  }
+  if (!$isNull(request.thresholdPercent)) {
+    body['ThresholdPercent'] = request.thresholdPercent;
+  }
+  if (!$isNull(request.thresholdType)) {
+    body['ThresholdType'] = request.thresholdType;
+  }
+  if (!$isNull(request.webHook)) {
+    body['WebHook'] = request.webHook;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateQuotaAlarm',
+    version = '2020-05-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies a quota alert rule.
+ *
+ * @description *   The quota alerting feature has been upgraded and this API operation will be deprecated. If you want to modify the information about a specific quota alert rule of the new version, call the CloudMonitor API operation [PutResourceMetricRules](https://help.aliyun.com/document_detail/2513316.html) or [PutMetricRuleTargets](https://help.aliyun.com/document_detail/2513302.html). For more information about how to call API operations to manage quota alert rules of the new version, see [Manage quota alerts of the new version by calling API operations](https://help.aliyun.com/document_detail/2863234.html).
+ * *   In this example, the API operation is called to modify the information about a quota alert rule whose ID is `a2efa7fc-832f-47bb-8054-39e28012****` and whose name is `rules`. The alert threshold is changed from `150` to `160`.
+ *
+ * @param request UpdateQuotaAlarmRequest
+ * @return UpdateQuotaAlarmResponse
  */
 async function updateQuotaAlarm(request: UpdateQuotaAlarmRequest): UpdateQuotaAlarmResponse {
-  @handler.validateRequestModel(request);
-  return @handler.do('RPC', 'UpdateQuotaAlarm', 'POST', '/', 'json', true, 'form', request);
+  var runtime = new $RuntimeOptions{};
+  return updateQuotaAlarmWithOptions(request, runtime);
 }
 
