@@ -181,6 +181,43 @@ async function applyDataFlowAutoRefresh(request: ApplyDataFlowAutoRefreshRequest
   return @handler.do('RPC', 'ApplyDataFlowAutoRefresh', 'POST', '/', 'json', false, 'json', request);
 }
 
+model AttachVscToFilesystemsRequest {
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests.
+
+The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How do I ensure the idempotence?](https://help.aliyun.com/document_detail/25693.html)
+
+>  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  resourceIds: [ 
+    {
+      fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='bmcpfs-290t15yn4uo8lid****'),
+      vscId?: string(name='VscId', description='The ID of the virtual storage channel.', example='vsc-8vb864o3ppwfvh****'),
+    }
+  ](name='ResourceIds', description='The ID information of the file system and virtual storage channel. Each batch can contain up to 10 IDs.
+
+This parameter is required.', position='Query'),
+}
+
+model AttachVscToFilesystemsResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='BC7C825C-5F65-4B56-BEF6-98C56C7C****'),
+}
+
+model AttachVscToFilesystemsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AttachVscToFilesystemsResponseBody(name='body'),
+}
+
+/**
+  * @description *   Only CPFS for Lingjun supports this operation.
+  * *   Batch execution is supported. In batch execution, only one VscId can be associated with multiple FileSystemIDs, meaning the VscId in the ResourceIds must be the same.
+  * @param request  the request parameters of AttachVscToFilesystems  AttachVscToFilesystemsRequest
+  * @return AttachVscToFilesystemsResponse
+ */
+async function attachVscToFilesystems(request: AttachVscToFilesystemsRequest): AttachVscToFilesystemsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'AttachVscToFilesystems', 'POST', '/', 'json', false, 'json', request);
+}
+
 model CancelAutoSnapshotPolicyRequest {
   fileSystemIds: string(name='FileSystemIds', description='The IDs of file systems.
 
@@ -1055,7 +1092,7 @@ The token can contain only ASCII characters and cannot exceed 64 characters in l
 
 > - This parameter is required if the TaskAction parameter is set to Import.
 > - Only CPFS for LINGJUN V2.6.0 and later support this parameter.', example='false', position='Query'),
-  dataFlowId: string(name='DataFlowId', description='The dataflow ID.
+  dataFlowId: string(name='DataFlowId', description='The ID of the dataflow.
 
 This parameter is required.', example='df-194433a5be31****', position='Query'),
   dataType?: string(name='DataType', description='The type of data on which operations are performed by the dataflow task.
@@ -1117,8 +1154,14 @@ Limits:
 >  CPFS is not supported on the international site.
 
 This parameter is required.', example='bmcpfs-290w65p03ok64ya****', position='Query'),
-  includes?: string(name='Includes', position='Query'),
-  srcTaskId?: string(name='SrcTaskId', description='If you specify SrcTaskId, the configurations of the TaskAction, DataType, and EntryList parameters are copied from the desired dataflow task. You do not need to specify them.', example='task-27aa8e890f45****', position='Query'),
+  includes?: string(name='Includes', description='Filters subdirectories and transfers their contents.
+
+> *   This parameter takes effect only when the Directory parameter is specified.
+> *   The path length of a single folder must be 1 to 1023 characters, start and end with a forward slash (/), and the total length must not exceed 3000 characters.
+>*   Only CPFS for Lingjun supports this parameter.', example='["/test/","/test1/"]', position='Query'),
+  srcTaskId?: string(name='SrcTaskId', description='If you specify SrcTaskId, you must enter the ID of the dataflow task. The system copies the TaskAction, DataType, and EntryList parameters from the destination dataflow task. You do not need to specify them.
+
+>  Streaming dataflow tasks are not supported.', example='task-27aa8e890f45****', position='Query'),
   taskAction?: string(name='TaskAction', description='The type of the data flow task.
 
 Valid values:
@@ -1143,12 +1186,12 @@ model CreateDataFlowTaskResponse = {
 }
 
 /**
-  * @description *   Only Cloud Parallel File Storage CPFS for LINGJUN V2.4.0 and later support data flows. You can view the version information on the file system details page in the console.
-  * *   You can create a data flow task only for a data flow that is in the Running state.
-  * *   Data flow tasks are executed asynchronously. You can call the [DescribeDataFlowTasks](https://help.aliyun.com/document_detail/2838089.html) operation to query the task execution status. The task duration depends on the amount of data to be imported and exported. If a large amount of data exists, we recommend that you create multiple tasks.
-  * *   When you manually run a data flow task, the automatic data update task for the data flow is interrupted and enters the pending state.
-  * *   When you create an export task, make sure that the total length of the absolute path of the files to be exported from a CPFS or CPFS for LINGJUN file system does not exceed 1,023 characters.
-  * *   CPFS for LINGJUN supports two types of tasks: batch tasks and streaming tasks. For more information, see [Task types](https://help.aliyun.com/document_detail/2845429.html).
+  * @description *   Only Cloud Parallel File Storage (CPFS) for Lingjun V2.4.0 and later support dataflow. You can view the version information on the file system details page in the console.
+  * *   Dataflow tasks are executed asynchronously. You can call the [DescribeDataFlowTasks](https://help.aliyun.com/document_detail/2838089.html) operation to query the task execution status. The task duration depends on the amount of data to be imported and exported. If a large amount of data exists, we recommend that you create multiple tasks.
+  * *   You can create a dataflow task only for a dataflow that is in the Running state.
+  * *   When you manually run a dataflow task, the automatic data update task for the dataflow is interrupted and enters the pending state.
+  * *   When you create an export task, make sure that the total length of the absolute path of the files to be exported from a CPFS for Lingjun file system does not exceed 1,023 characters.
+  * *   CPFS for Lingjun supports two types of tasks: batch tasks and streaming tasks. For more information, see [Task types](https://help.aliyun.com/document_detail/2845429.html).
   * @param request  the request parameters of CreateDataFlowTask  CreateDataFlowTaskRequest
   * @return CreateDataFlowTaskResponse
  */
@@ -3142,6 +3185,7 @@ Valid values: 10 to 100.
 
 Default value: 20.', example='20', minimum=10, maximum=100, position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results. You do not need to specify this parameter for the first request. You must specify the token that is obtained from the previous query as the value of NextToken.', example='TGlzdFJlc291cmNlU****mVzJjE1MTI2NjY4NzY5MTAzOTEmMiZORnI4NDhVeEtrUT0=', position='Query'),
+  withReports?: boolean(name='WithReports', position='Query'),
 }
 
 model DescribeDataFlowTasksResponseBody = {
@@ -3182,7 +3226,7 @@ Limits:
 >  Only CPFS supports this parameter.', example='/a/b/c/'),
       filesystemId?: string(name='FilesystemId', description='The ID of the file system.', example='cpfs-099394bd928c****'),
       fsPath?: string(name='FsPath', description='The path of the smart directory.', example='/aa/'),
-      includes?: string(name='Includes'),
+      includes?: string(name='Includes', description='Filter the directories under directory and transfer the folder contents contained in the filtered directory.', example='["/test/","/test1/"]'),
       originator?: string(name='Originator', description='The initiator of the data flow task. Valid values:
 
 *   User: The task is initiated by a user.
@@ -3640,11 +3684,14 @@ model DescribeFileSystemsRequest {
   fileSystemType?: string(name='FileSystemType', description='The type of the file system.
 
 Valid values:
-- all (default): all types
-- standard: General-purpose NAS file system
-- extreme: Extreme NAS file system
-- cpfs: CPFS file system
-> CPFS file systems are available only on the China site (aliyun.com).', example='standard', position='Query'),
+
+*   all (default): All types.
+*   standard: General-purpose NAS file system.
+*   extreme: Extreme NAS file system.
+*   cpfs: Cloud Parallel File Storage (CPFS) file system.
+
+> *   CPFS file systems are available only on the China site (aliyun.com).
+> *   Separate multiple file types with commas (,).', example='standard', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.
 
 Pages start from page 1. Default value: 1.', example='1', minimum=1, position='Query'),
@@ -3658,20 +3705,22 @@ Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
 You can log on to the [Resource Management console](https://resourcemanager.console.aliyun.com/resource-groups?) to view resource group IDs.', example='rg-acfmwavnfdf****', position='Query'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of tag N to add to the resource.
+      key?: string(name='Key', description='The tag key.
 
 Limits:
-- Valid values of N: 1 to 20.
-- The tag key must be 1 to 128 characters in length.
-- The tag key cannot start with aliyun or acs:.
-- The tag key cannot contain http:// or https://.', example='test'),
-      value?: string(name='Value', description='The value of tag N to add to the resource.
+
+*   Valid values of N: 1 to 20.
+*   The tag key can be up to 128 characters in length.
+*   The tag key cannot start with `aliyun` or `acs:`.
+*   The tag key cannot contain `http://` or `https://`.', example='test'),
+      value?: string(name='Value', description='The tag value.
 
 Limits:
-- Valid values of N: 1 to 20.
-- The tag value must be 1 to 128 characters in length.
-- The tag value cannot start with aliyun or acs:.
-- The tag value cannot contain http:// or https://.', example='test-value'),
+
+*   Valid values of N: 1 to 20.
+*   The tag value can be up to 128 characters in length.
+*   The tag value cannot start with `aliyun` or `acs:`.
+*   The tag value cannot contain `http://` or `https://`.', example='test-value'),
     }
   ](name='Tag', description='The details about the tags.', position='Query'),
   vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).
@@ -3694,12 +3743,13 @@ Unit: GiB.', example='100'),
       chargeType?: string(name='ChargeType', description='The billing method.
 
 Valid values:
-- Subscription: The subscription billing method is used.
-- PayAsYouGo: The pay-as-you-go billing method is used.
-- Package: A storage plan is attached to the file system.', example='PayAsYouGo'),
+
+*   Subscription
+*   PayAsYouGo
+*   Package: storage plan', example='PayAsYouGo'),
       createTime?: string(name='CreateTime', description='The time when the file system was created.', example='2020-01-05T16:00:00Z'),
       description?: string(name='Description', description='The description of the file system.', example='test'),
-      encryptType?: int32(name='EncryptType', description='The encryption type.
+      encryptType?: int32(name='EncryptType', description='Indicates whether the data in the file system is encrypted.
 
 Valid values:
 
@@ -3708,13 +3758,15 @@ Valid values:
 *   2: A KMS-managed key is used to encrypt the data in the file system.', example='1'),
       expiredTime?: string(name='ExpiredTime', description='The time when the file system expires.', example='2020-01-05T16:00:00Z'),
       fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='109c04****'),
-      fileSystemType?: string(name='FileSystemType', description='The type of the file system.
+      fileSystemType?: string(name='FileSystemType', description='The file system type.
 
 Valid values:
-- standard: General-purpose NAS file system
-- extreme: Extreme NAS file system
-- cpfs: CPFS file system
-> CPFS file systems are available only on the China site (aliyun.com).', example='standard'),
+
+*   standard: General-purpose NAS file system.
+*   extreme: Extreme NAS file system.
+*   cpfs: CPFS file system.
+
+>  CPFS file systems are available only on the China site (aliyun.com).', example='standard'),
       KMSKeyId?: string(name='KMSKeyId', description='The ID of the key that is managed by Key Management Service (KMS).', example='0e478b7a-4262-4802-b8cb-00d3fb40****'),
       ldap?: {
         bindDN?: string(name='BindDN', description='An LDAP entry.', example='cn=alibaba,dc=com'),
@@ -3755,12 +3807,12 @@ This parameter is available only for CPFS file systems.'),
 
 Valid values:
 
-*   Active: The mount target is available.
-*   Inactive: The mount target is unavailable.
-*   Pending: The mount target is being processed.
-*   Deleting: The mount target is being deleted.
-*   Hibernating: The mount target is being hibernated.
-*   Hibernated: The mount target is hibernated.', example='Active'),
+*   Active
+*   Inactive
+*   Pending
+*   Deleting
+*   Hibernating
+*   Hibernated', example='Active'),
           tags?: {
             tag?: [ 
             {
@@ -3773,7 +3825,7 @@ Valid values:
           vswId?: string(name='VswId', description='The ID of the vSwitch.', example='vsw-bp1omfzsszekkvaxn****'),
         }
       ](name='MountTarget')
-      }(name='MountTargets', description='The information about mount targets.'),
+      }(name='MountTargets', description='The queried mount targets.'),
       options?: {
         enableOplock?: boolean(name='EnableOplock', description='Specifies whether to enable the oplock feature. Valid values:
 
@@ -3790,8 +3842,9 @@ Valid values:
           packageType?: string(name='PackageType', description='The type of the storage plan.
 
 Valid values:
-- ssd: the storage plan for Performance NAS file systems.
-- hybrid: the storage plan for Capacity NAS file systems.', example='hybrid'),
+
+*   ssd: The storage plan for Performance NAS file systems.
+*   hybrid: The storage plan for Capacity NAS file systems.', example='hybrid'),
           size?: long(name='Size', description='The capacity of the storage plan. Unit: bytes.', example='107374182400'),
           startTime?: string(name='StartTime', description='The start time of the validity period for the storage plan.', example='2019-12-05T01:40:56Z'),
         }
@@ -3801,16 +3854,14 @@ Valid values:
 
 Valid values:
 
-*   NFS: Network File System (NFS)
-*   SMB: Server Message Block (SMB)
-*   cpfs: the protocol type supported by the CPFS file system
+*   NFS: Network File System.
+*   SMB: Server Message Block.
+*   cpfs: The protocol type supported by the CPFS file system.
 
-> CPFS file systems are available only on the China site (aliyun.com).', example='NFS'),
-      quorumVswId?: string(name='QuorumVswId', description='The ID of the vSwitch.', example='vsw-2ze37k6jh8ums2fw2****'),
+>  CPFS file systems are available only on the China site (aliyun.com).', example='NFS'),
+      quorumVswId?: string(name='QuorumVswId', description='The vSwitch ID.', example='vsw-2ze37k6jh8ums2fw2****'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
-      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.
-
-You can log on to the [Resource Management console](https://resourcemanager.console.aliyun.com/resource-groups?) to view resource group IDs.', example='rg-acfmwavnfdf****'),
+      resourceGroupId?: string(name='ResourceGroupId', description='The resource group ID.', example='rg-acfmwavnfdf****'),
       status?: string(name='Status', description='The status of the file system. Valid values:
 - Pending: The file system is being created or modified.
 - Running: The file system is available. Before you create a mount target for the file system, make sure that the file system is in the Running state.
@@ -3840,14 +3891,14 @@ Valid values:
 
 This parameter is available only for Extreme NAS file systems and CPFS file systems.', example='2.3.4'),
       vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-bp1cbv1ljve4j5hlw****'),
-      vscTarget?: string(name='VscTarget'),
+      vscTarget?: string(name='VscTarget', description='>  This parameter is not publicly available.', example='cpfs-370y1tv921vpuj4****-000001.cn-wulanchabu.cpfs.aliyuncs.com'),
       vswIds?: {
         vswId?: [ string ](name='VswId')
-      }(name='VswIds', description='A collection of vSwitch IDs.'),
+      }(name='VswIds', description='The information about vSwitch.'),
       zoneId?: string(name='ZoneId', description='The ID of the zone where the file system resides.', example='cn-hangzhou-b'),
     }
   ](name='FileSystem')
-  }(name='FileSystems', description='The queried file systems.'),
+  }(name='FileSystems', description='The file system list.'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='1'),
   requestId?: string(name='RequestId', description='The request ID.', example='035B3A3A-E514-4B41-B906-5D906CFB****'),
@@ -3992,6 +4043,64 @@ model DescribeFilesetsResponse = {
 async function describeFilesets(request: DescribeFilesetsRequest): DescribeFilesetsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeFilesets', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DescribeFilesystemsVscAttachInfoRequest {
+  maxResults?: int32(name='MaxResults', description='The number of results for each query.
+
+Valid values: 10 to 100. Default value: 10.', example='10', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='NextToken', description='Query token, which is the NextToken value returned from the previous API call.', example='TGlzdFJlc291cmNlU****mVzJjE1MTI2NjY4NzY5MTAzOTEmMiZORnI4NDhVeEtrUT0=', position='Query'),
+  resourceIds: [ 
+    {
+      fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='bmcpfs-290t15yn4uo8lid****'),
+      vscId?: string(name='VscId', description='The ID of the virtual storage channel.', example='vsc-8vb864o3ppwfvh****'),
+    }
+  ](name='ResourceIds', description='The ID information of the file system and virtual storage channel. Each batch can contain up to 10 IDs.
+
+This parameter is required.', position='Query'),
+}
+
+model DescribeFilesystemsVscAttachInfoResponseBody = {
+  maxResults?: int32(name='MaxResults', description='The number of directories to return for each query.
+
+Valid values: 10 to 1000.
+
+Default value: 10.', example='10'),
+  nextToken?: string(name='NextToken', description='Query token, which is the NextToken value returned from the previous API call.', example='TGlzdFJlc291cmNlU****mVzJjE1MTI2NjY4NzY5MTAzOTEmMiZORnI4NDhVeEtrUT0='),
+  requestId?: string(name='RequestId', description='The request ID.', example='BC7C825C-5F65-4B56-BEF6-98C56C7C****'),
+  totalCount?: int32(name='TotalCount', description='The total number of associated information.', example='1'),
+  vscAttachInfo?: {
+    vscAttachInfo?: [ 
+    {
+      fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='bmcpfs-290t15yn4uo8lid****'),
+      status?: string(name='Status', description='The association status of the file system and virtual channel. Valid values:
+
+*   Attaching: The association is being made.
+*   Attached: The association is complete.
+*   Detaching: The association is being canceled.
+*   Detached: The association is canceled.
+*   Failed: The association failed.', example='Attached'),
+      vscId?: string(name='VscId', description='The ID of the virtual storage channel.', example='vsc-8vb864o3ppwfvh****'),
+    }
+  ](name='VscAttachInfo')
+  }(name='VscAttachInfo', description='A collection of file system and virtual channel association data.'),
+}
+
+model DescribeFilesystemsVscAttachInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeFilesystemsVscAttachInfoResponseBody(name='body'),
+}
+
+/**
+  * @description *   Only CPFS for Lingjun supports this operation.
+  * *   Batch execution is supported. In batch execution, only one VscId can be associated with multiple FileSystemIDs, meaning the VscId in the ResourceIds must be the same.
+  * @param request  the request parameters of DescribeFilesystemsVscAttachInfo  DescribeFilesystemsVscAttachInfoRequest
+  * @return DescribeFilesystemsVscAttachInfoResponse
+ */
+async function describeFilesystemsVscAttachInfo(request: DescribeFilesystemsVscAttachInfoRequest): DescribeFilesystemsVscAttachInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeFilesystemsVscAttachInfo', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DescribeLifecyclePoliciesRequest {
@@ -4817,6 +4926,43 @@ model DescribeZonesResponse = {
 async function describeZones(request: DescribeZonesRequest): DescribeZonesResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DescribeZones', 'POST', '/', 'json', false, 'json', request);
+}
+
+model DetachVscFromFilesystemsRequest {
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests.
+
+The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How do I ensure the idempotence?](https://help.aliyun.com/document_detail/25693.html)
+
+>  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-42665544****', position='Query'),
+  resourceIds: [ 
+    {
+      fileSystemId?: string(name='FileSystemId', description='The ID of the file system.', example='bmcpfs-290t15yn4uo8lid****'),
+      vscId?: string(name='VscId', description='The ID of the virtual storage channel.', example='vsc-8vb864o3ppwfvh****'),
+    }
+  ](name='ResourceIds', description='The ID information of the file system and virtual storage channel. Each batch can contain up to 10 IDs.
+
+This parameter is required.', position='Query'),
+}
+
+model DetachVscFromFilesystemsResponseBody = {
+  requestId?: string(name='RequestId', description='The ID of the request.', example='2D69A58F-345C-4FDE-88E4-BF518948****'),
+}
+
+model DetachVscFromFilesystemsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DetachVscFromFilesystemsResponseBody(name='body'),
+}
+
+/**
+  * @description *   Only CPFS for Lingjun supports this operation.
+  * *   Batch execution is supported. In batch execution, only one VscId can be associated with multiple FileSystemIDs, meaning the VscId in the ResourceIds must be the same.
+  * @param request  the request parameters of DetachVscFromFilesystems  DetachVscFromFilesystemsRequest
+  * @return DetachVscFromFilesystemsResponse
+ */
+async function detachVscFromFilesystems(request: DetachVscFromFilesystemsRequest): DetachVscFromFilesystemsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DetachVscFromFilesystems', 'POST', '/', 'json', false, 'json', request);
 }
 
 model DisableAndCleanRecycleBinRequest {
@@ -6455,10 +6601,12 @@ Valid values:
 
 *   true: performs only a dry run. The system checks the required parameters, request syntax, and service limits. If the request fails the dry run, an error code is returned. If the request passes the dry run, the HTTP status code 200 is returned.
 *   false (default): performs a dry run and sends the request. If the request passes the dry run, the quota is deleted.', example='false', position='Query'),
-  fileCountLimit?: long(name='FileCountLimit', description='The limit of the file quantity of the quota. Valid values:
+  fileCountLimit?: long(name='FileCountLimit', description='The number of files of the quota. Valid values:
 
-*   Minimum value: 10000.
-*   Maximum value: 10000000000.', example='10000', position='Query'),
+*   Minimum value: 10,000.
+*   Maximum value: 10,000,000,000.
+
+>  If you do not specify this parameter, the number of files is unlimited.', example='10000', position='Query'),
   fileSystemId: string(name='FileSystemId', description='The ID of the CPFS for LINGJUN file system. The IDs of CPFS for LINGJUN file systems must start with `bmcpfs-`. Example: bmcpfs-290w65p03ok64ya\\*\\*\\*\\*.
 
 This parameter is required.', example='bmcpfs-290w65p03ok64ya****', position='Query'),
@@ -6469,8 +6617,10 @@ This parameter is required.', example='fset-1902718ea0ae****', position='Query')
 
 Valid values:
 
-*   Minimum value: 10737418240 (10 GiB).
-*   Step size: 1073741824 (1 GiB).', example='10737418240', position='Query'),
+*   Minimum value: 10,737,418,240 (10 GiB).
+*   Step size: 1,073,741,824 (1 GiB).
+
+>  If you do not specify this parameter, the capacity is unlimited.', example='10737418240', position='Query'),
 }
 
 model SetFilesetQuotaResponseBody = {
@@ -6487,7 +6637,8 @@ model SetFilesetQuotaResponse = {
   * @description *   Only Cloud Parallel File Storage (CPFS) for Lingjun V2.7.0 and later support this operation.
   * *   The minimum capacity quota of a fileset is 10 GiB. The scaling step size is 1 GiB.
   * *   A fileset supports a minimum of 10,000 files or directories and a maximum of 10 billion files or directories. The scaling step size is 1.
-  * *   When you modify a directory quota, you must set the quota capacity or the file quantity to be greater than the capacity or file quantity that has been used.
+  * *   When modifying a directory quota, you must set the new capacity or file quantity higher than what is currently used.
+  * *   You must configure at least one of the Capacity Limit (GiB) and File Limit parameters.
   * *   The quota statistics have a 15-minute latency. The actual usage takes effect after 15 minutes.
   * @param request  the request parameters of SetFilesetQuota  SetFilesetQuotaRequest
   * @return SetFilesetQuotaResponse
