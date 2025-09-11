@@ -2458,6 +2458,12 @@ async function createRenderingDataPackage(request: CreateRenderingDataPackageReq
 }
 
 model CreateRenderingInstanceRequest {
+  attributes?: {
+    edgeMediaService?: string(name='EdgeMediaService'),
+    inAccess?: string(name='InAccess'),
+    outAccess?: string(name='OutAccess'),
+    zone?: string(name='Zone'),
+  }(name='Attributes'),
   autoRenew?: boolean(name='AutoRenew', example='true'),
   clientInfo?: {
     clientIp?: string(name='ClientIp', example='172.21.128.110'),
@@ -2472,6 +2478,7 @@ model CreateRenderingInstanceRequest {
 }
 
 model CreateRenderingInstanceShrinkRequest {
+  attributesShrink?: string(name='Attributes'),
   autoRenew?: boolean(name='AutoRenew', example='true'),
   clientInfoShrink?: string(name='ClientInfo'),
   instanceBillingCycle?: string(name='InstanceBillingCycle'),
@@ -2505,10 +2512,16 @@ async function createRenderingInstanceWithOptions(tmpReq: CreateRenderingInstanc
   Util.validateModel(tmpReq);
   var request = new CreateRenderingInstanceShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.attributes)) {
+    request.attributesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.attributes, 'Attributes', 'json');
+  }
   if (!Util.isUnset(tmpReq.clientInfo)) {
     request.clientInfoShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.clientInfo, 'ClientInfo', 'json');
   }
   var query = {};
+  if (!Util.isUnset(request.attributesShrink)) {
+    query['Attributes'] = request.attributesShrink;
+  }
   if (!Util.isUnset(request.autoRenew)) {
     query['AutoRenew'] = request.autoRenew;
   }
@@ -8763,6 +8776,98 @@ async function listCloudAppInstallations(request: ListCloudAppInstallationsReque
   return listCloudAppInstallationsWithOptions(request, runtime);
 }
 
+model ListCloudAppPatchesRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
+  endTime?: string(name='EndTime', example='2017-12-10T21:00:00Z'),
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  patchId?: string(name='PatchId', example='patch-03fa76e8e13a49b6a966b063d9d309b4'),
+  patchName?: string(name='PatchName', example='patch-1'),
+  startTime?: string(name='StartTime', example='2015-11-29T00:00:00Z'),
+}
+
+model ListCloudAppPatchesResponseBody = {
+  pageNumber?: long(name='PageNumber', example='1'),
+  pageSize?: long(name='PageSize', example='20'),
+  patches?: [ 
+    {
+      patchId?: string(name='PatchId', example='patch-03fa76e8e13a49b6a966b063d9d309b4'),
+      patchName?: string(name='PatchName', example='patch-1'),
+      status?: string(name='Status', example='Doing'),
+      statusDescription?: string(name='StatusDescription', example='Uploading'),
+      updateTime?: string(name='UpdateTime', example='2024-09-23T02:12:28'),
+      uploadTime?: string(name='UploadTime', example='2025-07-24T14:45:36+08:00'),
+    }
+  ](name='Patches'),
+  requestId?: string(name='RequestId', description='Id of the request', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+  totalCount?: long(name='TotalCount', example='100'),
+}
+
+model ListCloudAppPatchesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCloudAppPatchesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询一个云应用的Patch列表。
+ *
+ * @param request ListCloudAppPatchesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListCloudAppPatchesResponse
+ */
+async function listCloudAppPatchesWithOptions(request: ListCloudAppPatchesRequest, runtime: Util.RuntimeOptions): ListCloudAppPatchesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.appId)) {
+    query['AppId'] = request.appId;
+  }
+  if (!Util.isUnset(request.endTime)) {
+    query['EndTime'] = request.endTime;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  if (!Util.isUnset(request.patchId)) {
+    query['PatchId'] = request.patchId;
+  }
+  if (!Util.isUnset(request.patchName)) {
+    query['PatchName'] = request.patchName;
+  }
+  if (!Util.isUnset(request.startTime)) {
+    query['StartTime'] = request.startTime;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListCloudAppPatches',
+    version = '2018-12-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询一个云应用的Patch列表。
+ *
+ * @param request ListCloudAppPatchesRequest
+ * @return ListCloudAppPatchesResponse
+ */
+async function listCloudAppPatches(request: ListCloudAppPatchesRequest): ListCloudAppPatchesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listCloudAppPatchesWithOptions(request, runtime);
+}
+
 model ListCloudAppsRequest {
   appId?: string(name='AppId', example='cap-b06b26edfhytbn b94a75ae1a79efc90eb'),
   appName?: string(name='AppName', example='com.aaa.bbb'),
@@ -10334,6 +10439,65 @@ async function modifyRenderingInstanceWithOptions(request: ModifyRenderingInstan
 async function modifyRenderingInstance(request: ModifyRenderingInstanceRequest): ModifyRenderingInstanceResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyRenderingInstanceWithOptions(request, runtime);
+}
+
+model ModifyRenderingInstanceAttributeRequest {
+  password?: string(name='Password', description='This parameter is required.', example='Toehold2020'),
+  renderingInstanceId?: string(name='RenderingInstanceId', description='This parameter is required.', example='render-9f8c57355d224ad7beaf95e145f22111'),
+}
+
+model ModifyRenderingInstanceAttributeResponseBody = {
+  requestId?: string(name='RequestId', example='BEA5625F-8FCF-48F4-851B-CA63946DA664'),
+}
+
+model ModifyRenderingInstanceAttributeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyRenderingInstanceAttributeResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改云应用服务实例密码
+ *
+ * @param request ModifyRenderingInstanceAttributeRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyRenderingInstanceAttributeResponse
+ */
+async function modifyRenderingInstanceAttributeWithOptions(request: ModifyRenderingInstanceAttributeRequest, runtime: Util.RuntimeOptions): ModifyRenderingInstanceAttributeResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.password)) {
+    query['Password'] = request.password;
+  }
+  if (!Util.isUnset(request.renderingInstanceId)) {
+    query['RenderingInstanceId'] = request.renderingInstanceId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyRenderingInstanceAttribute',
+    version = '2018-12-12',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改云应用服务实例密码
+ *
+ * @param request ModifyRenderingInstanceAttributeRequest
+ * @return ModifyRenderingInstanceAttributeResponse
+ */
+async function modifyRenderingInstanceAttribute(request: ModifyRenderingInstanceAttributeRequest): ModifyRenderingInstanceAttributeResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyRenderingInstanceAttributeWithOptions(request, runtime);
 }
 
 model ModifyRenderingInstanceBandwidthRequest {
