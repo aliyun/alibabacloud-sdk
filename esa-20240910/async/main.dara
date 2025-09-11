@@ -2286,6 +2286,7 @@ async function createRewriteUrlRule(request: CreateRewriteUrlRuleRequest): Creat
 
 model CreateRoutineRequest {
   description?: string(name='Description', description='The routine description.', example='the description of this routine', position='Body'),
+  hasAssets?: boolean(name='HasAssets', position='Body'),
   name: string(name='Name', description='The routine name, which must be unique in the same account.
 
 This parameter is required.', example='test-routine1', position='Body'),
@@ -2309,6 +2310,45 @@ model CreateRoutineResponse = {
 async function createRoutine(request: CreateRoutineRequest): CreateRoutineResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateRoutine', 'POST', '/', 'json', true, 'form', request);
+}
+
+model CreateRoutineCodeDeploymentRequest {
+  codeVersions: [ 
+    {
+      codeVersion: string(name='CodeVersion', description='This parameter is required.'),
+      percentage: long(name='Percentage', description='This parameter is required.'),
+    }
+  ](name='CodeVersions', description='This parameter is required.', shrink='json', position='Body'),
+  env: string(name='Env', description='This parameter is required.', example='production', position='Body'),
+  name: string(name='Name', description='This parameter is required.', position='Body'),
+  strategy: string(name='Strategy', description='This parameter is required.', example='percentage', position='Body'),
+}
+
+model CreateRoutineCodeDeploymentResponseBody = {
+  codeVersions?: [ 
+    {
+      codeVersion?: string(name='CodeVersion'),
+      percentage?: long(name='Percentage'),
+    }
+  ](name='CodeVersions'),
+  deploymentId?: string(name='DeploymentId'),
+  requestId?: string(name='RequestId'),
+  strategy?: string(name='Strategy'),
+}
+
+model CreateRoutineCodeDeploymentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRoutineCodeDeploymentResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateRoutineCodeDeployment  CreateRoutineCodeDeploymentRequest
+  * @return CreateRoutineCodeDeploymentResponse
+ */
+async function createRoutineCodeDeployment(request: CreateRoutineCodeDeploymentRequest): CreateRoutineCodeDeploymentResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateRoutineCodeDeployment', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateRoutineRelatedRecordRequest {
@@ -2373,6 +2413,45 @@ model CreateRoutineRouteResponse = {
 async function createRoutineRoute(request: CreateRoutineRouteRequest): CreateRoutineRouteResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'CreateRoutineRoute', 'POST', '/', 'json', false, 'json', request);
+}
+
+model CreateRoutineWithAssetsCodeVersionRequest {
+  buildId?: long(name='BuildId', position='Body'),
+  codeDescription?: string(name='CodeDescription', position='Body'),
+  confOptions?: {
+    notFoundStrategy?: string(name='NotFoundStrategy'),
+  }(name='ConfOptions', shrink='json', position='Body'),
+  extraInfo?: string(name='ExtraInfo', position='Body'),
+  name: string(name='Name', description='This parameter is required.', position='Body'),
+}
+
+model CreateRoutineWithAssetsCodeVersionResponseBody = {
+  codeVersion?: string(name='CodeVersion'),
+  ossPostConfig?: {
+    key?: string(name='Key'),
+    OSSAccessKeyId?: string(name='OSSAccessKeyId'),
+    policy?: string(name='Policy'),
+    signature?: string(name='Signature'),
+    url?: string(name='Url'),
+    xOssSecurityToken?: string(name='XOssSecurityToken'),
+  }(name='OssPostConfig'),
+  requestId?: string(name='RequestId'),
+  status?: string(name='Status'),
+}
+
+model CreateRoutineWithAssetsCodeVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRoutineWithAssetsCodeVersionResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateRoutineWithAssetsCodeVersion  CreateRoutineWithAssetsCodeVersionRequest
+  * @return CreateRoutineWithAssetsCodeVersionResponse
+ */
+async function createRoutineWithAssetsCodeVersion(request: CreateRoutineWithAssetsCodeVersionRequest): CreateRoutineWithAssetsCodeVersionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateRoutineWithAssetsCodeVersion', 'POST', '/', 'json', true, 'form', request);
 }
 
 model CreateScheduledPreloadExecutionsRequest {
@@ -7703,10 +7782,24 @@ model GetRoutineResponseBody = {
     {
       canaryAreaList?: [ string ](name='CanaryAreaList', description='The regions for canary release.'),
       canaryCodeVersion?: string(name='CanaryCodeVersion', description='The version number for canary release.', example='1710120201067577628'),
+      codeDeploy?: {
+        codeVersions?: [ 
+          {
+            codeVersion?: string(name='CodeVersion'),
+            createTime?: string(name='CreateTime'),
+            description?: string(name='Description'),
+            percentage?: long(name='Percentage'),
+          }
+        ](name='CodeVersions'),
+        creationTime?: string(name='CreationTime'),
+        deployId?: string(name='DeployId'),
+        strategy?: string(name='Strategy'),
+      }(name='CodeDeploy'),
       codeVersion?: string(name='CodeVersion', description='The version number of the code in the environment.', example='1710120201067577628'),
       env?: string(name='Env', description='The environment type.', example='production'),
     }
   ](name='Envs', description='The information about the environments.'),
+  hasAssets?: boolean(name='HasAssets'),
   requestId?: string(name='RequestId', description='The request ID.', example='EDBD3EB3-97DA-5465-AEF5-8DCA5DC5E395'),
 }
 
@@ -11220,9 +11313,15 @@ model ListRoutineCodeVersionsRequest {
 model ListRoutineCodeVersionsResponseBody = {
   codeVersions?: [ 
     {
+      buildId?: long(name='BuildId'),
       codeDescription?: string(name='CodeDescription'),
       codeVersion?: string(name='CodeVersion'),
+      confOptions?: {
+        notFoundStrategy?: string(name='NotFoundStrategy'),
+      }(name='ConfOptions'),
       createTime?: string(name='CreateTime'),
+      extraInfo?: string(name='ExtraInfo'),
+      status?: string(name='Status'),
     }
   ](name='CodeVersions'),
   pageNumber?: long(name='PageNumber'),
@@ -11932,7 +12031,9 @@ model ListUserRoutinesResponseBody = {
   routines?: [ 
     {
       createTime?: string(name='CreateTime'),
+      defaultRelatedRecord?: string(name='DefaultRelatedRecord'),
       description?: string(name='Description'),
+      hasAssets?: boolean(name='HasAssets'),
       routineName?: string(name='RoutineName'),
     }
   ](name='Routines'),
@@ -13520,12 +13621,19 @@ async function updateCompressionRule(request: UpdateCompressionRuleRequest): Upd
 }
 
 model UpdateCrossBorderOptimizationRequest {
-  enable: string(name='Enable', description='This parameter is required.', example='on', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='1234567890123', position='Query'),
+  enable: string(name='Enable', description='Whether to enable Chinese mainland network access optimization. By default, it is disabled. Valid values:
+
+*   on
+*   off
+
+This parameter is required.', example='on', position='Query'),
+  siteId: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
+
+This parameter is required.', example='1234567890123', position='Query'),
 }
 
 model UpdateCrossBorderOptimizationResponseBody = {
-  requestId?: string(name='RequestId', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
 }
 
 model UpdateCrossBorderOptimizationResponse = {

@@ -5034,6 +5034,7 @@ async function createRewriteUrlRule(request: CreateRewriteUrlRuleRequest): Creat
 
 model CreateRoutineRequest {
   description?: string(name='Description', description='The routine description.', example='the description of this routine'),
+  hasAssets?: boolean(name='HasAssets'),
   name?: string(name='Name', description='The routine name, which must be unique in the same account.
 
 This parameter is required.', example='test-routine1'),
@@ -5064,6 +5065,9 @@ async function createRoutineWithOptions(request: CreateRoutineRequest, runtime: 
   if (!$isNull(request.description)) {
     body['Description'] = request.description;
   }
+  if (!$isNull(request.hasAssets)) {
+    body['HasAssets'] = request.hasAssets;
+  }
   if (!$isNull(request.name)) {
     body['Name'] = request.name;
   }
@@ -5093,6 +5097,99 @@ async function createRoutineWithOptions(request: CreateRoutineRequest, runtime: 
 async function createRoutine(request: CreateRoutineRequest): CreateRoutineResponse {
   var runtime = new $RuntimeOptions{};
   return createRoutineWithOptions(request, runtime);
+}
+
+model CreateRoutineCodeDeploymentRequest {
+  codeVersions?: [ 
+    {
+      codeVersion?: string(name='CodeVersion', description='This parameter is required.'),
+      percentage?: long(name='Percentage', description='This parameter is required.'),
+    }
+  ](name='CodeVersions', description='This parameter is required.'),
+  env?: string(name='Env', description='This parameter is required.', example='production'),
+  name?: string(name='Name', description='This parameter is required.'),
+  strategy?: string(name='Strategy', description='This parameter is required.', example='percentage'),
+}
+
+model CreateRoutineCodeDeploymentShrinkRequest {
+  codeVersionsShrink?: string(name='CodeVersions', description='This parameter is required.'),
+  env?: string(name='Env', description='This parameter is required.', example='production'),
+  name?: string(name='Name', description='This parameter is required.'),
+  strategy?: string(name='Strategy', description='This parameter is required.', example='percentage'),
+}
+
+model CreateRoutineCodeDeploymentResponseBody = {
+  codeVersions?: [ 
+    {
+      codeVersion?: string(name='CodeVersion'),
+      percentage?: long(name='Percentage'),
+    }
+  ](name='CodeVersions'),
+  deploymentId?: string(name='DeploymentId'),
+  requestId?: string(name='RequestId'),
+  strategy?: string(name='Strategy'),
+}
+
+model CreateRoutineCodeDeploymentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRoutineCodeDeploymentResponseBody(name='body'),
+}
+
+/**
+ * @summary 发布Routine某版本代码
+ *
+ * @param tmpReq CreateRoutineCodeDeploymentRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateRoutineCodeDeploymentResponse
+ */
+@context("createRoutineCodeDeploymentWithContext")
+async function createRoutineCodeDeploymentWithOptions(tmpReq: CreateRoutineCodeDeploymentRequest, runtime: $RuntimeOptions): CreateRoutineCodeDeploymentResponse {
+  tmpReq.validate();
+  var request = new CreateRoutineCodeDeploymentShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.codeVersions)) {
+    request.codeVersionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.codeVersions, 'CodeVersions', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.codeVersionsShrink)) {
+    body['CodeVersions'] = request.codeVersionsShrink;
+  }
+  if (!$isNull(request.env)) {
+    body['Env'] = request.env;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  if (!$isNull(request.strategy)) {
+    body['Strategy'] = request.strategy;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateRoutineCodeDeployment',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发布Routine某版本代码
+ *
+ * @param request CreateRoutineCodeDeploymentRequest
+ * @return CreateRoutineCodeDeploymentResponse
+ */
+async function createRoutineCodeDeployment(request: CreateRoutineCodeDeploymentRequest): CreateRoutineCodeDeploymentResponse {
+  var runtime = new $RuntimeOptions{};
+  return createRoutineCodeDeploymentWithOptions(request, runtime);
 }
 
 model CreateRoutineRelatedRecordRequest {
@@ -5250,6 +5347,103 @@ async function createRoutineRouteWithOptions(request: CreateRoutineRouteRequest,
 async function createRoutineRoute(request: CreateRoutineRouteRequest): CreateRoutineRouteResponse {
   var runtime = new $RuntimeOptions{};
   return createRoutineRouteWithOptions(request, runtime);
+}
+
+model CreateRoutineWithAssetsCodeVersionRequest {
+  buildId?: long(name='BuildId'),
+  codeDescription?: string(name='CodeDescription'),
+  confOptions?: {
+    notFoundStrategy?: string(name='NotFoundStrategy'),
+  }(name='ConfOptions'),
+  extraInfo?: string(name='ExtraInfo'),
+  name?: string(name='Name', description='This parameter is required.'),
+}
+
+model CreateRoutineWithAssetsCodeVersionShrinkRequest {
+  buildId?: long(name='BuildId'),
+  codeDescription?: string(name='CodeDescription'),
+  confOptionsShrink?: string(name='ConfOptions'),
+  extraInfo?: string(name='ExtraInfo'),
+  name?: string(name='Name', description='This parameter is required.'),
+}
+
+model CreateRoutineWithAssetsCodeVersionResponseBody = {
+  codeVersion?: string(name='CodeVersion'),
+  ossPostConfig?: {
+    key?: string(name='Key'),
+    OSSAccessKeyId?: string(name='OSSAccessKeyId'),
+    policy?: string(name='Policy'),
+    signature?: string(name='Signature'),
+    url?: string(name='Url'),
+    XOssSecurityToken?: string(name='XOssSecurityToken'),
+  }(name='OssPostConfig'),
+  requestId?: string(name='RequestId'),
+  status?: string(name='Status'),
+}
+
+model CreateRoutineWithAssetsCodeVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateRoutineWithAssetsCodeVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建带Assets资源的Routine代码版本
+ *
+ * @param tmpReq CreateRoutineWithAssetsCodeVersionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateRoutineWithAssetsCodeVersionResponse
+ */
+@context("createRoutineWithAssetsCodeVersionWithContext")
+async function createRoutineWithAssetsCodeVersionWithOptions(tmpReq: CreateRoutineWithAssetsCodeVersionRequest, runtime: $RuntimeOptions): CreateRoutineWithAssetsCodeVersionResponse {
+  tmpReq.validate();
+  var request = new CreateRoutineWithAssetsCodeVersionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.confOptions)) {
+    request.confOptionsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.confOptions, 'ConfOptions', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.buildId)) {
+    body['BuildId'] = request.buildId;
+  }
+  if (!$isNull(request.codeDescription)) {
+    body['CodeDescription'] = request.codeDescription;
+  }
+  if (!$isNull(request.confOptionsShrink)) {
+    body['ConfOptions'] = request.confOptionsShrink;
+  }
+  if (!$isNull(request.extraInfo)) {
+    body['ExtraInfo'] = request.extraInfo;
+  }
+  if (!$isNull(request.name)) {
+    body['Name'] = request.name;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateRoutineWithAssetsCodeVersion',
+    version = '2024-09-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建带Assets资源的Routine代码版本
+ *
+ * @param request CreateRoutineWithAssetsCodeVersionRequest
+ * @return CreateRoutineWithAssetsCodeVersionResponse
+ */
+async function createRoutineWithAssetsCodeVersion(request: CreateRoutineWithAssetsCodeVersionRequest): CreateRoutineWithAssetsCodeVersionResponse {
+  var runtime = new $RuntimeOptions{};
+  return createRoutineWithAssetsCodeVersionWithOptions(request, runtime);
 }
 
 model CreateScheduledPreloadExecutionsRequest {
@@ -15376,10 +15570,24 @@ model GetRoutineResponseBody = {
     {
       canaryAreaList?: [ string ](name='CanaryAreaList', description='The regions for canary release.'),
       canaryCodeVersion?: string(name='CanaryCodeVersion', description='The version number for canary release.', example='1710120201067577628'),
+      codeDeploy?: {
+        codeVersions?: [ 
+          {
+            codeVersion?: string(name='CodeVersion'),
+            createTime?: string(name='CreateTime'),
+            description?: string(name='Description'),
+            percentage?: long(name='Percentage'),
+          }
+        ](name='CodeVersions'),
+        creationTime?: string(name='CreationTime'),
+        deployId?: string(name='DeployId'),
+        strategy?: string(name='Strategy'),
+      }(name='CodeDeploy'),
       codeVersion?: string(name='CodeVersion', description='The version number of the code in the environment.', example='1710120201067577628'),
       env?: string(name='Env', description='The environment type.', example='production'),
     }
   ](name='Envs', description='The information about the environments.'),
+  hasAssets?: boolean(name='HasAssets'),
   requestId?: string(name='RequestId', description='The request ID.', example='EDBD3EB3-97DA-5465-AEF5-8DCA5DC5E395'),
 }
 
@@ -20934,9 +21142,15 @@ model ListRoutineCodeVersionsRequest {
 model ListRoutineCodeVersionsResponseBody = {
   codeVersions?: [ 
     {
+      buildId?: long(name='BuildId'),
       codeDescription?: string(name='CodeDescription'),
       codeVersion?: string(name='CodeVersion'),
+      confOptions?: {
+        notFoundStrategy?: string(name='NotFoundStrategy'),
+      }(name='ConfOptions'),
       createTime?: string(name='CreateTime'),
+      extraInfo?: string(name='ExtraInfo'),
+      status?: string(name='Status'),
     }
   ](name='CodeVersions'),
   pageNumber?: long(name='PageNumber'),
@@ -22162,7 +22376,9 @@ model ListUserRoutinesResponseBody = {
   routines?: [ 
     {
       createTime?: string(name='CreateTime'),
+      defaultRelatedRecord?: string(name='DefaultRelatedRecord'),
       description?: string(name='Description'),
+      hasAssets?: boolean(name='HasAssets'),
       routineName?: string(name='RoutineName'),
     }
   ](name='Routines'),
@@ -25822,12 +26038,19 @@ async function updateCompressionRule(request: UpdateCompressionRuleRequest): Upd
 }
 
 model UpdateCrossBorderOptimizationRequest {
-  enable?: string(name='Enable', description='This parameter is required.', example='on'),
-  siteId?: long(name='SiteId', description='This parameter is required.', example='1234567890123'),
+  enable?: string(name='Enable', description='Whether to enable Chinese mainland network access optimization. By default, it is disabled. Valid values:
+
+*   on
+*   off
+
+This parameter is required.', example='on'),
+  siteId?: long(name='SiteId', description='The website ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) operation.
+
+This parameter is required.', example='1234567890123'),
 }
 
 model UpdateCrossBorderOptimizationResponseBody = {
-  requestId?: string(name='RequestId', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
 }
 
 model UpdateCrossBorderOptimizationResponse = {
@@ -25837,7 +26060,7 @@ model UpdateCrossBorderOptimizationResponse = {
 }
 
 /**
- * @summary 修改站点中国大陆网络接入优化配置
+ * @summary Modifies the configuration of the Chinese mainland network access optimization.
  *
  * @param request UpdateCrossBorderOptimizationRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -25871,7 +26094,7 @@ async function updateCrossBorderOptimizationWithOptions(request: UpdateCrossBord
 }
 
 /**
- * @summary 修改站点中国大陆网络接入优化配置
+ * @summary Modifies the configuration of the Chinese mainland network access optimization.
  *
  * @param request UpdateCrossBorderOptimizationRequest
  * @return UpdateCrossBorderOptimizationResponse
