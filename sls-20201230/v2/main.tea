@@ -147,6 +147,40 @@ model DeleteLogStoreLogsTask {
   to?: int32(name='to'),
 }
 
+model ESIngestion {
+  configuration?: ESIngestionConfiguration(name='configuration', description='This parameter is required.'),
+  createTime?: long(name='createTime', example='1714360481'),
+  description?: string(name='description', example='es ingestion'),
+  displayName?: string(name='displayName', description='This parameter is required.', example='es ingestion'),
+  lastModifiedTime?: long(name='lastModifiedTime', example='1714360481'),
+  name?: string(name='name', description='This parameter is required.', example='ingest-es-123456'),
+  schedule?: Schedule(name='schedule', description='This parameter is required.'),
+  scheduleId?: string(name='scheduleId', example='c7f01719d9feb105fc9d8df92af62010'),
+  status?: string(name='status', example='RUNNING'),
+}
+
+model ESIngestionConfiguration {
+  logstore?: string(name='logstore', description='This parameter is required.'),
+  source?: ESIngestionConfigurationSource(name='source', description='This parameter is required.'),
+}
+
+model ESIngestionConfigurationSource {
+  bootstrapServers?: string(name='BootstrapServers', description='This parameter is required.'),
+  index?: string(name='Index', description='This parameter is required.'),
+  minFragRangeSec?: long(name='MinFragRangeSec', description='This parameter is required.'),
+  connectorMode?: string(name='connectorMode', description='This parameter is required.'),
+  endTime?: long(name='endTime'),
+  maxDataDelaySec?: long(name='maxDataDelaySec', description='This parameter is required.'),
+  password?: string(name='password'),
+  query?: string(name='query', description='This parameter is required.'),
+  startTime?: long(name='startTime'),
+  timeFieldName?: string(name='timeFieldName'),
+  timeFormat?: string(name='timeFormat'),
+  timeZone?: string(name='timeZone'),
+  username?: string(name='username'),
+  vpcId?: string(name='vpcId'),
+}
+
 model ETL {
   configuration?: ETLConfiguration(name='configuration', description='This parameter is required.'),
   createTime?: long(name='createTime', example='1714274900'),
@@ -246,6 +280,42 @@ model IngestProcessorConfiguration {
 model JoinConfiguration {
   condition?: string(name='condition', example='$0.id == $1.id'),
   type?: string(name='type', example='left_join'),
+}
+
+model KafkaIngestion {
+  configuration?: KafkaIngestionConfiguration(name='configuration', description='This parameter is required.'),
+  createTime?: long(name='createTime', example='1714360481'),
+  description?: string(name='description', example='kafka ingestion'),
+  displayName?: string(name='displayName', description='This parameter is required.', example='kafka ingestion'),
+  lastModifiedTime?: long(name='lastModifiedTime', example='1714360481'),
+  name?: string(name='name', description='This parameter is required.', example='ingest-kafka-123456'),
+  schedule?: Schedule(name='schedule', description='This parameter is required.'),
+  scheduleId?: string(name='scheduleId', example='c7f01719d9feb105fc9d8df92af62010'),
+  status?: string(name='status', example='RUNNING'),
+}
+
+model KafkaIngestionConfiguration {
+  logstore?: string(name='logstore', description='This parameter is required.', example='logstore'),
+  source?: KafkaIngestionConfigurationSource(name='source', description='This parameter is required.'),
+}
+
+model KafkaIngestionConfigurationSource {
+  bootstrapServers?: string(name='bootstrapServers', description='This parameter is required.', example='192.168.1.28:9092'),
+  communication?: string(name='communication', example='{     "protocol":"SASL_PLAINTEXT",      "sasl":{         "mechanism":"PLAIN",         "username":"用户名",         "password":"密码"     } }'),
+  consumerGroup?: string(name='consumerGroup', example='consumer'),
+  defaultTimeSource?: string(name='defaultTimeSource', example='system,kafka'),
+  enableSlsContext?: boolean(name='enableSlsContext', example='true'),
+  encoding?: string(name='encoding', description='This parameter is required.', example='UTF-8'),
+  fromPosition?: string(name='fromPosition', description='This parameter is required.', example='earliest,latest'),
+  nameResolutions?: string(name='nameResolutions', example='{"hostname": "192.168.1.28"}'),
+  parseArray?: boolean(name='parseArray', description='This parameter is required.', example='true'),
+  timeField?: string(name='timeField', example='__time__'),
+  timeFormat?: string(name='timeFormat', example='epoch'),
+  timePattern?: string(name='timePattern', example='\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}'),
+  timeZone?: string(name='timeZone', example='+0800'),
+  topics?: string(name='topics', description='This parameter is required.', example='topic1,topic2'),
+  valueType?: string(name='valueType', description='This parameter is required.', example='text,json'),
+  vpcId?: string(name='vpcId'),
 }
 
 model LogContent {
@@ -2934,6 +3004,80 @@ async function createProject(request: CreateProjectRequest): CreateProjectRespon
   return createProjectWithOptions(request, headers, runtime);
 }
 
+model CreateS3IngestionRequest {
+  configuration?: S3IngestionConfiguration(name='configuration'),
+  description?: string(name='description'),
+  displayName?: string(name='displayName', description='This parameter is required.'),
+  name?: string(name='name', description='This parameter is required.'),
+  schedule?: Schedule(name='schedule'),
+}
+
+model CreateS3IngestionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 创建S3文件导入任务
+ *
+ * @param request CreateS3IngestionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateS3IngestionResponse
+ */
+@context("createS3IngestionWithContext")
+async function createS3IngestionWithOptions(project: string, request: CreateS3IngestionRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateS3IngestionResponse {
+  request.validate();
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var body : map[string]any = {};
+  if (!$isNull(request.configuration)) {
+    body['configuration'] = request.configuration;
+  }
+  if (!$isNull(request.description)) {
+    body['description'] = request.description;
+  }
+  if (!$isNull(request.displayName)) {
+    body['displayName'] = request.displayName;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.schedule)) {
+    body['schedule'] = request.schedule;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateS3Ingestion',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/s3ingestions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 创建S3文件导入任务
+ *
+ * @param request CreateS3IngestionRequest
+ * @return CreateS3IngestionResponse
+ */
+async function createS3Ingestion(project: string, request: CreateS3IngestionRequest): CreateS3IngestionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createS3IngestionWithOptions(project, request, headers, runtime);
+}
+
 model CreateSavedSearchRequest {
   displayName?: string(name='displayName', description='The display name.
 
@@ -4690,6 +4834,51 @@ async function deleteProjectPolicy(project: string): DeleteProjectPolicyResponse
   return deleteProjectPolicyWithOptions(project, headers, runtime);
 }
 
+model DeleteS3IngestionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 删除s3导入任务
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteS3IngestionResponse
+ */
+@context("deleteS3IngestionWithContext")
+async function deleteS3IngestionWithOptions(project: string, s3IngestionName: string, headers: map[string]string, runtime: $RuntimeOptions): DeleteS3IngestionResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteS3Ingestion',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/s3ingestions/${s3IngestionName}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 删除s3导入任务
+ *
+ * @return DeleteS3IngestionResponse
+ */
+async function deleteS3Ingestion(project: string, s3IngestionName: string): DeleteS3IngestionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteS3IngestionWithOptions(project, s3IngestionName, headers, runtime);
+}
+
 model DeleteSavedSearchResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -4862,6 +5051,7 @@ Valid values:
 model DescribeRegionsResponseBody = {
   regions?: [ 
     {
+      dataRedundancyType?: [ string ](name='dataRedundancyType'),
       internetEndpoint?: string(name='internetEndpoint', description='The public endpoint of Simple Log Service.'),
       intranetEndpoint?: string(name='intranetEndpoint', description='The internal endpoint of Simple Log Service.'),
       localName?: string(name='localName', description='The name of the Simple Log Service region.'),
@@ -7658,6 +7848,52 @@ async function getProjectPolicy(project: string): GetProjectPolicyResponse {
   return getProjectPolicyWithOptions(project, headers, runtime);
 }
 
+model GetS3IngestionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: S3Ingestion  
+}
+
+/**
+ * @summary 获取s3导入任务信息
+ *
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetS3IngestionResponse
+ */
+@context("getS3IngestionWithContext")
+async function getS3IngestionWithOptions(project: string, s3IngestionName: string, headers: map[string]string, runtime: $RuntimeOptions): GetS3IngestionResponse {
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetS3Ingestion',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/s3ingestions/${s3IngestionName}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 获取s3导入任务信息
+ *
+ * @return GetS3IngestionResponse
+ */
+async function getS3Ingestion(project: string, s3IngestionName: string): GetS3IngestionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getS3IngestionWithOptions(project, s3IngestionName, headers, runtime);
+}
+
 model GetSavedSearchResponse = {
   headers?: map[string]string(name='headers'),
   statusCode?: int32(name='statusCode'),
@@ -10065,6 +10301,81 @@ async function listProject(request: ListProjectRequest): ListProjectResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listProjectWithOptions(request, headers, runtime);
+}
+
+model ListS3IngestionsRequest {
+  logstore?: string(name='logstore'),
+  offset?: string(name='offset'),
+  size?: string(name='size'),
+}
+
+model ListS3IngestionsResponseBody = {
+  count?: int32(name='count'),
+  results?: [
+    S3Ingestion
+  ](name='results'),
+  total?: int32(name='total'),
+}
+
+model ListS3IngestionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListS3IngestionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 列出s3导入任务
+ *
+ * @param request ListS3IngestionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListS3IngestionsResponse
+ */
+@context("listS3IngestionsWithContext")
+async function listS3IngestionsWithOptions(project: string, request: ListS3IngestionsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListS3IngestionsResponse {
+  request.validate();
+  var hostMap : map[string]string = {};
+  hostMap['project'] = project;
+  var query : map[string]any = {};
+  if (!$isNull(request.logstore)) {
+    query['logstore'] = request.logstore;
+  }
+  if (!$isNull(request.offset)) {
+    query['offset'] = request.offset;
+  }
+  if (!$isNull(request.size)) {
+    query['size'] = request.size;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    hostMap = hostMap,
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListS3Ingestions',
+    version = '2020-12-30',
+    protocol = 'HTTPS',
+    pathname = `/s3ingestions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return execute(params, req, runtime);
+}
+
+/**
+ * @summary 列出s3导入任务
+ *
+ * @param request ListS3IngestionsRequest
+ * @return ListS3IngestionsResponse
+ */
+async function listS3Ingestions(project: string, request: ListS3IngestionsRequest): ListS3IngestionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listS3IngestionsWithOptions(project, request, headers, runtime);
 }
 
 model ListSavedSearchRequest {
