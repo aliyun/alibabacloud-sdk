@@ -663,6 +663,123 @@ async function createCustomCertificate(request: CreateCustomCertificateRequest):
   return createCustomCertificateWithOptions(request, runtime);
 }
 
+model CreateExternalCACertificateRequest {
+  apiPassthrough?: {
+    extensions?: {
+      extendedKeyUsages?: [ string ](name='ExtendedKeyUsages'),
+      pathLenConstraint?: int32(name='PathLenConstraint', example='0'),
+    }(name='Extensions'),
+    subject?: {
+      commonName?: string(name='CommonName'),
+      country?: string(name='Country', example='CN'),
+      locality?: string(name='Locality'),
+      organization?: string(name='Organization'),
+      organizationUnit?: string(name='OrganizationUnit'),
+      state?: string(name='State'),
+    }(name='Subject'),
+  }(name='ApiPassthrough'),
+  csr?: string(name='Csr', description='This parameter is required.', example='-----BEGIN CERTIFICATE REQUEST-----
+MIIBczCCARgCAQAwgYoxFDASBgNVBAMMC2FsaXl1bi50ZXN0MQ0wCwYDVQQ
+...
+vbIgMQIhAKHDWD6/WAMbtezAt4bysJ/BZIDz1jPWuUR5GV4TJ/mS
+-----END CERTIFICATE REQUEST-----'),
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='cas_deposit-cn-1234abcd'),
+  validity?: string(name='Validity', description='This parameter is required.', example='10y'),
+}
+
+model CreateExternalCACertificateShrinkRequest {
+  apiPassthroughShrink?: string(name='ApiPassthrough'),
+  csr?: string(name='Csr', description='This parameter is required.', example='-----BEGIN CERTIFICATE REQUEST-----
+MIIBczCCARgCAQAwgYoxFDASBgNVBAMMC2FsaXl1bi50ZXN0MQ0wCwYDVQQ
+...
+vbIgMQIhAKHDWD6/WAMbtezAt4bysJ/BZIDz1jPWuUR5GV4TJ/mS
+-----END CERTIFICATE REQUEST-----'),
+  instanceId?: string(name='InstanceId', description='This parameter is required.', example='cas_deposit-cn-1234abcd'),
+  validity?: string(name='Validity', description='This parameter is required.', example='10y'),
+}
+
+model CreateExternalCACertificateResponseBody = {
+  certificate?: string(name='Certificate', example='-----BEGIN CERTIFICATE-----
+MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/
+...
+...
+...
+KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
+-----END CERTIFICATE-----'),
+  certificateChain?: string(name='CertificateChain', example='-----BEGIN CERTIFICATE-----
+...
+...
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+...
+...
+-----END CERTIFICATE-----'),
+  identifier?: string(name='Identifier', example='1ed4068c-6f1b-6deb-8e32-3f8439a851cb'),
+  requestId?: string(name='RequestId', example='12345678-1234-1234-1234-123456789ABC'),
+}
+
+model CreateExternalCACertificateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateExternalCACertificateResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建外部子CA证书
+ *
+ * @param tmpReq CreateExternalCACertificateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateExternalCACertificateResponse
+ */
+@context("createExternalCACertificateWithContext")
+async function createExternalCACertificateWithOptions(tmpReq: CreateExternalCACertificateRequest, runtime: $RuntimeOptions): CreateExternalCACertificateResponse {
+  tmpReq.validate();
+  var request = new CreateExternalCACertificateShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.apiPassthrough)) {
+    request.apiPassthroughShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.apiPassthrough, 'ApiPassthrough', 'json');
+  }
+  var query = {};
+  if (!$isNull(request.apiPassthroughShrink)) {
+    query['ApiPassthrough'] = request.apiPassthroughShrink;
+  }
+  if (!$isNull(request.csr)) {
+    query['Csr'] = request.csr;
+  }
+  if (!$isNull(request.instanceId)) {
+    query['InstanceId'] = request.instanceId;
+  }
+  if (!$isNull(request.validity)) {
+    query['Validity'] = request.validity;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateExternalCACertificate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建外部子CA证书
+ *
+ * @param request CreateExternalCACertificateRequest
+ * @return CreateExternalCACertificateResponse
+ */
+async function createExternalCACertificate(request: CreateExternalCACertificateRequest): CreateExternalCACertificateResponse {
+  var runtime = new $RuntimeOptions{};
+  return createExternalCACertificateWithOptions(request, runtime);
+}
+
 model CreateRevokeClientCertificateRequest {
   identifier?: string(name='Identifier', description='The unique identifier of the client certificate or server certificate that you want to revoke.
 
@@ -2429,6 +2546,80 @@ async function listClientCertificateWithOptions(request: ListClientCertificateRe
 async function listClientCertificate(request: ListClientCertificateRequest): ListClientCertificateResponse {
   var runtime = new $RuntimeOptions{};
   return listClientCertificateWithOptions(request, runtime);
+}
+
+model ListPcaCaCertificateRequest {
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='1d2db86sca4384811e0b5e8707e68181f'),
+}
+
+model ListPcaCaCertificateResponseBody = {
+  list?: [ 
+    {
+      certIdentifier?: string(name='CertIdentifier', example='1ef78be5-******-b5ef0f0eba3d'),
+      commonName?: string(name='CommonName', example='Example Co., Ltd.'),
+      issuerIdentifier?: string(name='IssuerIdentifier', example='1ef78be5-******-b5ef0f0eba3d'),
+      privateCaInstanceId?: string(name='PrivateCaInstanceId', example='cas_deposit-cn-******'),
+      privateCaRegionId?: string(name='PrivateCaRegionId', example='cn-hangzhou'),
+      status?: string(name='Status', example='ISSUE'),
+      userId?: string(name='UserId', example='166********'),
+    }
+  ](name='List'),
+  maxResults?: int32(name='MaxResults', example='20'),
+  nextToken?: string(name='NextToken', example='1d2db86sca4384811e0b5e8707e68181f'),
+  requestId?: string(name='RequestId', example='12345678-1234-1234-1234-123456789ABC'),
+  totalCount?: long(name='TotalCount', example='10'),
+}
+
+model ListPcaCaCertificateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListPcaCaCertificateResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询私有CA机构证书
+ *
+ * @param request ListPcaCaCertificateRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListPcaCaCertificateResponse
+ */
+@context("listPcaCaCertificateWithContext")
+async function listPcaCaCertificateWithOptions(request: ListPcaCaCertificateRequest, runtime: $RuntimeOptions): ListPcaCaCertificateResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListPcaCaCertificate',
+    version = '2020-06-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询私有CA机构证书
+ *
+ * @param request ListPcaCaCertificateRequest
+ * @return ListPcaCaCertificateResponse
+ */
+async function listPcaCaCertificate(request: ListPcaCaCertificateRequest): ListPcaCaCertificateResponse {
+  var runtime = new $RuntimeOptions{};
+  return listPcaCaCertificateWithOptions(request, runtime);
 }
 
 model ListRevokeCertificateRequest {
