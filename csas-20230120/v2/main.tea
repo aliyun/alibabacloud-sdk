@@ -1883,6 +1883,12 @@ async function createWmBaseImage(request: CreateWmBaseImageRequest): CreateWmBas
 }
 
 model CreateWmEmbedTaskRequest {
+  audioControl?: {
+    metadataControl?: {
+      enable?: boolean(name='Enable'),
+      xmpKvBase64?: string(name='XmpKvBase64'),
+    }(name='MetadataControl'),
+  }(name='AudioControl'),
   csvControl?: {
     embedBitsNumberInEachTime?: long(name='EmbedBitsNumberInEachTime'),
     embedColumn?: long(name='EmbedColumn'),
@@ -1920,6 +1926,7 @@ model CreateWmEmbedTaskRequest {
   imageControl?: {
     logoVisibleControl?: {
       angle?: long(name='Angle'),
+      enhance?: boolean(name='Enhance'),
       logoBase64?: string(name='LogoBase64'),
       margin?: {
         bottom?: float(name='Bottom'),
@@ -1965,7 +1972,28 @@ model CreateWmEmbedTaskRequest {
   }(name='ImageControl'),
   imageEmbedJpegQuality?: long(name='ImageEmbedJpegQuality', example='95'),
   imageEmbedLevel?: long(name='ImageEmbedLevel', example='2'),
+  invisibleEnable?: boolean(name='InvisibleEnable'),
   videoBitrate?: string(name='VideoBitrate', example='3000k'),
+  videoControl?: {
+    metadataControl?: {
+      enable?: boolean(name='Enable'),
+      xmpKvBase64?: string(name='XmpKvBase64'),
+    }(name='MetadataControl'),
+    textVisibleControl?: {
+      fontColor?: string(name='FontColor'),
+      fontSize?: int32(name='FontSize'),
+      margin?: {
+        bottom?: int32(name='Bottom'),
+        right?: int32(name='Right'),
+      }(name='Margin'),
+      mode?: string(name='Mode'),
+      opacity?: int32(name='Opacity'),
+      posX?: int32(name='PosX'),
+      posY?: int32(name='PosY'),
+      visible?: boolean(name='Visible'),
+      visibleText?: string(name='VisibleText'),
+    }(name='TextVisibleControl'),
+  }(name='VideoControl'),
   videoIsLong?: boolean(name='VideoIsLong', example='false'),
   wmInfoBytesB64?: string(name='WmInfoBytesB64', example='aGVsbG8gc2F*****'),
   wmInfoSize?: long(name='WmInfoSize', example='32'),
@@ -1974,6 +2002,7 @@ model CreateWmEmbedTaskRequest {
 }
 
 model CreateWmEmbedTaskShrinkRequest {
+  audioControlShrink?: string(name='AudioControl'),
   csvControlShrink?: string(name='CsvControl'),
   documentControlShrink?: string(name='DocumentControl'),
   fileUrl?: string(name='FileUrl', description='This parameter is required.', example='https://example.com/abc****.pdf'),
@@ -1981,7 +2010,9 @@ model CreateWmEmbedTaskShrinkRequest {
   imageControlShrink?: string(name='ImageControl'),
   imageEmbedJpegQuality?: long(name='ImageEmbedJpegQuality', example='95'),
   imageEmbedLevel?: long(name='ImageEmbedLevel', example='2'),
+  invisibleEnable?: boolean(name='InvisibleEnable'),
   videoBitrate?: string(name='VideoBitrate', example='3000k'),
+  videoControlShrink?: string(name='VideoControl'),
   videoIsLong?: boolean(name='VideoIsLong', example='false'),
   wmInfoBytesB64?: string(name='WmInfoBytesB64', example='aGVsbG8gc2F*****'),
   wmInfoSize?: long(name='WmInfoSize', example='32'),
@@ -2014,6 +2045,9 @@ async function createWmEmbedTaskWithOptions(tmpReq: CreateWmEmbedTaskRequest, ru
   tmpReq.validate();
   var request = new CreateWmEmbedTaskShrinkRequest{};
   OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.audioControl)) {
+    request.audioControlShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.audioControl, 'AudioControl', 'json');
+  }
   if (!$isNull(tmpReq.csvControl)) {
     request.csvControlShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.csvControl, 'CsvControl', 'json');
   }
@@ -2023,11 +2057,16 @@ async function createWmEmbedTaskWithOptions(tmpReq: CreateWmEmbedTaskRequest, ru
   if (!$isNull(tmpReq.imageControl)) {
     request.imageControlShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.imageControl, 'ImageControl', 'json');
   }
-  var query = {};
-  if (!$isNull(request.csvControlShrink)) {
-    query['CsvControl'] = request.csvControlShrink;
+  if (!$isNull(tmpReq.videoControl)) {
+    request.videoControlShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.videoControl, 'VideoControl', 'json');
   }
   var body : map[string]any = {};
+  if (!$isNull(request.audioControlShrink)) {
+    body['AudioControl'] = request.audioControlShrink;
+  }
+  if (!$isNull(request.csvControlShrink)) {
+    body['CsvControl'] = request.csvControlShrink;
+  }
   if (!$isNull(request.documentControlShrink)) {
     body['DocumentControl'] = request.documentControlShrink;
   }
@@ -2046,8 +2085,14 @@ async function createWmEmbedTaskWithOptions(tmpReq: CreateWmEmbedTaskRequest, ru
   if (!$isNull(request.imageEmbedLevel)) {
     body['ImageEmbedLevel'] = request.imageEmbedLevel;
   }
+  if (!$isNull(request.invisibleEnable)) {
+    body['InvisibleEnable'] = request.invisibleEnable;
+  }
   if (!$isNull(request.videoBitrate)) {
     body['VideoBitrate'] = request.videoBitrate;
+  }
+  if (!$isNull(request.videoControlShrink)) {
+    body['VideoControl'] = request.videoControlShrink;
   }
   if (!$isNull(request.videoIsLong)) {
     body['VideoIsLong'] = request.videoIsLong;
@@ -2065,7 +2110,6 @@ async function createWmEmbedTaskWithOptions(tmpReq: CreateWmEmbedTaskRequest, ru
     body['WmType'] = request.wmType;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
     body = OpenApiUtil.parseToMap(body),
   };
   var params = new OpenApiUtil.Params{
@@ -5393,12 +5437,20 @@ async function listClientUsers(request: ListClientUsersRequest): ListClientUsers
 }
 
 model ListConnectorsRequest {
-  connectorIds?: [ string ](name='ConnectorIds'),
-  currentPage?: int32(name='CurrentPage', description='This parameter is required.', example='1'),
-  name?: string(name='Name', example='connector_name'),
-  pageSize?: int32(name='PageSize', description='This parameter is required.', example='10'),
-  status?: string(name='Status'),
-  switchStatus?: string(name='SwitchStatus'),
+  connectorIds?: [ string ](name='ConnectorIds', description='Collection of Connector IDs. Up to 100 Connector IDs can be entered.'),
+  currentPage?: int32(name='CurrentPage', description='The page number of the current page in a paginated query. Range: 1~10000.
+
+This parameter is required.', example='1'),
+  name?: string(name='Name', description='Connector name. Length: 1~128 characters, supporting Chinese and both uppercase and lowercase English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).', example='connector_name'),
+  pageSize?: int32(name='PageSize', description='The number of items per page in a paginated query. Range: 1~1000.
+
+This parameter is required.', example='10'),
+  status?: string(name='Status', description='Connector connection status. Values:
+- **Online**: Online.
+- **Offline**: Offline.', example='Online'),
+  switchStatus?: string(name='SwitchStatus', description='Connector instance status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
 }
 
 model ListConnectorsResponseBody = {
@@ -5406,34 +5458,38 @@ model ListConnectorsResponseBody = {
     {
       applications?: [ 
         {
-          applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-          applicationName?: string(name='ApplicationName', example='application_name'),
+          applicationId?: string(name='ApplicationId', description='Internal network access application ID.', example='pa-application-e12860ef6c48****'),
+          applicationName?: string(name='ApplicationName', description='Internal network access application name.', example='application_name'),
         }
-      ](name='Applications'),
-      clusterIP?: string(name='ClusterIP'),
-      clusterPort?: string(name='ClusterPort'),
+      ](name='Applications', description='Collection of associated internal network access applications.'),
+      clusterIP?: string(name='ClusterIP', description='Cluster IP.', example='1.1.1.1'),
+      clusterPort?: string(name='ClusterPort', description='Cluster port.', example='8000'),
       connectorClients?: [ 
         {
-          connectionStatus?: string(name='ConnectionStatus'),
-          devTag?: string(name='DevTag'),
-          hostname?: string(name='Hostname'),
-          publicIp?: string(name='PublicIp'),
+          connectionStatus?: string(name='ConnectionStatus', description='Connection status between ConnectorClient and ConnectorServer.', example='Disconnected'),
+          devTag?: string(name='DevTag', description='Unique device identifier for the ConnectorClient.', example='C50A2386-F851-4F11-920B-DF7148DA0C22'),
+          hostname?: string(name='Hostname', description='Hostname of the ConnectorClient.', example='connector_client'),
+          publicIp?: string(name='PublicIp', description='Public IP of the ConnectorClient.', example='192.0.2.1'),
         }
-      ](name='ConnectorClients'),
-      connectorId?: string(name='ConnectorId', description='ConnectorID。', example='connector-94db94e06b98****'),
-      createTime?: string(name='CreateTime', example='2022-09-27 18:10:25'),
-      name?: string(name='Name', example='connector_name'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      status?: string(name='Status', example='Online'),
-      switchStatus?: string(name='SwitchStatus', example='Enabled'),
+      ](name='ConnectorClients', description='Collection of deployed ConnectorClients.'),
+      connectorId?: string(name='ConnectorId', description='Connector ID.', example='connector-94db94e06b98****'),
+      createTime?: string(name='CreateTime', description='Creation time of the Connector.', example='2022-09-27 18:10:25'),
+      name?: string(name='Name', description='Connector name.', example='connector_name'),
+      regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou'),
+      status?: string(name='Status', description='Connector connection status. Values:
+- **Online**: Online.
+- **Offline**: Offline.', example='Online'),
+      switchStatus?: string(name='SwitchStatus', description='Connector instance status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
       upgradeTime?: {
-        end?: string(name='End', example='23:00'),
-        start?: string(name='Start', example='20:00'),
-      }(name='UpgradeTime'),
+        end?: string(name='End', description='End time.', example='23:00'),
+        start?: string(name='Start', description='Start time.', example='20:00'),
+      }(name='UpgradeTime', description='Connector upgrade time.'),
     }
-  ](name='Connectors'),
-  requestId?: string(name='RequestId', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
-  totalNum?: int32(name='TotalNum', example='1'),
+  ](name='Connectors', description='List of Connectors.'),
+  requestId?: string(name='RequestId', description='ID of the current request.', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
+  totalNum?: int32(name='TotalNum', description='Total number of Connectors.', example='1'),
 }
 
 model ListConnectorsResponse = {
@@ -5443,7 +5499,7 @@ model ListConnectorsResponse = {
 }
 
 /**
- * @summary 批量查询connector
+ * @summary Batch query connectors
  *
  * @param request ListConnectorsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5471,7 +5527,7 @@ async function listConnectorsWithOptions(request: ListConnectorsRequest, runtime
 }
 
 /**
- * @summary 批量查询connector
+ * @summary Batch query connectors
  *
  * @param request ListConnectorsRequest
  * @return ListConnectorsResponse

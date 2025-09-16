@@ -1026,6 +1026,12 @@ async function createWmBaseImage(request: CreateWmBaseImageRequest): CreateWmBas
 }
 
 model CreateWmEmbedTaskRequest {
+  audioControl?: {
+    metadataControl?: {
+      enable?: boolean(name='Enable'),
+      xmpKvBase64?: string(name='XmpKvBase64'),
+    }(name='MetadataControl'),
+  }(name='AudioControl', shrink='json', position='Body'),
   csvControl?: {
     embedBitsNumberInEachTime?: long(name='EmbedBitsNumberInEachTime', minimum=1, maximum=4),
     embedColumn?: long(name='EmbedColumn'),
@@ -1034,7 +1040,7 @@ model CreateWmEmbedTaskRequest {
     embedTimePosition?: string(name='EmbedTimePosition'),
     method?: string(name='Method'),
     timeFormat?: string(name='TimeFormat'),
-  }(name='CsvControl', shrink='json', position='Query'),
+  }(name='CsvControl', shrink='json', position='Body'),
   documentControl?: {
     backgroundControl?: {
       bgAddInvisible?: boolean(name='BgAddInvisible', example='true'),
@@ -1063,6 +1069,7 @@ model CreateWmEmbedTaskRequest {
   imageControl?: {
     logoVisibleControl?: {
       angle?: long(name='Angle'),
+      enhance?: boolean(name='Enhance'),
       logoBase64?: string(name='LogoBase64'),
       margin?: {
         bottom?: float(name='Bottom'),
@@ -1108,7 +1115,28 @@ model CreateWmEmbedTaskRequest {
   }(name='ImageControl', shrink='json', position='Body'),
   imageEmbedJpegQuality?: long(name='ImageEmbedJpegQuality', example='95', position='Body'),
   imageEmbedLevel?: long(name='ImageEmbedLevel', example='2', position='Body'),
+  invisibleEnable?: boolean(name='InvisibleEnable', position='Body'),
   videoBitrate?: string(name='VideoBitrate', example='3000k', position='Body'),
+  videoControl?: {
+    metadataControl?: {
+      enable?: boolean(name='Enable'),
+      xmpKvBase64?: string(name='XmpKvBase64'),
+    }(name='MetadataControl'),
+    textVisibleControl?: {
+      fontColor?: string(name='FontColor'),
+      fontSize?: int32(name='FontSize'),
+      margin?: {
+        bottom?: int32(name='Bottom'),
+        right?: int32(name='Right'),
+      }(name='Margin'),
+      mode?: string(name='Mode'),
+      opacity?: int32(name='Opacity'),
+      posX?: int32(name='PosX'),
+      posY?: int32(name='PosY'),
+      visible?: boolean(name='Visible'),
+      visibleText?: string(name='VisibleText'),
+    }(name='TextVisibleControl'),
+  }(name='VideoControl', shrink='json', position='Body'),
   videoIsLong?: boolean(name='VideoIsLong', example='false', position='Body'),
   wmInfoBytesB64?: string(name='WmInfoBytesB64', example='aGVsbG8gc2F*****', maxLength=400, position='Body'),
   wmInfoSize?: long(name='WmInfoSize', example='32', minimum=32, maximum=64, position='Body'),
@@ -2888,12 +2916,20 @@ async function listClientUsers(request: ListClientUsersRequest): ListClientUsers
 }
 
 model ListConnectorsRequest {
-  connectorIds?: [ string ](name='ConnectorIds', position='Query'),
-  currentPage: int32(name='CurrentPage', description='This parameter is required.', example='1', position='Query'),
-  name?: string(name='Name', example='connector_name', position='Query'),
-  pageSize: int32(name='PageSize', description='This parameter is required.', example='10', position='Query'),
-  status?: string(name='Status', position='Query'),
-  switchStatus?: string(name='SwitchStatus', position='Query'),
+  connectorIds?: [ string ](name='ConnectorIds', description='Collection of Connector IDs. Up to 100 Connector IDs can be entered.', position='Query'),
+  currentPage: int32(name='CurrentPage', description='The page number of the current page in a paginated query. Range: 1~10000.
+
+This parameter is required.', example='1', position='Query'),
+  name?: string(name='Name', description='Connector name. Length: 1~128 characters, supporting Chinese and both uppercase and lowercase English letters, and can include numbers, periods (.), underscores (_), and hyphens (-).', example='connector_name', position='Query'),
+  pageSize: int32(name='PageSize', description='The number of items per page in a paginated query. Range: 1~1000.
+
+This parameter is required.', example='10', position='Query'),
+  status?: string(name='Status', description='Connector connection status. Values:
+- **Online**: Online.
+- **Offline**: Offline.', example='Online', position='Query'),
+  switchStatus?: string(name='SwitchStatus', description='Connector instance status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled', position='Query'),
 }
 
 model ListConnectorsResponseBody = {
@@ -2901,34 +2937,38 @@ model ListConnectorsResponseBody = {
     {
       applications?: [ 
         {
-          applicationId?: string(name='ApplicationId', example='pa-application-e12860ef6c48****'),
-          applicationName?: string(name='ApplicationName', example='application_name'),
+          applicationId?: string(name='ApplicationId', description='Internal network access application ID.', example='pa-application-e12860ef6c48****'),
+          applicationName?: string(name='ApplicationName', description='Internal network access application name.', example='application_name'),
         }
-      ](name='Applications'),
-      clusterIP?: string(name='ClusterIP'),
-      clusterPort?: string(name='ClusterPort'),
+      ](name='Applications', description='Collection of associated internal network access applications.'),
+      clusterIP?: string(name='ClusterIP', description='Cluster IP.', example='1.1.1.1'),
+      clusterPort?: string(name='ClusterPort', description='Cluster port.', example='8000'),
       connectorClients?: [ 
         {
-          connectionStatus?: string(name='ConnectionStatus'),
-          devTag?: string(name='DevTag'),
-          hostname?: string(name='Hostname'),
-          publicIp?: string(name='PublicIp'),
+          connectionStatus?: string(name='ConnectionStatus', description='Connection status between ConnectorClient and ConnectorServer.', example='Disconnected'),
+          devTag?: string(name='DevTag', description='Unique device identifier for the ConnectorClient.', example='C50A2386-F851-4F11-920B-DF7148DA0C22'),
+          hostname?: string(name='Hostname', description='Hostname of the ConnectorClient.', example='connector_client'),
+          publicIp?: string(name='PublicIp', description='Public IP of the ConnectorClient.', example='192.0.2.1'),
         }
-      ](name='ConnectorClients'),
-      connectorId?: string(name='ConnectorId', description='ConnectorID。', example='connector-94db94e06b98****'),
-      createTime?: string(name='CreateTime', example='2022-09-27 18:10:25'),
-      name?: string(name='Name', example='connector_name'),
-      regionId?: string(name='RegionId', example='cn-hangzhou'),
-      status?: string(name='Status', example='Online'),
-      switchStatus?: string(name='SwitchStatus', example='Enabled'),
+      ](name='ConnectorClients', description='Collection of deployed ConnectorClients.'),
+      connectorId?: string(name='ConnectorId', description='Connector ID.', example='connector-94db94e06b98****'),
+      createTime?: string(name='CreateTime', description='Creation time of the Connector.', example='2022-09-27 18:10:25'),
+      name?: string(name='Name', description='Connector name.', example='connector_name'),
+      regionId?: string(name='RegionId', description='Region ID.', example='cn-hangzhou'),
+      status?: string(name='Status', description='Connector connection status. Values:
+- **Online**: Online.
+- **Offline**: Offline.', example='Online'),
+      switchStatus?: string(name='SwitchStatus', description='Connector instance status. Values:
+- **Enabled**: Enabled.
+- **Disabled**: Disabled.', example='Enabled'),
       upgradeTime?: {
-        end?: string(name='End', example='23:00'),
-        start?: string(name='Start', example='20:00'),
-      }(name='UpgradeTime'),
+        end?: string(name='End', description='End time.', example='23:00'),
+        start?: string(name='Start', description='Start time.', example='20:00'),
+      }(name='UpgradeTime', description='Connector upgrade time.'),
     }
-  ](name='Connectors'),
-  requestId?: string(name='RequestId', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
-  totalNum?: int32(name='TotalNum', example='1'),
+  ](name='Connectors', description='List of Connectors.'),
+  requestId?: string(name='RequestId', description='ID of the current request.', example='58D6B23E-E5DA-5418-8F61-51A3B5A30049'),
+  totalNum?: int32(name='TotalNum', description='Total number of Connectors.', example='1'),
 }
 
 model ListConnectorsResponse = {
