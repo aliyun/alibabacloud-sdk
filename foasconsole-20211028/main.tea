@@ -28,6 +28,53 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ClusterStage {
+  currentStage?: int32(name='CurrentStage'),
+  message?: string(name='Message'),
+  status?: string(name='Status'),
+  totalStageWithWeight?: [
+    StageWithWeight
+  ](name='TotalStageWithWeight'),
+}
+
+model ClusterState {
+  clusterStage?: ClusterStage(name='ClusterStage'),
+  status?: string(name='Status'),
+  subStatus?: string(name='SubStatus'),
+}
+
+model FlussInstance {
+  clusterState?: ClusterState(name='ClusterState'),
+  clusterStatus?: string(name='ClusterStatus'),
+  consoleUrl?: string(name='ConsoleUrl'),
+  diskSize?: long(name='DiskSize'),
+  instanceId?: string(name='InstanceId'),
+  instanceName?: string(name='InstanceName'),
+  orderState?: string(name='OrderState'),
+  regionId?: string(name='RegionId'),
+  resourceCreateTime?: long(name='ResourceCreateTime'),
+  resourceExpiredTime?: long(name='ResourceExpiredTime'),
+  tabletServerModel?: string(name='TabletServerModel'),
+  tabletServerNum?: long(name='TabletServerNum'),
+  tabletServerType?: string(name='TabletServerType'),
+  uid?: string(name='Uid'),
+  vSwitches?: [
+    FlussVswitch
+  ](name='VSwitches'),
+  vpcId?: string(name='VpcId'),
+}
+
+model FlussVswitch {
+  vSwitchIds?: [ string ](name='VSwitchIds'),
+  zoneId?: string(name='ZoneId'),
+}
+
+model StageWithWeight {
+  stepIndex?: int32(name='StepIndex'),
+  stepName?: string(name='StepName'),
+  weight?: int32(name='Weight'),
+}
+
 model ConvertHybridInstanceRequest {
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
@@ -126,7 +173,9 @@ model ConvertInstanceRequest {
     }
   ](name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceShrinkRequest {
@@ -135,7 +184,9 @@ model ConvertInstanceShrinkRequest {
   isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
   namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceResponseBody = {
@@ -180,8 +231,14 @@ async function convertInstanceWithOptions(tmpReq: ConvertInstanceRequest, runtim
   if (!Util.isUnset(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!Util.isUnset(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!Util.isUnset(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -1339,12 +1396,15 @@ model ModifyInstanceVswitchResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
+ *
  * @summary 修改集群交换机
  *
  * @param tmpReq ModifyInstanceVswitchRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyInstanceVswitchResponse
  */
+// Deprecated
 async function modifyInstanceVswitchWithOptions(tmpReq: ModifyInstanceVswitchRequest, runtime: Util.RuntimeOptions): ModifyInstanceVswitchResponse {
   Util.validateModel(tmpReq);
   var request = new ModifyInstanceVswitchShrinkRequest{};
@@ -1383,11 +1443,14 @@ async function modifyInstanceVswitchWithOptions(tmpReq: ModifyInstanceVswitchReq
 }
 
 /**
+ * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
+ *
  * @summary 修改集群交换机
  *
  * @param request ModifyInstanceVswitchRequest
  * @return ModifyInstanceVswitchResponse
  */
+// Deprecated
 async function modifyInstanceVswitch(request: ModifyInstanceVswitchRequest): ModifyInstanceVswitchResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyInstanceVswitchWithOptions(request, runtime);
@@ -1711,7 +1774,9 @@ model QueryConvertInstancePriceRequest {
     }
   ](name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceShrinkRequest {
@@ -1720,7 +1785,9 @@ model QueryConvertInstancePriceShrinkRequest {
   isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
   namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceResponseBody = {
@@ -1797,8 +1864,14 @@ async function queryConvertInstancePriceWithOptions(tmpReq: QueryConvertInstance
   if (!Util.isUnset(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!Util.isUnset(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!Util.isUnset(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -2262,7 +2335,9 @@ model QueryRenewInstancePriceRequest {
   duration?: int32(name='Duration', description='This parameter is required.', example='1'),
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryRenewInstancePriceResponseBody = {
@@ -2328,8 +2403,14 @@ async function queryRenewInstancePriceWithOptions(request: QueryRenewInstancePri
   if (!Util.isUnset(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!Util.isUnset(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!Util.isUnset(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -2363,7 +2444,9 @@ model RenewInstanceRequest {
   duration?: int32(name='Duration', description='This parameter is required.', example='1'),
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model RenewInstanceResponseBody = {
@@ -2397,8 +2480,14 @@ async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: 
   if (!Util.isUnset(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!Util.isUnset(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!Util.isUnset(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!Util.isUnset(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApi.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),

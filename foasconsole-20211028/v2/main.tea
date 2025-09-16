@@ -26,6 +26,53 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model ClusterStage {
+  currentStage?: int32(name='CurrentStage'),
+  message?: string(name='Message'),
+  status?: string(name='Status'),
+  totalStageWithWeight?: [
+    StageWithWeight
+  ](name='TotalStageWithWeight'),
+}
+
+model ClusterState {
+  clusterStage?: ClusterStage(name='ClusterStage'),
+  status?: string(name='Status'),
+  subStatus?: string(name='SubStatus'),
+}
+
+model FlussInstance {
+  clusterState?: ClusterState(name='ClusterState'),
+  clusterStatus?: string(name='ClusterStatus'),
+  consoleUrl?: string(name='ConsoleUrl'),
+  diskSize?: long(name='DiskSize'),
+  instanceId?: string(name='InstanceId'),
+  instanceName?: string(name='InstanceName'),
+  orderState?: string(name='OrderState'),
+  regionId?: string(name='RegionId'),
+  resourceCreateTime?: long(name='ResourceCreateTime'),
+  resourceExpiredTime?: long(name='ResourceExpiredTime'),
+  tabletServerModel?: string(name='TabletServerModel'),
+  tabletServerNum?: long(name='TabletServerNum'),
+  tabletServerType?: string(name='TabletServerType'),
+  uid?: string(name='Uid'),
+  vSwitches?: [
+    FlussVswitch
+  ](name='VSwitches'),
+  vpcId?: string(name='VpcId'),
+}
+
+model FlussVswitch {
+  vSwitchIds?: [ string ](name='VSwitchIds'),
+  zoneId?: string(name='ZoneId'),
+}
+
+model StageWithWeight {
+  stepIndex?: int32(name='StepIndex'),
+  stepName?: string(name='StepName'),
+  weight?: int32(name='Weight'),
+}
+
 model ConvertHybridInstanceRequest {
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   region?: string(name='Region', description='This parameter is required.', example='cn-shenzhen'),
@@ -65,6 +112,7 @@ model ConvertHybridInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConvertHybridInstanceResponse
  */
+@context("convertHybridInstanceWithContext")
 async function convertHybridInstanceWithOptions(tmpReq: ConvertHybridInstanceRequest, runtime: $RuntimeOptions): ConvertHybridInstanceResponse {
   tmpReq.validate();
   var request = new ConvertHybridInstanceShrinkRequest{};
@@ -124,7 +172,9 @@ model ConvertInstanceRequest {
     }
   ](name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceShrinkRequest {
@@ -133,7 +183,9 @@ model ConvertInstanceShrinkRequest {
   isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
   namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model ConvertInstanceResponseBody = {
@@ -155,6 +207,7 @@ model ConvertInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConvertInstanceResponse
  */
+@context("convertInstanceWithContext")
 async function convertInstanceWithOptions(tmpReq: ConvertInstanceRequest, runtime: $RuntimeOptions): ConvertInstanceResponse {
   tmpReq.validate();
   var request = new ConvertInstanceShrinkRequest{};
@@ -178,8 +231,14 @@ async function convertInstanceWithOptions(tmpReq: ConvertInstanceRequest, runtim
   if (!$isNull(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!$isNull(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!$isNull(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!$isNull(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -233,6 +292,7 @@ model ConvertPrepayInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ConvertPrepayInstanceResponse
  */
+@context("convertPrepayInstanceWithContext")
 async function convertPrepayInstanceWithOptions(request: ConvertPrepayInstanceRequest, runtime: $RuntimeOptions): ConvertPrepayInstanceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -356,6 +416,7 @@ model CreateInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateInstanceResponse
  */
+@context("createInstanceWithContext")
 async function createInstanceWithOptions(tmpReq: CreateInstanceRequest, runtime: $RuntimeOptions): CreateInstanceResponse {
   tmpReq.validate();
   var request = new CreateInstanceShrinkRequest{};
@@ -504,6 +565,7 @@ model CreateNamespaceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateNamespaceResponse
  */
+@context("createNamespaceWithContext")
 async function createNamespaceWithOptions(tmpReq: CreateNamespaceRequest, runtime: $RuntimeOptions): CreateNamespaceResponse {
   tmpReq.validate();
   var request = new CreateNamespaceShrinkRequest{};
@@ -578,6 +640,7 @@ model DeleteInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteInstanceResponse
  */
+@context("deleteInstanceWithContext")
 async function deleteInstanceWithOptions(request: DeleteInstanceRequest, runtime: $RuntimeOptions): DeleteInstanceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -639,6 +702,7 @@ model DeleteNamespaceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DeleteNamespaceResponse
  */
+@context("deleteNamespaceWithContext")
 async function deleteNamespaceWithOptions(request: DeleteNamespaceRequest, runtime: $RuntimeOptions): DeleteNamespaceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -880,6 +944,7 @@ model DescribeInstancesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeInstancesResponse
  */
+@context("describeInstancesWithContext")
 async function describeInstancesWithOptions(tmpReq: DescribeInstancesRequest, runtime: $RuntimeOptions): DescribeInstancesResponse {
   tmpReq.validate();
   var request = new DescribeInstancesShrinkRequest{};
@@ -995,6 +1060,7 @@ model DescribeNamespacesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeNamespacesResponse
  */
+@context("describeNamespacesWithContext")
 async function describeNamespacesWithOptions(tmpReq: DescribeNamespacesRequest, runtime: $RuntimeOptions): DescribeNamespacesResponse {
   tmpReq.validate();
   var request = new DescribeNamespacesShrinkRequest{};
@@ -1115,6 +1181,7 @@ model DescribeSupportedZonesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return DescribeSupportedZonesResponse
  */
+@context("describeSupportedZonesWithContext")
 async function describeSupportedZonesWithOptions(request: DescribeSupportedZonesRequest, runtime: $RuntimeOptions): DescribeSupportedZonesResponse {
   request.validate();
   var query = OpenApiUtil.query(request.toMap());
@@ -1187,6 +1254,7 @@ model ListTagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListTagResourcesResponse
  */
+@context("listTagResourcesWithContext")
 async function listTagResourcesWithOptions(request: ListTagResourcesRequest, runtime: $RuntimeOptions): ListTagResourcesResponse {
   request.validate();
   var query = {};
@@ -1267,6 +1335,7 @@ model ModifyElasticResourceSpecResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyElasticResourceSpecResponse
  */
+@context("modifyElasticResourceSpecWithContext")
 async function modifyElasticResourceSpecWithOptions(tmpReq: ModifyElasticResourceSpecRequest, runtime: $RuntimeOptions): ModifyElasticResourceSpecResponse {
   tmpReq.validate();
   var request = new ModifyElasticResourceSpecShrinkRequest{};
@@ -1337,12 +1406,16 @@ model ModifyInstanceVswitchResponse = {
 }
 
 /**
+ * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
+ *
  * @summary 修改集群交换机
  *
  * @param tmpReq ModifyInstanceVswitchRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyInstanceVswitchResponse
  */
+// Deprecated
+@context("modifyInstanceVswitchWithContext")
 async function modifyInstanceVswitchWithOptions(tmpReq: ModifyInstanceVswitchRequest, runtime: $RuntimeOptions): ModifyInstanceVswitchResponse {
   tmpReq.validate();
   var request = new ModifyInstanceVswitchShrinkRequest{};
@@ -1381,11 +1454,14 @@ async function modifyInstanceVswitchWithOptions(tmpReq: ModifyInstanceVswitchReq
 }
 
 /**
+ * @deprecated OpenAPI ModifyInstanceVswitch is deprecated
+ *
  * @summary 修改集群交换机
  *
  * @param request ModifyInstanceVswitchRequest
  * @return ModifyInstanceVswitchResponse
  */
+// Deprecated
 async function modifyInstanceVswitch(request: ModifyInstanceVswitchRequest): ModifyInstanceVswitchResponse {
   var runtime = new $RuntimeOptions{};
   return modifyInstanceVswitchWithOptions(request, runtime);
@@ -1433,6 +1509,7 @@ model ModifyNamespaceSpecV2Response = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return ModifyNamespaceSpecV2Response
  */
+@context("modifyNamespaceSpecV2WithContext")
 async function modifyNamespaceSpecV2WithOptions(tmpReq: ModifyNamespaceSpecV2Request, runtime: $RuntimeOptions): ModifyNamespaceSpecV2Response {
   tmpReq.validate();
   var request = new ModifyNamespaceSpecV2ShrinkRequest{};
@@ -1540,6 +1617,7 @@ model ModifyPrepayInstanceSpecResponse = {
  * @return ModifyPrepayInstanceSpecResponse
  */
 // Deprecated
+@context("modifyPrepayInstanceSpecWithContext")
 async function modifyPrepayInstanceSpecWithOptions(tmpReq: ModifyPrepayInstanceSpecRequest, runtime: $RuntimeOptions): ModifyPrepayInstanceSpecResponse {
   tmpReq.validate();
   var request = new ModifyPrepayInstanceSpecShrinkRequest{};
@@ -1644,6 +1722,7 @@ model ModifyPrepayNamespaceSpecResponse = {
  * @return ModifyPrepayNamespaceSpecResponse
  */
 // Deprecated
+@context("modifyPrepayNamespaceSpecWithContext")
 async function modifyPrepayNamespaceSpecWithOptions(tmpReq: ModifyPrepayNamespaceSpecRequest, runtime: $RuntimeOptions): ModifyPrepayNamespaceSpecResponse {
   tmpReq.validate();
   var request = new ModifyPrepayNamespaceSpecShrinkRequest{};
@@ -1709,7 +1788,9 @@ model QueryConvertInstancePriceRequest {
     }
   ](name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceShrinkRequest {
@@ -1718,7 +1799,9 @@ model QueryConvertInstancePriceShrinkRequest {
   isAutoRenew?: boolean(name='IsAutoRenew', description='This parameter is required.', example='true'),
   namespaceResourceSpecsShrink?: string(name='NamespaceResourceSpecs', description='This parameter is required.'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryConvertInstancePriceResponseBody = {
@@ -1772,6 +1855,7 @@ model QueryConvertInstancePriceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryConvertInstancePriceResponse
  */
+@context("queryConvertInstancePriceWithContext")
 async function queryConvertInstancePriceWithOptions(tmpReq: QueryConvertInstancePriceRequest, runtime: $RuntimeOptions): QueryConvertInstancePriceResponse {
   tmpReq.validate();
   var request = new QueryConvertInstancePriceShrinkRequest{};
@@ -1795,8 +1879,14 @@ async function queryConvertInstancePriceWithOptions(tmpReq: QueryConvertInstance
   if (!$isNull(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!$isNull(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!$isNull(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!$isNull(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -1882,6 +1972,7 @@ model QueryConvertPrepayInstancePriceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryConvertPrepayInstancePriceResponse
  */
+@context("queryConvertPrepayInstancePriceWithContext")
 async function queryConvertPrepayInstancePriceWithOptions(request: QueryConvertPrepayInstancePriceRequest, runtime: $RuntimeOptions): QueryConvertPrepayInstancePriceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2018,6 +2109,7 @@ model QueryCreateInstancePriceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryCreateInstancePriceResponse
  */
+@context("queryCreateInstancePriceWithContext")
 async function queryCreateInstancePriceWithOptions(tmpReq: QueryCreateInstancePriceRequest, runtime: $RuntimeOptions): QueryCreateInstancePriceResponse {
   tmpReq.validate();
   var request = new QueryCreateInstancePriceShrinkRequest{};
@@ -2190,6 +2282,7 @@ model QueryModifyInstancePriceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryModifyInstancePriceResponse
  */
+@context("queryModifyInstancePriceWithContext")
 async function queryModifyInstancePriceWithOptions(tmpReq: QueryModifyInstancePriceRequest, runtime: $RuntimeOptions): QueryModifyInstancePriceResponse {
   tmpReq.validate();
   var request = new QueryModifyInstancePriceShrinkRequest{};
@@ -2260,7 +2353,9 @@ model QueryRenewInstancePriceRequest {
   duration?: int32(name='Duration', description='This parameter is required.', example='1'),
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model QueryRenewInstancePriceResponseBody = {
@@ -2314,6 +2409,7 @@ model QueryRenewInstancePriceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryRenewInstancePriceResponse
  */
+@context("queryRenewInstancePriceWithContext")
 async function queryRenewInstancePriceWithOptions(request: QueryRenewInstancePriceRequest, runtime: $RuntimeOptions): QueryRenewInstancePriceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2326,8 +2422,14 @@ async function queryRenewInstancePriceWithOptions(request: QueryRenewInstancePri
   if (!$isNull(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!$isNull(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!$isNull(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!$isNull(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -2361,7 +2463,9 @@ model RenewInstanceRequest {
   duration?: int32(name='Duration', description='This parameter is required.', example='1'),
   instanceId?: string(name='InstanceId', description='This parameter is required.', example='sc_flinkserverless_public_cn-7e22ae5sess'),
   pricingCycle?: string(name='PricingCycle', description='This parameter is required.', example='Month'),
+  promotionCode?: string(name='PromotionCode'),
   region?: string(name='Region', description='This parameter is required.', example='cn-beijing'),
+  usePromotionCode?: boolean(name='UsePromotionCode'),
 }
 
 model RenewInstanceResponseBody = {
@@ -2383,6 +2487,7 @@ model RenewInstanceResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return RenewInstanceResponse
  */
+@context("renewInstanceWithContext")
 async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: $RuntimeOptions): RenewInstanceResponse {
   request.validate();
   var body : map[string]any = {};
@@ -2395,8 +2500,14 @@ async function renewInstanceWithOptions(request: RenewInstanceRequest, runtime: 
   if (!$isNull(request.pricingCycle)) {
     body['PricingCycle'] = request.pricingCycle;
   }
+  if (!$isNull(request.promotionCode)) {
+    body['PromotionCode'] = request.promotionCode;
+  }
   if (!$isNull(request.region)) {
     body['Region'] = request.region;
+  }
+  if (!$isNull(request.usePromotionCode)) {
+    body['UsePromotionCode'] = request.usePromotionCode;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     body = OpenApiUtil.parseToMap(body),
@@ -2459,6 +2570,7 @@ model TagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return TagResourcesResponse
  */
+@context("tagResourcesWithContext")
 async function tagResourcesWithOptions(request: TagResourcesRequest, runtime: $RuntimeOptions): TagResourcesResponse {
   request.validate();
   var query = {};
@@ -2531,6 +2643,7 @@ model UntagResourcesResponse = {
  * @param runtime runtime options for this request RuntimeOptions
  * @return UntagResourcesResponse
  */
+@context("untagResourcesWithContext")
 async function untagResourcesWithOptions(request: UntagResourcesRequest, runtime: $RuntimeOptions): UntagResourcesResponse {
   request.validate();
   var query = {};
