@@ -233,6 +233,7 @@ model CreateApplicationRequest {
   areaId?: string(name='AreaId', description='The ID of the region.', example='cn-hangzhou'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019'),
   configuration?: map[string]string(name='Configuration', description='The parameters that are used to configure the application you want to create. For example, enableMonitor specifies whether to automatically create a CloudMonitor task for the application, and enableReport specifies whether to generate reports.', example='{"enableMonitor":"0", "enableReport":"1"}'),
+  createAsync?: boolean(name='CreateAsync'),
   instances?: [ 
     {
       id?: string(name='Id', description='The ID of the instance.', example='vpc-bp1q56trhtaq40vlq5ojm'),
@@ -258,6 +259,7 @@ model CreateApplicationShrinkRequest {
   areaId?: string(name='AreaId', description='The ID of the region.', example='cn-hangzhou'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request.', example='1600765710019'),
   configurationShrink?: string(name='Configuration', description='The parameters that are used to configure the application you want to create. For example, enableMonitor specifies whether to automatically create a CloudMonitor task for the application, and enableReport specifies whether to generate reports.', example='{"enableMonitor":"0", "enableReport":"1"}'),
+  createAsync?: boolean(name='CreateAsync'),
   instancesShrink?: string(name='Instances', description='The instances in which you want to create the application. You can create applications in an existing virtual private cloud (VPC).'),
   name?: string(name='Name', description='The name of the application.
 
@@ -320,6 +322,9 @@ async function createApplicationWithOptions(tmpReq: CreateApplicationRequest, ru
   if (!$isNull(request.configurationShrink)) {
     body['Configuration'] = request.configurationShrink;
   }
+  if (!$isNull(request.createAsync)) {
+    body['CreateAsync'] = request.createAsync;
+  }
   if (!$isNull(request.instancesShrink)) {
     body['Instances'] = request.instancesShrink;
   }
@@ -364,6 +369,89 @@ async function createApplicationWithOptions(tmpReq: CreateApplicationRequest, ru
 async function createApplication(request: CreateApplicationRequest): CreateApplicationResponse {
   var runtime = new $RuntimeOptions{};
   return createApplicationWithOptions(request, runtime);
+}
+
+model CreateTaskRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='JXT3MLZJ56**65D6'),
+  processId?: string(name='ProcessId', description='This parameter is required.', example='P3KTG43SW7**6A17I'),
+  taskName?: string(name='TaskName', description='This parameter is required.', example='test'),
+  variables?: map[string]any(name='Variables'),
+}
+
+model CreateTaskShrinkRequest {
+  appId?: string(name='AppId', description='This parameter is required.', example='JXT3MLZJ56**65D6'),
+  processId?: string(name='ProcessId', description='This parameter is required.', example='P3KTG43SW7**6A17I'),
+  taskName?: string(name='TaskName', description='This parameter is required.', example='test'),
+  variablesShrink?: string(name='Variables'),
+}
+
+model CreateTaskResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: int32(name='Data', example='1994'),
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F439A659-3B3D-50FB-A4BC-69FBF16413C8'),
+}
+
+model CreateTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建任务
+ *
+ * @param tmpReq CreateTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateTaskResponse
+ */
+@context("createTaskWithContext")
+async function createTaskWithOptions(tmpReq: CreateTaskRequest, runtime: $RuntimeOptions): CreateTaskResponse {
+  tmpReq.validate();
+  var request = new CreateTaskShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.variables)) {
+    request.variablesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.variables, 'Variables', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.appId)) {
+    body['AppId'] = request.appId;
+  }
+  if (!$isNull(request.processId)) {
+    body['ProcessId'] = request.processId;
+  }
+  if (!$isNull(request.taskName)) {
+    body['TaskName'] = request.taskName;
+  }
+  if (!$isNull(request.variablesShrink)) {
+    body['Variables'] = request.variablesShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateTask',
+    version = '2021-09-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建任务
+ *
+ * @param request CreateTaskRequest
+ * @return CreateTaskResponse
+ */
+async function createTask(request: CreateTaskRequest): CreateTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return createTaskWithOptions(request, runtime);
 }
 
 model DeleteApplicationRequest {
@@ -758,6 +846,70 @@ async function executeOperationSyncWithOptions(tmpReq: ExecuteOperationSyncReque
 async function executeOperationSync(request: ExecuteOperationSyncRequest): ExecuteOperationSyncResponse {
   var runtime = new $RuntimeOptions{};
   return executeOperationSyncWithOptions(request, runtime);
+}
+
+model ExecuteTaskRequest {
+  taskId?: int32(name='TaskId', example='2615'),
+}
+
+model ExecuteTaskResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    errorMessage?: string(name='ErrorMessage', example='SyntaxError'),
+    id?: int32(name='Id', example='2615'),
+    name?: string(name='Name', example='test_name'),
+    status?: string(name='Status', example='FINISH'),
+  }(name='Data'),
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
+}
+
+model ExecuteTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建任务
+ *
+ * @param request ExecuteTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteTaskResponse
+ */
+@context("executeTaskWithContext")
+async function executeTaskWithOptions(request: ExecuteTaskRequest, runtime: $RuntimeOptions): ExecuteTaskResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ExecuteTask',
+    version = '2021-09-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建任务
+ *
+ * @param request ExecuteTaskRequest
+ * @return ExecuteTaskResponse
+ */
+async function executeTask(request: ExecuteTaskRequest): ExecuteTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return executeTaskWithOptions(request, runtime);
 }
 
 model GetApplicationRequest {
@@ -1531,6 +1683,74 @@ async function getResult4QueryInstancePrice4ModifyWithOptions(request: GetResult
 async function getResult4QueryInstancePrice4Modify(request: GetResult4QueryInstancePrice4ModifyRequest): GetResult4QueryInstancePrice4ModifyResponse {
   var runtime = new $RuntimeOptions{};
   return getResult4QueryInstancePrice4ModifyWithOptions(request, runtime);
+}
+
+model GetTaskRequest {
+  taskId?: string(name='TaskId', example='2615'),
+}
+
+model GetTaskResponseBody = {
+  code?: int32(name='Code', example='200'),
+  data?: {
+    appId?: string(name='AppId', example='JXT**LZJ568665D6'),
+    errorMessage?: string(name='ErrorMessage', example='SyntaxError'),
+    gmtCreate?: string(name='GmtCreate', example='2025-08-21 14:07:02'),
+    id?: int32(name='Id', example='1333'),
+    instanceIds?: string(name='InstanceIds', example='{\\\\"app\\\\":\\\\"JJXT**LZJ568665D6\\\\"}'),
+    name?: string(name='Name', example='test_name'),
+    processId?: string(name='ProcessId', example='64QQBC02**FA3W3G'),
+    status?: string(name='Status', example='FINISH'),
+  }(name='Data'),
+  message?: string(name='Message', example='Success'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A07FFDF2-78FA-1B48-9E38-88E833A93187'),
+}
+
+model GetTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取Task信息
+ *
+ * @param request GetTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTaskResponse
+ */
+@context("getTaskWithContext")
+async function getTaskWithOptions(request: GetTaskRequest, runtime: $RuntimeOptions): GetTaskResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.taskId)) {
+    body['TaskId'] = request.taskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetTask',
+    version = '2021-09-31',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取Task信息
+ *
+ * @param request GetTaskRequest
+ * @return GetTaskResponse
+ */
+async function getTask(request: GetTaskRequest): GetTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return getTaskWithOptions(request, runtime);
 }
 
 model GetTemplateRequest {
