@@ -3999,31 +3999,31 @@ async function createMetaCollection(request: CreateMetaCollectionRequest): Creat
 model CreatePermissionApplyOrderRequest {
   applyObject?: [ 
     {
-      actions?: string(name='Actions', description='The permission that you want to request. If you want to request multiple permissions at the same time, separate them with commas (,). You can request only the following permissions: Select, Describe, Drop, Alter, Update, and Download.', example='Select,Describe'),
+      actions?: string(name='Actions', description='The type of permissions requested. Use commas (,) to separate multiple permission types in a single request. Currently only supports Select, Describe, Drop, Alter, Update, and Download permission types.', example='Select,Describe'),
       columnMetaList?: [ 
         {
-          actions?: string(name='Actions'),
-          name?: string(name='Name', description='The field on which you want to request permissions. If you want to request permissions on an entire table, enter all fields in the table. You can request permissions on specific fields of a table in a MaxCompute project only after LabelSecurity is enabled for this project. If LabelSecurity is disabled, you can request permissions only on an entire table.', example='aColumnName'),
+          actions?: string(name='Actions', example='Select'),
+          name?: string(name='Name', description='Permissions for the target columns. Enter the column names here. If applying for permissions on the entire table, enter all column names of the table. Permissions for specific columns can only be requested if labelSecurity is enabled for the MaxCompute project. Otherwise, you can only apply for permissions on the entire table.', example='aColumnName'),
         }
-      ](name='ColumnMetaList', description='The fields on which you want to request permissions.'),
-      name?: string(name='Name', description='The name of the object on which you want to request permissions. You can request permissions only on MaxCompute tables. Set this parameter to the name of the table on which you want to request permissions.', example='aTableName'),
+      ](name='ColumnMetaList', description='The list of column objects.'),
+      name?: string(name='Name', description='The object you request access to. Currently, only permission requests for MaxCompute tables are supported. The name of the target table needs to be entered here.', example='aTableName'),
     }
-  ](name='ApplyObject', description='The objects on which you want to request permissions.
+  ](name='ApplyObject', description='The list of requested objects.
 
 This parameter is required.'),
   applyReason?: string(name='ApplyReason', description='The reason for your request. The administrator determines whether to approve the request based on the reason.
 
 This parameter is required.', example='I need to use this table'),
-  applyType?: string(name='ApplyType'),
+  applyType?: string(name='ApplyType', example='MaxComputeTable'),
   applyUserIds?: string(name='ApplyUserIds', description='The ID of the Alibaba Cloud account for which you want to request permissions. If you want to request permissions for multiple Alibaba Cloud accounts, separate the IDs of the accounts with commas (,).
 
 This parameter is required.', example='267842600408993176,267842600408993177'),
-  catalogName?: string(name='CatalogName'),
+  catalogName?: string(name='CatalogName', example='hive'),
   deadline?: long(name='Deadline', description='The expiration time of the permissions that you request. This value is a UNIX timestamp. The default value is January 1, 2065. If LabelSecurity is disabled for the MaxCompute project in which you want to request permissions on the fields of a table, or the security level of the fields is 0 or is lower than or equal to the security level of the Alibaba Cloud account for which you want to request permissions, you can request only permanent permissions. You can go to the Workspace Management page in the DataWorks console, click MaxCompute Management in the left-side navigation pane, and then check whether column-level access control is enabled. You can go to your DataWorks workspace, view the security level of the fields in Data Map, and then view the security level of the Alibaba Cloud account on the User Management page.', example='1617115071885'),
-  engineType?: string(name='EngineType', description='The type of the compute engine in which you want to request permissions on the fields of a table. The parameter value is odps and cannot be changed. This value indicates that you can request permissions only on fields of tables in the MaxCompute compute engine.', example='odps', deprecated=true, nullable=true),
-  maxComputeProjectName?: string(name='MaxComputeProjectName', description='The name of the MaxCompute project in which you request permissions on the fields of a table.', example='aMaxcomputeProjectName'),
-  orderType?: int32(name='OrderType', description='The type of the permission request order. The parameter value is 1 and cannot be changed. This value indicates ACL-based authorization.', example='1', deprecated=true, nullable=true),
-  workspaceId?: int32(name='WorkspaceId', description='The ID of the DataWorks workspace that is associated with the MaxCompute project in which you want to request permissions on the fields of a table. You can go to the SettingCenter page in the DataWorks console to view the workspace ID.', example='12345'),
+  engineType?: string(name='EngineType', description='The type of compute engine for permission requests. Currently only supports ODPS, which means only MaxCompute compute engine permissions are supported.', example='odps', deprecated=true, nullable=true),
+  maxComputeProjectName?: string(name='MaxComputeProjectName', description='The name of the MaxCompute project you request access to.', example='aMaxcomputeProjectName'),
+  orderType?: int32(name='OrderType', description='The request type. The only supported value is 1, which represents an object ACL permission request.', example='1', deprecated=true, nullable=true),
+  workspaceId?: int32(name='WorkspaceId', description='The DataWorks workspace ID to which the MaxCompute project belongs for permission requests. You can check the workspace ID on the DataWorks workspace configuration page.', example='12345'),
 }
 
 model CreatePermissionApplyOrderResponseBody = {
@@ -16780,6 +16780,8 @@ model GetPermissionApplyOrderDetailResponseBody = {
         workspaceId?: int32(name='WorkspaceId', description='The ID of the DataWorks workspace that is associated with the object on which you request permissions.', example='12345'),
       }(name='ProjectMeta', description='The information about the project and workspace that are associated with the object on which you request permissions.'),
     }(name='ApproveContent', description='The content of the permission request.'),
+    finishAapprovalTimestamp?: long(name='FinishAapprovalTimestamp'),
+    finishApprovalComment?: string(name='FinishApprovalComment'),
     flowId?: string(name='FlowId', description='The ID of the permission request order.', example='ad8da78d-8135-455e-9486-27cf213fc140'),
     flowStatus?: int32(name='FlowStatus', description='The status of the permission request order. Valid values:
 
@@ -23749,10 +23751,18 @@ async function listNodesByOutput(request: ListNodesByOutputRequest): ListNodesBy
 }
 
 model ListPermissionApplyOrdersRequest {
-  applyType?: string(name='ApplyType'),
-  catalogName?: string(name='CatalogName'),
+  applyType?: string(name='ApplyType', description='设置申请单类型，枚举值为：
+
+- [ MaxComputeTable]  MaxCompute表权限申请单
+- [ MaxComputeFunction] MaxCompute函数申请单
+- [ MaxComputeResource] MaxCompute资源申请单
+- [ DLFSchema] DLF1.0版本Schema权限申请单
+- [ DLFTable] DLF1.0版本表权限申请单
+- [ DLFColumn] DLF1.0版本列权限申请单
+- [ DsApiDeploy] 发布数据服务权限申请单', example='MaxComputeTable'),
+  catalogName?: string(name='CatalogName', description='查询的数据目录名称。', example='hive'),
   endTime?: long(name='EndTime', description='The end of the time range to query. You can query all the permissions request orders that have been submitted before the time. The parameter value is a UNIX timestamp. If you do not specify the parameter, all permission request orders that are submitted before the current time are queried.', example='1617200471885'),
-  engineType?: string(name='EngineType', description='The type of the compute engine with which the permission request order is associated. The parameter value is odps and cannot be changed. This value indicates that you can request permissions only on fields of tables in the MaxCompute compute engine.', example='odps', deprecated=true),
+  engineType?: string(name='EngineType', description='The type of the compute engine with which the permission request order is associated. The parameter value is odps and cannot be changed. This value indicates that you can request permissions only on fields of tables in the MaxCompute compute engine.', example='odps'),
   flowStatus?: int32(name='FlowStatus', description='The status of the permission request order. Valid values:
 
 *   1: to be processed
@@ -23760,7 +23770,7 @@ model ListPermissionApplyOrdersRequest {
 *   3: approved but authorization failed
 *   4: rejected', example='1'),
   maxComputeProjectName?: string(name='MaxComputeProjectName', description='The name of the MaxCompute project with which the permission request order is associated. If you do not specify the parameter, the permission request orders of all MaxCompute projects are returned.', example='aMaxComputeProject'),
-  orderType?: int32(name='OrderType', description='The type of the permission request order. The parameter value is 1 and cannot be changed. This value indicates ACL-based authorization.', example='1', deprecated=true),
+  orderType?: int32(name='OrderType', description='The type of the permission request order. The parameter value is 1 and cannot be changed. This value indicates ACL-based authorization.', example='1'),
   pageNum?: int32(name='PageNum', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='100'),
   queryType?: int32(name='QueryType', description='The query type of the permission request order. Valid values:
@@ -23793,6 +23803,8 @@ model ListPermissionApplyOrdersResponseBody = {
             workspaceName?: string(name='WorkspaceName', description='The name of the DataWorks workspace that is associated with the MaxCompute project in which you requested permissions on a table.', example='aWorkspaceName'),
           }(name='ProjectMeta', description='The content of the object on which you requested permissions.'),
         }(name='ApproveContent', description='The content of the permission request order.'),
+        finishApprovalComment?: string(name='FinishApprovalComment'),
+        finishApprovalTimestamp?: long(name='FinishApprovalTimestamp'),
         flowId?: string(name='FlowId', description='The ID of the permission request order.', example='ad8da78d-8135-455e-9486-27cf213fc140'),
         flowStatus?: int32(name='FlowStatus', description='The status of the permission request order. Valid values:
 
@@ -23816,7 +23828,7 @@ model ListPermissionApplyOrdersResponse = {
 }
 
 /**
- * @summary Queries a list of permission request orders.
+ * @summary Views permission requests.
  *
  * @param request ListPermissionApplyOrdersRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23882,7 +23894,7 @@ async function listPermissionApplyOrdersWithOptions(request: ListPermissionApply
 }
 
 /**
- * @summary Queries a list of permission request orders.
+ * @summary Views permission requests.
  *
  * @param request ListPermissionApplyOrdersRequest
  * @return ListPermissionApplyOrdersResponse
