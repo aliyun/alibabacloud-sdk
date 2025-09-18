@@ -57,6 +57,7 @@ model CatalogSummary {
   throughputMonthly?: long(name='throughputMonthly'),
   totalFileCount?: MoMValues(name='totalFileCount'),
   totalFileSizeInBytes?: MoMValues(name='totalFileSizeInBytes'),
+  totalMetaSizeInBytes?: MoMValues(name='totalMetaSizeInBytes'),
 }
 
 model CatalogSummaryTrend {
@@ -112,6 +113,7 @@ model DatabaseSummary {
   tableCount?: long(name='tableCount', description='Total storage in bytes'),
   totalFileCount?: long(name='totalFileCount'),
   totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Total file count'),
+  totalMetaSizeInBytes?: long(name='totalMetaSizeInBytes'),
 }
 
 model DateSummary {
@@ -207,6 +209,7 @@ model IcebergTableMetadata {
   fields?: [
     IcebergNestedField
   ](name='fields'),
+  identifierFieldIds?: [ int32 ](name='identifierFieldIds'),
   partitionFields?: [
     IcebergPartitionField
   ](name='partitionFields'),
@@ -412,9 +415,24 @@ model Table {
 model TableCompaction {
   catalogId?: string(name='catalogId'),
   cuUsage?: double(name='cuUsage'),
-  lastCompactedFileTime?: long(name='lastCompactedFileTime'),
-  maxLevel0FileCount?: string(name='maxLevel0FileCount'),
+  lastCompactedFileTime?: long(name='lastCompactedFileTime', deprecated=true, nullable=true),
+  latencyFileEarliestTime?: long(name='latencyFileEarliestTime'),
+  maxLevel0FileCount?: string(name='maxLevel0FileCount', deprecated=true, nullable=true),
   tableId?: string(name='tableId'),
+}
+
+model TableCompactionHistory {
+  afterFilesCount?: long(name='afterFilesCount'),
+  afterFilesSize?: long(name='afterFilesSize'),
+  beforeFilesCount?: long(name='beforeFilesCount'),
+  beforeFilesLastCreationTime?: long(name='beforeFilesLastCreationTime'),
+  beforeFilesSize?: long(name='beforeFilesSize'),
+  catalogId?: string(name='catalogId'),
+  commitTime?: long(name='commitTime'),
+  snapshotId?: long(name='snapshotId'),
+  tableId?: string(name='tableId'),
+  updatedAt?: long(name='updatedAt'),
+  updatedBy?: string(name='updatedBy'),
 }
 
 model TableSnapshot {
@@ -442,6 +460,7 @@ model TableSummary {
   tableName?: string(name='tableName', description='Table name'),
   totalFileCount?: long(name='totalFileCount', description='30-day access count'),
   totalFileSizeInBytes?: long(name='totalFileSizeInBytes'),
+  totalMetaSizeInBytes?: long(name='totalMetaSizeInBytes'),
   updatedAt?: long(name='updatedAt'),
 }
 
@@ -2446,6 +2465,66 @@ async function getTableSummary(catalogId: string, database: string, table: strin
   return getTableSummaryWithOptions(catalogId, database, table, request, headers, runtime);
 }
 
+model GetTableTokenRequest {
+  isInternal?: boolean(name='isInternal', example='true'),
+}
+
+model GetTableTokenResponseBody = {
+  expiresAtMillis?: long(name='expiresAtMillis', example='1749160909000'),
+  token?: map[string]string(name='token'),
+}
+
+model GetTableTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTableTokenResponseBody(name='body'),
+}
+
+/**
+ * @summary 获取数据湖表的临时访问凭证
+ *
+ * @param request GetTableTokenRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetTableTokenResponse
+ */
+async function getTableTokenWithOptions(catalogId: string, database: string, table: string, request: GetTableTokenRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetTableTokenResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.isInternal)) {
+    query['isInternal'] = request.isInternal;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetTableToken',
+    version = '2025-03-10',
+    protocol = 'HTTPS',
+    pathname = `/dlf/v1/${OpenApiUtil.getEncodeParam(catalogId)}/databases/${OpenApiUtil.getEncodeParam(database)}/tables/${OpenApiUtil.getEncodeParam(table)}/token`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取数据湖表的临时访问凭证
+ *
+ * @param request GetTableTokenRequest
+ * @return GetTableTokenResponse
+ */
+async function getTableToken(catalogId: string, database: string, table: string, request: GetTableTokenRequest): GetTableTokenResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getTableTokenWithOptions(catalogId, database, table, request, headers, runtime);
+}
+
 model GetUserRequest {
   userPrincipal?: string(name='userPrincipal', example='acs:ram::[accountId]:user/user_name'),
 }
@@ -3671,6 +3750,7 @@ model ListTableDetailsRequest {
   maxResults?: int32(name='maxResults', example='1000'),
   pageToken?: string(name='pageToken', example='""'),
   tableNamePattern?: string(name='tableNamePattern'),
+  type?: string(name='type'),
 }
 
 model ListTableDetailsResponseBody = {
@@ -3705,6 +3785,9 @@ async function listTableDetailsWithOptions(catalogId: string, database: string, 
   }
   if (!Util.isUnset(request.tableNamePattern)) {
     query['tableNamePattern'] = request.tableNamePattern;
+  }
+  if (!Util.isUnset(request.type)) {
+    query['type'] = request.type;
   }
 
   var req = new OpenApi.OpenApiRequest{ 

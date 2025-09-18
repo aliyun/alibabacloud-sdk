@@ -59,6 +59,7 @@ model CatalogSummary {
   throughputMonthly?: long(name='throughputMonthly'),
   totalFileCount?: MoMValues(name='totalFileCount'),
   totalFileSizeInBytes?: MoMValues(name='totalFileSizeInBytes'),
+  totalMetaSizeInBytes?: MoMValues(name='totalMetaSizeInBytes'),
 }
 
 model CatalogSummaryTrend {
@@ -114,6 +115,7 @@ model DatabaseSummary {
   tableCount?: long(name='tableCount', description='Total storage in bytes'),
   totalFileCount?: long(name='totalFileCount'),
   totalFileSizeInBytes?: long(name='totalFileSizeInBytes', description='Total file count'),
+  totalMetaSizeInBytes?: long(name='totalMetaSizeInBytes'),
 }
 
 model DateSummary {
@@ -209,6 +211,7 @@ model IcebergTableMetadata {
   fields?: [
     IcebergNestedField
   ](name='fields'),
+  identifierFieldIds?: [ int32 ](name='identifierFieldIds'),
   partitionFields?: [
     IcebergPartitionField
   ](name='partitionFields'),
@@ -414,9 +417,24 @@ model Table {
 model TableCompaction {
   catalogId?: string(name='catalogId'),
   cuUsage?: double(name='cuUsage'),
-  lastCompactedFileTime?: long(name='lastCompactedFileTime'),
-  maxLevel0FileCount?: string(name='maxLevel0FileCount'),
+  lastCompactedFileTime?: long(name='lastCompactedFileTime', deprecated='true'),
+  latencyFileEarliestTime?: long(name='latencyFileEarliestTime'),
+  maxLevel0FileCount?: string(name='maxLevel0FileCount', deprecated='true'),
   tableId?: string(name='tableId'),
+}
+
+model TableCompactionHistory {
+  afterFilesCount?: long(name='afterFilesCount'),
+  afterFilesSize?: long(name='afterFilesSize'),
+  beforeFilesCount?: long(name='beforeFilesCount'),
+  beforeFilesLastCreationTime?: long(name='beforeFilesLastCreationTime'),
+  beforeFilesSize?: long(name='beforeFilesSize'),
+  catalogId?: string(name='catalogId'),
+  commitTime?: long(name='commitTime'),
+  snapshotId?: long(name='snapshotId'),
+  tableId?: string(name='tableId'),
+  updatedAt?: long(name='updatedAt'),
+  updatedBy?: string(name='updatedBy'),
 }
 
 model TableSnapshot {
@@ -444,6 +462,7 @@ model TableSummary {
   tableName?: string(name='tableName', description='Table name'),
   totalFileCount?: long(name='totalFileCount', description='30-day access count'),
   totalFileSizeInBytes?: long(name='totalFileSizeInBytes'),
+  totalMetaSizeInBytes?: long(name='totalMetaSizeInBytes'),
   updatedAt?: long(name='updatedAt'),
 }
 
@@ -1272,6 +1291,33 @@ async function getTableSummary(request: GetTableSummaryRequest): GetTableSummary
   return @handler.do('RESTFUL', 'GetTableSummary', 'GET', '/dlf/v1/{catalogId}/databases/{database}/tables/{table}/storage-summary', 'json', false, 'json', request);
 }
 
+model GetTableTokenRequest {
+  catalogId: string(name='catalogId', description='This parameter is required.', example='clg-paimon-xxx', position='Path'),
+  database: string(name='database', description='This parameter is required.', example='database_name', position='Path'),
+  table: string(name='table', description='This parameter is required.', example='table_name', position='Path'),
+  isInternal?: boolean(name='isInternal', example='true', position='Query'),
+}
+
+model GetTableTokenResponseBody = {
+  expiresAtMillis?: long(name='expiresAtMillis', example='1749160909000'),
+  token?: map[string]string(name='token'),
+}
+
+model GetTableTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetTableTokenResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetTableToken  GetTableTokenRequest
+  * @return GetTableTokenResponse
+ */
+async function getTableToken(request: GetTableTokenRequest): GetTableTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetTableToken', 'GET', '/dlf/v1/{catalogId}/databases/{database}/tables/{table}/token', 'json', false, 'json', request);
+}
+
 model GetUserRequest {
   userPrincipal?: string(name='userPrincipal', example='acs:ram::[accountId]:user/user_name', position='Query'),
 }
@@ -1772,6 +1818,7 @@ model ListTableDetailsRequest {
   maxResults?: int32(name='maxResults', example='1000', position='Query'),
   pageToken?: string(name='pageToken', example='""', position='Query'),
   tableNamePattern?: string(name='tableNamePattern', position='Query'),
+  type?: string(name='type', position='Query'),
 }
 
 model ListTableDetailsResponseBody = {
