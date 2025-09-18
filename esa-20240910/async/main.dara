@@ -2879,27 +2879,71 @@ async function createSlrRoleForRealtimeLog(request: CreateSlrRoleForRealtimeLogR
 }
 
 model CreateTransportLayerApplicationRequest {
-  crossBorderOptimization?: string(name='CrossBorderOptimization', position='Query'),
-  ipAccessRule?: string(name='IpAccessRule', position='Query'),
-  ipv6?: string(name='Ipv6', position='Query'),
-  recordName: string(name='RecordName', description='This parameter is required.', example='aaa.example.com', position='Query'),
+  crossBorderOptimization?: string(name='CrossBorderOptimization', description='Whether to enable China mainland network access optimization, default is disabled. Value range:
+- on: Enabled.
+- off: Disabled.', example='on', position='Query'),
+  ipAccessRule?: string(name='IpAccessRule', description='IP access rule switch. When enabled, the WAF\\"s IP access rules apply to the transport layer application.
+
+- on: Enabled.
+- off: Disabled.', example='on', position='Query'),
+  ipv6?: string(name='Ipv6', description='IPv6 switch.', example='off', position='Query'),
+  recordName: string(name='RecordName', description='Domain name of the transport layer application.
+
+This parameter is required.', example='aaa.example.com', position='Query'),
   rules: [ 
     {
-      clientIPPassThroughMode: string(name='ClientIPPassThroughMode', description='This parameter is required.', example='TOA'),
-      comment?: string(name='Comment'),
-      edgePort: string(name='EdgePort', description='This parameter is required.', example='80'),
-      protocol: string(name='Protocol', description='This parameter is required.', example='TCP'),
-      source: string(name='Source', description='This parameter is required.', example='1.1.1.1'),
-      sourcePort: string(name='SourcePort', description='This parameter is required.', example='80'),
-      sourceType: string(name='SourceType', description='This parameter is required.', example='ip'),
+      clientIPPassThroughMode: string(name='ClientIPPassThroughMode', description='Client IP pass-through protocol, supporting:
+- **off**: No pass-through.
+- **PPv1**: PROXY Protocol v1, supports client IP pass-through for TCP protocol.
+- **PPv2**: PROXY Protocol v2, supports client IP pass-through for TCP and UDP protocols.
+- **SPP**: Simple Proxy Protocol, supports client IP pass-through for UDP protocol.
+
+This parameter is required.', example='SPP'),
+      comment?: string(name='Comment', description='Comment information for the rule (optional).', example='测试'),
+      edgePort: string(name='EdgePort', description='Edge port. Supports:
+
+- A single port, such as 80.
+- Port range, such as 81-85, representing ports 81, 82, 83, 84, and 85.
+- Combination of ports and port ranges, separated by commas, such as 80,81-85,90, representing ports 80, 81, 82, 83, 84, 85, and 90.
+
+Edge ports within a single rule and between multiple rules must not overlap.
+
+This parameter is required.', example='80'),
+      protocol: string(name='Protocol', description='Forwarding rule protocol, with values:
+
+- TCP: TCP protocol.
+- UDP: UDP protocol.
+
+This parameter is required.', example='TCP'),
+      source: string(name='Source', description='Specific value of the origin, which needs to match the origin type.
+
+This parameter is required.', example='1.1.1.1'),
+      sourcePort: string(name='SourcePort', description='Origin port. Supports:
+
+- A single port, when the origin port is a single port, any valid combination of edge ports is supported.
+- Port range, only when the edge port is a port range, the origin port can be set to a port range, and the size of the range must match that of the edge port. For example, if the edge port is 90-93, the origin port cannot be set to 81-85 because the origin port range is 5 and the edge port range is 3, which do not match.
+
+This parameter is required.', example='80'),
+      sourceType: string(name='SourceType', description='Origin type, supporting:
+- **ip**: IP address.
+- **domain**: Domain name.
+- **OP**: Origin pool.
+- **LB**: Load balancer.
+
+This parameter is required.', example='ip'),
     }
-  ](name='Rules', description='This parameter is required.', shrink='json', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='123456****', position='Query'),
+  ](name='Rules', description='List of forwarding rules.
+
+This parameter is required.', shrink='json', position='Query'),
+  siteId: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456****', position='Query'),
+  staticIp?: string(name='StaticIp', position='Query'),
 }
 
 model CreateTransportLayerApplicationResponseBody = {
-  applicationId?: long(name='ApplicationId', example='165503967****'),
-  requestId?: string(name='RequestId', example='9e5448c7-edaf-49aa-9887-0fcd0832306c'),
+  applicationId?: long(name='ApplicationId', description='Layer 4 application ID', example='165503967****'),
+  requestId?: string(name='RequestId', description='Request ID.', example='9e5448c7-edaf-49aa-9887-0fcd0832306c'),
 }
 
 model CreateTransportLayerApplicationResponse = {
@@ -4511,12 +4555,16 @@ async function deleteSiteOriginClientCertificate(request: DeleteSiteOriginClient
 }
 
 model DeleteTransportLayerApplicationRequest {
-  applicationId: long(name='ApplicationId', description='This parameter is required.', example='170996390868****', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='123456****', position='Query'),
+  applicationId: long(name='ApplicationId', description='Application ID, which can be obtained by calling the [ListTransportLayerApplications](~~ListTransportLayerApplications~~) interface.
+
+This parameter is required.', example='170996390868****', position='Query'),
+  siteId: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) interface.
+
+This parameter is required.', example='123456****', position='Query'),
 }
 
 model DeleteTransportLayerApplicationResponseBody = {
-  requestId?: string(name='RequestId', example='90510C29-1E40-5A11-93F1-B9F5EDF57EE1'),
+  requestId?: string(name='RequestId', description='Request ID.', example='90510C29-1E40-5A11-93F1-B9F5EDF57EE1'),
 }
 
 model DeleteTransportLayerApplicationResponse = {
@@ -8046,8 +8094,6 @@ model GetRoutineResponseBody = {
   description?: string(name='Description', description='The description of the routine.', example='ZWRpdCByb3V0aW5lIGNvbmZpZyBkZXNjcmlwdGlvbg'),
   envs?: [ 
     {
-      canaryAreaList?: [ string ](name='CanaryAreaList', description='The regions for canary release.'),
-      canaryCodeVersion?: string(name='CanaryCodeVersion', description='The version number for canary release.', example='1710120201067577628'),
       codeDeploy?: {
         codeVersions?: [ 
           {
@@ -8061,7 +8107,6 @@ model GetRoutineResponseBody = {
         deployId?: string(name='DeployId'),
         strategy?: string(name='Strategy'),
       }(name='CodeDeploy'),
-      codeVersion?: string(name='CodeVersion', description='The version number of the code in the environment.', example='1710120201067577628'),
       env?: string(name='Env', description='The environment type.', example='production'),
     }
   ](name='Envs', description='The information about the environments.'),
@@ -8666,33 +8711,70 @@ async function getTieredCache(request: GetTieredCacheRequest): GetTieredCacheRes
 }
 
 model GetTransportLayerApplicationRequest {
-  applicationId: long(name='ApplicationId', description='This parameter is required.', example='170997271816****', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='123456****', position='Query'),
+  applicationId: long(name='ApplicationId', description='Application ID, which can be obtained by calling the [ListTransportLayerApplications](~~ListTransportLayerApplications~~) interface.
+
+This parameter is required.', example='170997271816****', position='Query'),
+  siteId: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456****', position='Query'),
 }
 
 model GetTransportLayerApplicationResponseBody = {
-  applicationId?: long(name='ApplicationId', example='17099311410****'),
-  cname?: string(name='Cname', example='example.com.ialicdn.com'),
-  crossBorderOptimization?: string(name='CrossBorderOptimization'),
-  ipAccessRule?: string(name='IpAccessRule'),
-  ipv6?: string(name='Ipv6'),
-  recordName?: string(name='RecordName', example='test.example.com'),
+  applicationId?: long(name='ApplicationId', description='Transport layer application ID.', example='17099311410****'),
+  cname?: string(name='Cname', description='The CNAME domain corresponding to the transport layer acceleration application. This field is not empty only when the site is accessed via CNAME.', example='example.com.ialicdn.com'),
+  crossBorderOptimization?: string(name='CrossBorderOptimization', description='Whether to enable China mainland network access optimization, default is off. Value range:
+- on: Enabled.
+- off: Disabled.', example='on'),
+  ipAccessRule?: string(name='IpAccessRule', description='Switch for IP access rules. When turned on, the IP access rules in WAF take effect on the transport layer application.
+
+- on: Turned on.
+- off: Turned off.', example='on'),
+  ipv6?: string(name='Ipv6', description='IPv6 switch.', example='on'),
+  recordName?: string(name='RecordName', description='The domain name of the transport layer application.', example='test.example.com'),
   requestId?: string(name='RequestId', description='Id of the request', example='EB635996-1FD6-5DFD-BA57-27A849599940'),
   rules?: [ 
     {
-      clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', example='off'),
-      comment?: string(name='Comment'),
-      edgePort?: string(name='EdgePort', example='80'),
-      protocol?: string(name='Protocol', example='TCP'),
-      ruleId?: long(name='RuleId', example='1234323***'),
-      source?: string(name='Source', example='1.1.1.1'),
-      sourcePort?: string(name='SourcePort', example='80'),
-      sourceType?: string(name='SourceType', example='domain'),
+      clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', description='Client IP pass-through protocol, supporting:
+- **off**: No pass-through.
+- **PPv1**: PROXY Protocol v1, supports client IP pass-through for TCP protocol.
+- **PPv2**: PROXY Protocol v2, supports client IP pass-through for TCP and UDP protocols.
+- **SPP**: Simple Proxy Protocol, supports client IP pass-through for UDP protocol.', example='off'),
+      comment?: string(name='Comment', description='Comment information of the rule.', example='测试'),
+      edgePort?: string(name='EdgePort', description='Edge port. Supports:
+
+- A single port, such as 80.
+- Port range, such as 81-85, representing ports 81, 82, 83, 84, 85.
+- Combination of ports and port ranges, separated by commas, for example 80,81-85,90, representing ports 80, 81, 82, 83, 84, 85, 90.', example='80'),
+      protocol?: string(name='Protocol', description='Forwarding rule protocol, with values:
+
+- TCP: TCP protocol.
+- UDP: UDP protocol.', example='TCP'),
+      ruleId?: long(name='RuleId', description='Rule ID.', example='1234323***'),
+      source?: string(name='Source', description='Specific value of the origin, which needs to match the type of the origin.', example='1.1.1.1'),
+      sourcePort?: string(name='SourcePort', description='Origin port. Supports:
+
+- A single port, when the origin port is a single port, any valid edge port combination is supported.
+- Port range, only when the edge port is a port range, the origin port can be set as a port range and the size of the range must be consistent with the edge port. For example, if the edge port is 90-93, the origin port cannot be set to 81-85 because the origin port range is 5 and the edge port range is 3, which are inconsistent.', example='80'),
+      sourceType?: string(name='SourceType', description='Origin type, supporting:
+- **ip**: IP.
+- **domain**: Domain name.
+- **OP**: Origin pool.
+- **LB**: Load balancer.', example='domain'),
     }
-  ](name='Rules'),
-  rulesCount?: int32(name='RulesCount', example='1'),
-  siteId?: long(name='SiteId', example='123456****'),
-  status?: string(name='Status'),
+  ](name='Rules', description='List of forwarding rules.'),
+  rulesCount?: int32(name='RulesCount', description='Number of forwarding rules contained in the transport layer acceleration application.', example='1'),
+  siteId?: long(name='SiteId', description='Site ID.', example='123456****'),
+  staticIp?: string(name='StaticIp'),
+  staticIpV4List?: [ 
+    {
+      address?: string(name='Address'),
+      status?: string(name='Status'),
+    }
+  ](name='StaticIpV4List'),
+  status?: string(name='Status', description='Status of the transport layer application
+
+- **deploying**: Deploying. In this state, modification and deletion are not allowed.
+- **active**: Active.', example='active'),
 }
 
 model GetTransportLayerApplicationResponse = {
@@ -12192,43 +12274,84 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 }
 
 model ListTransportLayerApplicationsRequest {
-  matchType?: string(name='MatchType', example='fuzzy', position='Query'),
-  pageNumber?: int32(name='PageNumber', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', example='500', position='Query'),
-  recordName?: string(name='RecordName', example='www.example.com', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='123456******', position='Query'),
+  matchType?: string(name='MatchType', description='Query type for the transport layer application host record, supporting the following 4 types, with exact query as the default.
+
+- fuzzy: Fuzzy query.
+- exact: Exact query.
+- prefix: Prefix match query.
+- suffix: Suffix match query.', example='fuzzy', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='Page number set for pagination. Starting value: 1. Default value: 1.', example='1', position='Query'),
+  pageSize?: int32(name='PageSize', description='Page size. The maximum value is 500.', example='500', position='Query'),
+  recordName?: string(name='RecordName', description='Host record of the transport layer application.', example='www.example.com', position='Query'),
+  siteId: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](https://help.aliyun.com/document_detail/2850189.html) API.
+
+This parameter is required.', example='123456******', position='Query'),
 }
 
 model ListTransportLayerApplicationsResponseBody = {
   applications?: [ 
     {
-      applicationId?: long(name='ApplicationId', example='170997271816****'),
-      cname?: string(name='Cname', example='example.com.ialicdn.com'),
-      crossBorderOptimization?: string(name='CrossBorderOptimization'),
-      ipAccessRule?: string(name='IpAccessRule'),
-      ipv6?: string(name='Ipv6'),
-      recordName?: string(name='RecordName', example='test.example.com'),
+      applicationId?: long(name='ApplicationId', description='Layer 4 application ID.', example='170997271816****'),
+      cname?: string(name='Cname', description='CNAME domain name corresponding to the Layer 4 acceleration application. This field is not empty only when the site is accessed via CNAME.', example='example.com.ialicdn.com'),
+      crossBorderOptimization?: string(name='CrossBorderOptimization', description='Whether to enable China mainland network access optimization. It is disabled by default. The value range is:
+
+- on: Enabled.
+- off: Disabled.', example='on'),
+      ipAccessRule?: string(name='IpAccessRule', description='IP access rule switch. When enabled, the IP access rules in WAF take effect on the Layer 4 application.
+
+- on: Enabled.
+- off: Disabled.', example='on'),
+      ipv6?: string(name='Ipv6', description='IPv6 switch.', example='on'),
+      recordName?: string(name='RecordName', description='Domain name of the Layer 4 application.', example='test.example.com'),
       rules?: [ 
         {
-          clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', example='off'),
-          comment?: string(name='Comment'),
-          edgePort?: string(name='EdgePort', example='80'),
-          protocol?: string(name='Protocol', example='TCP'),
-          ruleId?: long(name='RuleId', example='20258028****'),
-          source?: string(name='Source', example='1.1.1.1'),
-          sourcePort?: string(name='SourcePort', example='80'),
-          sourceType?: string(name='SourceType', example='ip'),
+          clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', description='Client IP pass-through protocol, supports:
+- **off**: No pass-through.
+- **PPv1**: PROXY Protocol v1, supports client IP pass-through for TCP protocol.
+- **PPv2**: PROXY Protocol v2, supports client IP pass-through for TCP and UDP protocols.
+- **SPP**: Simple Proxy Protocol, supports client IP pass-through for UDP protocol.', example='off'),
+          comment?: string(name='Comment', description='Comment information for the rule.', example='测试'),
+          edgePort?: string(name='EdgePort', description='Edge port. Supports:
+
+- A single port, e.g., 80.
+- Port range, e.g., 81-85, representing ports 81, 82, 83, 84, 85.
+- Combination of ports and port ranges, separated by commas, e.g., 80,81-85,90, representing ports 80, 81, 82, 83, 84, 85, 90.', example='80'),
+          protocol?: string(name='Protocol', description='Forwarding rule protocol, with values:
+
+- TCP: TCP protocol.
+- UDP: UDP protocol.', example='TCP'),
+          ruleId?: long(name='RuleId', description='Layer 4 acceleration rule ID.', example='20258028****'),
+          source?: string(name='Source', description='Specific value of the source, which needs to match the source type.', example='1.1.1.1'),
+          sourcePort?: string(name='SourcePort', description='Source port. Supports:
+
+- A single port, when the source port is a single port, any valid combination of edge ports is supported.
+- Port range, only when the edge port is a port range, the source port can be set to a port range, and the range size must be consistent with the edge port. For example, if the edge port is 90-93, the source port cannot be set to 81-85 because the source port range is 5 and the edge port range is 3, which are inconsistent.', example='80'),
+          sourceType?: string(name='SourceType', description='Source type, supports:
+- **ip**: IP.
+- **domain**: Domain name.
+- **OP**: Origin pool.
+- **LB**: Load balancer.', example='ip'),
         }
-      ](name='Rules'),
-      rulesCount?: int32(name='RulesCount', example='1'),
-      siteId?: long(name='SiteId', example='36556540048****'),
-      status?: string(name='Status'),
+      ](name='Rules', description='List of forwarding rules.'),
+      rulesCount?: int32(name='RulesCount', description='Number of forwarding rules contained in the Layer 4 acceleration application.', example='1'),
+      siteId?: long(name='SiteId', description='Site ID.', example='36556540048****'),
+      staticIp?: string(name='StaticIp'),
+      staticIpV4List: [ 
+        {
+          address?: string(name='Address'),
+          status?: string(name='Status'),
+        }
+      ](name='StaticIpV4List', description='This parameter is required.'),
+      status?: string(name='Status', description='Status of the Layer 4 application
+
+- **deploying**: Deploying. In this state, modification and deletion are not allowed.
+- **active**: Active.', example='active'),
     }
-  ](name='Applications'),
-  pageNumber?: int32(name='PageNumber', example='1'),
-  pageSize?: int32(name='PageSize', example='1'),
-  requestId?: string(name='RequestId', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
-  totalCount?: int32(name='TotalCount', example='1'),
+  ](name='Applications', description='List of transport layer applications.'),
+  pageNumber?: int32(name='PageNumber', description='Current page number.', example='1'),
+  pageSize?: int32(name='PageSize', description='Page size.', example='1'),
+  requestId?: string(name='RequestId', description='Request ID.', example='CB1A380B-09F0-41BB-A198-72F8FD6DA2FE'),
+  totalCount?: int32(name='TotalCount', description='Total number of transport layer applications.', example='1'),
 }
 
 model ListTransportLayerApplicationsResponse = {
@@ -15761,26 +15884,56 @@ async function updateTieredCache(request: UpdateTieredCacheRequest): UpdateTiere
 }
 
 model UpdateTransportLayerApplicationRequest {
-  applicationId: long(name='ApplicationId', description='This parameter is required.', example='165503967****', position='Query'),
-  crossBorderOptimization?: string(name='CrossBorderOptimization', position='Query'),
-  ipAccessRule?: string(name='IpAccessRule', position='Query'),
-  ipv6?: string(name='Ipv6', position='Query'),
+  applicationId: long(name='ApplicationId', description='Transport layer application ID, which can be obtained by calling the [ListTransportLayerApplications](~~ListTransportLayerApplications~~) interface.
+
+This parameter is required.', example='165503967****', position='Query'),
+  crossBorderOptimization?: string(name='CrossBorderOptimization', description='Whether to enable China mainland network access optimization, default is disabled. Value range:
+
+- on: Enabled.
+- off: Disabled.', example='on', position='Query'),
+  ipAccessRule?: string(name='IpAccessRule', description='IP access rule switch. When enabled, the IP access rules in WAF will take effect on the transport layer application.
+
+- on: Enabled.
+- off: Disabled.', example='on', position='Query'),
+  ipv6?: string(name='Ipv6', description='IPv6 switch.', example='on', position='Query'),
   rules?: [ 
     {
-      clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', example='TOA'),
-      comment?: string(name='Comment', example='123'),
-      edgePort?: string(name='EdgePort', example='80'),
-      protocol?: string(name='Protocol', example='TCP'),
-      source?: string(name='Source', example='1.1.1.1'),
-      sourcePort?: string(name='SourcePort', example='80'),
-      sourceType?: string(name='SourceType', example='ip'),
+      clientIPPassThroughMode?: string(name='ClientIPPassThroughMode', description='Client IP pass-through protocol, supports:
+- **off**: No pass-through.
+- **PPv1**: PROXY Protocol v1, supports client IP pass-through for TCP protocol.
+- **PPv2**: PROXY Protocol v2, supports client IP pass-through for TCP and UDP protocols.
+- **SPP**: Simple Proxy Protocol, supports client IP pass-through for UDP protocol.', example='SPP'),
+      comment?: string(name='Comment', description='Comment information for the rule.', example='123'),
+      edgePort?: string(name='EdgePort', description='Edge port. Supports:
+
+- A single port, e.g., 80.
+- Port range, e.g., 81-85, representing ports 81, 82, 83, 84, 85.
+- Combination of ports and port ranges, separated by commas, e.g., 80,81-85,90, representing ports 80, 81, 82, 83, 84, 85, 90.
+- Edge ports within a single rule and between multiple rules must not overlap.', example='80'),
+      protocol?: string(name='Protocol', description='Forwarding rule protocol, supports:
+
+- TCP: TCP protocol.
+- UDP: UDP protocol.', example='TCP'),
+      source?: string(name='Source', description='Specific value of the source.', example='1.1.1.1'),
+      sourcePort?: string(name='SourcePort', description='Source port. Supports:
+
+- A single port, when the source port is a single port, any valid edge port combination is supported.
+- Port range, only when the edge port is a port range, the source port can be set as a port range, and the size of the range must match that of the edge port. For example, if the edge port is 90-93, the source port cannot be set to 81-85 because the source port range is 5 and the edge port range is 3, which do not match.', example='80'),
+      sourceType?: string(name='SourceType', description='Source type, supports:
+- **ip**: IP address.
+- **domain**: Domain name.
+- **OP**: Origin pool.
+- **LB**: Load balancer.', example='ip'),
     }
-  ](name='Rules', shrink='json', position='Query'),
-  siteId: long(name='SiteId', description='This parameter is required.', example='123456****', position='Query'),
+  ](name='Rules', description='Forwarding rule list. Details of each rule. Except for the comment, all other parameters are required.', shrink='json', position='Query'),
+  siteId: long(name='SiteId', description='Site ID, which can be obtained by calling the [ListSites](~~ListSites~~) interface.
+
+This parameter is required.', example='123456****', position='Query'),
+  staticIp?: string(name='StaticIp', position='Query'),
 }
 
 model UpdateTransportLayerApplicationResponseBody = {
-  requestId?: string(name='RequestId', example='9e5448c7-edaf-49aa-9887-0fcd0832306c'),
+  requestId?: string(name='RequestId', description='Request ID.', example='9e5448c7-edaf-49aa-9887-0fcd0832306c'),
 }
 
 model UpdateTransportLayerApplicationResponse = {
