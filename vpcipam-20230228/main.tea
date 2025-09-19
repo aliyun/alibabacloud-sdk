@@ -29,9 +29,8 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AddIpamPoolCidrRequest {
-  cidr?: string(name='Cidr', description='The CIDR block that you want to provision.
-
->  Only IPv4 CIDR blocks are supported.', example='192.168.1.0/24'),
+  cidr?: string(name='Cidr', description='The CIDR block to be provisioned. 
+> For private top-level pools, provisioning can only be done by entering a CIDR block.', example='192.168.1.0/24'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
 >  If you do not specify this parameter, the system automatically uses the request ID as the client token. The request ID may be different for each request.', example='123e4567-e89b-12d3-a456-426655440000'),
@@ -42,7 +41,8 @@ model AddIpamPoolCidrRequest {
   ipamPoolId?: string(name='IpamPoolId', description='The ID of the IPAM pool.
 
 This parameter is required.', example='ipam-pool-6rcq3tobayc20t****'),
-  netmaskLength?: int32(name='NetmaskLength'),
+  netmaskLength?: int32(name='NetmaskLength', description='Provision CIDR address segments through a mask method.  
+> The public IPv6 top-level pool only supports provisioning via a mask.', example='24'),
   regionId?: string(name='RegionId', description='The ID of the region where the IPAM instance is hosted.
 
 You can call the [DescribeRegions](https://help.aliyun.com/document_detail/36063.html) operation to query the most recent region list.
@@ -51,7 +51,7 @@ This parameter is required.', example='cn-hangzhou'),
 }
 
 model AddIpamPoolCidrResponseBody = {
-  cidr?: string(name='Cidr'),
+  cidr?: string(name='Cidr', description='The successfully provisioned CIDR block.', example='192.168.1.0/24'),
   requestId?: string(name='RequestId', description='The request ID.', example='558BC336-8B88-53B0-B4AD-980EE900AB01'),
 }
 
@@ -70,7 +70,7 @@ model AddIpamPoolCidrResponse = {
  * *   If a CIDR block is provisioned to a parent pool and allocations are created, CIDR blocks provisioned to its subpools cannot overlap with existing allocated CIDR blocks.
  * *   You can provision CIDR blocks to a pool only in the region where the IPAM is hosted.
  * *   CIDR blocks provisioned to an IPAM pool cannot overlap with the CIDR blocks provisioned to other pools in the same scope.
- * *   You can provision at most 50 CIDR blocks to each pool.
+ * *   A maximum of 1 CIDR block can be provisioned to a public IPv6 top-level pool, while up to 50 CIDR blocks can be provisioned to other types of address pools.
  *
  * @param request AddIpamPoolCidrRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -123,7 +123,7 @@ async function addIpamPoolCidrWithOptions(request: AddIpamPoolCidrRequest, runti
  * *   If a CIDR block is provisioned to a parent pool and allocations are created, CIDR blocks provisioned to its subpools cannot overlap with existing allocated CIDR blocks.
  * *   You can provision CIDR blocks to a pool only in the region where the IPAM is hosted.
  * *   CIDR blocks provisioned to an IPAM pool cannot overlap with the CIDR blocks provisioned to other pools in the same scope.
- * *   You can provision at most 50 CIDR blocks to each pool.
+ * *   A maximum of 1 CIDR block can be provisioned to a public IPv6 top-level pool, while up to 50 CIDR blocks can be provisioned to other types of address pools.
  *
  * @param request AddIpamPoolCidrRequest
  * @return AddIpamPoolCidrResponse
@@ -474,15 +474,13 @@ async function createIpam(request: CreateIpamRequest): CreateIpamResponse {
 }
 
 model CreateIpamPoolRequest {
-  allocationDefaultCidrMask?: int32(name='AllocationDefaultCidrMask', description='The default network mask assigned to the IPAM pool.
+  allocationDefaultCidrMask?: int32(name='AllocationDefaultCidrMask', description='The default network mask assigned by the IPAM address pool.  
 
-An IPv4 mask must be **0 to 32** bits in length.', example='28'),
-  allocationMaxCidrMask?: int32(name='AllocationMaxCidrMask', description='The maximum network mask assigned to the IPAM pool.
-
-An IPv4 mask must be **0 to 32** bits in length.', example='32'),
-  allocationMinCidrMask?: int32(name='AllocationMinCidrMask', description='The minimum network mask assigned to the IPAM pool.
-
-An IPv4 mask must be **0 to 32** bits in length.', example='8'),
+> The IPv4 network mask value range is 0 to 32 bits, and the IPv6 network mask value range is 0 to 128 bits.', example='28'),
+  allocationMaxCidrMask?: int32(name='AllocationMaxCidrMask', description='The maximum network mask assigned by the IPAM address pool.  
+> The IPv4 network mask value range is **0 to 32** bits, and the IPv6 network mask value range is **0 to 128** bits.', example='32'),
+  allocationMinCidrMask?: int32(name='AllocationMinCidrMask', description='The minimum network mask assigned by the IPAM address pool.  
+> The IPv4 network mask value range is **0 to 32** bits, and the IPv6 network mask value range is **0 to 128** bits.', example='8'),
   autoImport?: boolean(name='AutoImport', description='Whether the pool has the auto-import feature enabled.', example='true'),
   clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The client token can contain only ASCII characters.
 
@@ -491,17 +489,25 @@ An IPv4 mask must be **0 to 32** bits in length.', example='8'),
 
 *   **true**: performs only a dry run. The system checks the request for potential issues, including missing parameter values, incorrect request syntax, and service limits. If the request fails the dry run, an error message is returned. If the request passes the dry run, the DryRunOperation error code is returned.
 *   **false** (default): performs a dry run and performs the actual request. If the request passes the dry run, a 2xx HTTP status code is returned and the operation is performed.', example='false'),
-  ipVersion?: string(name='IpVersion', description='The IP version. Only **IPv4** is supported.', example='IPv4'),
-  ipamPoolDescription?: string(name='IpamPoolDescription', description='The description of the IPAM pool.
-
-It must be 2 to 256 characters in length. It must start with a letter, but cannot start with a `http://` or `https://`. This parameter is empty by default.', example='test description'),
+  ipVersion?: string(name='IpVersion', description='IP address protocol version. Values:
+- **IPv4**: IPv4 protocol.
+- **IPv6**: IPv6 protocol.', example='IPv4'),
+  ipamPoolDescription?: string(name='IpamPoolDescription', description='Description of the IPAM address pool. 
+The length should be between 1 to 256 characters, and it must start with an uppercase or lowercase English letter or a Chinese character, but cannot begin with `http://` or `https://`. If left blank, the default value is empty.', example='test description'),
   ipamPoolName?: string(name='IpamPoolName', description='The name of the IPAM pool.
 
 It must be 1 to 128 characters in length and cannot start with `http://` or `https://`.', example='abc'),
   ipamScopeId?: string(name='IpamScopeId', description='The ID of the IPAM scope.
 
 This parameter is required.', example='ipam-scope-glfmcyldpm8lsy****'),
-  ipv6Isp?: string(name='Ipv6Isp'),
+  ipv6Isp?: string(name='Ipv6Isp', description='The type of the IPv6 CIDR block of the VPC. Valid values:
+
+*   **BGP** (default)
+*   **ChinaMobile**
+*   **ChinaUnicom**
+*   **ChinaTelecom**
+
+>  If you are allowed to use single-ISP bandwidth, you can set the value to **ChinaTelecom**, **ChinaUnicom**, or **ChinaMobile**.', example='BGP'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   poolRegionId?: string(name='PoolRegionId', description='The effective region of the IPAM pool.', example='cn-hangzhou'),
@@ -539,6 +545,8 @@ model CreateIpamPoolResponse = {
 
 /**
  * @summary Creates an IP Address Manager (IPAM) pool.
+ *
+ * @description The number of public IPv6 IPAM top pool for a specific ISP that a user is allowed to create per region is limited to 1.
  *
  * @param request CreateIpamPoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -626,6 +634,8 @@ async function createIpamPoolWithOptions(request: CreateIpamPoolRequest, runtime
 
 /**
  * @summary Creates an IP Address Manager (IPAM) pool.
+ *
+ * @description The number of public IPv6 IPAM top pool for a specific ISP that a user is allowed to create per region is limited to 1.
  *
  * @param request CreateIpamPoolRequest
  * @return CreateIpamPoolResponse
@@ -2307,6 +2317,7 @@ An IPv4 mask must be **0 to 32** bits in length.', example='32'),
 
 An IPv4 mask must be **0 to 32** bits in length.', example='8'),
       autoImport?: boolean(name='AutoImport', description='Whether the pool has the auto-import feature enabled.', example='true'),
+      cidrs?: [ string ](name='Cidrs'),
       createTime?: string(name='CreateTime', description='The time when the IPAM pool was created.', example='2023-04-19T16:49:01Z'),
       hasSubPool?: boolean(name='HasSubPool', description='Indicates whether the pool is a subpool. Valid values:
 
