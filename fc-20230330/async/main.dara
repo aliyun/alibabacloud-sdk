@@ -186,6 +186,11 @@ model CreateLayerVersionInput {
   license?: string(name='license', example='Apache'),
 }
 
+model CreateSessionInput {
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
+}
+
 model CreateTriggerInput {
   description?: string(name='description', example='trigger for test', maxLength=256),
   invocationRole?: string(name='invocationRole', example='acs:ram::1234567890:role/fc-test', maxLength=300),
@@ -599,6 +604,13 @@ model ListScalingConfigsOutput {
   ](name='scalingConfigs'),
 }
 
+model ListSessionsOutput {
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+  sessions?: [
+    Session
+  ](name='sessions'),
+}
+
 model ListTagResourcesOutput {
   nextToken?: string(name='NextToken', example='next_token'),
   requestId?: string(name='RequestId'),
@@ -947,6 +959,19 @@ model ScheduledPolicy {
   timeZone?: string(name='timeZone'),
 }
 
+model Session {
+  containerId?: string(name='containerId', example='c-68999e02-16a1955c-d2a03d1ccs'),
+  createdTime?: string(name='createdTime', example='2025-04-01T08:15:27Z'),
+  functionName?: string(name='functionName', example='functionName1'),
+  lastModifiedTime?: string(name='lastModifiedTime', example='2025-04-01T18:15:27Z'),
+  qualifier?: string(name='qualifier', example='AliasName1'),
+  sessionAffinityType?: string(name='sessionAffinityType', example='HEADER_FIELD'),
+  sessionId?: string(name='sessionId', example='81f70ae156904eb9b7d43e12f511fe58'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionStatus?: string(name='sessionStatus', example='Active'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
+}
+
 model SourceConfig {
   logstore?: string(name='logstore', example='my-sls-logstore-name'),
   startTime?: long(name='startTime', example='1704790317'),
@@ -1134,6 +1159,11 @@ model UpdateResidentResourcePoolInput {
   useScaling?: boolean(name='useScaling'),
 }
 
+model UpdateSessionInput {
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
+}
+
 model UpdateTriggerInput {
   description?: string(name='description', example='trigger for test', maxLength=256),
   invocationRole?: string(name='invocationRole', example='acs:ram::1234567890:role/fc-test', maxLength=300),
@@ -1273,6 +1303,27 @@ model CreateLayerVersionResponse = {
 async function createLayerVersion(request: CreateLayerVersionRequest): CreateLayerVersionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateLayerVersion', 'POST', '/2023-03-30/layers/{layerName}/versions', 'json', false, 'json', request);
+}
+
+model CreateSessionRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  body?: CreateSessionInput(name='body', position='Body'),
+  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+}
+
+model CreateSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+  * @param request  the request parameters of CreateSession  CreateSessionRequest
+  * @return CreateSessionResponse
+ */
+async function createSession(request: CreateSessionRequest): CreateSessionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateSession', 'POST', '/2023-03-30/functions/{functionName}/sessions', 'json', false, 'json', request);
 }
 
 model CreateTriggerRequest {
@@ -1508,6 +1559,26 @@ model DeleteScalingConfigResponse = {
 async function deleteScalingConfig(request: DeleteScalingConfigRequest): DeleteScalingConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteScalingConfig', 'DELETE', '/2023-03-30/functions/{functionName}/scaling-config', 'none', false, 'json', request);
+}
+
+model DeleteSessionRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  sessionId?: string(name='sessionId', example='test-session-id-1', position='Path'),
+  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+}
+
+model DeleteSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @param request  the request parameters of DeleteSession  DeleteSessionRequest
+  * @return DeleteSessionResponse
+ */
+async function deleteSession(request: DeleteSessionRequest): DeleteSessionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteSession', 'DELETE', '/2023-03-30/functions/{functionName}/sessions/{sessionId}', 'none', false, 'json', request);
 }
 
 model DeleteTriggerRequest {
@@ -1866,6 +1937,27 @@ model GetScalingConfigResponse = {
 async function getScalingConfig(request: GetScalingConfigRequest): GetScalingConfigResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetScalingConfig', 'GET', '/2023-03-30/functions/{functionName}/scaling-config', 'json', false, 'json', request);
+}
+
+model GetSessionRequest {
+  functionName?: string(name='functionName', example='myFunction', position='Path'),
+  sessionId?: string(name='sessionId', example='test-sessionid-index1', position='Path'),
+  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+}
+
+model GetSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+  * @param request  the request parameters of GetSession  GetSessionRequest
+  * @return GetSessionResponse
+ */
+async function getSession(request: GetSessionRequest): GetSessionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetSession', 'GET', '/2023-03-30/functions/{functionName}/sessions/{sessionId}', 'json', false, 'json', request);
 }
 
 model GetTriggerRequest {
@@ -2243,6 +2335,30 @@ async function listScalingConfigs(request: ListScalingConfigsRequest): ListScali
   return @handler.do('RESTFUL', 'ListScalingConfigs', 'GET', '/2023-03-30/scaling-configs', 'json', false, 'json', request);
 }
 
+model ListSessionsRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  limit?: int32(name='limit', example='10', minimum=1, maximum=100, position='Query'),
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM=', position='Query'),
+  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+  sessionId?: string(name='sessionId', example='test-session-id-1', position='Query'),
+  sessionStatus?: string(name='sessionStatus', example='Active', position='Query'),
+}
+
+model ListSessionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSessionsOutput  
+}
+
+/**
+  * @param request  the request parameters of ListSessions  ListSessionsRequest
+  * @return ListSessionsResponse
+ */
+async function listSessions(request: ListSessionsRequest): ListSessionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListSessions', 'GET', '/2023-03-30/functions/{functionName}/sessions', 'json', false, 'json', request);
+}
+
 model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10', position='Query'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM=', position='Query'),
@@ -2608,6 +2724,28 @@ model UpdateFunctionResponse = {
 async function updateFunction(request: UpdateFunctionRequest): UpdateFunctionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateFunction', 'PUT', '/2023-03-30/functions/{functionName}', 'json', false, 'json', request);
+}
+
+model UpdateSessionRequest {
+  functionName?: string(name='functionName', example='my-func', position='Path'),
+  sessionId?: string(name='sessionId', example='test-sessionid-1', position='Path'),
+  body?: UpdateSessionInput(name='body', position='Body'),
+  qualifier?: string(name='qualifier', example='aliasName1', position='Query'),
+}
+
+model UpdateSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+  * @param request  the request parameters of UpdateSession  UpdateSessionRequest
+  * @return UpdateSessionResponse
+ */
+async function updateSession(request: UpdateSessionRequest): UpdateSessionResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateSession', 'PUT', '/2023-03-30/functions/{functionName}/sessions/{sessionId}', 'json', false, 'json', request);
 }
 
 model UpdateTriggerRequest {

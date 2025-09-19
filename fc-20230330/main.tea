@@ -184,6 +184,11 @@ model CreateLayerVersionInput {
   license?: string(name='license', example='Apache'),
 }
 
+model CreateSessionInput {
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
+}
+
 model CreateTriggerInput {
   description?: string(name='description', example='trigger for test'),
   invocationRole?: string(name='invocationRole', example='acs:ram::1234567890:role/fc-test'),
@@ -597,6 +602,13 @@ model ListScalingConfigsOutput {
   ](name='scalingConfigs'),
 }
 
+model ListSessionsOutput {
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+  sessions?: [
+    Session
+  ](name='sessions'),
+}
+
 model ListTagResourcesOutput {
   nextToken?: string(name='NextToken', example='next_token'),
   requestId?: string(name='RequestId'),
@@ -945,6 +957,19 @@ model ScheduledPolicy {
   timeZone?: string(name='timeZone'),
 }
 
+model Session {
+  containerId?: string(name='containerId', example='c-68999e02-16a1955c-d2a03d1ccs'),
+  createdTime?: string(name='createdTime', example='2025-04-01T08:15:27Z'),
+  functionName?: string(name='functionName', example='functionName1'),
+  lastModifiedTime?: string(name='lastModifiedTime', example='2025-04-01T18:15:27Z'),
+  qualifier?: string(name='qualifier', example='AliasName1'),
+  sessionAffinityType?: string(name='sessionAffinityType', example='HEADER_FIELD'),
+  sessionId?: string(name='sessionId', example='81f70ae156904eb9b7d43e12f511fe58'),
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionStatus?: string(name='sessionStatus', example='Active'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
+}
+
 model SourceConfig {
   logstore?: string(name='logstore', example='my-sls-logstore-name'),
   startTime?: long(name='startTime', example='1704790317'),
@@ -1130,6 +1155,11 @@ model UpdateFunctionInput {
 model UpdateResidentResourcePoolInput {
   name?: string(name='name'),
   useScaling?: boolean(name='useScaling'),
+}
+
+model UpdateSessionInput {
+  sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', example='1800'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', example='21600'),
 }
 
 model UpdateTriggerInput {
@@ -1426,6 +1456,63 @@ async function createLayerVersion(layerName: string, request: CreateLayerVersion
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createLayerVersionWithOptions(layerName, request, headers, runtime);
+}
+
+model CreateSessionRequest {
+  body?: CreateSessionInput(name='body'),
+  qualifier?: string(name='qualifier', example='aliasName1'),
+}
+
+model CreateSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+ * @summary 创建会话资源
+ *
+ * @param request CreateSessionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSessionResponse
+ */
+async function createSessionWithOptions(functionName: string, request: CreateSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateSessionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateSession',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/sessions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建会话资源
+ *
+ * @param request CreateSessionRequest
+ * @return CreateSessionResponse
+ */
+async function createSession(functionName: string, request: CreateSessionRequest): CreateSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSessionWithOptions(functionName, request, headers, runtime);
 }
 
 model CreateTriggerRequest {
@@ -1937,6 +2024,60 @@ async function deleteScalingConfig(functionName: string, request: DeleteScalingC
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteScalingConfigWithOptions(functionName, request, headers, runtime);
+}
+
+model DeleteSessionRequest {
+  qualifier?: string(name='qualifier', example='aliasName1'),
+}
+
+model DeleteSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary 删除会话资源
+ *
+ * @param request DeleteSessionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteSessionResponse
+ */
+async function deleteSessionWithOptions(functionName: string, sessionId: string, request: DeleteSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteSessionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteSession',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/sessions/${OpenApiUtil.getEncodeParam(sessionId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除会话资源
+ *
+ * @param request DeleteSessionRequest
+ * @return DeleteSessionResponse
+ */
+async function deleteSession(functionName: string, sessionId: string, request: DeleteSessionRequest): DeleteSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteSessionWithOptions(functionName, sessionId, request, headers, runtime);
 }
 
 model DeleteTriggerResponse = {
@@ -2727,6 +2868,61 @@ async function getScalingConfig(functionName: string, request: GetScalingConfigR
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return getScalingConfigWithOptions(functionName, request, headers, runtime);
+}
+
+model GetSessionRequest {
+  qualifier?: string(name='qualifier', example='aliasName1'),
+}
+
+model GetSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+ * @summary 获取函数会话信息。
+ *
+ * @param request GetSessionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetSessionResponse
+ */
+async function getSessionWithOptions(functionName: string, sessionId: string, request: GetSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetSessionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetSession',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/sessions/${OpenApiUtil.getEncodeParam(sessionId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 获取函数会话信息。
+ *
+ * @param request GetSessionRequest
+ * @return GetSessionResponse
+ */
+async function getSession(functionName: string, sessionId: string, request: GetSessionRequest): GetSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getSessionWithOptions(functionName, sessionId, request, headers, runtime);
 }
 
 model GetTriggerResponse = {
@@ -3769,6 +3965,77 @@ async function listScalingConfigs(request: ListScalingConfigsRequest): ListScali
   return listScalingConfigsWithOptions(request, headers, runtime);
 }
 
+model ListSessionsRequest {
+  limit?: int32(name='limit', example='10'),
+  nextToken?: string(name='nextToken', example='MTIzNCNhYmM='),
+  qualifier?: string(name='qualifier', example='aliasName1'),
+  sessionId?: string(name='sessionId', example='test-session-id-1'),
+  sessionStatus?: string(name='sessionStatus', example='Active'),
+}
+
+model ListSessionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSessionsOutput  
+}
+
+/**
+ * @summary 列出函数会话信息
+ *
+ * @param request ListSessionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSessionsResponse
+ */
+async function listSessionsWithOptions(functionName: string, request: ListSessionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListSessionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.limit)) {
+    query['limit'] = request.limit;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+  if (!Util.isUnset(request.sessionId)) {
+    query['sessionId'] = request.sessionId;
+  }
+  if (!Util.isUnset(request.sessionStatus)) {
+    query['sessionStatus'] = request.sessionStatus;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSessions',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/sessions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 列出函数会话信息
+ *
+ * @param request ListSessionsRequest
+ * @return ListSessionsResponse
+ */
+async function listSessions(functionName: string, request: ListSessionsRequest): ListSessionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSessionsWithOptions(functionName, request, headers, runtime);
+}
+
 model ListTagResourcesRequest {
   limit?: int32(name='Limit', description='The number of resources to return.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token that is used in the next request to retrieve a new page of results.', example='MTIzNCNhYmM='),
@@ -4667,6 +4934,63 @@ async function updateFunction(functionName: string, request: UpdateFunctionReque
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateFunctionWithOptions(functionName, request, headers, runtime);
+}
+
+model UpdateSessionRequest {
+  body?: UpdateSessionInput(name='body'),
+  qualifier?: string(name='qualifier', example='aliasName1'),
+}
+
+model UpdateSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: Session  
+}
+
+/**
+ * @summary 更新会话配置
+ *
+ * @param request UpdateSessionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateSessionResponse
+ */
+async function updateSessionWithOptions(functionName: string, sessionId: string, request: UpdateSessionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateSessionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.qualifier)) {
+    query['qualifier'] = request.qualifier;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateSession',
+    version = '2023-03-30',
+    protocol = 'HTTPS',
+    pathname = `/2023-03-30/functions/${OpenApiUtil.getEncodeParam(functionName)}/sessions/${OpenApiUtil.getEncodeParam(sessionId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新会话配置
+ *
+ * @param request UpdateSessionRequest
+ * @return UpdateSessionResponse
+ */
+async function updateSession(functionName: string, sessionId: string, request: UpdateSessionRequest): UpdateSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateSessionWithOptions(functionName, sessionId, request, headers, runtime);
 }
 
 model UpdateTriggerRequest {
